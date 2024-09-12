@@ -1,15 +1,15 @@
 import React from "react";
-import { Routes, Route } from "react-router-dom";
-import "./index.css";
+import { Route, Routes } from "react-router-dom";
 import TacticalGameList from "./components/TacticalGameList";
+import TacticalGameView from "./components/TacticalGameView";
+import "./index.css";
 
 const App = () => {
   return (
-    <div className="tactical-games">
-      <Routes>
-        <Route path="/" element={<TacticalGameList />} />
-      </Routes>
-    </div>
+    <Routes>
+      <Route path="/" element={<TacticalGameList />} />
+      <Route path="/:gameId" element={<TacticalGameView />} />
+    </Routes>
   );
 };
 

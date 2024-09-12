@@ -29,3 +29,34 @@ a {
     width: 95%;
   }
 }
+
+.tactical-game-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  margin: 20px;
+  gap: 20px;
+}
+
+.tactical-game-list-item {
+  background-color: #f4f4f4;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 200px;
+  height: 150px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 18px;
+  color: #333;
+  transition: background-color 0.3s, transform 0.3s, box-shadow 0.3s;
+  cursor: pointer;
+}
+
+.tactical-game-list-item:hover {
+  background-color: #4CAF50;
+  color: white;
+  transform: translateY(-5px);
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+}

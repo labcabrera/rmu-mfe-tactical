@@ -1,6 +1,15 @@
 import React, { useEffect, useState } from "react";
 import TacticalGameListItem from "./TacticalGameListItem";
 
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemText from '@mui/material/ListItemText';
+import ListItemAvatar from '@mui/material/ListItemAvatar';
+import Avatar from '@mui/material/Avatar';
+import ImageIcon from '@mui/icons-material/Image';
+import WorkIcon from '@mui/icons-material/Work';
+import BeachAccessIcon from '@mui/icons-material/BeachAccess';
+
 const TacticalGameList = () => {
     const [games, setGames] = useState([]);
 
@@ -9,9 +18,7 @@ const TacticalGameList = () => {
             method: "GET",
         });
         const data = await response.json();
-        console.log("data: " + data);
         setGames(data);
-
     };
 
     useEffect(() => {
@@ -20,14 +27,11 @@ const TacticalGameList = () => {
 
 
     return (
-        <div>
-            <h1>Lista de partidas tácticas</h1>
-            <div>
-                {games.map((item) => (
-                    <TacticalGameListItem key={item.id} game={item} />
-                ))}
-            </div>
-        </div>
+        <List sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
+            {games.map((item) => (
+                <TacticalGameListItem key={item.id} game={item} />
+            ))}
+        </List>
     );
 }
 
