@@ -1,7 +1,9 @@
 import React from "react";
-import { useLocation, useParams, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 
+import DeleteIcon from '@mui/icons-material/Delete';
 import Button from '@mui/material/Button';
+import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
 
 const TacticalGameViewActions = () => {
@@ -37,10 +39,12 @@ const TacticalGameViewActions = () => {
                 justifyContent: "flex-end",
                 alignItems: "flex-start",
             }}>
-                <Button variant="contained" onClick={handleEditClick}>Edit</Button>
-                <Button variant="contained" onClick={handleDeleteClick}>Delete</Button>
-                <Button variant="contained">Close</Button>
-                <Button variant="contained">Start game</Button>
+                <Button variant="outlined" onClick={handleEditClick}>Edit</Button>
+                <Button variant="outlined">Close</Button>
+                <Button variant="outlined">Start game</Button>
+                <IconButton variant="outlined" onClick={handleDeleteClick}>
+                    <DeleteIcon />
+                </IconButton>
             </Stack>
         </div>
     );

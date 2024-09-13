@@ -7,9 +7,11 @@ import TextField from '@mui/material/TextField';
 const TacticalGameCreation = () => {
     const navigate = useNavigate();
 
+    const debugMode = false;
+
     const [formData, setFormData] = useState({
-        name: 'Game name',
-        description: 'Game description',
+        name: '',
+        description: '',
         user: "lab.cabrera@gmail.com"
     });
 
@@ -50,13 +52,15 @@ const TacticalGameCreation = () => {
                     onChange={handleChange}
                     fullWidth
                     margin="normal" />
-                <Button type="submit" variant="contained" color="primary">
+                <Button type="submit" variant="outlined" color="primary">
                     Create
                 </Button>
             </form>
-            <pre>
-                {JSON.stringify(formData, null, 2)}
-            </pre>
+            {debugMode ? (
+                <pre>
+                    {JSON.stringify(formData, null, 2)}
+                </pre>
+            ) : null}
         </div>
     );
 }

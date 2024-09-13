@@ -37,7 +37,7 @@ const TacticalGameList = () => {
                     justifyContent: "flex-end",
                     alignItems: "flex-start",
                 }}>
-                    <Button variant="contained" onClick={createNewGame}>New</Button>
+                    <Button variant="outlined" onClick={createNewGame}>New</Button>
                 </Stack>
             </div>
             <div class="tactical-game-list">
