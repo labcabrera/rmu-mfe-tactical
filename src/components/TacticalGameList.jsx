@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useLocation, useParams, useNavigate } from "react-router-dom";
 
 import List from '@mui/material/List';
 import Stack from '@mui/material/Stack';
@@ -7,6 +8,7 @@ import Button from '@mui/material/Button';
 import TacticalGameListItem from "./TacticalGameListItem";
 
 const TacticalGameList = () => {
+    const navigate = useNavigate();
     const [games, setGames] = useState([]);
 
     const getGames = async () => {
@@ -16,6 +18,10 @@ const TacticalGameList = () => {
         const data = await response.json();
         setGames(data);
     };
+
+    const createNewGame = async () => {
+        navigate("/tactical/creation");
+    }
 
     useEffect(() => {
         getGames();
@@ -29,7 +35,7 @@ const TacticalGameList = () => {
                     justifyContent: "flex-end",
                     alignItems: "flex-start",
                 }}>
-                    <Button variant="contained">New</Button>
+                    <Button variant="contained" onClick={createNewGame}>New</Button>
                 </Stack>
             </div>
             <div class="tactical-game-list">
