@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { useLocation, useParams, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
+import Button from '@mui/material/Button';
 import List from '@mui/material/List';
 import Stack from '@mui/material/Stack';
-import Button from '@mui/material/Button';
 
 import TacticalGameListItem from "./TacticalGameListItem";
 
 const TacticalGameList = () => {
+
+    const debugMode = true;
     const navigate = useNavigate();
     const [games, setGames] = useState([]);
 
@@ -39,7 +41,7 @@ const TacticalGameList = () => {
                 </Stack>
             </div>
             <div class="tactical-game-list">
-                <List sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
+                <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
                     {games.map((item) => (
                         <TacticalGameListItem key={item.id} game={item} />
                     ))}

@@ -7,6 +7,8 @@ import TextField from '@mui/material/TextField';
 import TacticalGameViewActions from './TacticalGameViewActions';
 
 const TacticalGameView = () => {
+
+    const debugMode = false;
     const { gameId } = useParams();
     const location = useLocation();
     const game = location.state?.game;
@@ -59,12 +61,16 @@ const TacticalGameView = () => {
                     ></TextField>
                 </div>
             </Box >
-            <pre>
-                {JSON.stringify(game, null, 2)}
-            </pre>
-            <pre>
-                {JSON.stringify(location.state, null, 2)}
-            </pre>
+            {debugMode ? (
+                <div>
+                    <pre>
+                        {JSON.stringify(game, null, 2)}
+                    </pre>
+                    <pre>
+                        {JSON.stringify(location.state, null, 2)}
+                    </pre>
+                </div>
+            ) : null}
         </div >
     );
 }
