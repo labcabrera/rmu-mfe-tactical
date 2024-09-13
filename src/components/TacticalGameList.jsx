@@ -1,14 +1,10 @@
 import React, { useEffect, useState } from "react";
-import TacticalGameListItem from "./TacticalGameListItem";
 
 import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import ListItemText from '@mui/material/ListItemText';
-import ListItemAvatar from '@mui/material/ListItemAvatar';
-import Avatar from '@mui/material/Avatar';
-import ImageIcon from '@mui/icons-material/Image';
-import WorkIcon from '@mui/icons-material/Work';
-import BeachAccessIcon from '@mui/icons-material/BeachAccess';
+import Stack from '@mui/material/Stack';
+import Button from '@mui/material/Button';
+
+import TacticalGameListItem from "./TacticalGameListItem";
 
 const TacticalGameList = () => {
     const [games, setGames] = useState([]);
@@ -27,11 +23,23 @@ const TacticalGameList = () => {
 
 
     return (
-        <List sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
-            {games.map((item) => (
-                <TacticalGameListItem key={item.id} game={item} />
-            ))}
-        </List>
+        <div>
+            <div class="tactical-game-list-actions">
+                <Stack spacing={2} direction="row" sx={{
+                    justifyContent: "flex-end",
+                    alignItems: "flex-start",
+                }}>
+                    <Button variant="contained">New</Button>
+                </Stack>
+            </div>
+            <div class="tactical-game-list">
+                <List sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
+                    {games.map((item) => (
+                        <TacticalGameListItem key={item.id} game={item} />
+                    ))}
+                </List>
+            </div>
+        </div>
     );
 }
 
