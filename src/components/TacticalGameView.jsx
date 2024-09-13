@@ -1,24 +1,13 @@
 import React from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 
 import Box from '@mui/material/Box';
-import Grid from '@mui/material/Grid2';
-import Paper from '@mui/material/Paper';
-import { styled } from '@mui/material/styles';
 import TextField from '@mui/material/TextField';
 
 import TacticalGameViewActions from './TacticalGameViewActions';
 
-const Item = styled(Paper)(({ theme }) => ({
-    ...theme.typography.body2,
-    padding: theme.spacing(1),
-    color: theme.palette.text.secondary,
-    ...theme.applyStyles('dark', {
-    }),
-}));
-
 const TacticalGameView = () => {
-    const navigate = useNavigate();
+    const { gameId } = useParams();
     const location = useLocation();
     const game = location.state?.game;
 
