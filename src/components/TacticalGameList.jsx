@@ -25,7 +25,7 @@ const TacticalGameList = () => {
                 method: "GET",
             });
             const data = await response.json();
-            setGames(data);
+            setGames(data.content);
         } catch (error) {
             setDisplayError(true);
             setErrorMessage(error.message);
