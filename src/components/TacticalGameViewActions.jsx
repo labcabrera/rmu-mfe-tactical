@@ -18,7 +18,7 @@ const TacticalGameViewActions = () => {
             method: "DELETE",
         });
         const deleteResponse = await response;
-        if (deleteResponse.status == 200) {
+        if (deleteResponse.status == 204) {
             navigate("/tactical");
         } else {
             //TODO display error
@@ -33,6 +33,10 @@ const TacticalGameViewActions = () => {
         deleteGame();
     }
 
+    const handleAddNewCharacter = () => {
+        navigate("/tactical/characters/creation");
+    }
+
     return (
         <div class="tactical-game-view-actions">
             <Stack spacing={2} direction="row" sx={{
@@ -40,6 +44,7 @@ const TacticalGameViewActions = () => {
                 alignItems: "flex-start",
             }}>
                 <Button variant="outlined" onClick={handleEditClick}>Edit</Button>
+                <Button variant="outlined" onClick={handleAddNewCharacter}>New Character</Button>
                 <Button variant="outlined">Close</Button>
                 <Button variant="outlined">Start game</Button>
                 <IconButton variant="outlined" onClick={handleDeleteClick}>
