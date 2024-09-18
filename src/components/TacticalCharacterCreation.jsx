@@ -1,22 +1,27 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
+import CloseIcon from '@mui/icons-material/Close';
 import SaveIcon from '@mui/icons-material/Save';
 import Autocomplete from '@mui/material/Autocomplete';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
+import Snackbar from '@mui/material/Snackbar';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 
-import { API_CORE_URL } from '../constants/environment';
+import { API_CORE_URL, API_TACTICAL_URL } from '../constants/environment';
 
-const CharacterCreation = () => {
+const TacticalCharacterCreation = () => {
 
     const debugMode = true;
 
     const location = useLocation();
+    const navigate = useNavigate();
     const tacticalGame = location.state?.tacticalGame;
 
+    const [displayError, setDisplayError] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
     const [races, setRaces] = useState([]);
 
     const [formData, setFormData] = useState({
@@ -43,6 +48,21 @@ const CharacterCreation = () => {
     });
 
     const handleSubmit = (e) => {
+        e.preventDefault();
+        const url = `${API_TACTICAL_URL}/characters/tactical-games/${tacticalGame.id}`;
+        try {
+            const requestOptions = {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            };
+            fetch(url, requestOptions)
+                .then(response => response.json())
+                .then(data => navigate("/tactical/view/" + tacticalGame.id, { state: { tacticalGame: tacticalGame } }));
+        } catch (error) {
+            setDisplayError(true);
+            setErrorMessage(`Error loading realms from ${url}. ${error.message}`);
+        }
     };
 
     const handleChange = (e) => {
@@ -93,6 +113,10 @@ const CharacterCreation = () => {
     useEffect(() => {
         getRaces();
     }, []);
+
+    const handleSnackbarClose = () => {
+        setDisplayError(false);
+    };
 
     return (
         <div class="tactical-game-character-creation">
@@ -151,6 +175,23 @@ const CharacterCreation = () => {
                         fullWidth
                     />
                 </Box>
+                <Snackbar
+                    open={displayError}
+                    anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+                    onClose={handleSnackbarClose}
+                    message={errorMessage}
+                    action={
+                        <React.Fragment>
+                            <IconButton
+                                aria-label="close"
+                                color="inherit"
+                                sx={{ p: 0.5 }}
+                                onClick={handleSnackbarClose}>
+                                <CloseIcon />
+                            </IconButton>
+                        </React.Fragment>
+                    }
+                />
             </div>
             {
                 debugMode ? (
@@ -169,4 +210,4 @@ const CharacterCreation = () => {
     );
 }
 
-export default CharacterCreation;
+export default TacticalCharacterCreation;

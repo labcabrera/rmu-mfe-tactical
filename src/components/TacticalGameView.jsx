@@ -5,6 +5,7 @@ import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 
 import TacticalGameViewActions from './TacticalGameViewActions';
+import TacticalGameViewCharacters from "./TacticalGameViewCharacters";
 
 const TacticalGameView = () => {
 
@@ -60,6 +61,7 @@ const TacticalGameView = () => {
                     disabled
                 />
             </Box >
+            <TacticalGameViewCharacters tacticalGame={tacticalGame} />
             {
                 debugMode ? (
                     <div>
