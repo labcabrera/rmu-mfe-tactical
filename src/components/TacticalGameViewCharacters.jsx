@@ -45,7 +45,7 @@ const TacticalGameViewCharacters = ({ tacticalGame }) => {
             <h3>Characters</h3>
             <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
                 {tacticalCharacters.map((item) => (
-                    <TacticalGameViewCharactersListItem character={item} />
+                    <TacticalGameViewCharactersListItem character={item} tacticalGame={tacticalGame} />
                 ))}
             </List>
             {debugMode ? (
