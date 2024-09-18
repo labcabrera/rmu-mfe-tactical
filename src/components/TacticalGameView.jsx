@@ -16,61 +16,62 @@ const TacticalGameView = () => {
     return (
         <div class="tactical-game-view">
             <TacticalGameViewActions></TacticalGameViewActions>
-            <Box
-                component="form"
-                _sx={{ flexGrow: 1 }}
-                sx={{ '& > :not(style)': { m: 1, width: '25ch' } }}
+            <Box component="form"
+                sx={{ '& > :not(style)': { m: 1, width: '80ch' } }}
             >
-                <div>
-                    <TextField
-                        label="Name"
-                        name="name"
-                        value={tacticalGame.name}
-                        slotProps={{
-                            input: {
-                                readOnly: true,
-                            },
-                        }} />
-                </div>
-                <div>
-                    <TextField
-                        label="Status"
-                        name="status"
-                        value={tacticalGame.status}
-                    ></TextField>
-                </div>
-                <div>
-                    <TextField
-                        label="Description"
-                        name="description"
-                        value={tacticalGame.description}
-                    ></TextField>
-                </div>
-                <div>
-                    <TextField
-                        label="User"
-                        name="user"
-                        value={tacticalGame.user}
-                    ></TextField>
-                </div>
-                <div>
-                    <TextField
-                        label="createdAt"
-                        name="createdAt"
-                        value={tacticalGame.createdAt}
-                    ></TextField>
-                </div>
+                <TextField
+                    label="Name"
+                    name="name"
+                    value={tacticalGame.name}
+                    disabled
+                />
+                <TextField
+                    label="Status"
+                    name="status"
+                    value={tacticalGame.status}
+                    disabled
+                />
+                <TextField
+                    label="Round"
+                    value={tacticalGame.round}
+                    disabled
+                />
+                <TextField
+                    label="Description"
+                    name="description"
+                    value={tacticalGame.description}
+                    multiline
+                    maxRows={4}
+                    disabled
+                />
+                <TextField
+                    label="User"
+                    name="user"
+                    value={tacticalGame.user}
+                    disabled
+                />
+                <TextField
+                    label="Created"
+                    value={tacticalGame.createdAt}
+                    disabled
+                />
+                <TextField
+                    label="Updated"
+                    value={tacticalGame.updatedAt}
+                    disabled
+                />
             </Box >
-            {debugMode ? (
-                <div>
-                    <pre>
-                        {JSON.stringify(tacticalGame, null, 2)}
-                    </pre>
-                    <pre>
-                        {JSON.stringify(location.state, null, 2)}
-                    </pre>
-                </div>
-            ) : null}
+            {
+                debugMode ? (
+                    <div>
+                        <pre>
+                            {JSON.stringify(tacticalGame, null, 2)}
+                        </pre>
+                        <pre>
+                            {JSON.stringify(location.state, null, 2)}
+                        </pre>
+                    </div >
+                ) : null}
         </div >
     );
 }
