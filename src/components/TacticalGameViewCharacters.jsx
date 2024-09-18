@@ -14,6 +14,7 @@ import Stack from '@mui/material/Stack';
 import { API_TACTICAL_URL } from "../constants/environment";
 
 import witchKing from '../assets/witch-king.jpg';
+import gondor from '../assets/human-gondor.jpg';
 
 const TacticalGameViewCharacters = ({ tacticalGame }) => {
 
@@ -38,7 +39,6 @@ const TacticalGameViewCharacters = ({ tacticalGame }) => {
             getTacticalCharacters();
         }
     }, []);
-
 
     return (
         <div>
@@ -71,6 +71,13 @@ const TacticalGameViewCharactersListItem = ({ tacticalGame, character }) => {
         console.log("handleCharacterItemDeleteClick " + character);
     }
 
+    const resolveAvatarImage = () => {
+        if (character.info.race === 'lotr-human') {
+            return gondor;
+        }
+        return witchKing;
+    };
+
     return (
         <ListItem secondaryAction={
             <Stack spacing={2} direction="row" sx={{
@@ -86,7 +93,7 @@ const TacticalGameViewCharactersListItem = ({ tacticalGame, character }) => {
             </Stack>
         }>
             <ListItemAvatar>
-                <Avatar src={witchKing} />
+                <Avatar src={resolveAvatarImage()} />
             </ListItemAvatar>
             <ListItemText primary={character.name} secondary={`Level ${character.info.level} ${character.info.race}`} />
         </ListItem>
