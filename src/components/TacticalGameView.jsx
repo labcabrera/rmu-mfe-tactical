@@ -11,7 +11,7 @@ const TacticalGameView = () => {
     const debugMode = false;
     const { gameId } = useParams();
     const location = useLocation();
-    const game = location.state?.game;
+    const tacticalGame = location.state?.tacticalGame;
 
     return (
         <div class="tactical-game-view">
@@ -25,7 +25,7 @@ const TacticalGameView = () => {
                     <TextField
                         label="Name"
                         name="name"
-                        value={game.name}
+                        value={tacticalGame.name}
                         slotProps={{
                             input: {
                                 readOnly: true,
@@ -36,35 +36,35 @@ const TacticalGameView = () => {
                     <TextField
                         label="Status"
                         name="status"
-                        value={game.status}
+                        value={tacticalGame.status}
                     ></TextField>
                 </div>
                 <div>
                     <TextField
                         label="Description"
                         name="description"
-                        value={game.description}
+                        value={tacticalGame.description}
                     ></TextField>
                 </div>
                 <div>
                     <TextField
                         label="User"
                         name="user"
-                        value={game.user}
+                        value={tacticalGame.user}
                     ></TextField>
                 </div>
                 <div>
                     <TextField
                         label="createdAt"
                         name="createdAt"
-                        value={game.createdAt}
+                        value={tacticalGame.createdAt}
                     ></TextField>
                 </div>
             </Box >
             {debugMode ? (
                 <div>
                     <pre>
-                        {JSON.stringify(game, null, 2)}
+                        {JSON.stringify(tacticalGame, null, 2)}
                     </pre>
                     <pre>
                         {JSON.stringify(location.state, null, 2)}

@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from "react-router-dom";
 
-import Button from '@mui/material/Button';
+import SaveIcon from '@mui/icons-material/Save';
+import IconButton from '@mui/material/IconButton';
+import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
+
+import { API_TACTICAL_URL } from "../constants/environment";
 
 const TacticalGameCreation = () => {
     const navigate = useNavigate();
@@ -11,8 +15,7 @@ const TacticalGameCreation = () => {
 
     const [formData, setFormData] = useState({
         name: '',
-        description: '',
-        user: "lab.cabrera@gmail.com"
+        description: ''
     });
 
     const handleSubmit = (e) => {
@@ -22,9 +25,10 @@ const TacticalGameCreation = () => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(formData)
         };
-        fetch("http://localhost:3001/v1/tactical-games", requestOptions)
+        const url = `${API_TACTICAL_URL}/tactical-games`;
+        fetch(url, requestOptions)
             .then(response => response.json())
-            .then(data => navigate("/tactical/view/" + data._id, { state: { game: data } }));
+            .then(data => navigate("/tactical/view/" + data.id, { state: { tacticalGame: data } }));
     }
 
     const handleChange = (e) => {
@@ -33,7 +37,17 @@ const TacticalGameCreation = () => {
     }
 
     return (
-        <div>
+        <div class="tactical-game-creation">
+            <div class="tactical-game-view-actions">
+                <Stack spacing={2} direction="row" sx={{
+                    justifyContent: "flex-end",
+                    alignItems: "flex-start",
+                }}>
+                    <IconButton variant="outlined" onClick={handleSubmit}>
+                        <SaveIcon />
+                    </IconButton>
+                </Stack>
+            </div>
             <form onSubmit={handleSubmit}>
                 <TextField
                     label="Name"
@@ -52,9 +66,6 @@ const TacticalGameCreation = () => {
                     onChange={handleChange}
                     fullWidth
                     margin="normal" />
-                <Button type="submit" variant="outlined" color="primary">
-                    Create
-                </Button>
             </form>
             {debugMode ? (
                 <pre>

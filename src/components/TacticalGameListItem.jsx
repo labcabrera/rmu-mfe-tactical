@@ -8,11 +8,12 @@ import ListItemText from '@mui/material/ListItemText';
 
 import witchKing from '../assets/witch-king.jpg';
 
-const TacticalGameListItem = ({ game }) => {
+const TacticalGameListItem = ({ tacticalGame }) => {
+
     const navigate = useNavigate();
 
     const handleGameClick = () => {
-        navigate(`view/${game._id}`, { state: { game: game } });
+        navigate(`view/${tacticalGame.id}`, { state: { tacticalGame: tacticalGame } });
     }
 
     return (
@@ -22,7 +23,7 @@ const TacticalGameListItem = ({ game }) => {
                     <Avatar src={witchKing}>
                     </Avatar>
                 </ListItemAvatar>
-                <ListItemText primary={game.name} secondary={game.user} />
+                <ListItemText primary={tacticalGame.name} secondary={tacticalGame.user} />
             </ListItemButton>
         </div>
     );
