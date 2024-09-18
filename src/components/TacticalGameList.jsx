@@ -10,6 +10,8 @@ import Stack from '@mui/material/Stack';
 
 import TacticalGameListItem from "./TacticalGameListItem";
 
+import { API_TACTICAL_URL } from "../constants/environment";
+
 const TacticalGameList = () => {
 
     const debugMode = true;
@@ -20,15 +22,14 @@ const TacticalGameList = () => {
     const [errorMessage, setErrorMessage] = useState("");
 
     const getGames = async () => {
+        const url = `${API_TACTICAL_URL}/tactical-games`;
         try {
-            const response = await fetch("http://localhost:3001/v1/tactical-games", {
-                method: "GET",
-            });
+            const response = await fetch(url, { method: "GET", });
             const data = await response.json();
             setGames(data.content);
         } catch (error) {
             setDisplayError(true);
-            setErrorMessage(error.message);
+            setErrorMessage(`Error loading games from ${url}. ${error.message}`);
         }
     };
 
