@@ -8,18 +8,23 @@ import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 
-import { API_STRATEGIC_URL } from "../constants/environment";
+import { API_TACTICAL_URL } from "../constants/environment";
 
 const TacticalCharacterEdit = () => {
 
-    const debugMode = false;
+    const debugMode = true;
     const location = useLocation();
-    const strategicGame = location.state?.strategicGame;
+    const tacticalCharacter = location.state?.tacticalCharacter;
+    const tacticalGame = location.state?.tacticalGame;
+
     const navigate = useNavigate();
 
     const [formData, setFormData] = useState({
-        name: strategicGame.name,
-        description: strategicGame.description
+        name: tacticalCharacter.name,
+        tacticalGameId: tacticalCharacter.tacticalGameId,
+        info: tacticalCharacter.info,
+        hp: tacticalCharacter.hp,
+        description: tacticalCharacter.description
     });
 
     const handleChange = (e) => {
@@ -30,15 +35,21 @@ const TacticalCharacterEdit = () => {
     const handleSubmit = (e) => {
         try {
             e.preventDefault();
-            const url = `${API_STRATEGIC_URL}/strategic-games/${strategicGame.id}`;
+            const url = `${API_TACTICAL_URL}/characters/${tacticalCharacter.id}`;
             const requestOptions = {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData)
             };
-            fetch(url, requestOptions)
-                .then(response => response.json())
-                .then(data => navigate(`/strategic/view/${data.id}`, { state: { strategicGame: data } }));
+            if (deleteResponse.status == 200) {
+                navigate(`/tactical/view/${tacticalCharacter.tacticalGameId}`, { state: { tacticalGame: tacticalGame } });
+            } else {
+                //TODO display error
+                console.log("delete data: " + data);
+            }
+            // fetch(url, requestOptions)
+            //     .then(response => response.json())
+            //     .then(data => navigate(`/strategic/view/${data.id}`, { state: { strategicGame: data } }));
         } catch (error) {
             //setDisplayError(true);
             //setErrorMessage(`Error updating stratetic game from ${url}. ${error.message}`);
@@ -46,13 +57,13 @@ const TacticalCharacterEdit = () => {
     }
 
     const handleCancelClick = (e) => {
-        navigate(`/strategic/view/${strategicGame.id}`, { state: { strategicGame: strategicGame } });
+        navigate(`/tactical/view/${tacticalCharacter.tacticalGameId}`, { state: { tacticalGame: tacticalGame } });
     }
 
     return (
         <div>
-            <div class="strategic-game-view">
-                <div class="strategic-game-view-actions">
+            <div class="tactical-character-edit">
+                <div class="tactical-character-edit-actions">
                     <Stack spacing={2} direction="row" sx={{
                         justifyContent: "flex-end",
                         alignItems: "flex-start",
@@ -93,11 +104,17 @@ const TacticalCharacterEdit = () => {
             </div>
             {debugMode ? (
                 <div>
+                    <h3>formData</h3>
                     <pre>
                         {JSON.stringify(formData, null, 2)}
                     </pre>
+                    <h3>tacticalCharacter</h3>
                     <pre>
-                        {JSON.stringify(strategicGame, null, 2)}
+                        {JSON.stringify(tacticalCharacter, null, 2)}
+                    </pre>
+                    <h3>tacticalGame</h3>
+                    <pre>
+                        {JSON.stringify(tacticalGame, null, 2)}
                     </pre>
                 </div>
             ) : null}
