@@ -32,7 +32,7 @@ const TacticalCharacterEdit = () => {
         setFormData({ ...formData, [name]: value })
     }
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         try {
             e.preventDefault();
             const url = `${API_TACTICAL_URL}/characters/${tacticalCharacter.id}`;
@@ -41,18 +41,15 @@ const TacticalCharacterEdit = () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData)
             };
-            if (deleteResponse.status == 200) {
+            const result = await fetch(url, requestOptions);
+            if (result.status == 200) {
                 navigate(`/tactical/view/${tacticalCharacter.tacticalGameId}`, { state: { tacticalGame: tacticalGame } });
             } else {
                 //TODO display error
                 console.log("delete data: " + data);
             }
-            // fetch(url, requestOptions)
-            //     .then(response => response.json())
-            //     .then(data => navigate(`/strategic/view/${data.id}`, { state: { strategicGame: data } }));
         } catch (error) {
-            //setDisplayError(true);
-            //setErrorMessage(`Error updating stratetic game from ${url}. ${error.message}`);
+            //TODO display error
         }
     }
 
