@@ -47,7 +47,7 @@ const TacticalCharacterCreation = () => {
         description: ''
     });
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         const url = `${API_TACTICAL_URL}/characters/tactical-games/${tacticalGame.id}`;
         try {
@@ -56,9 +56,13 @@ const TacticalCharacterCreation = () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData)
             };
-            fetch(url, requestOptions)
-                .then(response => response.json())
-                .then(data => navigate("/tactical/view/" + tacticalGame.id, { state: { tacticalGame: tacticalGame } }));
+            const response = await fetch(url, requestOptions);
+            if (response.status == 201) {
+                navigate("/tactical/view/" + tacticalGame.id, { state: { tacticalGame: tacticalGame } });
+            } else {
+                const data = await response.json();
+                showError(`Error creating chracter ${url}. Status: ${response.status}. Message ${data.message}`);
+            }
         } catch (error) {
             setDisplayError(true);
             setErrorMessage(`Error loading realms from ${url}. ${error.message}`);
@@ -117,6 +121,11 @@ const TacticalCharacterCreation = () => {
     const handleSnackbarClose = () => {
         setDisplayError(false);
     };
+
+    const showError = (message) => {
+        setDisplayError(true);
+        setErrorMessage(message);
+    }
 
     return (
         <div class="tactical-game-character-creation">

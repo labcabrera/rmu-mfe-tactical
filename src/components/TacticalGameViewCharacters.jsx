@@ -44,7 +44,7 @@ const TacticalGameViewCharacters = ({ tacticalGame }) => {
                         <ListItemAvatar>
                             <Avatar src={witchKing} />
                         </ListItemAvatar>
-                        <ListItemText primary={item.name} secondary={item.name} />
+                        <ListItemText primary={item.name} secondary={`Level ${item.info.level} ${item.info.race}`} />
                     </ListItemButton>
                 ))}
             </List>
