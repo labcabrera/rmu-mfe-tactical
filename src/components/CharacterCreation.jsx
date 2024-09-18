@@ -1,21 +1,43 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useLocation } from "react-router-dom";
 
-import Button from '@mui/material/Button';
+import SaveIcon from '@mui/icons-material/Save';
+import Autocomplete from '@mui/material/Autocomplete';
+import Box from '@mui/material/Box';
+import IconButton from '@mui/material/IconButton';
+import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
+
+import { API_CORE_URL } from '../constants/environment';
 
 const CharacterCreation = () => {
 
-    // const location = useLocation();
-    // const game = location.state?.game;
+    const debugMode = true;
+
+    const location = useLocation();
+    const tacticalGame = location.state?.tacticalGame;
+
+    const [races, setRaces] = useState([]);
 
     const [formData, setFormData] = useState({
         name: '',
-        tacticalGameId: 'test',
         info: {
             level: 1,
-            race: "ork",
+            race: "lotr-ork",
             size: "medium",
             armorType: 1
+        },
+        hp: {
+            max: 25,
+            current: 25
+        },
+        skills: [],
+        items: [],
+        equipment: {
+            mainHand: "",
+            offHand: "",
+            head: "",
+            body: ""
         },
         description: ''
     });
@@ -39,10 +61,54 @@ const CharacterCreation = () => {
         }));
     };
 
+    const handleRaceChange = (event, newValue) => {
+        console.log("race change: " + event.target + "; " + newValue.value);
+        setFormData((prevState) => ({
+            ...prevState,
+            info: {
+                ...prevState.info,
+                race: newValue.value
+            }
+        }));
+    };
+
+    const getRaces = async () => {
+        const url = `${API_CORE_URL}/races`;
+        try {
+            const response = await fetch(url, { method: "GET", });
+            const data = await response.json();
+            setRaces(data.content.map(mapRace));
+        } catch (error) {
+            console.error("Error loading races: " + error);
+        }
+    };
+
+    const mapRace = (race) => {
+        return {
+            value: race.id,
+            label: race.name,
+        }
+    }
+
+    useEffect(() => {
+        getRaces();
+    }, []);
+
     return (
-        <div>
+        <div class="tactical-game-character-creation">
+            <div class="tactical-game-character-creation-actions">
+                <Stack spacing={2} direction="row" sx={{
+                    justifyContent: "flex-end",
+                    alignItems: "flex-start",
+                }}>
+                    <IconButton variant="outlined" onClick={handleSubmit}>
+                        <SaveIcon />
+                    </IconButton>
+                </Stack>
+            </div>
             <div>
-                <form onSubmit={handleSubmit}>
+                <Box component="form"
+                    sx={{ '& > :not(style)': { m: 1, width: '80ch' } }}>
                     <TextField
                         label="Name"
                         variant="outlined"
@@ -50,8 +116,14 @@ const CharacterCreation = () => {
                         name="name"
                         value={formData.name}
                         onChange={handleChange}
-                        margin="normal"
-                        required />
+                        required
+                    />
+                    <Autocomplete
+                        disablePortal
+                        options={races}
+                        onChange={handleRaceChange}
+                        renderInput={(params) => <TextField {...params} label="Race" />}
+                    />
                     <TextField
                         label="Level"
                         variant="outlined"
@@ -59,8 +131,17 @@ const CharacterCreation = () => {
                         name="level"
                         value={formData.info.level}
                         onChange={handleInfoChange}
-                        margin="normal"
-                        required />
+                        required
+                    />
+                    <TextField
+                        label="Armor"
+                        variant="outlined"
+                        fullWidth
+                        name="armorType"
+                        value={formData.info.armorType}
+                        onChange={handleInfoChange}
+                        required
+                    />
                     <TextField
                         label="Description"
                         variant="outlined"
@@ -68,16 +149,22 @@ const CharacterCreation = () => {
                         value={formData.description}
                         onChange={handleChange}
                         fullWidth
-                        margin="normal" />
-                    <Button type="submit" variant="outlined" color="primary">Create</Button>
-                </form>
+                    />
+                </Box>
             </div>
-            {/* <pre>
-                {JSON.stringify(game, null, 2)}
-            </pre> */}
-            <pre>
-                {JSON.stringify(formData, null, 2)}
-            </pre>
+            {
+                debugMode ? (
+                    <div>
+                        <pre>
+                            {JSON.stringify(formData, null, 2)}
+                        </pre>
+                        <pre>
+                            {JSON.stringify(tacticalGame, null, 2)}
+                        </pre>
+                        <pre>
+                            {JSON.stringify(races, null, 2)}
+                        </pre>
+                    </div>) : null}
         </div>
     );
 }

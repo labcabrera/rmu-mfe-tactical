@@ -1,5 +1,5 @@
 import React from "react";
-import { useLocation, useParams } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
@@ -9,7 +9,6 @@ import TacticalGameViewActions from './TacticalGameViewActions';
 const TacticalGameView = () => {
 
     const debugMode = false;
-    const { gameId } = useParams();
     const location = useLocation();
     const tacticalGame = location.state?.tacticalGame;
 

@@ -54,8 +54,8 @@ const TacticalGameViewActions = () => {
     }
 
     const handleAddNewCharacter = () => {
-        navigate("/tactical/characters/creation");
-    }
+        navigate("/tactical/characters/creation", { state: { tacticalGame: tacticalGame } });
+    };
 
     return (
         <div class="tactical-game-view-actions">
