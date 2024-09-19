@@ -3,16 +3,12 @@ import { useNavigate } from "react-router-dom";
 
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
-import Avatar from '@mui/material/Avatar';
 import IconButton from '@mui/material/IconButton';
 import ListItem from '@mui/material/ListItem';
-import ListItemAvatar from '@mui/material/ListItemAvatar';
 import ListItemText from '@mui/material/ListItemText';
 import Stack from '@mui/material/Stack';
 
-
-import gondor from '../assets/human-gondor.jpg';
-import witchKing from '../assets/witch-king.jpg';
+import CharacterIcon from "../shared/CharacterIcon";
 
 const TacticalGameViewCharactersListItem = ({ tacticalGame, character }) => {
 
@@ -25,13 +21,6 @@ const TacticalGameViewCharactersListItem = ({ tacticalGame, character }) => {
     const handleCharacterItemDeleteClick = () => {
         console.log("handleCharacterItemDeleteClick " + character);
     }
-
-    const resolveAvatarImage = () => {
-        if (character.info.race === 'lotr-human') {
-            return gondor;
-        }
-        return witchKing;
-    };
 
     return (
         <ListItem secondaryAction={
@@ -47,9 +36,7 @@ const TacticalGameViewCharactersListItem = ({ tacticalGame, character }) => {
                 </IconButton>
             </Stack>
         }>
-            <ListItemAvatar>
-                <Avatar src={resolveAvatarImage()} />
-            </ListItemAvatar>
+            <CharacterIcon character={character} />
             <ListItemText primary={character.name} secondary={`Level ${character.info.level} ${character.info.race}`} />
         </ListItem>
     );

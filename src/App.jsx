@@ -4,7 +4,7 @@ import { Route, Routes } from "react-router-dom";
 import TacticalCharacterCreation from "./components/TacticalCharacterCreation";
 import TacticalCharacterEdit from "./components/TacticalCharacterEdit";
 import TacticalGameCreation from "./components/TacticalGameCreation";
-import TacticalGameList from "./components/TacticalGameList";
+import TacticalGameList from "./components/tactical-game/TacticalGameList";
 import TacticalGameView from "./components/TacticalGameView";
 
 import "./index.css";

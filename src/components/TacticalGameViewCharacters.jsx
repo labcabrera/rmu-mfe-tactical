@@ -4,8 +4,7 @@ import List from '@mui/material/List';
 
 import { API_TACTICAL_URL } from "../constants/environment";
 
-
-import TacticalGameViewCharactersListItem from "./TacticalGameViewCharactersListItem";
+import TacticalGameViewCharactersListItem from "./tactical-game/TacticalGameViewCharactersListItem";
 
 const TacticalGameViewCharacters = ({ tacticalGame }) => {
 
