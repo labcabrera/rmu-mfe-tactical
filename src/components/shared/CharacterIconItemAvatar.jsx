@@ -8,7 +8,7 @@ import gondorIcon from '../../assets/images/races/lotr-gondor.jpg';
 import orcIcon from '../../assets/images/races/lotr-orc.jpg';
 import witchKingIcon from '../../assets/images/races/lotr-witch-king.jpg';
 
-const CharacterIcon = ({ character }) => {
+const CharacterListItemAvatar = ({ character }) => {
 
     const resolveAvatarImage = () => {
         switch (character.info.race) {
@@ -26,4 +26,4 @@ const CharacterIcon = ({ character }) => {
     );
 }
 
-export default CharacterIcon;
+export default CharacterListItemAvatar;

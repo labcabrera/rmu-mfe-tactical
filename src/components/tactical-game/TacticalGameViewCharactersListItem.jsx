@@ -8,7 +8,7 @@ import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import Stack from '@mui/material/Stack';
 
-import CharacterIcon from "../shared/CharacterIcon";
+import CharacterListItemAvatar from "../shared/CharacterIconItemAvatar";
 
 const TacticalGameViewCharactersListItem = ({ tacticalGame, character }) => {
 
@@ -36,7 +36,7 @@ const TacticalGameViewCharactersListItem = ({ tacticalGame, character }) => {
                 </IconButton>
             </Stack>
         }>
-            <CharacterIcon character={character} />
+            <CharacterListItemAvatar character={character} />
             <ListItemText primary={character.name} secondary={`Level ${character.info.level} ${character.info.race}`} />
         </ListItem>
     );
