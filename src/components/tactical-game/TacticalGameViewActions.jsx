@@ -53,20 +53,14 @@ const TacticalGameViewActions = () => {
         setDeleteDialogOpen(false);
     }
 
-    const handleAddNewCharacter = () => {
-        navigate("/tactical/characters/creation", { state: { tacticalGame: tacticalGame } });
-    };
-
     return (
         <div class="tactical-game-view-actions">
             <Stack spacing={2} direction="row" sx={{
                 justifyContent: "flex-end",
                 alignItems: "flex-start",
             }}>
-                <Button variant="outlined" onClick={handleAddNewCharacter}>New Character</Button>
                 <Button variant="outlined">Close</Button>
                 <Button variant="outlined">Start game</Button>
-
                 <IconButton variant="outlined" onClick={handleEditClick}>
                     <EditIcon />
                 </IconButton>

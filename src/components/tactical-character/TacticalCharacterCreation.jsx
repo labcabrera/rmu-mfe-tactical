@@ -23,10 +23,12 @@ const TacticalCharacterCreation = () => {
     const [displayError, setDisplayError] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
     const [races, setRaces] = useState([]);
+    const [factions, setFactions] = useState(tacticalGame.factions);
 
     const [formData, setFormData] = useState({
         name: '',
         tacticalGameId: tacticalGame.id,
+        faction: 'Neutral',
         info: {
             level: 1,
             race: "lotr-ork",
@@ -72,7 +74,7 @@ const TacticalCharacterCreation = () => {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData({ ...formData, [name]: value })
+        setFormData({ ...formData, [name]: value });
     };
 
     const handleInfoChange = (event) => {
@@ -86,8 +88,11 @@ const TacticalCharacterCreation = () => {
         }));
     };
 
+    const handleFactionChange = (event, newValue) => {
+        setFormData({ ...formData, ['faction']: newValue });
+    };
+
     const handleRaceChange = (event, newValue) => {
-        console.log("race change: " + event.target + "; " + newValue.value);
         setFormData((prevState) => ({
             ...prevState,
             info: {
@@ -96,6 +101,7 @@ const TacticalCharacterCreation = () => {
             }
         }));
     };
+
 
     const getRaces = async () => {
         const url = `${API_CORE_URL}/races`;
@@ -143,6 +149,20 @@ const TacticalCharacterCreation = () => {
             <div>
                 <Box component="form"
                     sx={{ '& > :not(style)': { m: 1, width: '80ch' } }}>
+                    <Autocomplete
+                        disablePortal
+                        options={factions}
+                        onChange={handleFactionChange}
+                        required
+                        renderInput={(params) => <TextField {...params} label="Faction" />}
+                    />
+                    <Autocomplete
+                        disablePortal
+                        options={races}
+                        onChange={handleRaceChange}
+                        required
+                        renderInput={(params) => <TextField {...params} label="Race" />}
+                    />
                     <TextField
                         label="Name"
                         variant="outlined"
@@ -151,13 +171,6 @@ const TacticalCharacterCreation = () => {
                         value={formData.name}
                         onChange={handleChange}
                         required
-                    />
-                    <Autocomplete
-                        disablePortal
-                        options={races}
-                        onChange={handleRaceChange}
-                        required
-                        renderInput={(params) => <TextField {...params} label="Race" />}
                     />
                     <TextField
                         label="Level"

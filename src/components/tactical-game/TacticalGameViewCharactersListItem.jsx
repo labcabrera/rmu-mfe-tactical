@@ -7,6 +7,7 @@ import IconButton from '@mui/material/IconButton';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import Stack from '@mui/material/Stack';
+import EditNoteIcon from '@mui/icons-material/EditNote';
 
 import CharacterListItemAvatar from "../shared/CharacterIconItemAvatar";
 
@@ -24,12 +25,12 @@ const TacticalGameViewCharactersListItem = ({ tacticalGame, character }) => {
 
     return (
         <ListItem secondaryAction={
-            <Stack spacing={2} direction="row" sx={{
+            <Stack spacing={1} direction="row" sx={{
                 justifyContent: "flex-end",
                 alignItems: "flex-start",
             }}>
                 <IconButton edge="end" aria-label="edit" onClick={handleCharacterItemEditClick}>
-                    <EditIcon />
+                    <EditNoteIcon />
                 </IconButton>
                 <IconButton edge="end" aria-label="delete" onClick={handleCharacterItemDeleteClick}>
                     <DeleteIcon />

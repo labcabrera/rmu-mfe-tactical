@@ -1,6 +1,10 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
+import AddBoxIcon from '@mui/icons-material/AddBox';
+import IconButton from '@mui/material/IconButton';
 import List from '@mui/material/List';
+import Stack from '@mui/material/Stack';
 
 import { API_TACTICAL_URL } from "../../constants/environment";
 
@@ -9,6 +13,8 @@ import TacticalGameViewCharactersListItem from "./TacticalGameViewCharactersList
 const TacticalGameViewCharacters = ({ tacticalGame }) => {
 
     const debugMode = false;
+
+    const navigate = useNavigate();
     const [tacticalCharacters, setTacticalCharacters] = useState([]);
 
     const getTacticalCharacters = async () => {
@@ -30,6 +36,10 @@ const TacticalGameViewCharacters = ({ tacticalGame }) => {
         }
     }, []);
 
+    const handleAddNewCharacter = () => {
+        navigate("/tactical/characters/creation", { state: { tacticalGame: tacticalGame } });
+    };
+
     return (
         <div>
             <h3>Characters</h3>
@@ -38,6 +48,14 @@ const TacticalGameViewCharacters = ({ tacticalGame }) => {
                     <TacticalGameViewCharactersListItem character={item} tacticalGame={tacticalGame} />
                 ))}
             </List>
+            <Stack spacing={0} direction="row" sx={{
+                justifyContent: "center",
+                alignItems: "flex-start",
+            }}>
+                <IconButton variant="outlined" onClick={handleAddNewCharacter}>
+                    <AddBoxIcon />
+                </IconButton>
+            </Stack>
             {debugMode ? (
                 <div>
                     <pre>
