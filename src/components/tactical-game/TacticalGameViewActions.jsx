@@ -12,7 +12,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
 
-import { API_TACTICAL_URL } from '../constants/environment';
+import { API_TACTICAL_URL } from '../../constants/environment';
 
 const TacticalGameViewActions = () => {
 

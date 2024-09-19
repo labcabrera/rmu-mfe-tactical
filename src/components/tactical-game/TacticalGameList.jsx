@@ -8,7 +8,7 @@ import List from '@mui/material/List';
 import Snackbar from '@mui/material/Snackbar';
 import Stack from '@mui/material/Stack';
 
-import TacticalGameListItem from "../TacticalGameListItem";
+import TacticalGameListItem from "./TacticalGameListItem";
 
 import { API_TACTICAL_URL } from "../../constants/environment";
 

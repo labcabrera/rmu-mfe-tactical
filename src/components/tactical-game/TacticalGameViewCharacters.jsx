@@ -2,9 +2,9 @@ import React, { useEffect, useState } from "react";
 
 import List from '@mui/material/List';
 
-import { API_TACTICAL_URL } from "../constants/environment";
+import { API_TACTICAL_URL } from "../../constants/environment";
 
-import TacticalGameViewCharactersListItem from "./tactical-game/TacticalGameViewCharactersListItem";
+import TacticalGameViewCharactersListItem from "./TacticalGameViewCharactersListItem";
 
 const TacticalGameViewCharacters = ({ tacticalGame }) => {
 
