@@ -49,7 +49,7 @@ const TacticalGameViewCharacters = ({ tacticalGame }) => {
                 ))}
             </List>
             <Stack spacing={0} direction="row" sx={{
-                justifyContent: "center",
+                justifyContent: "flex-start",
                 alignItems: "flex-start",
             }}>
                 <IconButton variant="outlined" onClick={handleAddNewCharacter}>

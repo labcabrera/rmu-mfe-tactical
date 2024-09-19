@@ -5,7 +5,12 @@ import CloseIcon from '@mui/icons-material/Close';
 import SaveIcon from '@mui/icons-material/Save';
 import Autocomplete from '@mui/material/Autocomplete';
 import Box from '@mui/material/Box';
+import FormControl from '@mui/material/FormControl';
+import Grid from '@mui/material/Grid2';
 import IconButton from '@mui/material/IconButton';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import Select from '@mui/material/Select';
 import Snackbar from '@mui/material/Snackbar';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
@@ -20,10 +25,15 @@ const TacticalCharacterCreation = () => {
     const navigate = useNavigate();
     const tacticalGame = location.state?.tacticalGame;
 
+    const levels = Array.from({ length: 101 }, (_, index) => index);
+
     const [displayError, setDisplayError] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
-    const [races, setRaces] = useState([]);
     const [factions, setFactions] = useState(tacticalGame.factions);
+
+    const [races, setRaces] = useState([]);
+    const [armorTypes, setArmorTypes] = useState([]);
+    const [characterSizes, setCharacterSizes] = useState([]);
 
     const [formData, setFormData] = useState({
         name: '',
@@ -32,8 +42,8 @@ const TacticalCharacterCreation = () => {
         info: {
             level: 1,
             race: "lotr-ork",
-            size: "medium",
-            armorType: 1
+            sizeId: "medium",
+            armorType: 2
         },
         hp: {
             max: 25,
@@ -49,6 +59,27 @@ const TacticalCharacterCreation = () => {
         },
         description: ''
     });
+
+    useEffect(() => {
+        const fetchArmorTypes = async () => {
+            const response = await fetch(`${API_CORE_URL}/armor-types`);
+            const data = await response.json();
+            setArmorTypes(data);
+        };
+        const fetchRaces = async () => {
+            const response = await fetch(`${API_CORE_URL}/races`);
+            const data = await response.json();
+            setRaces(data.content.map((item) => { return { value: item.id, label: item.name } }));
+        };
+        const fetchCharacterSizes = async () => {
+            const response = await fetch(`${API_CORE_URL}/character-sizes`);
+            const data = await response.json();
+            setCharacterSizes(data.map((item) => { return { id: item.id, name: item.name } }));
+        };
+        fetchRaces();
+        fetchArmorTypes();
+        fetchCharacterSizes();
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -77,53 +108,38 @@ const TacticalCharacterCreation = () => {
         setFormData({ ...formData, [name]: value });
     };
 
-    const handleInfoChange = (event) => {
-        const { name, value } = event.target;
-        setFormData((prevState) => ({
-            ...prevState,
-            info: {
-                ...prevState.info,
-                [name]: value
-            }
-        }));
-    };
-
     const handleFactionChange = (event, newValue) => {
         setFormData({ ...formData, ['faction']: newValue });
     };
 
-    const handleRaceChange = (event, newValue) => {
+    const handleLevelChange = (e) => {
+        updateFormData('info', 'level', e.target.value);
+    };
+
+    const handleRaceChange = (e, newValue) => {
+        updateFormData('info', 'race', newValue.value);
+    };
+
+    const handleArmorTypeChange = (e) => {
+        updateFormData('info', 'armorType', e.target.value);
+    };
+
+    const handleSizeChange = (e) => {
+        updateFormData('info', 'sizeId', e.target.value);
+    };
+
+    const handleHpMaxChange = (e) => updateFormData('hp', 'max', e.target.value);
+    const handleHpCurrentChange = (e) => { updateFormData('hp', 'current', e.target.value) };
+
+    const updateFormData = (field1, field2, value) => {
         setFormData((prevState) => ({
             ...prevState,
-            info: {
-                ...prevState.info,
-                race: newValue.value
+            [field1]: {
+                ...prevState[field1],
+                [field2]: value
             }
         }));
-    };
-
-
-    const getRaces = async () => {
-        const url = `${API_CORE_URL}/races`;
-        try {
-            const response = await fetch(url, { method: "GET", });
-            const data = await response.json();
-            setRaces(data.content.map(mapRace));
-        } catch (error) {
-            console.error("Error loading races: " + error);
-        }
-    };
-
-    const mapRace = (race) => {
-        return {
-            value: race.id,
-            label: race.name,
-        }
     }
-
-    useEffect(() => {
-        getRaces();
-    }, []);
 
     const handleSnackbarClose = () => {
         setDisplayError(false);
@@ -147,57 +163,116 @@ const TacticalCharacterCreation = () => {
                 </Stack>
             </div>
             <div>
+                <Grid container spacing={2}>
+                    <Grid size={4}>
+                        <Autocomplete
+                            disablePortal
+                            options={factions}
+                            onChange={handleFactionChange}
+                            required
+                            renderInput={(params) => <TextField {...params} label="Faction" />}
+                        />
+                    </Grid>
+                    <Grid size={4}>
+                        <Autocomplete
+                            disablePortal
+                            options={races}
+                            onChange={handleRaceChange}
+                            required
+                            renderInput={(params) => <TextField {...params} label="Race" />}
+                        />
+                    </Grid>
+                    <Grid size={4}>
+                        <FormControl fullWidth>
+                            <InputLabel id="select-level-label">Level</InputLabel>
+                            <Select
+                                id="select-level"
+                                labelId="select-level-label"
+                                label="Level"
+                                value={formData.info.level}
+                                required
+                                onChange={handleLevelChange}>
+                                {levels.map((option) => (<MenuItem key={option} value={option}>{option}</MenuItem>))}
+                            </Select>
+                        </FormControl>
+                    </Grid>
+                    <Grid size={4}>
+                        <TextField
+                            label="Name"
+                            variant="outlined"
+                            fullWidth
+                            name="name"
+                            value={formData.name}
+                            onChange={handleChange}
+                            required
+                        />
+                    </Grid>
+                    <Grid size={4}>
+                        <FormControl fullWidth>
+                            <InputLabel id="select-armor-type-label">Armor type</InputLabel>
+                            <Select
+                                id="select-armor-type"
+                                labelId="select-armor-type-label"
+                                label="Armor type"
+                                value={formData.info.armorType}
+                                required
+                                fullWidth
+                                onChange={handleArmorTypeChange}>
+                                {armorTypes.map((option) => (<MenuItem key={option.id} value={option.id}>{option.name}</MenuItem>))}
+                            </Select>
+                        </FormControl>
+                    </Grid>
+                    <Grid size={4}>
+                        <FormControl fullWidth>
+                            <InputLabel id="select-size-label">Size</InputLabel>
+                            <Select
+                                id="select-size"
+                                labelId="select-size-label"
+                                label="Size"
+                                value={formData.info.sizeId}
+                                required
+                                fullWidth
+                                onChange={handleSizeChange}>
+                                {characterSizes.map((option) => (<MenuItem key={option.id} value={option.id}>{option.name}</MenuItem>))}
+                            </Select>
+                        </FormControl>
+                    </Grid>
+                    <Grid size={4}>
+                        <TextField
+                            label="Max HP"
+                            variant="outlined"
+                            type="text"
+                            value={formData.hp.max}
+                            onChange={handleHpMaxChange}
+                            fullWidth
+                        />
+                    </Grid>
+                    <Grid size={4}>
+                        <TextField
+                            label="Max HP"
+                            variant="outlined"
+                            type="text"
+                            value={formData.hp.current}
+                            onChange={handleHpCurrentChange}
+                            fullWidth
+                        />
+                    </Grid>
+                    <Grid size={12}>
+                        <TextField
+                            label="Description"
+                            variant="outlined"
+                            name="description"
+                            value={formData.description}
+                            onChange={handleChange}
+                            fullWidth
+                            multiline
+                            maxRows={4}
+                        />
+                    </Grid>
+                </Grid>
+
                 <Box component="form"
                     sx={{ '& > :not(style)': { m: 1, width: '80ch' } }}>
-                    <Autocomplete
-                        disablePortal
-                        options={factions}
-                        onChange={handleFactionChange}
-                        required
-                        renderInput={(params) => <TextField {...params} label="Faction" />}
-                    />
-                    <Autocomplete
-                        disablePortal
-                        options={races}
-                        onChange={handleRaceChange}
-                        required
-                        renderInput={(params) => <TextField {...params} label="Race" />}
-                    />
-                    <TextField
-                        label="Name"
-                        variant="outlined"
-                        fullWidth
-                        name="name"
-                        value={formData.name}
-                        onChange={handleChange}
-                        required
-                    />
-                    <TextField
-                        label="Level"
-                        variant="outlined"
-                        fullWidth
-                        name="level"
-                        value={formData.info.level}
-                        onChange={handleInfoChange}
-                        required
-                    />
-                    <TextField
-                        label="Armor"
-                        variant="outlined"
-                        fullWidth
-                        name="armorType"
-                        value={formData.info.armorType}
-                        onChange={handleInfoChange}
-                        required
-                    />
-                    <TextField
-                        label="Description"
-                        variant="outlined"
-                        name="description"
-                        value={formData.description}
-                        onChange={handleChange}
-                        fullWidth
-                    />
                 </Box>
                 <Snackbar
                     open={displayError}
@@ -220,14 +295,21 @@ const TacticalCharacterCreation = () => {
             {
                 debugMode ? (
                     <div>
+                        <h3>formData</h3>
                         <pre>
                             {JSON.stringify(formData, null, 2)}
                         </pre>
+                        <h3>tacticalGame</h3>
                         <pre>
                             {JSON.stringify(tacticalGame, null, 2)}
                         </pre>
+                        <h3>races</h3>
                         <pre>
                             {JSON.stringify(races, null, 2)}
+                        </pre>
+                        <h3>armorTypes</h3>
+                        <pre>
+                            {JSON.stringify(armorTypes, null, 2)}
                         </pre>
                     </div>) : null}
         </div>
