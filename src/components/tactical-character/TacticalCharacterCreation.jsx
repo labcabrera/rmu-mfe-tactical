@@ -29,7 +29,6 @@ const TacticalCharacterCreation = () => {
 
     const [displayError, setDisplayError] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
-    const [factions, setFactions] = useState(tacticalGame.factions);
 
     const [races, setRaces] = useState([]);
     const [armorTypes, setArmorTypes] = useState([]);
@@ -108,26 +107,12 @@ const TacticalCharacterCreation = () => {
         setFormData({ ...formData, [name]: value });
     };
 
-    const handleFactionChange = (event, newValue) => {
-        setFormData({ ...formData, ['faction']: newValue });
-    };
+    const handleFactionChange = (e) => setFormData({ ...formData, faction: e.target.value });
 
-    const handleLevelChange = (e) => {
-        updateFormData('info', 'level', e.target.value);
-    };
-
-    const handleRaceChange = (e, newValue) => {
-        updateFormData('info', 'race', newValue.value);
-    };
-
-    const handleArmorTypeChange = (e) => {
-        updateFormData('info', 'armorType', e.target.value);
-    };
-
-    const handleSizeChange = (e) => {
-        updateFormData('info', 'sizeId', e.target.value);
-    };
-
+    const handleLevelChange = (e) => updateFormData('info', 'level', e.target.value);
+    const handleRaceChange = (e, newValue) => updateFormData('info', 'race', newValue.value);
+    const handleArmorTypeChange = (e) => updateFormData('info', 'armorType', e.target.value);
+    const handleSizeChange = (e) => updateFormData('info', 'sizeId', e.target.value);
     const handleHpMaxChange = (e) => updateFormData('hp', 'max', e.target.value);
     const handleHpCurrentChange = (e) => { updateFormData('hp', 'current', e.target.value) };
 
@@ -165,13 +150,19 @@ const TacticalCharacterCreation = () => {
             <div>
                 <Grid container spacing={2}>
                     <Grid size={4}>
-                        <Autocomplete
-                            disablePortal
-                            options={factions}
-                            onChange={handleFactionChange}
+                        <TextField
+                            label="Name"
+                            variant="outlined"
+                            fullWidth
+                            name="name"
+                            value={formData.name}
+                            onChange={handleChange}
                             required
-                            renderInput={(params) => <TextField {...params} label="Faction" />}
                         />
+                    </Grid>
+                    <Grid size={4}>
+                    </Grid>
+                    <Grid size={4}>
                     </Grid>
                     <Grid size={4}>
                         <Autocomplete
@@ -181,6 +172,20 @@ const TacticalCharacterCreation = () => {
                             required
                             renderInput={(params) => <TextField {...params} label="Race" />}
                         />
+                    </Grid>
+                    <Grid size={4}>
+                        <FormControl fullWidth>
+                            <InputLabel id="select-faction-label">Faction</InputLabel>
+                            <Select
+                                id="select-faction"
+                                labelId="select-faction"
+                                label="Faction"
+                                value={formData.faction}
+                                required
+                                onChange={handleFactionChange}>
+                                {tacticalGame.factions.map((option) => (<MenuItem key={option} value={option}>{option}</MenuItem>))}
+                            </Select>
+                        </FormControl>
                     </Grid>
                     <Grid size={4}>
                         <FormControl fullWidth>
@@ -195,17 +200,6 @@ const TacticalCharacterCreation = () => {
                                 {levels.map((option) => (<MenuItem key={option} value={option}>{option}</MenuItem>))}
                             </Select>
                         </FormControl>
-                    </Grid>
-                    <Grid size={4}>
-                        <TextField
-                            label="Name"
-                            variant="outlined"
-                            fullWidth
-                            name="name"
-                            value={formData.name}
-                            onChange={handleChange}
-                            required
-                        />
                     </Grid>
                     <Grid size={4}>
                         <FormControl fullWidth>
@@ -237,6 +231,7 @@ const TacticalCharacterCreation = () => {
                             </Select>
                         </FormControl>
                     </Grid>
+                    <Grid size={4}></Grid>
                     <Grid size={4}>
                         <TextField
                             label="Max HP"
