@@ -28,6 +28,10 @@ const TacticalGameViewCharacters = ({ tacticalGame }) => {
         }
     };
 
+    const removeCharacter = (id) => {
+        setTacticalCharacters(tacticalCharacters.filter(item => item.id !== id));
+    };
+
     useEffect(() => {
         if (!tacticalGame) {
 
@@ -45,7 +49,10 @@ const TacticalGameViewCharacters = ({ tacticalGame }) => {
             <h3>Characters</h3>
             <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
                 {tacticalCharacters.map((item) => (
-                    <TacticalGameViewCharactersListItem character={item} tacticalGame={tacticalGame} />
+                    <TacticalGameViewCharactersListItem
+                        character={item}
+                        tacticalGame={tacticalGame}
+                        onRemoveCharacter={removeCharacter} />
                 ))}
             </List>
             <Stack spacing={0} direction="row" sx={{

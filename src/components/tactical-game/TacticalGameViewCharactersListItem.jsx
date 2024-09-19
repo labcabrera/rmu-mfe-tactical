@@ -2,26 +2,36 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 
 import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
+import EditNoteIcon from '@mui/icons-material/EditNote';
 import IconButton from '@mui/material/IconButton';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import Stack from '@mui/material/Stack';
-import EditNoteIcon from '@mui/icons-material/EditNote';
 
 import CharacterListItemAvatar from "../shared/CharacterIconItemAvatar";
 
-const TacticalGameViewCharactersListItem = ({ tacticalGame, character }) => {
+import { API_TACTICAL_URL } from "../../constants/environment";
+
+const TacticalGameViewCharactersListItem = ({ tacticalGame, character, onRemoveCharacter }) => {
 
     const navigate = useNavigate();
+
+    const deleteTacticalCharacter = async () => {
+        const response = await fetch(`${API_TACTICAL_URL}/characters/${character.id}`, { method: 'DELETE' });
+        if (response.status === 204) {
+            onRemoveCharacter(character.id);
+        } else {
+            //TODO display error
+        }
+    };
 
     const handleCharacterItemEditClick = () => {
         navigate(`/tactical/characters/edit/${character.id}`, { state: { tacticalGame: tacticalGame, tacticalCharacter: character } });
     };
 
     const handleCharacterItemDeleteClick = () => {
-        console.log("handleCharacterItemDeleteClick " + character);
-    }
+        deleteTacticalCharacter();
+    };
 
     return (
         <ListItem secondaryAction={
