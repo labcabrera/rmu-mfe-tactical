@@ -1,8 +1,8 @@
 import React from "react";
 import { Route, Routes } from "react-router-dom";
 
-import TacticalCharacterCreation from "./components/TacticalCharacterCreation";
-import TacticalCharacterEdit from "./components/TacticalCharacterEdit";
+import TacticalCharacterCreation from "./components/tactical-character/TacticalCharacterCreation";
+import TacticalCharacterEdit from "./components/tactical-character/TacticalCharacterEdit";
 import TacticalGameCreation from "./components/tactical-game/TacticalGameCreation";
 import TacticalGameList from "./components/tactical-game/TacticalGameList";
 import TacticalGameView from "./components/tactical-game/TacticalGameView";

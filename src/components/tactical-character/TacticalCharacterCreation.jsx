@@ -10,7 +10,7 @@ import Snackbar from '@mui/material/Snackbar';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 
-import { API_CORE_URL, API_TACTICAL_URL } from '../constants/environment';
+import { API_CORE_URL, API_TACTICAL_URL } from '../../constants/environment';
 
 const TacticalCharacterCreation = () => {
 

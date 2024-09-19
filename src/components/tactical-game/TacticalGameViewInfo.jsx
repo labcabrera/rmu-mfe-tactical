@@ -1,13 +1,20 @@
-import React from "react";
+//import React from "react";
+import * as React from 'react';
 
 import Box from '@mui/material/Box';
+import Chip from '@mui/material/Chip';
+import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 
-import TacticalGameViewCharacters from "./TacticalGameViewCharacters";
 
 const TacticalGameViewInfo = ({ tacticalGame }) => {
 
     const debugMode = false;
+
+    const handleDeleteFaction = (faction) => () => {
+        //TODO
+        console.log("delete faction " + faction);
+    };
 
     return (
         <div>
@@ -55,6 +62,11 @@ const TacticalGameViewInfo = ({ tacticalGame }) => {
                     value={tacticalGame.updatedAt}
                     disabled
                 />
+                <Stack direction="row" spacing={1}>
+                    {tacticalGame.factions.map((item) => (
+                        <Chip label={item} variant="outlined" onDelete={handleDeleteFaction(item)} />
+                    ))}
+                </Stack>
             </Box >
             {
                 debugMode ? (

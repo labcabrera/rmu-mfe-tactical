@@ -8,7 +8,7 @@ import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 
-import { API_TACTICAL_URL } from "../constants/environment";
+import { API_TACTICAL_URL } from "../../constants/environment";
 
 const TacticalCharacterEdit = () => {
 
