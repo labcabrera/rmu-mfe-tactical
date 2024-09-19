@@ -26,6 +26,7 @@ const TacticalCharacterCreation = () => {
 
     const [formData, setFormData] = useState({
         name: '',
+        tacticalGameId: tacticalGame.id,
         info: {
             level: 1,
             race: "lotr-ork",
@@ -49,7 +50,7 @@ const TacticalCharacterCreation = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const url = `${API_TACTICAL_URL}/characters/tactical-games/${tacticalGame.id}`;
+        const url = `${API_TACTICAL_URL}/characters`;
         try {
             const requestOptions = {
                 method: 'POST',
@@ -155,6 +156,7 @@ const TacticalCharacterCreation = () => {
                         disablePortal
                         options={races}
                         onChange={handleRaceChange}
+                        required
                         renderInput={(params) => <TextField {...params} label="Race" />}
                     />
                     <TextField

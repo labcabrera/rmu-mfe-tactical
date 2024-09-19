@@ -2,10 +2,11 @@ import React from "react";
 import { useLocation } from "react-router-dom";
 
 import Box from '@mui/material/Box';
-import TextField from '@mui/material/TextField';
+import Grid from '@mui/material/Grid2';
 
 import TacticalGameViewActions from './TacticalGameViewActions';
 import TacticalGameViewCharacters from "./TacticalGameViewCharacters";
+import TacticalGameViewInfo from "./TacticalGameViewInfo";
 
 const TacticalGameView = () => {
 
@@ -15,53 +16,17 @@ const TacticalGameView = () => {
 
     return (
         <div class="tactical-game-view">
-            <TacticalGameViewActions></TacticalGameViewActions>
-            <Box component="form"
-                sx={{ '& > :not(style)': { m: 1, width: '80ch' } }}
-            >
-                <TextField
-                    label="Name"
-                    name="name"
-                    value={tacticalGame.name}
-                    disabled
-                />
-                <TextField
-                    label="Status"
-                    name="status"
-                    value={tacticalGame.status}
-                    disabled
-                />
-                <TextField
-                    label="Round"
-                    value={tacticalGame.round}
-                    disabled
-                />
-                <TextField
-                    label="Description"
-                    name="description"
-                    value={tacticalGame.description}
-                    multiline
-                    maxRows={4}
-                    disabled
-                />
-                <TextField
-                    label="User"
-                    name="user"
-                    value={tacticalGame.user}
-                    disabled
-                />
-                <TextField
-                    label="Created"
-                    value={tacticalGame.createdAt}
-                    disabled
-                />
-                <TextField
-                    label="Updated"
-                    value={tacticalGame.updatedAt}
-                    disabled
-                />
-            </Box >
-            <TacticalGameViewCharacters tacticalGame={tacticalGame} />
+            <TacticalGameViewActions />
+            <Box sx={{ flexGrow: 1 }}>
+                <Grid container spacing={2}>
+                    <Grid size={6}>
+                        <TacticalGameViewInfo tacticalGame={tacticalGame} />
+                    </Grid>
+                    <Grid size={6}>
+                        <TacticalGameViewCharacters tacticalGame={tacticalGame} />
+                    </Grid>
+                </Grid>
+            </Box>
             {
                 debugMode ? (
                     <div>
