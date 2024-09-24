@@ -19,7 +19,7 @@ import { API_CORE_URL, API_TACTICAL_URL } from '../../constants/environment';
 
 const TacticalCharacterCreation = () => {
 
-    const debugMode = true;
+    const debugMode = false;
 
     const location = useLocation();
     const navigate = useNavigate();

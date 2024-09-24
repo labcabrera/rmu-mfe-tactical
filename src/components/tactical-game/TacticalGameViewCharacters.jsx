@@ -17,27 +17,24 @@ const TacticalGameViewCharacters = ({ tacticalGame }) => {
     const navigate = useNavigate();
     const [tacticalCharacters, setTacticalCharacters] = useState([]);
 
-    const getTacticalCharacters = async () => {
-        const url = `${API_TACTICAL_URL}/characters/tactical-games/${tacticalGame.id}`;
-        try {
-            const response = await fetch(url, { method: "GET", });
-            const data = await response.json();
-            setTacticalCharacters(data.content);
-        } catch (error) {
-            console.error("error loading characters :" + error);
-        }
-    };
+
 
     const removeCharacter = (id) => {
         setTacticalCharacters(tacticalCharacters.filter(item => item.id !== id));
     };
 
     useEffect(() => {
-        if (!tacticalGame) {
-
-        } else {
-            getTacticalCharacters();
-        }
+        const fetchTacticalCharacters = async () => {
+            const url = `${API_TACTICAL_URL}/characters/?tacticalGameId=${tacticalGame.id}&page=0&size=100`;
+            try {
+                const response = await fetch(url, { method: "GET", });
+                const data = await response.json();
+                setTacticalCharacters(data.content);
+            } catch (error) {
+                console.error("error loading characters :" + error);
+            }
+        };
+        fetchTacticalCharacters();
     }, []);
 
     const handleAddNewCharacter = () => {

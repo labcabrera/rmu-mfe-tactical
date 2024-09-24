@@ -11,6 +11,7 @@ import TacticalGameViewInfo from "./TacticalGameViewInfo";
 const TacticalGameView = () => {
 
     const debugMode = false;
+
     const location = useLocation();
     const tacticalGame = location.state?.tacticalGame;
 
@@ -33,10 +34,7 @@ const TacticalGameView = () => {
                         <pre>
                             {JSON.stringify(tacticalGame, null, 2)}
                         </pre>
-                        <pre>
-                            {JSON.stringify(location.state, null, 2)}
-                        </pre>
-                    </div >
+                    </div>
                 ) : null}
         </div >
     );

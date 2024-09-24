@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
+import PlayCircleIcon from '@mui/icons-material/PlayCircle';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -38,20 +39,24 @@ const TacticalGameViewActions = () => {
     };
 
     const handleEditClick = () => {
-    }
+    };
+
+    const handleOpenClick = () => {
+        navigate(`/tactical/combat/${tacticalGame.id}`, { state: { tacticalGame: tacticalGame } });
+    };
 
     const handleDeleteClick = () => {
         setDeleteDialogOpen(true);
-    }
+    };
 
     const handleDialogDeleteClose = () => {
         setDeleteDialogOpen(false);
-    }
+    };
 
     const handleDialogDelete = () => {
         deleteTacticalGame();
         setDeleteDialogOpen(false);
-    }
+    };
 
     return (
         <div class="tactical-game-view-actions">
@@ -60,7 +65,9 @@ const TacticalGameViewActions = () => {
                 alignItems: "flex-start",
             }}>
                 <Button variant="outlined">Close</Button>
-                <Button variant="outlined">Start game</Button>
+                <IconButton variant="outlined" onClick={handleOpenClick}>
+                    <PlayCircleIcon />
+                </IconButton>
                 <IconButton variant="outlined" onClick={handleEditClick}>
                     <EditIcon />
                 </IconButton>
