@@ -17,8 +17,6 @@ const TacticalGameViewCharacters = ({ tacticalGame }) => {
     const navigate = useNavigate();
     const [tacticalCharacters, setTacticalCharacters] = useState([]);
 
-
-
     const removeCharacter = (id) => {
         setTacticalCharacters(tacticalCharacters.filter(item => item.id !== id));
     };

@@ -19,7 +19,7 @@ import { API_CORE_URL, API_TACTICAL_URL } from '../../constants/environment';
 
 const TacticalCharacterCreation = () => {
 
-    const debugMode = false;
+    const debugMode = true;
 
     const location = useLocation();
     const navigate = useNavigate();
@@ -43,6 +43,9 @@ const TacticalCharacterCreation = () => {
             race: "lotr-ork",
             sizeId: "medium",
             armorType: 2
+        },
+        initiative: {
+            base: 0,
         },
         hp: {
             max: 25,
@@ -115,6 +118,7 @@ const TacticalCharacterCreation = () => {
     const handleSizeChange = (e) => updateFormData('info', 'sizeId', e.target.value);
     const handleHpMaxChange = (e) => updateFormData('hp', 'max', e.target.value);
     const handleHpCurrentChange = (e) => { updateFormData('hp', 'current', e.target.value) };
+    const handleInitiativeChange = (e) => { updateFormData('initiative', 'base', e.target.value) };
 
     const updateFormData = (field1, field2, value) => {
         setFormData((prevState) => ({
@@ -249,6 +253,16 @@ const TacticalCharacterCreation = () => {
                             type="text"
                             value={formData.hp.current}
                             onChange={handleHpCurrentChange}
+                            fullWidth
+                        />
+                    </Grid>
+                    <Grid size={4}>
+                        <TextField
+                            label="Initiative bonus"
+                            variant="outlined"
+                            type="text"
+                            value={formData.initiative.base}
+                            onChange={handleInitiativeChange}
                             fullWidth
                         />
                     </Grid>
