@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useParams } from 'react-router-dom';
+
+import CombatDashboardActions from './CombatDashboardActions';
 
 import { API_TACTICAL_URL } from "../../constants/environment";
 
@@ -7,30 +9,67 @@ const CombatDashboard = () => {
 
     const debugMode = true;
 
-    const location = useLocation();
-    const tacticalGame = location.state?.tacticalGame;
+    const { gameId } = useParams();
 
-    const [characters, setCharacters] = useState({});
+    const [tacticalGame, setTacticalGame] = useState({});
+    const [characters, setCharacters] = useState([]);
+    const [characterRounds, setCharacterRounds] = useState([]);
+
+    const fetchTacticalGameAndStart = async () => {
+        console.info("fetch tactical game");
+        try {
+            const response = await fetch(`${API_TACTICAL_URL}/tactical-games/${gameId}`, { method: 'GET' });
+            var tacticalGameResponse = await response.json();
+            if (tacticalGameResponse.status == 'created') {
+                console.info("starting game");
+                const started = await fetch(`${API_TACTICAL_URL}/tactical-games/${gameId}/rounds/start`, { method: 'POST' });
+                tacticalGameResponse = await started.json();
+            }
+            setTacticalGame(tacticalGameResponse);
+
+            const charactersResponse = await fetch(`${API_TACTICAL_URL}/characters?tacticalGameId=${gameId}&page=0&size=100`);
+            const charactersResponseJson = await charactersResponse.json();
+            setCharacters(charactersResponseJson.content);
+
+            const round = tacticalGameResponse.round;
+            console.log("fetching characters for round " + round);
+            const characterRoundsResponse = await fetch(`${API_TACTICAL_URL}/tactical-games/${gameId}/rounds/${round}/characters`);
+            const characterRoundsResponseJson = await characterRoundsResponse.json();
+            setCharacterRounds(characterRoundsResponseJson);
+
+        } catch (error) {
+            console.error("fetch error: " + error);
+        }
+    };
+
+    const handleNewTurnClick = () => {
+
+    };
+
+    const fecthCharacterRounds = async (gameId, round) => {
+        console.info("fetch character rounds");
+        try {
+            const response = await fetch(`${API_TACTICAL_URL}/tactical-games/${gameId}/rounds/${round}/characters`);
+            const data = await response.json();
+            setCharacters(data.content);
+        } catch (error) {
+            console.error("error loading characters :" + error);
+        }
+    }
 
     useEffect(() => {
-        const fetchCharacters = async () => {
-            const url = `${API_TACTICAL_URL}/characters/tactical-games/${tacticalGame.id}`;
-            try {
-                const response = await fetch(url, { method: "GET", });
-                const data = await response.json();
-                setCharacters(data.content);
-            } catch (error) {
-                console.error("error loading characters :" + error);
-            }
-        };
-        fetchCharacters();
+        fetchTacticalGameAndStart();
     }, []);
 
+    const startGame = () => {
+    };
+
     return (
-        <div class="combat-dashboard">
+        <div className="combat-dashboard">
             <div>
                 WIP tactical game
             </div>
+            <CombatDashboardActions />
 
             {debugMode ? (
                 <div>
@@ -41,6 +80,10 @@ const CombatDashboard = () => {
                     <h3>characters</h3>
                     <pre>
                         {JSON.stringify(characters, null, 2)}
+                    </pre>
+                    <h3>characterRounds</h3>
+                    <pre>
+                        {JSON.stringify(characterRounds, null, 2)}
                     </pre>
                 </div>
             ) : null}
