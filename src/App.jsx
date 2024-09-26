@@ -10,6 +10,8 @@ import TacticalGameView from "./components/tactical-game/TacticalGameView";
 
 import "./index.css";
 
+import './i18n'
+
 const App = () => {
   return (
     <Routes>

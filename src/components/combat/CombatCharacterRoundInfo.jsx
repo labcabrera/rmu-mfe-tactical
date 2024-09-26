@@ -5,8 +5,8 @@ import Avatar from '@mui/material/Avatar';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
-
-// import '../i18n/i18n';
+import Paper from '@mui/material/Paper';
+import Stack from '@mui/material/Stack';
 
 import HealthBar from './HealthBar';
 
@@ -25,15 +25,19 @@ const CombatCharacterRoundInfo = ({ characterRound, character }) => {
     return (
         <Card>
             <CardContent>
-                <Avatar alt={character.name} src={getAvatarImage()} />
-                <Typography variant="h6" component="div">
-                    {character.name}
-                </Typography>
+
+                <Stack
+                    direction={{ xs: 'column', sm: 'row' }}
+                    spacing={{ xs: 1, sm: 2, md: 4 }}
+                >
+                    <Avatar alt={character.name} variant="square" src={getAvatarImage()} />
+                    <Typography variant="h6" component="div">
+                        {character.name}
+                    </Typography>
+                </Stack>
                 <Typography variant="h7" component="div">
-                    {t(character.info.race)} {character.info.race} {character.info.level}
+                    {t(character.info.race)} level {character.info.level}
                 </Typography>
-                <p></p>
-                <p>{character.hp.current}/{character.hp.max} HP</p>
                 <HealthBar currentHP={character.hp.current} maxHP={character.hp.max} />
             </CardContent>
         </Card>

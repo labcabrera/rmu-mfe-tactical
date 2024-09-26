@@ -64,15 +64,19 @@ const CombatDashboardActions = () => {
                 <Button variant="outlined">End turn</Button>
 
                 <Tooltip title="Previous round">
-                    <IconButton variant="outlined" onClick={handleDisplayPreviousRoundClick} disabled={displayRound < 2}>
-                        <NavigateBeforeOutlinedIcon />
-                    </IconButton>
+                    <span>
+                        <IconButton variant="outlined" onClick={handleDisplayPreviousRoundClick} disabled={displayRound < 2}>
+                            <NavigateBeforeOutlinedIcon />
+                        </IconButton>
+                    </span>
                 </Tooltip>
 
                 <Tooltip title="Next round">
-                    <IconButton variant="outlined" onClick={handleDisplayNextRoundClick} disabled={displayRound >= tacticalGame.round}>
-                        <NavigateNextOutlinedIcon />
-                    </IconButton>
+                    <span>
+                        <IconButton variant="outlined" onClick={handleDisplayNextRoundClick} disabled={displayRound >= tacticalGame.round}>
+                            <NavigateNextOutlinedIcon />
+                        </IconButton>
+                    </span>
                 </Tooltip>
 
                 <Tooltip title="New round">

@@ -84,3 +84,17 @@ a {
   margin-bottom: 10px;
 }
 
+.image-button:hover {
+  transform: translateY(-1px); /* Eleva el botón */
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.image-button:hover .image-button-image:hover {
+  filter: brightness(1.5) saturate(1.5);
+}
+
+.image-button.disabled {
+  opacity: 0.5; /* Reduce la opacidad para que se vea desactivado */
+  transform: none; /* Elimina la elevación */
+  box-shadow: none; /* Sin sombra */
+}
