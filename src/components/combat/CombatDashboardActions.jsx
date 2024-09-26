@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
+import { useNavigate } from "react-router-dom";
 
-import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
+import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
 import NavigateBeforeOutlinedIcon from '@mui/icons-material/NavigateBeforeOutlined';
 import NavigateNextOutlinedIcon from '@mui/icons-material/NavigateNextOutlined';
 import PlayCircleIcon from '@mui/icons-material/PlayCircle';
@@ -15,6 +15,8 @@ import { CombatContext } from './CombatProvider';
 import { API_TACTICAL_URL } from "../../constants/environment";
 
 const CombatDashboardActions = () => {
+
+    const navigate = useNavigate();
 
     const { displayRound, setDisplayRound } = useContext(CombatContext);
     const { tacticalGame, setTacticalGame } = useContext(CombatContext);
@@ -35,6 +37,10 @@ const CombatDashboardActions = () => {
         } catch (error) {
             console.error("CombatDashboardActions.fecthCharacterRounds error: " + error);
         }
+    };
+
+    const handleCloseDashboardClick = () => {
+        navigate(`/tactical/view/${tacticalGame.id}`, { state: { tacticalGame: tacticalGame } });
     };
 
     if (!displayRound || !tacticalGame) {
@@ -64,7 +70,7 @@ const CombatDashboardActions = () => {
                 </Tooltip>
 
                 <Tooltip title="Next round">
-                    <IconButton variant="outlined" onClick={handleDisplayNextRoundClick} disabled={displayRound <= tacticalGame.round}>
+                    <IconButton variant="outlined" onClick={handleDisplayNextRoundClick} disabled={displayRound >= tacticalGame.round}>
                         <NavigateNextOutlinedIcon />
                     </IconButton>
                 </Tooltip>
@@ -75,12 +81,11 @@ const CombatDashboardActions = () => {
                     </IconButton>
                 </Tooltip>
 
-                <IconButton variant="outlined">
-                    <EditIcon />
-                </IconButton>
-                <IconButton variant="outlined">
-                    <DeleteIcon />
-                </IconButton>
+                <Tooltip title="Exit">
+                    <IconButton variant="outlined" onClick={handleCloseDashboardClick}>
+                        <CloseOutlinedIcon />
+                    </IconButton>
+                </Tooltip>
             </Stack>
         </div>
     );
