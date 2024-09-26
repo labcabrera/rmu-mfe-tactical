@@ -1,11 +1,23 @@
-import React from "react";
+import React, { useContext } from "react";
 
-const CombatCharacterList = (tacticalGame, characters, characterRounds) => {
+import CombatCharacterRound from "./CombatCharacterRound";
+import { CombatContext } from './CombatProvider';
+
+const CombatCharacterList = () => {
 
     const debugMode = false;
 
+    const { characterRounds, setCharacterRounds } = useContext(CombatContext);
+
+    if (!characterRounds) {
+        return <p>Loading...</p>
+    }
+
     return (
-        <div className="combat-dashboard">
+        <div className="combat-dashboard-list">
+            {characterRounds.map((item) => (
+                <CombatCharacterRound characterRound={item} />
+            ))}
             <div>
                 WIP combat character list
             </div>
