@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 
+import SaveIcon from '@mui/icons-material/Save';
+import Grid from '@mui/material/Grid2';
+import IconButton from '@mui/material/IconButton';
+import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 
 import { API_TACTICAL_URL } from "../../constants/environment";
@@ -20,22 +24,28 @@ const TacticalAttackCreation = () => {
 
 
     const [formData, setFormData] = useState({
-        name: '',
-        description: '',
-        phaseStart: phaseStart
+        tacticalGameId: tacticalGame.id,
+        round: tacticalGame.round,
+        tacticalCharacterId: character.id,
+        type: 'attack',
+        phaseStart: phaseStart,
+        actionPoints: 2
     });
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         const requestOptions = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(formData)
         };
-        const url = `${API_TACTICAL_URL}/tactical-games`;
-        fetch(url, requestOptions)
-            .then(response => response.json())
-            .then(data => navigate("/tactical/view/" + data.id, { state: { tacticalGame: data } }));
+        const createActionResponse = await fetch(`${API_TACTICAL_URL}/actions`, requestOptions);
+        if (createActionResponse.status == 201) {
+            navigate(`/tactical/combat/${tacticalGame.id}`);
+        } else {
+            error = await createActionResponse.json();
+            console.log(error.message);
+        }
     }
 
     const handleChange = (e) => {
@@ -45,25 +55,52 @@ const TacticalAttackCreation = () => {
 
     return (
         <div className="tactical-game-creation">
-            <p>wip declare attack</p>
+            <div class="tactical-game-character-creation-actions">
+                <Stack spacing={2} direction="row" sx={{
+                    justifyContent: "flex-end",
+                    alignItems: "flex-start",
+                }}>
+                    <IconButton variant="outlined" onClick={handleSubmit}>
+                        <SaveIcon />
+                    </IconButton>
+                </Stack>
+            </div>
             <form onSubmit={handleSubmit}>
-                <TextField
-                    label="Name"
-                    variant="outlined"
-                    fullWidth
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    margin="normal"
-                    required />
-                <TextField
-                    label="Description"
-                    variant="outlined"
-                    name="description"
-                    value={formData.description}
-                    onChange={handleChange}
-                    fullWidth
-                    margin="normal" />
+                <Grid container spacing={5}>
+                    <Grid size={3}>
+                        <TextField
+                            label="Name"
+                            variant="outlined"
+                            fullWidth
+                            name="name"
+                            value={formData.name}
+                            onChange={handleChange}
+                            margin="normal"
+                            required />
+                    </Grid>
+                    <Grid size={3}>
+                        <TextField
+                            label="Description"
+                            variant="outlined"
+                            name="description"
+                            value={formData.description}
+                            onChange={handleChange}
+                            fullWidth
+                            margin="normal" />
+                    </Grid>
+                    <Grid size={3}>
+
+                    </Grid>
+                    <Grid size={3}>
+
+                    </Grid>
+                    <Grid size={3}>
+
+                    </Grid>
+                </Grid>
+
+                <p>wip declare attack</p>
+
             </form>
             {debugMode ? (
                 <div>

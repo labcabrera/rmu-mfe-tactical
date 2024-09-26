@@ -15,6 +15,7 @@ const CombatDashboard = () => {
     const { tacticalGame, setTacticalGame } = useContext(CombatContext);
     const { characters, setCharacters } = useContext(CombatContext);
     const { characterRounds, setCharacterRounds } = useContext(CombatContext);
+    const { roundActions, setRoundActions } = useContext(CombatContext);
 
     const fetchTacticalGame = async () => {
         console.info(`CombatDashboard.fetchTacticalGame ${tacticalGameId} triggered`);
@@ -58,6 +59,21 @@ const CombatDashboard = () => {
         }
     };
 
+    const fetchActions = async () => {
+        console.info(`CombatDashboard.fetchActions ${tacticalGameId} round ${displayRound}`);
+        if (!tacticalGameId || !displayRound) {
+            console.info("CombatDashboard.fetchActions aborted");
+            return;
+        }
+        try {
+            const response = await fetch(`${API_TACTICAL_URL}/actions?tacticalGameId=${tacticalGameId}&round=${displayRound}`);
+            const data = await response.json();
+            setRoundActions(data.content);
+        } catch (error) {
+            console.error("CombatDashboard.fetchActions error: " + error);
+        }
+    };
+
     useEffect(() => {
         console.log("CombatDashboard.useEffect[tacticalGameId] triggered");
         fetchTacticalGame();
@@ -67,6 +83,7 @@ const CombatDashboard = () => {
     useEffect(() => {
         console.log(`CombatDashboard.useEffect[displayRound] triggered ${displayRound}`);
         fecthCharacterRounds();
+        fetchActions();
     }, [displayRound]);
 
 
@@ -87,6 +104,10 @@ const CombatDashboard = () => {
                     <h3>characterRounds</h3>
                     <pre>
                         {JSON.stringify(characterRounds, null, 2)}
+                    </pre>
+                    <h3>roundActions</h3>
+                    <pre>
+                        {JSON.stringify(roundActions, null, 2)}
                     </pre>
                 </div>
             ) : null}
