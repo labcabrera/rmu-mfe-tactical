@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom';
 import CombatDashboardActions from './CombatDashboardActions';
 
 import { API_TACTICAL_URL } from "../../constants/environment";
+import CombatCharacterList from "./CombatCharacterList";
 
 const CombatDashboard = () => {
 
@@ -14,6 +15,7 @@ const CombatDashboard = () => {
     const [tacticalGame, setTacticalGame] = useState({});
     const [characters, setCharacters] = useState([]);
     const [characterRounds, setCharacterRounds] = useState([]);
+    const [displayRound, setDisplayRound] = useState(1);
 
     const fetchTacticalGameAndStart = async () => {
         console.info("fetch tactical game");
@@ -26,6 +28,7 @@ const CombatDashboard = () => {
                 tacticalGameResponse = await started.json();
             }
             setTacticalGame(tacticalGameResponse);
+            setDisplayRound(tacticalGameResponse.round);
 
             const charactersResponse = await fetch(`${API_TACTICAL_URL}/characters?tacticalGameId=${gameId}&page=0&size=100`);
             const charactersResponseJson = await charactersResponse.json();
@@ -69,7 +72,8 @@ const CombatDashboard = () => {
             <div>
                 WIP tactical game
             </div>
-            <CombatDashboardActions />
+            <CombatDashboardActions setDisplayRound={setDisplayRound}/>
+            <CombatCharacterList tacticalGame={tacticalGame} characterRounds={characterRounds} />
 
             {debugMode ? (
                 <div>
