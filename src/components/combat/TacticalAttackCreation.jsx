@@ -2,8 +2,12 @@ import React, { useState } from 'react';
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 
 import SaveIcon from '@mui/icons-material/Save';
+import FormControl from '@mui/material/FormControl';
 import Grid from '@mui/material/Grid2';
 import IconButton from '@mui/material/IconButton';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import Select from '@mui/material/Select';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 
@@ -21,7 +25,7 @@ const TacticalAttackCreation = () => {
 
     const tacticalGame = location.state?.tacticalGame;
     const character = location.state?.character;
-
+    const characters = location.state?.characters;
 
     const [formData, setFormData] = useState({
         tacticalGameId: tacticalGame.id,
@@ -29,7 +33,8 @@ const TacticalAttackCreation = () => {
         tacticalCharacterId: character.id,
         type: 'attack',
         phaseStart: phaseStart,
-        actionPoints: 2
+        actionPoints: 2,
+        tacticalCharacterTargetId: ''
     });
 
     const handleSubmit = async (e) => {
@@ -53,6 +58,14 @@ const TacticalAttackCreation = () => {
         setFormData({ ...formData, [name]: value })
     }
 
+    const handleTargetChange = (e) => {
+        setFormData({ ...formData, tacticalCharacterTargetId: e.target.value });
+    };
+
+    if (!tacticalGame || !character || !characters) {
+        return <p>Loading...</p>
+    }
+
     return (
         <div className="tactical-game-creation">
             <div class="tactical-game-character-creation-actions">
@@ -65,43 +78,54 @@ const TacticalAttackCreation = () => {
                     </IconButton>
                 </Stack>
             </div>
-            <form onSubmit={handleSubmit}>
-                <Grid container spacing={5}>
-                    <Grid size={3}>
-                        <TextField
-                            label="Name"
-                            variant="outlined"
-                            fullWidth
-                            name="name"
-                            value={formData.name}
-                            onChange={handleChange}
-                            margin="normal"
-                            required />
-                    </Grid>
-                    <Grid size={3}>
-                        <TextField
-                            label="Description"
-                            variant="outlined"
-                            name="description"
-                            value={formData.description}
-                            onChange={handleChange}
-                            fullWidth
-                            margin="normal" />
-                    </Grid>
-                    <Grid size={3}>
-
-                    </Grid>
-                    <Grid size={3}>
-
-                    </Grid>
-                    <Grid size={3}>
-
-                    </Grid>
+            <Grid container spacing={1}>
+                <Grid size={3}>
+                    <FormControl fullWidth>
+                        <InputLabel id="select-target-label">Target</InputLabel>
+                        <Select
+                            id="select-target"
+                            labelId="select-target-label"
+                            label="Target"
+                            value={formData.tacticalCharacterTargetId}
+                            required
+                            onChange={handleTargetChange}>
+                            {characters.filter(e => e.id != character.id).map((c, index) => (
+                                <MenuItem key={index} value={c.id}>{c.name}</MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
                 </Grid>
+                <Grid size={3}>
+                    <TextField
+                        label="Name"
+                        variant="outlined"
+                        fullWidth
+                        name="name"
+                        value={formData.name}
+                        onChange={handleChange}
+                        margin="normal"
+                        required />
+                </Grid>
+                <Grid size={3}>
+                    <TextField
+                        label="Description"
+                        variant="outlined"
+                        name="description"
+                        value={formData.description}
+                        onChange={handleChange}
+                        fullWidth
+                        margin="normal" />
+                </Grid>
+                <Grid size={3}>
 
-                <p>wip declare attack</p>
+                </Grid>
+                <Grid size={3}>
 
-            </form>
+                </Grid>
+                <Grid size={3}>
+
+                </Grid>
+            </Grid>
             {debugMode ? (
                 <div>
                     <h2>formData</h2>
@@ -111,6 +135,10 @@ const TacticalAttackCreation = () => {
                     <h2>character</h2>
                     <pre>
                         {JSON.stringify(character, null, 2)}
+                    </pre>
+                    <h2>characters</h2>
+                    <pre>
+                        {JSON.stringify(characters, null, 2)}
                     </pre>
                 </div>
             ) : null}

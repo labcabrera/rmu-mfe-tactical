@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import IconButton from '@mui/material/IconButton';
 
-const CombatPhaseActionButtons = ({ tacticalGame, character, phaseNumber }) => {
+const CombatPhaseActionButtons = ({ tacticalGame, character, characters, phaseNumber }) => {
 
   const navigate = useNavigate();
 
@@ -23,7 +23,13 @@ const CombatPhaseActionButtons = ({ tacticalGame, character, phaseNumber }) => {
     console.log("CombatPhaseActionButtons.handleClick " + type);
     switch (type) {
       case 'attack':
-        navigate(`/tactical/combat/${tacticalGame.id}/declare-attack?phaseStart=${phaseNumber}`, { state: { tacticalGame: tacticalGame, character: character } });
+        navigate(`/tactical/combat/${tacticalGame.id}/declare-attack?phaseStart=${phaseNumber}`, {
+          state: {
+            tacticalGame: tacticalGame,
+            character: character,
+            characters: characters
+          }
+        });
     }
   };
 
