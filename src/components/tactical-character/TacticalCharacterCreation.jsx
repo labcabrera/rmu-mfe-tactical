@@ -40,7 +40,7 @@ const TacticalCharacterCreation = () => {
         faction: 'Neutral',
         info: {
             level: 1,
-            race: "lotr-ork",
+            race: "lotr-orc",
             sizeId: "medium",
             armorType: 2
         },

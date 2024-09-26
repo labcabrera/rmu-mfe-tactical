@@ -1,19 +1,19 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid2';
 
+import CombatCharacterRoundInfo from "./CombatCharacterRoundInfo";
 import { CombatContext } from './CombatProvider';
 
-const CombatCharacterRound = (characterRound) => {
+const CombatCharacterRound = ({characterRound}) => {
 
     const [character, setCharacter] = useState();
 
     const { characters, setCharacters } = useContext(CombatContext);
 
     const loadCharacter = () => {
-        const e = characters[0];
-        setCharacter(e);
+        setCharacter(characters.find(item => item.id === characterRound.tacticalCharacterId));
     };
 
     useEffect(() => {
@@ -21,16 +21,15 @@ const CombatCharacterRound = (characterRound) => {
         loadCharacter();
     }, []);
 
-    if(!characterRound || !characters || !character) {
+    if (!characterRound || !characters || !character) {
         return <p>Loading...</p>
     }
 
     return (
         <Box sx={{ flexGrow: 1 }}>
-            <Grid container spacing={2}>
+            <Grid container spacing={5}>
                 <Grid size={4}>
-                    <p>{character.name}</p>
-                    <p>{character.hp.current}/{character.hp.max} HP</p>
+                    <CombatCharacterRoundInfo character={character} characterRound={characterRound} />
                 </Grid>
                 <Grid size={2}>
                     Action 1
