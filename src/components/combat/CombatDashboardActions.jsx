@@ -1,5 +1,4 @@
-import React from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import React, { useContext } from "react";
 
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
@@ -10,18 +9,18 @@ import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
 
-const CombatDashboardActions = (displayRound, setDisplayRound) => {
+import { CombatContext } from './CombatProvider';
 
-    const debugMode = false;
+const CombatDashboardActions = () => {
 
-    const location = useLocation();
-    const navigate = useNavigate();
-    const tacticalGame = location.state?.tacticalGame;
+    const { displayRound, setDisplayRound } = useContext(CombatContext);
 
     const handlePreviousRoundClick = () => {
+        setDisplayRound(displayRound - 1);
     };
 
     const handleNextRoundClick = () => {
+        setDisplayRound(displayRound + 1);
     };
 
     return (
@@ -33,7 +32,7 @@ const CombatDashboardActions = (displayRound, setDisplayRound) => {
                 sx={{ width: '100%', height: 100 }}
             >
 
-                <div>Round X/{tacticalGame.round}</div>
+                {/* <div>Round X/{tacticalGame.round}</div> */}
                 <div>{JSON.stringify(displayRound, null, 2)}</div>
 
                 <div style={{ flexGrow: 1 }} />
@@ -41,10 +40,10 @@ const CombatDashboardActions = (displayRound, setDisplayRound) => {
                 <Button variant="outlined">Action phase</Button>
                 <Button variant="outlined">End turn</Button>
 
-                <IconButton variant="outlined">
+                <IconButton variant="outlined" onClick={handlePreviousRoundClick}>
                     <NavigateBeforeOutlinedIcon />
                 </IconButton>
-                <IconButton variant="outlined">
+                <IconButton variant="outlined" onClick={handleNextRoundClick}>
                     <NavigateNextOutlinedIcon />
                 </IconButton>
 

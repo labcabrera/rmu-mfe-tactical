@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from 'react-router-dom';
 
+import CombatCharacterList from "./CombatCharacterList";
 import CombatDashboardActions from './CombatDashboardActions';
+import { CombatProvider } from './CombatProvider';
 
 import { API_TACTICAL_URL } from "../../constants/environment";
-import CombatCharacterList from "./CombatCharacterList";
+
+import { CombatContext } from './CombatProvider';
 
 const CombatDashboard = () => {
 
@@ -15,7 +18,7 @@ const CombatDashboard = () => {
     const [tacticalGame, setTacticalGame] = useState({});
     const [characters, setCharacters] = useState([]);
     const [characterRounds, setCharacterRounds] = useState([]);
-    const [displayRound, setDisplayRound] = useState(1);
+    const [displayRound, setDisplayRound] = useState(null);
 
     const fetchTacticalGameAndStart = async () => {
         console.info("fetch tactical game");
@@ -74,12 +77,13 @@ const CombatDashboard = () => {
 
     return (
         <div className="combat-dashboard">
-            <CombatDashboardActions displayRound={displayRound} setDisplayRound={setDisplayRound} />
-            <div>
-                WIP tactical game round {displayRound}
-            </div>
-            <CombatCharacterList tacticalGame={tacticalGame} characterRounds={characterRounds} />
-
+            <CombatProvider>
+                <CombatDashboardActions displayRound={displayRound} setDisplayRound={setDisplayRound} />
+                <div>
+                    WIP tactical game round {displayRound}
+                </div>
+                <CombatCharacterList tacticalGame={tacticalGame} characterRounds={characterRounds} />
+            </CombatProvider>
             {debugMode ? (
                 <div>
                     <h3>tacticalGame</h3>
