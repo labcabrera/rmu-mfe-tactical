@@ -41,8 +41,20 @@ const TacticalGameViewActions = () => {
     const handleEditClick = () => {
     };
 
-    const handleOpenClick = () => {
-        navigate(`/tactical/combat/${tacticalGame.id}`, { state: { tacticalGame: tacticalGame } });
+    const handleOpenClick = async () => {
+        console.log("handleOpenClick " + tacticalGame.status);
+        if (tacticalGame.status === "created") {
+            console.log("status is created");
+            const startGameResponse = await fetch(`${API_TACTICAL_URL}/tactical-games/${tacticalGame.id}/rounds/start`, { method: 'POST' });
+            if (startGameResponse.status == 200) {
+                navigate(`/tactical/combat/${tacticalGame.id}`);
+            } else {
+                const startGameResponseError = await startGameResponse.json();
+                console.log("creation error: " + startGameResponseError.message);
+            }
+        } else {
+            navigate(`/tactical/combat/${tacticalGame.id}`, { state: { tacticalGame: tacticalGame } });
+        }
     };
 
     const handleDeleteClick = () => {
@@ -59,7 +71,7 @@ const TacticalGameViewActions = () => {
     };
 
     return (
-        <div class="tactical-game-view-actions">
+        <div className="tactical-game-view-actions">
             <Stack spacing={2} direction="row" sx={{
                 justifyContent: "flex-end",
                 alignItems: "flex-start",

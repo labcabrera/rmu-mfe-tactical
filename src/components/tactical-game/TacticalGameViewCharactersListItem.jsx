@@ -34,7 +34,7 @@ const TacticalGameViewCharactersListItem = ({ tacticalGame, character, onRemoveC
     };
 
     return (
-        <ListItem secondaryAction={
+        <ListItem key={character.id} secondaryAction={
             <Stack spacing={1} direction="row" sx={{
                 justifyContent: "flex-end",
                 alignItems: "flex-start",

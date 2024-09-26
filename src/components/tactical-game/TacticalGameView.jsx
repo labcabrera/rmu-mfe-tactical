@@ -16,7 +16,7 @@ const TacticalGameView = () => {
     const tacticalGame = location.state?.tacticalGame;
 
     return (
-        <div class="tactical-game-view">
+        <div className="tactical-game-view">
             <TacticalGameViewActions />
             <Box sx={{ flexGrow: 1 }}>
                 <Grid container spacing={2}>

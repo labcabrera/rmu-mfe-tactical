@@ -64,7 +64,7 @@ const TacticalGameViewInfo = ({ tacticalGame }) => {
                 />
                 <Stack direction="row" spacing={1}>
                     {tacticalGame.factions.map((item) => (
-                        <Chip label={item} variant="outlined" onDelete={handleDeleteFaction(item)} />
+                        <Chip key={item} label={item} variant="outlined" onDelete={handleDeleteFaction(item)} />
                     ))}
                 </Stack>
             </Box >
