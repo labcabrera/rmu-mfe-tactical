@@ -1,8 +1,8 @@
 import React, { useContext, useEffect, useState } from "react";
 
-
 import CombatPhaseActionButtons from "./ComabatPhaseActionButtons";
 import { CombatContext } from './CombatProvider';
+import ResolveActionCard from './ResolveActionCard';
 
 const CombatCharacterPhaseOptions = ({ character, phase }) => {
 
@@ -38,7 +38,7 @@ const CombatCharacterPhaseOptions = ({ character, phase }) => {
     }
 
     if ((activeAction.phaseStart + activeAction.actionPoints - 1) == phase) {
-        return <p>Resolve {activeAction.type}</p>
+        return <ResolveActionCard action={activeAction} />
     }
 
     return (

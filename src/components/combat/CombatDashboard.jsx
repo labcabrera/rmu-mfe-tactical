@@ -86,7 +86,6 @@ const CombatDashboard = () => {
         fetchActions();
     }, [displayRound]);
 
-
     return (
         <div className="combat-dashboard">
             <CombatDashboardActions />

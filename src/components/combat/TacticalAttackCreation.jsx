@@ -68,7 +68,7 @@ const TacticalAttackCreation = () => {
 
     return (
         <div className="tactical-game-creation">
-            <div class="tactical-game-character-creation-actions">
+            <div className="tactical-game-character-creation-actions">
                 <Stack spacing={2} direction="row" sx={{
                     justifyContent: "flex-end",
                     alignItems: "flex-start",

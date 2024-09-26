@@ -1,4 +1,5 @@
 {
+    "action-type-attack": "Attack",
     "lotr-orc": "Orc",
     "lotr-human": "Human"
 }
