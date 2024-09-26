@@ -33,7 +33,7 @@ const CombatCharacterRound = ({ characterRound }) => {
                     <CombatCharacterRoundInfo character={character} characterRound={characterRound} />
                 </Grid>
                 <Grid size={2}>
-                    <CombatPhaseActionButtons />
+                    <CombatPhaseActionButtons character={character} />
                 </Grid>
                 <Grid size={2}>
                     <CombatPhaseActionButtons />

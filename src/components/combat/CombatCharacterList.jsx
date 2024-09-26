@@ -15,8 +15,8 @@ const CombatCharacterList = () => {
 
     return (
         <div className="combat-dashboard-list">
-            {characterRounds.map((item) => (
-                <CombatCharacterRound characterRound={item} />
+            {characterRounds.map((item, index) => (
+                <CombatCharacterRound key={index} characterRound={item} />
             ))}
             {debugMode ? (
                 <div>
