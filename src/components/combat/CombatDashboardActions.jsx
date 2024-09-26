@@ -18,7 +18,10 @@ const CombatDashboardActions = (displayRound, setDisplayRound) => {
     const navigate = useNavigate();
     const tacticalGame = location.state?.tacticalGame;
 
-    const handleNextTurnClick = () => {
+    const handlePreviousRoundClick = () => {
+    };
+
+    const handleNextRoundClick = () => {
     };
 
     return (
@@ -45,7 +48,7 @@ const CombatDashboardActions = (displayRound, setDisplayRound) => {
                     <NavigateNextOutlinedIcon />
                 </IconButton>
 
-                <IconButton variant="outlined" onClick={handleNextTurnClick}>
+                <IconButton variant="outlined">
                     <PlayCircleIcon />
                 </IconButton>
                 <IconButton variant="outlined">

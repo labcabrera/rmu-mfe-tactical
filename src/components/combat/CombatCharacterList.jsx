@@ -2,7 +2,7 @@ import React from "react";
 
 const CombatCharacterList = (tacticalGame, characters, characterRounds) => {
 
-    const debugMode = true;
+    const debugMode = false;
 
     return (
         <div className="combat-dashboard">

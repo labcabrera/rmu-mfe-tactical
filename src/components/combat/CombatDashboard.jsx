@@ -45,6 +45,11 @@ const CombatDashboard = () => {
         }
     };
 
+    const onDisplayRoundChange = (newDisplayRound) => {
+        console.log("onDisplayRoundChange: " + newDisplayRound);
+        setDisplayRound(newDisplayRound);
+    };
+
     const handleNewTurnClick = () => {
 
     };
@@ -69,10 +74,10 @@ const CombatDashboard = () => {
 
     return (
         <div className="combat-dashboard">
+            <CombatDashboardActions displayRound={displayRound} setDisplayRound={setDisplayRound} />
             <div>
-                WIP tactical game
+                WIP tactical game round {displayRound}
             </div>
-            <CombatDashboardActions setDisplayRound={setDisplayRound}/>
             <CombatCharacterList tacticalGame={tacticalGame} characterRounds={characterRounds} />
 
             {debugMode ? (
