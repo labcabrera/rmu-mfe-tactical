@@ -1,22 +1,28 @@
 import React, { useState } from 'react';
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 
-import SaveIcon from '@mui/icons-material/Save';
-import IconButton from '@mui/material/IconButton';
-import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 
 import { API_TACTICAL_URL } from "../../constants/environment";
 
-const TacticalAttackCreation = ({ character }) => {
+const TacticalAttackCreation = () => {
+
+    const debugMode = true;
 
     const navigate = useNavigate();
+    const location = useLocation();
+    const [searchParams] = useSearchParams();
 
-    const debugMode = false;
+    const phaseStart = searchParams.get('phaseStart');
+
+    const tacticalGame = location.state?.tacticalGame;
+    const character = location.state?.character;
+
 
     const [formData, setFormData] = useState({
         name: '',
-        description: ''
+        description: '',
+        phaseStart: phaseStart
     });
 
     const handleSubmit = (e) => {
@@ -39,16 +45,7 @@ const TacticalAttackCreation = ({ character }) => {
 
     return (
         <div className="tactical-game-creation">
-            <div className="tactical-game-view-actions">
-                <Stack spacing={2} direction="row" sx={{
-                    justifyContent: "flex-end",
-                    alignItems: "flex-start",
-                }}>
-                    <IconButton variant="outlined" onClick={handleSubmit}>
-                        <SaveIcon />
-                    </IconButton>
-                </Stack>
-            </div>
+            <p>wip declare attack</p>
             <form onSubmit={handleSubmit}>
                 <TextField
                     label="Name"

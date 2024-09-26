@@ -12,6 +12,7 @@ const CombatCharacterRound = ({ characterRound }) => {
     const [character, setCharacter] = useState();
 
     const { characters, setCharacters } = useContext(CombatContext);
+    const { tacticalGame, setTacticalGame } = useContext(CombatContext);
 
     const loadCharacter = () => {
         setCharacter(characters.find(item => item.id === characterRound.tacticalCharacterId));
@@ -33,16 +34,16 @@ const CombatCharacterRound = ({ characterRound }) => {
                     <CombatCharacterRoundInfo character={character} characterRound={characterRound} />
                 </Grid>
                 <Grid size={2}>
-                    <CombatPhaseActionButtons character={character} />
+                    <CombatPhaseActionButtons character={character} tacticalGame={tacticalGame} phaseNumber={1} />
                 </Grid>
                 <Grid size={2}>
-                    <CombatPhaseActionButtons />
+                    <CombatPhaseActionButtons character={character} tacticalGame={tacticalGame} phaseNumber={2} />
                 </Grid>
                 <Grid size={2}>
-                    <CombatPhaseActionButtons />
+                    {/* <CombatPhaseActionButtons /> */}
                 </Grid>
                 <Grid size={2}>
-                    <CombatPhaseActionButtons />
+                    {/* <CombatPhaseActionButtons /> */}
                 </Grid>
             </Grid>
         </Box>

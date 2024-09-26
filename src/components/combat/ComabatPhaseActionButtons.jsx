@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import IconButton from '@mui/material/IconButton';
 
-const CombatPhaseActionButtons = ({ tacticalGame, character }) => {
+const CombatPhaseActionButtons = ({ tacticalGame, character, phaseNumber }) => {
 
   const navigate = useNavigate();
 
@@ -14,13 +14,21 @@ const CombatPhaseActionButtons = ({ tacticalGame, character }) => {
   const actions = [
     { src: '/static/images/actions/movement.jpg', alt: 'Movement', type: "movement" },
     { src: '/static/images/actions/attack.png', alt: 'Botón 2', type: "attack" },
-    { src: '/static/images/actions/movement-maneuver.webp', alt: 'Botón 3', type: "movement" },
-    { src: '/static/images/actions/static-maneuver.png', alt: 'Botón 4', type: "movement" },
-    { src: '/static/images/actions/spell.png', alt: 'Botón 5', type: "movement" },
+    { src: '/static/images/actions/movement-maneuver.webp', alt: 'Botón 3', type: "movement-maneuver" },
+    { src: '/static/images/actions/static-maneuver.png', alt: 'Botón 4', type: "static-maneuver" },
+    { src: '/static/images/actions/spell.png', alt: 'Botón 5', type: "spell" },
   ];
 
-  const handleClick = () => {
-    console.log("CombatPhaseActionButtons.handleClick");
+  const handleClick = (type) => {
+    console.log("CombatPhaseActionButtons.handleClick " + type);
+    switch (type) {
+      case 'attack':
+        navigate(`/tactical/combat/${tacticalGame.id}/declare-attack?phaseStart=${phaseNumber}`, { state: { tacticalGame: tacticalGame, character: character } });
+    }
+  };
+
+  if (!tacticalGame || !character || !phaseNumber) {
+    return <p>Loading...</p>
   }
 
   return (
@@ -33,7 +41,7 @@ const CombatPhaseActionButtons = ({ tacticalGame, character }) => {
         return (
           <IconButton
             key={index}
-            onClick={handleClick}
+            onClick={() => handleClick(action.type)}
             style={{
               position: 'absolute',
               top: `${y + radius}px`,

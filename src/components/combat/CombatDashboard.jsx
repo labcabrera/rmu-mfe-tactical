@@ -20,6 +20,7 @@ const CombatDashboard = () => {
         console.info(`CombatDashboard.fetchTacticalGame ${tacticalGameId} triggered`);
         if (!tacticalGameId) {
             console.info(`CombatDashboard.fetchTacticalGame aborted`);
+            return;
         }
         try {
             const response = await fetch(`${API_TACTICAL_URL}/tactical-games/${tacticalGameId}`, { method: 'GET' });
