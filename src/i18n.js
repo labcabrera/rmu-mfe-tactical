@@ -9,8 +9,6 @@ const resources = {
   es: { translation: es },
 };
 
-console.log("starting i18n ------------------------------");
-
 i18n
   .use(initReactI18next)
   .init({
