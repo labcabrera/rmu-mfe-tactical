@@ -22,12 +22,18 @@ const CombatCharacterPhaseOptions = ({ character, phase }) => {
                 return;
             }
         };
+        setActiveAction(null);
     };
 
     useEffect(() => {
         console.log(`CombatCharacterPhaseOptions.useEffect triggered`);
         loadActiveAction();
     }, []);
+
+    useEffect(() => {
+        console.log(`CombatCharacterPhaseOptions.useEffect[roundActions] triggered roundActions.length: ` + roundActions.length);
+        loadActiveAction();
+    }, [roundActions]);
 
     if (!character || !phase) {
         return <p>Loading...</p>

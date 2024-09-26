@@ -8,9 +8,7 @@ import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 
-
 import { CombatContext } from './CombatProvider';
-
 
 import { API_TACTICAL_URL } from '../../constants/environment';
 
@@ -19,22 +17,17 @@ const ResolveActionCard = ({ action }) => {
     const { t, i18n } = useTranslation();
 
     const { roundActions, setRoundActions } = useContext(CombatContext);
-    const { tacticalGameId, setTacticalGameId } = useContext(CombatContext);
 
     const handleDeleteActionClick = async () => {
         try {
             const response = await fetch(`${API_TACTICAL_URL}/actions/${action.id}`, { method: "DELETE" });
             const deleteResponse = await response;
             if (deleteResponse.status == 204) {
-                console.log("ResolveActionCard deleted action OK");
-                //TODO refresh error
-                //const newActionList = roundActions.filter(e => e.id !== action.id);
+                const newActionList = roundActions.filter(e => e.id !== action.id);
                 setRoundActions(newActionList);
-                setTacticalGameId(null);
-                setTacticalGameId(action.tacticalGameId);
             } else {
                 //TODO display error
-                console.log("delete data: " + data);
+                console.log("delete data: " + deleteResponse.status);
             }
         } catch (error) {
             console.log("delete error: " + error);
@@ -44,6 +37,7 @@ const ResolveActionCard = ({ action }) => {
     const getImage = () => {
         switch (action.type) {
             case 'attack': return '/static/images/actions/attack.png';
+            //TODO
             default: return '/static/images/movement.jpg';
         }
     }
