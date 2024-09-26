@@ -18,9 +18,6 @@ const CombatCharacterList = () => {
             {characterRounds.map((item) => (
                 <CombatCharacterRound characterRound={item} />
             ))}
-            <div>
-                WIP combat character list
-            </div>
             {debugMode ? (
                 <div>
                     <h3>tacticalGame</h3>

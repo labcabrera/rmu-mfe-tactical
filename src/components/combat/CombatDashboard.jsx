@@ -72,9 +72,6 @@ const CombatDashboard = () => {
     return (
         <div className="combat-dashboard">
             <CombatDashboardActions />
-            <div>
-                WIP tactical game round {displayRound}
-            </div>
             <CombatCharacterList tacticalGame={tacticalGame} characterRounds={characterRounds} />
             {debugMode ? (
                 <div>

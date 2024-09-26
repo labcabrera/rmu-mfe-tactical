@@ -98,3 +98,10 @@ a {
   transform: none; /* Elimina la elevación */
   box-shadow: none; /* Sin sombra */
 }
+
+.circle-container {
+  position: relative;
+  width: 240px; /* Doble del radio */
+  height: 240px; /* Doble del radio */
+  margin: auto; /* Centra el contenedor */
+}

@@ -4,9 +4,8 @@ import { useTranslation } from 'react-i18next';
 import Avatar from '@mui/material/Avatar';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
-import Typography from '@mui/material/Typography';
-import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
 
 import HealthBar from './HealthBar';
 
@@ -25,7 +24,6 @@ const CombatCharacterRoundInfo = ({ characterRound, character }) => {
     return (
         <Card>
             <CardContent>
-
                 <Stack
                     direction={{ xs: 'column', sm: 'row' }}
                     spacing={{ xs: 1, sm: 2, md: 4 }}
