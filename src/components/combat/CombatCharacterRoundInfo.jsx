@@ -1,13 +1,18 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 import Avatar from '@mui/material/Avatar';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 
+// import '../i18n/i18n';
+
 import HealthBar from './HealthBar';
 
 const CombatCharacterRoundInfo = ({ characterRound, character }) => {
+
+    const { t, i18n } = useTranslation();
 
     if (!characterRound || !character) {
         return <p>Loading...</p>
@@ -25,7 +30,7 @@ const CombatCharacterRoundInfo = ({ characterRound, character }) => {
                     {character.name}
                 </Typography>
                 <Typography variant="h7" component="div">
-                    {character.info.race} {character.info.level}
+                    {t(character.info.race)} {character.info.race} {character.info.level}
                 </Typography>
                 <p></p>
                 <p>{character.hp.current}/{character.hp.max} HP</p>
