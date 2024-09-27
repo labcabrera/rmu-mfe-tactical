@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from 'react-i18next';
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 
 import SaveIcon from '@mui/icons-material/Save';
 import FormControl from '@mui/material/FormControl';
@@ -14,7 +14,7 @@ import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 
-import { API_TACTICAL_URL } from "../../constants/environment";
+import { API_CORE_URL, API_TACTICAL_URL } from "../../constants/environment";
 
 const TacticalAttackCreation = () => {
 
@@ -56,6 +56,8 @@ const TacticalAttackCreation = () => {
             pacePenalty: 0,
             attackerSizeId: character.info.sizeId,
             defenderSizeId: '',
+            sizeHpMultiplier: 1.00,
+            sizeCriticalTypeModifier: 0
         }
     });
 
@@ -75,17 +77,32 @@ const TacticalAttackCreation = () => {
         }
     }
 
+    const fetchCharacterSizeAttackEffects = async (attackerSizeId, defenderSizeId) => {
+        try {
+            const response = await fetch(`${API_CORE_URL}/character-sizes/attack-effects/${attackerSizeId}/${defenderSizeId}`);
+            if (response.status == 200) {
+                const data = await response.json();
+                updateFormData('attackInfo', 'sizeHpMultiplier', data.hitMultiplier);
+                updateFormData('attackInfo', 'sizeCriticalTypeModifier', data.criticalTypeModifier);
+            }
+        }
+        catch (error) {
+            console.error("fetchCharacterSizeAttackEffects error: " + error);
+        }
+    };
+
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value })
     }
 
-    const handleTargetChange = (e) => {
+    const handleTargetChange = async (e) => {
         const targetCharacterId = e.target.value;
         const targetCharacter = characters.find(e => e.id == targetCharacterId);
         console.log("target: " + JSON.stringify(targetCharacter, null, 2));
         setFormData({ ...formData, tacticalCharacterTargetId: targetCharacterId });
         updateFormData('attackInfo', 'defenderSizeId', targetCharacter.info.sizeId);
+        await fetchCharacterSizeAttackEffects(formData.attackInfo.attackerSizeId, targetCharacter.info.sizeId);
     };
 
     const handleActionPointsChange = (e) => {
@@ -121,6 +138,7 @@ const TacticalAttackCreation = () => {
                     </IconButton>
                 </Stack>
             </div>
+            <h2>Declare attack</h2>
             <Grid container spacing={1}>
                 <Grid size={6}>
                     <Typography component="legend">Action points</Typography>
@@ -226,6 +244,26 @@ const TacticalAttackCreation = () => {
                         variant="outlined"
                         name="defender-size"
                         value={formData.attackInfo.defenderSizeId ? t(`size-${formData.attackInfo.defenderSizeId}`) : ''}
+                        // onChange={handleChange}
+                        fullWidth
+                        margin="normal" />
+                </Grid>
+                <Grid size={3}>
+                    <TextField
+                        label="Size effect attacker HP multiplier"
+                        variant="outlined"
+                        name="attacker-size-multiplier"
+                        value={formData.attackInfo.sizeHpMultiplier}
+                        // onChange={handleChange}
+                        fullWidth
+                        margin="normal" />
+                </Grid>
+                <Grid size={3}>
+                    <TextField
+                        label="Size effect critical type modifier"
+                        variant="outlined"
+                        name="attacker-size-multiplier"
+                        value={formData.attackInfo.sizeCriticalTypeModifier}
                         // onChange={handleChange}
                         fullWidth
                         margin="normal" />

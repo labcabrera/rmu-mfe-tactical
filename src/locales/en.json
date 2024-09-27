@@ -2,5 +2,7 @@
     "action-type-attack": "Attack",
     "lotr-orc": "Orc",
     "lotr-human": "Human",
-    "size-medium": "Medium"
+    "size-small": "Small",
+    "size-medium": "Medium",
+    "size-big": "Big"
 }
