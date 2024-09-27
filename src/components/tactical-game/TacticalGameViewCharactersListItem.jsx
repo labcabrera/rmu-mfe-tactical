@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from 'react-i18next';
 
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditNoteIcon from '@mui/icons-material/EditNote';
@@ -15,6 +16,7 @@ import { API_TACTICAL_URL } from "../../constants/environment";
 const TacticalGameViewCharactersListItem = ({ tacticalGame, character, onRemoveCharacter }) => {
 
     const navigate = useNavigate();
+    const { t, i18n } = useTranslation();
 
     const deleteTacticalCharacter = async () => {
         const response = await fetch(`${API_TACTICAL_URL}/characters/${character.id}`, { method: 'DELETE' });
@@ -33,6 +35,14 @@ const TacticalGameViewCharactersListItem = ({ tacticalGame, character, onRemoveC
         deleteTacticalCharacter();
     };
 
+    const getCharacterDetail = () => {
+        return i18n(character.info.race);
+    };
+
+    if (!tacticalGame || !character) {
+        return <p>Loading...</p>
+    }
+
     return (
         <ListItem key={character.id} secondaryAction={
             <Stack spacing={1} direction="row" sx={{
@@ -48,7 +58,10 @@ const TacticalGameViewCharactersListItem = ({ tacticalGame, character, onRemoveC
             </Stack>
         }>
             <CharacterListItemAvatar character={character} />
-            <ListItemText primary={character.name} secondary={`Level ${character.info.level} ${character.info.race}`} />
+            <ListItemText
+                primary={character.name}
+                secondary={`${t(character.info.race)} level ${character.info.level}`}
+            />
         </ListItem>
     );
 }
