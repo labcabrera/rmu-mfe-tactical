@@ -128,7 +128,7 @@ const TacticalCharacterCreation = () => {
                 [field2]: value
             }
         }));
-    }
+    };
 
     const handleSnackbarClose = () => {
         setDisplayError(false);

@@ -1,5 +1,6 @@
 {
     "action-type-attack": "Attack",
     "lotr-orc": "Orc",
-    "lotr-human": "Human"
+    "lotr-human": "Human",
+    "size-medium": "Medium"
 }
