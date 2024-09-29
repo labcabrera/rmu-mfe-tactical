@@ -34,6 +34,7 @@ const CombatDashboardActions = () => {
             const response = await fetch(`${API_TACTICAL_URL}/tactical-games/${tacticalGame.id}/rounds/start`, { method: 'POST' });
             const data = await response.json();
             setTacticalGame(data);
+            setDisplayRound(data.round);
         } catch (error) {
             console.error("CombatDashboardActions.fecthCharacterRounds error: " + error);
         }

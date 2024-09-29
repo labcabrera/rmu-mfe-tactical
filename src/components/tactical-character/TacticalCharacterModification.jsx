@@ -9,10 +9,12 @@ import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 
 import { API_TACTICAL_URL } from "../../constants/environment";
+import TacticalCharacterModificationAttributes from './TacticalCharacterModificationAttributes';
 
-const TacticalCharacterEdit = () => {
+const TacticalCharacterModification = () => {
 
     const debugMode = true;
+
     const location = useLocation();
     const tacticalCharacter = location.state?.tacticalCharacter;
     const tacticalGame = location.state?.tacticalGame;
@@ -20,17 +22,19 @@ const TacticalCharacterEdit = () => {
     const navigate = useNavigate();
 
     const [formData, setFormData] = useState({
-        name: tacticalCharacter.name,
         tacticalGameId: tacticalCharacter.tacticalGameId,
+        name: tacticalCharacter.name,
+        faction: tacticalCharacter.faction,
         info: tacticalCharacter.info,
+        defense: tacticalCharacter.defense,
         hp: tacticalCharacter.hp,
+        initiative: tacticalCharacter.initiative,
+        effects: tacticalCharacter.effects,
+        skills: tacticalCharacter.skills,
+        items: tacticalCharacter.items,
+        equipment: tacticalCharacter.equipment,
         description: tacticalCharacter.description
     });
-
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData({ ...formData, [name]: value })
-    }
 
     const handleSubmit = async (e) => {
         try {
@@ -73,31 +77,7 @@ const TacticalCharacterEdit = () => {
                         </IconButton>
                     </Stack>
                 </div>
-                <div>
-                    <Box component="form"
-                        sx={{ '& > :not(style)': { m: 1, width: '80ch' } }}>
-                        <TextField
-                            label="Name"
-                            variant="outlined"
-                            fullWidth
-                            name="name"
-                            value={formData.name}
-                            onChange={handleChange}
-                            margin="normal"
-                            required />
-                        <TextField
-                            label="Description"
-                            variant="outlined"
-                            fullWidth
-                            name="description"
-                            value={formData.description}
-                            onChange={handleChange}
-                            margin="normal"
-                            multiline
-                            maxRows={4}
-                            required />
-                    </Box>
-                </div>
+                <TacticalCharacterModificationAttributes formData={formData} setFormData={setFormData} factions={tacticalGame.factions} />
             </div>
             {debugMode ? (
                 <div>
@@ -119,4 +99,4 @@ const TacticalCharacterEdit = () => {
     );
 }
 
-export default TacticalCharacterEdit;
+export default TacticalCharacterModification;

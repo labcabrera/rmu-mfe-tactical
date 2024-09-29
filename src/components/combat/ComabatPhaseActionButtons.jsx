@@ -40,7 +40,7 @@ const CombatPhaseActionButtons = ({ tacticalGame, character, characters, phaseNu
   return (
     <div className="circle-container">
       {actions.map((action, index) => {
-        const angle = (index * angleStep) + 3.46;
+        const angle = (index * angleStep) + 3.46; // initial rotation
         const x = radius * Math.cos(angle); // position X
         const y = radius * Math.sin(angle); // position Y
 
