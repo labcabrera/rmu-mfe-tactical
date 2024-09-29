@@ -114,7 +114,7 @@ const TacticalCharacterModificationAttributes = ({ formData, setFormData, factio
                             id="select-armor-type"
                             labelId="select-armor-type-label"
                             label="Armor type"
-                            value={formData.info.armorType}
+                            value={formData.defense.armorType}
                             required
                             fullWidth
                             variant={variant}
