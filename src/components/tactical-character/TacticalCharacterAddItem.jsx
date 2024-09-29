@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from "react-router-dom";
 
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
@@ -12,18 +13,20 @@ import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
 import AddIcon from '@mui/icons-material/Add';
 
-import { API_ITEMS_URL } from '../../constants/environment';
+import { API_TACTICAL_URL, API_ITEMS_URL } from '../../constants/environment';
 
 const TacticalCharacterAddItem = ({ tacticalCharacter }) => {
 
     const variant = "standard";
+
+    const location = useLocation();
 
     const [items, setItems] = useState([]);
     const [selectedItem, setSelectedItem] = useState(null);
 
     useEffect(() => {
         const fetchItems = async () => {
-            const response = await fetch(`${API_ITEMS_URL}/items`);
+            const response = await fetch(`${API_ITEMS_URL}/items?size=1000`);
             const data = await response.json();
             setItems(data.content);
         };
@@ -34,8 +37,28 @@ const TacticalCharacterAddItem = ({ tacticalCharacter }) => {
         setSelectedItem(e.target.value);
     };
 
-    const addItem = () => {
-        console.log("TacticalCharacterAddItem.addItem");
+    const addItem = async () => {
+        try {
+            const item = items.find(e => e.id == selectedItem);
+            const request = {
+                itemTypeId: item.id,
+                category: item.category,
+                weaponRange: item.weaponRange,
+                attackTable: item.attackTable,
+                skillId: item.skillId
+            };
+            const requestOptions = {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(request)
+            };
+            const response = await fetch(`${API_TACTICAL_URL}/characters/${tacticalCharacter.id}/items`, requestOptions);
+            const responseBody = response.json();
+            //TODO set useState
+        } catch (error) {
+            console.error(`TacticalCharacterAddItem.addItem %{error}`);
+        }
+
     };
 
     if (!tacticalCharacter || !items) {
