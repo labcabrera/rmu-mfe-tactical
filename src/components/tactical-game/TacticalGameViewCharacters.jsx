@@ -43,8 +43,9 @@ const TacticalGameViewCharacters = ({ tacticalGame }) => {
         <div>
             <h3>Characters</h3>
             <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
-                {tacticalCharacters.map((item) => (
+                {tacticalCharacters.map((item, index) => (
                     <TacticalGameViewCharactersListItem
+                        key={index}
                         character={item}
                         tacticalGame={tacticalGame}
                         onRemoveCharacter={removeCharacter} />

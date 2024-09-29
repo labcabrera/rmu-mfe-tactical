@@ -6,10 +6,13 @@ import SaveIcon from '@mui/icons-material/Save';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
+import Grid from '@mui/material/Grid2';
 import TextField from '@mui/material/TextField';
 
-import { API_TACTICAL_URL } from "../../constants/environment";
 import TacticalCharacterModificationAttributes from './TacticalCharacterModificationAttributes';
+import TacticalCharacterItems from './TacticalCharacterItems';
+
+import { API_TACTICAL_URL } from "../../constants/environment";
 
 const TacticalCharacterModification = () => {
 
@@ -63,8 +66,8 @@ const TacticalCharacterModification = () => {
 
     return (
         <div>
-            <div class="tactical-character-edit">
-                <div class="tactical-character-edit-actions">
+            <div className="tactical-character-edit">
+                <div className="tactical-character-edit-actions">
                     <Stack spacing={2} direction="row" sx={{
                         justifyContent: "flex-end",
                         alignItems: "flex-start",
@@ -77,7 +80,14 @@ const TacticalCharacterModification = () => {
                         </IconButton>
                     </Stack>
                 </div>
-                <TacticalCharacterModificationAttributes formData={formData} setFormData={setFormData} factions={tacticalGame.factions} />
+                <Grid container spacing={2}>
+                    <Grid size={8}>
+                        <TacticalCharacterModificationAttributes formData={formData} setFormData={setFormData} factions={tacticalGame.factions} />
+                    </Grid>
+                    <Grid size={4}>
+                        <TacticalCharacterItems />
+                    </Grid>
+                </Grid>
             </div>
             {debugMode ? (
                 <div>
