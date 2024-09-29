@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation } from "react-router-dom";
+import { useTranslation } from 'react-i18next';
 
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
@@ -17,6 +18,7 @@ const TacticalCharacterAddItem = ({ tacticalCharacter }) => {
     const variant = "standard";
 
     const location = useLocation();
+    const { t, i18n } = useTranslation();
 
     const [items, setItems] = useState([]);
     const [selectedItem, setSelectedItem] = useState(null);
@@ -25,10 +27,17 @@ const TacticalCharacterAddItem = ({ tacticalCharacter }) => {
         const fetchItems = async () => {
             const response = await fetch(`${API_ITEMS_URL}/items?size=1000`);
             const data = await response.json();
-            setItems(data.content);
+            const items = data.content.map(mapItem);
+            items.sort((a, b) => a.name.localeCompare(b.name));
+            setItems(items);
         };
         fetchItems();
     }, []);
+
+    const mapItem = (item) => {
+        item.name = t(item.id);
+        return item;
+    }
 
     const handleSelectedChange = (e) => {
         setSelectedItem(e.target.value);
@@ -56,7 +65,6 @@ const TacticalCharacterAddItem = ({ tacticalCharacter }) => {
         } catch (error) {
             console.error(`TacticalCharacterAddItem.addItem %{error}`);
         }
-
     };
 
     if (!tacticalCharacter || !items) {
@@ -77,7 +85,7 @@ const TacticalCharacterAddItem = ({ tacticalCharacter }) => {
                             required
                             variant={variant}
                             onChange={handleSelectedChange}>
-                            {items.map((item, index) => (<MenuItem key={index} value={item.id}>{item.id}</MenuItem>))}
+                            {items.map((item, index) => (<MenuItem key={index} value={item.id}>{item.name}</MenuItem>))}
                         </Select>
                     </FormControl>
                 </Grid>
