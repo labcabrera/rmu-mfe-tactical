@@ -3,14 +3,13 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 import CancelIcon from '@mui/icons-material/Cancel';
 import SaveIcon from '@mui/icons-material/Save';
-import Box from '@mui/material/Box';
+import Grid from '@mui/material/Grid2';
 import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
-import Grid from '@mui/material/Grid2';
-import TextField from '@mui/material/TextField';
 
+import TacticalCharacterEquipment from './TacticalCharacterEquipment';
 import TacticalCharacterModificationAttributes from './TacticalCharacterModificationAttributes';
-import TacticalCharacterItems from './TacticalCharacterItems';
+import TacticalCharacterAddItem from './TacticalCharacterAddItem';
 
 import { API_TACTICAL_URL } from "../../constants/environment";
 
@@ -64,7 +63,7 @@ const TacticalCharacterModification = () => {
         navigate(`/tactical/view/${tacticalCharacter.tacticalGameId}`, { state: { tacticalGame: tacticalGame } });
     };
 
-    if(!tacticalCharacter || !tacticalGame) {
+    if (!tacticalCharacter || !tacticalGame) {
         return <p>Loading...</p>
     }
 
@@ -89,7 +88,8 @@ const TacticalCharacterModification = () => {
                         <TacticalCharacterModificationAttributes formData={formData} setFormData={setFormData} factions={tacticalGame.factions} />
                     </Grid>
                     <Grid size={4}>
-                        <TacticalCharacterItems />
+                        <TacticalCharacterEquipment tacticalCharacter={tacticalCharacter} />
+                        <TacticalCharacterAddItem tacticalCharacter={tacticalCharacter} />
                     </Grid>
                 </Grid>
             </div>

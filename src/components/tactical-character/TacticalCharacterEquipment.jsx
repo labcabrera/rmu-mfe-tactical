@@ -6,7 +6,7 @@ import Grid from '@mui/material/Grid2';
 
 import DropZone from '../shared/DropZone';
 
-const TacticalCharacterItems = ({ tacticalCharacter }) => {
+const TacticalCharacterEquipment = ({ tacticalCharacter }) => {
 
     const [availableImages, setAvailableImages] = useState([
         { id: 1, src: "/static/images/items/scimitar.png", alt: "Image 1" },
@@ -58,4 +58,4 @@ const TacticalCharacterItems = ({ tacticalCharacter }) => {
     );
 }
 
-export default TacticalCharacterItems;
+export default TacticalCharacterEquipment;
