@@ -3,7 +3,6 @@ import { useLocation, useNavigate } from "react-router-dom";
 
 import CloseIcon from '@mui/icons-material/Close';
 import SaveIcon from '@mui/icons-material/Save';
-import Autocomplete from '@mui/material/Autocomplete';
 import Box from '@mui/material/Box';
 import FormControl from '@mui/material/FormControl';
 import Grid from '@mui/material/Grid2';
@@ -20,6 +19,7 @@ import { API_CORE_URL, API_TACTICAL_URL } from '../../constants/environment';
 const TacticalCharacterCreation = () => {
 
     const debugMode = true;
+    const variant = 'standard';
 
     const location = useLocation();
     const navigate = useNavigate();
@@ -69,7 +69,7 @@ const TacticalCharacterCreation = () => {
         const fetchRaces = async () => {
             const response = await fetch(`${API_CORE_URL}/races`);
             const data = await response.json();
-            setRaces(data.content.map((item) => { return { value: item.id, label: item.name } }));
+            setRaces(data.content);
         };
         const fetchCharacterSizes = async () => {
             const response = await fetch(`${API_CORE_URL}/character-sizes`);
@@ -111,7 +111,7 @@ const TacticalCharacterCreation = () => {
     const handleFactionChange = (e) => setFormData({ ...formData, faction: e.target.value });
 
     const handleLevelChange = (e) => updateFormData('info', 'level', e.target.value);
-    const handleRaceChange = (e, newValue) => updateFormData('info', 'race', newValue.value);
+    const handleRaceChange = (e) => updateFormData('info', 'race', e.target.value);
     const handleBaseMovementRateChange = (e) => updateFormData('info', 'baseMovementRate', e.target.value ? parseInt(e.target.value) : 0);
     const handleArmorTypeChange = (e) => updateFormData('defense', 'armorType', e.target.value);
     const handleDefensiveBonusChange = (e) => updateFormData('defense', 'defensiveBonus', e.target.value ? parseInt(e.target.value) : 0);
@@ -146,7 +146,7 @@ const TacticalCharacterCreation = () => {
                     justifyContent: "flex-end",
                     alignItems: "flex-start",
                 }}>
-                    <IconButton variant="outlined" onClick={handleSubmit}>
+                    <IconButton variant={variant} onClick={handleSubmit}>
                         <SaveIcon />
                     </IconButton>
                 </Stack>
@@ -154,26 +154,23 @@ const TacticalCharacterCreation = () => {
             <div>
                 <Grid container spacing={2}>
                     <Grid size={3}>
-                        <TextField label="Name" variant="outlined" fullWidth name="name" value={formData.name} onChange={handleChange} required />
+                        <TextField label="Name" variant={variant} fullWidth name="name" value={formData.name} onChange={handleChange} required />
                     </Grid>
                     <Grid size={3}>
-                        <Autocomplete
-                            disablePortal
-                            options={races}
-                            onChange={handleRaceChange}
-                            required
-                            renderInput={(params) => <TextField {...params} label="Race" />}
-                        />
+                        <FormControl fullWidth>
+                            <InputLabel id="select-race-label">Race</InputLabel>
+                            <Select
+                                id="select-race" labelId="select-race-label" label="Race" value={formData.raceId} variant={variant} required
+                                onChange={handleRaceChange}>
+                                {races.map((option, index) => (<MenuItem key={index} value={option.id}>{option.name}</MenuItem>))}
+                            </Select>
+                        </FormControl>
                     </Grid>
                     <Grid size={3}>
                         <FormControl fullWidth>
                             <InputLabel id="select-faction-label">Faction</InputLabel>
                             <Select
-                                id="select-faction"
-                                labelId="select-faction"
-                                label="Faction"
-                                value={formData.faction}
-                                required
+                                id="select-faction" labelId="select-faction" label="Faction" value={formData.faction} variant={variant} required
                                 onChange={handleFactionChange}>
                                 {tacticalGame.factions.map((option) => (<MenuItem key={option} value={option}>{option}</MenuItem>))}
                             </Select>
@@ -188,6 +185,7 @@ const TacticalCharacterCreation = () => {
                                 label="Level"
                                 value={formData.info.level}
                                 required
+                                variant={variant}
                                 onChange={handleLevelChange}>
                                 {levels.map((option) => (<MenuItem key={option} value={option}>{option}</MenuItem>))}
                             </Select>
@@ -204,6 +202,7 @@ const TacticalCharacterCreation = () => {
                                 value={formData.info.armorType}
                                 required
                                 fullWidth
+                                variant={variant}
                                 onChange={handleArmorTypeChange}>
                                 {armorTypes.map((option) => (<MenuItem key={option.id} value={option.id}>{option.name}</MenuItem>))}
                             </Select>
@@ -219,34 +218,39 @@ const TacticalCharacterCreation = () => {
                                 value={formData.info.sizeId}
                                 required
                                 fullWidth
+                                variant={variant}
                                 onChange={handleSizeChange}>
                                 {characterSizes.map((option) => (<MenuItem key={option.id} value={option.id}>{option.name}</MenuItem>))}
                             </Select>
                         </FormControl>
                     </Grid>
                     <Grid size={3}>
-                        <TextField label="Defensive bonus" variant="outlined" type="text" value={formData.defense.defensiveBonus} onChange={handleDefensiveBonusChange} fullWidth />
+                        <TextField label="Defensive bonus" variant={variant} type="text" value={formData.defense.defensiveBonus} onChange={handleDefensiveBonusChange} fullWidth />
                     </Grid>
                     <Grid size={3}>
-                        <TextField label="Base movement rate" variant="outlined" type="text" value={formData.info.baseMovementRate} onChange={handleBaseMovementRateChange} fullWidth />
+                        <TextField label="Base movement rate" variant={variant} type="text" value={formData.info.baseMovementRate} onChange={handleBaseMovementRateChange} fullWidth />
                     </Grid>
 
                     <Grid size={3}>
-                        <TextField label="Max HP" variant="outlined" type="text" value={formData.hp.max} onChange={handleHpMaxChange} fullWidth />
+                        <TextField label="Initiative bonus" variant={variant} type="text" value={formData.initiative.base} onChange={handleInitiativeChange} fullWidth />
+                    </Grid>
+                    <Grid size={9}>
+                    </Grid>
+
+                    <Grid size={3}>
+                        <TextField label="Max HP" variant={variant} type="text" value={formData.hp.max} onChange={handleHpMaxChange} fullWidth />
                     </Grid>
                     <Grid size={3}>
-                        <TextField label="Current HP" variant="outlined" type="text" value={formData.hp.current} onChange={handleHpCurrentChange} fullWidth />
+                        <TextField label="Current HP" variant={variant} type="text" value={formData.hp.current} onChange={handleHpCurrentChange} fullWidth />
                     </Grid>
                     <Grid size={3}>
                     </Grid>
                     <Grid size={3}>
                     </Grid>
 
-                    <Grid size={3}>
-                        <TextField label="Initiative bonus" variant="outlined" type="text" value={formData.initiative.base} onChange={handleInitiativeChange} fullWidth />
-                    </Grid>
+
                     <Grid size={12}>
-                        <TextField label="Description" variant="outlined" name="description" value={formData.description} onChange={handleChange} fullWidth multiline maxRows={4} />
+                        <TextField label="Description" variant={variant} name="description" value={formData.description} onChange={handleChange} fullWidth multiline maxRows={4} />
                     </Grid>
                 </Grid>
 
