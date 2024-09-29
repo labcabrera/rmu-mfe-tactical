@@ -6,6 +6,7 @@ import SaveIcon from '@mui/icons-material/Save';
 import Grid from '@mui/material/Grid2';
 import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
+import NavigateBeforeOutlinedIcon from '@mui/icons-material/NavigateBeforeOutlined';
 
 import TacticalCharacterEquipment from './TacticalCharacterEquipment';
 import TacticalCharacterModificationAttributes from './TacticalCharacterModificationAttributes';
@@ -76,7 +77,7 @@ const TacticalCharacterModification = () => {
                         alignItems: "flex-start",
                     }}>
                         <IconButton variant="outlined" onClick={handleCancelClick}>
-                            <CancelIcon />
+                            <NavigateBeforeOutlinedIcon />
                         </IconButton>
                         <IconButton variant="outlined" onClick={handleSubmit}>
                             <SaveIcon />

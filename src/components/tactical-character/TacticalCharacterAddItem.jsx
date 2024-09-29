@@ -1,19 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 
-import CancelIcon from '@mui/icons-material/Cancel';
-import SaveIcon from '@mui/icons-material/Save';
+import AddIcon from '@mui/icons-material/Add';
 import Grid from '@mui/material/Grid2';
 import IconButton from '@mui/material/IconButton';
-import Stack from '@mui/material/Stack';
-import AddIcon from '@mui/icons-material/Add';
 
-import { API_TACTICAL_URL, API_ITEMS_URL } from '../../constants/environment';
+import { API_ITEMS_URL, API_TACTICAL_URL } from '../../constants/environment';
 
 const TacticalCharacterAddItem = ({ tacticalCharacter }) => {
 
@@ -55,6 +52,7 @@ const TacticalCharacterAddItem = ({ tacticalCharacter }) => {
             const response = await fetch(`${API_TACTICAL_URL}/characters/${tacticalCharacter.id}/items`, requestOptions);
             const responseBody = response.json();
             //TODO set useState
+            setSelectedItem(null);
         } catch (error) {
             console.error(`TacticalCharacterAddItem.addItem %{error}`);
         }

@@ -8,13 +8,15 @@ import DraggableImage from './DraggableImage';
 
 const DropZone = ({ images, onDrop, title }) => {
 
-    const [, drop] = useDrop({
-        accept: 'image',
+    const [{ isOver }, drop] = useDrop({
+        accept: "image",
         drop: (item) => {
-            console.log("DraggableImage.useDrop " + JSON.stringify(item, null, 2));
-            onDrop(item.index);
+          onDrop(item);
         },
-    });
+        collect: (monitor) => ({
+          isOver: monitor.isOver(),
+        }),
+      });
 
     if (!images || !onDrop || !title) {
         return <p>Loading...</p>
@@ -33,8 +35,9 @@ const DropZone = ({ images, onDrop, title }) => {
             </Typography>
             <Grid container spacing={2}>
                 {images.map((image, index) => (
-                    <Grid item key={image.id}>
-                        <DraggableImage image={image} index={index} />
+                    // <Grid item key={image.id}>
+                    <Grid>
+                        <DraggableImage image={image} />
                     </Grid>
                 ))}
             </Grid>

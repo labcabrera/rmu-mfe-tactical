@@ -3,11 +3,11 @@ import { useDrag } from "react-dnd";
 
 import { Box } from "@mui/material";
 
-const DraggableImage = ({ image, index }) => {
+const DraggableImage = ({ image }) => {
 
     const [{ isDragging }, drag] = useDrag({
         type: 'image',
-        item: { index },
+        item: { image },
         collect: (monitor) => ({
             isDragging: monitor.isDragging(),
         }),
