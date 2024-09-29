@@ -42,10 +42,14 @@ const TacticalCharacterCreation = () => {
             level: 1,
             race: "lotr-orc",
             sizeId: "medium",
-            armorType: 2
+            baseMovementRate: 20
         },
         initiative: {
             base: 0,
+        },
+        defense: {
+            armorType: 1,
+            defensiveBonus: 0
         },
         hp: {
             max: 25,
@@ -53,12 +57,6 @@ const TacticalCharacterCreation = () => {
         },
         skills: [],
         items: [],
-        equipment: {
-            mainHand: "",
-            offHand: "",
-            head: "",
-            body: ""
-        },
         description: ''
     });
 
@@ -114,11 +112,13 @@ const TacticalCharacterCreation = () => {
 
     const handleLevelChange = (e) => updateFormData('info', 'level', e.target.value);
     const handleRaceChange = (e, newValue) => updateFormData('info', 'race', newValue.value);
-    const handleArmorTypeChange = (e) => updateFormData('info', 'armorType', e.target.value);
+    const handleBaseMovementRateChange = (e) => updateFormData('info', 'baseMovementRate', e.target.value ? parseInt(e.target.value) : 0);
+    const handleArmorTypeChange = (e) => updateFormData('defense', 'armorType', e.target.value);
+    const handleDefensiveBonusChange = (e) => updateFormData('defense', 'defensiveBonus', e.target.value ? parseInt(e.target.value) : 0);
     const handleSizeChange = (e) => updateFormData('info', 'sizeId', e.target.value);
     const handleHpMaxChange = (e) => updateFormData('hp', 'max', e.target.value);
     const handleHpCurrentChange = (e) => { updateFormData('hp', 'current', e.target.value) };
-    const handleInitiativeChange = (e) => { updateFormData('initiative', 'base', e.target.value) };
+    const handleInitiativeChange = (e) => { updateFormData('initiative', 'base', e.target.value ? parseInt(e.target.value) : 0) };
 
     const updateFormData = (field1, field2, value) => {
         setFormData((prevState) => ({
@@ -153,22 +153,10 @@ const TacticalCharacterCreation = () => {
             </div>
             <div>
                 <Grid container spacing={2}>
-                    <Grid size={4}>
-                        <TextField
-                            label="Name"
-                            variant="outlined"
-                            fullWidth
-                            name="name"
-                            value={formData.name}
-                            onChange={handleChange}
-                            required
-                        />
+                    <Grid size={3}>
+                        <TextField label="Name" variant="outlined" fullWidth name="name" value={formData.name} onChange={handleChange} required />
                     </Grid>
-                    <Grid size={4}>
-                    </Grid>
-                    <Grid size={4}>
-                    </Grid>
-                    <Grid size={4}>
+                    <Grid size={3}>
                         <Autocomplete
                             disablePortal
                             options={races}
@@ -177,7 +165,7 @@ const TacticalCharacterCreation = () => {
                             renderInput={(params) => <TextField {...params} label="Race" />}
                         />
                     </Grid>
-                    <Grid size={4}>
+                    <Grid size={3}>
                         <FormControl fullWidth>
                             <InputLabel id="select-faction-label">Faction</InputLabel>
                             <Select
@@ -191,7 +179,7 @@ const TacticalCharacterCreation = () => {
                             </Select>
                         </FormControl>
                     </Grid>
-                    <Grid size={4}>
+                    <Grid size={3}>
                         <FormControl fullWidth>
                             <InputLabel id="select-level-label">Level</InputLabel>
                             <Select
@@ -205,7 +193,8 @@ const TacticalCharacterCreation = () => {
                             </Select>
                         </FormControl>
                     </Grid>
-                    <Grid size={4}>
+
+                    <Grid size={3}>
                         <FormControl fullWidth>
                             <InputLabel id="select-armor-type-label">Armor type</InputLabel>
                             <Select
@@ -220,7 +209,7 @@ const TacticalCharacterCreation = () => {
                             </Select>
                         </FormControl>
                     </Grid>
-                    <Grid size={4}>
+                    <Grid size={3}>
                         <FormControl fullWidth>
                             <InputLabel id="select-size-label">Size</InputLabel>
                             <Select
@@ -235,48 +224,29 @@ const TacticalCharacterCreation = () => {
                             </Select>
                         </FormControl>
                     </Grid>
-                    <Grid size={4}></Grid>
-                    <Grid size={4}>
-                        <TextField
-                            label="Max HP"
-                            variant="outlined"
-                            type="text"
-                            value={formData.hp.max}
-                            onChange={handleHpMaxChange}
-                            fullWidth
-                        />
+                    <Grid size={3}>
+                        <TextField label="Defensive bonus" variant="outlined" type="text" value={formData.defense.defensiveBonus} onChange={handleDefensiveBonusChange} fullWidth />
                     </Grid>
-                    <Grid size={4}>
-                        <TextField
-                            label="Max HP"
-                            variant="outlined"
-                            type="text"
-                            value={formData.hp.current}
-                            onChange={handleHpCurrentChange}
-                            fullWidth
-                        />
+                    <Grid size={3}>
+                        <TextField label="Base movement rate" variant="outlined" type="text" value={formData.info.baseMovementRate} onChange={handleBaseMovementRateChange} fullWidth />
                     </Grid>
-                    <Grid size={4}>
-                        <TextField
-                            label="Initiative bonus"
-                            variant="outlined"
-                            type="text"
-                            value={formData.initiative.base}
-                            onChange={handleInitiativeChange}
-                            fullWidth
-                        />
+
+                    <Grid size={3}>
+                        <TextField label="Max HP" variant="outlined" type="text" value={formData.hp.max} onChange={handleHpMaxChange} fullWidth />
+                    </Grid>
+                    <Grid size={3}>
+                        <TextField label="Current HP" variant="outlined" type="text" value={formData.hp.current} onChange={handleHpCurrentChange} fullWidth />
+                    </Grid>
+                    <Grid size={3}>
+                    </Grid>
+                    <Grid size={3}>
+                    </Grid>
+
+                    <Grid size={3}>
+                        <TextField label="Initiative bonus" variant="outlined" type="text" value={formData.initiative.base} onChange={handleInitiativeChange} fullWidth />
                     </Grid>
                     <Grid size={12}>
-                        <TextField
-                            label="Description"
-                            variant="outlined"
-                            name="description"
-                            value={formData.description}
-                            onChange={handleChange}
-                            fullWidth
-                            multiline
-                            maxRows={4}
-                        />
+                        <TextField label="Description" variant="outlined" name="description" value={formData.description} onChange={handleChange} fullWidth multiline maxRows={4} />
                     </Grid>
                 </Grid>
 
