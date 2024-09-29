@@ -11,6 +11,7 @@ const DropZone = ({ images, onDrop, title }) => {
     const [{ isOver }, drop] = useDrop({
         accept: "image",
         drop: (item) => {
+            console.log("drop -> " + item);
           onDrop(item);
         },
         collect: (monitor) => ({

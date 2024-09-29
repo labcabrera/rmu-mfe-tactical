@@ -65,7 +65,6 @@ const TacticalCharacterAddItem = ({ tacticalCharacter }) => {
 
     return (
         <div className="tactical-character-add-item">
-            Selected: {JSON.stringify(selectedItem, null, 2)}
             <Grid container spacing={2}>
                 <Grid size={8}>
                     <FormControl fullWidth>

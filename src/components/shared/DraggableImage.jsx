@@ -13,6 +13,10 @@ const DraggableImage = ({ image }) => {
         }),
     });
 
+    if(!image) {
+        return <p>Loading...</p>
+    }
+
     return (
         <Box
             ref={drag}
