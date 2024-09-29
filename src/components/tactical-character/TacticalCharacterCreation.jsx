@@ -87,7 +87,7 @@ const TacticalCharacterCreation = () => {
         setErrorMessage(message);
     };
 
-    if(!tacticalGame) {
+    if(!tacticalGame || !formData) {
         return <p>Loading...</p>
     }
 

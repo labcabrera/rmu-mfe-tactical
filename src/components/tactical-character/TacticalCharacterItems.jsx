@@ -47,10 +47,10 @@ const TacticalCharacterItems = ({ tacticalCharacter }) => {
             <DndProvider backend={HTML5Backend}>
                 <Grid container spacing={4}>
                     <Grid item xs={6}>
-                        <DropZone images={availableImages} onDrop={handleDropToSelected} title="Available Images" />
+                        <DropZone images={availableImages} onDrop={handleDropToSelected} title="Items" />
                     </Grid>
                     <Grid item xs={6}>
-                        <DropZone images={selectedImages} onDrop={handleDropToAvailable} title="Selected Images" />
+                        <DropZone images={selectedImages} onDrop={handleDropToAvailable} title="Main weapon" />
                     </Grid>
                 </Grid>
             </DndProvider>

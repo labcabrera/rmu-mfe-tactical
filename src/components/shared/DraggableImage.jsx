@@ -1,8 +1,9 @@
-import { Box } from "@mui/material";
 import React from "react";
 import { useDrag } from "react-dnd";
 
-const DraggableImage = ({ image, index, moveImage }) => {
+import { Box } from "@mui/material";
+
+const DraggableImage = ({ image, index }) => {
 
     const [{ isDragging }, drag] = useDrag({
         type: 'image',
@@ -25,9 +26,9 @@ const DraggableImage = ({ image, index, moveImage }) => {
                 src={image.src}
                 alt={image.alt}
                 style={{
-                    width: "100px",
-                    height: "100px",
-                    borderRadius: "8px",
+                    width: "40px",
+                    height: "40px",
+                    borderRadius: "2px",
                 }}
             />
         </Box>

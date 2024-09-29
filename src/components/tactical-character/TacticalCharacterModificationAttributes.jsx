@@ -69,6 +69,10 @@ const TacticalCharacterModificationAttributes = ({ formData, setFormData, factio
         }));
     };
 
+    if(!formData || !setFormData || !factions || !races || !armorTypes || !characterSizes) {
+        return <p>Loading...</p>
+    }
+
     return (
         <div className="tactical-game-character-modification-attributes">
             <Grid container spacing={2}>

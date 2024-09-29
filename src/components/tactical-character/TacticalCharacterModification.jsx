@@ -56,12 +56,16 @@ const TacticalCharacterModification = () => {
                 console.log("delete data: " + data);
             }
         } catch (error) {
-            //TODO display error
+            console.error(`TacticalCharacterModification.handleSubmit error ${error}`);
         }
-    }
+    };
 
     const handleCancelClick = (e) => {
         navigate(`/tactical/view/${tacticalCharacter.tacticalGameId}`, { state: { tacticalGame: tacticalGame } });
+    };
+
+    if(!tacticalCharacter || !tacticalGame) {
+        return <p>Loading...</p>
     }
 
     return (

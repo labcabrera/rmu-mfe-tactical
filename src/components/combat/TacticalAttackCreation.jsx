@@ -124,7 +124,7 @@ const TacticalAttackCreation = () => {
         const targetCharacter = characters.find(e => e.id == targetCharacterId);
         console.log("target: " + JSON.stringify(targetCharacter, null, 2));
         setFormData({ ...formData, tacticalCharacterTargetId: targetCharacterId });
-        updateFormData('attackInfo', 'armorType', targetCharacter.info.armorType);
+        updateFormData('attackInfo', 'armorType', targetCharacter.defense.armorType);
         updateFormData('attackInfo', 'defenderSizeId', targetCharacter.info.sizeId);
         await fetchCharacterSizeAttackEffects(formData.attackInfo.attackerSizeId, targetCharacter.info.sizeId);
     };
