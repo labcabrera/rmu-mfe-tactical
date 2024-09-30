@@ -8,47 +8,46 @@ import DropZone from '../shared/DropZone';
 
 import { API_TACTICAL_URL } from "../../constants/environment";
 
-const TacticalCharacterEquipment = ({ tacticalCharacter }) => {
+const TacticalCharacterEquipment = ({ tacticalCharacter, setTacticalCharacter }) => {
 
     const [availableItems, setAvailableItems] = useState([]);
     const [selectedImages, setSelectedImages] = useState([]);
 
-    // Mover imagen de disponibles a seleccionadas
     const handleDropToSelected = (index) => {
-        console.log("TacticalCharacterItems.handleDropToSelected " + index);
+        console.log("TacticalCharacterEquipment.handleDropToSelected " + index);
         try {
             const image = availableItems[index];
             setSelectedImages([...selectedImages, image]);
             setAvailableItems(availableItems.filter((_, i) => i !== index));
         } catch (error) {
-            console.error("TacticalCharacterItems.handleDropToSelected error " + error);
+            console.error("TacticalCharacterEquipment.handleDropToSelected error " + error);
         }
     };
 
-    // Mover imagen de seleccionadas a disponibles
     const handleDropToAvailable = (index) => {
-        console.log("TacticalCharacterItems.handleDropToAvailable " + index);
+        console.log("TacticalCharacterEquipment.handleDropToAvailable " + index);
         try {
             const image = selectedImages[index];
             setAvailableItems([...availableItems, image]);
             setSelectedImages(selectedImages.filter((_, i) => i !== index));
         } catch (error) {
-            console.error("TacticalCharacterItems.handleDropToAvailable error " + error);
+            console.error("TacticalCharacterEquipment.handleDropToAvailable error " + error);
         }
     };
 
     const handleDropToDelete = async (item) => {
-        console.log(`TacticalCharacterItems.handleDropToDelete ${JSON.stringify(item, null, 2)}`);
+        console.log(`TacticalCharacterEquipment.handleDropToDelete ${JSON.stringify(item, null, 2)}`);
         try {
             const response = await fetch(`${API_TACTICAL_URL}/characters/${tacticalCharacter.id}/items/${item.image.id}`, { method: 'DELETE' });
             if (response.status == 200) {
+                const responseBody = await response.json();
                 setAvailableItems(availableItems.filter(e => e.id != item.image.id));
-                //TODO REFRESH
+                setTacticalCharacter(responseBody);
             } else {
-                console.log(`TacticalCharacterItems.handleDropToDelete  error ${response.status}`);
+                console.error(`TacticalCharacterEquipment.handleDropToDelete  error ${response.status}`);
             }
         } catch (error) {
-            console.log(`TacticalCharacterItems.handleDropToDelete  error ${error}`);
+            console.error(`TacticalCharacterEquipment.handleDropToDelete  error ${error}`);
         }
     }
 
@@ -61,9 +60,17 @@ const TacticalCharacterEquipment = ({ tacticalCharacter }) => {
     };
 
     useEffect(() => {
+        console.log(`TacticalCharacterEquipment useEffect ${tacticalCharacter}`);
+        if(!tacticalCharacter) {
+            return;
+        }
         const images = tacticalCharacter.items.map(mapImage);
         setAvailableItems(images);
     }, [tacticalCharacter]);
+
+    if(!tacticalCharacter || !tacticalCharacter.items) {
+        return <p>Loading...</p>
+    }
 
     return (
         <div className="tactical-character-items">

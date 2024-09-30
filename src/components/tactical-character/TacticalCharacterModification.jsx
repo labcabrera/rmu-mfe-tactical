@@ -126,8 +126,8 @@ const TacticalCharacterModification = () => {
                         <TacticalCharacterModificationAttributes formData={formData} setFormData={setFormData} factions={factions} />
                     </Grid>
                     <Grid size={4}>
-                        <TacticalCharacterEquipment tacticalCharacter={tacticalCharacter} />
-                        <TacticalCharacterAddItem tacticalCharacter={tacticalCharacter} />
+                        <TacticalCharacterEquipment tacticalCharacter={tacticalCharacter} setTacticalCharacter={setTacticalCharacter} />
+                        <TacticalCharacterAddItem tacticalCharacter={tacticalCharacter} setTacticalCharacter={setTacticalCharacter} />
                     </Grid>
                 </Grid>
             </div>
