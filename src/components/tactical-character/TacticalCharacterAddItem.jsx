@@ -6,6 +6,7 @@ import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
+import TextField from '@mui/material/TextField';
 
 import AddIcon from '@mui/icons-material/Add';
 import Grid from '@mui/material/Grid2';
@@ -22,25 +23,32 @@ const TacticalCharacterAddItem = ({ tacticalCharacter }) => {
 
     const [items, setItems] = useState([]);
     const [selectedItem, setSelectedItem] = useState(null);
+    const [selectedItemCategory, setSelectedItemCategory] = useState();
 
-    useEffect(() => {
-        const fetchItems = async () => {
-            const response = await fetch(`${API_ITEMS_URL}/items?size=1000`);
-            const data = await response.json();
-            const items = data.content.map(mapItem);
-            items.sort((a, b) => a.name.localeCompare(b.name));
-            setItems(items);
-        };
-        fetchItems();
-    }, []);
+    const itemCategories = ['weapon', 'shield'];
 
     const mapItem = (item) => {
         item.name = t(item.id);
         return item;
     }
 
+    const fetchItems = async (category) => {
+        console.log(`TacticalCharacterAddItem.fetchItems ${category}`);
+        const response = await fetch(`${API_ITEMS_URL}/items?category=${category}size=500`);
+        const data = await response.json();
+        const items = data.content.map(mapItem);
+        items.sort((a, b) => a.name.localeCompare(b.name));
+        setItems(items);
+    };
+
+    const handleSelectedCategoryChange = (e, v) => {
+        console.log(`TacticalCharacterAddItem.handleSelectedCategoryChange ${e} ${v}`);
+        //setSelectedItemCategory(e.target.value);
+        //fetchItems(selectedItemCategory);
+    };
+
     const handleSelectedChange = (e) => {
-        setSelectedItem(e.target.value);
+        setSelectedItemCategory(e.target.value);
     };
 
     const addItem = async () => {
@@ -74,6 +82,25 @@ const TacticalCharacterAddItem = ({ tacticalCharacter }) => {
     return (
         <div className="tactical-character-add-item">
             <Grid container spacing={2}>
+
+                <Grid size={8}>
+                    <FormControl fullWidth>
+                        <InputLabel id="select-label-item-category">Item category</InputLabel>
+                        <Select
+                            id="select-item-category"
+                            labelId="select-label--item-category"
+                            label="Item category"
+                            value={selectedItemCategory}
+                            variant={variant}
+                            onChange={handleSelectedCategoryChange}>
+                            {itemCategories.map((item, index) => (
+                                <MenuItem key={index} value={item}>{item}</MenuItem>))}
+                        </Select>
+                    </FormControl>
+                </Grid>
+                <Grid size={4}>
+                </Grid>
+
                 <Grid size={8}>
                     <FormControl fullWidth>
                         <InputLabel id="select-label-item-to-add">Item to add</InputLabel>
@@ -102,6 +129,18 @@ const TacticalCharacterAddItem = ({ tacticalCharacter }) => {
                         <AddIcon />
                     </IconButton>
                 </Grid>
+
+                <div>
+                    <h3>selectedItemCategory</h3>
+                    <pre>
+                        {JSON.stringify(selectedItemCategory, null, 2)}
+                    </pre>
+                    <h3>items</h3>
+                    <pre>
+                        {JSON.stringify(items, null, 2)}
+                    </pre>
+                </div>
+
             </Grid>
         </div>
     );

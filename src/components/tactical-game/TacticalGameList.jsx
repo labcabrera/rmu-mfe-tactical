@@ -21,7 +21,7 @@ const TacticalGameList = () => {
     const [displayError, setDisplayError] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
 
-    const getGames = async () => {
+    const fetchGames = async () => {
         const url = `${API_TACTICAL_URL}/tactical-games`;
         try {
             const response = await fetch(url, { method: "GET", });
@@ -42,7 +42,7 @@ const TacticalGameList = () => {
     };
 
     useEffect(() => {
-        getGames();
+        fetchGames();
     }, []);
 
 

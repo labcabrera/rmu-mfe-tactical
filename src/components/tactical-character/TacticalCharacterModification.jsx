@@ -1,68 +1,105 @@
-import React, { useState } from 'react';
-import { useLocation, useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useParams } from "react-router-dom";
 
-import CancelIcon from '@mui/icons-material/Cancel';
+import NavigateBeforeOutlinedIcon from '@mui/icons-material/NavigateBeforeOutlined';
 import SaveIcon from '@mui/icons-material/Save';
 import Grid from '@mui/material/Grid2';
 import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
-import NavigateBeforeOutlinedIcon from '@mui/icons-material/NavigateBeforeOutlined';
 
+import TacticalCharacterAddItem from './TacticalCharacterAddItem';
 import TacticalCharacterEquipment from './TacticalCharacterEquipment';
 import TacticalCharacterModificationAttributes from './TacticalCharacterModificationAttributes';
-import TacticalCharacterAddItem from './TacticalCharacterAddItem';
 
 import { API_TACTICAL_URL } from "../../constants/environment";
 
 const TacticalCharacterModification = () => {
 
     const debugMode = true;
-
-    const location = useLocation();
-    const tacticalCharacter = location.state?.tacticalCharacter;
-    const tacticalGame = location.state?.tacticalGame;
-
+    const { characterId } = useParams();
     const navigate = useNavigate();
 
-    const [formData, setFormData] = useState({
-        tacticalGameId: tacticalCharacter.tacticalGameId,
-        name: tacticalCharacter.name,
-        faction: tacticalCharacter.faction,
-        info: tacticalCharacter.info,
-        defense: tacticalCharacter.defense,
-        hp: tacticalCharacter.hp,
-        initiative: tacticalCharacter.initiative,
-        effects: tacticalCharacter.effects,
-        skills: tacticalCharacter.skills,
-        items: tacticalCharacter.items,
-        equipment: tacticalCharacter.equipment,
-        description: tacticalCharacter.description
-    });
+    const [tacticalCharacter, setTacticalCharacter] = useState();
+    const [formData, setFormData] = useState();
+    const [tacticalGame, setTacticalGame] = useState();
+    const [factions, setFactions] = useState();
 
-    const handleSubmit = async (e) => {
+    const fetchTacticalCharacter = async () => {
+        try {
+            const response = await fetch(`${API_TACTICAL_URL}/characters/${characterId}`);
+            const responseBody = await response.json();
+            setTacticalCharacter(responseBody);
+        } catch (error) {
+            console.error(`TacticalCharacterModification.fetchTacticalGame error ${error}`);
+        }
+    };
+
+    const fetchTacticalGame = async () => {
+        if (!tacticalCharacter) {
+            return;
+        }
+        try {
+            const response = await fetch(`${API_TACTICAL_URL}/tactical-games/${tacticalCharacter.tacticalGameId}`);
+            const responseBody = await response.json();
+            setTacticalGame(responseBody);
+            setFactions(responseBody.factions);
+        } catch (error) {
+            console.error(`TacticalCharacterModification.fetchTacticalGame error ${error}`);
+        }
+    };
+
+    const createFormData = () => {
+        if (!tacticalCharacter) {
+            return;
+        }
+        const data = {
+            tacticalGameId: tacticalCharacter.tacticalGameId,
+            name: tacticalCharacter.name,
+            faction: tacticalCharacter.faction,
+            info: tacticalCharacter.info,
+            defense: tacticalCharacter.defense,
+            hp: tacticalCharacter.hp,
+            initiative: tacticalCharacter.initiative,
+            effects: tacticalCharacter.effects,
+            skills: tacticalCharacter.skills,
+            items: tacticalCharacter.items,
+            equipment: tacticalCharacter.equipment,
+            description: tacticalCharacter.description
+        };
+        setFormData(data);
+    };
+
+    const updateTacticalCharacter = async (e) => {
         try {
             e.preventDefault();
-            const url = `${API_TACTICAL_URL}/characters/${tacticalCharacter.id}`;
             const requestOptions = {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData)
             };
-            const result = await fetch(url, requestOptions);
-            if (result.status == 200) {
+            const response = await fetch(`${API_TACTICAL_URL}/characters/${tacticalCharacter.id}`, requestOptions);
+            if (response.status == 200) {
                 navigate(`/tactical/view/${tacticalCharacter.tacticalGameId}`, { state: { tacticalGame: tacticalGame } });
             } else {
-                //TODO display error
-                console.log("delete data: " + data);
+                console.log(`TacticalCharacterModification.updateTacticalCharacter error ${error}`);
             }
         } catch (error) {
-            console.error(`TacticalCharacterModification.handleSubmit error ${error}`);
+            console.error(`TacticalCharacterModification.updateTacticalCharacter error ${error}`);
         }
     };
 
-    const handleCancelClick = (e) => {
+    const handleNavigateBackClick = (e) => {
         navigate(`/tactical/view/${tacticalCharacter.tacticalGameId}`, { state: { tacticalGame: tacticalGame } });
     };
+
+    useEffect(() => {
+        fetchTacticalCharacter();
+    }, []);
+
+    useEffect(() => {
+        fetchTacticalGame();
+        createFormData();
+    }, [tacticalCharacter]);
 
     if (!tacticalCharacter || !tacticalGame) {
         return <p>Loading...</p>
@@ -76,17 +113,17 @@ const TacticalCharacterModification = () => {
                         justifyContent: "flex-end",
                         alignItems: "flex-start",
                     }}>
-                        <IconButton variant="outlined" onClick={handleCancelClick}>
+                        <IconButton variant="outlined" onClick={handleNavigateBackClick}>
                             <NavigateBeforeOutlinedIcon />
                         </IconButton>
-                        <IconButton variant="outlined" onClick={handleSubmit}>
+                        <IconButton variant="outlined" onClick={updateTacticalCharacter}>
                             <SaveIcon />
                         </IconButton>
                     </Stack>
                 </div>
                 <Grid container spacing={2}>
                     <Grid size={8}>
-                        <TacticalCharacterModificationAttributes formData={formData} setFormData={setFormData} factions={tacticalGame.factions} />
+                        <TacticalCharacterModificationAttributes formData={formData} setFormData={setFormData} factions={factions} />
                     </Grid>
                     <Grid size={4}>
                         <TacticalCharacterEquipment tacticalCharacter={tacticalCharacter} />
@@ -106,7 +143,7 @@ const TacticalCharacterModification = () => {
                     </pre>
                     <h3>tacticalGame</h3>
                     <pre>
-                        {JSON.stringify(tacticalGame, null, 2)}
+                        {JSON.stringify(tacticalCharacter, null, 2)}
                     </pre>
                 </div>
             ) : null}
