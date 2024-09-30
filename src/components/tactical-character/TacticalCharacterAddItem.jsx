@@ -55,6 +55,7 @@ const TacticalCharacterAddItem = ({ tacticalCharacter, setTacticalCharacter }) =
             category: item.category,
             weapon: item.weapon,
             weaponRange: item.weaponRange,
+            armor: item.armor,
             info: item.info
         };
         setItemForm(data);

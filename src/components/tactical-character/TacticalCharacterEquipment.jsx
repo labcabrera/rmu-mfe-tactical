@@ -14,6 +14,10 @@ const TacticalCharacterEquipment = ({ tacticalCharacter, setTacticalCharacter })
     const [availableItems, setAvailableItems] = useState([]);
     const [selectedImages, setSelectedImages] = useState([]);
 
+    const [imagesMainHand, setImagesMainHand] = useState([]);
+    const [imagesOffHand, setImagesOffHand] = useState([]);
+    const [imagesBody, setImagesBody] = useState([]);
+
     const handleDropToSelected = (index) => {
         console.log("TacticalCharacterEquipment.handleDropToSelected " + index);
         try {
@@ -36,6 +40,33 @@ const TacticalCharacterEquipment = ({ tacticalCharacter, setTacticalCharacter })
         }
     };
 
+    const handleDropToMainHand = async (item) => { await equipItem(item.image.id, 'mainHand'); }
+    const handleDropToOffHand = async (item) => { await equipItem(item.image.id, 'offHand'); }
+    const handleDropToBody = async (item) => { await equipItem(item.image.id, 'body'); }
+
+    const equipItem = async (itemId, slot) => {
+        const request = {
+            itemId: itemId,
+            slot: slot
+        };
+        try {
+            const requestOptions = {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(request)
+            };
+            const response = await fetch(`${API_TACTICAL_URL}/characters/${tacticalCharacter.id}/equipment`, requestOptions);
+            if (response.status == 200) {
+                const responseBody = await response.json();
+                setTacticalCharacter(responseBody);
+            } else {
+                //Error
+            }
+        } catch (error) {
+            console.error(`TacticalCharacterEquipment.error: ${error}`);
+        }
+    }
+
     const handleDropToDelete = async (item) => {
         console.log(`TacticalCharacterEquipment.handleDropToDelete ${JSON.stringify(item, null, 2)}`);
         try {
@@ -52,6 +83,10 @@ const TacticalCharacterEquipment = ({ tacticalCharacter, setTacticalCharacter })
         }
     }
 
+    const handleDropToUnequip = async (item) => {
+        equipItem(item.image.id, null);
+    };
+
     const mapImage = (item) => {
         return {
             id: item.id,
@@ -60,13 +95,35 @@ const TacticalCharacterEquipment = ({ tacticalCharacter, setTacticalCharacter })
         };
     };
 
+    const loadAvailableImageItems = (tacticalCharacter) => {
+        var images = tacticalCharacter.items.map(mapImage);
+        if(tacticalCharacter.equipment.mainHand) {
+            setImagesMainHand(tacticalCharacter.items.filter(e => e.id == tacticalCharacter.equipment.mainHand).map(mapImage));
+            images = images.filter(e => e.id != tacticalCharacter.equipment.mainHand);
+        } else {
+            setImagesMainHand([]);
+        }
+        if(tacticalCharacter.equipment.offHand) {
+            setImagesOffHand(tacticalCharacter.items.filter(e => e.id == tacticalCharacter.equipment.offHand).map(mapImage));
+            images = images.filter(e => e.id != tacticalCharacter.equipment.offHand);
+        } else {
+            setImagesOffHand([]);
+        }
+        if(tacticalCharacter.equipment.body) {
+            setImagesBody(tacticalCharacter.items.filter(e => e.id == tacticalCharacter.equipment.body).map(mapImage));
+            images = images.filter(e => e.id != tacticalCharacter.equipment.body);
+        } else {
+            setImagesBody([]);
+        }
+        setAvailableItems(images);
+    };
+
     useEffect(() => {
         console.log(`TacticalCharacterEquipment useEffect ${tacticalCharacter}`);
         if (!tacticalCharacter || !tacticalCharacter.items) {
             return;
         }
-        const images = tacticalCharacter.items.map(mapImage);
-        setAvailableItems(images);
+        loadAvailableImageItems(tacticalCharacter);
     }, [tacticalCharacter]);
 
     if (!tacticalCharacter || !tacticalCharacter.items) {
@@ -79,16 +136,16 @@ const TacticalCharacterEquipment = ({ tacticalCharacter, setTacticalCharacter })
                 <Grid container spacing={1}>
 
                     <Grid size={2}>
-                        <DropZone images={selectedImages} onDrop={handleDropToAvailable} title="Main hand" />
+                        <DropZone images={imagesMainHand} onDrop={handleDropToMainHand} title="Main hand" />
                     </Grid>
                     <Grid size={2}>
-                        <DropZone images={selectedImages} onDrop={handleDropToAvailable} title="Off hand" />
+                        <DropZone images={imagesOffHand} onDrop={handleDropToOffHand} title="Off hand" />
                     </Grid>
                     <Grid size={8}>
                     </Grid>
 
                     <Grid size={2}>
-                        <DropZone images={selectedImages} onDrop={handleDropToAvailable} title="Body" />
+                        <DropZone images={imagesBody} onDrop={handleDropToBody} title="Body" />
                     </Grid>
                     <Grid size={2}>
                         <DropZone images={selectedImages} onDrop={handleDropToAvailable} title="Head" />
@@ -103,13 +160,13 @@ const TacticalCharacterEquipment = ({ tacticalCharacter, setTacticalCharacter })
                     </Grid>
 
                     <Grid size={8}>
-                        <DropZone images={availableItems} onDrop={handleDropToSelected} title="Inventory" />
+                        <DropZone images={availableItems} onDrop={handleDropToUnequip} title="Inventory" />
                     </Grid>
                     <Grid size={4}>
                     </Grid>
 
                     <Grid size={2}>
-                        <DropZone images={selectedImages} onDrop={handleDropToDelete} title="Unequip" />
+                        <DropZone images={selectedImages} onDrop={handleDropToUnequip} title="Unequip" />
                     </Grid>
                     <Grid size={2}>
                         <DropZone images={selectedImages} onDrop={handleDropToDelete} title="Delete" />
