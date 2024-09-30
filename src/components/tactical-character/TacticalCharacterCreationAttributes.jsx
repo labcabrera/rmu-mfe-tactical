@@ -58,6 +58,7 @@ const TacticalCharacterCreationAttributes = ({ formData, setFormData, factions }
     const handleHpMaxChange = (e) => updateFormData('hp', 'max', e.target.value);
     const handleHpCurrentChange = (e) => { updateFormData('hp', 'current', e.target.value) };
     const handleInitiativeChange = (e) => { updateFormData('initiative', 'base', e.target.value ? parseInt(e.target.value) : 0) };
+    const handleWeightChange = (e) => { updateFormData('info', 'weight', e.target.value ? parseInt(e.target.value) : 0) };
 
     const updateFormData = (field1, field2, value) => {
         setFormData((prevState) => ({
@@ -148,6 +149,9 @@ const TacticalCharacterCreationAttributes = ({ formData, setFormData, factions }
 
                 <Grid size={3}>
                     <TextField label="Initiative bonus" variant={variant} type="text" value={formData.initiative.base} onChange={handleInitiativeChange} fullWidth />
+                </Grid>
+                <Grid size={3}>
+                    <TextField label="Weight" variant={variant} type="text" value={formData.info.weight} onChange={handleWeightChange} fullWidth />
                 </Grid>
                 <Grid size={9}>
                 </Grid>

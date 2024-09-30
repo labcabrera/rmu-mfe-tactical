@@ -34,7 +34,8 @@ const TacticalCharacterCreation = () => {
             level: 1,
             race: "lotr-human",
             sizeId: "medium",
-            baseMovementRate: 20
+            baseMovementRate: 20,
+            weight: 100
         },
         initiative: {
             base: 0,

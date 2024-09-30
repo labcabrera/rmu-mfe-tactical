@@ -61,28 +61,67 @@ const TacticalCharacterEquipment = ({ tacticalCharacter, setTacticalCharacter })
 
     useEffect(() => {
         console.log(`TacticalCharacterEquipment useEffect ${tacticalCharacter}`);
-        if(!tacticalCharacter) {
+        if (!tacticalCharacter || !tacticalCharacter.items) {
             return;
         }
         const images = tacticalCharacter.items.map(mapImage);
         setAvailableItems(images);
     }, [tacticalCharacter]);
 
-    if(!tacticalCharacter || !tacticalCharacter.items) {
+    if (!tacticalCharacter || !tacticalCharacter.items) {
         return <p>Loading...</p>
     }
 
     return (
         <div className="tactical-character-items">
             <DndProvider backend={HTML5Backend}>
-                <Grid container>
-                    <Grid size={6}>
-                        <DropZone images={availableItems} onDrop={handleDropToSelected} title="Items" />
-                    </Grid>
-                    <Grid size={6}>
+                <Grid container spacing={1}>
+
+                    <Grid size={2}>
                         <DropZone images={selectedImages} onDrop={handleDropToAvailable} title="Main hand" />
-                        <DropZone images={selectedImages} onDrop={handleDropToDelete} title="Delete" />
                     </Grid>
+                    <Grid size={2}>
+                        <DropZone images={selectedImages} onDrop={handleDropToAvailable} title="Off hand" />
+                    </Grid>
+                    <Grid size={2}>
+                    </Grid>
+                    <Grid size={2}>
+                        <DropZone images={selectedImages} onDrop={handleDropToDelete} title="Delete item" />
+                    </Grid>
+                    <Grid size={4}>
+                    </Grid>
+
+                    <Grid size={2}>
+                        <DropZone images={selectedImages} onDrop={handleDropToAvailable} title="Body" />
+                    </Grid>
+                    <Grid size={2}>
+                        <DropZone images={selectedImages} onDrop={handleDropToAvailable} title="Head" />
+                    </Grid>
+                    <Grid size={2}>
+                        <DropZone images={selectedImages} onDrop={handleDropToAvailable} title="Arms" />
+                    </Grid>
+                    <Grid size={2}>
+                        <DropZone images={selectedImages} onDrop={handleDropToAvailable} title="Legs" />
+                    </Grid>
+                    <Grid size={4}>
+                    </Grid>
+
+                    <Grid size={8}>
+                        <DropZone images={availableItems} onDrop={handleDropToSelected} title="Inventory" />
+                    </Grid>
+                    <Grid size={4}>
+
+                    </Grid>
+
+                    <Grid size={4}>
+                        Character weight: {tacticalCharacter.info.weight}
+                    </Grid>
+                    <Grid size={8}></Grid>
+                    <Grid size={4}>
+                        Equipment weight: {tacticalCharacter.equipment.weight}
+                    </Grid>
+                    <Grid size={8}></Grid>
+
                 </Grid>
             </DndProvider>
         </div>

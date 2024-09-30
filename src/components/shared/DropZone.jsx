@@ -31,9 +31,7 @@ const DropZone = ({ images, onDrop, title }) => {
                 minHeight: "100px"
             }}
             variant="outlined">
-            <Typography variant="h8" gutterBottom>
-                {title}
-            </Typography>
+            <Typography variant="caption" component='div' gutterBottom>{title}</Typography>
             <Grid container spacing={2}>
                 {images.map((image, index) => (
                     // <Grid item key={image.id}>

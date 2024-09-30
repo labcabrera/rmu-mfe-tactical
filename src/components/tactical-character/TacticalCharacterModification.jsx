@@ -123,11 +123,11 @@ const TacticalCharacterModification = () => {
                     </Stack>
                 </div>
                 <Grid container spacing={2}>
-                    <Grid size={4}>
+                    <Grid size={6}>
                         <Typography variant="h6" component="div">Info</Typography>
                         <TacticalCharacterModificationAttributes formData={formData} setFormData={setFormData} factions={factions} />
                     </Grid>
-                    <Grid size={4}>
+                    <Grid size={2}>
                         <Typography variant="h6" component="div">Skills work in progress</Typography>
                     </Grid>
                     <Grid size={4}>

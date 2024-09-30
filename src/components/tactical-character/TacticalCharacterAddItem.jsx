@@ -6,6 +6,7 @@ import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
+import Typography from '@mui/material/Typography';
 
 import AddIcon from '@mui/icons-material/Add';
 import Grid from '@mui/material/Grid2';
@@ -85,8 +86,8 @@ const TacticalCharacterAddItem = ({ tacticalCharacter, setTacticalCharacter }) =
 
     return (
         <div className="tactical-character-add-item">
+            <Typography variant="h6" component="div">Add item</Typography>
             <Grid container spacing={2}>
-
                 <Grid size={8}>
                     {itemCategories.map((e, index) => (
                         <Button variant={variant} onClick={() => fetchItems(e.category)}>{t(e.name)}</Button>
@@ -113,20 +114,17 @@ const TacticalCharacterAddItem = ({ tacticalCharacter, setTacticalCharacter }) =
                     </FormControl>
                 </Grid>
                 <Grid size={4}>
-                </Grid>
-
-                <Grid size={12}>
                     <IconButton variant={variant} onClick={addItem}>
                         <AddIcon />
                     </IconButton>
                 </Grid>
 
-                <div>
+                {/* <div>
                     <h3>items</h3>
                     <pre>
                         {JSON.stringify(itemForm, null, 2)}
                     </pre>
-                </div>
+                </div> */}
 
             </Grid>
         </div>
