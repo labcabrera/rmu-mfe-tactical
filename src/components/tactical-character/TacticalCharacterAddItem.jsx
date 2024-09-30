@@ -106,7 +106,7 @@ const TacticalCharacterAddItem = ({ tacticalCharacter, setTacticalCharacter }) =
                                     <img
                                         src={`/static/images/items/${item.id}.png`}
                                         alt='x'
-                                        style={{ width: '30px', height: '30px', marginRight: '8px', borderRadius: '3px' }}
+                                        style={{ width: '40px', height: '40px', marginRight: '8px', borderRadius: '2px' }}
                                     />
                                     {item.name}
                                 </MenuItem>))}

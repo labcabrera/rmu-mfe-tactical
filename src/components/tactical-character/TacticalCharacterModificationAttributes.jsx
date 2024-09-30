@@ -41,9 +41,9 @@ const TacticalCharacterModificationAttributes = ({ formData, setFormData, factio
 
     const handleChange = (e) => {
         try {
-        const { name, value } = e.target;
-        setFormData({ ...formData, [name]: value });
-        }catch(error) {
+            const { name, value } = e.target;
+            setFormData({ ...formData, [name]: value });
+        } catch (error) {
             console.log("handleChange error " + error);
         }
     };
@@ -58,6 +58,8 @@ const TacticalCharacterModificationAttributes = ({ formData, setFormData, factio
     const handleHpMaxChange = (e) => updateFormData('hp', 'max', e.target.value);
     const handleHpCurrentChange = (e) => { updateFormData('hp', 'current', e.target.value) };
     const handleInitiativeChange = (e) => { updateFormData('initiative', 'base', e.target.value ? parseInt(e.target.value) : 0) };
+    const handleWeightChange = (e) => { updateFormData('info', 'weight', e.target.value ? parseInt(e.target.value) : 0) };
+    
 
     const updateFormData = (field1, field2, value) => {
         setFormData((prevState) => ({
@@ -69,7 +71,7 @@ const TacticalCharacterModificationAttributes = ({ formData, setFormData, factio
         }));
     };
 
-    if(!formData || !setFormData || !factions || !races || !armorTypes || !characterSizes) {
+    if (!formData || !setFormData || !factions || !races || !armorTypes || !characterSizes) {
         return <p>Loading...</p>
     }
 
@@ -153,7 +155,10 @@ const TacticalCharacterModificationAttributes = ({ formData, setFormData, factio
                 <Grid size={3}>
                     <TextField label="Initiative bonus" variant={variant} type="text" value={formData.initiative.base} onChange={handleInitiativeChange} fullWidth />
                 </Grid>
-                <Grid size={9}>
+                <Grid size={3}>
+                    <TextField label="Weight" variant={variant} type="text" value={formData.info.weight} onChange={handleWeightChange} fullWidth />
+                </Grid>
+                <Grid size={6}>
                 </Grid>
 
                 <Grid size={3}>

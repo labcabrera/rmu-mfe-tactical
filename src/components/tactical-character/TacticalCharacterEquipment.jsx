@@ -3,6 +3,7 @@ import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 
 import Grid from '@mui/material/Grid2';
+import Typography from '@mui/material/Typography';
 
 import DropZone from '../shared/DropZone';
 
@@ -113,14 +114,12 @@ const TacticalCharacterEquipment = ({ tacticalCharacter, setTacticalCharacter })
 
                     </Grid>
 
-                    <Grid size={4}>
-                        Character weight: {tacticalCharacter.info.weight}
+                    <Grid size={12}>
+                        <Typography variant="subtitle2" component="div">Character weight: {tacticalCharacter.info.weight} lbs</Typography>
                     </Grid>
-                    <Grid size={8}></Grid>
-                    <Grid size={4}>
-                        Equipment weight: {tacticalCharacter.equipment.weight}
+                    <Grid size={12}>
+                        <Typography variant="subtitle2" component="div">Equipment weight: {tacticalCharacter.equipment.weight} lbs</Typography>
                     </Grid>
-                    <Grid size={8}></Grid>
 
                 </Grid>
             </DndProvider>
