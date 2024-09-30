@@ -59,5 +59,14 @@
     "throwing-club": "Throwing club",
     "wall-shield": "Wall shield",
     "war-hammer": "War hammer",
-    "whip": "Whip"
+    "whip": "Whip",
+
+    "brigandine-full-suit": "Brigandine (full suit)",
+    "heavy-cloth-full-suit": "Heavy cloth (full suit)",
+    "hide-scale-full-suit": "Hide scale (full suit)",
+    "laminar-full-suit": "Laminar (full suit)",
+    "mail-full-suit": "Mail (full suit)",
+    "metal-scale-full-suit": "Metal scale (full suit)",
+    "plate-full-suit": "Plate (full suit)",
+    "rigid-leather-full-suit": "Rigid leather (full suit)"
 }

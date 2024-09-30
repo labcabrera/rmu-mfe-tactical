@@ -20,7 +20,8 @@ const TacticalCharacterAddItem = ({ tacticalCharacter, setTacticalCharacter }) =
 
     const itemCategories = [
         {category: 'weapon', name: 'weapons'},
-        {category: 'shield', name: 'shields'}];
+        {category: 'shield', name: 'shields'},
+        {category: 'armor', name: 'armors'}];
 
     const [items, setItems] = useState([]);
     const [selectedItem, setSelectedItem] = useState();
