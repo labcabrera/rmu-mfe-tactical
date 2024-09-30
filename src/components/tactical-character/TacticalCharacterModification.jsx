@@ -6,6 +6,7 @@ import SaveIcon from '@mui/icons-material/Save';
 import Grid from '@mui/material/Grid2';
 import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
 
 import TacticalCharacterAddItem from './TacticalCharacterAddItem';
 import TacticalCharacterEquipment from './TacticalCharacterEquipment';
@@ -122,10 +123,15 @@ const TacticalCharacterModification = () => {
                     </Stack>
                 </div>
                 <Grid container spacing={2}>
-                    <Grid size={8}>
+                    <Grid size={4}>
+                        <Typography variant="h6" component="div">Info</Typography>
                         <TacticalCharacterModificationAttributes formData={formData} setFormData={setFormData} factions={factions} />
                     </Grid>
                     <Grid size={4}>
+                        <Typography variant="h6" component="div">Skills work in progress</Typography>
+                    </Grid>
+                    <Grid size={4}>
+                        <Typography variant="h6" component="div">Items</Typography>
                         <TacticalCharacterEquipment tacticalCharacter={tacticalCharacter} setTacticalCharacter={setTacticalCharacter} />
                         <TacticalCharacterAddItem tacticalCharacter={tacticalCharacter} setTacticalCharacter={setTacticalCharacter} />
                     </Grid>

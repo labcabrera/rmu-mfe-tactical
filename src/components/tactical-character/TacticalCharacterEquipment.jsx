@@ -75,14 +75,12 @@ const TacticalCharacterEquipment = ({ tacticalCharacter, setTacticalCharacter })
     return (
         <div className="tactical-character-items">
             <DndProvider backend={HTML5Backend}>
-                <Grid container spacing={4}>
-                    <Grid item xs={6}>
+                <Grid container>
+                    <Grid size={6}>
                         <DropZone images={availableItems} onDrop={handleDropToSelected} title="Items" />
                     </Grid>
-                    <Grid item xs={6}>
-                        <DropZone images={selectedImages} onDrop={handleDropToAvailable} title="Main weapon" />
-                    </Grid>
-                    <Grid item xs={6}>
+                    <Grid size={6}>
+                        <DropZone images={selectedImages} onDrop={handleDropToAvailable} title="Main hand" />
                         <DropZone images={selectedImages} onDrop={handleDropToDelete} title="Delete" />
                     </Grid>
                 </Grid>
