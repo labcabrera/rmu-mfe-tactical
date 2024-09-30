@@ -85,7 +85,15 @@ const TacticalCharacterAddItem = ({ tacticalCharacter }) => {
                             required
                             variant={variant}
                             onChange={handleSelectedChange}>
-                            {items.map((item, index) => (<MenuItem key={index} value={item.id}>{item.name}</MenuItem>))}
+                            {items.map((item, index) => (
+                                <MenuItem key={index} value={item.id}>
+                                    <img
+                                        src={`/static/images/items/${item.id}.png`}
+                                        alt='x'
+                                        style={{ width: '30px', height: '30px', marginRight: '8px', borderRadius: '3px' }}
+                                    />
+                                    {item.name}
+                                </MenuItem>))}
                         </Select>
                     </FormControl>
                 </Grid>
