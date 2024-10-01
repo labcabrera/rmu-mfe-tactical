@@ -15,7 +15,7 @@ import TacticalCharacterAddItem from './TacticalCharacterAddItem';
 import TacticalCharacterEquipment from './TacticalCharacterEquipment';
 import TacticalCharacterModificationAttributes from './TacticalCharacterModificationAttributes';
 import TacticalCharacterSkillModification from './TacticalCharacterSkillModification';
-
+import TacticalCharacterSkillDataGrid from './TacticalCharacterSkillDataGrid';
 
 import { API_TACTICAL_URL } from "../../constants/environment";
 
@@ -143,6 +143,7 @@ const TacticalCharacterModification = () => {
                             <Tab label="Skills" value="2" />
                             <Tab label="Items" value="3" />
                             <Tab label="Debug" value="4" />
+                            <Tab label="Experimental" value="5" />
                         </TabList>
                     </Box>
                     <TabPanel value="1">
@@ -170,6 +171,9 @@ const TacticalCharacterModification = () => {
                                 {JSON.stringify(tacticalCharacter, null, 2)}
                             </pre>
                         </div>
+                    </TabPanel>
+                    <TabPanel value="5">
+                        <TacticalCharacterSkillDataGrid tacticalCharacter={tacticalCharacter} setTacticalCharacter={setTacticalCharacter} />
                     </TabPanel>
                 </TabContext>
             </Box>
