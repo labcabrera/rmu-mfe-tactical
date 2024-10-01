@@ -30,7 +30,7 @@ function EditToolbar(props) {
         ]);
         setRowModesModel((oldModel) => ({
             ...oldModel,
-            [id]: { mode: GridRowModes.Edit, fieldToFocus: 'name' },
+            [id]: { mode: GridRowModes.Edit, fieldToFocus: 'skillId' },
         }));
     };
 
@@ -128,7 +128,8 @@ const TacticalCharacterSkillDataGrid = ({ tacticalCharacter }) => {
 
     const columns = [
         // { field: 'skillId', headerName: 'Skill', width: 160, editable: true },
-        { field: 'skillId', headerName: 'Skill', width: 160,
+        {
+            field: 'skillId', headerName: 'Skill', width: 160,
             renderCell: (params) => (
                 <Select
                     value={params.value}
@@ -245,7 +246,11 @@ const TacticalCharacterSkillDataGrid = ({ tacticalCharacter }) => {
                     }}
                 />
             </Box>
-            <h3>formData</h3>
+            <h3>rowModesModel</h3>
+            <pre>
+                {JSON.stringify(rowModesModel, null, 2)}
+            </pre>
+            <h3>skills</h3>
             <pre>
                 {JSON.stringify(tacticalCharacter.skills, null, 2)}
             </pre>

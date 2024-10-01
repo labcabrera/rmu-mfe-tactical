@@ -10,6 +10,7 @@ import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
 import Tab from '@mui/material/Tab';
+import Grid from '@mui/material/Grid2';
 
 import TacticalCharacterAddItem from './TacticalCharacterAddItem';
 import TacticalCharacterEquipment from './TacticalCharacterEquipment';
@@ -134,29 +135,36 @@ const TacticalCharacterModification = () => {
                     </IconButton>
                 </Stack>
             </div>
-
-            <Box sx={{ width: '100%', typography: 'body1' }}>
+            <Box>
                 <TabContext value={tabValue}>
                     <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                         <TabList onChange={handleTabChange} aria-label="lab API tabs example">
-                            <Tab label="Attributes" value="1" />
-                            <Tab label="Skills" value="2" />
-                            <Tab label="Items" value="3" />
-                            <Tab label="Debug" value="4" />
-                            <Tab label="Experimental" value="5" />
+                            <Tab label="Info" value="1" />
+                            <Tab label="Attributes" value="2" />
+                            <Tab label="Skills" value="3" />
+                            <Tab label="Items" value="4" />
+                            <Tab label="Debug" value="5" />
+                            <Tab label="Skills (experimental)" value="6" />
                         </TabList>
                     </Box>
                     <TabPanel value="1">
-                        <TacticalCharacterModificationAttributes formData={formData} setFormData={setFormData} factions={factions} />
+                        <Grid container spacing={2}>
+                            <Grid size={6}>
+                                <TacticalCharacterModificationAttributes formData={formData} setFormData={setFormData} factions={factions} />
+                            </Grid>
+                        </Grid>
                     </TabPanel>
                     <TabPanel value="2">
-                        <TacticalCharacterSkillModification tacticalCharacter={tacticalCharacter} setTacticalCharacter={setTacticalCharacter} />
+                        WIP
                     </TabPanel>
                     <TabPanel value="3">
+                        <TacticalCharacterSkillModification tacticalCharacter={tacticalCharacter} setTacticalCharacter={setTacticalCharacter} />
+                    </TabPanel>
+                    <TabPanel value="4">
                         <TacticalCharacterEquipment tacticalCharacter={tacticalCharacter} setTacticalCharacter={setTacticalCharacter} />
                         <TacticalCharacterAddItem tacticalCharacter={tacticalCharacter} setTacticalCharacter={setTacticalCharacter} />
                     </TabPanel>
-                    <TabPanel value="4">
+                    <TabPanel value="5">
                         <div>
                             <h3>formData</h3>
                             <pre>
@@ -172,7 +180,7 @@ const TacticalCharacterModification = () => {
                             </pre>
                         </div>
                     </TabPanel>
-                    <TabPanel value="5">
+                    <TabPanel value="6">
                         <TacticalCharacterSkillDataGrid tacticalCharacter={tacticalCharacter} setTacticalCharacter={setTacticalCharacter} />
                     </TabPanel>
                 </TabContext>
