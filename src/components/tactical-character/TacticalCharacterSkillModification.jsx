@@ -1,13 +1,18 @@
 import React from "react";
 
+import SkillSelect from "../shared/SkillSelect";
+
 const TacticalCharacterSkillModification = ({ formData }) => {
 
-    if(!formData) {
+    if (!formData) {
         return <p>Loading skill modification...</p>
     }
 
     return (
-        <p>WIP skill modification</p>
+        <div>
+            <p>WIP skill modification</p>
+            <SkillSelect />
+        </div>
     );
 }
 
