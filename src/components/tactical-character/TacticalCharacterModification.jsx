@@ -132,7 +132,7 @@ const TacticalCharacterModification = () => {
                     </Grid>
                     <Grid size={3}>
                         <Typography variant="h6" component="div">Skills</Typography>
-                        <TacticalCharacterSkillModification formData={formData} />
+                        <TacticalCharacterSkillModification tacticalCharacter={tacticalCharacter} setTacticalCharacter={setTacticalCharacter} />
                     </Grid>
                     <Grid size={4}>
                         <Typography variant="h6" component="div">Items</Typography>

@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from 'react-i18next';
 
-import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
+import { Button, FormControl, InputLabel, MenuItem, Select } from '@mui/material';
 import Grid from '@mui/material/Grid2';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import IconButton from '@mui/material/IconButton';
 
 import { API_CORE_URL } from "../../constants/environment";
 
-const SkillSelect = ({ }) => {
+const SkillSelect = ({ onAddSkill }) => {
 
     const { t, i18n } = useTranslation();
 
@@ -28,6 +30,11 @@ const SkillSelect = ({ }) => {
     const loadSkillsByCategory = () => {
         const filtered = skills.filter(e => e.categoryId == skillCategory);
         setSkillsFiltered(filtered);
+    };
+
+    const handleAddSkill = () => {
+        setSkill('');
+        onAddSkill(skill);
     };
 
     useEffect(() => {
@@ -52,7 +59,7 @@ const SkillSelect = ({ }) => {
     return (
 
         <Grid container spacing={2}>
-            <Grid size={12}>
+            <Grid size={5}>
                 <FormControl fullWidth>
                     <InputLabel id="select-skill-category-label">Skill category</InputLabel>
                     <Select
@@ -60,6 +67,7 @@ const SkillSelect = ({ }) => {
                         value={skillCategory}
                         onChange={handleSkillCategoryChange}
                         fullWidth
+                        variant='standard'
                         label="Skill category">
                         {skillCategories.map(e => (
                             <MenuItem value={e.id}>{t(e.id)}</MenuItem>
@@ -67,7 +75,7 @@ const SkillSelect = ({ }) => {
                     </Select>
                 </FormControl>
             </Grid>
-            <Grid size={12}>
+            <Grid size={5}>
                 <FormControl fullWidth>
                     <InputLabel id="select-skill-label">Skill</InputLabel>
                     <Select
@@ -75,12 +83,18 @@ const SkillSelect = ({ }) => {
                         value={skill}
                         onChange={handleSkillChange}
                         fullWidth
+                        variant='standard'
                         label="Skill category">
                         {skillsFiltered.map(e => (
                             <MenuItem value={e.id}>{t(e.id)}</MenuItem>
                         ))}
                     </Select>
                 </FormControl>
+            </Grid>
+            <Grid size={2}>
+                <IconButton aria-label="delete" size="small" disabled={!skill} onClick={handleAddSkill}>
+                    <AddCircleOutlineIcon />
+                </IconButton>
             </Grid>
         </Grid>
 
