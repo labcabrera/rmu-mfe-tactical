@@ -141,7 +141,13 @@ const TacticalCharacterEquipment = ({ tacticalCharacter, setTacticalCharacter })
                     <Grid size={2}>
                         <DropZone images={imagesOffHand} onDrop={handleDropToOffHand} title="Off hand" />
                     </Grid>
-                    <Grid size={8}>
+                    <Grid size={2}>
+                    </Grid>
+                    <Grid size={2}>
+                        <DropZone images={selectedImages} onDrop={handleDropToDelete} title="Delete" />
+                    </Grid>
+                    <Grid size={4}>
+
                     </Grid>
 
                     <Grid size={2}>
@@ -165,12 +171,6 @@ const TacticalCharacterEquipment = ({ tacticalCharacter, setTacticalCharacter })
                     <Grid size={4}>
                     </Grid>
 
-                    <Grid size={2}>
-                        <DropZone images={selectedImages} onDrop={handleDropToUnequip} title="Unequip" />
-                    </Grid>
-                    <Grid size={2}>
-                        <DropZone images={selectedImages} onDrop={handleDropToDelete} title="Delete" />
-                    </Grid>
 
                     <Grid size={12}>
                         <Typography variant="subtitle2" component="div">Character weight: {tacticalCharacter.info.weight} lbs</Typography>

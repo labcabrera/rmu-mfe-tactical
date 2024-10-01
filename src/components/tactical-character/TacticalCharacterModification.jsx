@@ -11,6 +11,7 @@ import Typography from '@mui/material/Typography';
 import TacticalCharacterAddItem from './TacticalCharacterAddItem';
 import TacticalCharacterEquipment from './TacticalCharacterEquipment';
 import TacticalCharacterModificationAttributes from './TacticalCharacterModificationAttributes';
+import TacticalCharacterSkillModification from './TacticalCharacterSkillModification';
 
 import { API_TACTICAL_URL } from "../../constants/environment";
 
@@ -130,7 +131,8 @@ const TacticalCharacterModification = () => {
                         <TacticalCharacterModificationAttributes formData={formData} setFormData={setFormData} factions={factions} />
                     </Grid>
                     <Grid size={2}>
-                        <Typography variant="h6" component="div">Skills work in progress</Typography>
+                        <Typography variant="h6" component="div">Skills</Typography>
+                        <TacticalCharacterSkillModification formData={formData} />
                     </Grid>
                     <Grid size={4}>
                         <Typography variant="h6" component="div">Items</Typography>
