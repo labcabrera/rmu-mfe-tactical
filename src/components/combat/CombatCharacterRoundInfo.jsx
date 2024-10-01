@@ -33,7 +33,7 @@ const CombatCharacterRoundInfo = ({ characterRound, character }) => {
                         {character.name}
                     </Typography>
                 </Stack>
-                <Typography variant="h7" component="div">
+                <Typography variant="h6" component="div">
                     {t(character.info.race)} level {character.info.level}
                 </Typography>
                 <HealthBar currentHP={character.hp.current} maxHP={character.hp.max} />

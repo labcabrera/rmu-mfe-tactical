@@ -7,6 +7,9 @@ import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
+import DeleteIcon from '@mui/icons-material/Delete';
+import IconButton from "@mui/material/IconButton";
+import MiscellaneousServicesIcon from '@mui/icons-material/MiscellaneousServices';
 
 import { CombatContext } from './CombatProvider';
 
@@ -47,7 +50,7 @@ const ResolveActionCard = ({ action }) => {
     }
 
     return (
-        <Card sx={{ minWidth: 275 }}>
+        <Card>
             <CardContent>
                 <Avatar alt="Remy Sharp" src='/static/images/actions/attack.png' />
                 <Typography gutterBottom sx={{ color: 'text.secondary', fontSize: 14 }}>
@@ -58,8 +61,12 @@ const ResolveActionCard = ({ action }) => {
                 </Typography>
             </CardContent>
             <CardActions>
-                <Button size="small">Resolve</Button>
-                <Button size="small" onClick={() => handleDeleteActionClick()}>Delete</Button>
+                <IconButton>
+                    <MiscellaneousServicesIcon />
+                </IconButton>
+                <IconButton size="small" onClick={() => handleDeleteActionClick()}>
+                    <DeleteIcon />
+                </IconButton>
             </CardActions>
         </Card>
     );
