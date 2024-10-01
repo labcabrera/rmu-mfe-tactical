@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import AddIcon from '@mui/icons-material/Add';
 import CancelIcon from '@mui/icons-material/Close';
@@ -7,53 +8,19 @@ import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
 import { DataGrid, GridActionsCellItem, GridRowEditStopReasons, GridRowModes, GridToolbarContainer } from '@mui/x-data-grid';
 
 //TODO remove and uninstall
 import { randomArrayItem, randomCreatedDate, randomId, randomTraderName } from '@mui/x-data-grid-generator';
 
+import { API_CORE_URL } from "../../constants/environment";
+
 const roles = ['Market', 'Finance', 'Development'];
 const randomRole = () => {
     return randomArrayItem(roles);
 };
-
-const initialRows = [
-    {
-        id: randomId(),
-        name: randomTraderName(),
-        age: 25,
-        joinDate: randomCreatedDate(),
-        role: randomRole(),
-    },
-    {
-        id: randomId(),
-        name: randomTraderName(),
-        age: 36,
-        joinDate: randomCreatedDate(),
-        role: randomRole(),
-    },
-    {
-        id: randomId(),
-        name: randomTraderName(),
-        age: 19,
-        joinDate: randomCreatedDate(),
-        role: randomRole(),
-    },
-    {
-        id: randomId(),
-        name: randomTraderName(),
-        age: 28,
-        joinDate: randomCreatedDate(),
-        role: randomRole(),
-    },
-    {
-        id: randomId(),
-        name: randomTraderName(),
-        age: 23,
-        joinDate: randomCreatedDate(),
-        role: randomRole(),
-    },
-];
 
 function EditToolbar(props) {
     const { setRows, setRowModesModel } = props;
@@ -81,8 +48,13 @@ function EditToolbar(props) {
 
 const TacticalCharacterSkillDataGrid = ({ tacticalCharacter }) => {
 
+    const { t, i18n } = useTranslation();
+
     const [rows, setRows] = useState(tacticalCharacter.skills);
     const [rowModesModel, setRowModesModel] = useState({});
+
+    const [skillCategories, setSkillCategories] = useState([]);
+    const [skills, setSkills] = useState([]);
 
     const handleRowEditStop = (params, event) => {
         if (params.reason === GridRowEditStopReasons.rowFocusOut) {
@@ -124,31 +96,54 @@ const TacticalCharacterSkillDataGrid = ({ tacticalCharacter }) => {
         setRowModesModel(newRowModesModel);
     };
 
+    const handleSelectCategoryChange = (id, value) => {
+        const updatedRows = rows.map((row) =>
+            row.id === id ? { ...row, category: value } : row
+        );
+        setRows(updatedRows);
+    };
+
+    useEffect(() => {
+        const fetchSkillCategories = async () => {
+            const response = await fetch(`${API_CORE_URL}/skill-categories?size=500`);
+            const data = await response.json();
+            setSkillCategories(data.content);
+        };
+        const fetchSkills = async () => {
+            const response = await fetch(`${API_CORE_URL}/skills?size=500`);
+            const data = await response.json();
+            setSkills(data.content);
+        };
+        fetchSkillCategories();
+        fetchSkills();
+    }, []);
+
     const columns = [
-        { field: 'name', headerName: 'Name', width: 180, editable: true },
-        {
-            field: 'age',
-            headerName: 'Age',
-            type: 'number',
-            width: 80,
-            align: 'left',
-            headerAlign: 'left',
-            editable: true,
+        { field: 'skillId', headerName: 'Skill', width: 160, editable: true },
+        { field: 'categoryId', headerName: 'Category', width: 160,
+            renderCell: (params) => (
+                <Select
+                    value={params.value}
+                    fullWidth
+                    variant='standard'
+                    onChange={(event) => handleSelectCategoryChange(params.id, event.target.value)}>
+                    {skillCategories.map((option) => (
+                        <MenuItem key={option.id} value={option.id}>{t(option.id)}</MenuItem>
+                    ))}
+                </Select>
+            ),
         },
-        {
-            field: 'joinDate',
-            headerName: 'Join date',
-            type: 'date',
-            width: 180,
-            editable: true,
-        },
+        { field: 'attributeBonus', headerName: 'Attribute Bonus', type: 'number', align: 'right', width: 100, editable: true },
+        { field: 'racialBonus', headerName: 'Racial Bonus', type: 'number', align: 'right', width: 100, editable: true },
+        { field: 'customBonus', headerName: 'Custom Bonus', type: 'number', align: 'right', width: 100, editable: true },
+        { field: 'totalBonus', headerName: 'Total Bonus', type: 'number', align: 'right', width: 100, editable: false },
         {
             field: 'role',
-            headerName: 'Department',
-            width: 220,
+            headerName: 'Sample',
+            width: 100,
             editable: true,
             type: 'singleSelect',
-            valueOptions: ['Market', 'Finance', 'Development'],
+            valueOptions: ['Market', 'Finance', 'Development']
         },
         {
             field: 'actions',
@@ -199,34 +194,40 @@ const TacticalCharacterSkillDataGrid = ({ tacticalCharacter }) => {
     ];
 
     return (
-        <Box
-            sx={{
-                height: 500,
-                width: '100%',
-                '& .actions': {
-                    color: 'text.secondary',
-                },
-                '& .textPrimary': {
-                    color: 'text.primary',
-                },
-            }}
-        >
-            <DataGrid
-                rows={rows}
-                columns={columns}
-                editMode="row"
-                rowModesModel={rowModesModel}
-                onRowModesModelChange={handleRowModesModelChange}
-                onRowEditStop={handleRowEditStop}
-                processRowUpdate={processRowUpdate}
-                slots={{
-                    toolbar: EditToolbar,
+        <div>
+            <Box
+                sx={{
+                    height: 500,
+                    width: '100%',
+                    '& .actions': {
+                        color: 'text.secondary',
+                    },
+                    '& .textPrimary': {
+                        color: 'text.primary',
+                    },
                 }}
-                slotProps={{
-                    toolbar: { setRows, setRowModesModel },
-                }}
-            />
-        </Box>
+            >
+                <DataGrid
+                    rows={rows}
+                    columns={columns}
+                    editMode="row"
+                    rowModesModel={rowModesModel}
+                    onRowModesModelChange={handleRowModesModelChange}
+                    onRowEditStop={handleRowEditStop}
+                    processRowUpdate={processRowUpdate}
+                    slots={{
+                        toolbar: EditToolbar,
+                    }}
+                    slotProps={{
+                        toolbar: { setRows, setRowModesModel },
+                    }}
+                />
+            </Box>
+            <h3>formData</h3>
+            <pre>
+                {JSON.stringify(tacticalCharacter.skills, null, 2)}
+            </pre>
+        </div>
     );
 }
 
