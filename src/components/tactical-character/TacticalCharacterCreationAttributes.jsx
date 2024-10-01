@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from 'react';
 
+import CachedIcon from '@mui/icons-material/Cached';
 import FormControl from '@mui/material/FormControl';
 import Grid from '@mui/material/Grid2';
+import IconButton from '@mui/material/IconButton';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import TextField from '@mui/material/TextField';
 
-import { API_CORE_URL } from '../../constants/environment';
+import { API_CORE_URL, API_NPC_NAMES_URL } from '../../constants/environment';
 
 const TacticalCharacterCreationAttributes = ({ formData, setFormData, factions }) => {
 
@@ -15,29 +17,7 @@ const TacticalCharacterCreationAttributes = ({ formData, setFormData, factions }
 
     const levels = Array.from({ length: 101 }, (_, index) => index);
     const [races, setRaces] = useState([]);
-    const [armorTypes, setArmorTypes] = useState([]);
     const [characterSizes, setCharacterSizes] = useState([]);
-
-    useEffect(() => {
-        const fetchArmorTypes = async () => {
-            const response = await fetch(`${API_CORE_URL}/armor-types`);
-            const data = await response.json();
-            setArmorTypes(data);
-        };
-        const fetchRaces = async () => {
-            const response = await fetch(`${API_CORE_URL}/races`);
-            const data = await response.json();
-            setRaces(data.content);
-        };
-        const fetchCharacterSizes = async () => {
-            const response = await fetch(`${API_CORE_URL}/character-sizes`);
-            const data = await response.json();
-            setCharacterSizes(data.map((item) => { return { id: item.id, name: item.name } }));
-        };
-        fetchRaces();
-        fetchArmorTypes();
-        fetchCharacterSizes();
-    }, []);
 
     const handleChange = (e) => {
         try {
@@ -46,6 +26,16 @@ const TacticalCharacterCreationAttributes = ({ formData, setFormData, factions }
         } catch (error) {
             console.log("handleChange error " + error);
         }
+    };
+
+    const handleRandomNameClick = async (e) => {
+        var race = 'generic';
+        if (formData && formData.info && formData.info.race) {
+            race = formData.info.race;
+        }
+        const response = await fetch(`${API_NPC_NAMES_URL}/random-names/${race}`);
+        const responseBody = await response.text();
+        setFormData({ ...formData, name: responseBody });
     };
 
     const handleFactionChange = (e) => setFormData({ ...formData, faction: e.target.value });
@@ -62,6 +52,7 @@ const TacticalCharacterCreationAttributes = ({ formData, setFormData, factions }
     const handlePowerMaxChange = (e) => updateFormData('power', 'max', e.target.value ? parseInt(e.target.value) : 0);
     const handlePowerCurrentChange = (e) => updateFormData('power', 'current', e.target.value ? parseInt(e.target.value) : 0);
     const handleInitiativeChange = (e) => updateFormData('initiative', 'base', e.target.value ? parseInt(e.target.value) : 0);
+    const handleHeightChange = (e) => updateFormData('info', 'height', e.target.value ? parseInt(e.target.value) : 0);
     const handleWeightChange = (e) => updateFormData('info', 'weight', e.target.value ? parseInt(e.target.value) : 0);
 
     const updateFormData = (field1, field2, value) => {
@@ -74,12 +65,25 @@ const TacticalCharacterCreationAttributes = ({ formData, setFormData, factions }
         }));
     };
 
+    useEffect(() => {
+        const fetchRaces = async () => {
+            const response = await fetch(`${API_CORE_URL}/races`);
+            const data = await response.json();
+            setRaces(data.content);
+        };
+        const fetchCharacterSizes = async () => {
+            const response = await fetch(`${API_CORE_URL}/character-sizes`);
+            const data = await response.json();
+            setCharacterSizes(data.map((item) => { return { id: item.id, name: item.name } }));
+        };
+        fetchRaces();
+        fetchCharacterSizes();
+    }, []);
+
     return (
         <div className="tactical-game-character-creation-attributes">
             <Grid container spacing={2}>
-                <Grid size={3}>
-                    <TextField label="Name" variant={variant} fullWidth name="name" value={formData.name} onChange={handleChange} required />
-                </Grid>
+
                 <Grid size={3}>
                     <FormControl fullWidth>
                         <InputLabel id="select-race-label">Race</InputLabel>
@@ -88,6 +92,15 @@ const TacticalCharacterCreationAttributes = ({ formData, setFormData, factions }
                         </Select>
                     </FormControl>
                 </Grid>
+                <Grid size={3}>
+                    <TextField label="Name" variant={variant} fullWidth name="name" value={formData.name} onChange={handleChange} required />
+                </Grid>
+                <Grid size={6}>
+                    <IconButton onClick={handleRandomNameClick}>
+                        <CachedIcon />
+                    </IconButton>
+                </Grid>
+
                 <Grid size={3}>
                     <FormControl fullWidth>
                         <InputLabel id="select-faction-label">Faction</InputLabel>
@@ -111,23 +124,8 @@ const TacticalCharacterCreationAttributes = ({ formData, setFormData, factions }
                         </Select>
                     </FormControl>
                 </Grid>
+                <Grid size={6}></Grid>
 
-                <Grid size={3}>
-                    <FormControl fullWidth>
-                        <InputLabel id="select-armor-type-label">Armor type</InputLabel>
-                        <Select
-                            id="select-armor-type"
-                            labelId="select-armor-type-label"
-                            label="Armor type"
-                            value={formData.info.armorType}
-                            required
-                            fullWidth
-                            variant={variant}
-                            onChange={handleArmorTypeChange}>
-                            {armorTypes.map((option) => (<MenuItem key={option.id} value={option.id}>{option.name}</MenuItem>))}
-                        </Select>
-                    </FormControl>
-                </Grid>
                 <Grid size={3}>
                     <FormControl fullWidth>
                         <InputLabel id="select-size-label">Size</InputLabel>
@@ -147,47 +145,38 @@ const TacticalCharacterCreationAttributes = ({ formData, setFormData, factions }
                 <Grid size={3}>
                     <TextField label="Defensive bonus" variant={variant} type="text" value={formData.defense.defensiveBonus} onChange={handleDefensiveBonusChange} fullWidth />
                 </Grid>
+                <Grid size={6}></Grid>
+
+
+                <Grid size={3}>
+                    <TextField label="Height" variant={variant} type="text" value={formData.info.height} onChange={handleHeightChange} fullWidth />
+                </Grid>
+                <Grid size={3}>
+                    <TextField label="Weight" variant={variant} type="text" value={formData.info.weight} onChange={handleWeightChange} fullWidth />
+                </Grid>
                 <Grid size={3}>
                     <TextField label="Base movement rate" variant={variant} type="text" value={formData.info.baseMovementRate} onChange={handleBaseMovementRateChange} fullWidth />
+                </Grid>
+                <Grid size={3}></Grid>
+
+                <Grid size={3}>
+                    <TextField label="HP" variant={variant} type="text" value={formData.hp.max} onChange={handleHpMaxChange} fullWidth />
+                </Grid>
+                <Grid size={3}>
+                    <TextField label="Endurance" variant={variant} type="text" value={formData.endurance.max} onChange={handleEnduranceMaxChange} fullWidth />
+                </Grid>
+                <Grid size={3}>
+                    <TextField label="Power points" variant={variant} type="text" value={formData.power.max} onChange={handlePowerMaxChange} fullWidth />
+                </Grid>
+                <Grid size={3}>
                 </Grid>
 
                 <Grid size={3}>
                     <TextField label="Initiative bonus" variant={variant} type="text" value={formData.initiative.base} onChange={handleInitiativeChange} fullWidth />
                 </Grid>
-                <Grid size={3}>
-                    <TextField label="Weight" variant={variant} type="text" value={formData.info.weight} onChange={handleWeightChange} fullWidth />
-                </Grid>
-                <Grid size={6}>
-                </Grid>
+                <Grid size={9}></Grid>
 
-                <Grid size={3}>
-                    <TextField label="Max HP" variant={variant} type="text" value={formData.hp.max} onChange={handleHpMaxChange} fullWidth />
-                </Grid>
-                <Grid size={3}>
-                    <TextField label="Current HP" variant={variant} type="text" value={formData.hp.current} onChange={handleHpCurrentChange} fullWidth />
-                </Grid>
-                <Grid size={6}>
-                </Grid>
-
-                <Grid size={3}>
-                    <TextField label="Max endurance" variant={variant} type="text" value={formData.endurance.max} onChange={handleEnduranceMaxChange} fullWidth />
-                </Grid>
-                <Grid size={3}>
-                    <TextField label="Current endurance" variant={variant} type="text" value={formData.endurance.current} onChange={handleEnduranceCurrentChange} fullWidth />
-                </Grid>
-                <Grid size={6}>
-                </Grid>
-
-                <Grid size={3}>
-                    <TextField label="Max power" variant={variant} type="text" value={formData.power.max} onChange={handlePowerMaxChange} fullWidth />
-                </Grid>
-                <Grid size={3}>
-                    <TextField label="Current power" variant={variant} type="text" value={formData.power.current} onChange={handlePowerCurrentChange} fullWidth />
-                </Grid>
-                <Grid size={6}>
-                </Grid>
-
-                <Grid size={12}>
+                <Grid size={9}>
                     <TextField label="Description" variant={variant} name="description" value={formData.description} onChange={handleChange} fullWidth multiline maxRows={4} />
                 </Grid>
             </Grid>

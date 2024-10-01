@@ -1,6 +1,17 @@
 {
     "action-type-attack": "Attack",
 
+    "ag": "Agility (ag)",
+    "co": "Constitution (co)",
+    "em": "Empathy (em)",
+    "in": "Intuition (in)",
+    "me": "Memory (me)",
+    "pr": "Presence (pr)",
+    "qu": "Quickness (qu)",
+    "re": "Reasoning (re)",
+    "sd": "Self discipline (sd)",
+    "st": "Strength (st)",
+
     "size-small": "Small",
     "size-medium": "Medium",
     "size-big": "Big",

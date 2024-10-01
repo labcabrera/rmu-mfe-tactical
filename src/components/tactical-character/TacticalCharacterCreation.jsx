@@ -8,8 +8,10 @@ import IconButton from '@mui/material/IconButton';
 import Snackbar from '@mui/material/Snackbar';
 import Stack from '@mui/material/Stack';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import Grid from '@mui/material/Grid2';
 
 import TacticalCharacterCreationAttributes from './TacticalCharacterCreationAttributes';
+import TacticalCharacterStatisticsModification from './TacticalCharacterStatisticsModification';
 
 import { API_TACTICAL_URL } from '../../constants/environment';
 
@@ -35,7 +37,20 @@ const TacticalCharacterCreation = () => {
             race: "lotr-human",
             sizeId: "medium",
             baseMovementRate: 20,
+            height: 7,
             weight: 100
+        },
+        statistics: {
+            ag: { racial: 0, custom: 0, },
+            co: { racial: 0, custom: 0, },
+            em: { racial: 0, custom: 0, },
+            in: { racial: 0, custom: 0, },
+            me: { racial: 0, custom: 0, },
+            pr: { racial: 0, custom: 0, },
+            qu: { racial: 0, custom: 0, },
+            re: { racial: 0, custom: 0, },
+            sd: { racial: 0, custom: 0, },
+            st: { racial: 0, custom: 0, }
         },
         initiative: {
             base: 0,
@@ -88,7 +103,7 @@ const TacticalCharacterCreation = () => {
     };
 
     const handleBackClick = () => {
-        navigate(`/tactical/view/${tacticalGame.id}`, {state: {tacticalGame: tacticalGame}});
+        navigate(`/tactical/view/${tacticalGame.id}`, { state: { tacticalGame: tacticalGame } });
     };
 
     const showError = (message) => {
@@ -96,7 +111,7 @@ const TacticalCharacterCreation = () => {
         setErrorMessage(message);
     };
 
-    if(!tacticalGame || !formData) {
+    if (!tacticalGame || !formData) {
         return <p>Loading...</p>
     }
 
@@ -116,7 +131,14 @@ const TacticalCharacterCreation = () => {
                 </Stack>
             </div>
             <div>
-                <TacticalCharacterCreationAttributes formData={formData} setFormData={setFormData} factions={tacticalGame.factions} />
+                <Grid container spacing={2}>
+                    <Grid size={6}>
+                        <TacticalCharacterCreationAttributes formData={formData} setFormData={setFormData} factions={tacticalGame.factions} />
+                    </Grid>
+                    <Grid size={6}>
+                        <TacticalCharacterStatisticsModification formData={formData} setFormData={setFormData} />
+                    </Grid>
+                </Grid>
                 <Box component="form"
                     sx={{ '& > :not(style)': { m: 1, width: '80ch' } }}>
                 </Box>
