@@ -39,6 +39,7 @@ const TacticalGameViewActions = () => {
     };
 
     const handleEditClick = () => {
+        alert("TODO");
     };
 
     const handleOpenClick = async () => {

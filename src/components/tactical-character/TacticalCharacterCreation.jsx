@@ -48,6 +48,14 @@ const TacticalCharacterCreation = () => {
             max: 25,
             current: 25
         },
+        endurance: {
+            max: 30,
+            current: 30
+        },
+        power: {
+            max: 0,
+            current: 0
+        },
         skills: [],
         items: [],
         description: ''

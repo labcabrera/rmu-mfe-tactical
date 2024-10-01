@@ -1,11 +1,20 @@
 {
     "action-type-attack": "Attack",
-    "lotr-orc": "Orc",
-    "lotr-human": "Human",
-    "lotr-troll": "Troll",
+
     "size-small": "Small",
     "size-medium": "Medium",
     "size-big": "Big",
+
+    "at-1": "None (1)",
+    "at-2": "Heavy cloth (2)",
+    "at-3": "Soft leather (3)",
+    "at-4": "Hide scale (4)",
+    "at-5": "Laminar (5)",
+    "at-6": "Rigid leather (6)",
+    "at-7": "Metal scale (7)",
+    "at-8": "Mail (8)",
+    "at-9": "Brigandine (9)",
+    "at-10": "Plate (10)",
 
     "arming-sword": "Arming sword",
     "battle-axe": "Battle axe",
@@ -70,5 +79,9 @@
     "mail-full-suit": "Mail (full suit)",
     "metal-scale-full-suit": "Metal scale (full suit)",
     "plate-full-suit": "Plate (full suit)",
-    "rigid-leather-full-suit": "Rigid leather (full suit)"
+    "rigid-leather-full-suit": "Rigid leather (full suit)",
+
+    "lotr-orc-lesser": "Lesser orc",
+    "lotr-human-common": "Common human",
+    "lotr-cave-troll": "Cave troll"
 }

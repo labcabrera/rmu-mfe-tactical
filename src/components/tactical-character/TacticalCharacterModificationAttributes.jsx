@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import FormControl from '@mui/material/FormControl';
 import Grid from '@mui/material/Grid2';
@@ -12,6 +13,8 @@ import { API_CORE_URL } from '../../constants/environment';
 const TacticalCharacterModificationAttributes = ({ formData, setFormData, factions }) => {
 
     const variant = 'standard';
+
+    const { t, i18n } = useTranslation();
 
     const levels = Array.from({ length: 101 }, (_, index) => index);
     const [races, setRaces] = useState([]);
@@ -55,11 +58,17 @@ const TacticalCharacterModificationAttributes = ({ formData, setFormData, factio
     const handleArmorTypeChange = (e) => updateFormData('defense', 'armorType', e.target.value);
     const handleDefensiveBonusChange = (e) => updateFormData('defense', 'defensiveBonus', e.target.value ? parseInt(e.target.value) : 0);
     const handleSizeChange = (e) => updateFormData('info', 'sizeId', e.target.value);
-    const handleHpMaxChange = (e) => updateFormData('hp', 'max', e.target.value);
-    const handleHpCurrentChange = (e) => { updateFormData('hp', 'current', e.target.value) };
+
+    const handleHpMaxChange = (e) => updateFormData('hp', 'max', e.target.value ? parseInt(e.target.value) : 0);
+    const handleHpCurrentChange = (e) => updateFormData('hp', 'current', e.target.value ? parseInt(e.target.value) : 0);
+    const handleEnduranceMaxChange = (e) => updateFormData('endurance', 'max', e.target.value ? parseInt(e.target.value) : 0);
+    const handleEnduranceCurrentChange = (e) => updateFormData('endurance', 'current', e.target.value ? parseInt(e.target.value) : 0);
+    const handlePowerMaxChange = (e) => updateFormData('power', 'max', e.target.value ? parseInt(e.target.value) : 0);
+    const handlePowerCurrentChange = (e) => updateFormData('power', 'current', e.target.value ? parseInt(e.target.value) : 0);
+
     const handleInitiativeChange = (e) => { updateFormData('initiative', 'base', e.target.value ? parseInt(e.target.value) : 0) };
     const handleWeightChange = (e) => { updateFormData('info', 'weight', e.target.value ? parseInt(e.target.value) : 0) };
-    
+
 
     const updateFormData = (field1, field2, value) => {
         setFormData((prevState) => ({
@@ -123,9 +132,10 @@ const TacticalCharacterModificationAttributes = ({ formData, setFormData, factio
                             value={formData.defense.armorType}
                             required
                             fullWidth
+                            disabled
                             variant={variant}
                             onChange={handleArmorTypeChange}>
-                            {armorTypes.map((option) => (<MenuItem key={option.id} value={option.id}>{option.name}</MenuItem>))}
+                            {armorTypes.map(option => (<MenuItem key={option.id} value={option.id}>{t(`at-${option.id}`)}</MenuItem>))}
                         </Select>
                     </FormControl>
                 </Grid>
@@ -167,9 +177,25 @@ const TacticalCharacterModificationAttributes = ({ formData, setFormData, factio
                 <Grid size={3}>
                     <TextField label="Current HP" variant={variant} type="text" value={formData.hp.current} onChange={handleHpCurrentChange} fullWidth />
                 </Grid>
+                <Grid size={6}>
+                </Grid>
+
                 <Grid size={3}>
+                    <TextField label="Max endurance" variant={variant} type="text" value={formData.endurance.max} onChange={handleEnduranceMaxChange} fullWidth />
                 </Grid>
                 <Grid size={3}>
+                    <TextField label="Current endurance" variant={variant} type="text" value={formData.endurance.current} onChange={handleEnduranceCurrentChange} fullWidth />
+                </Grid>
+                <Grid size={6}>
+                </Grid>
+
+                <Grid size={3}>
+                    <TextField label="Max HP" variant={variant} type="text" value={formData.power.max} onChange={handlePowerMaxChange} fullWidth />
+                </Grid>
+                <Grid size={3}>
+                    <TextField label="Current HP" variant={variant} type="text" value={formData.power.current} onChange={handlePowerCurrentChange} fullWidth />
+                </Grid>
+                <Grid size={6}>
                 </Grid>
 
                 <Grid size={12}>

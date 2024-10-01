@@ -60,6 +60,8 @@ const TacticalCharacterModification = () => {
             info: tacticalCharacter.info,
             defense: tacticalCharacter.defense,
             hp: tacticalCharacter.hp,
+            endurance: tacticalCharacter.endurance,
+            power: tacticalCharacter.power,
             initiative: tacticalCharacter.initiative,
             effects: tacticalCharacter.effects,
             skills: tacticalCharacter.skills,

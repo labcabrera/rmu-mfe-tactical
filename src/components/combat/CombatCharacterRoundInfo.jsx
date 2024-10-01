@@ -14,7 +14,7 @@ const CombatCharacterRoundInfo = ({ characterRound, character }) => {
     const { t, i18n } = useTranslation();
 
     if (!characterRound || !character) {
-        return <p>Loading...</p>
+        return <p>Loading... {characterRound} {character}</p>
     }
 
     const getAvatarImage = () => {
