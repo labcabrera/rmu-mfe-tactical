@@ -13,14 +13,11 @@ import MenuItem from '@mui/material/MenuItem';
 import { DataGrid, GridActionsCellItem, GridRowEditStopReasons, GridRowModes, GridToolbarContainer } from '@mui/x-data-grid';
 
 //TODO remove and uninstall
-import { randomArrayItem, randomCreatedDate, randomId, randomTraderName } from '@mui/x-data-grid-generator';
+import { randomId } from '@mui/x-data-grid-generator';
 
 import { API_CORE_URL } from "../../constants/environment";
 
 const roles = ['Market', 'Finance', 'Development'];
-const randomRole = () => {
-    return randomArrayItem(roles);
-};
 
 function EditToolbar(props) {
     const { setRows, setRowModesModel } = props;
@@ -63,14 +60,17 @@ const TacticalCharacterSkillDataGrid = ({ tacticalCharacter }) => {
     };
 
     const handleEditClick = (id) => () => {
+        console.log(`handleEditClick ${JSON.stringify(id, null, 2)}`);
         setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
     };
 
     const handleSaveClick = (id) => () => {
+        console.log(`handleSaveClick ${JSON.stringify(id, null, 2)}`);
         setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
     };
 
     const handleDeleteClick = (id) => () => {
+        console.log(`handleDeleteClick ${JSON.stringify(id, null, 2)}`);
         setRows(rows.filter((row) => row.id !== id));
     };
 
@@ -87,6 +87,7 @@ const TacticalCharacterSkillDataGrid = ({ tacticalCharacter }) => {
     };
 
     const processRowUpdate = (newRow) => {
+        console.log(`processRowUpdate ${JSON.stringify(newRow, null, 2)}`);
         const updatedRow = { ...newRow, isNew: false };
         setRows(rows.map((row) => (row.id === newRow.id ? updatedRow : row)));
         return updatedRow;
@@ -99,6 +100,13 @@ const TacticalCharacterSkillDataGrid = ({ tacticalCharacter }) => {
     const handleSelectCategoryChange = (id, value) => {
         const updatedRows = rows.map((row) =>
             row.id === id ? { ...row, category: value } : row
+        );
+        setRows(updatedRows);
+    };
+
+    const handleSelectSkillChange = (id, value) => {
+        const updatedRows = rows.map((row) =>
+            row.id === id ? { ...row, skillId: value } : row
         );
         setRows(updatedRows);
     };
@@ -119,8 +127,22 @@ const TacticalCharacterSkillDataGrid = ({ tacticalCharacter }) => {
     }, []);
 
     const columns = [
-        { field: 'skillId', headerName: 'Skill', width: 160, editable: true },
-        { field: 'categoryId', headerName: 'Category', width: 160,
+        // { field: 'skillId', headerName: 'Skill', width: 160, editable: true },
+        { field: 'skillId', headerName: 'Skill', width: 160,
+            renderCell: (params) => (
+                <Select
+                    value={params.value}
+                    fullWidth
+                    variant='standard'
+                    onChange={(event) => handleSelectSkillChange(params.id, event.target.value)}>
+                    {skills.map((option) => (
+                        <MenuItem key={option.id} value={option.id}>{t(option.id)}</MenuItem>
+                    ))}
+                </Select>
+            ),
+        },
+        {
+            field: 'skillCategoryId', headerName: 'Category', width: 160,
             renderCell: (params) => (
                 <Select
                     value={params.value}
@@ -133,10 +155,10 @@ const TacticalCharacterSkillDataGrid = ({ tacticalCharacter }) => {
                 </Select>
             ),
         },
-        { field: 'attributeBonus', headerName: 'Attribute Bonus', type: 'number', align: 'right', width: 100, editable: true },
-        { field: 'racialBonus', headerName: 'Racial Bonus', type: 'number', align: 'right', width: 100, editable: true },
-        { field: 'customBonus', headerName: 'Custom Bonus', type: 'number', align: 'right', width: 100, editable: true },
-        { field: 'totalBonus', headerName: 'Total Bonus', type: 'number', align: 'right', width: 100, editable: false },
+        { field: 'attributeBonus', headerName: 'Attributes', type: 'number', align: 'right', width: 100, editable: true },
+        { field: 'racialBonus', headerName: 'Racial', type: 'number', align: 'right', width: 100, editable: true },
+        { field: 'customBonus', headerName: 'Custom', type: 'number', align: 'right', width: 100, editable: true },
+        { field: 'totalBonus', headerName: 'Total', type: 'number', align: 'right', width: 100, editable: false },
         {
             field: 'role',
             headerName: 'Sample',
