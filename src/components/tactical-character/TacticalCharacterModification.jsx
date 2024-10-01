@@ -3,15 +3,19 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import NavigateBeforeOutlinedIcon from '@mui/icons-material/NavigateBeforeOutlined';
 import SaveIcon from '@mui/icons-material/Save';
-import Grid from '@mui/material/Grid2';
+import TabContext from '@mui/lab/TabContext';
+import TabList from '@mui/lab/TabList';
+import TabPanel from '@mui/lab/TabPanel';
+import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
-import Typography from '@mui/material/Typography';
+import Tab from '@mui/material/Tab';
 
 import TacticalCharacterAddItem from './TacticalCharacterAddItem';
 import TacticalCharacterEquipment from './TacticalCharacterEquipment';
 import TacticalCharacterModificationAttributes from './TacticalCharacterModificationAttributes';
 import TacticalCharacterSkillModification from './TacticalCharacterSkillModification';
+
 
 import { API_TACTICAL_URL } from "../../constants/environment";
 
@@ -20,6 +24,8 @@ const TacticalCharacterModification = () => {
     const debugMode = true;
     const { characterId } = useParams();
     const navigate = useNavigate();
+
+    const [tabValue, setTabValue] = useState('1');
 
     const [tacticalCharacter, setTacticalCharacter] = useState();
     const [formData, setFormData] = useState();
@@ -96,6 +102,10 @@ const TacticalCharacterModification = () => {
         navigate(`/tactical/view/${tacticalCharacter.tacticalGameId}`, { state: { tacticalGame: tacticalGame } });
     };
 
+    const handleTabChange = (event, newValue) => {
+        setTabValue(newValue);
+    };
+
     useEffect(() => {
         fetchTacticalCharacter();
     }, []);
@@ -110,53 +120,59 @@ const TacticalCharacterModification = () => {
     }
 
     return (
-        <div>
-            <div className="tactical-character-edit">
-                <div className="tactical-character-edit-actions">
-                    <Stack spacing={2} direction="row" sx={{
-                        justifyContent: "flex-end",
-                        alignItems: "flex-start",
-                    }}>
-                        <IconButton variant="outlined" onClick={handleNavigateBackClick}>
-                            <NavigateBeforeOutlinedIcon />
-                        </IconButton>
-                        <IconButton variant="outlined" onClick={updateTacticalCharacter}>
-                            <SaveIcon />
-                        </IconButton>
-                    </Stack>
-                </div>
-                <Grid container spacing={2}>
-                    <Grid size={5}>
-                        <Typography variant="h6" component="div">Info</Typography>
+        <div className="tactical-character-edit">
+            <div className="tactical-character-edit-actions">
+                <Stack spacing={2} direction="row" sx={{
+                    justifyContent: "flex-end",
+                    alignItems: "flex-start",
+                }}>
+                    <IconButton variant="outlined" onClick={handleNavigateBackClick}>
+                        <NavigateBeforeOutlinedIcon />
+                    </IconButton>
+                    <IconButton variant="outlined" onClick={updateTacticalCharacter}>
+                        <SaveIcon />
+                    </IconButton>
+                </Stack>
+            </div>
+
+            <Box sx={{ width: '100%', typography: 'body1' }}>
+                <TabContext value={tabValue}>
+                    <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                        <TabList onChange={handleTabChange} aria-label="lab API tabs example">
+                            <Tab label="Attributes" value="1" />
+                            <Tab label="Skills" value="2" />
+                            <Tab label="Items" value="3" />
+                            <Tab label="Debug" value="4" />
+                        </TabList>
+                    </Box>
+                    <TabPanel value="1">
                         <TacticalCharacterModificationAttributes formData={formData} setFormData={setFormData} factions={factions} />
-                    </Grid>
-                    <Grid size={3}>
-                        <Typography variant="h6" component="div">Skills</Typography>
+                    </TabPanel>
+                    <TabPanel value="2">
                         <TacticalCharacterSkillModification tacticalCharacter={tacticalCharacter} setTacticalCharacter={setTacticalCharacter} />
-                    </Grid>
-                    <Grid size={4}>
-                        <Typography variant="h6" component="div">Items</Typography>
+                    </TabPanel>
+                    <TabPanel value="3">
                         <TacticalCharacterEquipment tacticalCharacter={tacticalCharacter} setTacticalCharacter={setTacticalCharacter} />
                         <TacticalCharacterAddItem tacticalCharacter={tacticalCharacter} setTacticalCharacter={setTacticalCharacter} />
-                    </Grid>
-                </Grid>
-            </div>
-            {debugMode ? (
-                <div>
-                    <h3>formData</h3>
-                    <pre>
-                        {JSON.stringify(formData, null, 2)}
-                    </pre>
-                    <h3>tacticalCharacter</h3>
-                    <pre>
-                        {JSON.stringify(tacticalCharacter, null, 2)}
-                    </pre>
-                    <h3>tacticalGame</h3>
-                    <pre>
-                        {JSON.stringify(tacticalCharacter, null, 2)}
-                    </pre>
-                </div>
-            ) : null}
+                    </TabPanel>
+                    <TabPanel value="4">
+                        <div>
+                            <h3>formData</h3>
+                            <pre>
+                                {JSON.stringify(formData, null, 2)}
+                            </pre>
+                            <h3>tacticalCharacter</h3>
+                            <pre>
+                                {JSON.stringify(tacticalCharacter, null, 2)}
+                            </pre>
+                            <h3>tacticalGame</h3>
+                            <pre>
+                                {JSON.stringify(tacticalCharacter, null, 2)}
+                            </pre>
+                        </div>
+                    </TabPanel>
+                </TabContext>
+            </Box>
         </div>
     );
 }

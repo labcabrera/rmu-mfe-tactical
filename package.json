@@ -39,6 +39,7 @@
     "@emotion/styled": "^11.13.0",
     "@fontsource/roboto": "^5.1.0",
     "@mui/icons-material": "^6.1.0",
+    "@mui/lab": "^6.0.0-beta.10",
     "@mui/material": "^6.1.1",
     "file-loader": "^6.2.0",
     "i18next": "^23.15.1",
