@@ -8,39 +8,17 @@ import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import TextField from '@mui/material/TextField';
 
-import { API_CORE_URL } from '../../constants/environment';
+import SelectRace from '../select/SelectRace';
+import SelectArmorType from '../select/SelectArmorType';
+import SelectCharacterSize from '../select/SelectCharacterSize';
+import SelectLevel from '../select/SelectLevel';
+import SelectFaction from '../select/SelectFaction';
 
 const TacticalCharacterModificationAttributes = ({ formData, setFormData, factions }) => {
 
     const variant = 'standard';
 
     const { t, i18n } = useTranslation();
-
-    const levels = Array.from({ length: 101 }, (_, index) => index);
-    const [races, setRaces] = useState([]);
-    const [armorTypes, setArmorTypes] = useState([]);
-    const [characterSizes, setCharacterSizes] = useState([]);
-
-    useEffect(() => {
-        const fetchArmorTypes = async () => {
-            const response = await fetch(`${API_CORE_URL}/armor-types`);
-            const data = await response.json();
-            setArmorTypes(data);
-        };
-        const fetchRaces = async () => {
-            const response = await fetch(`${API_CORE_URL}/races`);
-            const data = await response.json();
-            setRaces(data.content);
-        };
-        const fetchCharacterSizes = async () => {
-            const response = await fetch(`${API_CORE_URL}/character-sizes`);
-            const data = await response.json();
-            setCharacterSizes(data.map((item) => { return { id: item.id, name: item.name } }));
-        };
-        fetchRaces();
-        fetchArmorTypes();
-        fetchCharacterSizes();
-    }, []);
 
     const handleChange = (e) => {
         try {
@@ -52,23 +30,43 @@ const TacticalCharacterModificationAttributes = ({ formData, setFormData, factio
     };
 
     const handleFactionChange = (e) => setFormData({ ...formData, faction: e.target.value });
-    const handleLevelChange = (e) => updateFormData('info', 'level', e.target.value);
-    const handleRaceChange = (e) => updateFormData('info', 'race', e.target.value);
     const handleBaseMovementRateChange = (e) => updateFormData('info', 'baseMovementRate', e.target.value ? parseInt(e.target.value) : 0);
-    const handleArmorTypeChange = (e) => updateFormData('defense', 'armorType', e.target.value);
     const handleDefensiveBonusChange = (e) => updateFormData('defense', 'defensiveBonus', e.target.value ? parseInt(e.target.value) : 0);
-    const handleSizeChange = (e) => updateFormData('info', 'sizeId', e.target.value);
-
     const handleHpMaxChange = (e) => updateFormData('hp', 'max', e.target.value ? parseInt(e.target.value) : 0);
     const handleHpCurrentChange = (e) => updateFormData('hp', 'current', e.target.value ? parseInt(e.target.value) : 0);
     const handleEnduranceMaxChange = (e) => updateFormData('endurance', 'max', e.target.value ? parseInt(e.target.value) : 0);
     const handleEnduranceCurrentChange = (e) => updateFormData('endurance', 'current', e.target.value ? parseInt(e.target.value) : 0);
     const handlePowerMaxChange = (e) => updateFormData('power', 'max', e.target.value ? parseInt(e.target.value) : 0);
     const handlePowerCurrentChange = (e) => updateFormData('power', 'current', e.target.value ? parseInt(e.target.value) : 0);
-
-    const handleInitiativeChange = (e) => { updateFormData('initiative', 'base', e.target.value ? parseInt(e.target.value) : 0) };
+    const handleInitiativeCustomChange = (e) => { updateFormData('initiative', 'customBonus', e.target.value ? parseInt(e.target.value) : 0) };
+    const handleHeightChange = (e) => { updateFormData('info', 'height', e.target.value ? parseInt(e.target.value) : 0) };
     const handleWeightChange = (e) => { updateFormData('info', 'weight', e.target.value ? parseInt(e.target.value) : 0) };
+    const handleStrideBonusChange = (e) => { updateFormData('movement', 'strideBonus', e.target.value ? parseInt(e.target.value) : 0) };
 
+    const onRaceChange = (raceId, raceInfo) => {
+        if (raceInfo) {
+            const stats = { ...formData.statistics };
+            const keys = ['ag', 'co', 'em', 'in', 'me', 'pr', 'qu', 're', 'sd', 'st'];
+            keys.forEach(key => {
+                stats[key].racial = raceInfo.defaultStatBonus[key];
+            })
+            setFormData((prevState) => ({
+                ...prevState,
+                info: {
+                    ...prevState.info,
+                    race: raceId,
+                    sizeId: raceInfo.size,
+                    height: raceInfo.averageHeight.male,
+                    weight: raceInfo.averageWeight.male,
+                },
+                movement: {
+                    ...prevState.movement,
+                    strideBonus: raceInfo.strideBonus,
+                },
+                statistics: stats
+            }))
+        }
+    };
 
     const updateFormData = (field1, field2, value) => {
         setFormData((prevState) => ({
@@ -80,122 +78,104 @@ const TacticalCharacterModificationAttributes = ({ formData, setFormData, factio
         }));
     };
 
-    if (!formData || !setFormData || !factions || !races || !armorTypes || !characterSizes) {
+    const onArmorTypeChange = (armorTypeId, armorType) => {
+        updateFormData('defense', 'armorTypeId', armorTypeId);
+    };
+
+    const onSizeChange = (sizeId, sizeInfo) => {
+        updateFormData('info', 'sizeId', sizeId);
+    };
+
+    const onLevelChange = (level) => {
+        updateFormData('info', 'level', level);
+    };
+
+    const onFactionChange = (faction) => {
+        setFormData({ ...formData, faction: faction });
+    };
+
+
+    if (!formData || !setFormData || !factions) {
         return <p>Loading...</p>
     }
 
     return (
         <div className="tactical-game-character-modification-attributes">
             <Grid container spacing={2}>
-                <Grid size={3}>
-                    <TextField label="Name" variant={variant} fullWidth name="name" value={formData.name} onChange={handleChange} required />
+
+                <Grid size={4}>
+                    <TextField label={t('name')} variant={variant} fullWidth name="name" value={formData.name} onChange={handleChange} required />
                 </Grid>
-                <Grid size={3}>
-                    <FormControl fullWidth>
-                        <InputLabel id="select-race-label">Race</InputLabel>
-                        <Select id="select-race" labelId="select-race-label" label="Race" value={formData.info.race} variant={variant} required onChange={handleRaceChange}>
-                            {races.map((option, index) => (<MenuItem key={index} value={option.id}>{option.name}</MenuItem>))}
-                        </Select>
-                    </FormControl>
+                <Grid size={4}>
+                    <SelectRace value={formData.info.race} onChange={onRaceChange} />
                 </Grid>
-                <Grid size={3}>
-                    <FormControl fullWidth>
-                        <InputLabel id="select-faction-label">Faction</InputLabel>
-                        <Select id="select-faction" labelId="select-faction-label" label="Faction" value={formData.faction} variant={variant} required onChange={handleFactionChange}>
-                            {factions.map((option) => (<MenuItem key={option} value={option}>{option}</MenuItem>))}
-                        </Select>
-                    </FormControl>
-                </Grid>
-                <Grid size={3}>
-                    <FormControl fullWidth>
-                        <InputLabel id="select-level-label">Level</InputLabel>
-                        <Select
-                            id="select-level"
-                            labelId="select-level-label"
-                            label="Level"
-                            value={formData.info.level}
-                            required
-                            variant={variant}
-                            onChange={handleLevelChange}>
-                            {levels.map((option) => (<MenuItem key={option} value={option}>{option}</MenuItem>))}
-                        </Select>
-                    </FormControl>
+                <Grid size={4}>
+                    <SelectFaction factions={factions} value={formData.faction} onChange={onFactionChange} />
                 </Grid>
 
-                <Grid size={3}>
-                    <FormControl fullWidth>
-                        <InputLabel id="select-armor-type-label">Armor type</InputLabel>
-                        <Select
-                            id="select-armor-type"
-                            labelId="select-armor-type-label"
-                            label="Armor type"
-                            value={formData.defense.armorType}
-                            required
-                            fullWidth
-                            disabled
-                            variant={variant}
-                            onChange={handleArmorTypeChange}>
-                            {armorTypes.map(option => (<MenuItem key={option.id} value={option.id}>{t(`at-${option.id}`)}</MenuItem>))}
-                        </Select>
-                    </FormControl>
+                <Grid size={4}>
+                    <SelectLevel value={formData.info.level} onChange={onLevelChange} />
                 </Grid>
-                <Grid size={3}>
-                    <FormControl fullWidth>
-                        <InputLabel id="select-size-label">Size</InputLabel>
-                        <Select
-                            id="select-size"
-                            labelId="select-size-label"
-                            label="Size"
-                            value={formData.info.sizeId}
-                            required
-                            fullWidth
-                            variant={variant}
-                            onChange={handleSizeChange}>
-                            {characterSizes.map((option) => (<MenuItem key={option.id} value={option.id}>{option.name}</MenuItem>))}
-                        </Select>
-                    </FormControl>
+                <Grid size={4}>
+                    <SelectArmorType value={formData.defense.armorType} onChange={onArmorTypeChange} />
                 </Grid>
-                <Grid size={3}>
+                <Grid size={4}>
                     <TextField label="Defensive bonus" variant={variant} type="text" value={formData.defense.defensiveBonus} onChange={handleDefensiveBonusChange} fullWidth />
                 </Grid>
-                <Grid size={3}>
-                    <TextField label="Base movement rate" variant={variant} type="text" value={formData.info.baseMovementRate} onChange={handleBaseMovementRateChange} fullWidth />
-                </Grid>
 
-                <Grid size={3}>
-                    <TextField label="Initiative bonus" variant={variant} type="text" value={formData.initiative.base} onChange={handleInitiativeChange} fullWidth />
+                <Grid size={4}>
+                    <SelectCharacterSize value={formData.info.sizeId} onChange={onSizeChange} />
                 </Grid>
-                <Grid size={3}>
+                <Grid size={4}>
+                    <TextField label="Height" variant={variant} type="text" value={formData.info.height} onChange={handleHeightChange} fullWidth />
+                </Grid>
+                <Grid size={4}>
                     <TextField label="Weight" variant={variant} type="text" value={formData.info.weight} onChange={handleWeightChange} fullWidth />
                 </Grid>
-                <Grid size={6}>
+
+                <Grid size={4}>
+                    <TextField label="Base movement rate" variant={variant} type="text" value={formData.movement.baseMovementRate} disabled fullWidth />
+                </Grid>
+                <Grid size={4}>
+                    <TextField label="Stride bonus" variant={variant} type="text" value={formData.movement.strideBonus} onChange={handleStrideBonusChange} fullWidth />
+                </Grid>
+                <Grid size={4}>
                 </Grid>
 
-                <Grid size={3}>
+                <Grid size={4}>
+                    <TextField label="Initiative base" variant={variant} type="text" value={formData.initiative.baseBonus} disabled fullWidth />
+                </Grid>
+                <Grid size={4}>
+                    <TextField label="Initiative custom" variant={variant} type="text" value={formData.initiative.customBonus} onChange={handleInitiativeCustomChange} fullWidth />
+                </Grid>
+                <Grid size={4}>
+                </Grid>
+
+                <Grid size={4}>
                     <TextField label="Max HP" variant={variant} type="text" value={formData.hp.max} onChange={handleHpMaxChange} fullWidth />
                 </Grid>
-                <Grid size={3}>
+                <Grid size={4}>
                     <TextField label="Current HP" variant={variant} type="text" value={formData.hp.current} onChange={handleHpCurrentChange} fullWidth />
                 </Grid>
-                <Grid size={6}>
+                <Grid size={4}>
                 </Grid>
 
-                <Grid size={3}>
+                <Grid size={4}>
                     <TextField label="Max endurance" variant={variant} type="text" value={formData.endurance.max} onChange={handleEnduranceMaxChange} fullWidth />
                 </Grid>
-                <Grid size={3}>
+                <Grid size={4}>
                     <TextField label="Current endurance" variant={variant} type="text" value={formData.endurance.current} onChange={handleEnduranceCurrentChange} fullWidth />
                 </Grid>
-                <Grid size={6}>
+                <Grid size={4}>
                 </Grid>
 
-                <Grid size={3}>
+                <Grid size={4}>
                     <TextField label="Max HP" variant={variant} type="text" value={formData.power.max} onChange={handlePowerMaxChange} fullWidth />
                 </Grid>
-                <Grid size={3}>
+                <Grid size={4}>
                     <TextField label="Current HP" variant={variant} type="text" value={formData.power.current} onChange={handlePowerCurrentChange} fullWidth />
                 </Grid>
-                <Grid size={6}>
+                <Grid size={4}>
                 </Grid>
 
                 <Grid size={12}>

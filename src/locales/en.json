@@ -1,4 +1,5 @@
 {
+    "name": "Name",
     "action-type-attack": "Attack",
 
     "ag": "Agility (ag)",
@@ -114,6 +115,7 @@
     "war-hammer": "War hammer",
     "whip": "Whip",
 
+    "armorType": "Armor type",
     "brigandine-full-suit": "Brigandine (full suit)",
     "heavy-cloth-full-suit": "Heavy cloth (full suit)",
     "hide-scale-full-suit": "Hide scale (full suit)",

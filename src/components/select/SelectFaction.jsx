@@ -5,7 +5,7 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 
-const SelectRace = ({ factions, value, onChange }) => {
+const SelectFaction = ({ factions, value, onChange }) => {
 
     const handleFactionChange = (e) => {
         onChange(e.target.value);
@@ -28,4 +28,4 @@ const SelectRace = ({ factions, value, onChange }) => {
     );
 }
 
-export default SelectRace;
+export default SelectFaction;

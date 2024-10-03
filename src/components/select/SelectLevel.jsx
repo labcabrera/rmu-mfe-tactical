@@ -5,7 +5,7 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 
-const SelectRace = ({ value, onChange }) => {
+const SelectLevel = ({ value, onChange }) => {
 
     const levels = Array.from({ length: 101 }, (_, index) => index);
 
@@ -30,4 +30,4 @@ const SelectRace = ({ value, onChange }) => {
     );
 }
 
-export default SelectRace;
+export default SelectLevel;

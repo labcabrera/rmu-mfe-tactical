@@ -7,7 +7,7 @@ import Select from '@mui/material/Select';
 
 import { API_CORE_URL } from '../../constants/environment';
 
-const SelectRace = ({ value, onChange }) => {
+const SelectCharacterSize = ({ value, onChange }) => {
 
     const [sizes, setSizes] = useState([]);
 
@@ -42,4 +42,4 @@ const SelectRace = ({ value, onChange }) => {
     );
 }
 
-export default SelectRace;
+export default SelectCharacterSize;
