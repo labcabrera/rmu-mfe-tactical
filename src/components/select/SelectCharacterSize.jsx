@@ -9,34 +9,34 @@ import { API_CORE_URL } from '../../constants/environment';
 
 const SelectRace = ({ value, onChange }) => {
 
-    const [races, setRaces] = useState([]);
+    const [sizes, setSizes] = useState([]);
 
     const handleChange = (event) => {
         const value = event.target.value;
-        const race = races.find(e => e.id === value);
-        onChange(value, race);
+        const size = sizes.find(e => e.id === value);
+        onChange(value, size);
     }
 
     useEffect(() => {
-        const fetchRaces = async () => {
-            const response = await fetch(`${API_CORE_URL}/races`);
+        const fetchSizes = async () => {
+            const response = await fetch(`${API_CORE_URL}/character-sizes`);
             const responseBody = await response.json();
-            setRaces(responseBody.content);
+            setSizes(responseBody);
         };
-        fetchRaces();
+        fetchSizes();
     }, []);
 
     return (
         <FormControl fullWidth variant="standard">
-            <InputLabel id="select-race-label">Race</InputLabel>
+            <InputLabel id="select-size-label">Size</InputLabel>
             <Select
-                id="select-race"
-                labelId="select-race-label"
-                label="Race"
+                id="select-size"
+                labelId="select-size-label"
+                label="Size"
                 value={value}
                 variant='standard'
                 onChange={handleChange}>
-                {races.map((option, index) => (<MenuItem key={index} value={option.id}>{option.name}</MenuItem>))}
+                {sizes.map((option, index) => (<MenuItem key={index} value={option.id}>{option.name}</MenuItem>))}
             </Select>
         </FormControl>
     );
