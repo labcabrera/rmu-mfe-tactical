@@ -29,8 +29,6 @@ const TacticalCharacterModificationAttributes = ({ formData, setFormData, factio
         }
     };
 
-    const handleFactionChange = (e) => setFormData({ ...formData, faction: e.target.value });
-    const handleBaseMovementRateChange = (e) => updateFormData('info', 'baseMovementRate', e.target.value ? parseInt(e.target.value) : 0);
     const handleDefensiveBonusChange = (e) => updateFormData('defense', 'defensiveBonus', e.target.value ? parseInt(e.target.value) : 0);
     const handleHpMaxChange = (e) => updateFormData('hp', 'max', e.target.value ? parseInt(e.target.value) : 0);
     const handleHpCurrentChange = (e) => updateFormData('hp', 'current', e.target.value ? parseInt(e.target.value) : 0);
@@ -38,10 +36,35 @@ const TacticalCharacterModificationAttributes = ({ formData, setFormData, factio
     const handleEnduranceCurrentChange = (e) => updateFormData('endurance', 'current', e.target.value ? parseInt(e.target.value) : 0);
     const handlePowerMaxChange = (e) => updateFormData('power', 'max', e.target.value ? parseInt(e.target.value) : 0);
     const handlePowerCurrentChange = (e) => updateFormData('power', 'current', e.target.value ? parseInt(e.target.value) : 0);
-    const handleInitiativeCustomChange = (e) => { updateFormData('initiative', 'customBonus', e.target.value ? parseInt(e.target.value) : 0) };
     const handleHeightChange = (e) => { updateFormData('info', 'height', e.target.value ? parseInt(e.target.value) : 0) };
     const handleWeightChange = (e) => { updateFormData('info', 'weight', e.target.value ? parseInt(e.target.value) : 0) };
-    const handleStrideBonusChange = (e) => { updateFormData('movement', 'strideBonus', e.target.value ? parseInt(e.target.value) : 0) };
+    
+    const handleStrideBonusChange = (e) => {
+        const strideBonus = e.target.value ? parseInt(e.target.value) : 0;
+        const quBonus = formData.statistics.qu.totalBonus;
+        const bmr = 20 + quBonus/2 + strideBonus;
+        setFormData((prevState) => ({
+            ...prevState,
+            movement: {
+                baseMovementRate: bmr,
+                strideBonus: strideBonus
+            }
+        }));
+    };
+
+    const handleInitiativeCustomChange = (e) => {
+        const baseBonus = formData.initiative.baseBonus;
+        const customBonus = e.target.value ? parseInt(e.target.value) : 0
+        const totalBonus = baseBonus + customBonus;
+        setFormData((prevState) => ({
+            ...prevState,
+            initiative: {
+                baseBonus: baseBonus,
+                customBonus: customBonus,
+                totalBonus: totalBonus
+            }
+        }));
+    };
 
     const onRaceChange = (raceId, raceInfo) => {
         if (raceInfo) {
@@ -149,6 +172,7 @@ const TacticalCharacterModificationAttributes = ({ formData, setFormData, factio
                     <TextField label="Initiative custom" variant={variant} type="text" value={formData.initiative.customBonus} onChange={handleInitiativeCustomChange} fullWidth />
                 </Grid>
                 <Grid size={4}>
+                    <TextField label="Initiative total" variant={variant} type="text" value={formData.initiative.totalBonus} disabled fullWidth />
                 </Grid>
 
                 <Grid size={4}>

@@ -65,7 +65,7 @@ const TacticalCharacterModification = () => {
             tacticalGameId: tacticalCharacter.tacticalGameId,
             name: tacticalCharacter.name,
             faction: tacticalCharacter.faction,
-            stats: tacticalCharacter.stats,
+            statistics: tacticalCharacter.statistics,
             info: tacticalCharacter.info,
             movement: tacticalCharacter.movement,
             defense: tacticalCharacter.defense,
