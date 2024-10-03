@@ -9,6 +9,8 @@ import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import TextField from '@mui/material/TextField';
 
+import SelectRace from '../../components/select/SelectRace';
+
 import { API_CORE_URL, API_NPC_NAMES_URL } from '../../constants/environment';
 
 const TacticalCharacterCreationAttributes = ({ formData, setFormData, factions }) => {
@@ -16,7 +18,6 @@ const TacticalCharacterCreationAttributes = ({ formData, setFormData, factions }
     const variant = 'standard';
 
     const levels = Array.from({ length: 101 }, (_, index) => index);
-    const [races, setRaces] = useState([]);
     const [characterSizes, setCharacterSizes] = useState([]);
 
     const handleChange = (e) => {
@@ -38,19 +39,37 @@ const TacticalCharacterCreationAttributes = ({ formData, setFormData, factions }
         setFormData({ ...formData, name: responseBody });
     };
 
+    const handleRaceChange = (raceId, raceInfo) => {
+        //updateFormData('info', 'race', raceId);
+        if (raceInfo) {
+            const stats = { ...formData.statistics };
+            const keys = ['ag', 'co', 'em', 'in', 'me', 'pr', 'qu', 're', 'sd', 'st'];
+            keys.forEach(key => {
+                stats[key].racial = raceInfo.defaultStatBonus[key];
+            })
+            setFormData((prevState) => ({
+                ...prevState,
+                info: {
+                    ...prevState.info,
+                    race: raceId,
+                    size: raceInfo.size,
+                    height: raceInfo.averageHeight.male,
+                    weight: raceInfo.averageWeight.male,
+                },
+                statistics: stats
+            }))
+        }
+    };
+
+
     const handleFactionChange = (e) => setFormData({ ...formData, faction: e.target.value });
     const handleLevelChange = (e) => updateFormData('info', 'level', e.target.value);
-    const handleRaceChange = (e) => updateFormData('info', 'race', e.target.value);
     const handleBaseMovementRateChange = (e) => updateFormData('info', 'baseMovementRate', e.target.value ? parseInt(e.target.value) : 0);
-    const handleArmorTypeChange = (e) => updateFormData('defense', 'armorType', e.target.value);
     const handleDefensiveBonusChange = (e) => updateFormData('defense', 'defensiveBonus', e.target.value ? parseInt(e.target.value) : 0);
     const handleSizeChange = (e) => updateFormData('info', 'sizeId', e.target.value);
     const handleHpMaxChange = (e) => updateFormData('hp', 'max', e.target.value ? parseInt(e.target.value) : 0);
-    const handleHpCurrentChange = (e) => updateFormData('hp', 'current', e.target.value ? parseInt(e.target.value) : 0);
     const handleEnduranceMaxChange = (e) => updateFormData('endurance', 'max', e.target.value ? parseInt(e.target.value) : 0);
-    const handleEnduranceCurrentChange = (e) => updateFormData('endurance', 'current', e.target.value ? parseInt(e.target.value) : 0);
     const handlePowerMaxChange = (e) => updateFormData('power', 'max', e.target.value ? parseInt(e.target.value) : 0);
-    const handlePowerCurrentChange = (e) => updateFormData('power', 'current', e.target.value ? parseInt(e.target.value) : 0);
     const handleInitiativeChange = (e) => updateFormData('initiative', 'base', e.target.value ? parseInt(e.target.value) : 0);
     const handleHeightChange = (e) => updateFormData('info', 'height', e.target.value ? parseInt(e.target.value) : 0);
     const handleWeightChange = (e) => updateFormData('info', 'weight', e.target.value ? parseInt(e.target.value) : 0);
@@ -66,17 +85,11 @@ const TacticalCharacterCreationAttributes = ({ formData, setFormData, factions }
     };
 
     useEffect(() => {
-        const fetchRaces = async () => {
-            const response = await fetch(`${API_CORE_URL}/races`);
-            const data = await response.json();
-            setRaces(data.content);
-        };
         const fetchCharacterSizes = async () => {
             const response = await fetch(`${API_CORE_URL}/character-sizes`);
             const data = await response.json();
             setCharacterSizes(data.map((item) => { return { id: item.id, name: item.name } }));
         };
-        fetchRaces();
         fetchCharacterSizes();
     }, []);
 
@@ -85,12 +98,7 @@ const TacticalCharacterCreationAttributes = ({ formData, setFormData, factions }
             <Grid container spacing={2}>
 
                 <Grid size={3}>
-                    <FormControl fullWidth>
-                        <InputLabel id="select-race-label">Race</InputLabel>
-                        <Select id="select-race" labelId="select-race-label" label="Race" value={formData.info.race} variant={variant} required onChange={handleRaceChange}>
-                            {races.map((option, index) => (<MenuItem key={index} value={option.id}>{option.name}</MenuItem>))}
-                        </Select>
-                    </FormControl>
+                    <SelectRace value={formData.info.race} onChange={handleRaceChange} />
                 </Grid>
                 <Grid size={3}>
                     <TextField label="Name" variant={variant} fullWidth name="name" value={formData.name} onChange={handleChange} required />
