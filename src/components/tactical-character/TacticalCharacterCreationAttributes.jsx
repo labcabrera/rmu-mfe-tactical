@@ -32,6 +32,10 @@ const TacticalCharacterCreationAttributes = ({ formData, setFormData, factions }
                     height: raceInfo.averageHeight.male,
                     weight: raceInfo.averageWeight.male,
                 },
+                movement: {
+                    ...prevState.movement,
+                    strideBonus: raceInfo.strideBonus,
+                },
                 statistics: stats
             }))
         }
@@ -68,12 +72,12 @@ const TacticalCharacterCreationAttributes = ({ formData, setFormData, factions }
         setFormData({ ...formData, name: responseBody });
     };
 
-    const handleBaseMovementRateChange = (e) => updateFormData('info', 'baseMovementRate', e.target.value ? parseInt(e.target.value) : 0);
+    const handleInitiativeCustomBonusChange = (e) => updateFormData('initiative', 'customBonus', e.target.value ? parseInt(e.target.value) : 0);
     const handleDefensiveBonusChange = (e) => updateFormData('defense', 'defensiveBonus', e.target.value ? parseInt(e.target.value) : 0);
     const handleHpMaxChange = (e) => updateFormData('hp', 'max', e.target.value ? parseInt(e.target.value) : 0);
     const handleEnduranceMaxChange = (e) => updateFormData('endurance', 'max', e.target.value ? parseInt(e.target.value) : 0);
     const handlePowerMaxChange = (e) => updateFormData('power', 'max', e.target.value ? parseInt(e.target.value) : 0);
-    const handleInitiativeChange = (e) => updateFormData('initiative', 'base', e.target.value ? parseInt(e.target.value) : 0);
+    const handleStrideBonusChange = (e) => updateFormData('movement', 'strideBonus', e.target.value ? parseInt(e.target.value) : 0);
     const handleHeightChange = (e) => updateFormData('info', 'height', e.target.value ? parseInt(e.target.value) : 0);
     const handleWeightChange = (e) => updateFormData('info', 'weight', e.target.value ? parseInt(e.target.value) : 0);
 
@@ -120,7 +124,7 @@ const TacticalCharacterCreationAttributes = ({ formData, setFormData, factions }
                     <TextField label="Weight" variant={variant} type="text" value={formData.info.weight} onChange={handleWeightChange} fullWidth />
                 </Grid>
                 <Grid size={4}>
-                    <TextField label="Base movement rate" variant={variant} type="text" value={formData.info.baseMovementRate} onChange={handleBaseMovementRateChange} fullWidth />
+                    <TextField label="Stride bonus" variant={variant} type="text" value={formData.movement.strideBonus} onChange={handleStrideBonusChange} fullWidth />
                 </Grid>
 
                 <Grid size={4}>
@@ -137,7 +141,7 @@ const TacticalCharacterCreationAttributes = ({ formData, setFormData, factions }
                     <TextField label="Defensive bonus" variant={variant} type="text" value={formData.defense.defensiveBonus} onChange={handleDefensiveBonusChange} fullWidth />
                 </Grid>
                 <Grid size={4}>
-                    <TextField label="Initiative bonus" variant={variant} type="text" value={formData.initiative.base} onChange={handleInitiativeChange} fullWidth />
+                    <TextField label="Initiative bonus" variant={variant} type="text" value={formData.initiative.customBonus} onChange={handleInitiativeCustomBonusChange} fullWidth />
                 </Grid>
                 <Grid size={4}>
                 </Grid>
