@@ -22,24 +22,27 @@ function EditToolbar(props) {
     const { setRows, setRowModesModel } = props;
 
     const handleClick = () => {
-        const id = 'new-' + Math.floor(Math.random() * 100000);
+        console.log(`EditToolbar.handleClick`);
+        const randId = 'pending-select-' + Math.floor(Math.random() * 100000);
         setRows((oldRows) => [
             ...oldRows,
             {
-                id,
-                skillId: '',
+                skillId: randId,
+                specialization: null,
+                statistics: [],
                 ranks: 0,
                 statBonus: '',
                 racialBonus: '',
                 developmentBonus: '',
                 customBonus: 0,
                 totalBonus: '',
-                isNew: true
+                newId: randId
             },
         ]);
+        console.log(`EditToolbar.handleClick 2`);
         setRowModesModel((oldModel) => ({
             ...oldModel,
-            [id]: { mode: GridRowModes.Edit, fieldToFocus: 'skillId' },
+            [randId]: { mode: GridRowModes.Edit },
         }));
     };
 
@@ -71,15 +74,40 @@ const TacticalCharacterSkillDataGrid = ({ tacticalCharacter, setTacticalCharacte
         setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.Edit } });
     };
 
-    const handleSaveClick = (id) => () => {
-        console.log(`handleSaveClick ${JSON.stringify(id, null, 2)}`);
-        setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
+    const handleSaveClick = (skillId) => async () => {
+        console.log(`handleSaveClick ${JSON.stringify(skillId, null, 2)}`);
+        const row = rows.find(e => e.skillId === skillId);
+        if (row.newId) {
+            console.log(`TacticalCharacterSkillDataGrid.handleSaveClick process new`);
+            const request = {
+                skillId: skillId,
+                specialization: row.specialization,
+                ranks: row.ranks,
+                customBonus: row.customBonus
+            };
+            const requestOptions = {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(request)
+            };
+            const response = await fetch(`${API_TACTICAL_URL}/characters/${tacticalCharacter.id}/skills`, requestOptions);
+            if (response.status === 200) {
+                const responseBody = await response.json();
+                setTacticalCharacter(responseBody);
+                setRowModesModel({ ...rowModesModel, [skillId]: { mode: GridRowModes.View } });
+            } else {
+                console.error(response.status);
+            }
+        }
     };
 
     const handleDeleteClick = (id) => async () => {
         console.log(`handleDeleteClick ${JSON.stringify(id, null, 2)}`);
-        await deleteSKill(id);        
-        //setRows(rows.filter((row) => row.id !== id));
+        const row = rows.find(e => e.id === id);
+        console.log(`handleDeleteClick ${JSON.stringify(row, null, 2)}`);
+        const skillId = row.skillId;
+        console.log(`handleDeleteClick skillId: ${skillId}`);
+        await deleteSKill(row.skillId);
     };
 
     const handleCancelClick = (id) => () => {
@@ -112,18 +140,18 @@ const TacticalCharacterSkillDataGrid = ({ tacticalCharacter, setTacticalCharacte
         setRowModesModel(newRowModesModel);
     };
 
-    const handleSelectCategoryChange = (id, value) => {
+    const handleSelectSkillChange = (data, value) => {
+        console.log(`TacticalCharacterSkillDataGrid.handleSelectSkillChange ${JSON.stringify(data, null, 2)} > ${value}`);
+        const newId = data.newId;
+        console.log(`TacticalCharacterSkillDataGrid.handleSelectSkillChange ${newId} > ${value}`);
         const updatedRows = rows.map((row) =>
-            row.id === id ? { ...row, category: value } : row
+            row.newId === newId ? { ...row, skillId: value } : row
         );
         setRows(updatedRows);
-    };
-
-    const handleSelectSkillChange = (id, value) => {
-        const updatedRows = rows.map((row) =>
-            row.id === id ? { ...row, skillId: value } : row
-        );
-        setRows(updatedRows);
+        setRowModesModel((oldModel) => ({
+            ...oldModel,
+            [value]: { mode: GridRowModes.Edit },
+        }));
     };
 
     const postNewSkill = async (newRow) => {
@@ -152,12 +180,10 @@ const TacticalCharacterSkillDataGrid = ({ tacticalCharacter, setTacticalCharacte
         }
     };
 
-    const deleteSKill = async(id) => {
-        console.log(`TacticalCharacterSkillDataGrid.deleteSKill ${id}`);
-        const row = rows.filter((row) => row.id === id);
-        const skillId = row.skillId;
+    const deleteSKill = async (skillId) => {
+        console.log(`TacticalCharacterSkillDataGrid.deleteSKill ${skillId}`);
         try {
-            const response = await fetch(`${API_TACTICAL_URL}/characters/${tacticalCharacter.id}/skills/${skillId}`, {method:'DELETE'});
+            const response = await fetch(`${API_TACTICAL_URL}/characters/${tacticalCharacter.id}/skills/${skillId}`, { method: 'DELETE' });
             if (response.status === 200) {
                 const responseBody = await response.json();
                 setTacticalCharacter(responseBody);
@@ -196,21 +222,19 @@ const TacticalCharacterSkillDataGrid = ({ tacticalCharacter, setTacticalCharacte
             field: 'skillId', headerName: 'Skill', width: 250,
             renderCell: (params) => (
                 <>
-                    {params.id.startsWith('new') ? (
+                    {!params.row.skillId.startsWith('pending-select-') ? (
+                        <div>{t(params.row.skillId)}</div>
+                    ) : (
                         <Select
                             value={params.value}
                             fullWidth
-                            //variant='standard'
-                            disabled={!params.id.startsWith('new')}
-                            onChange={(event) => handleSelectSkillChange(params.id, event.target.value)}>
+                            onChange={(event) => handleSelectSkillChange(params.row, event.target.value)}>
                             {skills.map((option) => (
                                 <MenuItem key={option.id} value={option.id}>{t(option.id)}</MenuItem>
                             ))}
                         </Select>
-                    ) : (
-                        <div>{t(params.row.skillId)}</div>
-                    )
-                    }
+
+                    )}
                 </>
             ),
         },
@@ -297,6 +321,7 @@ const TacticalCharacterSkillDataGrid = ({ tacticalCharacter, setTacticalCharacte
                 <DataGrid
                     rows={rows}
                     columns={columns}
+                    getRowId={row => row.skillId}
                     editMode="row"
                     rowModesModel={rowModesModel}
                     onRowModesModelChange={handleRowModesModelChange}
