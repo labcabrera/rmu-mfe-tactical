@@ -27,10 +27,12 @@ const CombatPhaseActionButtons = ({ tacticalGame, character, characters, phaseNu
           state: { tacticalGame: tacticalGame, character: character, characters: characters
           }
         });
+        return;
       case 'movement':
         navigate(`/tactical/combat/${tacticalGame.id}/declare-movement?phaseStart=${phaseNumber}`, {
           state: { tacticalGame: tacticalGame, character: character }
         });
+        return;
     }
   };
 
