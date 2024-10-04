@@ -13,17 +13,19 @@ import MenuItem from '@mui/material/MenuItem';
 import { DataGrid, GridActionsCellItem, GridRowEditStopReasons, GridRowModes, GridToolbarContainer } from '@mui/x-data-grid';
 
 //TODO remove and uninstall
-import { randomId } from '@mui/x-data-grid-generator';
+// import { randomId } from '@mui/x-data-grid-generator';
 
 import { API_CORE_URL } from "../../constants/environment";
 
 const roles = ['Market', 'Finance', 'Development'];
 
 function EditToolbar(props) {
+
+    const { t, i18n } = useTranslation();
     const { setRows, setRowModesModel } = props;
 
     const handleClick = () => {
-        const id = randomId();
+        const id = 'new-' + Math.floor(Math.random() * 100000);
         setRows((oldRows) => [
             ...oldRows,
             { id, name: '', age: '', role: '', isNew: true },
@@ -36,9 +38,7 @@ function EditToolbar(props) {
 
     return (
         <GridToolbarContainer>
-            <Button color="primary" startIcon={<AddIcon />} onClick={handleClick}>
-                Add record
-            </Button>
+            <Button color="primary" startIcon={<AddIcon />} onClick={handleClick}>{t('add-skill')}</Button>
         </GridToolbarContainer>
     );
 }
@@ -119,8 +119,15 @@ const TacticalCharacterSkillDataGrid = ({ tacticalCharacter }) => {
         };
         const fetchSkills = async () => {
             const response = await fetch(`${API_CORE_URL}/skills?size=500`);
-            const data = await response.json();
-            setSkills(data.content);
+            const responseBody = await response.json();
+            const translated = responseBody.content.map(e => {
+                return {
+                    ...e,
+                    name: t(e.id)
+                }
+            });
+            const sorted = translated.sort((a, b) => a.id.localeCompare(b.id));
+            setSkills(sorted);
         };
         fetchSkillCategories();
         fetchSkills();
@@ -218,6 +225,7 @@ const TacticalCharacterSkillDataGrid = ({ tacticalCharacter }) => {
 
     return (
         <div>
+            <div>{t('melee-weapon#blade')}</div>
             <Box
                 sx={{
                     height: 500,
@@ -250,9 +258,13 @@ const TacticalCharacterSkillDataGrid = ({ tacticalCharacter }) => {
             <pre>
                 {JSON.stringify(rowModesModel, null, 2)}
             </pre>
-            <h3>skills</h3>
+            <h3>tacticalCharacter.skills</h3>
             <pre>
                 {JSON.stringify(tacticalCharacter.skills, null, 2)}
+            </pre>
+            <h3>skills</h3>
+            <pre>
+                {JSON.stringify(skills, null, 2)}
             </pre>
         </div>
     );
