@@ -7,6 +7,8 @@ import Select from '@mui/material/Select';
 
 import { API_CORE_URL } from '../../constants/environment';
 
+import { VARIANT, VARIANT_DISABLED, SIZE } from '../../constants/ui';
+
 const SelectRace = ({ value, onChange }) => {
 
     const [races, setRaces] = useState([]);
@@ -27,14 +29,14 @@ const SelectRace = ({ value, onChange }) => {
     }, []);
 
     return (
-        <FormControl fullWidth variant="outlined">
+        <FormControl fullWidth>
             <InputLabel id="select-race-label">Race</InputLabel>
             <Select
                 id="select-race"
                 labelId="select-race-label"
                 label="Race"
                 value={value}
-                variant='outlined'
+                variant={VARIANT}
                 onChange={handleChange}>
                 {races.map((option, index) => (<MenuItem key={index} value={option.id}>{option.name}</MenuItem>))}
             </Select>

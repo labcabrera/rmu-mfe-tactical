@@ -11,7 +11,9 @@ import TacticalCharacterStatisticsModification from './TacticalCharacterStatisti
 const TacticalCharacterCreation = () => {
 
     const debugMode = true;
+
     const location = useLocation();
+
     const tacticalGame = location.state?.tacticalGame;
     const [displayError, setDisplayError] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
@@ -86,7 +88,7 @@ const TacticalCharacterCreation = () => {
                     </Grid>
                     <Grid size={2}></Grid>
                     <Grid size={3}>
-                        <TacticalCharacterStatisticsModification formData={formData} setFormData={setFormData} />
+                        <TacticalCharacterStatisticsModification formData={formData} setFormData={setFormData} size='small' variant='standard' />
                     </Grid>
                 </Grid>
                 <SnackbarError displayError={displayError} setDisplayError={setDisplayError} errorMessage={errorMessage} />

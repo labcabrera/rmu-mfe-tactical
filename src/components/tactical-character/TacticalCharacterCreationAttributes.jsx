@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 import CachedIcon from '@mui/icons-material/Cached';
 import Grid from '@mui/material/Grid2';
@@ -11,11 +12,11 @@ import SelectLevel from '../../components/select/SelectLevel';
 import SelectRace from '../../components/select/SelectRace';
 
 import { API_NPC_NAMES_URL } from '../../constants/environment';
+import { VARIANT, VARIANT_DISABLED, SIZE } from '../../constants/ui';
 
 const TacticalCharacterCreationAttributes = ({ formData, setFormData, factions }) => {
 
-    //const variant = 'standard';
-    const variant = 'outlined';
+    const { t, i18n } = useTranslation();
 
     const onRaceChange = (raceId, raceInfo) => {
         if (raceInfo) {
@@ -61,7 +62,7 @@ const TacticalCharacterCreationAttributes = ({ formData, setFormData, factions }
             const { name, value } = e.target;
             setFormData({ ...formData, [name]: value });
         } catch (error) {
-            console.log("handleChange error " + error);
+            console.log('handleChange error ' + error);
         }
     };
 
@@ -95,14 +96,14 @@ const TacticalCharacterCreationAttributes = ({ formData, setFormData, factions }
     };
 
     return (
-        <div className="tactical-game-character-creation-attributes">
+        <div className='tactical-game-character-creation-attributes'>
             <Grid container spacing={2}>
 
                 <Grid size={4}>
                     <SelectRace value={formData.info.race} onChange={onRaceChange} />
                 </Grid>
                 <Grid size={4}>
-                    <TextField label="Name" variant={variant} fullWidth name="name" value={formData.name} onChange={handleChange} required />
+                    <TextField label={t('name')} variant={VARIANT} fullWidth name='name' value={formData.name} onChange={handleChange} required />
                 </Grid>
                 <Grid size={4}>
                     <IconButton onClick={handleRandomNameClick}>
@@ -121,45 +122,45 @@ const TacticalCharacterCreationAttributes = ({ formData, setFormData, factions }
                 </Grid>
 
                 <Grid size={4}>
-                    <TextField label="Height" variant={variant} type="text" value={formData.info.height} onChange={handleHeightChange} fullWidth />
+                    <TextField label='Height' variant={VARIANT} type='text' value={formData.info.height} onChange={handleHeightChange} fullWidth />
                 </Grid>
                 <Grid size={4}>
-                    <TextField label="Weight" variant={variant} type="text" value={formData.info.weight} onChange={handleWeightChange} fullWidth />
-                </Grid>
-                <Grid size={4}>
-                </Grid>
-
-                <Grid size={4}>
-                    <TextField label="Stride custom bonus" variant={variant} type="text" value={formData.movement.strideCustomBonus} onChange={handleStrideBonusChange} fullWidth />
-                </Grid>
-                <Grid size={4}>
-                    <TextField label="Stride racial bonus" variant={variant} type="text" value={formData.movement.strideRacialBonus} disabled fullWidth />
+                    <TextField label='Weight' variant={VARIANT} type='text' value={formData.info.weight} onChange={handleWeightChange} fullWidth />
                 </Grid>
                 <Grid size={4}>
                 </Grid>
 
-
                 <Grid size={4}>
-                    <TextField label="HP" variant={variant} type="text" value={formData.hp.max} onChange={handleHpMaxChange} fullWidth />
+                    <TextField label='Stride custom bonus' variant={VARIANT} type='text' value={formData.movement.strideCustomBonus} onChange={handleStrideBonusChange} fullWidth />
                 </Grid>
                 <Grid size={4}>
-                    <TextField label="Endurance" variant={variant} type="text" value={formData.endurance.max} onChange={handleEnduranceMaxChange} fullWidth />
+                    <TextField label='Stride racial bonus' variant={VARIANT} type='text' value={formData.movement.strideRacialBonus} disabled fullWidth />
                 </Grid>
                 <Grid size={4}>
-                    <TextField label="Power points" variant={variant} type="text" value={formData.power.max} onChange={handlePowerMaxChange} fullWidth />
                 </Grid>
 
+
                 <Grid size={4}>
-                    <TextField label="Defensive bonus" variant={variant} type="text" value={formData.defense.defensiveBonus} onChange={handleDefensiveBonusChange} fullWidth />
+                    <TextField label='HP' variant={VARIANT} type='text' value={formData.hp.max} onChange={handleHpMaxChange} fullWidth />
                 </Grid>
                 <Grid size={4}>
-                    <TextField label="Initiative bonus" variant={variant} type="text" value={formData.initiative.customBonus} onChange={handleInitiativeCustomBonusChange} fullWidth />
+                    <TextField label='Endurance' variant={VARIANT} type='text' value={formData.endurance.max} onChange={handleEnduranceMaxChange} fullWidth />
+                </Grid>
+                <Grid size={4}>
+                    <TextField label='Power points' variant={VARIANT} type='text' value={formData.power.max} onChange={handlePowerMaxChange} fullWidth />
+                </Grid>
+
+                <Grid size={4}>
+                    <TextField label='Defensive bonus' variant={VARIANT} type='text' value={formData.defense.defensiveBonus} onChange={handleDefensiveBonusChange} fullWidth />
+                </Grid>
+                <Grid size={4}>
+                    <TextField label='Initiative bonus' variant={VARIANT} type='text' value={formData.initiative.customBonus} onChange={handleInitiativeCustomBonusChange} fullWidth />
                 </Grid>
                 <Grid size={4}>
                 </Grid>
 
                 <Grid size={12}>
-                    <TextField label="Description" variant={variant} name="description" value={formData.description} onChange={handleChange} fullWidth multiline maxRows={4} />
+                    <TextField label='Description' variant={VARIANT} name='description' value={formData.description} onChange={handleChange} fullWidth multiline maxRows={4} />
                 </Grid>
             </Grid>
         </div>

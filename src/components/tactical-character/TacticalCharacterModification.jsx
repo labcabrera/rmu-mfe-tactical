@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from 'react-router-dom';
 
 import NavigateBeforeOutlinedIcon from '@mui/icons-material/NavigateBeforeOutlined';
 import SaveIcon from '@mui/icons-material/Save';
@@ -19,7 +19,7 @@ import TacticalCharacterSkillModification from './TacticalCharacterSkillModifica
 import TacticalCharacterSkillDataGrid from './TacticalCharacterSkillDataGrid';
 import TacticalCharacterStatisticsModification from './TacticalCharacterStatisticsModification';
 
-import { API_TACTICAL_URL } from "../../constants/environment";
+import { API_TACTICAL_URL } from '../../constants/environment';
 
 const TacticalCharacterModification = () => {
 
@@ -124,16 +124,16 @@ const TacticalCharacterModification = () => {
     }
 
     return (
-        <div className="tactical-character-edit">
-            <div className="tactical-character-edit-actions">
-                <Stack spacing={2} direction="row" sx={{
-                    justifyContent: "flex-end",
-                    alignItems: "flex-start",
+        <div className='tactical-character-edit'>
+            <div className='tactical-character-edit-actions'>
+                <Stack spacing={2} direction='row' sx={{
+                    justifyContent: 'flex-end',
+                    alignItems: 'flex-start',
                 }}>
-                    <IconButton variant="outlined" onClick={handleNavigateBackClick}>
+                    <IconButton variant='outlined' onClick={handleNavigateBackClick}>
                         <NavigateBeforeOutlinedIcon />
                     </IconButton>
-                    <IconButton variant="outlined" onClick={updateTacticalCharacter}>
+                    <IconButton variant='outlined' onClick={updateTacticalCharacter}>
                         <SaveIcon />
                     </IconButton>
                 </Stack>
@@ -141,35 +141,39 @@ const TacticalCharacterModification = () => {
             <Box>
                 <TabContext value={tabValue}>
                     <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                        <TabList onChange={handleTabChange} aria-label="lab API tabs example">
-                            <Tab label="Info" value="1" />
-                            <Tab label="Attributes" value="2" />
-                            <Tab label="Skills" value="3" />
-                            <Tab label="Items" value="4" />
-                            <Tab label="Debug" value="5" />
-                            <Tab label="Skills (experimental)" value="6" />
+                        <TabList onChange={handleTabChange} aria-label='lab API tabs example'>
+                            <Tab label='Info' value='1' />
+                            <Tab label='Attributes' value='2' />
+                            <Tab label='Skills' value='3' />
+                            <Tab label='Items' value='4' />
+                            <Tab label='Debug' value='5' />
+                            <Tab label='Skills (experimental)' value='6' />
                         </TabList>
                     </Box>
-                    <TabPanel value="1">
+                    <TabPanel value='1'>
                         <Grid container spacing={2}>
                             <Grid size={6}>
-                                <TacticalCharacterModificationAttributes formData={formData} setFormData={setFormData} factions={factions} />
+                                <TacticalCharacterModificationAttributes formData={formData} setFormData={setFormData} factions={factions} size='normal' variant='outlined' />
                             </Grid>
                             <Grid size={6}>
                             </Grid>
                         </Grid>
                     </TabPanel>
-                    <TabPanel value="2">
-                        <TacticalCharacterStatisticsModification formData={formData} setFormData={setFormData} />
+                    <TabPanel value='2'>
+                        <Grid container spacing={2}>
+                            <Grid size={6}>
+                                <TacticalCharacterStatisticsModification formData={formData} setFormData={setFormData} />
+                            </Grid>
+                        </Grid>
                     </TabPanel>
-                    <TabPanel value="3">
+                    <TabPanel value='3'>
                         <TacticalCharacterSkillModification tacticalCharacter={tacticalCharacter} setTacticalCharacter={setTacticalCharacter} />
                     </TabPanel>
-                    <TabPanel value="4">
+                    <TabPanel value='4'>
                         <TacticalCharacterEquipment tacticalCharacter={tacticalCharacter} setTacticalCharacter={setTacticalCharacter} />
                         <TacticalCharacterAddItem tacticalCharacter={tacticalCharacter} setTacticalCharacter={setTacticalCharacter} />
                     </TabPanel>
-                    <TabPanel value="5">
+                    <TabPanel value='5'>
                         <div>
                             <h3>formData</h3>
                             <pre>
@@ -185,7 +189,7 @@ const TacticalCharacterModification = () => {
                             </pre>
                         </div>
                     </TabPanel>
-                    <TabPanel value="6">
+                    <TabPanel value='6'>
                         <TacticalCharacterSkillDataGrid tacticalCharacter={tacticalCharacter} setTacticalCharacter={setTacticalCharacter} />
                     </TabPanel>
                 </TabContext>
