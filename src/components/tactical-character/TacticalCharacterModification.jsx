@@ -7,15 +7,14 @@ import TabContext from '@mui/lab/TabContext';
 import TabList from '@mui/lab/TabList';
 import TabPanel from '@mui/lab/TabPanel';
 import Box from '@mui/material/Box';
+import Grid from '@mui/material/Grid2';
 import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
 import Tab from '@mui/material/Tab';
-import Grid from '@mui/material/Grid2';
 
 import TacticalCharacterAddItem from './TacticalCharacterAddItem';
 import TacticalCharacterEquipment from './TacticalCharacterEquipment';
 import TacticalCharacterModificationAttributes from './TacticalCharacterModificationAttributes';
-import TacticalCharacterSkillModification from './TacticalCharacterSkillModification';
 import TacticalCharacterSkillDataGrid from './TacticalCharacterSkillDataGrid';
 import TacticalCharacterStatisticsModification from './TacticalCharacterStatisticsModification';
 
@@ -147,7 +146,6 @@ const TacticalCharacterModification = () => {
                             <Tab label='Skills' value='3' />
                             <Tab label='Items' value='4' />
                             <Tab label='Debug' value='5' />
-                            <Tab label='Skills (experimental)' value='6' />
                         </TabList>
                     </Box>
                     <TabPanel value='1'>
@@ -167,7 +165,7 @@ const TacticalCharacterModification = () => {
                         </Grid>
                     </TabPanel>
                     <TabPanel value='3'>
-                        <TacticalCharacterSkillModification tacticalCharacter={tacticalCharacter} setTacticalCharacter={setTacticalCharacter} />
+                        <TacticalCharacterSkillDataGrid tacticalCharacter={tacticalCharacter} setTacticalCharacter={setTacticalCharacter} />
                     </TabPanel>
                     <TabPanel value='4'>
                         <TacticalCharacterEquipment tacticalCharacter={tacticalCharacter} setTacticalCharacter={setTacticalCharacter} />
@@ -188,9 +186,6 @@ const TacticalCharacterModification = () => {
                                 {JSON.stringify(tacticalCharacter, null, 2)}
                             </pre>
                         </div>
-                    </TabPanel>
-                    <TabPanel value='6'>
-                        <TacticalCharacterSkillDataGrid tacticalCharacter={tacticalCharacter} setTacticalCharacter={setTacticalCharacter} />
                     </TabPanel>
                 </TabContext>
             </Box>
