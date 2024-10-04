@@ -123,7 +123,7 @@ const TacticalCharacterSkillDataGrid = ({ tacticalCharacter, setTacticalCharacte
     };
 
     const handleRowEditCommit = (data) => {
-        console.log(`handleDeleteClick ${JSON.stringify(data, null, 2)}`);
+        console.log(`handleRowEditCommit ${JSON.stringify(data, null, 2)}`);
     };
 
     const handleDeleteClick = (skillId) => async () => {
@@ -163,7 +163,7 @@ const TacticalCharacterSkillDataGrid = ({ tacticalCharacter, setTacticalCharacte
         const skillId = updatedRow.skillId;
         console.log(`row !!! ${JSON.stringify(row, null, 2)}`);
         if (row.newId) {
-            console.log(`TacticalCharacterSkillDataGrid.handleSaveClick process new`);
+            console.log(`TacticalCharacterSkillDataGrid.serverSideUpdate process new`);
             const request = {
                 skillId: skillId,
                 specialization: row.specialization,
@@ -185,7 +185,7 @@ const TacticalCharacterSkillDataGrid = ({ tacticalCharacter, setTacticalCharacte
                 console.error(response.status);
             }
         } else {
-            console.log(`TacticalCharacterSkillDataGrid.handleSaveClick process not new`);
+            console.log(`TacticalCharacterSkillDataGrid.serverSideUpdate process not new`);
             const request = {
                 ranks: parseInt(row.ranks),
                 customBonus: parseInt(row.customBonus)
@@ -201,7 +201,10 @@ const TacticalCharacterSkillDataGrid = ({ tacticalCharacter, setTacticalCharacte
                 const responseBody = await response.json();
                 setTacticalCharacter(responseBody);
                 setRows(responseBody.skills);
-                setRowModesModel({ ...rowModesModel, [skillId]: { mode: GridRowModes.View } });
+                setRowModesModel({
+                    ...rowModesModel,
+                    [skillId]: { mode: GridRowModes.View, ignoreModifications: true },
+                });
             } else {
                 console.error(response.status);
             }
@@ -210,7 +213,7 @@ const TacticalCharacterSkillDataGrid = ({ tacticalCharacter, setTacticalCharacte
 
     const handleRowModesModelChange = (newRowModesModel) => {
         console.log(`TacticalCharacterSkillDataGrid.handleRowModesModelChange ${JSON.stringify(newRowModesModel, null, 2)}`);
-        setRowModesModel(newRowModesModel);
+        //setRowModesModel(newRowModesModel);
     };
 
     const handleSelectSkillChange = (data, value) => {
