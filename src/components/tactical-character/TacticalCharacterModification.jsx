@@ -1,19 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 
-import NavigateBeforeOutlinedIcon from '@mui/icons-material/NavigateBeforeOutlined';
-import SaveIcon from '@mui/icons-material/Save';
 import TabContext from '@mui/lab/TabContext';
 import TabList from '@mui/lab/TabList';
 import TabPanel from '@mui/lab/TabPanel';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid2';
-import IconButton from '@mui/material/IconButton';
-import Stack from '@mui/material/Stack';
 import Tab from '@mui/material/Tab';
 
 import TacticalCharacterAddItem from './TacticalCharacterAddItem';
 import TacticalCharacterEquipment from './TacticalCharacterEquipment';
+import TacticalCharacterModificationActions from './TacticalCharacterModificationActions';
 import TacticalCharacterModificationAttributes from './TacticalCharacterModificationAttributes';
 import TacticalCharacterSkillDataGrid from './TacticalCharacterSkillDataGrid';
 import TacticalCharacterStatisticsModification from './TacticalCharacterStatisticsModification';
@@ -22,9 +19,7 @@ import { API_TACTICAL_URL } from '../../constants/environment';
 
 const TacticalCharacterModification = () => {
 
-    const debugMode = true;
     const { characterId } = useParams();
-    const navigate = useNavigate();
 
     const [tabValue, setTabValue] = useState('1');
 
@@ -82,29 +77,6 @@ const TacticalCharacterModification = () => {
         setFormData(data);
     };
 
-    const updateTacticalCharacter = async (e) => {
-        try {
-            e.preventDefault();
-            const requestOptions = {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData)
-            };
-            const response = await fetch(`${API_TACTICAL_URL}/characters/${tacticalCharacter.id}`, requestOptions);
-            if (response.status == 200) {
-                navigate(`/tactical/view/${tacticalCharacter.tacticalGameId}`, { state: { tacticalGame: tacticalGame } });
-            } else {
-                console.log(`TacticalCharacterModification.updateTacticalCharacter error ${response.status}`);
-            }
-        } catch (error) {
-            console.error(`TacticalCharacterModification.updateTacticalCharacter error ${error}`);
-        }
-    };
-
-    const handleNavigateBackClick = (e) => {
-        navigate(`/tactical/view/${tacticalCharacter.tacticalGameId}`, { state: { tacticalGame: tacticalGame } });
-    };
-
     const handleTabChange = (event, newValue) => {
         setTabValue(newValue);
     };
@@ -124,19 +96,7 @@ const TacticalCharacterModification = () => {
 
     return (
         <div className='tactical-character-edit'>
-            <div className='tactical-character-edit-actions'>
-                <Stack spacing={2} direction='row' sx={{
-                    justifyContent: 'flex-end',
-                    alignItems: 'flex-start',
-                }}>
-                    <IconButton variant='outlined' onClick={handleNavigateBackClick}>
-                        <NavigateBeforeOutlinedIcon />
-                    </IconButton>
-                    <IconButton variant='outlined' onClick={updateTacticalCharacter}>
-                        <SaveIcon />
-                    </IconButton>
-                </Stack>
-            </div>
+            <TacticalCharacterModificationActions tacticalGame={tacticalGame} tacticalCharacter={tacticalCharacter} formData={formData} setFormData={setFormData} />
             <Box>
                 <TabContext value={tabValue}>
                     <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
