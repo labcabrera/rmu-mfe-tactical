@@ -12,7 +12,7 @@ import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import { DataGrid, GridActionsCellItem, GridRowEditStopReasons, GridRowModes, GridToolbarContainer } from '@mui/x-data-grid';
 
-import { API_CORE_URL } from "../../constants/environment";
+import { API_CORE_URL, API_TACTICAL_URL } from "../../constants/environment";
 
 const roles = ['Market', 'Finance', 'Development'];
 
@@ -25,12 +25,17 @@ function EditToolbar(props) {
         const id = 'new-' + Math.floor(Math.random() * 100000);
         setRows((oldRows) => [
             ...oldRows,
-            {  
+            {
                 id,
                 skillId: '',
-                ranks: '',
-                role: '',
-                isNew: true },
+                ranks: 0,
+                statBonus: '',
+                racialBonus: '',
+                developmentBonus: '',
+                customBonus: 0,
+                totalBonus: '',
+                isNew: true
+            },
         ]);
         setRowModesModel((oldModel) => ({
             ...oldModel,
@@ -45,7 +50,7 @@ function EditToolbar(props) {
     );
 }
 
-const TacticalCharacterSkillDataGrid = ({ tacticalCharacter }) => {
+const TacticalCharacterSkillDataGrid = ({ tacticalCharacter, setTacticalCharacter }) => {
 
     const { t, i18n } = useTranslation();
 
@@ -71,9 +76,10 @@ const TacticalCharacterSkillDataGrid = ({ tacticalCharacter }) => {
         setRowModesModel({ ...rowModesModel, [id]: { mode: GridRowModes.View } });
     };
 
-    const handleDeleteClick = (id) => () => {
+    const handleDeleteClick = (id) => async () => {
         console.log(`handleDeleteClick ${JSON.stringify(id, null, 2)}`);
-        setRows(rows.filter((row) => row.id !== id));
+        await deleteSKill(id);        
+        //setRows(rows.filter((row) => row.id !== id));
     };
 
     const handleCancelClick = (id) => () => {
@@ -88,11 +94,18 @@ const TacticalCharacterSkillDataGrid = ({ tacticalCharacter }) => {
         }
     };
 
-    const processRowUpdate = (newRow) => {
-        console.log(`processRowUpdate ${JSON.stringify(newRow, null, 2)}`);
-        const updatedRow = { ...newRow, isNew: false };
-        setRows(rows.map((row) => (row.id === newRow.id ? updatedRow : row)));
-        return updatedRow;
+    const processRowUpdate = async (newRow) => {
+        console.log(`TacticalCharacterSkillDataGrid.processRowUpdate ${JSON.stringify(newRow, null, 2)}`);
+        if (newRow.isNew) {
+            await postNewSkill(newRow);
+            return;
+            // TODO REFRESH
+        } else {
+            //TODO
+        }
+        // const updatedRow = { ...newRow, isNew: false };
+        // setRows(rows.map((row) => (row.id === newRow.id ? updatedRow : row)));
+        // return updatedRow;
     };
 
     const handleRowModesModelChange = (newRowModesModel) => {
@@ -112,6 +125,49 @@ const TacticalCharacterSkillDataGrid = ({ tacticalCharacter }) => {
         );
         setRows(updatedRows);
     };
+
+    const postNewSkill = async (newRow) => {
+        console.log(`TacticalCharacterSkillDataGrid.postNewSkill`);
+        try {
+            const request = {
+                skillId: newRow.skillId,
+                specialization: newRow.specialization,
+                ranks: newRow.ranks,
+                customBonus: newRow.customBonus
+            };
+            const requestOptions = {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(request)
+            };
+            const response = await fetch(`${API_TACTICAL_URL}/characters/${tacticalCharacter.id}/skills`, requestOptions);
+            if (response.status === 200) {
+                const responseBody = await response.json();
+                setTacticalCharacter(responseBody);
+            } else {
+                console.error(response.status);
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const deleteSKill = async(id) => {
+        console.log(`TacticalCharacterSkillDataGrid.deleteSKill ${id}`);
+        const row = rows.filter((row) => row.id === id);
+        const skillId = row.skillId;
+        try {
+            const response = await fetch(`${API_TACTICAL_URL}/characters/${tacticalCharacter.id}/skills/${skillId}`, {method:'DELETE'});
+            if (response.status === 200) {
+                const responseBody = await response.json();
+                setTacticalCharacter(responseBody);
+            } else {
+                console.error(response.status);
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    }
 
     useEffect(() => {
         const fetchSkillCategories = async () => {
@@ -139,26 +195,33 @@ const TacticalCharacterSkillDataGrid = ({ tacticalCharacter }) => {
         {
             field: 'skillId', headerName: 'Skill', width: 250,
             renderCell: (params) => (
-                <Select
-                    value={params.value}
-                    fullWidth
-                    variant='standard'
-                    onChange={(event) => handleSelectSkillChange(params.id, event.target.value)}>
-                    {skills.map((option) => (
-                        <MenuItem key={option.id} value={option.id}>{t(option.id)}</MenuItem>
-                    ))}
-                </Select>
+                <>
+                    {params.id.startsWith('new') ? (
+                        <Select
+                            value={params.value}
+                            fullWidth
+                            //variant='standard'
+                            disabled={!params.id.startsWith('new')}
+                            onChange={(event) => handleSelectSkillChange(params.id, event.target.value)}>
+                            {skills.map((option) => (
+                                <MenuItem key={option.id} value={option.id}>{t(option.id)}</MenuItem>
+                            ))}
+                        </Select>
+                    ) : (
+                        <div>{t(params.row.skillId)}</div>
+                    )
+                    }
+                </>
             ),
         },
         { field: 'specialization', headerName: 'Specialization', type: 'text', align: 'right', width: 250, editable: true },
-        { field: 'stats', headerName: 'Stats', type: 'text', align: 'right', width: 100, editable: true },
-
-        { field: 'ranks', headerName: 'Stat Bonus', type: 'text', align: 'right', width: 100, editable: true },
-        
-        { field: 'statBonus', headerName: 'Stat Bonus', type: 'text', align: 'right', width: 100, editable: true },
-        { field: 'rankBonus', headerName: 'Stat Bonus', type: 'text', align: 'right', width: 100, editable: true },
-        { field: 'customBonus', headerName: 'Stat Bonus', type: 'text', align: 'right', width: 100, editable: true },
-        { field: 'totalBonus', headerName: 'Stat Bonus', type: 'text', align: 'right', width: 100, editable: false },
+        { field: 'statistics', headerName: 'Statistics', type: 'text', align: 'right', width: 100, editable: false },
+        { field: 'ranks', headerName: 'Ranks', type: 'text', align: 'right', width: 100, editable: true },
+        { field: 'statBonus', headerName: 'Stat B', type: 'text', align: 'right', width: 100, editable: false },
+        { field: 'racialBonus', headerName: 'Racial B', type: 'text', align: 'right', width: 100, editable: false },
+        { field: 'developmentBonus', headerName: 'Dev B', type: 'text', align: 'right', width: 100, editable: false },
+        { field: 'customBonus', headerName: 'Stat B', type: 'text', align: 'right', width: 100, editable: true },
+        { field: 'totalBonus', headerName: 'Stat B', type: 'text', align: 'right', width: 100, editable: false },
 
         {
             field: 'role',
