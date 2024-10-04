@@ -27,14 +27,14 @@ const SelectCharacterSize = ({ value, onChange }) => {
     }, []);
 
     return (
-        <FormControl fullWidth variant="standard">
+        <FormControl fullWidth>
             <InputLabel id="select-size-label">Size</InputLabel>
             <Select
                 id="select-size"
                 labelId="select-size-label"
                 label="Size"
                 value={value}
-                variant='standard'
+                variant='outlined'
                 onChange={handleChange}>
                 {sizes.map((option, index) => (<MenuItem key={index} value={option.id}>{option.name}</MenuItem>))}
             </Select>

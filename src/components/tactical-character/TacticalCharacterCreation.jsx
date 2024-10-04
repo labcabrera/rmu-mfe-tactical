@@ -40,7 +40,8 @@ const TacticalCharacterCreation = () => {
             st: { bonus: 0, racial: 0, custom: 0, totalBonus: 0 }
         },
         movement: {
-            strideBonus: 0,
+            strideCustomBonus: 0,
+            strideRacialBonus: 0
         },
         initiative: {
             customBonus: 0,
@@ -83,7 +84,8 @@ const TacticalCharacterCreation = () => {
                     <Grid size={6}>
                         <TacticalCharacterCreationAttributes formData={formData} setFormData={setFormData} factions={tacticalGame.factions} />
                     </Grid>
-                    <Grid size={6}>
+                    <Grid size={2}></Grid>
+                    <Grid size={3}>
                         <TacticalCharacterStatisticsModification formData={formData} setFormData={setFormData} />
                     </Grid>
                 </Grid>

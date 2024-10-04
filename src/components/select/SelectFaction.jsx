@@ -19,7 +19,7 @@ const SelectFaction = ({ factions, value, onChange }) => {
                 labelId="select-faction-label"
                 label="Faction"
                 value={value}
-                variant='standard'
+                variant='outlined'
                 required
                 onChange={handleFactionChange}>
                 {factions.map((option) => <MenuItem key={option} value={option}>{option}</MenuItem>)}

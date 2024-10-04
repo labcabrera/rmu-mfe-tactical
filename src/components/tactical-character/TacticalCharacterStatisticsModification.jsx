@@ -1,13 +1,11 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 
-
 import Grid from '@mui/material/Grid2';
 import TextField from '@mui/material/TextField';
 
 const StatItemList = ({ formData, setFormData, statName, values }) => {
 
-    const variant = "standard";
     const { t, i18n } = useTranslation();
 
     const handleBonusChange = (e) => {
@@ -38,25 +36,25 @@ const StatItemList = ({ formData, setFormData, statName, values }) => {
         }));
     };
 
+    const capitalize = (value) => {
+        return value.charAt(0).toUpperCase() + value.slice(1);
+    };
+
     return (
-        <Grid container spacing={2}>
-            <Grid size={4}>
-                {t(statName)}
+        <React.Fragment>
+            <Grid size={3}>
+                <TextField label={`${capitalize(statName)} Base`} variant='outlined' type="text" value={values.bonus} onChange={handleBonusChange} fullWidth />
             </Grid>
-            <Grid size={2}>
-                <TextField label="Base" variant={variant} type="text" value={values.bonus} onChange={handleBonusChange} fullWidth />
+            <Grid size={3}>
+                <TextField label={`${capitalize(statName)} Custom`} variant='outlined' type="text" value={values.custom} onChange={handleCustomChange} fullWidth />
             </Grid>
-            <Grid size={2}>
-                <TextField label="Custom" variant={variant} type="text" value={values.custom} onChange={handleCustomChange} fullWidth />
+            <Grid size={3}>
+                <TextField label={`${capitalize(statName)} Racial`} variant='outlined' type="text" value={values.racial} fullWidth disabled />
             </Grid>
-            <Grid size={2}>
-                <TextField label="Racial" variant={variant} type="text" value={values.racial} fullWidth disabled />
+            <Grid size={3}>
+                <TextField label={`${capitalize(statName)} Total`} variant='outlined' type="text" value={values.totalBonus} fullWidth disabled />
             </Grid>
-            <Grid size={2}>
-                <TextField label="Total" variant={variant} type="text" value={values.totalBonus} fullWidth disabled />
-            </Grid>
-            <Grid size={2}></Grid>
-        </Grid>
+        </React.Fragment>
     );
 
 }
@@ -71,9 +69,11 @@ const TacticalCharacterStatisticsModification = ({ formData, setFormData }) => {
 
     return (
         <div className="tactical-character-add-item">
-            {statistics.map((e, index) => (
-                <StatItemList key={index} formData={formData} setFormData={setFormData} statName={e} values={formData.statistics[e]} />
-            ))}
+            <Grid container spacing={2}>
+                {statistics.map((e, index) => (
+                    <StatItemList key={index} formData={formData} setFormData={setFormData} statName={e} values={formData.statistics[e]} />
+                ))}
+            </Grid>
         </div>
     );
 }

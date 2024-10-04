@@ -14,7 +14,8 @@ import { API_NPC_NAMES_URL } from '../../constants/environment';
 
 const TacticalCharacterCreationAttributes = ({ formData, setFormData, factions }) => {
 
-    const variant = 'standard';
+    //const variant = 'standard';
+    const variant = 'outlined';
 
     const onRaceChange = (raceId, raceInfo) => {
         if (raceInfo) {
@@ -36,7 +37,7 @@ const TacticalCharacterCreationAttributes = ({ formData, setFormData, factions }
                 },
                 movement: {
                     ...prevState.movement,
-                    strideBonus: raceInfo.strideBonus,
+                    strideRacialBonus: raceInfo.strideBonus,
                 },
                 statistics: stats
             }))
@@ -126,8 +127,17 @@ const TacticalCharacterCreationAttributes = ({ formData, setFormData, factions }
                     <TextField label="Weight" variant={variant} type="text" value={formData.info.weight} onChange={handleWeightChange} fullWidth />
                 </Grid>
                 <Grid size={4}>
-                    <TextField label="Stride bonus" variant={variant} type="text" value={formData.movement.strideBonus} onChange={handleStrideBonusChange} fullWidth />
                 </Grid>
+
+                <Grid size={4}>
+                    <TextField label="Stride custom bonus" variant={variant} type="text" value={formData.movement.strideCustomBonus} onChange={handleStrideBonusChange} fullWidth />
+                </Grid>
+                <Grid size={4}>
+                    <TextField label="Stride racial bonus" variant={variant} type="text" value={formData.movement.strideRacialBonus} disabled fullWidth />
+                </Grid>
+                <Grid size={4}>
+                </Grid>
+
 
                 <Grid size={4}>
                     <TextField label="HP" variant={variant} type="text" value={formData.hp.max} onChange={handleHpMaxChange} fullWidth />

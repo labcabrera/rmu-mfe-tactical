@@ -27,14 +27,14 @@ const SelectRace = ({ value, onChange }) => {
     }, []);
 
     return (
-        <FormControl fullWidth variant="standard">
+        <FormControl fullWidth variant="outlined">
             <InputLabel id="select-race-label">Race</InputLabel>
             <Select
                 id="select-race"
                 labelId="select-race-label"
                 label="Race"
                 value={value}
-                variant='standard'
+                variant='outlined'
                 onChange={handleChange}>
                 {races.map((option, index) => (<MenuItem key={index} value={option.id}>{option.name}</MenuItem>))}
             </Select>

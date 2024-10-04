@@ -22,7 +22,7 @@ const SelectLevel = ({ value, onChange }) => {
                 label='Level'
                 value={value}
                 required
-                variant='standard'
+                variant='outlined'
                 onChange={handleLevelChange}>
                 {levels.map((option) => <MenuItem key={option} value={option}>{option}</MenuItem>)}
             </Select>
