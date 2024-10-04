@@ -33,7 +33,7 @@ const SelectCharacterSize = ({ value, onChange }) => {
                 id="select-size"
                 labelId="select-size-label"
                 label="Size"
-                value={value}
+                value={(value === undefined || value === null || sizes.length === 0) ? '' : value}
                 variant='outlined'
                 onChange={handleChange}>
                 {sizes.map((option, index) => (<MenuItem key={index} value={option.id}>{option.name}</MenuItem>))}

@@ -7,7 +7,7 @@ import Select from '@mui/material/Select';
 
 import { API_CORE_URL } from '../../constants/environment';
 
-import { VARIANT, VARIANT_DISABLED, SIZE } from '../../constants/ui';
+import { VARIANT } from '../../constants/ui';
 
 const SelectRace = ({ value, onChange }) => {
 
@@ -28,6 +28,10 @@ const SelectRace = ({ value, onChange }) => {
         fetchRaces();
     }, []);
 
+    if (!races || typeof value === 'undefined') {
+        return <p>Loading...</p>
+    }
+
     return (
         <FormControl fullWidth>
             <InputLabel id="select-race-label">Race</InputLabel>
@@ -35,7 +39,7 @@ const SelectRace = ({ value, onChange }) => {
                 id="select-race"
                 labelId="select-race-label"
                 label="Race"
-                value={value}
+                value={(value === undefined || value === null || races.length === 0) ? '' : value}
                 variant={VARIANT}
                 onChange={handleChange}>
                 {races.map((option, index) => (<MenuItem key={index} value={option.id}>{option.name}</MenuItem>))}

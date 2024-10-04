@@ -211,11 +211,6 @@ const TacticalCharacterSkillDataGrid = ({ tacticalCharacter, setTacticalCharacte
         }
     };
 
-    const handleRowModesModelChange = (newRowModesModel) => {
-        console.log(`TacticalCharacterSkillDataGrid.handleRowModesModelChange ${JSON.stringify(newRowModesModel, null, 2)}`);
-        //setRowModesModel(newRowModesModel);
-    };
-
     const handleSelectSkillChange = (data, value) => {
         console.log(`TacticalCharacterSkillDataGrid.handleSelectSkillChange ${JSON.stringify(data, null, 2)} > ${value}`);
         const newId = data.newId;
@@ -288,11 +283,11 @@ const TacticalCharacterSkillDataGrid = ({ tacticalCharacter, setTacticalCharacte
             field: 'skillId', headerName: 'Skill', width: 250,
             renderCell: (params) => (
                 <>
-                    {!params.row.skillId.startsWith('pending-select-') ? (
+                    {!params.row.skillId.startsWith('pending-select-' || !skills) ? (
                         <div>{t(params.row.skillId)}</div>
                     ) : (
                         <Select
-                            value={params.value}
+                            value={(params.value === undefined || params.value === null) ? '' : params.value}
                             fullWidth
                             variant='outlined'
                             size='small'
@@ -372,7 +367,7 @@ const TacticalCharacterSkillDataGrid = ({ tacticalCharacter, setTacticalCharacte
                     },
                     '& .textPrimary': {
                         color: 'text.primary',
-                    },
+                    }
                 }}
             >
                 <DataGrid
@@ -381,11 +376,11 @@ const TacticalCharacterSkillDataGrid = ({ tacticalCharacter, setTacticalCharacte
                     getRowId={row => row.skillId}
                     editMode="row"
                     rowModesModel={rowModesModel}
-                    onRowModesModelChange={handleRowModesModelChange}
                     onRowEditStop={handleRowEditStop}
                     processRowUpdate={(updatedRow, originalRow) => serverSideUpdate(updatedRow, originalRow)}
                     onProcessRowUpdateError={handleProcessRowUpdateError}
                     onRowEditCommit={handleRowEditCommit}
+                    disableRowSelectionOnClick
                     slots={{
                         toolbar: EditToolbar,
                     }}

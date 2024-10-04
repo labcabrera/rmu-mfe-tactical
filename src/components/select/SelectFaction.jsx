@@ -18,7 +18,7 @@ const SelectFaction = ({ factions, value, onChange }) => {
                 id="select-faction"
                 labelId="select-faction-label"
                 label="Faction"
-                value={value}
+                value={(value === undefined || value === null || factions.length === 0) ? '' : value}
                 variant='outlined'
                 required
                 onChange={handleFactionChange}>

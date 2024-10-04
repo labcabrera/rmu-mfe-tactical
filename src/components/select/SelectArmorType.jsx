@@ -36,7 +36,7 @@ const SelectArmorType = ({ value, onChange }) => {
                 id="select-amor-type"
                 labelId="select-amor-type-label"
                 label={t('armorType')}
-                value={value}
+                value={(value === undefined || value === null || armorTypes.length === 0) ? '' : value}
                 variant='outlined'
                 onChange={handleChange}>
                 {armorTypes.map((option, index) => (<MenuItem key={index} value={option.id}>{t(`at-${option.id}`)}</MenuItem>))}

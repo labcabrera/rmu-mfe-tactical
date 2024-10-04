@@ -20,7 +20,7 @@ const SelectLevel = ({ value, onChange }) => {
                 id='select-level'
                 labelId='select-level-label'
                 label='Level'
-                value={value}
+                value={(value === undefined || value === null || levels.length === 0) ? '' : value}
                 required
                 variant='outlined'
                 onChange={handleLevelChange}>
