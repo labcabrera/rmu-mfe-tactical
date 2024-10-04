@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next';
 
 import Grid from '@mui/material/Grid2';
 import TextField from '@mui/material/TextField';
-import { toolbarClasses } from '@mui/material';
 
 const StatItemList = ({ formData, setFormData, statName, values }) => {
 
@@ -72,8 +71,8 @@ const TacticalCharacterStatisticsModification = ({ formData, setFormData }) => {
 
     return (
         <div className="tactical-character-add-item">
-            {statistics.map(e => (
-                <StatItemList formData={formData} setFormData={setFormData} statName={e} values={formData.statistics[e]} />
+            {statistics.map((e, index) => (
+                <StatItemList key={index} formData={formData} setFormData={setFormData} statName={e} values={formData.statistics[e]} />
             ))}
         </div>
     );

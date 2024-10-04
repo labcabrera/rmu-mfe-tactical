@@ -156,12 +156,11 @@ const TacticalCharacterModification = () => {
                                 <TacticalCharacterModificationAttributes formData={formData} setFormData={setFormData} factions={factions} />
                             </Grid>
                             <Grid size={6}>
-                                <TacticalCharacterStatisticsModification formData={formData} setFormData={setFormData} />
                             </Grid>
                         </Grid>
                     </TabPanel>
                     <TabPanel value="2">
-                        WIP
+                        <TacticalCharacterStatisticsModification formData={formData} setFormData={setFormData} />
                     </TabPanel>
                     <TabPanel value="3">
                         <TacticalCharacterSkillModification tacticalCharacter={tacticalCharacter} setTacticalCharacter={setTacticalCharacter} />
