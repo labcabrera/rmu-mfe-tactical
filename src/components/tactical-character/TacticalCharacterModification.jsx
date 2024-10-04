@@ -17,6 +17,7 @@ import TacticalCharacterEquipment from './TacticalCharacterEquipment';
 import TacticalCharacterModificationAttributes from './TacticalCharacterModificationAttributes';
 import TacticalCharacterSkillModification from './TacticalCharacterSkillModification';
 import TacticalCharacterSkillDataGrid from './TacticalCharacterSkillDataGrid';
+import TacticalCharacterStatisticsModification from './TacticalCharacterStatisticsModification';
 
 import { API_TACTICAL_URL } from "../../constants/environment";
 
@@ -94,7 +95,7 @@ const TacticalCharacterModification = () => {
             if (response.status == 200) {
                 navigate(`/tactical/view/${tacticalCharacter.tacticalGameId}`, { state: { tacticalGame: tacticalGame } });
             } else {
-                console.log(`TacticalCharacterModification.updateTacticalCharacter error ${error}`);
+                console.log(`TacticalCharacterModification.updateTacticalCharacter error ${response.status}`);
             }
         } catch (error) {
             console.error(`TacticalCharacterModification.updateTacticalCharacter error ${error}`);
@@ -153,6 +154,9 @@ const TacticalCharacterModification = () => {
                         <Grid container spacing={2}>
                             <Grid size={6}>
                                 <TacticalCharacterModificationAttributes formData={formData} setFormData={setFormData} factions={factions} />
+                            </Grid>
+                            <Grid size={6}>
+                                <TacticalCharacterStatisticsModification formData={formData} setFormData={setFormData} />
                             </Grid>
                         </Grid>
                     </TabPanel>

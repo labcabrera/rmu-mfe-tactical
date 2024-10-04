@@ -72,7 +72,9 @@ const TacticalCharacterModificationAttributes = ({ formData, setFormData, factio
             const keys = ['ag', 'co', 'em', 'in', 'me', 'pr', 'qu', 're', 'sd', 'st'];
             keys.forEach(key => {
                 stats[key].racial = raceInfo.defaultStatBonus[key];
-            })
+                const totalBonus = stats[key].custom + stats[key].racial + stats[key].custom;
+                stats[key].totalBonus = totalBonus;
+            });
             setFormData((prevState) => ({
                 ...prevState,
                 info: {

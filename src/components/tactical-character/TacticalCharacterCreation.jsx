@@ -40,16 +40,16 @@ const TacticalCharacterCreation = () => {
             weight: 100
         },
         statistics: {
-            ag: { racial: 0, custom: 0, },
-            co: { racial: 0, custom: 0, },
-            em: { racial: 0, custom: 0, },
-            in: { racial: 0, custom: 0, },
-            me: { racial: 0, custom: 0, },
-            pr: { racial: 0, custom: 0, },
-            qu: { racial: 0, custom: 0, },
-            re: { racial: 0, custom: 0, },
-            sd: { racial: 0, custom: 0, },
-            st: { racial: 0, custom: 0, }
+            ag: { bonus: 0, racial: 0, custom: 0, totalBonus: 0 },
+            co: { bonus: 0, racial: 0, custom: 0, totalBonus: 0 },
+            em: { bonus: 0, racial: 0, custom: 0, totalBonus: 0 },
+            in: { bonus: 0, racial: 0, custom: 0, totalBonus: 0 },
+            me: { bonus: 0, racial: 0, custom: 0, totalBonus: 0 },
+            pr: { bonus: 0, racial: 0, custom: 0, totalBonus: 0 },
+            qu: { bonus: 0, racial: 0, custom: 0, totalBonus: 0 },
+            re: { bonus: 0, racial: 0, custom: 0, totalBonus: 0 },
+            sd: { bonus: 0, racial: 0, custom: 0, totalBonus: 0 },
+            st: { bonus: 0, racial: 0, custom: 0, totalBonus: 0 }
         },
         movement: {
             strideBonus: 0,
