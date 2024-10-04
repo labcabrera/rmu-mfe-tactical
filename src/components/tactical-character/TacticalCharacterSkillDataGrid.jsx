@@ -12,23 +12,25 @@ import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import { DataGrid, GridActionsCellItem, GridRowEditStopReasons, GridRowModes, GridToolbarContainer } from '@mui/x-data-grid';
 
-//TODO remove and uninstall
-// import { randomId } from '@mui/x-data-grid-generator';
-
 import { API_CORE_URL } from "../../constants/environment";
 
 const roles = ['Market', 'Finance', 'Development'];
 
 function EditToolbar(props) {
 
-    const { t, i18n } = useTranslation();
+    const { t } = useTranslation();
     const { setRows, setRowModesModel } = props;
 
     const handleClick = () => {
         const id = 'new-' + Math.floor(Math.random() * 100000);
         setRows((oldRows) => [
             ...oldRows,
-            { id, name: '', age: '', role: '', isNew: true },
+            {  
+                id,
+                skillId: '',
+                ranks: '',
+                role: '',
+                isNew: true },
         ]);
         setRowModesModel((oldModel) => ({
             ...oldModel,
@@ -134,9 +136,8 @@ const TacticalCharacterSkillDataGrid = ({ tacticalCharacter }) => {
     }, []);
 
     const columns = [
-        // { field: 'skillId', headerName: 'Skill', width: 160, editable: true },
         {
-            field: 'skillId', headerName: 'Skill', width: 160,
+            field: 'skillId', headerName: 'Skill', width: 250,
             renderCell: (params) => (
                 <Select
                     value={params.value}
@@ -149,24 +150,16 @@ const TacticalCharacterSkillDataGrid = ({ tacticalCharacter }) => {
                 </Select>
             ),
         },
-        {
-            field: 'skillCategoryId', headerName: 'Category', width: 160,
-            renderCell: (params) => (
-                <Select
-                    value={params.value}
-                    fullWidth
-                    variant='standard'
-                    onChange={(event) => handleSelectCategoryChange(params.id, event.target.value)}>
-                    {skillCategories.map((option) => (
-                        <MenuItem key={option.id} value={option.id}>{t(option.id)}</MenuItem>
-                    ))}
-                </Select>
-            ),
-        },
-        { field: 'attributeBonus', headerName: 'Attributes', type: 'number', align: 'right', width: 100, editable: true },
-        { field: 'racialBonus', headerName: 'Racial', type: 'number', align: 'right', width: 100, editable: true },
-        { field: 'customBonus', headerName: 'Custom', type: 'number', align: 'right', width: 100, editable: true },
-        { field: 'totalBonus', headerName: 'Total', type: 'number', align: 'right', width: 100, editable: false },
+        { field: 'specialization', headerName: 'Specialization', type: 'text', align: 'right', width: 250, editable: true },
+        { field: 'stats', headerName: 'Stats', type: 'text', align: 'right', width: 100, editable: true },
+
+        { field: 'ranks', headerName: 'Stat Bonus', type: 'text', align: 'right', width: 100, editable: true },
+        
+        { field: 'statBonus', headerName: 'Stat Bonus', type: 'text', align: 'right', width: 100, editable: true },
+        { field: 'rankBonus', headerName: 'Stat Bonus', type: 'text', align: 'right', width: 100, editable: true },
+        { field: 'customBonus', headerName: 'Stat Bonus', type: 'text', align: 'right', width: 100, editable: true },
+        { field: 'totalBonus', headerName: 'Stat Bonus', type: 'text', align: 'right', width: 100, editable: false },
+
         {
             field: 'role',
             headerName: 'Sample',
@@ -225,10 +218,10 @@ const TacticalCharacterSkillDataGrid = ({ tacticalCharacter }) => {
 
     return (
         <div>
-            <div>{t('melee-weapon#blade')}</div>
             <Box
                 sx={{
-                    height: 500,
+                    // height: 500,
+                    height: '100%',
                     width: '100%',
                     '& .actions': {
                         color: 'text.secondary',
@@ -254,6 +247,10 @@ const TacticalCharacterSkillDataGrid = ({ tacticalCharacter }) => {
                     }}
                 />
             </Box>
+            <h3>rows</h3>
+            <pre>
+                {JSON.stringify(rows, null, 2)}
+            </pre>
             <h3>rowModesModel</h3>
             <pre>
                 {JSON.stringify(rowModesModel, null, 2)}
