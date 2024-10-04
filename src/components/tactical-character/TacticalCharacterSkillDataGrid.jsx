@@ -94,6 +94,7 @@ const TacticalCharacterSkillDataGrid = ({ tacticalCharacter, setTacticalCharacte
             if (response.status === 200) {
                 const responseBody = await response.json();
                 setTacticalCharacter(responseBody);
+                setRows(responseBody.skills);
                 setRowModesModel({ ...rowModesModel, [skillId]: { mode: GridRowModes.View } });
             } else {
                 console.error(response.status);
@@ -101,13 +102,16 @@ const TacticalCharacterSkillDataGrid = ({ tacticalCharacter, setTacticalCharacte
         }
     };
 
-    const handleDeleteClick = (id) => async () => {
-        console.log(`handleDeleteClick ${JSON.stringify(id, null, 2)}`);
-        const row = rows.find(e => e.id === id);
-        console.log(`handleDeleteClick ${JSON.stringify(row, null, 2)}`);
-        const skillId = row.skillId;
-        console.log(`handleDeleteClick skillId: ${skillId}`);
-        await deleteSKill(row.skillId);
+    const handleDeleteClick = (skillId) => async () => {
+        console.log(`handleDeleteClick ${JSON.stringify(skillId, null, 2)}`);
+        const response = await fetch(`${API_TACTICAL_URL}/characters/${tacticalCharacter.id}/skills/${skillId}`, { method: 'DELETE' });
+        if (response.status === 200) {
+            const responseBody = await response.json();
+            setTacticalCharacter(responseBody);
+            setRows(responseBody.skills);
+        } else {
+            console.error(response.status);
+        }
     };
 
     const handleCancelClick = (id) => () => {
@@ -196,6 +200,7 @@ const TacticalCharacterSkillDataGrid = ({ tacticalCharacter, setTacticalCharacte
     }
 
     useEffect(() => {
+        console.log(`TacticalCharacterSkillDataGrid.useEffect triggered`);
         const fetchSkillCategories = async () => {
             const response = await fetch(`${API_CORE_URL}/skill-categories?size=500`);
             const data = await response.json();
