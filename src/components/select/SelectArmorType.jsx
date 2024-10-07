@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from 'react-i18next';
 
 import FormControl from '@mui/material/FormControl';
@@ -10,7 +10,7 @@ import { API_CORE_URL } from '../../constants/environment';
 
 const SelectArmorType = ({ value, onChange }) => {
 
-    const { t, i18n } = useTranslation();
+    const { t } = useTranslation();
 
     const [armorTypes, setArmorTypes] = useState([]);
 

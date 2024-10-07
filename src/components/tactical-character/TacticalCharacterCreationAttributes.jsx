@@ -10,12 +10,17 @@ import SelectSize from '../../components/select/SelectCharacterSize';
 import SelectFaction from '../../components/select/SelectFaction';
 import SelectLevel from '../../components/select/SelectLevel';
 import SelectRace from '../../components/select/SelectRace';
-
+import DefenseTextField from '../input/DefenseTextField';
+import HpTextField from '../input/HpTextField';
+import InitiativeTextField from '../input/InitiativeTextField';
+import ManaTextField from '../input/ManaTextFields';
 import NameTextField from '../input/NameTextField';
+import EnduranceTextField from '../input/EnduranceDefenseTextField';
+import HeightTextField from '../input/HeightTextField';
+import WeightTextField from '../input/WeightTextField';
 
 import { API_NPC_NAMES_URL } from '../../constants/environment';
-import { VARIANT, VARIANT_DISABLED, SIZE } from '../../constants/ui';
-import { Avatar } from '@mui/material';
+import { VARIANT } from '../../constants/ui';
 
 const TacticalCharacterCreationAttributes = ({ formData, setFormData, factions }) => {
 
@@ -107,8 +112,6 @@ const TacticalCharacterCreationAttributes = ({ formData, setFormData, factions }
                 </Grid>
                 <Grid size={4}>
                     <NameTextField value={formData.name} onChange={handleChange} />
-                    
-                    {/* <TextField label={t('name')} variant={VARIANT} fullWidth name='name' value={formData.name} onChange={handleChange} required /> */}
                 </Grid>
                 <Grid size={4}>
                     <IconButton onClick={handleRandomNameClick}>
@@ -127,10 +130,10 @@ const TacticalCharacterCreationAttributes = ({ formData, setFormData, factions }
                 </Grid>
 
                 <Grid size={4}>
-                    <TextField label='Height' variant={VARIANT} type='text' value={formData.info.height} onChange={handleHeightChange} fullWidth />
+                    <HeightTextField value={formData.info.height} onChange={handleHeightChange} />
                 </Grid>
                 <Grid size={4}>
-                    <TextField label='Weight' variant={VARIANT} type='text' value={formData.info.weight} onChange={handleWeightChange} fullWidth />
+                    <WeightTextField value={formData.info.weight} onChange={handleWeightChange} />
                 </Grid>
                 <Grid size={4}>
                 </Grid>
@@ -146,20 +149,20 @@ const TacticalCharacterCreationAttributes = ({ formData, setFormData, factions }
 
 
                 <Grid size={4}>
-                    <TextField label='HP' variant={VARIANT} type='text' value={formData.hp.max} onChange={handleHpMaxChange} fullWidth />
+                    <HpTextField value={formData.hp.max} onChange={handleHpMaxChange} />
                 </Grid>
                 <Grid size={4}>
-                    <TextField label='Endurance' variant={VARIANT} type='text' value={formData.endurance.max} onChange={handleEnduranceMaxChange} fullWidth />
+                    <EnduranceTextField value={formData.endurance.max} onChange={handleEnduranceMaxChange} />
                 </Grid>
                 <Grid size={4}>
-                    <TextField label='Power points' variant={VARIANT} type='text' value={formData.power.max} onChange={handlePowerMaxChange} fullWidth />
+                    <ManaTextField value={formData.power.max} onChange={handlePowerMaxChange} />
                 </Grid>
 
                 <Grid size={4}>
-                    <TextField label='Defensive bonus' variant={VARIANT} type='text' value={formData.defense.defensiveBonus} onChange={handleDefensiveBonusChange} fullWidth />
+                    <DefenseTextField value={formData.defense.defensiveBonus} onChange={handleDefensiveBonusChange} />
                 </Grid>
                 <Grid size={4}>
-                    <TextField label='Initiative bonus' variant={VARIANT} type='text' value={formData.initiative.customBonus} onChange={handleInitiativeCustomBonusChange} fullWidth />
+                    <InitiativeTextField value={formData.initiative.customBonus} onChange={handleInitiativeCustomBonusChange} />
                 </Grid>
                 <Grid size={4}>
                 </Grid>

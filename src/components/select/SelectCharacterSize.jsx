@@ -1,13 +1,18 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
+import { useTranslation } from 'react-i18next';
 
-import FormControl from '@mui/material/FormControl';
-import InputLabel from '@mui/material/InputLabel';
+import Avatar from '@mui/material/Avatar';
+import InputAdornment from '@mui/material/InputAdornment';
 import MenuItem from '@mui/material/MenuItem';
-import Select from '@mui/material/Select';
+import TextField from '@mui/material/TextField';
 
 import { API_CORE_URL } from '../../constants/environment';
 
 const SelectCharacterSize = ({ value, onChange }) => {
+
+    const { t } = useTranslation();
+
+    const label = t('size');
 
     const [sizes, setSizes] = useState([]);
 
@@ -27,18 +32,24 @@ const SelectCharacterSize = ({ value, onChange }) => {
     }, []);
 
     return (
-        <FormControl fullWidth>
-            <InputLabel id="select-size-label">Size</InputLabel>
-            <Select
-                id="select-size"
-                labelId="select-size-label"
-                label="Size"
-                value={(value === undefined || value === null || sizes.length === 0) ? '' : value}
-                variant='outlined'
-                onChange={handleChange}>
-                {sizes.map((option, index) => (<MenuItem key={index} value={option.id}>{option.name}</MenuItem>))}
-            </Select>
-        </FormControl>
+        <TextField
+            select
+            label={label}
+            value={(value === undefined || value === null || sizes.length === 0) ? '' : value}
+            variant='outlined'
+            fullWidth
+            onChange={handleChange}
+            slotProps={{
+                input: {
+                    startAdornment: (
+                        <InputAdornment position="start">
+                            <Avatar src='/static/images/generic/size.png' sx={{ width: 25, height: 25 }} />
+                        </InputAdornment>
+                    ),
+                },
+            }}>
+            {sizes.map((option, index) => (<MenuItem key={index} value={option.id}>{option.name}</MenuItem>))}
+        </TextField>
     );
 }
 
