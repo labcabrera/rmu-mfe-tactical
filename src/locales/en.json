@@ -1,9 +1,13 @@
 {
     "action-type-attack": "Attack",
+    "adjusted-speed": "Adjusted speed UMs",
+    "bmr": "BMR",
     "add-skill": "Add skill",
     "character": "Character",
+    "multiplier": "Multiplier",
     "name": "Name",
     "pace": "Pace",
+    "speed": "Speed",
 
     "ag": "Agility (ag)",
     "co": "Constitution (co)",

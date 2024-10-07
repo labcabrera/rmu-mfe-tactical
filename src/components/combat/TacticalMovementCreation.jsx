@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { useLocation, useSearchParams } from "react-router-dom";
 import { useTranslation } from 'react-i18next';
+import { useLocation, useSearchParams } from "react-router-dom";
 
 import Grid from '@mui/material/Grid2';
 import TextField from '@mui/material/TextField';
 
-import ActionPointSelector from '../shared/ActionPointSelector';
 import SelectPace from '../select/SelectPace';
+import ActionPointSelector from '../shared/ActionPointSelector';
 import TacticalActionCreationActions from './TacticalActionCreationActions';
 
 const TacticalMovementCreation = () => {
@@ -30,21 +30,42 @@ const TacticalMovementCreation = () => {
         actionPoints: 1,
         pace: '',
         paceMultiplier: '',
-        speed: ''
+        speed: '',
+        adjustedSpeed: ''
     });
 
     const updateActionPoints = (actionPoints) => {
         console.log(`TacticalMovementCreation.updateActionPoints ${actionPoints}`);
-        setFormData({ ...formData, actionPoints: actionPoints });
+        if (formData.paceMultiplier != '' && formData.pace != '') {
+            const speedCalculations = buildSpeedCalculations(formData.actionPoints, formData.paceMultiplier);
+            setFormData({
+                ...formData,
+                ...speedCalculations,
+                actionPoints: actionPoints,
+            });
+        } else {
+            setFormData({ ...formData, actionPoints: actionPoints });
+        }
     };
 
     const updatePace = (pace, paceInfo) => {
+        const speedCalculations = buildSpeedCalculations(formData.actionPoints, paceInfo.multiplier);
         setFormData({
             ...formData,
+            ...speedCalculations,
             pace: pace,
-            paceMultiplier: paceInfo.multiplier,
-            speed: paceInfo.multiplier * character.movement.baseMovementRate
         });
+    };
+
+    const buildSpeedCalculations = (paceMultiplier, actionPoints) => {
+        const speed = actionPoints * paceMultiplier * character.movement.baseMovementRate;
+        //TODO
+        const adjustedSpeed = speed * 0.7;
+        return {
+            paceMultiplier: paceMultiplier,
+            speed: speed,
+            adjustedSpeed: adjustedSpeed
+        };
     };
 
     if (!tacticalGame || !character) {
@@ -63,7 +84,7 @@ const TacticalMovementCreation = () => {
                     <Grid size={12}></Grid>
 
                     <Grid size={2}>
-                        <TextField label="BMR" variant={variant} fullWidth disabled value={character.movement.baseMovementRate} />
+                        <TextField label={t('bmr')} variant={variant} fullWidth disabled value={character.movement.baseMovementRate} />
                     </Grid>
                     <Grid size={12}></Grid>
 
@@ -76,12 +97,14 @@ const TacticalMovementCreation = () => {
                         <SelectPace value={formData.pace} onChange={updatePace} />
                     </Grid>
                     <Grid size={2}>
-                        <TextField label="Multiplier" variant={variant} fullWidth disabled value={formData.paceMultiplier} />
+                        <TextField label={t('multiplier')} variant={variant} fullWidth disabled value={formData.paceMultiplier} />
                     </Grid>
                     <Grid size={2}>
-                        <TextField label="Speed" variant={variant} fullWidth disabled value={formData.speed} />
+                        <TextField label={t('speed')} variant={variant} fullWidth disabled value={formData.speed} />
                     </Grid>
-                    <Grid size={2}></Grid>
+                    <Grid size={2}>
+                        <TextField label={t('adjusted-speed')} variant={variant} fullWidth disabled value={formData.adjustedSpeed} />
+                    </Grid>
 
                 </Grid>
 
