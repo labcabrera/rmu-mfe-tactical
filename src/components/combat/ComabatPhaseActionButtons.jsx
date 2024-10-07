@@ -7,7 +7,8 @@ const CombatPhaseActionButtons = ({ tacticalGame, character, characters, phaseNu
 
   const navigate = useNavigate();
 
-  const radius = 45;
+  const size = 50;
+  const radius = 32;
   const buttonCount = 5;
   const angleStep = (2 * Math.PI) / buttonCount;
 
@@ -55,8 +56,8 @@ const CombatPhaseActionButtons = ({ tacticalGame, character, characters, phaseNu
               position: 'absolute',
               top: `${y + radius}px`,
               left: `${x + radius}px`,
-              width: '60px',
-              height: '60px',
+              width: `${size}px`,
+              height: `${size}px`,
             }}
           >
             <img

@@ -17,26 +17,26 @@ const CombatCharacterList = () => {
 
     return (
         <div className="combat-dashboard-list">
-            <Grid container spacing={2}>
-                <Grid size={2}>
+            <Grid container spacing={2} columns={24}>
+                <Grid size={6}>
                     Character
                 </Grid>
-                <Grid size={1}>
+                <Grid size={3}>
                     Initiative
                 </Grid>
-                <Grid size={1}>
-                    Free action
+                <Grid size={3}>
+                    Phase 0
                 </Grid>
-                <Grid size={1}>
+                <Grid size={3}>
                     Phase 1
                 </Grid>
-                <Grid size={1}>
+                <Grid size={3}>
                     Phase 2
                 </Grid>
-                <Grid size={1}>
+                <Grid size={3}>
                     Phase 3
                 </Grid>
-                <Grid size={1}>
+                <Grid size={3}>
                     Phase 4
                 </Grid>
             </Grid>

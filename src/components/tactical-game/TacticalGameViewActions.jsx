@@ -1,22 +1,24 @@
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
-import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
-import PlayCircleIcon from '@mui/icons-material/PlayCircle';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
+
+import CloseButton from "../button/CloseButton";
+import DeleteButton from "../button/DeleteButton";
+import EditButton from "../button/EditButton";
+import PlayButton from "../button/PlayButton";
 
 import { API_TACTICAL_URL } from '../../constants/environment';
 
 const TacticalGameViewActions = () => {
 
+    const buttonSize = 80;
     const location = useLocation();
     const navigate = useNavigate();
     const tacticalGame = location.state?.tacticalGame;
@@ -72,21 +74,16 @@ const TacticalGameViewActions = () => {
     };
 
     return (
-        <div className="tactical-game-view-actions">
+        <div className="generic-action-bar">
             <Stack spacing={2} direction="row" sx={{
                 justifyContent: "flex-end",
                 alignItems: "flex-start",
             }}>
-                <Button variant="outlined">Close</Button>
-                <IconButton variant="outlined" onClick={handleOpenClick}>
-                    <PlayCircleIcon />
-                </IconButton>
-                <IconButton variant="outlined" onClick={handleEditClick}>
-                    <EditIcon />
-                </IconButton>
-                <IconButton variant="outlined" onClick={handleDeleteClick}>
-                    <DeleteIcon />
-                </IconButton>
+                <CloseButton size={buttonSize} />
+                <PlayButton onClick={handleOpenClick} size={buttonSize} />
+                <EditButton onClick={handleEditClick} size={buttonSize} />
+                <DeleteButton onClick={handleDeleteClick} size={buttonSize} />
+
             </Stack>
             <Dialog
                 open={deleteDialogOpen}

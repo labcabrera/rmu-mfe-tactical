@@ -42,26 +42,26 @@ const CombatCharacterRound = ({ characterRound }) => {
 
     return (
         // <Box sx={{ flexGrow: 1, margin: 1 }}>
-            <Grid container spacing={2}>
-                <Grid size={2}>
+            <Grid container spacing={2} columns={24}>
+                <Grid size={6}>
                     <CombatCharacterRoundInfo character={character} characterRound={characterRound} />
                 </Grid>
-                <Grid size={1}>
+                <Grid size={3}>
                     <CombatCharacterRoundInitiative />
                 </Grid>
-                <Grid size={1}>
+                <Grid size={3}>
                     <CombatCharacterPhaseOptions character={character} phase={1} />
                 </Grid>
-                <Grid size={1}>
+                <Grid size={3}>
                     <CombatCharacterPhaseOptions character={character} phase={1} />
                 </Grid>
-                <Grid size={1}>
+                <Grid size={3}>
                     <CombatCharacterPhaseOptions character={character} phase={2} />
                 </Grid>
-                <Grid size={1}>
+                <Grid size={3}>
                     <CombatCharacterPhaseOptions character={character} phase={3} />
                 </Grid>
-                <Grid size={1}>
+                <Grid size={3}>
                     <CombatCharacterPhaseOptions character={character} phase={4} />
                 </Grid>
             </Grid>

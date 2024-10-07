@@ -1,15 +1,11 @@
 import React, { useContext } from "react";
 import { useTranslation } from 'react-i18next';
 
-import Avatar from '@mui/material/Avatar';
-import Button from '@mui/material/Button';
-import Card from '@mui/material/Card';
-import CardActions from '@mui/material/CardActions';
-import CardContent from '@mui/material/CardContent';
-import Typography from '@mui/material/Typography';
 import DeleteIcon from '@mui/icons-material/Delete';
-import IconButton from "@mui/material/IconButton";
 import MiscellaneousServicesIcon from '@mui/icons-material/MiscellaneousServices';
+import Avatar from '@mui/material/Avatar';
+import IconButton from "@mui/material/IconButton";
+import Typography from '@mui/material/Typography';
 
 import { CombatContext } from './CombatProvider';
 
@@ -37,38 +33,26 @@ const ResolveActionCard = ({ action }) => {
         }
     };
 
-    const getImage = () => {
-        switch (action.type) {
-            case 'attack': return '/static/images/actions/attack.png';
-            //TODO
-            default: return '/static/images/movement.jpg';
-        }
-    }
-
     if (!action) {
         return <p>Loading...</p>
     }
 
     return (
-        <Card>
-            <CardContent>
-                <Avatar alt="Remy Sharp" src={`/static/images/actions/${action.type}.png`} />
-                <Typography gutterBottom sx={{ color: 'text.secondary', fontSize: 14 }}>
-                    Action points: {action.actionPoints}
-                </Typography>
-                <Typography variant="h5" component="div">
-                    {t(`action-type-${action.type}`)}
-                </Typography>
-            </CardContent>
-            <CardActions>
-                <IconButton>
-                    <MiscellaneousServicesIcon />
-                </IconButton>
-                <IconButton size="small" onClick={() => handleDeleteActionClick()}>
-                    <DeleteIcon />
-                </IconButton>
-            </CardActions>
-        </Card>
+        <>
+            <Avatar alt="Remy Sharp" src={`/static/images/actions/${action.type}.png`} />
+            <Typography gutterBottom sx={{ color: 'text.secondary', fontSize: 14 }}>
+                Action points: {action.actionPoints}
+            </Typography>
+            <Typography variant="body1" component="div">
+                {t(`action-type-${action.type}`)}
+            </Typography>
+            <IconButton size="small">
+                <MiscellaneousServicesIcon />
+            </IconButton>
+            <IconButton size="small" onClick={() => handleDeleteActionClick()}>
+                <DeleteIcon />
+            </IconButton>
+        </>
     );
 }
 

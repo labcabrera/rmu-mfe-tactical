@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import AddIcon from '@mui/icons-material/Add';
 import CloseIcon from '@mui/icons-material/Close';
 import IconButton from '@mui/material/IconButton';
 import List from '@mui/material/List';
 import Snackbar from '@mui/material/Snackbar';
 import Stack from '@mui/material/Stack';
 
+import AddButton from "../button/AddButton";
 import TacticalGameListItem from "./TacticalGameListItem";
 
 import { API_TACTICAL_URL } from "../../constants/environment";
@@ -53,9 +53,7 @@ const TacticalGameList = () => {
                     justifyContent: "flex-end",
                     alignItems: "flex-start",
                 }}>
-                    <IconButton variant="outlined" onClick={createNewGame}>
-                        <AddIcon />
-                    </IconButton>
+                    <AddButton onClick={createNewGame} size={40} />
                 </Stack>
             </div>
             <div className="tactical-game-list_">

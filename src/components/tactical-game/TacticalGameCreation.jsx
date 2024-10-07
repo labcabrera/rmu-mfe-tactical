@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from "react-router-dom";
 
-import SaveIcon from '@mui/icons-material/Save';
-import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
+
+import SaveButton from '../button/SaveButton';
 
 import { API_TACTICAL_URL } from "../../constants/environment";
 
@@ -43,9 +43,7 @@ const TacticalGameCreation = () => {
                     justifyContent: "flex-end",
                     alignItems: "flex-start",
                 }}>
-                    <IconButton variant="outlined" onClick={handleSubmit}>
-                        <SaveIcon />
-                    </IconButton>
+                    <SaveButton onClick={handleSubmit} size={40} />
                 </Stack>
             </div>
             <form onSubmit={handleSubmit}>
