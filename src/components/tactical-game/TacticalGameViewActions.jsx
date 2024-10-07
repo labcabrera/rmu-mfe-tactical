@@ -15,10 +15,10 @@ import EditButton from "../button/EditButton";
 import PlayButton from "../button/PlayButton";
 
 import { API_TACTICAL_URL } from '../../constants/environment';
+import { ACTION_BUTTON_SIZE } from "../../constants/ui";
 
 const TacticalGameViewActions = () => {
 
-    const buttonSize = 80;
     const location = useLocation();
     const navigate = useNavigate();
     const tacticalGame = location.state?.tacticalGame;
@@ -79,10 +79,10 @@ const TacticalGameViewActions = () => {
                 justifyContent: "flex-end",
                 alignItems: "flex-start",
             }}>
-                <CloseButton size={buttonSize} />
-                <PlayButton onClick={handleOpenClick} size={buttonSize} />
-                <EditButton onClick={handleEditClick} size={buttonSize} />
-                <DeleteButton onClick={handleDeleteClick} size={buttonSize} />
+                <CloseButton size={ACTION_BUTTON_SIZE} />
+                <PlayButton onClick={handleOpenClick} size={ACTION_BUTTON_SIZE} />
+                <EditButton onClick={handleEditClick} size={ACTION_BUTTON_SIZE} />
+                <DeleteButton onClick={handleDeleteClick} size={ACTION_BUTTON_SIZE} />
 
             </Stack>
             <Dialog

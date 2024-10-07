@@ -45,6 +45,24 @@ a {
   margin-bottom: 20px;
 }
 
+.dark-avatar-container {
+  position: relative;
+  display: inline-block;
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.dark-avatar-container::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 50%;
+  opacity: 1;
+}
+
 .tactical-game-list {
   margin-top: 10px;
   margin-left: 20px;
@@ -99,7 +117,8 @@ a {
 }
 
 .image-button:hover {
-  transform: translateY(-1px); /* Eleva el botón */
+  transform: translateY(-1px);
+  /* Eleva el botón */
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
 }
 
@@ -108,14 +127,20 @@ a {
 }
 
 .image-button.disabled {
-  opacity: 0.5; /* Reduce la opacidad para que se vea desactivado */
-  transform: none; /* Elimina la elevación */
-  box-shadow: none; /* Sin sombra */
+  opacity: 0.5;
+  /* Reduce la opacidad para que se vea desactivado */
+  transform: none;
+  /* Elimina la elevación */
+  box-shadow: none;
+  /* Sin sombra */
 }
 
 .circle-container {
   position: relative;
-  width: 240px; /* Doble del radio */
-  height: 240px; /* Doble del radio */
-  margin: auto; /* Centra el contenedor */
+  width: 240px;
+  /* Doble del radio */
+  height: 240px;
+  /* Doble del radio */
+  margin: auto;
+  /* Centra el contenedor */
 }

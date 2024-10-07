@@ -1,13 +1,13 @@
 import React from 'react';
 import { useNavigate } from "react-router-dom";
 
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import SaveIcon from '@mui/icons-material/Save';
-import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
 
+import CancelButton from '../button/CancelButton';
+import SaveButton from '../button/SaveButton';
+
 import { API_TACTICAL_URL } from '../../constants/environment';
-import { VARIANT, VARIANT_DISABLED, SIZE } from '../../constants/ui';
+import { ACTION_BUTTON_SIZE } from '../../constants/ui';
 
 const TacticalCharacterModificationActions = ({ tacticalGame, tacticalCharacter, formData, onError }) => {
 
@@ -46,12 +46,8 @@ const TacticalCharacterModificationActions = ({ tacticalGame, tacticalCharacter,
                 justifyContent: "flex-end",
                 alignItems: "flex-start",
             }}>
-                <IconButton variant={VARIANT} onClick={handleNavigateBackClick}>
-                    <ArrowBackIcon />
-                </IconButton>
-                <IconButton variant={VARIANT} onClick={updateTacticalCharacter} >
-                    <SaveIcon />
-                </IconButton>
+                <CancelButton onClick={handleNavigateBackClick} size={ACTION_BUTTON_SIZE} />
+                <SaveButton onClick={updateTacticalCharacter} size={ACTION_BUTTON_SIZE} />
             </Stack>
         </div>
 

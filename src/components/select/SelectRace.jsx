@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from 'react-i18next';
 
-import FormControl from '@mui/material/FormControl';
-import InputLabel from '@mui/material/InputLabel';
+import Avatar from '@mui/material/Avatar';
+import InputAdornment from '@mui/material/InputAdornment';
 import MenuItem from '@mui/material/MenuItem';
-import Select from '@mui/material/Select';
+import TextField from '@mui/material/TextField';
 
 import { API_CORE_URL } from '../../constants/environment';
 
 import { VARIANT } from '../../constants/ui';
 
 const SelectRace = ({ value, onChange }) => {
+
+    const { t } = useTranslation();
 
     const [races, setRaces] = useState([]);
 
@@ -33,18 +36,26 @@ const SelectRace = ({ value, onChange }) => {
     }
 
     return (
-        <FormControl fullWidth>
-            <InputLabel id="select-race-label">Race</InputLabel>
-            <Select
-                id="select-race"
-                labelId="select-race-label"
-                label="Race"
-                value={(value === undefined || value === null || races.length === 0) ? '' : value}
-                variant={VARIANT}
-                onChange={handleChange}>
-                {races.map((option, index) => (<MenuItem key={index} value={option.id}>{option.name}</MenuItem>))}
-            </Select>
-        </FormControl>
+        <TextField
+            select
+            label={t('race')}
+            value={(value === undefined || value === null || races.length === 0) ? '' : value}
+            variant={VARIANT}
+            fullWidth
+            onChange={handleChange}
+            slotProps={{
+                input: {
+                    startAdornment: (
+                        <InputAdornment position="start">
+                            <div className='dark-avatar-container'>
+                                <Avatar src='/static/images/generic/races.png' sx={{ width: 25, height: 25 }} />
+                            </div>
+                        </InputAdornment>
+                    ),
+                },
+            }}>
+            {races.map((option, index) => (<MenuItem key={index} value={option.id}>{option.name}</MenuItem>))}
+        </TextField>
     );
 }
 

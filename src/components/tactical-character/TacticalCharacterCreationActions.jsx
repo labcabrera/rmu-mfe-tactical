@@ -1,12 +1,13 @@
 import React from 'react';
 import { useNavigate } from "react-router-dom";
 
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import SaveIcon from '@mui/icons-material/Save';
-import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
 
+import CancelButton from '../button/CancelButton';
+import SaveButton from '../button/SaveButton';
+
 import { API_TACTICAL_URL } from '../../constants/environment';
+import { ACTION_BUTTON_SIZE } from '../../constants/ui';
 
 const TacticalCharacterCreationActions = ({ tacticalGame, formData, onError }) => {
 
@@ -44,19 +45,18 @@ const TacticalCharacterCreationActions = ({ tacticalGame, formData, onError }) =
     }
 
     return (
-        <div className="tactical-game-character-creation-actions">
-            <Stack spacing={2} direction="row" sx={{
-                justifyContent: "flex-end",
-                alignItems: "flex-start",
-            }}>
-                <IconButton variant={variant} onClick={handleBackClick}>
-                    <ArrowBackIcon />
-                </IconButton>
-                <IconButton variant={variant} onClick={handleSubmit}>
-                    <SaveIcon />
-                </IconButton>
+        <div className="generic-action-bar">
+            <Stack
+                spacing={2}
+                direction="row"
+                sx={{
+                    justifyContent: "flex-end",
+                    alignItems: "flex-start",
+                }}>
+                <CancelButton onClick={handleBackClick} size={ACTION_BUTTON_SIZE} />
+                <SaveButton onClick={handleSubmit} size={ACTION_BUTTON_SIZE} />
             </Stack>
-        </div>
+        </div >
 
     );
 }

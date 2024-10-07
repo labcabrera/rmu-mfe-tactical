@@ -1,30 +1,42 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
-import FormControl from '@mui/material/FormControl';
-import InputLabel from '@mui/material/InputLabel';
+import Avatar from '@mui/material/Avatar';
+import InputAdornment from '@mui/material/InputAdornment';
 import MenuItem from '@mui/material/MenuItem';
-import Select from '@mui/material/Select';
+import TextField from '@mui/material/TextField';
+
+import { VARIANT } from '../../constants/ui';
 
 const SelectFaction = ({ factions, value, onChange }) => {
+
+    const { t } = useTranslation();
 
     const handleFactionChange = (e) => {
         onChange(e.target.value);
     };
 
     return (
-        <FormControl fullWidth>
-            <InputLabel id="select-faction-label">Faction</InputLabel>
-            <Select
-                id="select-faction"
-                labelId="select-faction-label"
-                label="Faction"
-                value={(value === undefined || value === null || factions.length === 0) ? '' : value}
-                variant='outlined'
-                required
-                onChange={handleFactionChange}>
-                {factions.map((option) => <MenuItem key={option} value={option}>{option}</MenuItem>)}
-            </Select>
-        </FormControl>
+        <TextField
+            select
+            label={t('faction')}
+            value={(value === undefined || value === null || factions.length === 0) ? '' : value}
+            variant={VARIANT}
+            required
+            fullWidth
+            onChange={handleFactionChange}
+            slotProps={{
+                input: {
+                    startAdornment: (
+                        <InputAdornment position="start">
+                            <Avatar src='/static/images/generic/faction.png' sx={{ width: 25, height: 25 }} />
+                        </InputAdornment>
+                    ),
+                },
+            }}>
+            {factions.map((option) => <MenuItem key={option} value={option}>{option}</MenuItem>)}
+        </TextField>
+
     );
 }
 

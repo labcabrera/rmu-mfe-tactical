@@ -24,10 +24,10 @@ const TacticalCharacterCreation = () => {
         faction: 'Neutral',
         info: {
             level: 1,
-            race: "lotr-human",
-            sizeId: "medium",
-            height: 7,
-            weight: 100
+            race: '',
+            sizeId: '',
+            height: '',
+            weight: ''
         },
         statistics: {
             ag: { bonus: 0, racial: 0, custom: 0, totalBonus: 0 },

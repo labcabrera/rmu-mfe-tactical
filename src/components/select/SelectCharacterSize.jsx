@@ -7,6 +7,7 @@ import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 
 import { API_CORE_URL } from '../../constants/environment';
+import { VARIANT } from '../../constants/ui';
 
 const SelectCharacterSize = ({ value, onChange }) => {
 
@@ -36,7 +37,7 @@ const SelectCharacterSize = ({ value, onChange }) => {
             select
             label={label}
             value={(value === undefined || value === null || sizes.length === 0) ? '' : value}
-            variant='outlined'
+            variant={VARIANT}
             fullWidth
             onChange={handleChange}
             slotProps={{

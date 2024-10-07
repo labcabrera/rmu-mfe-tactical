@@ -107,17 +107,15 @@ const TacticalCharacterCreationAttributes = ({ formData, setFormData, factions }
         <div className='tactical-game-character-creation-attributes'>
             <Grid container spacing={2}>
 
-                <Grid size={4}>
+                <Grid size={8}>
                     <SelectRace value={formData.info.race} onChange={onRaceChange} />
                 </Grid>
-                <Grid size={4}>
-                    <NameTextField value={formData.name} onChange={handleChange} />
+                <Grid size={4}></Grid>
+
+                <Grid size={8}>
+                    <NameTextField value={formData.name} onChange={handleChange} generateRandom={true} generateRandomRaceValue={formData.info.race} />
                 </Grid>
-                <Grid size={4}>
-                    <IconButton onClick={handleRandomNameClick}>
-                        <CachedIcon />
-                    </IconButton>
-                </Grid>
+                <Grid size={4}></Grid>
 
                 <Grid size={4}>
                     <SelectFaction factions={factions} value={formData.faction} onChange={onFactionChange} />

@@ -2,9 +2,6 @@ import React from "react";
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from "react-router-dom";
 
-import DeleteIcon from '@mui/icons-material/Delete';
-import EditNoteIcon from '@mui/icons-material/EditNote';
-import IconButton from '@mui/material/IconButton';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import Stack from '@mui/material/Stack';
@@ -54,13 +51,6 @@ const TacticalGameViewCharactersListItem = ({ tacticalGame, character, onRemoveC
             }}>
                 <EditButton onClick={handleCharacterItemEditClick} size={40} />
                 <DeleteButton onClick={handleCharacterItemDeleteClick} size={40} />
-
-                <IconButton edge="end" aria-label="edit" onClick={handleCharacterItemEditClick}>
-                    <EditNoteIcon />
-                </IconButton>
-                <IconButton edge="end" aria-label="delete" onClick={handleCharacterItemDeleteClick}>
-                    <DeleteIcon />
-                </IconButton>
             </Stack>
         }>
             <CharacterListItemAvatar character={character} />

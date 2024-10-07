@@ -1,31 +1,28 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import Button from '@mui/material/Button';
+import AddIcon from '@mui/icons-material/Add';
 import FormControl from '@mui/material/FormControl';
+import Grid from '@mui/material/Grid2';
+import IconButton from '@mui/material/IconButton';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import Typography from '@mui/material/Typography';
 
-import AddIcon from '@mui/icons-material/Add';
-import Grid from '@mui/material/Grid2';
-import IconButton from '@mui/material/IconButton';
+import ArmorButton from '../button/ArmorButton';
+import ShieldButton from '../button/ShieldButton';
+import WeaponButton from '../button/WeaponButton';
 
 import { API_ITEMS_URL, API_TACTICAL_URL } from '../../constants/environment';
 
 const TacticalCharacterAddItem = ({ tacticalCharacter, setTacticalCharacter }) => {
 
     const variant = "standard";
-    const { t, i18n } = useTranslation();
-
-    const itemCategories = [
-        {category: 'weapon', name: 'weapons'},
-        {category: 'shield', name: 'shields'},
-        {category: 'armor', name: 'armors'}];
+    const { t } = useTranslation();
 
     const [items, setItems] = useState([]);
-    const [selectedItem, setSelectedItem] = useState();
+    const [selectedItem, setSelectedItem] = useState('');
 
     const [itemForm, setItemForm] = useState();
 
@@ -46,6 +43,10 @@ const TacticalCharacterAddItem = ({ tacticalCharacter, setTacticalCharacter }) =
             console.error(`TacticalCharacterAddItem.fetchItems error ${error}`);
         }
     };
+
+    const fetchWeapons = async () => { await fetchItems('weapon'); };
+    const fetchShields = async () => { await fetchItems('shield'); };
+    const fetchArmors = async () => { await fetchItems('armor'); };
 
     const handleSelectedItemChange = (e) => {
         console.log(`TacticalCharacterAddItem.handleSelectedItemChange ${e.target.value}`);
@@ -90,9 +91,9 @@ const TacticalCharacterAddItem = ({ tacticalCharacter, setTacticalCharacter }) =
             <Typography variant="h6" component="div">Add item</Typography>
             <Grid container spacing={2}>
                 <Grid size={8}>
-                    {itemCategories.map((e, index) => (
-                        <Button variant={variant} onClick={() => fetchItems(e.category)}>{t(e.name)}</Button>
-                    ))}
+                    <WeaponButton onClick={fetchWeapons} size={40} />
+                    <ShieldButton onClick={fetchShields} size={40} />
+                    <ArmorButton onClick={fetchArmors} size={40} />
                 </Grid>
                 <Grid size={4}>
                 </Grid>
@@ -100,7 +101,11 @@ const TacticalCharacterAddItem = ({ tacticalCharacter, setTacticalCharacter }) =
                 <Grid size={8}>
                     <FormControl fullWidth>
                         <InputLabel id="select-label-item-to-add">Item to add</InputLabel>
-                        <Select id="select-item-to-add" labelId="select-label-item-to-add" label="Item to add" variant={variant}
+                        <Select
+                            id="select-item-to-add"
+                            labelId="select-label-item-to-add"
+                            label="Item to add"
+                            variant={variant}
                             onChange={handleSelectedItemChange}>
                             {items.map((item, index) => (
                                 <MenuItem key={index} value={item.id}>
@@ -119,14 +124,6 @@ const TacticalCharacterAddItem = ({ tacticalCharacter, setTacticalCharacter }) =
                         <AddIcon />
                     </IconButton>
                 </Grid>
-
-                {/* <div>
-                    <h3>items</h3>
-                    <pre>
-                        {JSON.stringify(itemForm, null, 2)}
-                    </pre>
-                </div> */}
-
             </Grid>
         </div>
     );
