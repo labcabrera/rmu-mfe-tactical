@@ -1,13 +1,18 @@
 import React from "react";
 
+import AdjustIcon from '@mui/icons-material/Adjust';
 import Rating from '@mui/material/Rating';
 import Typography from '@mui/material/Typography';
-import AdjustIcon from '@mui/icons-material/Adjust';
 
-const ActionPointSelector = ({ value, onChange }) => {
+const ActionPointSelector = ({ value, min, max, defaultValue, onChange }) => {
 
     const handleChange = (e) => {
-        onChange(parseInt(e.target.value));
+        const value = parseInt(e.target.value);
+        if (value > min) {
+            onChange(value);
+        } else {
+            onChange(min);
+        }
     };
 
     return (
@@ -16,8 +21,8 @@ const ActionPointSelector = ({ value, onChange }) => {
             <Rating
                 name="size-large"
                 value={value}
-                defaultValue={2}
-                max={4}
+                defaultValue={defaultValue}
+                max={max}
                 size="large"
                 icon={<AdjustIcon fontSize="inherit" />}
                 emptyIcon={<AdjustIcon fontSize="inherit" />}

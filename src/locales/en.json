@@ -3,6 +3,7 @@
     "add-skill": "Add skill",
     "character": "Character",
     "name": "Name",
+    "pace": "Pace",
 
     "ag": "Agility (ag)",
     "co": "Constitution (co)",
@@ -222,6 +223,13 @@
     "metal-scale-full-suit": "Metal scale (full suit)",
     "plate-full-suit": "Plate (full suit)",
     "rigid-leather-full-suit": "Rigid leather (full suit)",
+
+    "creep": "Creep",
+    "walk": "Walk",
+    "jog": "Jog",
+    "run": "Run",
+    "sprint": "Sprint",
+    "dash": "Dash",
 
     "lotr-orc-lesser": "Lesser orc",
     "lotr-human-common": "Common human",

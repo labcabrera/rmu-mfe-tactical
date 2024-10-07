@@ -6,7 +6,6 @@ import SaveIcon from '@mui/icons-material/Save';
 import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
 
-
 import { API_TACTICAL_URL } from '../../constants/environment';
 
 const TacticalCharacterCreationActions = ({ tacticalGame, formData, onError }) => {

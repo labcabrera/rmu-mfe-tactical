@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { useLocation, useSearchParams } from "react-router-dom";
+import { useTranslation } from 'react-i18next';
 
 import Grid from '@mui/material/Grid2';
 import TextField from '@mui/material/TextField';
 
 import ActionPointSelector from '../shared/ActionPointSelector';
+import SelectPace from '../select/SelectPace';
 
 const TacticalMovementCreation = () => {
 
@@ -15,7 +16,7 @@ const TacticalMovementCreation = () => {
     const [searchParams] = useSearchParams();
     const { t, i18n } = useTranslation();
 
-    const phaseStart = searchParams.get('phaseStart');
+    const phaseStart = parseInt(searchParams.get('phaseStart'));
     const tacticalGame = location.state?.tacticalGame;
     const character = location.state?.character;
 
@@ -26,11 +27,16 @@ const TacticalMovementCreation = () => {
         type: 'movement',
         phaseStart: phaseStart,
         actionPoints: 1,
+        pace: 'walk'
     });
 
     const updateActionPoints = (actionPoints) => {
         console.log(`TacticalMovementCreation.updateActionPoints ${actionPoints}`);
         setFormData({ ...formData, actionPoints: actionPoints });
+    };
+
+    const updatePace = (pace, paceInfo) => {
+        setFormData({ ...formData, pace: pace });
     };
 
     if (!tacticalGame || !character) {
@@ -39,7 +45,7 @@ const TacticalMovementCreation = () => {
 
     return (
         <div className="generic-main-content">
-            <Grid container spacing={1}>
+            <Grid container spacing={2}>
 
                 <Grid size={6}>
                     <TextField label={t('character')} variant={variant} fullWidth disabled value={character.name} />
@@ -52,13 +58,17 @@ const TacticalMovementCreation = () => {
                 <Grid size={6}></Grid>
 
                 <Grid size={6}>
-                    <ActionPointSelector value={formData.actionPoints} onChange={updateActionPoints} />
-                    <TextField label="BMR" variant={variant} fullWidth disabled value={character.movement.baseMovementRate} />
+                    <ActionPointSelector value={formData.actionPoints} min={1} max={4} defaultValue={1} onChange={updateActionPoints} />
+                </Grid>
+                <Grid size={6}></Grid>
+
+                <Grid size={6}>
+                    <SelectPace value={formData.pace} onChange={updatePace} />
                 </Grid>
                 <Grid size={6}></Grid>
 
             </Grid>
-            wip tactical movement creation
+
             <h2>formData</h2>
             <pre>
                 {JSON.stringify(formData, null, 2)}
