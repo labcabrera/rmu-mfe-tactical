@@ -1,7 +1,8 @@
 {
-    "name": "Name",
     "action-type-attack": "Attack",
     "add-skill": "Add skill",
+    "character": "Character",
+    "name": "Name",
 
     "ag": "Agility (ag)",
     "co": "Constitution (co)",

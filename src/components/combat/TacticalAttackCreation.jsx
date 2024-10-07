@@ -131,7 +131,7 @@ const TacticalAttackCreation = () => {
 
     const handleActionPointsChange = (e) => {
         const actionPoints = Math.max(minActionPoints, parseInt(e.target.value));
-        setFormData({ ...formData, actionPoints: actionPoints })
+        setFormData({ ...formData, actionPoints: actionPoints });
     };
 
     const handleSelectedWeaponChange = (e) => { updateFormData('attackInfo', 'selectedWeapon', e.target.value) };

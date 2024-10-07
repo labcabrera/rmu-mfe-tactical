@@ -48,7 +48,7 @@ const TacticalGameList = () => {
 
     return (
         <div>
-            <div className="tactical-game-list-actions">
+            <div className="generic-main-content">
                 <Stack spacing={2} direction="row" sx={{
                     justifyContent: "flex-end",
                     alignItems: "flex-start",
@@ -58,7 +58,7 @@ const TacticalGameList = () => {
                     </IconButton>
                 </Stack>
             </div>
-            <div className="tactical-game-list">
+            <div className="tactical-game-list_">
                 <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
                     {games.map((item) => (
                         <TacticalGameListItem key={item.id} tacticalGame={item} />
