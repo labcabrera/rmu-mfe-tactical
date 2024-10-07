@@ -10,7 +10,7 @@ import Select from '@mui/material/Select';
 import TextField from '@mui/material/TextField';
 
 import ActionPointSelector from '../shared/ActionPointSelector';
-import TacticalAttackCreationActions from './TacticalAttackCreationActions';
+import TacticalActionCreationActions from './TacticalActionCreationActions';
 
 import { API_CORE_URL, API_TACTICAL_URL } from "../../constants/environment";
 
@@ -18,8 +18,6 @@ const TacticalAttackCreation = () => {
 
     const debugMode = true;
     const variant = 'standard'
-
-    const minActionPoints = 2;
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -152,7 +150,7 @@ const TacticalAttackCreation = () => {
 
     return (
         <>
-            <TacticalAttackCreationActions tacticalGame={tacticalGame} formData={formData} />
+            <TacticalActionCreationActions tacticalGame={tacticalGame} formData={formData} />
             <div className="tactical-game-creation">
 
                 <h2>Declare attack</h2>

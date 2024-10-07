@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from "react-router-dom";
 
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import SaveIcon from '@mui/icons-material/Save';
 import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
@@ -8,7 +9,7 @@ import Stack from '@mui/material/Stack';
 import { API_TACTICAL_URL } from "../../constants/environment";
 import { VARIANT } from '../../constants/ui';
 
-const TacticalAttackCreationActions = ({ tacticalGame, formData }) => {
+const TacticalActionCreationActions = ({ tacticalGame, formData }) => {
 
     const navigate = useNavigate();
 
@@ -29,6 +30,11 @@ const TacticalAttackCreationActions = ({ tacticalGame, formData }) => {
         }
     }
 
+    const handleBackClick = () => {
+        navigate(`/tactical/combat/${tacticalGame.id}`);
+        return;
+    };
+
     if (!tacticalGame || !formData) {
         return <p>Loading...</p>
     }
@@ -39,6 +45,9 @@ const TacticalAttackCreationActions = ({ tacticalGame, formData }) => {
                 justifyContent: "flex-end",
                 alignItems: "flex-start",
             }}>
+                <IconButton variant={VARIANT} onClick={handleBackClick}>
+                    <ArrowBackIcon />
+                </IconButton>
                 <IconButton variant={VARIANT} onClick={createAction}>
                     <SaveIcon />
                 </IconButton>
@@ -48,4 +57,4 @@ const TacticalAttackCreationActions = ({ tacticalGame, formData }) => {
     );
 }
 
-export default TacticalAttackCreationActions;
+export default TacticalActionCreationActions;

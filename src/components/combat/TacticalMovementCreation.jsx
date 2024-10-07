@@ -7,6 +7,7 @@ import TextField from '@mui/material/TextField';
 
 import ActionPointSelector from '../shared/ActionPointSelector';
 import SelectPace from '../select/SelectPace';
+import TacticalActionCreationActions from './TacticalActionCreationActions';
 
 const TacticalMovementCreation = () => {
 
@@ -27,7 +28,9 @@ const TacticalMovementCreation = () => {
         type: 'movement',
         phaseStart: phaseStart,
         actionPoints: 1,
-        pace: 'walk'
+        pace: '',
+        paceMultiplier: '',
+        speed: ''
     });
 
     const updateActionPoints = (actionPoints) => {
@@ -36,7 +39,12 @@ const TacticalMovementCreation = () => {
     };
 
     const updatePace = (pace, paceInfo) => {
-        setFormData({ ...formData, pace: pace });
+        setFormData({
+            ...formData,
+            pace: pace,
+            paceMultiplier: paceInfo.multiplier,
+            speed: paceInfo.multiplier * character.movement.baseMovementRate
+        });
     };
 
     if (!tacticalGame || !character) {
@@ -44,36 +52,45 @@ const TacticalMovementCreation = () => {
     }
 
     return (
-        <div className="generic-main-content">
-            <Grid container spacing={2}>
+        <>
+            <TacticalActionCreationActions tacticalGame={tacticalGame} formData={formData} />
+            <div className="generic-main-content">
+                <Grid container spacing={2}>
 
-                <Grid size={6}>
-                    <TextField label={t('character')} variant={variant} fullWidth disabled value={character.name} />
+                    <Grid size={2}>
+                        <TextField label={t('character')} variant={variant} fullWidth disabled value={character.name} />
+                    </Grid>
+                    <Grid size={12}></Grid>
+
+                    <Grid size={2}>
+                        <TextField label="BMR" variant={variant} fullWidth disabled value={character.movement.baseMovementRate} />
+                    </Grid>
+                    <Grid size={12}></Grid>
+
+                    <Grid size={4}>
+                        <ActionPointSelector value={formData.actionPoints} min={1} max={4} defaultValue={1} onChange={updateActionPoints} />
+                    </Grid>
+                    <Grid size={8}></Grid>
+
+                    <Grid size={2}>
+                        <SelectPace value={formData.pace} onChange={updatePace} />
+                    </Grid>
+                    <Grid size={2}>
+                        <TextField label="Multiplier" variant={variant} fullWidth disabled value={formData.paceMultiplier} />
+                    </Grid>
+                    <Grid size={2}>
+                        <TextField label="Speed" variant={variant} fullWidth disabled value={formData.speed} />
+                    </Grid>
+                    <Grid size={2}></Grid>
+
                 </Grid>
-                <Grid size={6}></Grid>
 
-                <Grid size={6}>
-                    <TextField label="BMR" variant={variant} fullWidth disabled value={character.movement.baseMovementRate} />
-                </Grid>
-                <Grid size={6}></Grid>
-
-                <Grid size={6}>
-                    <ActionPointSelector value={formData.actionPoints} min={1} max={4} defaultValue={1} onChange={updateActionPoints} />
-                </Grid>
-                <Grid size={6}></Grid>
-
-                <Grid size={6}>
-                    <SelectPace value={formData.pace} onChange={updatePace} />
-                </Grid>
-                <Grid size={6}></Grid>
-
-            </Grid>
-
-            <h2>formData</h2>
-            <pre>
-                {JSON.stringify(formData, null, 2)}
-            </pre>
-        </div>
+                <h2>formData</h2>
+                <pre>
+                    {JSON.stringify(formData, null, 2)}
+                </pre>
+            </div>
+        </>
     );
 }
 
