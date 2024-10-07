@@ -1,6 +1,6 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from "react-router-dom";
 
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditNoteIcon from '@mui/icons-material/EditNote';
@@ -10,6 +10,9 @@ import ListItemText from '@mui/material/ListItemText';
 import Stack from '@mui/material/Stack';
 
 import CharacterListItemAvatar from "../shared/CharacterIconItemAvatar";
+
+import DeleteButton from "../button/DeleteButton";
+import EditButton from "../button/EditButton";
 
 import { API_TACTICAL_URL } from "../../constants/environment";
 
@@ -49,6 +52,9 @@ const TacticalGameViewCharactersListItem = ({ tacticalGame, character, onRemoveC
                 justifyContent: "flex-end",
                 alignItems: "flex-start",
             }}>
+                <EditButton onClick={handleCharacterItemEditClick} size={40} />
+                <DeleteButton onClick={handleCharacterItemDeleteClick} size={40} />
+
                 <IconButton edge="end" aria-label="edit" onClick={handleCharacterItemEditClick}>
                     <EditNoteIcon />
                 </IconButton>

@@ -11,8 +11,11 @@ import SelectFaction from '../../components/select/SelectFaction';
 import SelectLevel from '../../components/select/SelectLevel';
 import SelectRace from '../../components/select/SelectRace';
 
+import NameTextField from '../input/NameTextField';
+
 import { API_NPC_NAMES_URL } from '../../constants/environment';
 import { VARIANT, VARIANT_DISABLED, SIZE } from '../../constants/ui';
+import { Avatar } from '@mui/material';
 
 const TacticalCharacterCreationAttributes = ({ formData, setFormData, factions }) => {
 
@@ -103,7 +106,9 @@ const TacticalCharacterCreationAttributes = ({ formData, setFormData, factions }
                     <SelectRace value={formData.info.race} onChange={onRaceChange} />
                 </Grid>
                 <Grid size={4}>
-                    <TextField label={t('name')} variant={VARIANT} fullWidth name='name' value={formData.name} onChange={handleChange} required />
+                    <NameTextField value={formData.name} onChange={handleChange} />
+                    
+                    {/* <TextField label={t('name')} variant={VARIANT} fullWidth name='name' value={formData.name} onChange={handleChange} required /> */}
                 </Grid>
                 <Grid size={4}>
                     <IconButton onClick={handleRandomNameClick}>
