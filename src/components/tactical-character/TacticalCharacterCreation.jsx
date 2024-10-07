@@ -53,16 +53,13 @@ const TacticalCharacterCreation = () => {
             defensiveBonus: 0
         },
         hp: {
-            max: 25,
-            current: 25
+            max: 40
         },
         endurance: {
-            max: 30,
-            current: 30
+            max: 20
         },
         power: {
-            max: 0,
-            current: 0
+            max: 0
         },
         skills: [],
         items: [],

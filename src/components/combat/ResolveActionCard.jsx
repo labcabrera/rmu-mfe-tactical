@@ -52,7 +52,7 @@ const ResolveActionCard = ({ action }) => {
     return (
         <Card>
             <CardContent>
-                <Avatar alt="Remy Sharp" src='/static/images/actions/attack.png' />
+                <Avatar alt="Remy Sharp" src={`/static/images/actions/${action.type}.png`} />
                 <Typography gutterBottom sx={{ color: 'text.secondary', fontSize: 14 }}>
                     Action points: {action.actionPoints}
                 </Typography>

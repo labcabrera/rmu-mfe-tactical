@@ -12,11 +12,11 @@ const CombatPhaseActionButtons = ({ tacticalGame, character, characters, phaseNu
   const angleStep = (2 * Math.PI) / buttonCount;
 
   const actions = [
-    { src: '/static/images/actions/movement.jpg', alt: 'Movement', type: "movement" },
+    { src: '/static/images/actions/movement.png', alt: 'Movement', type: "movement" },
     { src: '/static/images/actions/attack.png', alt: 'Botón 2', type: "attack" },
-    { src: '/static/images/actions/movement-maneuver.webp', alt: 'Botón 3', type: "movement-maneuver" },
+    { src: '/static/images/actions/movement-maneuver.png', alt: 'Botón 3', type: "movement-maneuver" },
     { src: '/static/images/actions/static-maneuver.png', alt: 'Botón 4', type: "static-maneuver" },
-    { src: '/static/images/actions/spell.png', alt: 'Botón 5', type: "spell" },
+    { src: '/static/images/actions/cast-spell.png', alt: 'Botón 5', type: "spell" },
   ];
 
   const handleClick = (type) => {

@@ -3,6 +3,7 @@ import React, { useContext, useEffect, useState } from "react";
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid2';
 
+import CombatCharacterRoundInitiative from "./CombatCharacterRoundInitiative";
 import CombatCharacterPhaseOptions from './CombatCharacterPhaseOptions';
 import CombatCharacterRoundInfo from "./CombatCharacterRoundInfo";
 import { CombatContext } from './CombatProvider';
@@ -40,25 +41,31 @@ const CombatCharacterRound = ({ characterRound }) => {
     }
 
     return (
-        <Box sx={{ flexGrow: 1, margin: 1 }}>
-            <Grid container spacing={5}>
-                <Grid size={4}>
+        // <Box sx={{ flexGrow: 1, margin: 1 }}>
+            <Grid container spacing={2}>
+                <Grid size={2}>
                     <CombatCharacterRoundInfo character={character} characterRound={characterRound} />
                 </Grid>
-                <Grid size={2}>
+                <Grid size={1}>
+                    <CombatCharacterRoundInitiative />
+                </Grid>
+                <Grid size={1}>
                     <CombatCharacterPhaseOptions character={character} phase={1} />
                 </Grid>
-                <Grid size={2}>
+                <Grid size={1}>
+                    <CombatCharacterPhaseOptions character={character} phase={1} />
+                </Grid>
+                <Grid size={1}>
                     <CombatCharacterPhaseOptions character={character} phase={2} />
                 </Grid>
-                <Grid size={2}>
+                <Grid size={1}>
                     <CombatCharacterPhaseOptions character={character} phase={3} />
                 </Grid>
-                <Grid size={2}>
+                <Grid size={1}>
                     <CombatCharacterPhaseOptions character={character} phase={4} />
                 </Grid>
             </Grid>
-        </Box>
+        // </Box>
     );
 }
 

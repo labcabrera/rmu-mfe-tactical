@@ -37,7 +37,7 @@ const TacticalMovementCreation = () => {
     const updateActionPoints = (actionPoints) => {
         console.log(`TacticalMovementCreation.updateActionPoints ${actionPoints}`);
         if (formData.paceMultiplier != '' && formData.pace != '') {
-            const speedCalculations = buildSpeedCalculations(formData.actionPoints, formData.paceMultiplier);
+            const speedCalculations = buildSpeedCalculations(actionPoints, formData.paceMultiplier);
             setFormData({
                 ...formData,
                 ...speedCalculations,
@@ -49,7 +49,9 @@ const TacticalMovementCreation = () => {
     };
 
     const updatePace = (pace, paceInfo) => {
+        console.log('pace info: ' + JSON.stringify(paceInfo, null, 2));
         const speedCalculations = buildSpeedCalculations(formData.actionPoints, paceInfo.multiplier);
+        console.log('' + JSON.stringify(speedCalculations, null, 2));
         setFormData({
             ...formData,
             ...speedCalculations,
@@ -57,10 +59,10 @@ const TacticalMovementCreation = () => {
         });
     };
 
-    const buildSpeedCalculations = (paceMultiplier, actionPoints) => {
+    const buildSpeedCalculations = (actionPoints, paceMultiplier) => {
         const speed = actionPoints * paceMultiplier * character.movement.baseMovementRate;
-        //TODO
-        const adjustedSpeed = speed * 0.7;
+        //TODO read from tactical game
+        const adjustedSpeed = speed * 0.5;
         return {
             paceMultiplier: paceMultiplier,
             speed: speed,

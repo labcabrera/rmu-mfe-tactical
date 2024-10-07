@@ -7,7 +7,7 @@ import CardContent from '@mui/material/CardContent';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
-import HealthBar from './HealthBar';
+import HealthBar from '../shared/HealthBar';
 
 const CombatCharacterRoundInfo = ({ characterRound, character }) => {
 

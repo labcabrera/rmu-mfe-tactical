@@ -1,5 +1,4 @@
 {
-    "action-type-attack": "Attack",
     "adjusted-speed": "Adjusted speed UMs",
     "bmr": "BMR",
     "add-skill": "Add skill",
@@ -8,6 +7,9 @@
     "name": "Name",
     "pace": "Pace",
     "speed": "Speed",
+
+    "action-type-attack": "Attack",
+    "action-type-movement": "Movement",
 
     "ag": "Agility (ag)",
     "co": "Constitution (co)",

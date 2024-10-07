@@ -1,16 +1,18 @@
 import React from 'react';
 
+import Stack from '@mui/material/Stack';
+
 const HealthBar = ({ currentHP, maxHP }) => {
 
     const percent = (currentHP / maxHP) * 100;
 
     const getColor = () => {
         if (currentHP < 1) {
-            return 'rgb(150, 150, 150)';
+            return 'rgb(100, 250, 150)';
         }
-        const r = Math.min(255, Math.floor((255 * (100 - percent)) / 100));
-        const g = Math.min(255, Math.floor((255 * percent) / 100));
-        return `rgb(${r}, ${g}, 50)`;
+        const r = Math.min(255, Math.floor((100 * (100 - percent)) / 100));
+        const g = Math.min(255, Math.floor((100 * percent) / 100));
+        return `rgb(${r}, ${g}, 0)`;
     };
 
     const barStyle = {
@@ -36,11 +38,17 @@ const HealthBar = ({ currentHP, maxHP }) => {
     };
 
     return (
-        <div style={containerStyle}>
-            <div style={barStyle}>
-                {currentHP}/{maxHP}
-            </div>
-        </div>
+        <>
+            <Stack direction="row" spacing={2}>
+                <div style={containerStyle}>
+                    <div style={barStyle}>
+                    </div>
+                </div>
+                <div>
+                    {currentHP}/{maxHP}
+                </div>
+            </Stack>
+        </>
     );
 };
 
