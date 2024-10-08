@@ -16,6 +16,7 @@ import SelectAttackWeapon from '../select/SelectAttackWeapon';
 import SelectDefender from '../select/SelectDefender';
 import ActionPointSelector from '../shared/ActionPointSelector';
 import TacticalActionCreationActions from './TacticalActionCreationActions';
+import DefenseTextField from '../input/DefenseTextField';
 
 import { API_CORE_URL } from "../../constants/environment";
 
@@ -157,11 +158,13 @@ const TacticalAttackCreation = () => {
                     <Grid size={2}>
                         <SelectDefender value={formData.tacticalCharacterTargetId} onChange={handleTargetChange} targets={characters} />
                     </Grid>
-                    <Grid size={4}></Grid>
-
+                    <Grid size={2}>
+                        <ArmorTextField value={formData.attackInfo.armorType} disabled />
+                    </Grid>
+                    <Grid size={2}></Grid>
 
                     <Grid size={2}>
-                        <TextField label="Offensive bonus" variant={variant} fullWidth name="offensive-bonus" disabled value={formData.attackInfo.offensiveBonus} />
+                        <AttackTextField i18LabelKey='offensive-bonus' value={formData.attackInfo.offensiveBonus} disabled />
                     </Grid>
                     <Grid size={2}>
                         <SizeTextField i18nLabel='attacker-size' value={formData.attackInfo.attackerSizeId} disabled />
@@ -169,56 +172,17 @@ const TacticalAttackCreation = () => {
                     <Grid size={2}>
                     </Grid>
                     <Grid size={2}>
-                        <ArmorTextField value={formData.attackInfo.armorType} disabled />
-                    </Grid>
-                    <Grid size={8}></Grid>
-
-                    <Grid size={2}>
-                        <TextField
-                            label="Defensive bonus" variant={variant} name="defensive-bonus" disabled value={formData.attackInfo.defensiveBonus} fullWidth />
+                        <TextField label="Defensive bonus" variant={variant} name="defensive-bonus" disabled value={formData.attackInfo.defensiveBonus} fullWidth />
                     </Grid>
                     <Grid size={2}>
                         <SizeTextField i18nLabel='defender-size' value={formData.attackInfo.defenderSizeId} disabled />
                     </Grid>
-                    <Grid size={2}>
-                    </Grid>
-
-
-                    <Grid size={8}>
-                    </Grid>
+                    <Grid size={2}></Grid>
 
                     <Grid size={2}>
-                        <TextField label="Size effect attacker HP multiplier" variant={variant} name="attacker-size-multiplier" fullWidth disabled
-                            value={formData.attackInfo.sizeHpMultiplier} />
+                        <DefenseTextField i18nLabel='parry' value={formData.attackInfo.parry} disabled />
                     </Grid>
-                    <Grid size={2}>
-                        <TextField label="Size effect critical type modifier" variant={variant} name="attacker-size-multiplier" fullWidth disabled
-                            value={formData.attackInfo.sizeCriticalTypeModifier} />
-                    </Grid>
-                    <Grid size={4}>
-                    </Grid>
-
-                    <Grid size={2}>
-                        <TextField label="Attacker parry" variant={variant} fullWidth name="offensive-bonus" value={formData.attackInfo.offensiveBonus} />
-                    </Grid>
-                    <Grid size={2}>
-                        <TextField label="Defender parry" variant={variant} name="defensive-bonus" value={formData.attackInfo.defensiveBonus} onChange={handleChange} fullWidth />
-                    </Grid>
-                    <Grid size={8}>
-                    </Grid>
-
-                    <Grid size={2}>
-                        <TextField label="Attacker effect penalties" variant={variant} name="base-penalties" value={formData.attackInfo.basePenalties} fullWidth />
-                    </Grid>
-                    <Grid size={2}>
-                        <TextField label="Defender effect penalties" variant={variant} name="base-penalties" value={formData.attackInfo.basePenalties} fullWidth />
-                    </Grid>
-                    <Grid size={8}>
-                    </Grid>
-
-
-
-                    <Grid size={12}>Positional and environment</Grid>
+                    <Grid size={10}></Grid>
 
                     <Grid size={2}>
                         <FormControl fullWidth>

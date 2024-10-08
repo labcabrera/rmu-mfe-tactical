@@ -7,18 +7,17 @@ import TextField from '@mui/material/TextField';
 
 import { VARIANT } from '../../constants/ui';
 
-const DefenseTextField = ({ value, onChange }) => {
+const DefenseTextField = ({ value, onChange, i18nLabel = 'defensive-bonus' }) => {
 
     const { t } = useTranslation();
 
     return (
         <TextField
-            label={t('defensive-bonus')}
+            label={t(i18nLabel)}
             variant={VARIANT}
             fullWidth
             value={value}
             onChange={onChange}
-            required
             slotProps={{
                 input: {
                     startAdornment: (

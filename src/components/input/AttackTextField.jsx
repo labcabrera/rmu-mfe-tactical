@@ -7,7 +7,7 @@ import TextField from '@mui/material/TextField';
 
 import { VARIANT } from '../../constants/ui';
 
-const AttackTextField = ({ i18LabelKey = 'attack', value, onChange, disabled = false, required = true }) => {
+const AttackTextField = ({ i18LabelKey = 'attack', value, onChange, disabled = false, required = false }) => {
 
     const { t } = useTranslation();
 
