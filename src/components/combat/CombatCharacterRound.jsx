@@ -2,15 +2,18 @@ import React, { useContext, useEffect, useState } from "react";
 
 import Grid from '@mui/material/Grid2';
 
+import { CombatContext } from './CombatProvider';
+
+import CombatFreeActionButtons from "./CombatFreeActionButtons";
 import CombatCharacterPhaseOptions from './CombatCharacterPhaseOptions';
 import CombatCharacterRoundInfo from "./CombatCharacterRoundInfo";
 import CombatCharacterRoundInitiative from "./CombatCharacterRoundInitiative";
-import { CombatContext } from './CombatProvider';
 
 const CombatCharacterRound = ({ characterRound }) => {
 
     const [character, setCharacter] = useState();
 
+    const { tacticalGame, setTacticalGame } = useContext(CombatContext);
     const { characters, setCharacters } = useContext(CombatContext);
     const { roundActions, setRoundActions } = useContext(CombatContext);
 
@@ -35,7 +38,7 @@ const CombatCharacterRound = ({ characterRound }) => {
                 <CombatCharacterRoundInitiative />
             </Grid>
             <Grid size={3}>
-                {/* <CombatCharacterPhaseOptions character={character} phase={1} /> */}
+                <CombatFreeActionButtons tacticalGame={tacticalGame} character={character} />
             </Grid>
             <Grid size={3}>
                 <CombatCharacterPhaseOptions character={character} phase={1} />
