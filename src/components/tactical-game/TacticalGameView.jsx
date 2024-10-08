@@ -20,10 +20,10 @@ const TacticalGameView = () => {
             <TacticalGameViewActions />
             <Box sx={{ flexGrow: 1 }}>
                 <Grid container spacing={2}>
-                    <Grid size={6}>
+                    <Grid size={4}>
                         <TacticalGameViewInfo tacticalGame={tacticalGame} />
                     </Grid>
-                    <Grid size={6}>
+                    <Grid size={8}>
                         <TacticalGameViewCharacters tacticalGame={tacticalGame} />
                     </Grid>
                 </Grid>

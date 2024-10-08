@@ -1,9 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 
-import CachedIcon from '@mui/icons-material/Cached';
 import Grid from '@mui/material/Grid2';
-import IconButton from '@mui/material/IconButton';
 import TextField from '@mui/material/TextField';
 
 import SelectSize from '../../components/select/SelectCharacterSize';
@@ -11,12 +9,13 @@ import SelectFaction from '../../components/select/SelectFaction';
 import SelectLevel from '../../components/select/SelectLevel';
 import SelectRace from '../../components/select/SelectRace';
 import DefenseTextField from '../input/DefenseTextField';
+import EnduranceTextField from '../input/EnduranceDefenseTextField';
+import HeightTextField from '../input/HeightTextField';
 import HpTextField from '../input/HpTextField';
 import InitiativeTextField from '../input/InitiativeTextField';
 import ManaTextField from '../input/ManaTextFields';
+import MovementTextField from '../input/MovementTextField';
 import NameTextField from '../input/NameTextField';
-import EnduranceTextField from '../input/EnduranceDefenseTextField';
-import HeightTextField from '../input/HeightTextField';
 import WeightTextField from '../input/WeightTextField';
 
 import { API_NPC_NAMES_URL } from '../../constants/environment';
@@ -137,10 +136,10 @@ const TacticalCharacterCreationAttributes = ({ formData, setFormData, factions }
                 </Grid>
 
                 <Grid size={4}>
-                    <TextField label='Stride custom bonus' variant={VARIANT} type='text' value={formData.movement.strideCustomBonus} onChange={handleStrideBonusChange} fullWidth />
+                    <MovementTextField i18nLabel='stride-custom-bonus' value={formData.movement.strideCustomBonus} onChange={handleStrideBonusChange} />
                 </Grid>
                 <Grid size={4}>
-                    <TextField label='Stride racial bonus' variant={VARIANT} type='text' value={formData.movement.strideRacialBonus} disabled fullWidth />
+                    <MovementTextField i18nLabel='stride-racial-bonus' value={formData.movement.strideRacialBonus} disabled />
                 </Grid>
                 <Grid size={4}>
                 </Grid>

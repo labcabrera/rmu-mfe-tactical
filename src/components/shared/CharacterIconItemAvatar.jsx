@@ -7,7 +7,7 @@ const CharacterListItemAvatar = ({ character }) => {
 
     return (
         <ListItemAvatar>
-            <Avatar src={`/static/images/races/${character.info.race}.jpg`} />
+            <Avatar src={`/static/images/races/${character.info.race}.png`} />
         </ListItemAvatar>
     );
 }

@@ -1,6 +1,8 @@
 import React from "react";
+import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from "react-router-dom";
 
+import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -23,6 +25,7 @@ const TacticalGameViewActions = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const tacticalGame = location.state?.tacticalGame;
+    const { t, i18n } = useTranslation();
 
     const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
 
@@ -86,7 +89,10 @@ const TacticalGameViewActions = () => {
                     width: '100%'
                 }}>
 
-                <Typography variant="h5" component="div">Tactical game {tacticalGame.name}</Typography>
+                <Breadcrumbs aria-label="breadcrumb">
+                    <Typography sx={{ color: 'text.primary' }}>{t('tactical-game')}</Typography>
+                    <Typography sx={{ color: 'text.primary' }}>{tacticalGame.name}</Typography>
+                </Breadcrumbs>
 
                 <div style={{ flexGrow: 1 }} />
 

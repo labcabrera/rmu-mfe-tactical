@@ -1,11 +1,13 @@
 import React from 'react';
 
-import FormControl from '@mui/material/FormControl';
-import InputLabel from '@mui/material/InputLabel';
+import Avatar from '@mui/material/Avatar';
+import InputAdornment from '@mui/material/InputAdornment';
 import MenuItem from '@mui/material/MenuItem';
-import Select from '@mui/material/Select';
+import TextField from '@mui/material/TextField';
 
-const SelectLevel = ({ value, onChange }) => {
+import { VARIANT } from '../../constants/ui';
+
+const SelectLevel = ({ value, onChange, required = false }) => {
 
     const levels = Array.from({ length: 101 }, (_, index) => index);
 
@@ -14,19 +16,26 @@ const SelectLevel = ({ value, onChange }) => {
     };
 
     return (
-        <FormControl fullWidth>
-            <InputLabel id='select-level-label'>Level</InputLabel>
-            <Select
-                id='select-level'
-                labelId='select-level-label'
-                label='Level'
-                value={(value === undefined || value === null || levels.length === 0) ? '' : value}
-                required
-                variant='outlined'
-                onChange={handleLevelChange}>
-                {levels.map((option) => <MenuItem key={option} value={option}>{option}</MenuItem>)}
-            </Select>
-        </FormControl>
+        <TextField
+            select
+            label='Level'
+            id='select-level'
+            value={(value === undefined || value === null || levels.length === 0) ? '' : value}
+            required={required}
+            variant={VARIANT}
+            fullWidth
+            onChange={handleLevelChange}
+            slotProps={{
+                input: {
+                    startAdornment: (
+                        <InputAdornment position="start">
+                            <Avatar src='/static/images/generic/level.png' sx={{ width: 25, height: 25 }} />
+                        </InputAdornment>
+                    ),
+                },
+            }}>
+            {levels.map((option) => <MenuItem key={option} value={option}>{option}</MenuItem>)}
+        </TextField>
     );
 }
 

@@ -40,8 +40,7 @@ const TacticalGameViewCharacters = ({ tacticalGame }) => {
     };
 
     return (
-        <div>
-            <h3>Characters</h3>
+        <>
             <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
                 {tacticalCharacters.map((item, index) => (
                     <TacticalGameViewCharactersListItem
@@ -54,6 +53,7 @@ const TacticalGameViewCharacters = ({ tacticalGame }) => {
             <Stack spacing={0} direction="row" sx={{
                 justifyContent: "flex-start",
                 alignItems: "flex-start",
+                marginLeft: "8px"
             }}>
                 <AddButton onClick={handleAddNewCharacter} size={DETAIL_BUTTON_SIZE} />
             </Stack>
@@ -64,7 +64,7 @@ const TacticalGameViewCharacters = ({ tacticalGame }) => {
                     </pre>
                 </div>
             ) : null}
-        </div >
+        </>
     );
 };
 
