@@ -54,7 +54,10 @@ const CombatCharacterRoundInfo = ({ characterRound, character }) => {
                     </Stack>
                 </Stack>
                 <GenericBar current={character.hp.current} max={character.hp.max} title="HP" width={barSize} colorOk={green} />
-                <GenericBar current={character.power.current} max={character.power.max} title="Power" width={barSize} colorOk={blue} colorKo={gray} />
+                {character.power.max > 0 ? (
+                    <GenericBar current={character.power.current} max={character.power.max} title="Power" width={barSize} colorOk={blue} colorKo={gray} />
+                ) : null
+                }
                 <GenericBar current={character.endurance.current} max={character.endurance.max} title="Endurance" width={barSize} colorOk={brown} />
                 <GenericBar current={character.endurance.accumulator} max={100} title="Fatigue" width={barSize} colorOk={brown} colorKo={brown} backgroundColor={gray} />
             </CardContent>

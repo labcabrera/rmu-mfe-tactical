@@ -129,7 +129,7 @@ const TacticalCharacterModification = () => {
                     </TabPanel>
                     <TabPanel value='4'>
                         <TacticalCharacterEquipment tacticalCharacter={tacticalCharacter} setTacticalCharacter={setTacticalCharacter} />
-                        <TacticalCharacterAddItem tacticalCharacter={tacticalCharacter} setTacticalCharacter={setTacticalCharacter} />
+                        <TacticalCharacterAddItem tacticalGame={tacticalGame} tacticalCharacter={tacticalCharacter} setTacticalCharacter={setTacticalCharacter} />
                     </TabPanel>
                     <TabPanel value='5'>
                         <div>

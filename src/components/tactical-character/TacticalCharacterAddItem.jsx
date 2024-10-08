@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from "react-router-dom";
 import { useTranslation } from 'react-i18next';
 
 import Grid from '@mui/material/Grid2';
-import Typography from '@mui/material/Typography';
 
 import ArmorButton from '../button/ArmorButton';
 import ShieldButton from '../button/ShieldButton';
@@ -10,9 +10,11 @@ import WeaponButton from '../button/WeaponButton';
 import ItemList from '../shared/ItemList';
 
 import { API_ITEMS_URL, API_TACTICAL_URL } from '../../constants/environment';
+import ForgeButton from '../button/ForgeButton';
 
-const TacticalCharacterAddItem = ({ tacticalCharacter, setTacticalCharacter }) => {
+const TacticalCharacterAddItem = ({ tacticalGame, tacticalCharacter, setTacticalCharacter }) => {
 
+    const navigate = useNavigate();
     const { t } = useTranslation();
 
     const [items, setItems] = useState([]);
@@ -64,6 +66,13 @@ const TacticalCharacterAddItem = ({ tacticalCharacter, setTacticalCharacter }) =
         }
     };
 
+    const handleForgeButtonClick = (e) => {
+        navigate(`/tactical/forge/${tacticalGame.id}`, {
+            state: { tacticalGame: tacticalGame, tacticalCharacter: tacticalCharacter }
+        });
+        return;
+    };
+
     useEffect(() => {
         fetchItems('weapon');
     }, []);
@@ -74,7 +83,7 @@ const TacticalCharacterAddItem = ({ tacticalCharacter, setTacticalCharacter }) =
 
     return (
         <div className="tactical-character-add-item">
-            {/* <Typography variant="h6" component="div">Add item</Typography> */}
+            <ForgeButton onClick={handleForgeButtonClick} size={60} />
             <Grid container spacing={2}>
                 <Grid size={8}>
                     <WeaponButton onClick={fetchWeapons} size={40} />

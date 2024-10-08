@@ -12,7 +12,6 @@ import { ACTION_BUTTON_SIZE } from '../../constants/ui';
 const TacticalCharacterCreationActions = ({ tacticalGame, formData, onError }) => {
 
     const navigate = useNavigate();
-    const variant = 'standard';
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -37,6 +36,7 @@ const TacticalCharacterCreationActions = ({ tacticalGame, formData, onError }) =
 
     const handleBackClick = () => {
         navigate(`/tactical/view/${tacticalGame.id}`, { state: { tacticalGame: tacticalGame } });
+        return;
     };
 
 
