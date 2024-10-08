@@ -8,6 +8,7 @@ import ForgeItemCategories from "./ForgeItemCategories";
 import ForgeItemList from "./ForgeItemList";
 
 import { API_ITEMS_URL } from '../../constants/environment';
+import ForgeItemActions from "./ForgeItemActions";
 
 const ForgeItem = () => {
 
@@ -67,25 +68,28 @@ const ForgeItem = () => {
     }
 
     return (
-        <div className="generic-main-content">
-            <Grid container spacing={2}>
-                <Grid size={6}>
-                    <ForgeItemCategories onChange={fetchItems} />
-                    <ForgeItemList items={items} />
+        <>
+            <ForgeItemActions />
+            <div className="generic-main-content">
+                <Grid container spacing={2}>
+                    <Grid size={6}>
+                        <ForgeItemCategories onChange={fetchItems} />
+                        <ForgeItemList items={items} />
+                    </Grid>
+                    <Grid size={6}>
+                        <ForgeItemAttributes formData={formData} setFormData={setFormData} />
+                    </Grid>
                 </Grid>
-                <Grid size={6}>
-                    <ForgeItemAttributes formData={formData} setFormData={setFormData} />
-                </Grid>
-            </Grid>
-            {debugMode ? (
-                <div>
-                    <h3>formData</h3>
-                    <pre>
-                        {JSON.stringify(formData, null, 2)}
-                    </pre>
-                </div>
-            ) : null}
-        </div >
+                {debugMode ? (
+                    <div>
+                        <h3>formData</h3>
+                        <pre>
+                            {JSON.stringify(formData, null, 2)}
+                        </pre>
+                    </div>
+                ) : null}
+            </div >
+        </>
     );
 }
 
