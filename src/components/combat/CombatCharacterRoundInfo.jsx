@@ -1,24 +1,34 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from "react-router-dom";
 
 import Avatar from '@mui/material/Avatar';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
+import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
-import HealthBar from '../shared/HealthBar';
+import GenericBar from '../shared/GenericBar';
 
 const CombatCharacterRoundInfo = ({ characterRound, character }) => {
 
-    const { t, i18n } = useTranslation();
+    const barSize = 280;
+    const green = '#4caf50';
+    const red = '#f44336';
+    const blue = '#4180d3';
+    const brown = '#a6a271';
+    const gray = '#686868';
+
+    const { t } = useTranslation();
+    const navigate = useNavigate();
 
     if (!characterRound || !character) {
         return <p>Loading... {characterRound} {character}</p>
     }
 
-    const getAvatarImage = () => {
-        return `/static/images/races/${character.info.race}.jpg`;
+    const handleEditCharacterClick = () => {
+        navigate(`/tactical/characters/edit/${character.id}`);
     };
 
     return (
@@ -26,17 +36,26 @@ const CombatCharacterRoundInfo = ({ characterRound, character }) => {
             <CardContent>
                 <Stack
                     direction={{ xs: 'column', sm: 'row' }}
-                    spacing={{ xs: 1, sm: 2, md: 4 }}
-                >
-                    <Avatar alt={character.name} variant="square" src={getAvatarImage()} />
-                    <Typography variant="h6" component="div">
-                        {character.name}
-                    </Typography>
+                    spacing={{
+                        xs: 1,
+                        sm: 2,
+                        md: 4
+                    }}>
+                    <IconButton onClick={handleEditCharacterClick}>
+                        <Avatar alt={character.name} variant="square" src={`/static/images/races/${character.info.race}.jpg`} />
+                    </IconButton>
+                    <Stack>
+                        <Typography variant="content1" component="div">
+                            {character.name}
+                        </Typography>
+                        <Typography variant="content1" component="div">
+                            {t(character.info.race)} level {character.info.level}
+                        </Typography>
+                    </Stack>
                 </Stack>
-                <Typography variant="h6" component="div">
-                    {t(character.info.race)} level {character.info.level}
-                </Typography>
-                <HealthBar currentHP={character.hp.current} maxHP={character.hp.max} />
+                <GenericBar current={character.hp.current} max={character.hp.max} title="HP" width={barSize} colorOk={green} />
+                <GenericBar current={character.power.current} max={character.power.max} title="Power" width={barSize} colorOk={blue} colorKo={gray} />
+                <GenericBar current={character.endurance.current} max={character.endurance.max} title="Endurance" width={barSize} colorOk={brown} />
             </CardContent>
         </Card>
     );
