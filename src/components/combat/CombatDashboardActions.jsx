@@ -1,17 +1,15 @@
 import React, { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 
-import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
-import NavigateBeforeOutlinedIcon from '@mui/icons-material/NavigateBeforeOutlined';
-import NavigateNextOutlinedIcon from '@mui/icons-material/NavigateNextOutlined';
-import PlayCircleIcon from '@mui/icons-material/PlayCircle';
 import Button from '@mui/material/Button';
-import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
-import Tooltip from '@mui/material/Tooltip';
 
-import CloseButton from "../button/CloseButton";
 import { CombatContext } from './CombatProvider';
+
+import AddButton from "../button/AddButton";
+import BackButton from "../button/BackButton";
+import CloseButton from "../button/CloseButton";
+import NextButton from "../button/NextButton";
 
 import { API_TACTICAL_URL } from "../../constants/environment";
 import { ACTION_BUTTON_SIZE } from "../../constants/ui";
@@ -66,28 +64,9 @@ const CombatDashboardActions = () => {
                 <Button variant="outlined">Action phase</Button>
                 <Button variant="outlined">End turn</Button>
 
-                <Tooltip title="Previous round">
-                    <span>
-                        <IconButton variant="outlined" onClick={handleDisplayPreviousRoundClick} disabled={displayRound < 2}>
-                            <NavigateBeforeOutlinedIcon />
-                        </IconButton>
-                    </span>
-                </Tooltip>
-
-                <Tooltip title="Next round">
-                    <span>
-                        <IconButton variant="outlined" onClick={handleDisplayNextRoundClick} disabled={displayRound >= tacticalGame.round}>
-                            <NavigateNextOutlinedIcon />
-                        </IconButton>
-                    </span>
-                </Tooltip>
-
-                <Tooltip title="New round">
-                    <IconButton variant="outlined" onClick={handleNextRoundClick}>
-                        <PlayCircleIcon />
-                    </IconButton>
-                </Tooltip>
-
+                <BackButton onClick={handleDisplayPreviousRoundClick} size={ACTION_BUTTON_SIZE} />
+                <NextButton onClick={handleDisplayNextRoundClick} size={ACTION_BUTTON_SIZE} />
+                <AddButton onClick={handleNextRoundClick} size={ACTION_BUTTON_SIZE} />
                 <CloseButton onClick={handleCloseDashboardClick} size={ACTION_BUTTON_SIZE} />
             </Stack>
         </div>
