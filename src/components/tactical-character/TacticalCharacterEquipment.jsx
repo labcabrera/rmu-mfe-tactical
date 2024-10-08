@@ -97,19 +97,19 @@ const TacticalCharacterEquipment = ({ tacticalCharacter, setTacticalCharacter })
 
     const loadAvailableImageItems = (tacticalCharacter) => {
         var images = tacticalCharacter.items.map(mapImage);
-        if(tacticalCharacter.equipment.mainHand) {
+        if (tacticalCharacter.equipment.mainHand) {
             setImagesMainHand(tacticalCharacter.items.filter(e => e.id == tacticalCharacter.equipment.mainHand).map(mapImage));
             images = images.filter(e => e.id != tacticalCharacter.equipment.mainHand);
         } else {
             setImagesMainHand([]);
         }
-        if(tacticalCharacter.equipment.offHand) {
+        if (tacticalCharacter.equipment.offHand) {
             setImagesOffHand(tacticalCharacter.items.filter(e => e.id == tacticalCharacter.equipment.offHand).map(mapImage));
             images = images.filter(e => e.id != tacticalCharacter.equipment.offHand);
         } else {
             setImagesOffHand([]);
         }
-        if(tacticalCharacter.equipment.body) {
+        if (tacticalCharacter.equipment.body) {
             setImagesBody(tacticalCharacter.items.filter(e => e.id == tacticalCharacter.equipment.body).map(mapImage));
             images = images.filter(e => e.id != tacticalCharacter.equipment.body);
         } else {

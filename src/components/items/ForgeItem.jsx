@@ -22,6 +22,7 @@ const ForgeItem = () => {
 
     const [items, setItems] = useState([]);
     const [formData, setFormData] = useState({
+        itemTypeId: '',
         category: '',
         weapon: {
             type: '',
@@ -42,8 +43,11 @@ const ForgeItem = () => {
     });
 
     const mapItem = (item) => {
-        item.name = t(item.id);
-        return item;
+        return {
+            ...item,
+            itemTypeId: item.id,
+            name: t(item.id),
+        };
     };
 
     const fetchItems = async (category) => {
@@ -73,7 +77,7 @@ const ForgeItem = () => {
 
     return (
         <>
-            <ForgeItemActions />
+            <ForgeItemActions tacticalCharacterId={tacticalCharacter.id} formData={formData} />
             <div className="generic-main-content">
                 <Grid container spacing={2}>
                     <Grid size={6}>

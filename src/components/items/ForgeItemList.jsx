@@ -16,7 +16,7 @@ const ForgeItemList = ({ items, onSelectedItem }) => {
     };
 
     return (
-        <Grid container spacing={0}>
+        <Grid container spacing={0} columns={8}>
             {items.map((item, index) => (
                 <Grid key={index} size={1}>
                     <IconButton key={index} onClick={() => handleItemClick(item.id)}>

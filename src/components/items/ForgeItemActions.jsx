@@ -7,20 +7,37 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
 import CloseButton from "../button/CloseButton";
-import PlayButton from "../button/PlayButton";
 import ForgeButton from "../button/ForgeButton";
 
+import { API_TACTICAL_URL } from '../../constants/environment';
 import { ACTION_BUTTON_SIZE } from "../../constants/ui";
 
-const ForgeItemActions = () => {
+const ForgeItemActions = ({ tacticalCharacterId, formData }) => {
 
     const location = useLocation();
     const navigate = useNavigate();
     const tacticalGame = location.state?.tacticalGame;
-    const { t, i18n } = useTranslation();
+    const { t } = useTranslation();
 
-    const handleForgeItemClick = () => {
-        //TODO
+    const handleForgeItemClick = async () => {
+        try {
+            const requestOptions = {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            };
+            const response = await fetch(`${API_TACTICAL_URL}/characters/${tacticalCharacterId}/items`, requestOptions);
+            if(response.status === 200) {
+                navigate(`/tactical/characters/edit/${tacticalCharacterId}`);
+            } else {
+                const responseBody = await response.json();
+                throw responseBody.message;
+            }
+            return;
+        } catch (error) {
+            //TODO
+            console.error(`handleForgeItemClick error ${error}`);
+        }
     };
 
     return (
@@ -42,7 +59,7 @@ const ForgeItemActions = () => {
                 <div style={{ flexGrow: 1 }} />
 
                 <CloseButton size={ACTION_BUTTON_SIZE} />
-                <ForgeButton onClick={handleForgeItemClick} size={ACTION_BUTTON_SIZE}/>
+                <ForgeButton onClick={handleForgeItemClick} size={ACTION_BUTTON_SIZE} disabled={!formData.itemTypeId} />
             </Stack>
         </div>
     );
