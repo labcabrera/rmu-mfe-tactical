@@ -12,7 +12,7 @@ const SelectWeaponSkill = ({ value, onChange }) => {
 
     const { t } = useTranslation();
 
-    //TODO
+    //TODO read from api
     const availableTables = [
         "melee-weapon@blade",
         "melee-weapon@chain",

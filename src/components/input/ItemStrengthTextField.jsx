@@ -7,7 +7,7 @@ import TextField from '@mui/material/TextField';
 
 import { VARIANT } from '../../constants/ui';
 
-const ItemStrengthTextField = ({ value, onChange, i18nLabel = 'item-strength', readonly = false, required = false }) => {
+const ItemStrengthTextField = ({ value, onChange, i18nLabel = 'item-strength', disabled = false, required = false }) => {
 
     const { t } = useTranslation();
 
@@ -17,7 +17,7 @@ const ItemStrengthTextField = ({ value, onChange, i18nLabel = 'item-strength', r
             variant={VARIANT}
             fullWidth
             value={value}
-            readonly={readonly}
+            disabled={disabled}
             onChange={onChange}
             required={required}
             slotProps={{

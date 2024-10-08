@@ -28,16 +28,18 @@ const ForgeItem = () => {
             type: '',
             attackTable: '',
             skillId: '',
-            fumble: ''
+            fumble: '',
+            sizeAdjustment: 0
         },
         info: {
             cost: {
                 value: '',
                 type: '',
             },
+            bonus: 0,
             lenght: '',
-            strength: '',
             weight: '',
+            strength: '',
             productionTime: ''
         }
     });

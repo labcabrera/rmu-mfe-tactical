@@ -12,6 +12,9 @@ const ForgeItemList = ({ items, onSelectedItem }) => {
 
     const handleItemClick = (itemId) => {
         const item = items.find(e => e.id === itemId);
+        if (item.info) {
+            item.info.bonus = 0;
+        }
         onSelectedItem(item);
     };
 
