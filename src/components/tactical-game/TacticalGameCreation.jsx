@@ -7,6 +7,7 @@ import TextField from '@mui/material/TextField';
 import SaveButton from '../button/SaveButton';
 
 import { API_TACTICAL_URL } from "../../constants/environment";
+import { ACTION_BUTTON_SIZE } from '../../constants/ui';
 
 const TacticalGameCreation = () => {
     const navigate = useNavigate();
@@ -43,7 +44,7 @@ const TacticalGameCreation = () => {
                     justifyContent: "flex-end",
                     alignItems: "flex-start",
                 }}>
-                    <SaveButton onClick={handleSubmit} size={40} />
+                    <SaveButton onClick={handleSubmit} size={ACTION_BUTTON_SIZE} />
                 </Stack>
             </div>
             <form onSubmit={handleSubmit}>

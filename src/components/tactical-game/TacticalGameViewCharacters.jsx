@@ -6,9 +6,11 @@ import IconButton from '@mui/material/IconButton';
 import List from '@mui/material/List';
 import Stack from '@mui/material/Stack';
 
+import TacticalGameViewCharactersListItem from "./TacticalGameViewCharactersListItem";
+import AddButton from "../button/AddButton";
+
 import { API_TACTICAL_URL } from "../../constants/environment";
 
-import TacticalGameViewCharactersListItem from "./TacticalGameViewCharactersListItem";
 
 const TacticalGameViewCharacters = ({ tacticalGame }) => {
 
@@ -55,9 +57,7 @@ const TacticalGameViewCharacters = ({ tacticalGame }) => {
                 justifyContent: "flex-start",
                 alignItems: "flex-start",
             }}>
-                <IconButton variant="outlined" onClick={handleAddNewCharacter}>
-                    <AddBoxIcon />
-                </IconButton>
+                <AddButton onClick={handleAddNewCharacter} size={40} />
             </Stack>
             {debugMode ? (
                 <div>

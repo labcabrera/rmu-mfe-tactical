@@ -2,7 +2,7 @@ import React from 'react';
 
 import IconButton from '@mui/material/IconButton';
 
-const AddButton = ({ onClick, size }) => {
+const AddButton = ({ option, onClick, size }) => {
 
     return (
         <IconButton onClick={onClick} style={{
