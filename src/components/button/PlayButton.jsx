@@ -1,20 +1,23 @@
 import React from 'react';
 
-import IconButton from '@mui/material/IconButton';
+import StyledIconButton from './StyledIconButton';
 
-const PlayButton = ({ onClick, size }) => {
+const PlayButton = ({ onClick, size = 40, disabled = false }) => {
 
     return (
-        <IconButton onClick={onClick} style={{
-            width: `${size}px`,
-            height: `${size}px`,
-        }}>
+        <StyledIconButton
+            disabled={disabled}
+            onClick={onClick}
+            style={{
+                width: `${size}px`,
+                height: `${size}px`,
+            }}>
             <img
                 src='/static/images/generic/play.png'
                 alt='PLay'
                 style={{ width: '100%', height: '100%', borderRadius: '50%' }}
             />
-        </IconButton>
+        </StyledIconButton>
     );
 };
 

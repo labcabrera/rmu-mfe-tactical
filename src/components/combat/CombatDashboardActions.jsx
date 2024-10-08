@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
 
 import { CombatContext } from './CombatProvider';
 
@@ -10,6 +11,7 @@ import AddButton from "../button/AddButton";
 import BackButton from "../button/BackButton";
 import CloseButton from "../button/CloseButton";
 import NextButton from "../button/NextButton";
+
 
 import { API_TACTICAL_URL } from "../../constants/environment";
 import { ACTION_BUTTON_SIZE } from "../../constants/ui";
@@ -54,18 +56,19 @@ const CombatDashboardActions = () => {
                 direction="row"
                 justifyContent="space-between"
                 alignItems="center"
-                sx={{ width: '100%', height: 100 }}
-            >
-
-                <div>Round {displayRound}/{tacticalGame.round}</div>
+                sx={{
+                    width: '100%',
+                    //height: 100
+                }}>
+                <Typography variant="h5" component="div">Tactical game {tacticalGame.name} - Round {displayRound}/{tacticalGame.round}</Typography>
 
                 <div style={{ flexGrow: 1 }} />
 
                 <Button variant="outlined">Action phase</Button>
                 <Button variant="outlined">End turn</Button>
 
-                <BackButton onClick={handleDisplayPreviousRoundClick} size={ACTION_BUTTON_SIZE} />
-                <NextButton onClick={handleDisplayNextRoundClick} size={ACTION_BUTTON_SIZE} />
+                <BackButton onClick={handleDisplayPreviousRoundClick} disabled={displayRound === 1} size={ACTION_BUTTON_SIZE} />
+                <NextButton onClick={handleDisplayNextRoundClick} disabled={displayRound === tacticalGame.round} size={ACTION_BUTTON_SIZE} />
                 <AddButton onClick={handleNextRoundClick} size={ACTION_BUTTON_SIZE} />
                 <CloseButton onClick={handleCloseDashboardClick} size={ACTION_BUTTON_SIZE} />
             </Stack>

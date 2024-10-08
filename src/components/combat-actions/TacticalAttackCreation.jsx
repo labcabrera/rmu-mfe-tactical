@@ -10,7 +10,9 @@ import Select from '@mui/material/Select';
 import TextField from '@mui/material/TextField';
 
 import ActionPointSelector from '../shared/ActionPointSelector';
-import TacticalActionCreationActions from './TacticalActionCreationActions';
+import TacticalActionCreationActions from '../combat/TacticalActionCreationActions';
+
+import AttackTextField from '../input/AttackTextField';
 
 import { API_CORE_URL, API_TACTICAL_URL } from "../../constants/environment";
 
@@ -158,7 +160,7 @@ const TacticalAttackCreation = () => {
                 <Grid container spacing={1}>
 
                     <Grid size={2}>
-                        <TextField label="Attacker" variant={variant} fullWidth name="attacker" disabled value={character.name} />
+                        <AttackTextField value={character.name} i18LabelKey='attacker' disabled />
                     </Grid>
                     <Grid size={2}>
                         <FormControl fullWidth>

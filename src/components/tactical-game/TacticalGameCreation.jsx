@@ -10,6 +10,7 @@ import { API_TACTICAL_URL } from "../../constants/environment";
 import { ACTION_BUTTON_SIZE } from '../../constants/ui';
 
 const TacticalGameCreation = () => {
+
     const navigate = useNavigate();
 
     const debugMode = false;

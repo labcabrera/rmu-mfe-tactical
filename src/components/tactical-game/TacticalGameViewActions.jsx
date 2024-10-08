@@ -8,6 +8,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
 
 import CloseButton from "../button/CloseButton";
 import DeleteButton from "../button/DeleteButton";
@@ -75,10 +76,21 @@ const TacticalGameViewActions = () => {
 
     return (
         <div className="generic-action-bar">
-            <Stack spacing={2} direction="row" sx={{
-                justifyContent: "flex-end",
-                alignItems: "flex-start",
-            }}>
+
+
+            <Stack
+                direction="row"
+                justifyContent="space-between"
+                alignItems="center"
+                sx={{
+                    width: '100%',
+                    //    height: 100
+                }}>
+
+                <Typography variant="h5" component="div">Tactical game {tacticalGame.name}</Typography>
+
+                <div style={{ flexGrow: 1 }} />
+
                 <CloseButton size={ACTION_BUTTON_SIZE} />
                 <PlayButton onClick={handleOpenClick} size={ACTION_BUTTON_SIZE} />
                 <EditButton onClick={handleEditClick} size={ACTION_BUTTON_SIZE} />

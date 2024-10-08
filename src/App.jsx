@@ -1,9 +1,9 @@
 import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 
+import TacticalAttackCreation from './components/combat-actions/TacticalAttackCreation';
+import TacticalMovementCreation from './components/combat-actions/TacticalMovementCreation';
 import CombatDashboardParent from './components/combat/CombatDashboardParent';
-import TacticalAttackCreation from './components/combat/TacticalAttackCreation';
-import TacticalMovementCreation from './components/combat/TacticalMovementCreation';
 import TacticalCharacterCreation from './components/tactical-character/TacticalCharacterCreation';
 import TacticalCharacterModification from './components/tactical-character/TacticalCharacterModification';
 import TacticalGameCreation from './components/tactical-game/TacticalGameCreation';
