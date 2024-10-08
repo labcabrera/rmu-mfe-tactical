@@ -50,7 +50,7 @@ const TacticalActionCreationActions = ({ tacticalGame, formData }) => {
                     width: '100%'
                 }}>
 
-                <Typography variant="h5" component="div">Tactical game {tacticalGame.name}</Typography>
+                <Typography variant="h5" component="div">Tactical game {tacticalGame.name} - Attack declaration</Typography>
 
                 <div style={{ flexGrow: 1 }} />
 

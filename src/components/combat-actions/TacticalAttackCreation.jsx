@@ -9,12 +9,15 @@ import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 import TextField from '@mui/material/TextField';
 
+import ArmorTextField from '../input/ArmorTextField';
+import AttackTextField from '../input/AttackTextField';
+import SizeTextField from '../input/SizeTextField';
+import SelectAttackWeapon from '../select/SelectAttackWeapon';
+import SelectDefender from '../select/SelectDefender';
 import ActionPointSelector from '../shared/ActionPointSelector';
 import TacticalActionCreationActions from './TacticalActionCreationActions';
 
-import AttackTextField from '../input/AttackTextField';
-
-import { API_CORE_URL, API_TACTICAL_URL } from "../../constants/environment";
+import { API_CORE_URL } from "../../constants/environment";
 
 const TacticalAttackCreation = () => {
 
@@ -67,13 +70,13 @@ const TacticalAttackCreation = () => {
         tacticalCharacterTargetId: '',
         attackInfo: {
             selectedWeapon: 'main-hand',
-            armorType: 0,
-            offensiveBonus: 0,
-            defensiveBonus: 0,
-            attackerParry: 0,
-            defenderParry: 0,
-            basePenalties: 0,
-            pacePenalty: 0,
+            armorType: '',
+            offensiveBonus: '',
+            defensiveBonus: '',
+            attackerParry: '',
+            defenderParry: '',
+            basePenalties: '',
+            pacePenalty: '',
             attackerSizeId: character.info.sizeId,
             defenderSizeId: '',
             sizeHpMultiplier: '',
@@ -81,22 +84,6 @@ const TacticalAttackCreation = () => {
             restrictedQuarters: 'none'
         }
     });
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        const requestOptions = {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(formData)
-        };
-        const createActionResponse = await fetch(`${API_TACTICAL_URL}/actions`, requestOptions);
-        if (createActionResponse.status == 201) {
-            navigate(`/tactical/combat/${tacticalGame.id}`);
-        } else {
-            error = await createActionResponse.json();
-            console.log(error.message);
-        }
-    }
 
     const fetchCharacterSizeAttackEffects = async (attackerSizeId, defenderSizeId) => {
         try {
@@ -117,8 +104,7 @@ const TacticalAttackCreation = () => {
         setFormData({ ...formData, [name]: value })
     }
 
-    const handleTargetChange = async (e) => {
-        const targetCharacterId = e.target.value;
+    const handleTargetChange = async (targetCharacterId) => {
         const targetCharacter = characters.find(e => e.id == targetCharacterId);
         console.log("target: " + JSON.stringify(targetCharacter, null, 2));
         setFormData({ ...formData, tacticalCharacterTargetId: targetCharacterId });
@@ -128,11 +114,10 @@ const TacticalAttackCreation = () => {
     };
 
     const handleActionPointsChange = (actionPoints) => {
-        //const actionPoints = Math.max(minActionPoints, parseInt(e.target.value));
         setFormData({ ...formData, actionPoints: actionPoints });
     };
 
-    const handleSelectedWeaponChange = (e) => { updateFormData('attackInfo', 'selectedWeapon', e.target.value) };
+    const handleSelectedWeaponChange = (e) => { updateFormData('attackInfo', 'selectedWeapon', e) };
 
     const handleRestrictedQuarterChange = (e) => { updateFormData('attackInfo', 'restrictedQuarters', e.target.value) };
 
@@ -155,76 +140,53 @@ const TacticalAttackCreation = () => {
             <TacticalActionCreationActions tacticalGame={tacticalGame} formData={formData} />
             <div className="tactical-game-creation">
 
-                <h2>Declare attack</h2>
+                <Grid container spacing={2}>
 
-                <Grid container spacing={1}>
-
-                    <Grid size={2}>
-                        <AttackTextField value={character.name} i18LabelKey='attacker' disabled />
-                    </Grid>
-                    <Grid size={2}>
-                        <FormControl fullWidth>
-                            <InputLabel id="select-target-label">Defender</InputLabel>
-                            <Select
-                                id="select-target"
-                                labelId="select-target-label"
-                                label="Defender"
-                                value={formData.tacticalCharacterTargetId}
-                                required
-                                variant={variant}
-                                onChange={handleTargetChange}>
-                                {characters.filter(e => e.id != character.id).map((c, index) => (
-                                    <MenuItem key={index} value={c.id}>{c.name}</MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-                    </Grid>
-
-                    <Grid size={2}>
+                    <Grid size={4}>
                         <ActionPointSelector value={formData.actionsPoints} min={2} max={4} defaultValue={2} onChange={handleActionPointsChange} />
                     </Grid>
-                    <Grid size={6}></Grid>
+                    <Grid size={8}></Grid>
 
                     <Grid size={2}>
-                        <FormControl fullWidth>
-                            <InputLabel id="select-weapon-label">Weapon</InputLabel>
-                            <Select
-                                id="select-weapon"
-                                labelId="select-weapon-label"
-                                label="Weapon"
-                                value={formData.attackInfo.selectedWeapon}
-                                required
-                                variant={variant}
-                                onChange={handleSelectedWeaponChange}>
-                                {availableWeapons.map((c, index) => (
-                                    <MenuItem key={index} value={c}>{c}</MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
+                        <AttackTextField value={character.name} i18LabelKey='attacker' disabled required={false} />
                     </Grid>
                     <Grid size={2}>
-                        <TextField label="Armor type" variant={variant} fullWidth name="armor-type" disabled value={formData.attackInfo.armorType} />
+                        <SelectAttackWeapon character={character} value={formData.attackInfo.selectedWeapon} onChange={handleSelectedWeaponChange} />
                     </Grid>
-                    <Grid size={8}></Grid>
+                    <Grid size={2}></Grid>
+                    <Grid size={2}>
+                        <SelectDefender value={formData.tacticalCharacterTargetId} onChange={handleTargetChange} targets={characters} />
+                    </Grid>
+                    <Grid size={4}></Grid>
+
 
                     <Grid size={2}>
                         <TextField label="Offensive bonus" variant={variant} fullWidth name="offensive-bonus" disabled value={formData.attackInfo.offensiveBonus} />
                     </Grid>
                     <Grid size={2}>
+                        <SizeTextField i18nLabel='attacker-size' value={formData.attackInfo.attackerSizeId} disabled />
+                    </Grid>
+                    <Grid size={2}>
+                    </Grid>
+                    <Grid size={2}>
+                        <ArmorTextField value={formData.attackInfo.armorType} disabled />
+                    </Grid>
+                    <Grid size={8}></Grid>
+
+                    <Grid size={2}>
                         <TextField
                             label="Defensive bonus" variant={variant} name="defensive-bonus" disabled value={formData.attackInfo.defensiveBonus} fullWidth />
                     </Grid>
+                    <Grid size={2}>
+                        <SizeTextField i18nLabel='defender-size' value={formData.attackInfo.defenderSizeId} disabled />
+                    </Grid>
+                    <Grid size={2}>
+                    </Grid>
+
+
                     <Grid size={8}>
                     </Grid>
 
-                    <Grid size={2}>
-                        <TextField label="Attacker size" variant={variant} name="attacker-size" fullWidth disabled
-                            value={t(`size-${formData.attackInfo.attackerSizeId}`)} />
-                    </Grid>
-                    <Grid size={2}>
-                        <TextField label="Defender size" variant={variant} name="defender-size" fullWidth disabled
-                            value={formData.attackInfo.defenderSizeId ? t(`size-${formData.attackInfo.defenderSizeId}`) : ''} />
-                    </Grid>
                     <Grid size={2}>
                         <TextField label="Size effect attacker HP multiplier" variant={variant} name="attacker-size-multiplier" fullWidth disabled
                             value={formData.attackInfo.sizeHpMultiplier} />
