@@ -11,6 +11,7 @@ import AddButton from "../button/AddButton";
 import TacticalGameListItem from "./TacticalGameListItem";
 
 import { API_TACTICAL_URL } from "../../constants/environment";
+import { ACTION_BUTTON_SIZE } from "../../constants/ui";
 
 const TacticalGameList = () => {
 
@@ -48,15 +49,15 @@ const TacticalGameList = () => {
 
     return (
         <div>
-            <div className="generic-main-content">
+            <div className="generic-action-bar">
                 <Stack spacing={2} direction="row" sx={{
                     justifyContent: "flex-end",
                     alignItems: "flex-start",
                 }}>
-                    <AddButton onClick={createNewGame} size={40} />
+                    <AddButton onClick={createNewGame} size={ACTION_BUTTON_SIZE} />
                 </Stack>
             </div>
-            <div className="tactical-game-list_">
+            <div className="generic-main-content">
                 <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
                     {games.map((item) => (
                         <TacticalGameListItem key={item.id} tacticalGame={item} />

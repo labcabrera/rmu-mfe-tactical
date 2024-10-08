@@ -10,9 +10,11 @@ import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
 import Tooltip from '@mui/material/Tooltip';
 
+import CloseButton from "../button/CloseButton";
 import { CombatContext } from './CombatProvider';
 
 import { API_TACTICAL_URL } from "../../constants/environment";
+import { ACTION_BUTTON_SIZE } from "../../constants/ui";
 
 const CombatDashboardActions = () => {
 
@@ -49,7 +51,7 @@ const CombatDashboardActions = () => {
     }
 
     return (
-        <div className="combat-dashboard-actions">
+        <div className="generic-action-bar">
             <Stack
                 direction="row"
                 justifyContent="space-between"
@@ -86,11 +88,7 @@ const CombatDashboardActions = () => {
                     </IconButton>
                 </Tooltip>
 
-                <Tooltip title="Exit">
-                    <IconButton variant="outlined" onClick={handleCloseDashboardClick}>
-                        <CloseOutlinedIcon />
-                    </IconButton>
-                </Tooltip>
+                <CloseButton onClick={handleCloseDashboardClick} size={ACTION_BUTTON_SIZE} />
             </Stack>
         </div>
     );

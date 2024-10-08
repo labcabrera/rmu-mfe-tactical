@@ -1,16 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import AddBoxIcon from '@mui/icons-material/AddBox';
-import IconButton from '@mui/material/IconButton';
 import List from '@mui/material/List';
 import Stack from '@mui/material/Stack';
 
-import TacticalGameViewCharactersListItem from "./TacticalGameViewCharactersListItem";
 import AddButton from "../button/AddButton";
+import TacticalGameViewCharactersListItem from "./TacticalGameViewCharactersListItem";
 
 import { API_TACTICAL_URL } from "../../constants/environment";
-
+import { DETAIL_BUTTON_SIZE } from "../../constants/ui";
 
 const TacticalGameViewCharacters = ({ tacticalGame }) => {
 
@@ -57,7 +55,7 @@ const TacticalGameViewCharacters = ({ tacticalGame }) => {
                 justifyContent: "flex-start",
                 alignItems: "flex-start",
             }}>
-                <AddButton onClick={handleAddNewCharacter} size={40} />
+                <AddButton onClick={handleAddNewCharacter} size={DETAIL_BUTTON_SIZE} />
             </Stack>
             {debugMode ? (
                 <div>

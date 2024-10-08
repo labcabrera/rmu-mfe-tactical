@@ -12,6 +12,7 @@ import DeleteButton from "../button/DeleteButton";
 import EditButton from "../button/EditButton";
 
 import { API_TACTICAL_URL } from "../../constants/environment";
+import { DETAIL_BUTTON_SIZE } from "../../constants/ui";
 
 const TacticalGameViewCharactersListItem = ({ tacticalGame, character, onRemoveCharacter }) => {
 
@@ -49,8 +50,8 @@ const TacticalGameViewCharactersListItem = ({ tacticalGame, character, onRemoveC
                 justifyContent: "flex-end",
                 alignItems: "flex-start",
             }}>
-                <EditButton onClick={handleCharacterItemEditClick} size={40} />
-                <DeleteButton onClick={handleCharacterItemDeleteClick} size={40} />
+                <EditButton onClick={handleCharacterItemEditClick} size={DETAIL_BUTTON_SIZE} />
+                <DeleteButton onClick={handleCharacterItemDeleteClick} size={DETAIL_BUTTON_SIZE} />
             </Stack>
         }>
             <CharacterListItemAvatar character={character} />
