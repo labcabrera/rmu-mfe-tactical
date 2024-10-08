@@ -12,6 +12,7 @@ import SelectDefender from '../select/SelectDefender';
 import SelectRestrictedQuarters from '../select/SelectRestrictedQuarters';
 import ActionPointSelector from '../shared/ActionPointSelector';
 import TacticalActionCreationActions from './TacticalActionCreationActions';
+import SelectChargeSpeed from '../select/SelectChargeSpeed';
 
 const TacticalAttackCreation = () => {
 
@@ -41,7 +42,8 @@ const TacticalAttackCreation = () => {
             defensiveBonus: '',
             attackerParry: '',
             basePenalties: '',
-            restrictedQuarters: 'none'
+            restrictedQuarters: 'none',
+            chargeSpeed: 'none'
         }
     });
 
@@ -59,6 +61,8 @@ const TacticalAttackCreation = () => {
 
     const handleSelectedWeaponChange = (e) => { updateFormData('attackInfo', 'selectedWeapon', e) };
     const handleRestrictedQuarterChange = (e) => { updateFormData('attackInfo', 'restrictedQuarters', e) };
+    const handleChargeSpeedChange = (e) => { updateFormData('chargeSpeed', 'restrictedQuarters', e) };
+    
 
     const updateFormData = (field1, field2, value) => {
         setFormData((prevState) => ({
@@ -124,6 +128,9 @@ const TacticalAttackCreation = () => {
 
                     <Grid size={2}>
                         <SelectRestrictedQuarters value={formData.attackInfo.restrictedQuarters} onChange={handleRestrictedQuarterChange} />
+                    </Grid>
+                    <Grid size={2}>
+                        <SelectChargeSpeed value={formData.attackInfo.chargeSpeed} onChange={handleChargeSpeedChange} />
                     </Grid>
 
                 </Grid>

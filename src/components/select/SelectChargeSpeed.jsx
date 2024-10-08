@@ -8,16 +8,14 @@ import TextField from '@mui/material/TextField';
 
 import { VARIANT } from '../../constants/ui';
 
-const SelectRestrictedQuarters = ({ value, onChange }) => {
+const SelectChargeSpeed = ({ value, onChange }) => {
 
     const { t } = useTranslation();
 
     const restrictedQuartersOptions = [
-        { id: 'none', bonus: 0 },
-        { id: 'close', bonus: -25 },
-        { id: 'cramped', bonus: -50 },
-        { id: 'tigth', bonus: -75 },
-        { id: 'confined', bonus: -100 }];
+        { id: 'none', size: 0 },
+        { id: 'jog', size: 1 },
+        { id: 'sprint', size: 2 }];
 
     const handleChange = (event) => {
         onChange(event.target.value);
@@ -26,7 +24,7 @@ const SelectRestrictedQuarters = ({ value, onChange }) => {
     return (
         <TextField
             select
-            label={t('restricted-quarters')}
+            label={t('charge-speed')}
             value={(value === undefined || value === null || restrictedQuartersOptions.length === 0) ? '' : value}
             variant={VARIANT}
             fullWidth
@@ -35,7 +33,7 @@ const SelectRestrictedQuarters = ({ value, onChange }) => {
                 input: {
                     startAdornment: (
                         <InputAdornment position="start">
-                            <Avatar src='/static/images/generic/restricted-quarters.png' sx={{ width: 25, height: 25 }} />
+                            <Avatar src='/static/images/generic/charge-speed.png' sx={{ width: 25, height: 25 }} />
                         </InputAdornment>
                     ),
                 },
@@ -45,4 +43,4 @@ const SelectRestrictedQuarters = ({ value, onChange }) => {
     );
 }
 
-export default SelectRestrictedQuarters;
+export default SelectChargeSpeed;

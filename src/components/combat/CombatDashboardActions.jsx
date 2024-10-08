@@ -1,7 +1,9 @@
 import React, { useContext } from "react";
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from "react-router-dom";
 
-import Button from '@mui/material/Button';
+import Breadcrumbs from '@mui/material/Breadcrumbs';
+import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
@@ -12,13 +14,13 @@ import BackButton from "../button/BackButton";
 import CloseButton from "../button/CloseButton";
 import NextButton from "../button/NextButton";
 
-
 import { API_TACTICAL_URL } from "../../constants/environment";
 import { ACTION_BUTTON_SIZE } from "../../constants/ui";
 
 const CombatDashboardActions = () => {
 
     const navigate = useNavigate();
+    const { t, i18n } = useTranslation();
 
     const { displayRound, setDisplayRound } = useContext(CombatContext);
     const { tacticalGame, setTacticalGame } = useContext(CombatContext);
@@ -57,15 +59,18 @@ const CombatDashboardActions = () => {
                 justifyContent="space-between"
                 alignItems="center"
                 sx={{
-                    width: '100%',
-                    //height: 100
+                    width: '100%'
                 }}>
-                <Typography variant="h5" component="div">Tactical game {tacticalGame.name} - Round {displayRound}/{tacticalGame.round}</Typography>
+
+                <Breadcrumbs aria-label="breadcrumb">
+                    <Typography sx={{ color: 'text.primary' }}>{t('tactical-game')}</Typography>
+                    <Link underline="hover" color="inherit" href={`/tactical/view/${tacticalGame.id}`}>{tacticalGame.name}</Link>
+                    <Typography sx={{ color: 'text.primary' }}>Round</Typography>
+                    <Typography sx={{ color: 'text.primary' }}>{displayRound}/{tacticalGame.round}</Typography>
+                    <Typography sx={{ color: 'text.primary' }}>{t(`phase-${tacticalGame.phase}`)}</Typography>
+                </Breadcrumbs>
 
                 <div style={{ flexGrow: 1 }} />
-
-                <Button variant="outlined">Action phase</Button>
-                <Button variant="outlined">End turn</Button>
 
                 <BackButton onClick={handleDisplayPreviousRoundClick} disabled={displayRound === 1} size={ACTION_BUTTON_SIZE} />
                 <NextButton onClick={handleDisplayNextRoundClick} disabled={displayRound === tacticalGame.round} size={ACTION_BUTTON_SIZE} />

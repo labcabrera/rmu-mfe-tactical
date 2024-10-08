@@ -6,6 +6,7 @@
     "attack-weapon": "Weapon",
     "bmr": "BMR",
     "add-skill": "Add skill",
+    "charge-speed": "Charge speed",
     "character": "Character",
     "defender": "Defender",
     "defender-size": "Defender size",
@@ -26,7 +27,10 @@
     "race": "Race",
     "size": "Size",
     "speed": "Speed",
+    "tactical-game": "Game",
     "weight": "Weight",
+
+    "phase-initiative": "Declare initiative",
 
     "action-type-attack": "Attack",
     "action-type-movement": "Movement",
@@ -255,6 +259,12 @@
     "run": "Run",
     "sprint": "Sprint",
     "dash": "Dash",
+
+    "restricted-quarter-none": "None",
+    "restricted-quarter-close": "Close (-25)",
+    "restricted-quarter-cramped": "Cramped (-50)",
+    "restricted-quarter-tigth": "Tigth (-75)",
+    "restricted-quarter-confined": "Confined (-100)",
 
     "lotr-orc-lesser": "Lesser orc",
     "lotr-human-common": "Common human",

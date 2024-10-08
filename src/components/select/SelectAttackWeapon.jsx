@@ -46,7 +46,7 @@ const SelectAttackWeapon = ({ character, value, onChange }) => {
                 input: {
                     startAdornment: (
                         <InputAdornment position="start">
-                            <Avatar src='/static/images/generic/size.png' sx={{ width: 25, height: 25 }} />
+                            <Avatar src='/static/images/generic/select-weapon.png' sx={{ width: 25, height: 25 }} />
                         </InputAdornment>
                     ),
                 },
