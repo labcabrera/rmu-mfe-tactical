@@ -7,7 +7,7 @@ import TextField from '@mui/material/TextField';
 
 import SelectPace from '../select/SelectPace';
 import ActionPointSelector from '../shared/ActionPointSelector';
-import TacticalActionCreationActions from '../combat/TacticalActionCreationActions';
+import TacticalActionCreationActions from './TacticalActionCreationActions';
 
 const TacticalMovementCreation = () => {
 

@@ -83,8 +83,7 @@ const TacticalGameViewActions = () => {
                 justifyContent="space-between"
                 alignItems="center"
                 sx={{
-                    width: '100%',
-                    //    height: 100
+                    width: '100%'
                 }}>
 
                 <Typography variant="h5" component="div">Tactical game {tacticalGame.name}</Typography>

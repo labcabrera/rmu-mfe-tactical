@@ -10,7 +10,7 @@ import Select from '@mui/material/Select';
 import TextField from '@mui/material/TextField';
 
 import ActionPointSelector from '../shared/ActionPointSelector';
-import TacticalActionCreationActions from '../combat/TacticalActionCreationActions';
+import TacticalActionCreationActions from './TacticalActionCreationActions';
 
 import AttackTextField from '../input/AttackTextField';
 

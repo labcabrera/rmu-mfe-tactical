@@ -1,13 +1,14 @@
 import React from 'react';
 import { useNavigate } from "react-router-dom";
 
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import SaveIcon from '@mui/icons-material/Save';
-import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
+
+import BackButton from '../button/BackButton';
+import SaveButton from '../button/SaveButton';
 
 import { API_TACTICAL_URL } from "../../constants/environment";
-import { VARIANT } from '../../constants/ui';
+import { ACTION_BUTTON_SIZE } from '../../constants/ui';
 
 const TacticalActionCreationActions = ({ tacticalGame, formData }) => {
 
@@ -41,19 +42,22 @@ const TacticalActionCreationActions = ({ tacticalGame, formData }) => {
 
     return (
         <div className="generic-action-bar">
-            <Stack spacing={2} direction="row" sx={{
-                justifyContent: "flex-end",
-                alignItems: "flex-start",
-            }}>
-                <IconButton variant={VARIANT} onClick={handleBackClick}>
-                    <ArrowBackIcon />
-                </IconButton>
-                <IconButton variant={VARIANT} onClick={createAction}>
-                    <SaveIcon />
-                </IconButton>
+            <Stack
+                direction="row"
+                justifyContent="space-between"
+                alignItems="center"
+                sx={{
+                    width: '100%'
+                }}>
+
+                <Typography variant="h5" component="div">Tactical game {tacticalGame.name}</Typography>
+
+                <div style={{ flexGrow: 1 }} />
+
+                <BackButton onClick={handleBackClick} size={ACTION_BUTTON_SIZE} />
+                <SaveButton onClick={createAction} size={ACTION_BUTTON_SIZE} />
             </Stack>
         </div>
-
     );
 }
 
