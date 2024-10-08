@@ -10,7 +10,15 @@ import SelectFaction from '../select/SelectFaction';
 import SelectLevel from '../select/SelectLevel';
 import SelectRace from '../select/SelectRace';
 
-import { VARIANT, VARIANT_DISABLED, SIZE } from '../../constants/ui';
+import DefenseTextField from '../input/DefenseTextField';
+import EnduranceTextField from '../input/EnduranceDefenseTextField';
+import HeightTextField from '../input/HeightTextField';
+import HpTextField from '../input/HpTextField';
+import InitiativeTextField from '../input/InitiativeTextField';
+import WeightTextField from '../input/WeightTextField';
+
+import { VARIANT } from '../../constants/ui';
+import ManaTextField from '../input/ManaTextFields';
 
 const TacticalCharacterModificationAttributes = ({ formData, setFormData, factions }) => {
 
@@ -143,17 +151,17 @@ const TacticalCharacterModificationAttributes = ({ formData, setFormData, factio
                     <SelectArmorType value={formData.defense.armorType} onChange={onArmorTypeChange} />
                 </Grid>
                 <Grid size={4}>
-                    <TextField label="Defensive bonus" variant={VARIANT} type="text" value={formData.defense.defensiveBonus} onChange={handleDefensiveBonusChange} fullWidth />
+                    <DefenseTextField value={formData.defense.defensiveBonus} onChange={handleDefensiveBonusChange} />
                 </Grid>
 
                 <Grid size={4}>
                     <SelectCharacterSize value={formData.info.sizeId} onChange={onSizeChange} />
                 </Grid>
                 <Grid size={4}>
-                    <TextField label="Height" variant={VARIANT} type="text" value={formData.info.height} onChange={handleHeightChange} fullWidth />
+                    <HeightTextField value={formData.info.height} onChange={handleHeightChange} />
                 </Grid>
                 <Grid size={4}>
-                    <TextField label="Weight" variant={VARIANT} type="text" value={formData.info.weight} onChange={handleWeightChange} fullWidth />
+                    <WeightTextField value={formData.info.weight} onChange={handleWeightChange} />
                 </Grid>
 
                 <Grid size={4}>
@@ -163,42 +171,42 @@ const TacticalCharacterModificationAttributes = ({ formData, setFormData, factio
                     <TextField label="Stride racial bonus" variant={VARIANT} type="text" value={formData.movement.strideRacialBonus} disabled fullWidth />
                 </Grid>
                 <Grid size={4}>
-                <TextField label="Stride custom bonus" variant={VARIANT} type="text" value={formData.movement.strideCustomBonus} onChange={handleStrideCustomBonusChange} fullWidth />
+                    <TextField label="Stride custom bonus" variant={VARIANT} type="text" value={formData.movement.strideCustomBonus} onChange={handleStrideCustomBonusChange} fullWidth />
                 </Grid>
 
                 <Grid size={4}>
                     <TextField label="Initiative base" variant={VARIANT} type="text" value={formData.initiative.baseBonus} disabled fullWidth />
                 </Grid>
                 <Grid size={4}>
-                    <TextField label="Initiative custom" variant={VARIANT} type="text" value={formData.initiative.customBonus} onChange={handleInitiativeCustomChange} fullWidth />
+                    <InitiativeTextField value={formData.initiative.customBonus} onChange={handleInitiativeCustomChange} />
                 </Grid>
                 <Grid size={4}>
                     <TextField label="Initiative total" variant={VARIANT} type="text" value={formData.initiative.totalBonus} disabled fullWidth />
                 </Grid>
 
                 <Grid size={4}>
-                    <TextField label="Max HP" variant={VARIANT} type="text" value={formData.hp.max} onChange={handleHpMaxChange} fullWidth />
+                    <HpTextField value={formData.hp.max} onChange={handleHpMaxChange} />
                 </Grid>
                 <Grid size={4}>
-                    <TextField label="Current HP" variant={VARIANT} type="text" value={formData.hp.current} onChange={handleHpCurrentChange} fullWidth />
-                </Grid>
-                <Grid size={4}>
-                </Grid>
-
-                <Grid size={4}>
-                    <TextField label="Max endurance" variant={VARIANT} type="text" value={formData.endurance.max} onChange={handleEnduranceMaxChange} fullWidth />
-                </Grid>
-                <Grid size={4}>
-                    <TextField label="Current endurance" variant={VARIANT} type="text" value={formData.endurance.current} onChange={handleEnduranceCurrentChange} fullWidth />
+                    <HpTextField value={formData.hp.current} onChange={handleHpCurrentChange} />
                 </Grid>
                 <Grid size={4}>
                 </Grid>
 
                 <Grid size={4}>
-                    <TextField label="Max HP" variant={VARIANT} type="text" value={formData.power.max} onChange={handlePowerMaxChange} fullWidth />
+                    <EnduranceTextField value={formData.endurance.max} onChange={handleEnduranceMaxChange} />
                 </Grid>
                 <Grid size={4}>
-                    <TextField label="Current HP" variant={VARIANT} type="text" value={formData.power.current} onChange={handlePowerCurrentChange} fullWidth />
+                    <EnduranceTextField value={formData.endurance.current} onChange={handleEnduranceCurrentChange} />
+                </Grid>
+                <Grid size={4}>
+                </Grid>
+
+                <Grid size={4}>
+                    <ManaTextField value={formData.power.max} onChange={handlePowerMaxChange} />
+                </Grid>
+                <Grid size={4}>
+                    <ManaTextField value={formData.power.current} onChange={handlePowerCurrentChange} />
                 </Grid>
                 <Grid size={4}>
                 </Grid>

@@ -1,11 +1,12 @@
 import React, { useContext } from "react";
 import { useTranslation } from 'react-i18next';
 
-import DeleteIcon from '@mui/icons-material/Delete';
 import MiscellaneousServicesIcon from '@mui/icons-material/MiscellaneousServices';
 import Avatar from '@mui/material/Avatar';
 import IconButton from "@mui/material/IconButton";
 import Typography from '@mui/material/Typography';
+
+import DeleteButton from "../button/DeleteButton";
 
 import { CombatContext } from './CombatProvider';
 
@@ -43,15 +44,10 @@ const ResolveActionCard = ({ action }) => {
             <Typography gutterBottom sx={{ color: 'text.secondary', fontSize: 14 }}>
                 Action points: {action.actionPoints}
             </Typography>
-            <Typography variant="body1" component="div">
-                {t(`action-type-${action.type}`)}
-            </Typography>
             <IconButton size="small">
                 <MiscellaneousServicesIcon />
             </IconButton>
-            <IconButton size="small" onClick={() => handleDeleteActionClick()}>
-                <DeleteIcon />
-            </IconButton>
+            <DeleteButton onClick={() => handleDeleteActionClick()} size={40} />
         </>
     );
 }

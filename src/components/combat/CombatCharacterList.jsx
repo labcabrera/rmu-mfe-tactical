@@ -1,7 +1,6 @@
 import React, { useContext } from "react";
 
 import CombatCharacterRound from "./CombatCharacterRound";
-import Grid from '@mui/material/Grid2';
 
 import { CombatContext } from './CombatProvider';
 
@@ -17,29 +16,6 @@ const CombatCharacterList = () => {
 
     return (
         <div className="combat-dashboard-list">
-            <Grid container spacing={2} columns={24}>
-                <Grid size={6}>
-                    Character
-                </Grid>
-                <Grid size={3}>
-                    Initiative
-                </Grid>
-                <Grid size={3}>
-                    Phase 0
-                </Grid>
-                <Grid size={3}>
-                    Phase 1
-                </Grid>
-                <Grid size={3}>
-                    Phase 2
-                </Grid>
-                <Grid size={3}>
-                    Phase 3
-                </Grid>
-                <Grid size={3}>
-                    Phase 4
-                </Grid>
-            </Grid>
             {characterRounds.map((item, index) => (
                 <CombatCharacterRound key={index} characterRound={item} />
             ))}

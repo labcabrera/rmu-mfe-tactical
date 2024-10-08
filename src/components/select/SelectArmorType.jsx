@@ -31,7 +31,7 @@ const SelectArmorType = ({ value, onChange }) => {
 
     return (
         <FormControl fullWidth>
-            <InputLabel id="select-amor-type-label">{t('armorType')}</InputLabel>
+            <InputLabel id="select-amor-type-label">{t('armor-type')}</InputLabel>
             <Select
                 id="select-amor-type"
                 labelId="select-amor-type-label"

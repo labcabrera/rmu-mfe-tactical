@@ -1,5 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 
+import IconButton from "@mui/material/IconButton";
+
 import CombatPhaseActionButtons from "./ComabatPhaseActionButtons";
 import { CombatContext } from './CombatProvider';
 import ResolveActionCard from './ResolveActionCard';
@@ -48,9 +50,19 @@ const CombatCharacterPhaseOptions = ({ character, phase }) => {
     }
 
     return (
-        <div>
-            <p>Declared {activeAction.type}</p>
-        </div >
+        <IconButton
+            style={{
+                width: `60px`,
+                height: `60px`,
+                opacity: 0.5
+            }}
+        >
+            <img
+                src={`/static/images/actions/${activeAction.type}.png`}
+                alt={activeAction.type}
+                style={{ width: '100%', height: '100%', borderRadius: '50%' }} // Rounded image
+            />
+        </IconButton>
     );
 }
 
