@@ -13,11 +13,9 @@ import SelectRestrictedQuarters from '../select/SelectRestrictedQuarters';
 import ActionPointSelector from '../shared/ActionPointSelector';
 import TacticalActionCreationActions from './TacticalActionCreationActions';
 
-import { API_CORE_URL } from "../../constants/environment";
-
 const TacticalAttackCreation = () => {
 
-    const debugMode = true;
+    const debugMode = false;
 
     const location = useLocation();
     const [searchParams] = useSearchParams();
@@ -47,28 +45,12 @@ const TacticalAttackCreation = () => {
         }
     });
 
-    const fetchCharacterSizeAttackEffects = async (attackerSizeId, defenderSizeId) => {
-        try {
-            const response = await fetch(`${API_CORE_URL}/character-sizes/attack-effects/${attackerSizeId}/${defenderSizeId}`);
-            if (response.status == 200) {
-                const data = await response.json();
-                updateFormData('attackInfo', 'sizeHpMultiplier', data.hitMultiplier);
-                updateFormData('attackInfo', 'sizeCriticalTypeModifier', data.criticalTypeModifier);
-            }
-        }
-        catch (error) {
-            console.error("fetchCharacterSizeAttackEffects error: " + error);
-        }
-    };
-
-    const handleTargetChange = async (targetCharacterId) => {
+    const handleTargetChange = (targetCharacterId) => {
         const targetCharacter = characters.find(e => e.id == targetCharacterId);
-        console.log("target: " + JSON.stringify(targetCharacter, null, 2));
         setTargetCharacter(targetCharacter);
         setFormData({ ...formData, tacticalCharacterTargetId: targetCharacterId });
         updateFormData('attackInfo', 'armorType', targetCharacter.defense.armorType);
         updateFormData('attackInfo', 'defenderSizeId', targetCharacter.info.sizeId);
-        await fetchCharacterSizeAttackEffects(formData.attackInfo.attackerSizeId, targetCharacter.info.sizeId);
     };
 
     const handleActionPointsChange = (actionPoints) => {

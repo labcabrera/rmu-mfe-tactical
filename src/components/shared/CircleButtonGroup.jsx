@@ -1,7 +1,8 @@
 import React from 'react';
-import { useNavigate } from "react-router-dom";
 
 import IconButton from '@mui/material/IconButton';
+
+import StyledIconButton from '../button/StyledIconButton';
 
 const CircleButtonGroup = ({ options, initialRotation = 3.46, size = 50, radius = 32 }) => {
 
@@ -24,7 +25,7 @@ const CircleButtonGroup = ({ options, initialRotation = 3.46, size = 50, radius 
         const y = radius * Math.sin(angle);
 
         return (
-          <IconButton
+          <StyledIconButton
             key={index}
             onClick={option.action}
             //onClick={handleAction}
@@ -41,7 +42,7 @@ const CircleButtonGroup = ({ options, initialRotation = 3.46, size = 50, radius 
               alt={option.alt}
               style={{ width: '100%', height: '100%', borderRadius: '50%' }}
             />
-          </IconButton>
+          </StyledIconButton>
         );
       })}
     </div>

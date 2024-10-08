@@ -7,10 +7,6 @@ const CombatFreeActionButtons = ({ tacticalGame, character }) => {
 
     const navigate = useNavigate();
 
-    const handleDropItemClick = () => {
-        console.log("drop item click");
-    };
-
     const options = [
         {
             action: 'drop-item',
