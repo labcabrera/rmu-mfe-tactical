@@ -7,6 +7,7 @@ import HeightTextField from "../input/HeightTextField";
 import ItemStrengthTextField from "../input/ItemStrengthTextField";
 import WeightTextField from "../input/WeightTextField";
 import SelectAttackTable from "../select/SelectAttackTable";
+import SelectSizeAdjustment from "../select/SelectSizeAdjustment";
 import SelectWeaponSkill from "../select/SelectWeaponSkill";
 
 const ForgeItemAttributes = ({ formData, setFormData }) => {
@@ -30,6 +31,19 @@ const ForgeItemAttributes = ({ formData, setFormData }) => {
     const handleBonusChange = (e) => {
         handleFormDataChange('info', 'bonus', parseInt(e.target.value));
     };
+
+    const handleFumbleChange = (e) => {
+        handleFormDataChange('weapon', 'fumble', parseInt(e.target.value));
+    };
+
+    const handleSizeAdjustmentChange = (e) => {
+        handleFormDataChange('weapon', 'sizeAdjustment', e);
+    };
+
+    const handleSkillChange = (e) => {
+        handleFormDataChange('weapon', 'skillId', e);
+    };
+
 
     const handleChangeAttackTable = (e) => {
         handleFormDataChange('weapon', 'attackTable', e);
@@ -62,13 +76,13 @@ const ForgeItemAttributes = ({ formData, setFormData }) => {
                         <SelectAttackTable value={formData.weapon?.attackTable} onChange={handleChangeAttackTable} />
                     </Grid>
                     <Grid size={6}>
-                        <ItemStrengthTextField i18nLabel="size-adjustment" value={formData.weapon.sizeAdjustment} />
+                        <SelectSizeAdjustment value={formData.weapon.sizeAdjustment} onChange={handleSizeAdjustmentChange} />
                     </Grid>
                     <Grid size={6}>
-                        <SelectWeaponSkill value={formData.weapon?.skillId} />
+                        <SelectWeaponSkill value={formData.weapon?.skillId} onChange={handleSkillChange} />
                     </Grid>
                     <Grid size={6}>
-                        <ItemStrengthTextField i18nLabel="fumble" value={formData.weapon.fumble} onChange={handleWeightChange} />
+                        <ItemStrengthTextField i18nLabel="fumble" value={formData.weapon.fumble} onChange={handleFumbleChange} />
                     </Grid>
                 </>
             ) : null}
