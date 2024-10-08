@@ -8,9 +8,9 @@ import ArmorButton from '../button/ArmorButton';
 import ShieldButton from '../button/ShieldButton';
 import WeaponButton from '../button/WeaponButton';
 import ItemList from '../shared/ItemList';
+import ForgeButton from '../button/ForgeButton';
 
 import { API_ITEMS_URL, API_TACTICAL_URL } from '../../constants/environment';
-import ForgeButton from '../button/ForgeButton';
 
 const TacticalCharacterAddItem = ({ tacticalGame, tacticalCharacter, setTacticalCharacter }) => {
 
