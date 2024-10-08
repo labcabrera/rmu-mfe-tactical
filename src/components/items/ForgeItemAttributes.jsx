@@ -36,6 +36,10 @@ const ForgeItemAttributes = ({ formData, setFormData }) => {
         handleFormDataChange('weapon', 'fumble', parseInt(e.target.value));
     };
 
+    const handleStrengthChange = (e) => {
+        handleFormDataChange('info', 'strength', parseInt(e.target.value));
+    };
+
     const handleSizeAdjustmentChange = (e) => {
         handleFormDataChange('weapon', 'sizeAdjustment', e);
     };
@@ -129,7 +133,7 @@ const ForgeItemAttributes = ({ formData, setFormData }) => {
                         <WeightTextField value={formData.info.weight} onChange={handleWeightChange} />
                     </Grid>
                     <Grid size={6}>
-                        <ItemStrengthTextField i18nLabel="item-strength" value={formData.info.strength} />
+                        <ItemStrengthTextField i18nLabel="item-strength" value={formData.info.strength} onChange={handleStrengthChange} />
                     </Grid>
                 </>
             ) : null}
