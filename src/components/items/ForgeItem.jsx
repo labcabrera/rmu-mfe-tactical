@@ -22,9 +22,9 @@ const ForgeItem = () => {
 
     const [items, setItems] = useState([]);
     const [formData, setFormData] = useState({
-        category: 'weapon',
+        category: '',
         weapon: {
-            type: 'oneHand',
+            type: '',
             attackTable: '',
             skillId: '',
             fumble: ''
@@ -59,6 +59,10 @@ const ForgeItem = () => {
         }
     };
 
+    const loadItemForm = (item) => {
+        setFormData(item);
+    };
+
     useEffect(() => {
         fetchItems('weapon');
     }, []);
@@ -74,7 +78,7 @@ const ForgeItem = () => {
                 <Grid container spacing={2}>
                     <Grid size={6}>
                         <ForgeItemCategories onChange={fetchItems} />
-                        <ForgeItemList items={items} />
+                        <ForgeItemList items={items} onSelectedItem={loadItemForm} />
                     </Grid>
                     <Grid size={6}>
                         <ForgeItemAttributes formData={formData} setFormData={setFormData} />

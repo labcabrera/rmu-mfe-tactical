@@ -7,7 +7,7 @@ import TextField from '@mui/material/TextField';
 
 import { VARIANT } from '../../constants/ui';
 
-const InitiativeTextField = ({ value, onChange, i18nLabel = 'initiative' }) => {
+const ItemStrengthTextField = ({ value, onChange, i18nLabel = 'item-strength', readonly = false, required = false }) => {
 
     const { t } = useTranslation();
 
@@ -17,13 +17,14 @@ const InitiativeTextField = ({ value, onChange, i18nLabel = 'initiative' }) => {
             variant={VARIANT}
             fullWidth
             value={value}
+            readonly={readonly}
             onChange={onChange}
-            required
+            required={required}
             slotProps={{
                 input: {
                     startAdornment: (
                         <InputAdornment position="start">
-                            <Avatar src='/static/images/generic/initiative.png' sx={{ width: 25, height: 25 }} />
+                            <Avatar src='/static/images/generic/item-strength.png' sx={{ width: 25, height: 25 }} />
                         </InputAdornment>
                     ),
                 },
@@ -32,4 +33,4 @@ const InitiativeTextField = ({ value, onChange, i18nLabel = 'initiative' }) => {
     );
 };
 
-export default InitiativeTextField;
+export default ItemStrengthTextField;
