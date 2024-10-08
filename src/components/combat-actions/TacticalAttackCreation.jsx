@@ -1,65 +1,32 @@
 import React, { useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
+import { useLocation, useSearchParams } from "react-router-dom";
 
-import FormControl from '@mui/material/FormControl';
 import Grid from '@mui/material/Grid2';
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
-import Select from '@mui/material/Select';
-import TextField from '@mui/material/TextField';
 
 import ArmorTextField from '../input/ArmorTextField';
 import AttackTextField from '../input/AttackTextField';
+import DefenseTextField from '../input/DefenseTextField';
 import SizeTextField from '../input/SizeTextField';
 import SelectAttackWeapon from '../select/SelectAttackWeapon';
 import SelectDefender from '../select/SelectDefender';
+import SelectRestrictedQuarters from '../select/SelectRestrictedQuarters';
 import ActionPointSelector from '../shared/ActionPointSelector';
 import TacticalActionCreationActions from './TacticalActionCreationActions';
-import DefenseTextField from '../input/DefenseTextField';
 
 import { API_CORE_URL } from "../../constants/environment";
 
 const TacticalAttackCreation = () => {
 
     const debugMode = true;
-    const variant = 'standard'
 
-    const navigate = useNavigate();
     const location = useLocation();
     const [searchParams] = useSearchParams();
-    const { t, i18n } = useTranslation();
+    const [targetCharacter, setTargetCharacter] = useState();
 
     const phaseStart = searchParams.get('phaseStart');
     const tacticalGame = location.state?.tacticalGame;
     const character = location.state?.character;
     const characters = location.state?.characters;
-
-    const restrictedQuartersOptions = [
-        { id: 'none', bonus: 0 },
-        { id: 'close', bonus: -25 },
-        { id: 'cramped', bonus: -50 },
-        { id: 'tigth', bonus: -75 },
-        { id: 'confined', bonus: -100 }];
-
-    const positionalMeleeOptions = [
-        { id: 'none', bonus: 0 },
-        { id: 'flank-attack', bonus: 15 },
-        { id: 'read-attack', bonus: 35 },
-        { id: 'to-flank', bonus: 30 },
-        { id: 'to-rear', bonus: 70 }];
-
-    const coverMeleeOptions = [
-        { id: 'none', bonus: 0 },
-        { id: 'partial', bonus: 10 },
-        { id: 'half', bonus: 20 },
-        { id: 'full', bonus: 50 }];
-
-    //TODO READ FROM EQUIPEMENT
-    const availableWeapons = [
-        "main-hand",
-        "off-hand"
-    ];
 
     const [formData, setFormData] = useState({
         tacticalGameId: tacticalGame.id,
@@ -75,13 +42,7 @@ const TacticalAttackCreation = () => {
             offensiveBonus: '',
             defensiveBonus: '',
             attackerParry: '',
-            defenderParry: '',
             basePenalties: '',
-            pacePenalty: '',
-            attackerSizeId: character.info.sizeId,
-            defenderSizeId: '',
-            sizeHpMultiplier: '',
-            sizeCriticalTypeModifier: '',
             restrictedQuarters: 'none'
         }
     });
@@ -100,14 +61,10 @@ const TacticalAttackCreation = () => {
         }
     };
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData({ ...formData, [name]: value })
-    }
-
     const handleTargetChange = async (targetCharacterId) => {
         const targetCharacter = characters.find(e => e.id == targetCharacterId);
         console.log("target: " + JSON.stringify(targetCharacter, null, 2));
+        setTargetCharacter(targetCharacter);
         setFormData({ ...formData, tacticalCharacterTargetId: targetCharacterId });
         updateFormData('attackInfo', 'armorType', targetCharacter.defense.armorType);
         updateFormData('attackInfo', 'defenderSizeId', targetCharacter.info.sizeId);
@@ -119,8 +76,7 @@ const TacticalAttackCreation = () => {
     };
 
     const handleSelectedWeaponChange = (e) => { updateFormData('attackInfo', 'selectedWeapon', e) };
-
-    const handleRestrictedQuarterChange = (e) => { updateFormData('attackInfo', 'restrictedQuarters', e.target.value) };
+    const handleRestrictedQuarterChange = (e) => { updateFormData('attackInfo', 'restrictedQuarters', e) };
 
     const updateFormData = (field1, field2, value) => {
         setFormData((prevState) => ({
@@ -172,7 +128,7 @@ const TacticalAttackCreation = () => {
                     <Grid size={2}>
                     </Grid>
                     <Grid size={2}>
-                        <TextField label="Defensive bonus" variant={variant} name="defensive-bonus" disabled value={formData.attackInfo.defensiveBonus} fullWidth />
+                        <DefenseTextField value={formData.attackInfo.defensiveBonus} disabled />
                     </Grid>
                     <Grid size={2}>
                         <SizeTextField i18nLabel='defender-size' value={formData.attackInfo.defenderSizeId} disabled />
@@ -185,35 +141,7 @@ const TacticalAttackCreation = () => {
                     <Grid size={10}></Grid>
 
                     <Grid size={2}>
-                        <FormControl fullWidth>
-                            <InputLabel id="select-weapon-label">Restricted quarters</InputLabel>
-                            <Select
-                                id="select-weapon"
-                                labelId="select-weapon-label"
-                                label="Weapon"
-                                value={formData.attackInfo.restrictedQuarters}
-                                required
-                                variant={variant}
-                                onChange={handleRestrictedQuarterChange}>
-                                {restrictedQuartersOptions.map((c, index) => (
-                                    <MenuItem key={index} value={c.id}>{c.id}</MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-                    </Grid>
-                    <Grid size={2}>
-                        <TextField label="Defender size" variant={variant} name="defender-size" fullWidth disabled
-                            value={formData.attackInfo.defenderSizeId ? t(`size-${formData.attackInfo.defenderSizeId}`) : ''} />
-                    </Grid>
-                    <Grid size={2}>
-                        <TextField label="Size effect attacker HP multiplier" variant={variant} name="attacker-size-multiplier" fullWidth disabled
-                            value={formData.attackInfo.sizeHpMultiplier} />
-                    </Grid>
-                    <Grid size={2}>
-                        <TextField label="Size effect critical type modifier" variant={variant} name="attacker-size-multiplier" fullWidth disabled
-                            value={formData.attackInfo.sizeCriticalTypeModifier} />
-                    </Grid>
-                    <Grid size={4}>
+                        <SelectRestrictedQuarters value={formData.attackInfo.restrictedQuarters} onChange={handleRestrictedQuarterChange} />
                     </Grid>
 
                 </Grid>
