@@ -17,6 +17,10 @@ const SelectDefender = ({ value, onChange, sourceId, targets }) => {
         onChange(targetId);
     };
 
+    if (!sourceId || !targets) {
+        return <p>Loading...</p>
+    }
+
     return (
         <TextField
             select

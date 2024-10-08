@@ -7,24 +7,24 @@ import TextField from '@mui/material/TextField';
 
 import { VARIANT } from '../../constants/ui';
 
-const AttackTextField = ({ i18Label = 'attack', value, onChange, disabled = false, required = false }) => {
+const PenaltyTextField = ({ value, onChange, i18nLabel = 'armor-type', disabled = false, required = false }) => {
 
     const { t } = useTranslation();
 
     return (
         <TextField
-            label={t(i18Label)}
-            disabled={disabled}
-            variant={VARIANT}
-            fullWidth
+            label={t(i18nLabel)}
             value={value}
             onChange={onChange}
+            disabled={disabled}
             required={required}
+            variant={VARIANT}
+            fullWidth
             slotProps={{
                 input: {
                     startAdornment: (
                         <InputAdornment position="start">
-                            <Avatar src='/static/images/generic/sword.png' sx={{ width: 25, height: 25 }} />
+                            <Avatar src='/static/images/generic/penalty.png' sx={{ width: 25, height: 25 }} />
                         </InputAdornment>
                     ),
                 },
@@ -33,4 +33,4 @@ const AttackTextField = ({ i18Label = 'attack', value, onChange, disabled = fals
     );
 };
 
-export default AttackTextField;
+export default PenaltyTextField;

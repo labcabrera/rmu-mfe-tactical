@@ -6,17 +6,19 @@ import Grid from '@mui/material/Grid2';
 import ArmorTextField from '../input/ArmorTextField';
 import AttackTextField from '../input/AttackTextField';
 import DefenseTextField from '../input/DefenseTextField';
+import PenaltyTextField from '../input/PenaltyTextField';
 import SizeTextField from '../input/SizeTextField';
 import SelectAttackWeapon from '../select/SelectAttackWeapon';
+import SelectChargeSpeed from '../select/SelectChargeSpeed';
 import SelectDefender from '../select/SelectDefender';
 import SelectRestrictedQuarters from '../select/SelectRestrictedQuarters';
 import ActionPointSelector from '../shared/ActionPointSelector';
 import TacticalActionCreationActions from './TacticalActionCreationActions';
-import SelectChargeSpeed from '../select/SelectChargeSpeed';
 
 const TacticalAttackCreation = () => {
 
-    const debugMode = false;
+    const debugMode = true;
+    const noSkillValue = -25;
 
     const location = useLocation();
     const [searchParams] = useSearchParams();
@@ -27,42 +29,94 @@ const TacticalAttackCreation = () => {
     const character = location.state?.character;
     const characters = location.state?.characters;
 
+    const calculateOffensiveBonus = (weaponType) => {
+        try {
+            var itemId = '';
+            switch (weaponType) {
+                case 'main-hand':
+                    itemId = character.equipment.mainHand;
+                    break;
+                case 'off-hand':
+                    itemId = character.equipment.offhand;
+                    break;
+                default:
+                    throw `Invalid weapon type ${weaponType}`;
+            }
+            const item = character.items.find(e => e.id == itemId);
+            if (!item) {
+                return noSkillValue;
+            }
+            const skillId = item.weapon.skillId;
+            console.log("skillId " + skillId);
+            const skill = character.skills.find(e => e.skillId == skillId);
+            console.log("skill " + skill);
+            return skill ? skill.totalBonus : noSkillValue;
+        } catch (error) {
+            console.error(`Error reading offensive bonus ${error}`);
+            return noSkillValue;
+        }
+    };
+
     const [formData, setFormData] = useState({
         tacticalGameId: tacticalGame.id,
         round: tacticalGame.round,
         tacticalCharacterId: character.id,
         type: 'attack',
         phaseStart: phaseStart,
-        actionPoints: 2,
+        actionPoints: 4,
         tacticalCharacterTargetId: '',
         attackInfo: {
             selectedWeapon: 'main-hand',
+            parry: 0,
             armorType: '',
-            offensiveBonus: '',
-            defensiveBonus: '',
             attackerParry: '',
             basePenalties: '',
             restrictedQuarters: 'none',
             chargeSpeed: 'none'
+        },
+        transient: {
+            actionPointPenalty: 0,
+            offensiveBonus: calculateOffensiveBonus('main-hand'),
+            defensiveBonus: 0,
+            attackerSizeId: character.info.sizeId,
+            defenderSizeId: '',
         }
     });
 
     const handleTargetChange = (targetCharacterId) => {
         const targetCharacter = characters.find(e => e.id == targetCharacterId);
         setTargetCharacter(targetCharacter);
-        setFormData({ ...formData, tacticalCharacterTargetId: targetCharacterId });
-        updateFormData('attackInfo', 'armorType', targetCharacter.defense.armorType);
-        updateFormData('attackInfo', 'defenderSizeId', targetCharacter.info.sizeId);
+        setFormData((prevState) => ({
+            ...prevState,
+            tacticalCharacterTargetId: targetCharacterId,
+            transient: {
+                ...prevState.transient,
+                armorType: targetCharacter.defense.armorType,
+                defenderSizeId: targetCharacter.info.sizeId,
+                defensiveBonus: targetCharacter.defense.defensiveBonus
+            }
+        }));
     };
 
     const handleActionPointsChange = (actionPoints) => {
-        setFormData({ ...formData, actionPoints: actionPoints });
+        if (actionPoints < 2) {
+            actionPoints == 2;
+        }
+        setFormData((prevState) => ({
+            ...formData,
+            actionPoints: actionPoints,
+            transient: {
+                ...formData.transient,
+                actionPointPenalty: (4 - actionPoints) * -25
+            }
+        }));
     };
 
     const handleSelectedWeaponChange = (e) => { updateFormData('attackInfo', 'selectedWeapon', e) };
     const handleRestrictedQuarterChange = (e) => { updateFormData('attackInfo', 'restrictedQuarters', e) };
-    const handleChargeSpeedChange = (e) => { updateFormData('chargeSpeed', 'restrictedQuarters', e) };
-    
+    const handleChargeSpeedChange = (e) => { updateFormData('attackInfo', 'chargeSpeed', e) };
+
+
 
     const updateFormData = (field1, field2, value) => {
         setFormData((prevState) => ({
@@ -85,39 +139,42 @@ const TacticalAttackCreation = () => {
 
                 <Grid container spacing={2}>
 
-                    <Grid size={4}>
-                        <ActionPointSelector value={formData.actionsPoints} min={2} max={4} defaultValue={2} onChange={handleActionPointsChange} />
+                    <Grid size={2}>
+                        <ActionPointSelector value={formData.actionPoints} min={2} max={4} defaultValue={2} onChange={handleActionPointsChange} />
+                    </Grid>
+                    <Grid size={2}>
+                        <PenaltyTextField i18nLabel='action-points-penalty' value={formData.transient.actionPointPenalty} disabled />
                     </Grid>
                     <Grid size={8}></Grid>
 
                     <Grid size={2}>
-                        <AttackTextField value={character.name} i18LabelKey='attacker' disabled required={false} />
+                        <AttackTextField i18Label='attacker' value={character.name} disabled required={false} />
                     </Grid>
                     <Grid size={2}>
                         <SelectAttackWeapon character={character} value={formData.attackInfo.selectedWeapon} onChange={handleSelectedWeaponChange} />
                     </Grid>
                     <Grid size={2}></Grid>
                     <Grid size={2}>
-                        <SelectDefender value={formData.tacticalCharacterTargetId} onChange={handleTargetChange} targets={characters} />
+                        <SelectDefender value={formData.tacticalCharacterTargetId} onChange={handleTargetChange} sourceId={character.id} targets={characters} />
                     </Grid>
                     <Grid size={2}>
-                        <ArmorTextField value={formData.attackInfo.armorType} disabled />
+                        <ArmorTextField value={formData.transient.armorType} disabled />
                     </Grid>
                     <Grid size={2}></Grid>
 
                     <Grid size={2}>
-                        <AttackTextField i18LabelKey='offensive-bonus' value={formData.attackInfo.offensiveBonus} disabled />
+                        <AttackTextField i18Label='base-offensive-bonus' value={formData.transient.offensiveBonus} disabled />
                     </Grid>
                     <Grid size={2}>
-                        <SizeTextField i18nLabel='attacker-size' value={formData.attackInfo.attackerSizeId} disabled />
+                        <SizeTextField i18nLabel='attacker-size' value={formData.transient.attackerSizeId} disabled />
                     </Grid>
                     <Grid size={2}>
                     </Grid>
                     <Grid size={2}>
-                        <DefenseTextField value={formData.attackInfo.defensiveBonus} disabled />
+                        <DefenseTextField i18nLabel='base-defensive-bonus' value={formData.transient.defensiveBonus} disabled />
                     </Grid>
                     <Grid size={2}>
-                        <SizeTextField i18nLabel='defender-size' value={formData.attackInfo.defenderSizeId} disabled />
+                        <SizeTextField i18nLabel='defender-size' value={formData.transient.defenderSizeId} disabled />
                     </Grid>
                     <Grid size={2}></Grid>
 
@@ -132,6 +189,11 @@ const TacticalAttackCreation = () => {
                     <Grid size={2}>
                         <SelectChargeSpeed value={formData.attackInfo.chargeSpeed} onChange={handleChargeSpeedChange} />
                     </Grid>
+                    <Grid size={8}></Grid>
+
+                    <Grid size={12}></Grid>
+
+
 
                 </Grid>
                 {debugMode ? (

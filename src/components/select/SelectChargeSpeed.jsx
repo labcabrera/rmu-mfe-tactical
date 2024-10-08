@@ -38,7 +38,7 @@ const SelectChargeSpeed = ({ value, onChange }) => {
                     ),
                 },
             }}>
-            {restrictedQuartersOptions.map((option, index) => (<MenuItem key={index} value={option.id}>{t(`restricted-quarter-${option.id}`)}</MenuItem>))}
+            {restrictedQuartersOptions.map((option, index) => (<MenuItem key={index} value={option.id}>{t(`charge-speed-${option.id}`)}</MenuItem>))}
         </TextField>
     );
 }

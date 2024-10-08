@@ -1,9 +1,12 @@
 {
+    "action-points-penalty": "Action points penalty",
     "adjusted-speed": "Adjusted speed UMs",
     "armor-type": "Armor type",
     "attacker": "Attacker",
     "attacker-size": "Attacker size",
     "attack-weapon": "Weapon",
+    "base-defensive-bonus": "Base defensive bonus",
+    "base-offensive-bonus": "Base offensive bonus",
     "bmr": "BMR",
     "add-skill": "Add skill",
     "charge-speed": "Charge speed",
@@ -259,6 +262,11 @@
     "run": "Run",
     "sprint": "Sprint",
     "dash": "Dash",
+
+    "charge-speed-none": "None",
+    "charge-speed-jog": "Jog (size +1)",
+    "charge-speed-sprint": "Spring (size +2)",
+    
 
     "restricted-quarter-none": "None",
     "restricted-quarter-close": "Close (-25)",

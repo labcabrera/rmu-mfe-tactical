@@ -50,19 +50,34 @@ const CombatCharacterPhaseOptions = ({ character, phase }) => {
     }
 
     return (
-        <IconButton
-            style={{
-                width: `60px`,
-                height: `60px`,
-                opacity: 0.5
-            }}
-        >
-            <img
-                src={`/static/images/actions/${activeAction.type}.png`}
-                alt={activeAction.type}
-                style={{ width: '100%', height: '100%', borderRadius: '50%' }} // Rounded image
-            />
-        </IconButton>
+        <>
+            <IconButton
+                style={{
+                    width: `60px`,
+                    height: `60px`,
+                    opacity: 0.5
+                }}
+            >
+                <img
+                    src={`/static/images/generic/wait.png`}
+                    alt={activeAction.type}
+                    style={{ width: '100%', height: '100%', borderRadius: '50%' }} // Rounded image
+                />
+            </IconButton>
+            <IconButton
+                style={{
+                    width: `60px`,
+                    height: `60px`,
+                    opacity: 0.5
+                }}
+            >
+                <img
+                    src={`/static/images/actions/${activeAction.type}.png`}
+                    alt={activeAction.type}
+                    style={{ width: '100%', height: '100%', borderRadius: '50%' }} // Rounded image
+                />
+            </IconButton>
+        </>
     );
 }
 
