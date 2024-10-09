@@ -44,7 +44,8 @@ const TacticalGameViewActions = ({ tacticalGame }) => {
     };
 
     const handleEditClick = () => {
-        alert("TODO");
+        navigate(`/tactical/edit/${tacticalGame.id}`, { state: { tacticalGame: tacticalGame } });
+        return;
     };
 
     const handleOpenClick = async () => {

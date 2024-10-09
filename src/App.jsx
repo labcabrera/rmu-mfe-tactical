@@ -10,6 +10,7 @@ import TacticalCharacterModification from './components/tactical-character/Tacti
 import TacticalGameCreation from './components/tactical-game/create/TacticalGameCreation';
 import TacticalGameList from './components/tactical-game/list/TacticalGameList';
 import TacticalGameView from './components/tactical-game/view/TacticalGameView';
+import TacticalGameEdit from './components/tactical-game/edit/TacticalGameEdit';
 
 import './i18n';
 import './index.css';
@@ -20,6 +21,7 @@ const App = () => {
     <Routes>
       <Route path='/' element={<TacticalGameList />} />
       <Route path='/view/:gameId' element={<TacticalGameView />} />
+      <Route path='/edit/:gameId' element={<TacticalGameEdit />} />
       <Route path='/combat/:gameId' element={<CombatDashboardParent />} />
       <Route path='/combat/:gameId/declare-attack' element={<TacticalAttackCreation />} />
       <Route path='/combat/:gameId/declare-movement' element={<TacticalMovementCreation />} />

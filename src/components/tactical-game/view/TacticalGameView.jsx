@@ -40,7 +40,7 @@ const TacticalGameView = () => {
     }
 
     return (
-        <div className="tactical-game-view">
+        <div className="generic-main-content">
             <TacticalGameViewActions tacticalGame={tacticalGame} />
             <Box sx={{ flexGrow: 1 }}>
                 <Grid container spacing={2}>
