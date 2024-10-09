@@ -7,7 +7,7 @@ import CombatDashboardParent from './components/combat/CombatDashboardParent';
 import ForgeItem from './components/items/ForgeItem';
 import CharacterCreation from './components/tactical-character/creation/CharacterCreation';
 import CharacterModification from './components/tactical-character/edit/CharacterModification';
-import TacticalGameCreation from './components/tactical-game/create/TacticalGameCreation';
+import GameCreation from './components/tactical-game/create/GameCreation';
 import TacticalGameEdit from './components/tactical-game/edit/TacticalGameEdit';
 import TacticalGameList from './components/tactical-game/list/TacticalGameList';
 import TacticalGameView from './components/tactical-game/view/TacticalGameView';
@@ -25,7 +25,7 @@ const App = () => {
       <Route path='/combat/:gameId' element={<CombatDashboardParent />} />
       <Route path='/combat/:gameId/declare-attack' element={<TacticalAttackDeclaration />} />
       <Route path='/combat/:gameId/declare-movement' element={<TacticalMovementCreation />} />
-      <Route path='/creation' element={<TacticalGameCreation />} />
+      <Route path='/creation' element={<GameCreation />} />
       <Route path='/characters/creation' element={<CharacterCreation />} />
       <Route path='/characters/edit/:characterId' element={<CharacterModification />} />
       <Route path='/forge/:gameId' element={<ForgeItem />} />
