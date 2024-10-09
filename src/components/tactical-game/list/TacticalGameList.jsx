@@ -10,11 +10,11 @@ import Snackbar from '@mui/material/Snackbar';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
-import AddButton from "../button/AddButton";
+import AddButton from "../../button/AddButton";
 import TacticalGameListItem from "./TacticalGameListItem";
 
-import { API_TACTICAL_URL } from "../../constants/environment";
-import { ACTION_BUTTON_SIZE } from "../../constants/ui";
+import { API_TACTICAL_URL } from "../../../constants/environment";
+import { ACTION_BUTTON_SIZE } from "../../../constants/ui";
 
 const TacticalGameList = () => {
 

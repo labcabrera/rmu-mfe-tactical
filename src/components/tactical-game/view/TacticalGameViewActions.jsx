@@ -1,6 +1,6 @@
 import React from "react";
 import { useTranslation } from 'react-i18next';
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Button from '@mui/material/Button';
@@ -13,20 +13,18 @@ import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
-import CloseButton from "../button/CloseButton";
-import DeleteButton from "../button/DeleteButton";
-import EditButton from "../button/EditButton";
-import PlayButton from "../button/PlayButton";
+import CloseButton from "../../button/CloseButton";
+import DeleteButton from "../../button/DeleteButton";
+import EditButton from "../../button/EditButton";
+import PlayButton from "../../button/PlayButton";
 
-import { API_TACTICAL_URL } from '../../constants/environment';
-import { ACTION_BUTTON_SIZE } from "../../constants/ui";
+import { API_TACTICAL_URL } from '../../../constants/environment';
+import { ACTION_BUTTON_SIZE } from "../../../constants/ui";
 
-const TacticalGameViewActions = () => {
+const TacticalGameViewActions = ({ tacticalGame }) => {
 
-    const location = useLocation();
     const navigate = useNavigate();
-    const tacticalGame = location.state?.tacticalGame;
-    const { t, i18n } = useTranslation();
+    const { t } = useTranslation();
 
     const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
 
@@ -77,6 +75,10 @@ const TacticalGameViewActions = () => {
         deleteTacticalGame();
         setDeleteDialogOpen(false);
     };
+
+    if (!tacticalGame) {
+        return <p>Loading...</p>
+    }
 
     return (
         <>

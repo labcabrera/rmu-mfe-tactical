@@ -4,10 +4,10 @@ import { useNavigate } from "react-router-dom";
 import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 
-import SaveButton from '../button/SaveButton';
+import SaveButton from '../../button/SaveButton';
 
-import { API_TACTICAL_URL } from "../../constants/environment";
-import { ACTION_BUTTON_SIZE } from '../../constants/ui';
+import { API_TACTICAL_URL } from "../../../constants/environment";
+import { ACTION_BUTTON_SIZE } from '../../../constants/ui';
 
 const TacticalGameCreation = () => {
 

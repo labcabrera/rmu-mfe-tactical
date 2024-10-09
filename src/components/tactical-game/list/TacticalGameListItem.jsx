@@ -6,8 +6,6 @@ import ListItemAvatar from '@mui/material/ListItemAvatar';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 
-import witchKing from '../../assets/images/races/lotr-witch-king.jpg';
-
 const TacticalGameListItem = ({ tacticalGame }) => {
 
     const navigate = useNavigate();
@@ -16,14 +14,21 @@ const TacticalGameListItem = ({ tacticalGame }) => {
         navigate(`view/${tacticalGame.id}`, { state: { tacticalGame: tacticalGame } });
     }
 
+    if (!tacticalGame) {
+        return <p>Loading...</p>
+    }
+
+    const getSubtitle = () => {
+        return tacticalGame.round > 0 ? `Round ${tacticalGame.round}` : 'Not started';
+    };
+
     return (
         <div>
             <ListItemButton onClick={handleGameClick}>
                 <ListItemAvatar>
-                    <Avatar src={witchKing}>
-                    </Avatar>
+                    <Avatar src='/static/images/characters/lotr-witch-king.jpg' />
                 </ListItemAvatar>
-                <ListItemText primary={tacticalGame.name} secondary={tacticalGame.user} />
+                <ListItemText primary={tacticalGame.name} secondary={getSubtitle()} />
             </ListItemButton>
         </div>
     );

@@ -83,9 +83,7 @@ module.exports = (_, argv) => ({
     new ModuleFederationPlugin({
       name: "tactical",
       filename: "tactical-app.js",
-      remotes: {
-        main: 'main@http://localhost:8080/remoteEntry.js'
-      },
+      remotes: {},
       exposes: {
         "./TacticalApp": "./src/App.jsx",
       },
@@ -99,36 +97,11 @@ module.exports = (_, argv) => ({
           singleton: true,
           requiredVersion: deps["react-dom"],
         },
-        'react-router-dom': {
-          singleton: true,
-          requiredVersion: deps["react-router-dom"],
-        },
-        '@mui/material': {
-          singleton: true,
-          requiredVersion: deps["@mui/material"]
-        },
-        '@mui/icons-material': {
-          singleton: true,
-          requiredVersion: deps["@mui/icons-material"]
-        },
-        '@emotion/react': {
-          singleton: true,
-          requiredVersion: deps["@emotion/react"]
-        },
-        '@emotion/styled': {
-          singleton: true,
-          requiredVersion: deps["@emotion/styled"]
-        },
       },
     }),
     new HtmlWebPackPlugin({
       template: "./src/index.html",
     }),
     new Dotenv(),
-  ],
-
-  stats: {
-    errorDetails: true,  // Esto proporcionará más detalles sobre los errores
-    logging: 'verbose',  // Modo detallado de registro para depurar problemas
-  },
+  ]
 });
