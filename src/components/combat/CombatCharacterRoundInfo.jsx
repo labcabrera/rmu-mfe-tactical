@@ -13,7 +13,7 @@ import GenericBar from '../shared/GenericBar';
 
 const CombatCharacterRoundInfo = ({ characterRound, character }) => {
 
-    const barSize = 280;
+    const barSize = 220;
     const green = '#4caf50';
     const red = '#f44336';
     const blue = '#4180d3';
@@ -48,7 +48,7 @@ const CombatCharacterRoundInfo = ({ characterRound, character }) => {
                         <Typography variant="content1" component="div">
                             {character.name}
                         </Typography>
-                        <Typography variant="content1" component="div">
+                        <Typography variant="subtitle2" component="div">
                             {t(character.info.race)} level {character.info.level}
                         </Typography>
                     </Stack>

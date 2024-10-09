@@ -1,13 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useSearchParams } from "react-router-dom";
 
 import Grid from '@mui/material/Grid2';
 import TextField from '@mui/material/TextField';
 
-import SelectPace from '../select/SelectPace';
-import ActionPointSelector from '../shared/ActionPointSelector';
-import TacticalActionCreationActions from './TacticalActionCreationActions';
+import NameTextField from '../../input/NameTextField';
+import SelectPace from '../../select/SelectPace';
+import ActionPointSelector from '../../shared/ActionPointSelector';
+import TacticalActionCreationActions from '../TacticalActionCreationActions';
+
+import MovementTextField from '../../input/MovementTextField';
 
 const TacticalMovementCreation = () => {
 
@@ -15,6 +18,7 @@ const TacticalMovementCreation = () => {
 
     const location = useLocation();
     const [searchParams] = useSearchParams();
+    const [isValid, setIsValid] = useState(false);
     const { t, i18n } = useTranslation();
 
     const phaseStart = parseInt(searchParams.get('phaseStart'));
@@ -70,42 +74,58 @@ const TacticalMovementCreation = () => {
         };
     };
 
+    useEffect(() => {
+        console.log("");
+        var isValidForm = true;
+        if (!formData.pace) {
+            isValidForm = false;
+        }
+        setIsValid(isValidForm);
+    }, [formData]);
+
     if (!tacticalGame || !character) {
         return <p>Loading...</p>
     }
 
     return (
         <>
-            <TacticalActionCreationActions tacticalGame={tacticalGame} formData={formData} />
+            <TacticalActionCreationActions game={tacticalGame} character={character} formData={formData} isValid={isValid} />
             <div className="generic-main-content">
                 <Grid container spacing={2}>
 
-                    <Grid size={2}>
-                        <TextField label={t('character')} variant={variant} fullWidth disabled value={character.name} />
-                    </Grid>
-                    <Grid size={12}></Grid>
-
-                    <Grid size={2}>
-                        <TextField label={t('bmr')} variant={variant} fullWidth disabled value={character.movement.baseMovementRate} />
-                    </Grid>
-                    <Grid size={12}></Grid>
-
                     <Grid size={4}>
-                        <ActionPointSelector value={formData.actionPoints} min={1} max={4} defaultValue={1} onChange={updateActionPoints} />
+                        <NameTextField value={character.name} disabled />
                     </Grid>
-                    <Grid size={8}></Grid>
-
-                    <Grid size={2}>
+                    <Grid size={4}>
                         <SelectPace value={formData.pace} onChange={updatePace} />
                     </Grid>
-                    <Grid size={2}>
-                        <TextField label={t('multiplier')} variant={variant} fullWidth disabled value={formData.paceMultiplier} />
+                    <Grid size={4}>
+                        <MovementTextField i18nLabel='base-movement-rate' value={character.movement.baseMovementRate} disabled />
                     </Grid>
-                    <Grid size={2}>
-                        <TextField label={t('speed')} variant={variant} fullWidth disabled value={formData.speed} />
+                    <Grid size={4}></Grid>
+
+                    <Grid size={4}>
+                        <ActionPointSelector
+                            value={formData.actionPoints}
+                            min={1}
+                            max={4}
+                            defaultValue={1}
+                            onChange={updateActionPoints} />
                     </Grid>
-                    <Grid size={2}>
-                        <TextField label={t('adjusted-speed')} variant={variant} fullWidth disabled value={formData.adjustedSpeed} />
+                    <Grid size={4}>
+                        <MovementTextField i18nLabel='pace-multiplier' value={formData.paceMultiplier} disabled />
+                    </Grid>
+
+                    <Grid size={4}></Grid>
+                    <Grid size={4}></Grid>
+                    <Grid size={4}>
+                        <MovementTextField i18nLabel='speed' value={formData.speed} disabled />
+                    </Grid>
+
+                    <Grid size={4}></Grid>
+                    <Grid size={4}></Grid>
+                    <Grid size={4}>
+                        <MovementTextField i18nLabel='adjusted-speed' value={formData.adjustedSpeed} disabled />
                     </Grid>
 
                 </Grid>

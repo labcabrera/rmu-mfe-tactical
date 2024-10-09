@@ -17,7 +17,7 @@ const ActionPointSelector = ({ value, min, max, defaultValue, onChange }) => {
 
     return (
         <>
-            <Typography component="legend">Action points</Typography>
+            {/* <Typography component="legend">Action points</Typography> */}
             <Rating
                 name="size-large"
                 value={value}

@@ -1,28 +1,30 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocation, useSearchParams } from "react-router-dom";
 
 import Grid from '@mui/material/Grid2';
 
-import ArmorTextField from '../input/ArmorTextField';
-import AttackTextField from '../input/AttackTextField';
-import DefenseTextField from '../input/DefenseTextField';
-import PenaltyTextField from '../input/PenaltyTextField';
-import SizeTextField from '../input/SizeTextField';
-import SelectAttackWeapon from '../select/SelectAttackWeapon';
-import SelectChargeSpeed from '../select/SelectChargeSpeed';
-import SelectDefender from '../select/SelectDefender';
-import SelectRestrictedQuarters from '../select/SelectRestrictedQuarters';
-import ActionPointSelector from '../shared/ActionPointSelector';
-import TacticalActionCreationActions from './TacticalActionCreationActions';
+import ArmorTextField from '../../input/ArmorTextField';
+import AttackTextField from '../../input/AttackTextField';
+import DefenseTextField from '../../input/DefenseTextField';
+import PenaltyTextField from '../../input/PenaltyTextField';
+import SizeTextField from '../../input/SizeTextField';
+import SelectAttackWeapon from '../../select/SelectAttackWeapon';
+import SelectChargeSpeed from '../../select/SelectChargeSpeed';
+import SelectDefender from '../../select/SelectDefender';
+import SelectRestrictedQuarters from '../../select/SelectRestrictedQuarters';
+import ActionPointSelector from '../../shared/ActionPointSelector';
+import TacticalActionCreationActions from '../TacticalActionCreationActions';
 
-const TacticalAttackCreation = () => {
+const TacticalAttackDeclaration = () => {
 
     const debugMode = true;
     const noSkillValue = -25;
 
     const location = useLocation();
+
     const [searchParams] = useSearchParams();
     const [targetCharacter, setTargetCharacter] = useState();
+    const [isValid, setIsValid] = useState(false);
 
     const phaseStart = searchParams.get('phaseStart');
     const tacticalGame = location.state?.tacticalGame;
@@ -68,9 +70,6 @@ const TacticalAttackCreation = () => {
         attackInfo: {
             selectedWeapon: 'main-hand',
             parry: 0,
-            armorType: '',
-            attackerParry: '',
-            basePenalties: '',
             restrictedQuarters: 'none',
             chargeSpeed: 'none'
         },
@@ -115,8 +114,7 @@ const TacticalAttackCreation = () => {
     const handleSelectedWeaponChange = (e) => { updateFormData('attackInfo', 'selectedWeapon', e) };
     const handleRestrictedQuarterChange = (e) => { updateFormData('attackInfo', 'restrictedQuarters', e) };
     const handleChargeSpeedChange = (e) => { updateFormData('attackInfo', 'chargeSpeed', e) };
-
-
+    const handleParryChange = (e) => { updateFormData('attackInfo', 'chargeSpeed', parseInt(e.target.value)) };
 
     const updateFormData = (field1, field2, value) => {
         setFormData((prevState) => ({
@@ -128,13 +126,22 @@ const TacticalAttackCreation = () => {
         }));
     };
 
+    useEffect(() => {
+        console.log("");
+        var isValidForm = true;
+        if (!formData.tacticalCharacterTargetId) {
+            isValidForm = false;
+        }
+        setIsValid(isValidForm);
+    }, [formData]);
+
     if (!tacticalGame || !character || !characters) {
         return <p>Loading...</p>
     }
 
     return (
         <>
-            <TacticalActionCreationActions tacticalGame={tacticalGame} formData={formData} />
+            <TacticalActionCreationActions game={tacticalGame} character={character} formData={formData} isValid={isValid} />
             <div className="tactical-game-creation">
 
                 <Grid container spacing={2}>
@@ -179,7 +186,7 @@ const TacticalAttackCreation = () => {
                     <Grid size={2}></Grid>
 
                     <Grid size={2}>
-                        <DefenseTextField i18nLabel='parry' value={formData.attackInfo.parry} disabled />
+                        <DefenseTextField i18nLabel='parry' value={formData.attackInfo.parry} onChange={handleParryChange} />
                     </Grid>
                     <Grid size={10}></Grid>
 
@@ -192,8 +199,6 @@ const TacticalAttackCreation = () => {
                     <Grid size={8}></Grid>
 
                     <Grid size={12}></Grid>
-
-
 
                 </Grid>
                 {debugMode ? (
@@ -217,4 +222,4 @@ const TacticalAttackCreation = () => {
     );
 }
 
-export default TacticalAttackCreation;
+export default TacticalAttackDeclaration;

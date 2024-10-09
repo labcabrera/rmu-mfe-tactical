@@ -87,30 +87,32 @@ const CombatDashboard = () => {
     }, [displayRound]);
 
     return (
-        <div className="combat-dashboard">
+        <>
             <CombatDashboardActions />
-            <CombatCharacterList tacticalGame={tacticalGame} characterRounds={characterRounds} />
-            {debugMode ? (
-                <div>
-                    <h3>tacticalGame</h3>
-                    <pre>
-                        {JSON.stringify(tacticalGame, null, 2)}
-                    </pre>
-                    <h3>characters</h3>
-                    <pre>
-                        {JSON.stringify(characters, null, 2)}
-                    </pre>
-                    <h3>characterRounds</h3>
-                    <pre>
-                        {JSON.stringify(characterRounds, null, 2)}
-                    </pre>
-                    <h3>roundActions</h3>
-                    <pre>
-                        {JSON.stringify(roundActions, null, 2)}
-                    </pre>
-                </div>
-            ) : null}
-        </div >
+            <div className="combat-dashboard">
+                <CombatCharacterList tacticalGame={tacticalGame} characterRounds={characterRounds} />
+                {debugMode ? (
+                    <div>
+                        <h3>tacticalGame</h3>
+                        <pre>
+                            {JSON.stringify(tacticalGame, null, 2)}
+                        </pre>
+                        <h3>characters</h3>
+                        <pre>
+                            {JSON.stringify(characters, null, 2)}
+                        </pre>
+                        <h3>characterRounds</h3>
+                        <pre>
+                            {JSON.stringify(characterRounds, null, 2)}
+                        </pre>
+                        <h3>roundActions</h3>
+                        <pre>
+                            {JSON.stringify(roundActions, null, 2)}
+                        </pre>
+                    </div>
+                ) : null}
+            </div >
+        </>
     );
 }
 

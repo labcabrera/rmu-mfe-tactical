@@ -1,8 +1,8 @@
 import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 
-import TacticalAttackCreation from './components/combat-actions/TacticalAttackCreation';
-import TacticalMovementCreation from './components/combat-actions/TacticalMovementCreation';
+import TacticalAttackDeclaration from './components/combat-actions/attack/TacticalAttackDeclaration';
+import TacticalMovementCreation from './components/combat-actions/movement/TacticalMovementCreation';
 import CombatDashboardParent from './components/combat/CombatDashboardParent';
 import ForgeItem from './components/items/ForgeItem';
 import TacticalCharacterCreation from './components/tactical-character/TacticalCharacterCreation';
@@ -23,7 +23,7 @@ const App = () => {
       <Route path='/view/:gameId' element={<TacticalGameView />} />
       <Route path='/edit/:gameId' element={<TacticalGameEdit />} />
       <Route path='/combat/:gameId' element={<CombatDashboardParent />} />
-      <Route path='/combat/:gameId/declare-attack' element={<TacticalAttackCreation />} />
+      <Route path='/combat/:gameId/declare-attack' element={<TacticalAttackDeclaration />} />
       <Route path='/combat/:gameId/declare-movement' element={<TacticalMovementCreation />} />
       <Route path='/creation' element={<TacticalGameCreation />} />
       <Route path='/characters/creation' element={<TacticalCharacterCreation />} />

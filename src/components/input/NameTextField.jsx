@@ -2,14 +2,14 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 
 import Avatar from '@mui/material/Avatar';
+import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
 import TextField from '@mui/material/TextField';
-import IconButton from '@mui/material/IconButton';
 
 import { API_NPC_NAMES_URL } from '../../constants/environment';
 import { VARIANT } from '../../constants/ui';
 
-const NameTextField = ({ value, onChange, generateRandom, generateRandomRaceValue }) => {
+const NameTextField = ({ value, onChange, required = false, generateRandom, generateRandomRaceValue }) => {
 
     const { t } = useTranslation();
 
@@ -35,8 +35,8 @@ const NameTextField = ({ value, onChange, generateRandom, generateRandomRaceValu
             variant={VARIANT}
             value={value}
             onChange={onChange}
+            required={required}
             fullWidth
-            required
             slotProps={{
                 input: {
                     startAdornment: (
