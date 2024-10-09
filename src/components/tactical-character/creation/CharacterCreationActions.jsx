@@ -9,7 +9,7 @@ import SaveButton from '../../button/SaveButton';
 import { API_TACTICAL_URL } from '../../../constants/environment';
 import { ACTION_BUTTON_SIZE } from '../../../constants/ui';
 
-const TacticalCharacterCreationActions = ({ tacticalGame, formData, onError }) => {
+const CharacterCreationActions = ({ tacticalGame, formData, onError }) => {
 
     const navigate = useNavigate();
 
@@ -61,4 +61,4 @@ const TacticalCharacterCreationActions = ({ tacticalGame, formData, onError }) =
     );
 }
 
-export default TacticalCharacterCreationActions;
+export default CharacterCreationActions;

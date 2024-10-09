@@ -8,16 +8,16 @@ import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid2';
 import Tab from '@mui/material/Tab';
 
-import TacticalCharacterAddItem from '../TacticalCharacterAddItem';
-import TacticalCharacterEquipment from './TacticalCharacterEquipment';
-import TacticalCharacterModificationActions from './TacticalCharacterModificationActions';
-import TacticalCharacterModificationAttributes from './TacticalCharacterModificationAttributes';
-import TacticalCharacterSkillDataGrid from './TacticalCharacterSkillDataGrid';
+import TacticalCharacterAddItem from '../items/TacticalCharacterAddItem';
+import CharacterEquipment from '../items/CharacterEquipment';
+import TacticalCharacterSkillDataGrid from '../skills/TacticalCharacterSkillDataGrid';
 import TacticalCharacterStatisticsModification from '../TacticalCharacterStatisticsModification';
+import CharacterModificationActions from './CharacterModificationActions';
+import CharacterModificationAttributes from './CharacterModificationAttributes';
 
 import { API_TACTICAL_URL } from '../../../constants/environment';
 
-const TacticalCharacterModification = () => {
+const CharacterModification = () => {
 
     const { characterId } = useParams();
 
@@ -96,7 +96,7 @@ const TacticalCharacterModification = () => {
 
     return (
         <div className='tactical-character-edit'>
-            <TacticalCharacterModificationActions tacticalGame={tacticalGame} tacticalCharacter={tacticalCharacter} formData={formData} setFormData={setFormData} />
+            <CharacterModificationActions tacticalGame={tacticalGame} tacticalCharacter={tacticalCharacter} formData={formData} setFormData={setFormData} />
             <Box>
                 <TabContext value={tabValue}>
                     <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
@@ -111,7 +111,7 @@ const TacticalCharacterModification = () => {
                     <TabPanel value='1'>
                         <Grid container spacing={2}>
                             <Grid size={6}>
-                                <TacticalCharacterModificationAttributes formData={formData} setFormData={setFormData} factions={factions} size='normal' variant='outlined' />
+                                <CharacterModificationAttributes formData={formData} setFormData={setFormData} factions={factions} size='normal' variant='outlined' />
                             </Grid>
                             <Grid size={6}>
                             </Grid>
@@ -129,7 +129,7 @@ const TacticalCharacterModification = () => {
                     </TabPanel>
                     <TabPanel value='4'>
                         <TacticalCharacterAddItem tacticalGame={tacticalGame} tacticalCharacter={tacticalCharacter} setTacticalCharacter={setTacticalCharacter} />
-                        <TacticalCharacterEquipment tacticalCharacter={tacticalCharacter} setTacticalCharacter={setTacticalCharacter} />
+                        <CharacterEquipment tacticalCharacter={tacticalCharacter} setTacticalCharacter={setTacticalCharacter} />
                     </TabPanel>
                     <TabPanel value='5'>
                         <div>
@@ -153,4 +153,4 @@ const TacticalCharacterModification = () => {
     );
 }
 
-export default TacticalCharacterModification;
+export default CharacterModification;

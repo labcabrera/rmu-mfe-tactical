@@ -9,7 +9,7 @@ import DropZone from '../../shared/DropZone';
 
 import { API_TACTICAL_URL } from "../../../constants/environment";
 
-const TacticalCharacterEquipment = ({ tacticalCharacter, setTacticalCharacter }) => {
+const CharacterEquipment = ({ tacticalCharacter, setTacticalCharacter }) => {
 
     const [availableItems, setAvailableItems] = useState([]);
     const [selectedImages, setSelectedImages] = useState([]);
@@ -185,4 +185,4 @@ const TacticalCharacterEquipment = ({ tacticalCharacter, setTacticalCharacter })
     );
 }
 
-export default TacticalCharacterEquipment;
+export default CharacterEquipment;

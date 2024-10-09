@@ -4,11 +4,11 @@ import { useLocation } from "react-router-dom";
 import Grid from '@mui/material/Grid2';
 
 import SnackbarError from '../../shared/SnackbarError';
-import TacticalCharacterCreationActions from './TacticalCharacterCreationActions';
-import TacticalCharacterCreationAttributes from './TacticalCharacterCreationAttributes';
+import CharacterCreationActions from './CharacterCreationActions';
+import TacticalCharacterCreationAttributes from './CharacterCreationAttributes';
 import TacticalCharacterStatisticsModification from '../TacticalCharacterStatisticsModification';
 
-const TacticalCharacterCreation = () => {
+const CharacterCreation = () => {
 
     const debugMode = true;
 
@@ -77,7 +77,7 @@ const TacticalCharacterCreation = () => {
 
     return (
         <div className="tactical-game-character-creation">
-            <TacticalCharacterCreationActions tacticalGame={tacticalGame} formData={formData} onError={onError} />
+            <CharacterCreationActions tacticalGame={tacticalGame} formData={formData} onError={onError} />
             <div>
                 <Grid container spacing={2}>
                     <Grid size={6}>
@@ -106,4 +106,4 @@ const TacticalCharacterCreation = () => {
     );
 }
 
-export default TacticalCharacterCreation;
+export default CharacterCreation;

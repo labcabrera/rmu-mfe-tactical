@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from "react-router-dom";
 
-import ForgeButton from '../button/ForgeButton';
+import ForgeButton from '../../button/ForgeButton';
 
 const TacticalCharacterAddItem = ({ tacticalGame, tacticalCharacter }) => {
 
