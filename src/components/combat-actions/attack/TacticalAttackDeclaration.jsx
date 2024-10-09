@@ -114,7 +114,7 @@ const TacticalAttackDeclaration = () => {
     const handleSelectedWeaponChange = (e) => { updateFormData('attackInfo', 'selectedWeapon', e) };
     const handleRestrictedQuarterChange = (e) => { updateFormData('attackInfo', 'restrictedQuarters', e) };
     const handleChargeSpeedChange = (e) => { updateFormData('attackInfo', 'chargeSpeed', e) };
-    const handleParryChange = (e) => { updateFormData('attackInfo', 'chargeSpeed', parseInt(e.target.value)) };
+    const handleParryChange = (e) => { updateFormData('attackInfo', 'parry', parseInt(e.target.value)) };
 
     const updateFormData = (field1, field2, value) => {
         setFormData((prevState) => ({

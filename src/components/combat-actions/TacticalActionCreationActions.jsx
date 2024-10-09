@@ -58,7 +58,7 @@ const TacticalActionCreationActions = ({ game: game, character, formData, isVali
                 <Breadcrumbs aria-label="breadcrumb">
                     <Link underline="hover" color="inherit" href='/tactical'>{t('tactical-games')}</Link>
                     <Link underline="hover" color="inherit" href={`/tactical/view/${game.id}`}>{game.name}</Link>
-                    <Link underline="hover" color="inherit" href={`/tactical/view/${character.id}`}>{character.name}</Link>
+                    <Link underline="hover" color="inherit" href={`/tactical/characters/edit/${character.id}`}>{character.name}</Link>
                     <Typography sx={{ color: 'text.primary' }}>{t(formData.type)} declaration</Typography>
                 </Breadcrumbs>
 

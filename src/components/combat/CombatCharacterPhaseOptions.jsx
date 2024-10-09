@@ -53,28 +53,28 @@ const CombatCharacterPhaseOptions = ({ character, phase }) => {
 
     return (
         <Stack direction="row">
-            <IconButton
+            <IconButton disabled
                 style={{
-                    width: `60px`,
-                    height: `60px`,
-                    opacity: 0.5
-                }}
-            >
-                <img
-                    src={`/static/images/generic/wait.png`}
-                    alt={activeAction.type}
-                    style={{ width: '100%', height: '100%', borderRadius: '50%' }} // Rounded image
-                />
-            </IconButton>
-            <IconButton
-                style={{
-                    width: `60px`,
-                    height: `60px`,
+                    width: `70px`,
+                    height: `70px`,
                     opacity: 0.5
                 }}
             >
                 <img
                     src={`/static/images/actions/${activeAction.type}.png`}
+                    alt={activeAction.type}
+                    style={{ width: '100%', height: '100%', borderRadius: '50%' }} // Rounded image
+                />
+            </IconButton>
+            <IconButton disabled
+                style={{
+                    width: `70px`,
+                    height: `70px`,
+                    opacity: 0.5
+                }}
+            >
+                <img
+                    src={`/static/images/generic/wait.png`}
                     alt={activeAction.type}
                     style={{ width: '100%', height: '100%', borderRadius: '50%' }} // Rounded image
                 />

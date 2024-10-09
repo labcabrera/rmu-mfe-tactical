@@ -1,12 +1,11 @@
 import React, { useContext } from "react";
 import { useTranslation } from 'react-i18next';
 
-import MiscellaneousServicesIcon from '@mui/icons-material/MiscellaneousServices';
-import Avatar from '@mui/material/Avatar';
+import { Stack } from "@mui/material";
 import IconButton from "@mui/material/IconButton";
-import Typography from '@mui/material/Typography';
 
 import DeleteButton from "../button/DeleteButton";
+import PlayButton from "../button/PlayButton";
 
 import { CombatContext } from './CombatProvider';
 
@@ -39,16 +38,23 @@ const ResolveActionCard = ({ action }) => {
     }
 
     return (
-        <>
-            <Avatar alt="Remy Sharp" src={`/static/images/actions/${action.type}.png`} />
-            <Typography gutterBottom sx={{ color: 'text.secondary', fontSize: 14 }}>
-                Action points: {action.actionPoints}
-            </Typography>
-            <IconButton size="small">
-                <MiscellaneousServicesIcon />
+        <Stack direction="row">
+            <IconButton disabled
+                style={{
+                    width: `70px`,
+                    height: `70px`,
+                    opacity: 0.5
+                }}
+            >
+                <img
+                    src={`/static/images/actions/${action.type}.png`}
+                    alt={action.type}
+                    style={{ width: '100%', height: '100%', borderRadius: '50%' }} // Rounded image
+                />
             </IconButton>
-            <DeleteButton onClick={() => handleDeleteActionClick()} size={40} />
-        </>
+            <PlayButton size={70} />
+            <DeleteButton onClick={() => handleDeleteActionClick()} size={70} />
+        </Stack>
     );
 }
 
