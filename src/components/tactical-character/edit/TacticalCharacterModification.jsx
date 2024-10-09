@@ -8,14 +8,14 @@ import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid2';
 import Tab from '@mui/material/Tab';
 
-import TacticalCharacterAddItem from './TacticalCharacterAddItem';
+import TacticalCharacterAddItem from '../TacticalCharacterAddItem';
 import TacticalCharacterEquipment from './TacticalCharacterEquipment';
 import TacticalCharacterModificationActions from './TacticalCharacterModificationActions';
 import TacticalCharacterModificationAttributes from './TacticalCharacterModificationAttributes';
 import TacticalCharacterSkillDataGrid from './TacticalCharacterSkillDataGrid';
-import TacticalCharacterStatisticsModification from './TacticalCharacterStatisticsModification';
+import TacticalCharacterStatisticsModification from '../TacticalCharacterStatisticsModification';
 
-import { API_TACTICAL_URL } from '../../constants/environment';
+import { API_TACTICAL_URL } from '../../../constants/environment';
 
 const TacticalCharacterModification = () => {
 

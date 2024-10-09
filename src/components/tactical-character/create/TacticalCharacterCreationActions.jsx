@@ -3,11 +3,11 @@ import { useNavigate } from "react-router-dom";
 
 import Stack from '@mui/material/Stack';
 
-import CancelButton from '../button/CancelButton';
-import SaveButton from '../button/SaveButton';
+import CancelButton from '../../button/CancelButton';
+import SaveButton from '../../button/SaveButton';
 
-import { API_TACTICAL_URL } from '../../constants/environment';
-import { ACTION_BUTTON_SIZE } from '../../constants/ui';
+import { API_TACTICAL_URL } from '../../../constants/environment';
+import { ACTION_BUTTON_SIZE } from '../../../constants/ui';
 
 const TacticalCharacterCreationActions = ({ tacticalGame, formData, onError }) => {
 

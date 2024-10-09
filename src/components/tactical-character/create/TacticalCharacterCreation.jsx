@@ -3,10 +3,10 @@ import { useLocation } from "react-router-dom";
 
 import Grid from '@mui/material/Grid2';
 
-import SnackbarError from '../shared/SnackbarError';
+import SnackbarError from '../../shared/SnackbarError';
 import TacticalCharacterCreationActions from './TacticalCharacterCreationActions';
 import TacticalCharacterCreationAttributes from './TacticalCharacterCreationAttributes';
-import TacticalCharacterStatisticsModification from './TacticalCharacterStatisticsModification';
+import TacticalCharacterStatisticsModification from '../TacticalCharacterStatisticsModification';
 
 const TacticalCharacterCreation = () => {
 

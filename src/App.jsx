@@ -5,12 +5,12 @@ import TacticalAttackDeclaration from './components/combat-actions/attack/Tactic
 import TacticalMovementCreation from './components/combat-actions/movement/TacticalMovementCreation';
 import CombatDashboardParent from './components/combat/CombatDashboardParent';
 import ForgeItem from './components/items/ForgeItem';
-import TacticalCharacterCreation from './components/tactical-character/TacticalCharacterCreation';
-import TacticalCharacterModification from './components/tactical-character/TacticalCharacterModification';
+import TacticalCharacterCreation from './components/tactical-character/create/TacticalCharacterCreation';
+import TacticalCharacterModification from './components/tactical-character/edit/TacticalCharacterModification';
 import TacticalGameCreation from './components/tactical-game/create/TacticalGameCreation';
+import TacticalGameEdit from './components/tactical-game/edit/TacticalGameEdit';
 import TacticalGameList from './components/tactical-game/list/TacticalGameList';
 import TacticalGameView from './components/tactical-game/view/TacticalGameView';
-import TacticalGameEdit from './components/tactical-game/edit/TacticalGameEdit';
 
 import './i18n';
 import './index.css';

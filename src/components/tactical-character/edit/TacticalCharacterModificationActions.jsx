@@ -7,11 +7,11 @@ import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
-import CancelButton from '../button/CancelButton';
-import SaveButton from '../button/SaveButton';
+import CancelButton from '../../button/CancelButton';
+import SaveButton from '../../button/SaveButton';
 
-import { API_TACTICAL_URL } from '../../constants/environment';
-import { ACTION_BUTTON_SIZE } from '../../constants/ui';
+import { API_TACTICAL_URL } from '../../../constants/environment';
+import { ACTION_BUTTON_SIZE } from '../../../constants/ui';
 
 const TacticalCharacterModificationActions = ({ tacticalGame, tacticalCharacter, formData, onError }) => {
 

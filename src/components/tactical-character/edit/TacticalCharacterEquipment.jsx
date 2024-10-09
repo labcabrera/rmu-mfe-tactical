@@ -5,9 +5,9 @@ import { HTML5Backend } from "react-dnd-html5-backend";
 import Grid from '@mui/material/Grid2';
 import Typography from '@mui/material/Typography';
 
-import DropZone from '../shared/DropZone';
+import DropZone from '../../shared/DropZone';
 
-import { API_TACTICAL_URL } from "../../constants/environment";
+import { API_TACTICAL_URL } from "../../../constants/environment";
 
 const TacticalCharacterEquipment = ({ tacticalCharacter, setTacticalCharacter }) => {
 

@@ -4,22 +4,22 @@ import { useTranslation } from 'react-i18next';
 import Grid from '@mui/material/Grid2';
 import TextField from '@mui/material/TextField';
 
-import SelectSize from '../../components/select/SelectCharacterSize';
-import SelectFaction from '../../components/select/SelectFaction';
-import SelectLevel from '../../components/select/SelectLevel';
-import SelectRace from '../../components/select/SelectRace';
-import DefenseTextField from '../input/DefenseTextField';
-import EnduranceTextField from '../input/EnduranceDefenseTextField';
-import HeightTextField from '../input/HeightTextField';
-import HpTextField from '../input/HpTextField';
-import InitiativeTextField from '../input/InitiativeTextField';
-import ManaTextField from '../input/ManaTextFields';
-import MovementTextField from '../input/MovementTextField';
-import NameTextField from '../input/NameTextField';
-import WeightTextField from '../input/WeightTextField';
+import SelectSize from '../../select/SelectCharacterSize';
+import SelectFaction from '../../select/SelectFaction';
+import SelectLevel from '../../select/SelectLevel';
+import SelectRace from '../../select/SelectRace';
+import DefenseTextField from '../../input/DefenseTextField';
+import EnduranceTextField from '../../input/EnduranceDefenseTextField';
+import HeightTextField from '../../input/HeightTextField';
+import HpTextField from '../../input/HpTextField';
+import InitiativeTextField from '../../input/InitiativeTextField';
+import ManaTextField from '../../input/ManaTextFields';
+import MovementTextField from '../../input/MovementTextField';
+import NameTextField from '../../input/NameTextField';
+import WeightTextField from '../../input/WeightTextField';
 
-import { API_NPC_NAMES_URL } from '../../constants/environment';
-import { VARIANT } from '../../constants/ui';
+import { API_NPC_NAMES_URL } from '../../../constants/environment';
+import { VARIANT } from '../../../constants/ui';
 
 const TacticalCharacterCreationAttributes = ({ formData, setFormData, factions }) => {
 
