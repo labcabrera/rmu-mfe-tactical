@@ -11,6 +11,7 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
+import Link from '@mui/material/Link';
 
 import CloseButton from "../button/CloseButton";
 import DeleteButton from "../button/DeleteButton";
@@ -90,7 +91,7 @@ const TacticalGameViewActions = () => {
                 }}>
 
                 <Breadcrumbs aria-label="breadcrumb">
-                    <Typography sx={{ color: 'text.primary' }}>{t('tactical-game')}</Typography>
+                    <Link underline="hover" color="inherit" href='/tactical'>{t('tactical-games')}</Link>
                     <Typography sx={{ color: 'text.primary' }}>{tacticalGame.name}</Typography>
                 </Breadcrumbs>
 
