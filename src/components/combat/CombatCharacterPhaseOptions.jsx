@@ -1,6 +1,8 @@
 import React, { useContext, useEffect, useState } from "react";
 
 import IconButton from "@mui/material/IconButton";
+import Stack from "@mui/material/Stack";
+
 
 import CombatPhaseActionButtons from "./ComabatPhaseActionButtons";
 import { CombatContext } from './CombatProvider';
@@ -50,7 +52,7 @@ const CombatCharacterPhaseOptions = ({ character, phase }) => {
     }
 
     return (
-        <>
+        <Stack direction="row">
             <IconButton
                 style={{
                     width: `60px`,
@@ -77,7 +79,7 @@ const CombatCharacterPhaseOptions = ({ character, phase }) => {
                     style={{ width: '100%', height: '100%', borderRadius: '50%' }} // Rounded image
                 />
             </IconButton>
-        </>
+        </Stack>
     );
 }
 

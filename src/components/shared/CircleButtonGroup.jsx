@@ -1,10 +1,27 @@
 import React from 'react';
 
-import IconButton from '@mui/material/IconButton';
+import { Box } from '@mui/material';
 
 import StyledIconButton from '../button/StyledIconButton';
 
-const CircleButtonGroup = ({ options, initialRotation = 3.46, size = 50, radius = 32 }) => {
+const Circle = ({ x, y, radius, lineWidth, color }) => {
+  return (
+    <Box
+      sx={{
+        position: 'absolute',
+        top: y,
+        left: x,
+        width: radius * 2,
+        height: radius * 2,
+        borderRadius: '50%',
+        border: `${lineWidth}px solid ${color}`,
+        zIndex: -100
+      }}
+    />
+  );
+};
+
+const CircleButtonGroup = ({ options, initialRotation = 3.46, size = 50, radius = 32, xOffset = 0, yOffset = 0 }) => {
 
   const buttonCount = options.length;
   const angleStep = (2 * Math.PI) / buttonCount;
@@ -21,8 +38,8 @@ const CircleButtonGroup = ({ options, initialRotation = 3.46, size = 50, radius 
     <div className="circle-container">
       {options.map((option, index) => {
         const angle = (index * angleStep) + initialRotation;
-        const x = radius * Math.cos(angle);
-        const y = radius * Math.sin(angle);
+        const x = radius * Math.cos(angle) + xOffset;
+        const y = radius * Math.sin(angle) + yOffset + radius;
 
         return (
           <StyledIconButton
@@ -45,6 +62,15 @@ const CircleButtonGroup = ({ options, initialRotation = 3.46, size = 50, radius 
           </StyledIconButton>
         );
       })}
+      <Box
+        sx={{
+          position: 'relative',
+          width: '100%',
+          height: '500px',
+        }}>
+        <Circle x={0} y={radius} radius={radius + 35} lineWidth={2} color="white" />
+        
+      </Box>
     </div>
   );
 };

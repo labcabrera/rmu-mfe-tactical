@@ -74,7 +74,7 @@ const CombatPhaseActionButtons = ({ tacticalGame, character, characters, phaseNu
   }
 
   return (
-    <CircleButtonGroup options={options} initialRotation={3.46} />
+    <CircleButtonGroup options={options} initialRotation={3.46} size={70} radius={48} />
   );
 
 };

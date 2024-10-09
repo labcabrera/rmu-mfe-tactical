@@ -30,7 +30,7 @@ const CombatCharacterRound = ({ characterRound }) => {
     }
 
     return (
-        <Grid container spacing={2} columns={24}>
+        <Grid container spacing={2} columns={24} alignItems="center">
             <Grid size={6}>
                 <CombatCharacterRoundInfo character={character} characterRound={characterRound} />
             </Grid>
