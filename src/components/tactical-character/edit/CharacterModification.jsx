@@ -8,8 +8,8 @@ import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid2';
 import Tab from '@mui/material/Tab';
 
-import TacticalCharacterAddItem from '../items/TacticalCharacterAddItem';
 import CharacterEquipment from '../items/CharacterEquipment';
+import TacticalCharacterAddItem from '../items/TacticalCharacterAddItem';
 import TacticalCharacterSkillDataGrid from '../skills/TacticalCharacterSkillDataGrid';
 import TacticalCharacterStatisticsModification from '../TacticalCharacterStatisticsModification';
 import CharacterModificationActions from './CharacterModificationActions';
@@ -129,7 +129,7 @@ const CharacterModification = () => {
                     </TabPanel>
                     <TabPanel value='4'>
                         <TacticalCharacterAddItem tacticalGame={tacticalGame} tacticalCharacter={tacticalCharacter} setTacticalCharacter={setTacticalCharacter} />
-                        <CharacterEquipment tacticalCharacter={tacticalCharacter} setTacticalCharacter={setTacticalCharacter} />
+                        <CharacterEquipment character={tacticalCharacter} setCharacter={setTacticalCharacter} />
                     </TabPanel>
                     <TabPanel value='5'>
                         <div>

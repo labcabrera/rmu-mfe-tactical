@@ -8,8 +8,9 @@ import Typography from '@mui/material/Typography';
 import DropZone from '../../shared/DropZone';
 
 import { API_TACTICAL_URL } from "../../../constants/environment";
+import CharacterItemSlot from "./CharacterItemSlot";
 
-const CharacterEquipment = ({ tacticalCharacter, setTacticalCharacter }) => {
+const CharacterEquipment = ({ character, setCharacter }) => {
 
     const [availableItems, setAvailableItems] = useState([]);
     const [selectedImages, setSelectedImages] = useState([]);
@@ -55,10 +56,10 @@ const CharacterEquipment = ({ tacticalCharacter, setTacticalCharacter }) => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(request)
             };
-            const response = await fetch(`${API_TACTICAL_URL}/characters/${tacticalCharacter.id}/equipment`, requestOptions);
+            const response = await fetch(`${API_TACTICAL_URL}/characters/${character.id}/equipment`, requestOptions);
             if (response.status == 200) {
                 const responseBody = await response.json();
-                setTacticalCharacter(responseBody);
+                setCharacter(responseBody);
             } else {
                 //Error
             }
@@ -70,11 +71,11 @@ const CharacterEquipment = ({ tacticalCharacter, setTacticalCharacter }) => {
     const handleDropToDelete = async (item) => {
         console.log(`TacticalCharacterEquipment.handleDropToDelete ${JSON.stringify(item, null, 2)}`);
         try {
-            const response = await fetch(`${API_TACTICAL_URL}/characters/${tacticalCharacter.id}/items/${item.image.id}`, { method: 'DELETE' });
+            const response = await fetch(`${API_TACTICAL_URL}/characters/${character.id}/items/${item.image.id}`, { method: 'DELETE' });
             if (response.status == 200) {
                 const responseBody = await response.json();
                 setAvailableItems(availableItems.filter(e => e.id != item.image.id));
-                setTacticalCharacter(responseBody);
+                setCharacter(responseBody);
             } else {
                 console.error(`TacticalCharacterEquipment.handleDropToDelete  error ${response.status}`);
             }
@@ -119,19 +120,22 @@ const CharacterEquipment = ({ tacticalCharacter, setTacticalCharacter }) => {
     };
 
     useEffect(() => {
-        console.log(`TacticalCharacterEquipment useEffect ${tacticalCharacter}`);
-        if (!tacticalCharacter || !tacticalCharacter.items) {
+        console.log(`TacticalCharacterEquipment useEffect ${character}`);
+        if (!character || !character.items) {
             return;
         }
-        loadAvailableImageItems(tacticalCharacter);
-    }, [tacticalCharacter]);
+        loadAvailableImageItems(character);
+    }, [character]);
 
-    if (!tacticalCharacter || !tacticalCharacter.items) {
+    if (!character || !character.items) {
         return <p>Loading...</p>
     }
 
     return (
         <div className="tactical-character-items">
+
+            <CharacterItemSlot character={character} setCharacter={setCharacter} slot="mainHand" />
+
             <DndProvider backend={HTML5Backend}>
                 <Grid container spacing={1}>
 
@@ -173,10 +177,10 @@ const CharacterEquipment = ({ tacticalCharacter, setTacticalCharacter }) => {
 
 
                     <Grid size={12}>
-                        <Typography variant="subtitle2" component="div">Character weight: {tacticalCharacter.info.weight} lbs</Typography>
+                        <Typography variant="subtitle2" component="div">Character weight: {character.info.weight} lbs</Typography>
                     </Grid>
                     <Grid size={12}>
-                        <Typography variant="subtitle2" component="div">Equipment weight: {tacticalCharacter.equipment.weight} lbs</Typography>
+                        <Typography variant="subtitle2" component="div">Equipment weight: {character.equipment.weight} lbs</Typography>
                     </Grid>
 
                 </Grid>
