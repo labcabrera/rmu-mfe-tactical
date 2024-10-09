@@ -79,30 +79,30 @@ const TacticalGameViewActions = () => {
     };
 
     return (
-        <div className="generic-action-bar">
+        <>
+            <div className="generic-action-bar">
+                <Stack
+                    direction="row"
+                    justifyContent="space-between"
+                    alignItems="center"
+                    sx={{
+                        width: '100%'
+                    }}>
 
+                    <Breadcrumbs aria-label="breadcrumb">
+                        <Link underline="hover" color="inherit" href='/tactical'>{t('tactical-games')}</Link>
+                        <Typography sx={{ color: 'text.primary' }}>{tacticalGame.name}</Typography>
+                    </Breadcrumbs>
 
-            <Stack
-                direction="row"
-                justifyContent="space-between"
-                alignItems="center"
-                sx={{
-                    width: '100%'
-                }}>
+                    <div style={{ flexGrow: 1 }} />
 
-                <Breadcrumbs aria-label="breadcrumb">
-                    <Link underline="hover" color="inherit" href='/tactical'>{t('tactical-games')}</Link>
-                    <Typography sx={{ color: 'text.primary' }}>{tacticalGame.name}</Typography>
-                </Breadcrumbs>
+                    <CloseButton size={ACTION_BUTTON_SIZE} />
+                    <PlayButton onClick={handleOpenClick} size={ACTION_BUTTON_SIZE} />
+                    <EditButton onClick={handleEditClick} size={ACTION_BUTTON_SIZE} />
+                    <DeleteButton onClick={handleDeleteClick} size={ACTION_BUTTON_SIZE} />
 
-                <div style={{ flexGrow: 1 }} />
-
-                <CloseButton size={ACTION_BUTTON_SIZE} />
-                <PlayButton onClick={handleOpenClick} size={ACTION_BUTTON_SIZE} />
-                <EditButton onClick={handleEditClick} size={ACTION_BUTTON_SIZE} />
-                <DeleteButton onClick={handleDeleteClick} size={ACTION_BUTTON_SIZE} />
-
-            </Stack>
+                </Stack>
+            </div>
             <Dialog
                 open={deleteDialogOpen}
                 onClose={handleDialogDeleteClose}
@@ -120,7 +120,7 @@ const TacticalGameViewActions = () => {
                     <Button onClick={handleDialogDelete} autoFocus>Delete</Button>
                 </DialogActions>
             </Dialog>
-        </div>
+        </>
     );
 }
 

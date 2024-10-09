@@ -1,5 +1,6 @@
 const VARIANT = 'outlined'
 //const VARIANT = 'standard';
+
 const VARIANT_DISABLED = 'outlined'
 
 const ACTION_BUTTON_SIZE = 60

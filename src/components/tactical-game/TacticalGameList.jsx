@@ -51,7 +51,7 @@ const TacticalGameList = () => {
 
 
     return (
-        <div>
+        <>
             <div className="generic-action-bar">
                 <Stack
                     direction="row"
@@ -92,7 +92,7 @@ const TacticalGameList = () => {
                     </React.Fragment>
                 }
             />
-        </div>
+        </>
     );
 }
 

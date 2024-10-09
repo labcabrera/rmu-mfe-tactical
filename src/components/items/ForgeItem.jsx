@@ -79,7 +79,7 @@ const ForgeItem = () => {
 
     return (
         <>
-            <ForgeItemActions tacticalCharacterId={tacticalCharacter.id} formData={formData} />
+            <ForgeItemActions tacticalCharacter={tacticalCharacter} formData={formData} />
             <div className="generic-main-content">
                 <Grid container spacing={2}>
                     <Grid size={6}>
