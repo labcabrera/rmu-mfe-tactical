@@ -6,13 +6,13 @@ import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import Stack from '@mui/material/Stack';
 
-import CharacterListItemAvatar from "../shared/CharacterIconItemAvatar";
+import CharacterListItemAvatar from "../../shared/CharacterIconItemAvatar";
 
-import DeleteButton from "../button/DeleteButton";
-import EditButton from "../button/EditButton";
+import DeleteButton from "../../button/DeleteButton";
+import EditButton from "../../button/EditButton";
 
-import { API_TACTICAL_URL } from "../../constants/environment";
-import { DETAIL_BUTTON_SIZE } from "../../constants/ui";
+import { API_TACTICAL_URL } from "../../../constants/environment";
+import { DETAIL_BUTTON_SIZE } from "../../../constants/ui";
 
 const TacticalGameViewCharactersListItem = ({ tacticalGame, character, onRemoveCharacter }) => {
 

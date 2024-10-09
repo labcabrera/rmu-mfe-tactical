@@ -5,8 +5,8 @@ import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid2';
 
 import TacticalGameViewActions from './TacticalGameViewActions';
-import TacticalGameViewCharacters from "../TacticalGameViewCharacters";
-import TacticalGameViewInfo from "../TacticalGameViewInfo";
+import TacticalGameViewCharacters from "./TacticalGameViewCharacters";
+import TacticalGameViewInfo from "./TacticalGameViewInfo";
 
 import { API_TACTICAL_URL } from "../../../constants/environment";
 
@@ -40,27 +40,29 @@ const TacticalGameView = () => {
     }
 
     return (
-        <div className="generic-main-content">
+        <>
             <TacticalGameViewActions tacticalGame={tacticalGame} />
-            <Box sx={{ flexGrow: 1 }}>
-                <Grid container spacing={2}>
-                    <Grid size={4}>
-                        <TacticalGameViewInfo tacticalGame={tacticalGame} />
+            <div className="generic-main-content">
+                <Box sx={{ flexGrow: 1 }}>
+                    <Grid container spacing={2}>
+                        <Grid size={4}>
+                            <TacticalGameViewInfo tacticalGame={tacticalGame} />
+                        </Grid>
+                        <Grid size={8}>
+                            <TacticalGameViewCharacters tacticalGame={tacticalGame} />
+                        </Grid>
                     </Grid>
-                    <Grid size={8}>
-                        <TacticalGameViewCharacters tacticalGame={tacticalGame} />
-                    </Grid>
-                </Grid>
-            </Box>
-            {
-                debugMode ? (
-                    <div>
-                        <pre>
-                            {JSON.stringify(tacticalGame, null, 2)}
-                        </pre>
-                    </div>
-                ) : null}
-        </div >
+                </Box>
+                {
+                    debugMode ? (
+                        <div>
+                            <pre>
+                                {JSON.stringify(tacticalGame, null, 2)}
+                            </pre>
+                        </div>
+                    ) : null}
+            </div >
+        </>
     );
 }
 

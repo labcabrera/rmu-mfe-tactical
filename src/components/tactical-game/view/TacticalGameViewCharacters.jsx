@@ -4,11 +4,11 @@ import { useNavigate } from "react-router-dom";
 import List from '@mui/material/List';
 import Stack from '@mui/material/Stack';
 
-import AddButton from "../button/AddButton";
+import AddButton from "../../button/AddButton";
 import TacticalGameViewCharactersListItem from "./TacticalGameViewCharactersListItem";
 
-import { API_TACTICAL_URL } from "../../constants/environment";
-import { DETAIL_BUTTON_SIZE } from "../../constants/ui";
+import { API_TACTICAL_URL } from "../../../constants/environment";
+import { DETAIL_BUTTON_SIZE } from "../../../constants/ui";
 
 const TacticalGameViewCharacters = ({ tacticalGame }) => {
 
