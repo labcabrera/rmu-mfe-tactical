@@ -5,6 +5,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
+import Link from '@mui/material/Link';
 
 import CloseButton from "../button/CloseButton";
 import ForgeButton from "../button/ForgeButton";
@@ -51,7 +52,7 @@ const ForgeItemActions = ({ tacticalCharacterId, formData }) => {
                 }}>
 
                 <Breadcrumbs aria-label="breadcrumb">
-                    <Typography sx={{ color: 'text.primary' }}>{t('tactical-game')}</Typography>
+                    <Link underline="hover" color="inherit" href='/tactical'>{t('tactical-games')}</Link>
                     <Typography sx={{ color: 'text.primary' }}>{tacticalGame.name}</Typography>
                     <Typography sx={{ color: 'text.primary' }}>Forge item</Typography>
                 </Breadcrumbs>

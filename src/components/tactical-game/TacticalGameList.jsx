@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from "react";
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from "react-router-dom";
 
 import CloseIcon from '@mui/icons-material/Close';
+import Breadcrumbs from '@mui/material/Breadcrumbs';
 import IconButton from '@mui/material/IconButton';
 import List from '@mui/material/List';
 import Snackbar from '@mui/material/Snackbar';
 import Stack from '@mui/material/Stack';
+import Typography from '@mui/material/Typography';
 
 import AddButton from "../button/AddButton";
 import TacticalGameListItem from "./TacticalGameListItem";
@@ -15,10 +18,10 @@ import { ACTION_BUTTON_SIZE } from "../../constants/ui";
 
 const TacticalGameList = () => {
 
-    const debugMode = true;
     const navigate = useNavigate();
-    const [games, setGames] = useState([]);
+    const { t, i18n } = useTranslation();
 
+    const [games, setGames] = useState([]);
     const [displayError, setDisplayError] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
 
@@ -50,10 +53,18 @@ const TacticalGameList = () => {
     return (
         <div>
             <div className="generic-action-bar">
-                <Stack spacing={2} direction="row" sx={{
-                    justifyContent: "flex-end",
-                    alignItems: "flex-start",
-                }}>
+                <Stack
+                    direction="row"
+                    justifyContent="space-between"
+                    alignItems="center"
+                    sx={{
+                        width: '100%'
+                    }}>
+                    <Breadcrumbs aria-label="breadcrumb">
+                        <Typography sx={{ color: 'text.primary' }}>{t('tactical-games')}</Typography>
+                    </Breadcrumbs>
+
+                    <div style={{ flexGrow: 1 }} />
                     <AddButton onClick={createNewGame} size={ACTION_BUTTON_SIZE} />
                 </Stack>
             </div>
