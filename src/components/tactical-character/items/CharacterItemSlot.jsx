@@ -88,7 +88,7 @@ const CharacterItemSlot = ({ character, setCharacter, slot }) => {
         var list = [];
         switch (slot) {
             case 'mainHand':
-                list = character.items.filter(e => e.weapon);
+                list = character.items.filter(e => e.weapon && !e.shield);
                 break;
             case 'offHand':
                 //TODO filtrar solo de una mano

@@ -58,7 +58,11 @@ const ForgeItem = () => {
             const response = await fetch(`${API_ITEMS_URL}/items?category=${category}&size=500`);
             const responseBody = await response.json();
             const items = responseBody.content.map(mapItem);
-            items.sort((a, b) => a.name.localeCompare(b.name));
+            if (category === 'armor') {
+                items.sort((a, b) => a.armor.armorType - b.armor.armorType);
+            } else {
+                items.sort((a, b) => a.name.localeCompare(b.name));
+            }
             setItems(items);
         } catch (error) {
             console.error(`TacticalCharacterAddItem.fetchItems error ${error}`);
