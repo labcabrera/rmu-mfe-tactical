@@ -16,7 +16,7 @@ const TacticalCharacterAddItem = ({ game, character }) => {
         return;
     };
 
-    if (!character) {
+    if (!game || !character) {
         return <p>Loading...</p>
     }
 

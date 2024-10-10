@@ -17,8 +17,8 @@ const ForgeItem = () => {
     const location = useLocation();
     const { t } = useTranslation();
 
-    const tacticalGame = location.state?.tacticalGame;
-    const tacticalCharacter = location.state?.tacticalCharacter;
+    const game = location.state?.game;
+    const character = location.state?.character;
 
     const [items, setItems] = useState([]);
     const [formData, setFormData] = useState({
@@ -77,13 +77,13 @@ const ForgeItem = () => {
         fetchItems('weapon');
     }, []);
 
-    if (!tacticalGame || !tacticalCharacter) {
+    if (!game || !character) {
         return <p>Loading...</p>
     }
 
     return (
         <>
-            <ForgeItemActions tacticalCharacter={tacticalCharacter} formData={formData} />
+            <ForgeItemActions game={game} character={character} formData={formData} />
             <div className="generic-main-content">
                 <Grid container spacing={2}>
                     <Grid size={6}>

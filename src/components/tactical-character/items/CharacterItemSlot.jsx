@@ -3,28 +3,32 @@ import { useTranslation } from 'react-i18next';
 
 import { Avatar, Card, CardContent, Typography } from "@mui/material";
 
-import SelectItem from "../../select/SelectItem";
+import ItemTypeAvatar from "../../avatar/ItemTypeAvatar";
 import UnequipButton from "../../button/UnequipButton";
+import SelectItem from "../../select/SelectItem";
 
 import { API_TACTICAL_URL } from "../../../constants/environment";
 import { DETAIL_BUTTON_SIZE } from "../../../constants/ui";
 
-const CaracterItemCard = ({ item }) => {
+const CharacterEmptySlockAvatar = ({ slot, size = 100 }) => {
+
+    const getImage = () => {
+        console.log('slot ' + slot);
+        switch (slot) {
+            case 'mainHand': return '/static/images/generic/empty-main-hand.png';
+            case 'offHand': return '/static/images/generic/empty-off-hand.png';
+            default: return '/static/images/items/no-armor.png';
+        }
+    };
+
     return (
-        <>
-            <Avatar
-                src={`/static/images/items/${item.itemTypeId}.png`}
-                variant="square"
-                sx={{ width: 100, height: 100 }} />
-            <Typography>{item.name}</Typography>
-            {item.weapon ? (
-                <>
-                    <Typography variant="subtitle2" gutterBottom>{t(item.weapon.skillId)}: {skillBonus}</Typography>
-                </>
-            ) : null}
-        </>
+        <Avatar
+            src={getImage()}
+            variant="square"
+            sx={{ width: size, height: size }} />
     );
-}
+
+};
 
 const CharacterItemSlot = ({ character, setCharacter, slot }) => {
 
@@ -128,20 +132,19 @@ const CharacterItemSlot = ({ character, setCharacter, slot }) => {
                     <Typography>{t(slot)}</Typography>
                     {item ? (
                         <>
-                            <Avatar
-                                src={`/static/images/items/${item.itemTypeId}.png`}
-                                variant="square"
-                                sx={{ width: 100, height: 100 }} />
+                            <ItemTypeAvatar itemType={item.itemTypeId} size={100} variant='square' />
                             <Typography>{item.name}</Typography>
                         </>
-                    ) : <Typography>No item selected</Typography>}
+                    ) : (
+                        <CharacterEmptySlockAvatar slot={slot} />
+                    )}
                     {item?.weapon ? (
                         <>
                             <Typography variant="subtitle2" gutterBottom>{t(item.weapon.skillId)}: {skillBonus}</Typography>
                         </>
                     ) : null}
                     <SelectItem options={itemOptions} onChange={handleItemChange} />
-                    <UnequipButton size={DETAIL_BUTTON_SIZE}/>
+                    <UnequipButton size={DETAIL_BUTTON_SIZE} />
                 </CardContent>
             </Card>
         </>

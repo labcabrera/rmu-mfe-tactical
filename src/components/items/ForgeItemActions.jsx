@@ -1,6 +1,6 @@
 import React from "react";
 import { useTranslation } from 'react-i18next';
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Link from '@mui/material/Link';
@@ -13,11 +13,9 @@ import ForgeButton from "../button/ForgeButton";
 import { API_TACTICAL_URL } from '../../constants/environment';
 import { ACTION_BUTTON_SIZE } from "../../constants/ui";
 
-const ForgeItemActions = ({ tacticalCharacter, formData }) => {
+const ForgeItemActions = ({ game, character, formData }) => {
 
-    const location = useLocation();
     const navigate = useNavigate();
-    const tacticalGame = location.state?.tacticalGame;
     const { t } = useTranslation();
 
     const handleForgeItemClick = async () => {
@@ -27,9 +25,9 @@ const ForgeItemActions = ({ tacticalCharacter, formData }) => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(formData)
             };
-            const response = await fetch(`${API_TACTICAL_URL}/characters/${tacticalCharacter.id}/items`, requestOptions);
+            const response = await fetch(`${API_TACTICAL_URL}/characters/${character.id}/items`, requestOptions);
             if (response.status === 200) {
-                navigate(`/tactical/characters/edit/${tacticalCharacter.id}?tab=items`);
+                navigate(`/tactical/characters/edit/${character.id}?tab=items`);
             } else {
                 const responseBody = await response.json();
                 throw responseBody.message;
@@ -53,9 +51,9 @@ const ForgeItemActions = ({ tacticalCharacter, formData }) => {
 
                 <Breadcrumbs aria-label="breadcrumb">
                     <Link underline="hover" color="inherit" href='/tactical'>{t('tactical-games')}</Link>
-                    <Typography sx={{ color: 'text.primary' }}>{tacticalGame.name}</Typography>
+                    <Typography sx={{ color: 'text.primary' }}>{game.name}</Typography>
                     <Typography sx={{ color: 'text.primary' }}>Characters</Typography>
-                    <Link underline="hover" color="inherit" href={`/tactical/characters/edit/${tacticalCharacter.id}`}>{tacticalCharacter.name}</Link>
+                    <Link underline="hover" color="inherit" href={`/tactical/characters/edit/${character.id}`}>{character.name}</Link>
                     <Typography sx={{ color: 'text.primary' }}>Forge item</Typography>
                 </Breadcrumbs>
 

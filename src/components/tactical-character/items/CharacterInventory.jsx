@@ -1,5 +1,6 @@
 import React from "react";
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from "react-router-dom";
 
 import { Stack, Typography } from "@mui/material";
 import Box from "@mui/material/Box";
@@ -7,14 +8,12 @@ import Grid from "@mui/material/Grid2";
 
 import ItemTypeAvatar from "../../avatar/ItemTypeAvatar";
 import DeleteButton from "../../button/DeleteButton";
-import TacticalCharacterAddItem from "./TacticalCharacterAddItem";
+import ForgeButton from "../../button/ForgeButton";
 
 import { API_TACTICAL_URL } from "../../../constants/environment";
 import { DETAIL_BUTTON_SIZE } from "../../../constants/ui";
 
 const CharacterInventoryItemList = ({ item, character, setCharacter }) => {
-
-    const { t } = useTranslation();
 
     const handleDeleteClick = async () => {
         const response = await fetch(`${API_TACTICAL_URL}/characters/${character.id}/items/${item.id}`, { method: 'DELETE' });
@@ -51,11 +50,17 @@ const CharacterInventoryItemList = ({ item, character, setCharacter }) => {
 const CharacterInventory = ({ game, character, setCharacter }) => {
 
     const { t } = useTranslation();
+    const navigate = useNavigate();
+
+    const handleForgeButtonClick = (e) => {
+        navigate(`/tactical/forge/${game.id}`, { state: { game: game, character: character } });
+        return;
+    };
 
     return (
         <Box>
             <Typography variant="h6">{t('inventory')}</Typography>
-            <TacticalCharacterAddItem game={game} character={character} setCharacter={setCharacter} />
+            <ForgeButton onClick={handleForgeButtonClick} size={DETAIL_BUTTON_SIZE} />
             {character.items.map((item, index) => (
                 <CharacterInventoryItemList key={index} item={item} character={character} setCharacter={setCharacter} />
             ))}
