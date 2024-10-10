@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
 import TabContext from '@mui/lab/TabContext';
 import TabList from '@mui/lab/TabList';
@@ -19,33 +19,37 @@ import { API_TACTICAL_URL } from '../../../constants/environment';
 
 const CharacterModification = () => {
 
+    const location = useLocation();
+    const navigate = useNavigate();
+    const searchParams = new URLSearchParams(location.search);
+
     const { characterId } = useParams();
 
-    const [tabValue, setTabValue] = useState('1');
+    const tabValue = searchParams.get('tab') || 'info';
 
-    const [tacticalCharacter, setTacticalCharacter] = useState();
+    const [character, setCharacter] = useState();
     const [formData, setFormData] = useState();
-    const [tacticalGame, setTacticalGame] = useState();
+    const [game, setGame] = useState();
     const [factions, setFactions] = useState();
 
     const fetchTacticalCharacter = async () => {
         try {
             const response = await fetch(`${API_TACTICAL_URL}/characters/${characterId}`);
             const responseBody = await response.json();
-            setTacticalCharacter(responseBody);
+            setCharacter(responseBody);
         } catch (error) {
             console.error(`TacticalCharacterModification.fetchTacticalGame error ${error}`);
         }
     };
 
     const fetchTacticalGame = async () => {
-        if (!tacticalCharacter) {
+        if (!character) {
             return;
         }
         try {
-            const response = await fetch(`${API_TACTICAL_URL}/tactical-games/${tacticalCharacter.tacticalGameId}`);
+            const response = await fetch(`${API_TACTICAL_URL}/tactical-games/${character.tacticalGameId}`);
             const responseBody = await response.json();
-            setTacticalGame(responseBody);
+            setGame(responseBody);
             setFactions(responseBody.factions);
         } catch (error) {
             console.error(`TacticalCharacterModification.fetchTacticalGame error ${error}`);
@@ -53,32 +57,33 @@ const CharacterModification = () => {
     };
 
     const createFormData = () => {
-        if (!tacticalCharacter) {
+        if (!character) {
             return;
         }
         const data = {
-            tacticalGameId: tacticalCharacter.tacticalGameId,
-            name: tacticalCharacter.name,
-            faction: tacticalCharacter.faction,
-            statistics: tacticalCharacter.statistics,
-            info: tacticalCharacter.info,
-            movement: tacticalCharacter.movement,
-            defense: tacticalCharacter.defense,
-            hp: tacticalCharacter.hp,
-            endurance: tacticalCharacter.endurance,
-            power: tacticalCharacter.power,
-            initiative: tacticalCharacter.initiative,
-            effects: tacticalCharacter.effects,
-            skills: tacticalCharacter.skills,
-            items: tacticalCharacter.items,
-            equipment: tacticalCharacter.equipment,
-            description: tacticalCharacter.description
+            tacticalGameId: character.tacticalGameId,
+            name: character.name,
+            faction: character.faction,
+            statistics: character.statistics,
+            info: character.info,
+            movement: character.movement,
+            defense: character.defense,
+            hp: character.hp,
+            endurance: character.endurance,
+            power: character.power,
+            initiative: character.initiative,
+            effects: character.effects,
+            skills: character.skills,
+            items: character.items,
+            equipment: character.equipment,
+            description: character.description
         };
         setFormData(data);
     };
 
     const handleTabChange = (event, newValue) => {
-        setTabValue(newValue);
+        //setTabValue(newValue);
+        navigate(`?tab=${newValue}`);
     };
 
     useEffect(() => {
@@ -88,27 +93,28 @@ const CharacterModification = () => {
     useEffect(() => {
         fetchTacticalGame();
         createFormData();
-    }, [tacticalCharacter]);
+    }, [character]);
 
-    if (!tacticalCharacter || !tacticalGame) {
+    if (!character || !game) {
         return <p>Loading...</p>
     }
 
     return (
         <div className='tactical-character-edit'>
-            <CharacterModificationActions tacticalGame={tacticalGame} tacticalCharacter={tacticalCharacter} formData={formData} setFormData={setFormData} />
+            <CharacterModificationActions tacticalGame={game} tacticalCharacter={character} formData={formData} setFormData={setFormData} />
             <Box>
                 <TabContext value={tabValue}>
                     <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                         <TabList onChange={handleTabChange} aria-label='lab API tabs example'>
-                            <Tab label='Info' value='1' />
-                            <Tab label='Attributes' value='2' />
-                            <Tab label='Skills' value='3' />
-                            <Tab label='Items' value='4' />
-                            <Tab label='Debug' value='5' />
+                            <Tab label='Info' value='info' />
+                            <Tab label='Attributes' value='attributes' />
+                            <Tab label='Skills' value='skills' />
+                            <Tab label='Items' value='items' />
+                            <Tab label='Debug Form' value='debug-form' />
+                            <Tab label='Debug Character' value='debug-character' />
                         </TabList>
                     </Box>
-                    <TabPanel value='1'>
+                    <TabPanel value='info'>
                         <Grid container spacing={2}>
                             <Grid size={6}>
                                 <CharacterModificationAttributes formData={formData} setFormData={setFormData} factions={factions} size='normal' variant='outlined' />
@@ -117,35 +123,30 @@ const CharacterModification = () => {
                             </Grid>
                         </Grid>
                     </TabPanel>
-                    <TabPanel value='2'>
+                    <TabPanel value='attributes'>
                         <Grid container spacing={2}>
                             <Grid size={6}>
                                 <TacticalCharacterStatisticsModification formData={formData} setFormData={setFormData} />
                             </Grid>
                         </Grid>
                     </TabPanel>
-                    <TabPanel value='3'>
-                        <TacticalCharacterSkillDataGrid tacticalCharacter={tacticalCharacter} setTacticalCharacter={setTacticalCharacter} />
+                    <TabPanel value='skills'>
+                        <TacticalCharacterSkillDataGrid tacticalCharacter={character} setTacticalCharacter={setCharacter} />
                     </TabPanel>
-                    <TabPanel value='4'>
-                        <TacticalCharacterAddItem tacticalGame={tacticalGame} tacticalCharacter={tacticalCharacter} setTacticalCharacter={setTacticalCharacter} />
-                        <CharacterEquipment character={tacticalCharacter} setCharacter={setTacticalCharacter} />
+                    <TabPanel value='items'>
+                        <CharacterEquipment character={character} setCharacter={setCharacter} />
                     </TabPanel>
-                    <TabPanel value='5'>
-                        <div>
-                            <h3>formData</h3>
-                            <pre>
-                                {JSON.stringify(formData, null, 2)}
-                            </pre>
-                            <h3>tacticalCharacter</h3>
-                            <pre>
-                                {JSON.stringify(tacticalCharacter, null, 2)}
-                            </pre>
-                            <h3>tacticalGame</h3>
-                            <pre>
-                                {JSON.stringify(tacticalCharacter, null, 2)}
-                            </pre>
-                        </div>
+                    <TabPanel value='debug-form'>
+                        <h3>formData</h3>
+                        <pre>
+                            {JSON.stringify(formData, null, 2)}
+                        </pre>
+                    </TabPanel>
+                    <TabPanel value='debug-character'>
+                        <h3>tacticalCharacter</h3>
+                        <pre>
+                            {JSON.stringify(character, null, 2)}
+                        </pre>
                     </TabPanel>
                 </TabContext>
             </Box>

@@ -2,9 +2,12 @@ import React, { useEffect, useState } from "react";
 import { useTranslation } from 'react-i18next';
 
 import { Avatar, Card, CardContent, Typography } from "@mui/material";
+
 import SelectItem from "../../select/SelectItem";
+import UnequipButton from "../../button/UnequipButton";
 
 import { API_TACTICAL_URL } from "../../../constants/environment";
+import { DETAIL_BUTTON_SIZE } from "../../../constants/ui";
 
 const CaracterItemCard = ({ item }) => {
     return (
@@ -138,6 +141,7 @@ const CharacterItemSlot = ({ character, setCharacter, slot }) => {
                         </>
                     ) : null}
                     <SelectItem options={itemOptions} onChange={handleItemChange} />
+                    <UnequipButton size={DETAIL_BUTTON_SIZE}/>
                 </CardContent>
             </Card>
         </>

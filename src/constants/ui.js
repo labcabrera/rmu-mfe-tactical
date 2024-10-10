@@ -3,8 +3,8 @@ const VARIANT = 'outlined'
 
 const VARIANT_DISABLED = 'outlined'
 
-const ACTION_BUTTON_SIZE = 60
-const DETAIL_BUTTON_SIZE = 60
+const ACTION_BUTTON_SIZE = 80;
+const DETAIL_BUTTON_SIZE = 80;
 
 // const SIZE = 'small';
 const SIZE = 'normal'

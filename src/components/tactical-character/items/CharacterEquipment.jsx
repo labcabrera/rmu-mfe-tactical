@@ -6,11 +6,13 @@ import Grid from '@mui/material/Grid2';
 import Typography from '@mui/material/Typography';
 
 import DropZone from '../../shared/DropZone';
+import CharacterItemSlot from "./CharacterItemSlot";
+import TacticalCharacterAddItem from "./TacticalCharacterAddItem";
 
 import { API_TACTICAL_URL } from "../../../constants/environment";
-import CharacterItemSlot from "./CharacterItemSlot";
+import CharacterInventory from "./CharacterInventory";
 
-const CharacterEquipment = ({ character, setCharacter }) => {
+const CharacterEquipment = ({ game, character, setCharacter }) => {
 
     const [availableItems, setAvailableItems] = useState([]);
     const [selectedImages, setSelectedImages] = useState([]);
@@ -145,6 +147,11 @@ const CharacterEquipment = ({ character, setCharacter }) => {
                     <CharacterItemSlot character={character} setCharacter={setCharacter} slot="body" />
                 </Grid>
             </Grid>
+
+            <CharacterInventory game={game} character={character} setCharacter={setCharacter} />
+
+
+            <h3>Deprecated</h3>
 
 
             <DndProvider backend={HTML5Backend}>

@@ -29,7 +29,7 @@ const ForgeItemActions = ({ tacticalCharacter, formData }) => {
             };
             const response = await fetch(`${API_TACTICAL_URL}/characters/${tacticalCharacter.id}/items`, requestOptions);
             if (response.status === 200) {
-                navigate(`/tactical/characters/edit/${tacticalCharacter.id}`);
+                navigate(`/tactical/characters/edit/${tacticalCharacter.id}?tab=items`);
             } else {
                 const responseBody = await response.json();
                 throw responseBody.message;
