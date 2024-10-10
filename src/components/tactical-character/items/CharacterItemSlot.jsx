@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from 'react-i18next';
 
-import { Avatar, Card, CardContent, Typography } from "@mui/material";
+import { Avatar, Card, CardContent, Stack, Typography } from "@mui/material";
 
 import ItemTypeAvatar from "../../avatar/ItemTypeAvatar";
 import UnequipButton from "../../button/UnequipButton";
@@ -127,24 +127,30 @@ const CharacterItemSlot = ({ character, setCharacter, slot }) => {
 
     return (
         <>
-            <Card>
+            <Card sx={{ minHeight: '400px' }}>
                 <CardContent>
                     <Typography>{t(slot)}</Typography>
+                    <Stack direction='row' alignItems='center' spacing={2}>
+                        {item ? (
+                            <>
+                                <ItemTypeAvatar itemType={item.itemTypeId} size={100} variant='square' />
+                            </>
+                        ) : (
+                            <CharacterEmptySlockAvatar slot={slot} />
+                        )}
+                        <SelectItem options={itemOptions} onChange={handleItemChange} />
+                    </Stack>
                     {item ? (
                         <>
-                            <ItemTypeAvatar itemType={item.itemTypeId} size={100} variant='square' />
-                            <Typography>{item.name}</Typography>
+                            <UnequipButton size={DETAIL_BUTTON_SIZE} />
+                            <Typography variant="subtitle2">{item.name}</Typography>
                         </>
-                    ) : (
-                        <CharacterEmptySlockAvatar slot={slot} />
-                    )}
+                    ) : null}
                     {item?.weapon ? (
                         <>
                             <Typography variant="subtitle2" gutterBottom>{t(item.weapon.skillId)}: {skillBonus}</Typography>
                         </>
                     ) : null}
-                    <SelectItem options={itemOptions} onChange={handleItemChange} />
-                    <UnequipButton size={DETAIL_BUTTON_SIZE} />
                 </CardContent>
             </Card>
         </>

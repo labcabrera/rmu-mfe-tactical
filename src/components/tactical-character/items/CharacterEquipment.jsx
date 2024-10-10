@@ -61,13 +61,13 @@ const CharacterEquipment = ({ game, character, setCharacter }) => {
     return (
         <>
             <Grid container spacing={2}>
-                <Grid size={2}>
+                <Grid size={3}>
                     <CharacterItemSlot character={character} setCharacter={setCharacter} slot="mainHand" />
                 </Grid>
-                <Grid size={2}>
+                <Grid size={3}>
                     <CharacterItemSlot character={character} setCharacter={setCharacter} slot="offHand" />
                 </Grid>
-                <Grid size={2}>
+                <Grid size={3}>
                     <CharacterItemSlot character={character} setCharacter={setCharacter} slot="body" />
                 </Grid>
             </Grid>

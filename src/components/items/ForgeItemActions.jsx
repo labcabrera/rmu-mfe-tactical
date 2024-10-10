@@ -48,7 +48,6 @@ const ForgeItemActions = ({ game, character, formData }) => {
                 sx={{
                     width: '100%'
                 }}>
-
                 <Breadcrumbs aria-label="breadcrumb">
                     <Link underline="hover" color="inherit" href='/tactical'>{t('tactical-games')}</Link>
                     <Typography sx={{ color: 'text.primary' }}>{game.name}</Typography>
