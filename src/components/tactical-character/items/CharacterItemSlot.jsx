@@ -6,6 +6,23 @@ import SelectItem from "../../select/SelectItem";
 
 import { API_TACTICAL_URL } from "../../../constants/environment";
 
+const CaracterItemCard = ({ item }) => {
+    return (
+        <>
+            <Avatar
+                src={`/static/images/items/${item.itemTypeId}.png`}
+                variant="square"
+                sx={{ width: 100, height: 100 }} />
+            <Typography>{item.name}</Typography>
+            {item.weapon ? (
+                <>
+                    <Typography variant="subtitle2" gutterBottom>{t(item.weapon.skillId)}: {skillBonus}</Typography>
+                </>
+            ) : null}
+        </>
+    );
+}
+
 const CharacterItemSlot = ({ character, setCharacter, slot }) => {
 
     const { t } = useTranslation();
@@ -13,7 +30,7 @@ const CharacterItemSlot = ({ character, setCharacter, slot }) => {
     const [item, setItem] = useState();
     const [itemOptions, setItemOptions] = useState([]);
 
-    const [skillBonus, setSkillBonus] = useState(-25);
+    const [skillBonus, setSkillBonus] = useState();
 
     const loadEquipedItem = () => {
         if (character.equipment[slot]) {
@@ -24,10 +41,15 @@ const CharacterItemSlot = ({ character, setCharacter, slot }) => {
                 const skill = character.skills.find(e => e.skillId == item.weapon.skillId);
                 if (skill) {
                     setSkillBonus(skill.totalBonus);
+                } else {
+                    setSkillBonus(-25);
                 }
             }
-            loadAvailableItems();
+        } else {
+            setItem(null);
+            setSkillBonus(null);
         }
+        loadAvailableItems();
     };
 
     const handleItemChange = async (itemId) => {
@@ -66,8 +88,14 @@ const CharacterItemSlot = ({ character, setCharacter, slot }) => {
         var list = [];
         switch (slot) {
             case 'mainHand':
-                //list = character.items.filter(e => (e.category === 'weapon' || e.category === 'shield') && e.id != item.id);
                 list = character.items.filter(e => e.weapon);
+                break;
+            case 'offHand':
+                //TODO filtrar solo de una mano
+                list = character.items.filter(e => e.weapon);
+                break;
+            case 'body':
+                list = character.items.filter(e => e.armor);
                 break;
         }
         setItemOptions(list);
@@ -82,7 +110,12 @@ const CharacterItemSlot = ({ character, setCharacter, slot }) => {
     }
 
     if (!item) {
-        return <p>No item selected</p>
+        <Card>
+            <CardContent>
+                <Typography>{t(slot)}</Typography>
+                <Typography variant="subtitle2" gutterBottom>No item selected</Typography>
+            </CardContent>
+        </Card>
     }
 
     return (
@@ -90,21 +123,23 @@ const CharacterItemSlot = ({ character, setCharacter, slot }) => {
             <Card>
                 <CardContent>
                     <Typography>{t(slot)}</Typography>
-                    <Avatar src={`/static/images/items/${item.itemTypeId}.png`} variant="square"/>
-                    <Typography>{item.name}</Typography>
-                    {item.weapon ? (
+                    {item ? (
                         <>
-                            <Typography>Skill: {item.weapon.skillId}</Typography>
-                            <Typography>Skill bonus: {skillBonus}</Typography>
+                            <Avatar
+                                src={`/static/images/items/${item.itemTypeId}.png`}
+                                variant="square"
+                                sx={{ width: 100, height: 100 }} />
+                            <Typography>{item.name}</Typography>
+                        </>
+                    ) : <Typography>No item selected</Typography>}
+                    {item?.weapon ? (
+                        <>
+                            <Typography variant="subtitle2" gutterBottom>{t(item.weapon.skillId)}: {skillBonus}</Typography>
                         </>
                     ) : null}
                     <SelectItem options={itemOptions} onChange={handleItemChange} />
                 </CardContent>
             </Card>
-            <div>wip character item slot</div>
-            <pre>
-                {JSON.stringify(item, null, 2)}
-            </pre>
         </>
     );
 };

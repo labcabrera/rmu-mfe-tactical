@@ -278,7 +278,10 @@
     "charge-speed-none": "None",
     "charge-speed-jog": "Jog (size +1)",
     "charge-speed-sprint": "Spring (size +2)",
-    
+
+    "mainHand": "Main hand",
+    "offHand": "Off-hand",
+    "body": "Body",
 
     "restricted-quarter-none": "None",
     "restricted-quarter-close": "Close (-25)",

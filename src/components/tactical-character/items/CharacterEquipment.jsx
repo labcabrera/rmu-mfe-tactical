@@ -134,10 +134,21 @@ const CharacterEquipment = ({ character, setCharacter }) => {
     return (
         <div className="tactical-character-items">
 
-            <CharacterItemSlot character={character} setCharacter={setCharacter} slot="mainHand" />
+            <Grid container spacing={2}>
+                <Grid size={2}>
+                    <CharacterItemSlot character={character} setCharacter={setCharacter} slot="mainHand" />
+                </Grid>
+                <Grid size={2}>
+                    <CharacterItemSlot character={character} setCharacter={setCharacter} slot="offHand" />
+                </Grid>
+                <Grid size={2}>
+                    <CharacterItemSlot character={character} setCharacter={setCharacter} slot="body" />
+                </Grid>
+            </Grid>
+
 
             <DndProvider backend={HTML5Backend}>
-                <Grid container spacing={1}>
+                <Grid container spacing={2}>
 
                     <Grid size={2}>
                         <DropZone images={imagesMainHand} onDrop={handleDropToMainHand} title="Main hand" />

@@ -88,6 +88,12 @@ const ForgeItemAttributes = ({ formData, setFormData }) => {
                     <Grid size={6}>
                         <ItemStrengthTextField i18nLabel="fumble" value={formData.weapon.fumble} onChange={handleFumbleChange} />
                     </Grid>
+                    <Grid size={6}>
+                        <ItemStrengthTextField i18nLabel="requiredHands" value={formData.weapon.requiredHands} />
+                    </Grid>
+                    <Grid size={6}>
+                        <ItemStrengthTextField i18nLabel="trowable" value={formData.weapon.trowable} />
+                    </Grid>
                 </>
             ) : null}
             {formData.shield ? (
