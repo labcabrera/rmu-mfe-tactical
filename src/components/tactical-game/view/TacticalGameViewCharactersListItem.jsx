@@ -3,16 +3,16 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from "react-router-dom";
 
 import ListItem from '@mui/material/ListItem';
+import ListItemAvatar from "@mui/material/ListItemAvatar";
 import ListItemText from '@mui/material/ListItemText';
 import Stack from '@mui/material/Stack';
 
-import CharacterListItemAvatar from "../../shared/CharacterIconItemAvatar";
-
-import DeleteButton from "../../button/DeleteButton";
-import EditButton from "../../button/EditButton";
-
 import { API_TACTICAL_URL } from "../../../constants/environment";
 import { DETAIL_BUTTON_SIZE } from "../../../constants/ui";
+
+import CharacterAvatar from "../../avatar/CharacterAvatar";
+import DeleteButton from "../../button/DeleteButton";
+import EditButton from "../../button/EditButton";
 
 const TacticalGameViewCharactersListItem = ({ tacticalGame, character, onRemoveCharacter }) => {
 
@@ -36,10 +36,6 @@ const TacticalGameViewCharactersListItem = ({ tacticalGame, character, onRemoveC
         deleteTacticalCharacter();
     };
 
-    const getCharacterDetail = () => {
-        return i18n(character.info.race);
-    };
-
     if (!tacticalGame || !character) {
         return <p>Loading...</p>
     }
@@ -54,7 +50,9 @@ const TacticalGameViewCharactersListItem = ({ tacticalGame, character, onRemoveC
                 <DeleteButton onClick={handleCharacterItemDeleteClick} size={DETAIL_BUTTON_SIZE} />
             </Stack>
         }>
-            <CharacterListItemAvatar character={character} />
+            <ListItemAvatar>
+                <CharacterAvatar character={character} />
+            </ListItemAvatar>
             <ListItemText
                 primary={character.name}
                 secondary={`${t(character.info.race)} level ${character.info.level}`}
