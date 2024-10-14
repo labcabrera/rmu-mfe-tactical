@@ -1,6 +1,6 @@
 import React from "react";
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from "react-router-dom";
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 
 import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Link from '@mui/material/Link';
@@ -10,9 +10,11 @@ import Typography from '@mui/material/Typography';
 import BackButton from "../../button/BackButton";
 import SaveButton from "../../button/SaveButton";
 
+import { API_TACTICAL_URL } from "../../../constants/environment";
 import { ACTION_BUTTON_SIZE } from "../../../constants/ui";
 
-const TacticalGameEditActions = ({ tacticalGame }) => {
+
+const TacticalGameEditActions = ({ tacticalGame, formData }) => {
 
     const navigate = useNavigate();
     const { t } = useTranslation();
@@ -21,7 +23,20 @@ const TacticalGameEditActions = ({ tacticalGame }) => {
         return <p>Loading...</p>
     }
 
-    const handleSaveButtonClick = () => {
+    const handleSaveButtonClick = async () => {
+        const response = await fetch(`${API_TACTICAL_URL}/tactical-games/${tacticalGame.id}`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData),
+        });
+        if (response.status == 200) {
+            const responseBody = await response.json();
+            navigate(`/tactical/view/${tacticalGame.id}`, { state: { tacticalGame: responseBody } });
+        } else {
+            //TODO handle error
+        }
     };
 
     const handleBackButtonClick = () => {
@@ -40,7 +55,12 @@ const TacticalGameEditActions = ({ tacticalGame }) => {
                 }}>
                 <Breadcrumbs aria-label="breadcrumb">
                     <Link underline="hover" color="inherit" href='/tactical'>{t('tactical-games')}</Link>
-                    <Typography sx={{ color: 'text.primary' }}>{tacticalGame.name}</Typography>
+                    <Link underline="hover" color="inherit" component={RouterLink} to={{
+                        pathname: `/tactical/view/${tacticalGame.id}`,
+                        state: { tacticalGame }
+                    }}>
+                        {tacticalGame.name}
+                    </Link>
                     <Typography sx={{ color: 'text.primary' }}>{t('edit')}</Typography>
                 </Breadcrumbs>
 
