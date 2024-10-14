@@ -38,7 +38,7 @@ const CharacterInventoryItemList = ({ item, character, setCharacter }) => {
             <Grid size={2}>
             </Grid>
             <Grid size={2}>
-                <Typography>{item.info?.weight}</Typography>
+                <Typography>{item.info?.weight} lbs</Typography>
             </Grid>
             <Grid size={2}>
                 <DeleteButton onClick={handleDeleteClick} size={DETAIL_BUTTON_SIZE} />

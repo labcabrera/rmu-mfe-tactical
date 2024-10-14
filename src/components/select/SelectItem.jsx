@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 
 import Avatar from '@mui/material/Avatar';
@@ -8,7 +8,7 @@ import TextField from '@mui/material/TextField';
 
 import { VARIANT } from '../../constants/ui';
 
-const SelectItem = ({ options, onChange, i18nLabel = 'select-item' }) => {
+const SelectItem = ({ value, options, onChange, i18nLabel = 'select-item' }) => {
 
     const { t } = useTranslation();
 
@@ -21,17 +21,19 @@ const SelectItem = ({ options, onChange, i18nLabel = 'select-item' }) => {
             select
             label={t(i18nLabel)}
             variant={VARIANT}
+            value={value}
             fullWidth
             onChange={handleChange}
             slotProps={{
                 input: {
                     startAdornment: (
-                        <InputAdornment position="start">
+                        <InputAdornment position='start'>
                             <Avatar src='/static/images/generic/select-weapon.png' sx={{ width: 25, height: 25 }} />
                         </InputAdornment>
                     ),
                 },
             }}>
+            {/* <MenuItem key='no-selected' value=''>None</MenuItem> */}
             {options.map((option, index) => (<MenuItem key={index} value={option.id}>{option.name}</MenuItem>))}
         </TextField>
     );

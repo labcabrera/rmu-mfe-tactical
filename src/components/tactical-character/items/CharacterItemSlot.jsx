@@ -35,8 +35,8 @@ const CharacterItemSlot = ({ character, setCharacter, slot }) => {
     const { t } = useTranslation();
 
     const [item, setItem] = useState();
+    const [selectedItem, setSelectedItem] = useState('');
     const [itemOptions, setItemOptions] = useState([]);
-
     const [skillBonus, setSkillBonus] = useState();
 
     const loadEquipedItem = () => {
@@ -89,7 +89,11 @@ const CharacterItemSlot = ({ character, setCharacter, slot }) => {
         } catch (error) {
             console.error(`TacticalCharacterEquipment.error: ${error}`);
         }
-    }
+    };
+
+    const handleUnequipClick = async () => {
+        equipItem(item.id, null);
+    };
 
     const loadAvailableItems = () => {
         var list = [];
@@ -111,6 +115,10 @@ const CharacterItemSlot = ({ character, setCharacter, slot }) => {
     useEffect(() => {
         loadEquipedItem();
     }, [character]);
+
+    useEffect(() => {
+        setSelectedItem(item ? item.id : '');
+    }, [item]);
 
     if (!character || !slot) {
         return <p>Loading...</p>
@@ -138,11 +146,11 @@ const CharacterItemSlot = ({ character, setCharacter, slot }) => {
                         ) : (
                             <CharacterEmptySlockAvatar slot={slot} />
                         )}
-                        <SelectItem options={itemOptions} onChange={handleItemChange} />
+                        <SelectItem value={selectedItem} options={itemOptions} onChange={handleItemChange} />
                     </Stack>
                     {item ? (
                         <>
-                            <UnequipButton size={DETAIL_BUTTON_SIZE} />
+                            <UnequipButton onClick={handleUnequipClick} size={DETAIL_BUTTON_SIZE} />
                             <Typography variant="subtitle2">{item.name}</Typography>
                         </>
                     ) : null}
