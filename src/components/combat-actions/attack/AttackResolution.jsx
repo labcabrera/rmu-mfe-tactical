@@ -13,7 +13,7 @@ import SelectChargeSpeed from '../../select/SelectChargeSpeed';
 import SelectDefender from '../../select/SelectDefender';
 import SelectRestrictedQuarters from '../../select/SelectRestrictedQuarters';
 import ActionPointSelector from '../../shared/ActionPointSelector';
-import TacticalActionCreationActions from '../TacticalActionCreationActions';
+import ActionResolutionActions from '../ActionResolutionActions';
 
 const AttackResolution = () => {
 
@@ -27,7 +27,7 @@ const AttackResolution = () => {
     const [isValid, setIsValid] = useState(false);
 
     const phaseStart = searchParams.get('phaseStart');
-    const tacticalGame = location.state?.tacticalGame;
+    const game = location.state?.game;
     const character = location.state?.character;
     const characters = location.state?.characters;
 
@@ -60,8 +60,8 @@ const AttackResolution = () => {
     };
 
     const [formData, setFormData] = useState({
-        tacticalGameId: tacticalGame.id,
-        round: tacticalGame.round,
+        tacticalGameId: game.id,
+        round: game.round,
         tacticalCharacterId: character.id,
         type: 'attack',
         phaseStart: phaseStart,
@@ -134,13 +134,13 @@ const AttackResolution = () => {
         setIsValid(isValidForm);
     }, [formData]);
 
-    if (!tacticalGame || !character || !characters) {
+    if (!game || !character || !characters) {
         return <p>Loading...</p>
     }
 
     return (
         <>
-            <TacticalActionCreationActions game={tacticalGame} character={character} formData={formData} isValid={isValid} />
+            <ActionResolutionActions game={game} character={character} formData={formData} isValid={isValid} />
             <div className="tactical-game-creation">
 
                 <Grid container spacing={2}>

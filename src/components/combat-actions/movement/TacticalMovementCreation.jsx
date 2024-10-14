@@ -1,33 +1,28 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useSearchParams } from "react-router-dom";
 
 import Grid from '@mui/material/Grid2';
-import TextField from '@mui/material/TextField';
 
 import NameTextField from '../../input/NameTextField';
 import SelectPace from '../../select/SelectPace';
 import ActionPointSelector from '../../shared/ActionPointSelector';
-import TacticalActionCreationActions from '../TacticalActionCreationActions';
+import TacticalActionCreationActions from '../ActionCreationActions';
 
 import MovementTextField from '../../input/MovementTextField';
 
 const TacticalMovementCreation = () => {
-
-    const variant = 'standard';
-
     const location = useLocation();
     const [searchParams] = useSearchParams();
     const [isValid, setIsValid] = useState(false);
     const { t, i18n } = useTranslation();
-
     const phaseStart = parseInt(searchParams.get('phaseStart'));
-    const tacticalGame = location.state?.tacticalGame;
+    const game = location.state?.game;
     const character = location.state?.character;
 
     const [formData, setFormData] = useState({
-        tacticalGameId: tacticalGame.id,
-        round: tacticalGame.round,
+        tacticalGameId: game.id,
+        round: game.round,
         tacticalCharacterId: character.id,
         type: 'movement',
         phaseStart: phaseStart,
@@ -83,13 +78,13 @@ const TacticalMovementCreation = () => {
         setIsValid(isValidForm);
     }, [formData]);
 
-    if (!tacticalGame || !character) {
+    if (!game || !character) {
         return <p>Loading...</p>
     }
 
     return (
         <>
-            <TacticalActionCreationActions game={tacticalGame} character={character} formData={formData} isValid={isValid} />
+            <TacticalActionCreationActions game={game} character={character} formData={formData} isValid={isValid} />
             <div className="generic-main-content">
                 <Grid container spacing={2}>
 

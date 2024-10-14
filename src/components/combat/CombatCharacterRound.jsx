@@ -3,20 +3,17 @@ import React, { useContext, useEffect, useState } from "react";
 import { Box } from "@mui/material";
 import Grid from '@mui/material/Grid2';
 
-import { CombatContext } from './CombatProvider';
-
 import CombatCharacterPhaseOptions from './CombatCharacterPhaseOptions';
 import CombatCharacterRoundInfo from "./CombatCharacterRoundInfo";
 import CombatCharacterRoundInitiative from "./CombatCharacterRoundInitiative";
 import CombatFreeActionButtons from "./CombatFreeActionButtons";
+import { CombatContext } from './CombatProvider';
 
 const CombatCharacterRound = ({ characterRound }) => {
-
     const [character, setCharacter] = useState();
-
-    const { tacticalGame, setTacticalGame } = useContext(CombatContext);
-    const { characters, setCharacters } = useContext(CombatContext);
-    const { roundActions, setRoundActions } = useContext(CombatContext);
+    const { game } = useContext(CombatContext);
+    const { characters } = useContext(CombatContext);
+    const { roundActions } = useContext(CombatContext);
 
     const loadCharacter = () => {
         setCharacter(characters.find(item => item.id === characterRound.tacticalCharacterId));
@@ -40,7 +37,7 @@ const CombatCharacterRound = ({ characterRound }) => {
                     <CombatCharacterRoundInitiative />
                 </Grid>
                 <Grid size={3} display='flex' justifyContent="center" >
-                    <CombatFreeActionButtons tacticalGame={tacticalGame} character={character} />
+                    <CombatFreeActionButtons tacticalGame={game} character={character} />
                 </Grid>
                 <Grid size={3} display='flex' justifyContent="center">
                     <CombatCharacterPhaseOptions character={character} phase={1} />

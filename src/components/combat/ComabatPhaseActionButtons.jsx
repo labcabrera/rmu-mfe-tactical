@@ -1,10 +1,9 @@
 import React from 'react';
 import { useNavigate } from "react-router-dom";
 
-
 import CircleButtonGroup from '../shared/CircleButtonGroup';
 
-const CombatPhaseActionButtons = ({ tacticalGame, character, characters, phaseNumber }) => {
+const CombatPhaseActionButtons = ({ game, character, characters, phaseNumber }) => {
 
   const navigate = useNavigate();
 
@@ -13,9 +12,7 @@ const CombatPhaseActionButtons = ({ tacticalGame, character, characters, phaseNu
       src: '/static/images/actions/movement.png',
       alt: 'Movement',
       action: () => {
-        navigate(`/tactical/combat/${tacticalGame.id}/declare-movement?phaseStart=${phaseNumber}`, {
-          state: { tacticalGame: tacticalGame, character: character }
-        });
+        navigate(`/tactical/combat/${game.id}/declare-movement?phaseStart=${phaseNumber}`, { state: { game, character } });
         return;
       }
     },
@@ -23,11 +20,7 @@ const CombatPhaseActionButtons = ({ tacticalGame, character, characters, phaseNu
       src: '/static/images/actions/attack.png',
       alt: 'Declare attack',
       action: () => {
-        navigate(`/tactical/combat/${tacticalGame.id}/declare-attack?phaseStart=${phaseNumber}`, {
-          state: {
-            tacticalGame: tacticalGame, character: character, characters: characters
-          }
-        });
+        navigate(`/tactical/combat/${game.id}/declare-attack?phaseStart=${phaseNumber}`, { state: { game, character, characters } });
         return;
       }
     },
@@ -35,11 +28,7 @@ const CombatPhaseActionButtons = ({ tacticalGame, character, characters, phaseNu
       src: '/static/images/actions/movement-maneuver.png',
       alt: 'Movement maneuver',
       action: () => {
-        navigate(`/tactical/combat/${tacticalGame.id}/declare-movement-maneuver?phaseStart=${phaseNumber}`, {
-          state: {
-            tacticalGame: tacticalGame, character: character
-          }
-        });
+        navigate(`/tactical/combat/${game.id}/declare-movement-maneuver?phaseStart=${phaseNumber}`, { state: { game, character } });
         return;
       }
     },
@@ -47,11 +36,7 @@ const CombatPhaseActionButtons = ({ tacticalGame, character, characters, phaseNu
       src: '/static/images/actions/static-maneuver.png',
       alt: 'Static maneuver',
       action: () => {
-        navigate(`/tactical/combat/${tacticalGame.id}/declare-static-maneuver?phaseStart=${phaseNumber}`, {
-          state: {
-            tacticalGame: tacticalGame, character: character
-          }
-        });
+        navigate(`/tactical/combat/${game.id}/declare-static-maneuver?phaseStart=${phaseNumber}`, { state: { game, character } });
         return;
       }
     },
@@ -59,17 +44,13 @@ const CombatPhaseActionButtons = ({ tacticalGame, character, characters, phaseNu
       src: '/static/images/actions/cast-spell.png',
       alt: 'Cast spell',
       action: () => {
-        navigate(`/tactical/combat/${tacticalGame.id}/cast-spell?phaseStart=${phaseNumber}`, {
-          state: {
-            tacticalGame: tacticalGame, character: character
-          }
-        });
+        navigate(`/tactical/combat/${game.id}/cast-spell?phaseStart=${phaseNumber}`, { state: { game, character: character } });
         return;
       }
     }
   ];
 
-  if (!tacticalGame || !character || !phaseNumber) {
+  if (!game || !character || !phaseNumber) {
     return <p>Loading...</p>
   }
 

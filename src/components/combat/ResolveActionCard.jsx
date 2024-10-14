@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import IconButton from "@mui/material/IconButton";
 import Stack from "@mui/material/Stack";
@@ -10,13 +10,11 @@ import DeleteButton from "../button/DeleteButton";
 import PlayButton from "../button/PlayButton";
 import { CombatContext } from './CombatProvider';
 
-const ResolveActionCard = ({ action }) => {
+const ResolveActionCard = ({ character, action }) => {
     const navigate = useNavigate();
     const { roundActions, setRoundActions } = useContext(CombatContext);
-    const location = useLocation();
-    const game = location.state?.tacticalGame;
-    const character = location.state?.character;
-    const characters = location.state?.characters;
+    const { game } = useContext(CombatContext);
+    const { characters } = useContext(CombatContext);
 
     const handleDeleteActionClick = async () => {
         try {
@@ -36,9 +34,10 @@ const ResolveActionCard = ({ action }) => {
 
     const handleResolveActionClick = async () => {
         navigate(`/tactical/combat/${action.tacticalGameId}/resolve-attack/${action.id}`, { state: { game, character, characters } });
+        return;
     };
 
-    if (!action) {
+    if (!action || !character || !game) {
         return <p>Loading...</p>
     }
 

@@ -13,7 +13,7 @@ const CombatCharacterPhaseOptions = ({ character, phase }) => {
     const [activeAction, setActiveAction] = useState(null);
 
     const { characters, setCharacters } = useContext(CombatContext);
-    const { tacticalGame, setTacticalGame } = useContext(CombatContext);
+    const { game, setGame } = useContext(CombatContext);
     const { roundActions, setRoundActions } = useContext(CombatContext);
 
     const loadActiveAction = () => {
@@ -44,11 +44,11 @@ const CombatCharacterPhaseOptions = ({ character, phase }) => {
     }
 
     if (activeAction == null) {
-        return <CombatPhaseActionButtons character={character} tacticalGame={tacticalGame} characters={characters} phaseNumber={phase} />
+        return <CombatPhaseActionButtons character={character} game={game} characters={characters} phaseNumber={phase} />
     }
 
     if ((activeAction.phaseStart + activeAction.actionPoints - 1) == phase) {
-        return <ResolveActionCard action={activeAction} />
+        return <ResolveActionCard action={activeAction} character={character} />
     }
 
     return (

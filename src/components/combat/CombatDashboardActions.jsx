@@ -7,15 +7,14 @@ import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
-import { CombatContext } from './CombatProvider';
+import { API_TACTICAL_URL } from "../../constants/environment";
+import { ACTION_BUTTON_SIZE } from "../../constants/ui";
 
 import AddButton from "../button/AddButton";
 import BackButton from "../button/BackButton";
 import CloseButton from "../button/CloseButton";
 import NextButton from "../button/NextButton";
-
-import { API_TACTICAL_URL } from "../../constants/environment";
-import { ACTION_BUTTON_SIZE } from "../../constants/ui";
+import { CombatContext } from './CombatProvider';
 
 const CombatDashboardActions = () => {
 
@@ -23,7 +22,7 @@ const CombatDashboardActions = () => {
     const { t, i18n } = useTranslation();
 
     const { displayRound, setDisplayRound } = useContext(CombatContext);
-    const { tacticalGame, setTacticalGame } = useContext(CombatContext);
+    const { game, setGame } = useContext(CombatContext);
 
     const handleDisplayPreviousRoundClick = () => {
         setDisplayRound(displayRound > 1 ? displayRound - 1 : 1);
@@ -35,9 +34,9 @@ const CombatDashboardActions = () => {
 
     const handleNextRoundClick = async () => {
         try {
-            const response = await fetch(`${API_TACTICAL_URL}/tactical-games/${tacticalGame.id}/rounds/start`, { method: 'POST' });
+            const response = await fetch(`${API_TACTICAL_URL}/tactical-games/${game.id}/rounds/start`, { method: 'POST' });
             const data = await response.json();
-            setTacticalGame(data);
+            setGame(data);
             setDisplayRound(data.round);
         } catch (error) {
             console.error("CombatDashboardActions.fecthCharacterRounds error: " + error);
@@ -45,10 +44,10 @@ const CombatDashboardActions = () => {
     };
 
     const handleCloseDashboardClick = () => {
-        navigate(`/tactical/view/${tacticalGame.id}`, { state: { tacticalGame: tacticalGame } });
+        navigate(`/tactical/view/${game.id}`, { state: { game } });
     };
 
-    if (!displayRound || !tacticalGame) {
+    if (!displayRound || !game) {
         return <p>Loading...</p>
     }
 
@@ -64,16 +63,16 @@ const CombatDashboardActions = () => {
 
                 <Breadcrumbs aria-label="breadcrumb">
                     <Typography sx={{ color: 'text.primary' }}>{t('tactical-game')}</Typography>
-                    <Link underline="hover" color="inherit" href={`/tactical/view/${tacticalGame.id}`}>{tacticalGame.name}</Link>
+                    <Link underline="hover" color="inherit" href={`/tactical/view/${game.id}`}>{game.name}</Link>
                     <Typography sx={{ color: 'text.primary' }}>Round</Typography>
-                    <Typography sx={{ color: 'text.primary' }}>{displayRound}/{tacticalGame.round}</Typography>
-                    <Typography sx={{ color: 'text.primary' }}>{t(`phase-${tacticalGame.phase}`)}</Typography>
+                    <Typography sx={{ color: 'text.primary' }}>{displayRound}/{game.round}</Typography>
+                    <Typography sx={{ color: 'text.primary' }}>{t(`phase-${game.phase}`)}</Typography>
                 </Breadcrumbs>
 
                 <div style={{ flexGrow: 1 }} />
 
                 <BackButton onClick={handleDisplayPreviousRoundClick} disabled={displayRound === 1} size={ACTION_BUTTON_SIZE} />
-                <NextButton onClick={handleDisplayNextRoundClick} disabled={displayRound === tacticalGame.round} size={ACTION_BUTTON_SIZE} />
+                <NextButton onClick={handleDisplayNextRoundClick} disabled={displayRound === game.round} size={ACTION_BUTTON_SIZE} />
                 <AddButton onClick={handleNextRoundClick} size={ACTION_BUTTON_SIZE} />
                 <CloseButton onClick={handleCloseDashboardClick} size={ACTION_BUTTON_SIZE} />
             </Stack>

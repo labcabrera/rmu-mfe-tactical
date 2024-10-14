@@ -13,10 +13,9 @@ import SelectChargeSpeed from '../../select/SelectChargeSpeed';
 import SelectDefender from '../../select/SelectDefender';
 import SelectRestrictedQuarters from '../../select/SelectRestrictedQuarters';
 import ActionPointSelector from '../../shared/ActionPointSelector';
-import TacticalActionCreationActions from '../TacticalActionCreationActions';
+import TacticalActionCreationActions from '../ActionCreationActions';
 
-const TacticalAttackDeclaration = () => {
-
+const AttackDeclaration = () => {
     const debugMode = true;
     const noSkillValue = -25;
 
@@ -27,7 +26,7 @@ const TacticalAttackDeclaration = () => {
     const [isValid, setIsValid] = useState(false);
 
     const phaseStart = searchParams.get('phaseStart');
-    const tacticalGame = location.state?.tacticalGame;
+    const game = location.state?.game;
     const character = location.state?.character;
     const characters = location.state?.characters;
 
@@ -60,8 +59,8 @@ const TacticalAttackDeclaration = () => {
     };
 
     const [formData, setFormData] = useState({
-        tacticalGameId: tacticalGame.id,
-        round: tacticalGame.round,
+        tacticalGameId: game.id,
+        round: game.round,
         tacticalCharacterId: character.id,
         type: 'attack',
         phaseStart: phaseStart,
@@ -134,13 +133,13 @@ const TacticalAttackDeclaration = () => {
         setIsValid(isValidForm);
     }, [formData]);
 
-    if (!tacticalGame || !character || !characters) {
+    if (!game || !character || !characters) {
         return <p>Loading...</p>
     }
 
     return (
         <>
-            <TacticalActionCreationActions game={tacticalGame} character={character} formData={formData} isValid={isValid} />
+            <TacticalActionCreationActions game={game} character={character} formData={formData} isValid={isValid} />
             <div className="generic-main-content">
 
                 <Grid container spacing={2}>
@@ -221,4 +220,4 @@ const TacticalAttackDeclaration = () => {
     );
 }
 
-export default TacticalAttackDeclaration;
+export default AttackDeclaration;
