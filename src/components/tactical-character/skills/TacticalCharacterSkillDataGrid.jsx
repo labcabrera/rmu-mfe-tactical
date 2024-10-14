@@ -1,21 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
-import AddIcon from '@mui/icons-material/Add';
 import CancelIcon from '@mui/icons-material/Close';
 import DeleteIcon from '@mui/icons-material/DeleteOutlined';
 import EditIcon from '@mui/icons-material/Edit';
 import SaveIcon from '@mui/icons-material/Save';
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
 import Chip from '@mui/material/Chip';
+import MenuItem from '@mui/material/MenuItem';
+import Select from '@mui/material/Select';
 import Stack from '@mui/material/Stack';
-
 import { DataGrid, GridActionsCellItem, GridRowEditStopReasons, GridRowModes, GridToolbarContainer } from '@mui/x-data-grid';
 
+import AddButton from '../../button/AddButton';
+
 import { API_CORE_URL, API_TACTICAL_URL } from "../../../constants/environment";
+import { DETAIL_BUTTON_SIZE } from '../../../constants/ui';
 
 function EditToolbar(props) {
 
@@ -49,10 +49,23 @@ function EditToolbar(props) {
 
     return (
         <GridToolbarContainer>
-            <Button color="primary" startIcon={<AddIcon />} onClick={handleClick}>{t('add-skill')}</Button>
+            <AddButton onClick={handleClick} size={DETAIL_BUTTON_SIZE} />
         </GridToolbarContainer>
     );
-}
+};
+
+const StatisticsCell = ({ params }) => (
+    <Stack direction="row" spacing={1} sx={{
+        width: '100%',
+        height: '100%',
+        alignItems: 'center',
+        justifyContent: 'center',
+    }}>
+        {params.row.statistics.map((e, index) => (
+            <Chip key={index} label={e} variant="outlined" size="small" />
+        ))}
+    </Stack>
+);
 
 const TacticalCharacterSkillDataGrid = ({ tacticalCharacter, setTacticalCharacter }) => {
 
@@ -283,7 +296,7 @@ const TacticalCharacterSkillDataGrid = ({ tacticalCharacter, setTacticalCharacte
 
     const columns = [
         {
-            field: 'skillId', headerName: 'Skill', width: 250, renderCell: (params) => (
+            field: 'skillId', headerName: 'Skill', width: 300, renderCell: (params) => (
                 <>
                     {!params.row.skillId.startsWith('pending-select-' || !skills) ? (
                         <div>{t(params.row.skillId)}</div>
@@ -305,28 +318,20 @@ const TacticalCharacterSkillDataGrid = ({ tacticalCharacter, setTacticalCharacte
         },
         { field: 'specialization', headerName: 'Specialization', type: 'text', align: 'right', width: 250, editable: true },
         {
-            field: 'statistics', headerName: 'Statistics', width: 120, renderCell: (params) => (
-                <Stack direction="row" spacing={1} sx={{
-                    width: '100%',
-                    height: '100%',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                }}>
-                    {params.row.statistics.map((e, index) => (<Chip key={index} label={e} _variant="outlined" size="small" />))}
-                </Stack>
-            )
+            field: 'statistics', headerName: 'Statistics', width: 160,
+            renderCell: (params) => (<StatisticsCell params={params} />)
         },
-        { field: 'ranks', headerName: 'Ranks', type: 'text', align: 'right', width: 100, editable: true },
-        { field: 'developmentBonus', headerName: '+Dev', type: 'text', align: 'right', width: 100, editable: false },
-        { field: 'statBonus', headerName: '+Stats', type: 'text', align: 'right', width: 100, editable: false },
-        { field: 'racialBonus', headerName: '+Racial', type: 'text', align: 'right', width: 100, editable: false },
-        { field: 'customBonus', headerName: '+Custom', type: 'text', align: 'right', width: 100, editable: true },
-        { field: 'totalBonus', headerName: 'Total', type: 'text', align: 'right', width: 100, editable: false },
+        { field: 'ranks', headerName: 'Ranks', type: 'text', align: 'right', width: 120, editable: true },
+        { field: 'developmentBonus', headerName: '+Dev', type: 'text', align: 'right', width: 120, editable: false },
+        { field: 'statBonus', headerName: '+Stats', type: 'text', align: 'right', width: 120, editable: false },
+        { field: 'racialBonus', headerName: '+Racial', type: 'text', align: 'right', width: 120, editable: false },
+        { field: 'customBonus', headerName: '+Custom', type: 'text', align: 'right', width: 120, editable: true },
+        { field: 'totalBonus', headerName: 'Total', type: 'text', align: 'right', width: 120, editable: false },
         {
             field: 'actions',
             type: 'actions',
             headerName: 'Actions',
-            width: 100,
+            width: 160,
             cellClassName: 'actions',
             getActions: ({ id }) => {
                 const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
@@ -386,6 +391,7 @@ const TacticalCharacterSkillDataGrid = ({ tacticalCharacter, setTacticalCharacte
                 <DataGrid
                     rows={rows}
                     columns={columns}
+                    rowHeight={80}
                     getRowId={row => row.skillId}
                     editMode="row"
                     rowModesModel={rowModesModel}
@@ -402,24 +408,6 @@ const TacticalCharacterSkillDataGrid = ({ tacticalCharacter, setTacticalCharacte
                     }}
                 />
             </Box>
-            {/*
-            <h3>rowModesModel</h3>
-            <pre>
-                {JSON.stringify(rowModesModel, null, 2)}
-            </pre>
-            <h3>rows</h3>
-            <pre>
-                {JSON.stringify(rows, null, 2)}
-            </pre>
-             <h3>tacticalCharacter.skills</h3>
-            <pre>
-                {JSON.stringify(tacticalCharacter.skills, null, 2)}
-            </pre>
-            <h3>skills</h3>
-            <pre>
-                {JSON.stringify(skills, null, 2)}
-            </pre>
-            */}
         </div>
     );
 }
