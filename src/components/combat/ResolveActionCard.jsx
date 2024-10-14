@@ -1,21 +1,22 @@
 import React, { useContext } from "react";
-import { useTranslation } from 'react-i18next';
+import { useLocation, useNavigate } from "react-router-dom";
 
-import { Stack } from "@mui/material";
 import IconButton from "@mui/material/IconButton";
-
-import DeleteButton from "../button/DeleteButton";
-import PlayButton from "../button/PlayButton";
-
-import { CombatContext } from './CombatProvider';
+import Stack from "@mui/material/Stack";
 
 import { API_TACTICAL_URL } from '../../constants/environment';
 
+import DeleteButton from "../button/DeleteButton";
+import PlayButton from "../button/PlayButton";
+import { CombatContext } from './CombatProvider';
+
 const ResolveActionCard = ({ action }) => {
-
-    const { t, i18n } = useTranslation();
-
+    const navigate = useNavigate();
     const { roundActions, setRoundActions } = useContext(CombatContext);
+    const location = useLocation();
+    const game = location.state?.tacticalGame;
+    const character = location.state?.character;
+    const characters = location.state?.characters;
 
     const handleDeleteActionClick = async () => {
         try {
@@ -31,6 +32,10 @@ const ResolveActionCard = ({ action }) => {
         } catch (error) {
             console.log("delete error: " + error);
         }
+    };
+
+    const handleResolveActionClick = async () => {
+        navigate(`/tactical/combat/${action.tacticalGameId}/resolve-attack/${action.id}`, { state: { game, character, characters } });
     };
 
     if (!action) {
@@ -49,10 +54,10 @@ const ResolveActionCard = ({ action }) => {
                 <img
                     src={`/static/images/actions/${action.type}.png`}
                     alt={action.type}
-                    style={{ width: '100%', height: '100%', borderRadius: '50%' }} // Rounded image
+                    style={{ width: '100%', height: '100%', borderRadius: '50%' }}
                 />
             </IconButton>
-            <PlayButton size={70} />
+            <PlayButton onClick={handleResolveActionClick} size={70} />
             <DeleteButton onClick={() => handleDeleteActionClick()} size={70} />
         </Stack>
     );

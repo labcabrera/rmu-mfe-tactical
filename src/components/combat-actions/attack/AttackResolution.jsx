@@ -15,7 +15,7 @@ import SelectRestrictedQuarters from '../../select/SelectRestrictedQuarters';
 import ActionPointSelector from '../../shared/ActionPointSelector';
 import TacticalActionCreationActions from '../TacticalActionCreationActions';
 
-const TacticalAttackDeclaration = () => {
+const AttackResolution = () => {
 
     const debugMode = true;
     const noSkillValue = -25;
@@ -141,7 +141,7 @@ const TacticalAttackDeclaration = () => {
     return (
         <>
             <TacticalActionCreationActions game={tacticalGame} character={character} formData={formData} isValid={isValid} />
-            <div className="generic-main-content">
+            <div className="tactical-game-creation">
 
                 <Grid container spacing={2}>
 
@@ -221,4 +221,4 @@ const TacticalAttackDeclaration = () => {
     );
 }
 
-export default TacticalAttackDeclaration;
+export default AttackResolution;
