@@ -9,9 +9,10 @@ import AttackTextField from '../../input/AttackTextField';
 import DefenseTextField from '../../input/DefenseTextField';
 import SizeTextField from '../../input/SizeTextField';
 import SelectAttackMode from '../../select/SelectAttackMode';
+import SelectRestrictedQuarters from '../../select/SelectRestrictedQuarters';
+import SelectChargeSpeed from '../../select/SelectChargeSpeed';
 
-
-const AttackResolutionAttributes = ({ formData, character }) => {
+const AttackResolutionAttributes = ({ attackKey, formData, character }) => {
 
     const handleTargetChange = (targetCharacterId) => {
         const targetCharacter = characters.find(e => e.id == targetCharacterId);
@@ -75,10 +76,10 @@ const AttackResolutionAttributes = ({ formData, character }) => {
             </Grid>
             <Grid size={2}></Grid>
             <Grid size={2}>
-                <SelectDefender value={formData.tacticalCharacterTargetId} onChange={handleTargetChange} sourceId={character.id} targets={characters} />
+                {/* <SelectDefender value={formData.tacticalCharacterTargetId} onChange={handleTargetChange} sourceId={character.id} targets={characters} /> */}
             </Grid>
             <Grid size={2}>
-                <ArmorTextField value={formData.transient.armorType} disabled />
+                {/* <ArmorTextField value={formData.transient.armorType} disabled /> */}
             </Grid>
             <Grid size={2}></Grid>
 

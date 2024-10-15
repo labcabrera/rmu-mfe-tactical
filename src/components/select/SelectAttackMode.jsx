@@ -34,7 +34,7 @@ const SelectAttackMode = ({ character, value, onChange }) => {
     return (
         <TextField
             select
-            label={t('attack-weapon')}
+            label={t('attack-mode')}
             value={(value === undefined || value === null || sizes.length === 0) ? '' : value}
             variant={VARIANT}
             fullWidth

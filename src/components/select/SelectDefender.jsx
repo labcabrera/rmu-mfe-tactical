@@ -8,7 +8,7 @@ import TextField from "@mui/material/TextField";
 
 import { VARIANT } from '../../constants/ui';
 
-const SelectDefender = ({ value, onChange, sourceId, targets }) => {
+const SelectDefender = ({ value, onChange, sourceId, targets, i18nLabel='defender' }) => {
 
     const { t } = useTranslation();
 
@@ -25,7 +25,7 @@ const SelectDefender = ({ value, onChange, sourceId, targets }) => {
         <TextField
             select
             id="select-attack-target"
-            label={t('defender')}
+            label={t(i18nLabel)}
             fullWidth
             value={(value === undefined || value === null || targets.length === 0) ? '' : value}
             variant={VARIANT}
