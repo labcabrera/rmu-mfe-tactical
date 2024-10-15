@@ -8,7 +8,7 @@ import AttackTextField from '../../input/AttackTextField';
 import DefenseTextField from '../../input/DefenseTextField';
 import PenaltyTextField from '../../input/PenaltyTextField';
 import SizeTextField from '../../input/SizeTextField';
-import SelectAttackWeapon from '../../select/SelectAttackWeapon';
+import SelectAttackMode from '../../select/SelectAttackMode';
 import SelectChargeSpeed from '../../select/SelectChargeSpeed';
 import SelectDefender from '../../select/SelectDefender';
 import SelectRestrictedQuarters from '../../select/SelectRestrictedQuarters';
@@ -65,9 +65,10 @@ const AttackDeclaration = () => {
         type: 'attack',
         phaseStart: phaseStart,
         actionPoints: 4,
-        tacticalCharacterTargetId: '',
         attackInfo: {
-            selectedWeapon: 'main-hand',
+            mode: 'mainHand',
+            mainTargetId: '',
+            offHandTargetId: '',
             parry: 0,
             restrictedQuarters: 'none',
             chargeSpeed: 'none'
@@ -86,7 +87,10 @@ const AttackDeclaration = () => {
         setTargetCharacter(targetCharacter);
         setFormData((prevState) => ({
             ...prevState,
-            tacticalCharacterTargetId: targetCharacterId,
+            attackInfo: {
+                ...prevState.attackInfo,
+                mainTargetId: targetCharacterId
+            },
             transient: {
                 ...prevState.transient,
                 armorType: targetCharacter.defense.armorType,
@@ -110,7 +114,7 @@ const AttackDeclaration = () => {
         }));
     };
 
-    const handleSelectedWeaponChange = (e) => { updateFormData('attackInfo', 'selectedWeapon', e) };
+    const handleSelectedWeaponChange = (e) => { updateFormData('attackInfo', 'mode', e) };
     const handleRestrictedQuarterChange = (e) => { updateFormData('attackInfo', 'restrictedQuarters', e) };
     const handleChargeSpeedChange = (e) => { updateFormData('attackInfo', 'chargeSpeed', e) };
     const handleParryChange = (e) => { updateFormData('attackInfo', 'parry', parseInt(e.target.value)) };
@@ -127,7 +131,7 @@ const AttackDeclaration = () => {
 
     useEffect(() => {
         var isValidForm = true;
-        if (!formData.tacticalCharacterTargetId) {
+        if (!formData.attackInfo || !formData.attackInfo.mainTargetId) {
             isValidForm = false;
         }
         setIsValid(isValidForm);
@@ -156,11 +160,11 @@ const AttackDeclaration = () => {
                         <AttackTextField i18Label='attacker' value={character.name} disabled required={false} />
                     </Grid>
                     <Grid size={2}>
-                        <SelectAttackWeapon character={character} value={formData.attackInfo.selectedWeapon} onChange={handleSelectedWeaponChange} />
+                        <SelectAttackMode character={character} value={formData.attackInfo.mode} onChange={handleSelectedWeaponChange} />
                     </Grid>
                     <Grid size={2}></Grid>
                     <Grid size={2}>
-                        <SelectDefender value={formData.tacticalCharacterTargetId} onChange={handleTargetChange} sourceId={character.id} targets={characters} />
+                        <SelectDefender value={formData.attackInfo.mainTargetId} onChange={handleTargetChange} sourceId={character.id} targets={characters} />
                     </Grid>
                     <Grid size={2}>
                         <ArmorTextField value={formData.transient.armorType} disabled />

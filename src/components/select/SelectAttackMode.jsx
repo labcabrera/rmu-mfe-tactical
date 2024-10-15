@@ -9,15 +9,12 @@ import TextField from '@mui/material/TextField';
 import { API_CORE_URL } from '../../constants/environment';
 import { VARIANT } from '../../constants/ui';
 
-const SelectAttackWeapon = ({ character, value, onChange }) => {
+const SelectAttackMode = ({ character, value, onChange }) => {
 
     const { t } = useTranslation();
 
     //TODO read options from character
-    const availableWeapons = [
-        "main-hand",
-        "off-hand"
-    ];
+    const options = ["mainHand", "offHand", "dual"];
 
     const [sizes, setSizes] = useState([]);
 
@@ -51,9 +48,9 @@ const SelectAttackWeapon = ({ character, value, onChange }) => {
                     ),
                 },
             }}>
-            {availableWeapons.map((option, index) => (<MenuItem key={index} value={option}>{t(option)}</MenuItem>))}
+            {options.map((option, index) => (<MenuItem key={index} value={option}>{t(option)}</MenuItem>))}
         </TextField>
     );
 }
 
-export default SelectAttackWeapon;
+export default SelectAttackMode;
