@@ -1,11 +1,12 @@
 import React from 'react';
 import AttackResolutionAttributes from './AttackResolutionAttributes';
+import { Typography } from '@mui/material';
 
 const AttackResolutionDetail = ({ attackKey, formData, setFormData, character }) => {
 
     return (
         <>
-            <div>wip attack resolution detail</div>
+            <Typography>Attack {attackKey}</Typography>
             <AttackResolutionAttributes attackKey={attackKey} formData={formData} setFormData={setFormData} character={character} />
         </>
     );

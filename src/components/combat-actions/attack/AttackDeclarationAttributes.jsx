@@ -16,7 +16,6 @@ const AttackDeclarationAttributes = ({ formData, setFormData, character, charact
     const [actionPointsPenalty, setActionPointsPenalty] = useState(0);
 
     const handleMainHandTargetChange = (targetCharacterId) => {
-        const targetCharacter = characters.find(e => e.id == targetCharacterId);
         setFormData((prevState) => ({
             ...prevState,
             attackInfo: {
@@ -33,7 +32,6 @@ const AttackDeclarationAttributes = ({ formData, setFormData, character, charact
     };
 
     const handleOffHandTargetChange = (targetCharacterId) => {
-        const targetCharacter = characters.find(e => e.id == targetCharacterId);
         setFormData((prevState) => ({
             ...prevState,
             attackInfo: {

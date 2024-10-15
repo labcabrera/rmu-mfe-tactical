@@ -15,6 +15,7 @@ const AttackResolution = () => {
     const character = location.state?.character;
     const characters = location.state?.characters;
     const [formData, setFormData] = useState();
+    const [isValid, setIsValid] = useState(true);
 
     useEffect(() => {
         console.log(`AttackResolution.useEffect[actionId]`);
@@ -35,11 +36,9 @@ const AttackResolution = () => {
             <ActionResolutionActions game={game} character={character} formData={formData} isValid={isValid} />
             <div className="generic-main-content">
                 <AttackResolutionInfo formData={formData} character={character} />
-                {
-                    formData.attacks.mainAttack ? (
-                        <AttackResolutionDetail formData={formData} character={character} />
-                    ) : null
-                }
+                {formData.attacks.mainHand ? (
+                    <AttackResolutionDetail attackKey='mainHand' formData={formData} character={character} />
+                ) : null}
                 {debugMode ? (
                     <div>
                         <h2>formData</h2>
