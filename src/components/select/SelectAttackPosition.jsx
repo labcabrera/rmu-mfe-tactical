@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from 'react-i18next';
 
-import TextField  from "@mui/material/TextField";
+import TextField from "@mui/material/TextField";
 import InputAdornment from "@mui/material/InputAdornment";
 import Avatar from "@mui/material/Avatar";
 
@@ -9,17 +9,16 @@ import { VARIANT } from "../../constants/ui";
 
 import MenuItem from '@mui/material/MenuItem';
 
-const SelectCover = ({ value, onChange }) => {
+const SelectAttackPosition = ({ value, onChange }) => {
 
     const { t } = useTranslation();
     const options = [
-        "none",
-        "partial-light",
-        "half-light",
-        "full-light",
-        "partial-hard",
-        "half-hard",
-        "full-hard"];
+        "normal",
+        "flank",
+        "rear",
+        "toFlank",
+        "toRear"
+    ];
 
     const handleChange = (event) => {
         onChange(event.target.value);
@@ -28,7 +27,7 @@ const SelectCover = ({ value, onChange }) => {
     return (
         <TextField
             select
-            label={t('cover')}
+            label={t('positional-attack')}
             value={(value === undefined || value === null || options.length === 0) ? '' : value}
             variant={VARIANT}
             fullWidth
@@ -42,9 +41,9 @@ const SelectCover = ({ value, onChange }) => {
                     ),
                 },
             }}>
-            {options.map((option, index) => (<MenuItem key={index} value={option}>{t(`cover-${option}`)}</MenuItem>))}
+            {options.map((option, index) => (<MenuItem key={index} value={option}>{t(`position-${option}`)}</MenuItem>))}
         </TextField>
     );
 }
 
-export default SelectCover;
+export default SelectAttackPosition;

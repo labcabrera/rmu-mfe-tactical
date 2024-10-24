@@ -5,8 +5,10 @@ import Grid from '@mui/material/Grid2';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import { Typography } from '@mui/material';
+import SelectCover from '../../select/SelectCover';
+import SelectAttackPosition from '../../select/SelectAttackPosition';
 
-const AttackResolutionAttributes = ({ attackKey, formData, character }) => {
+const AttackResolutionAttributes = ({ attackKey, formData, setFormData, character }) => {
 
     const handleTargetChange = (targetCharacterId) => {
         const targetCharacter = characters.find(e => e.id == targetCharacterId);
@@ -23,24 +25,37 @@ const AttackResolutionAttributes = ({ attackKey, formData, character }) => {
         }));
     };
 
-    const handleActionPointsChange = (actionPoints) => {
-        if (actionPoints < 2) {
-            actionPoints == 2;
-        }
+    const handleSelectCoverChange = (e) => {
         setFormData((prevState) => ({
             ...formData,
-            actionPoints: actionPoints,
-            transient: {
-                ...formData.transient,
-                actionPointPenalty: (4 - actionPoints) * -25
+            attackInfo: {
+                ...formData.attackInfo,
+                attacks: {
+                    ...formData.attackInfo.attacks,
+                    [attackKey]: {
+                        ...formData.attackInfo.attacks[attackKey],
+                        cover: e
+                    }
+                }
             }
         }));
     };
 
-    const handleSelectedWeaponChange = (e) => { updateFormData('attackInfo', 'selectedWeapon', e) };
-    const handleRestrictedQuarterChange = (e) => { updateFormData('attackInfo', 'restrictedQuarters', e) };
-    const handleChargeSpeedChange = (e) => { updateFormData('attackInfo', 'chargeSpeed', e) };
-    const handleParryChange = (e) => { updateFormData('attackInfo', 'parry', parseInt(e.target.value)) };
+    const handleSelectAttackPositionChange = (e) => {
+        setFormData((prevState) => ({
+            ...formData,
+            attackInfo: {
+                ...formData.attackInfo,
+                attacks: {
+                    ...formData.attackInfo.attacks,
+                    [attackKey]: {
+                        ...formData.attackInfo.attacks[attackKey],
+                        position: e
+                    }
+                }
+            }
+        }));
+    };
 
     const updateFormData = (field1, field2, value) => {
         setFormData((prevState) => ({
@@ -56,7 +71,10 @@ const AttackResolutionAttributes = ({ attackKey, formData, character }) => {
         <>
             <Grid container spacing={2}>
                 <Grid size={12}>
-
+                    <SelectCover value={formData.attackInfo.attacks[attackKey].cover} onChange={handleSelectCoverChange} />
+                </Grid>
+                <Grid size={12}>
+                    <SelectAttackPosition value={formData.attackInfo.attacks[attackKey].position} onChange={handleSelectAttackPositionChange} />
                 </Grid>
                 <Grid size={4}>
                     <List>
@@ -101,12 +119,12 @@ const AttackResolutionAttributes = ({ attackKey, formData, character }) => {
                     </List>
                 </Grid>
                 <Grid size={12}>
-                    <Typography variant='body'>Total modifiers {formData.attacks[attackKey].totalBonus}</Typography>
+                    <Typography variant='body'>Total modifiers: {formData.attacks[attackKey].totalBonus}</Typography>
                 </Grid>
             </Grid>
-            <pre>
+            {/* <pre>
                 {JSON.stringify(formData.attacks[attackKey], null, 2)}
-            </pre>
+            </pre> */}
         </>
     );
 };

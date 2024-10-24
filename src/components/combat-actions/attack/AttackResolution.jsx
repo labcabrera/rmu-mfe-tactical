@@ -37,7 +37,7 @@ const AttackResolution = () => {
             <div className="generic-main-content">
                 <AttackResolutionInfo formData={formData} character={character} />
                 {formData.attacks.mainHand ? (
-                    <AttackResolutionDetail attackKey='mainHand' formData={formData} character={character} />
+                    <AttackResolutionDetail attackKey='mainHand' formData={formData} setFormData={setFormData} character={character} />
                 ) : null}
                 {debugMode ? (
                     <div>
