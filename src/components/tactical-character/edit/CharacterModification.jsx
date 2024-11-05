@@ -15,6 +15,7 @@ import CharacterModificationActions from './CharacterModificationActions';
 import CharacterModificationAttributes from './CharacterModificationAttributes';
 
 import { API_TACTICAL_URL } from '../../../constants/environment';
+import CharacterAttacks from '../attacks/CharacterAttacks';
 
 const CharacterModification = () => {
 
@@ -107,6 +108,7 @@ const CharacterModification = () => {
                         <TabList onChange={handleTabChange} aria-label='lab API tabs example'>
                             <Tab label='Info' value='info' />
                             <Tab label='Attributes' value='attributes' />
+                            <Tab label='Attacks' value='attacks' />
                             <Tab label='Skills' value='skills' />
                             <Tab label='Items' value='items' />
                             <Tab label='Debug Form' value='debug-form' />
@@ -128,6 +130,9 @@ const CharacterModification = () => {
                                 <TacticalCharacterStatisticsModification formData={formData} setFormData={setFormData} />
                             </Grid>
                         </Grid>
+                    </TabPanel>
+                    <TabPanel value='attacks'>
+                        <CharacterAttacks character={character} />
                     </TabPanel>
                     <TabPanel value='skills'>
                         <TacticalCharacterSkillDataGrid tacticalCharacter={character} setTacticalCharacter={setCharacter} />
