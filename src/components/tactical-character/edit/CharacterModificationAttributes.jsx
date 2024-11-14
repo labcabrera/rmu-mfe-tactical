@@ -174,13 +174,13 @@ const CharacterModificationAttributes = ({ formData, setFormData, factions }) =>
                 </Grid>
 
                 <Grid size={4}>
-                    <TextField label="Initiative base" variant={VARIANT} type="text" value={formData.initiative.baseBonus} disabled fullWidth />
+                    <InitiativeTextField i18nLabel="iniativeBaseBonus" value={formData.initiative.baseBonus} disabled fullWidth />
                 </Grid>
                 <Grid size={4}>
-                    <InitiativeTextField value={formData.initiative.customBonus} onChange={handleInitiativeCustomChange} />
+                    <InitiativeTextField i18nLabel="initiativeCustomBonus" value={formData.initiative.customBonus} onChange={handleInitiativeCustomChange} />
                 </Grid>
                 <Grid size={4}>
-                    <TextField label="Initiative total" variant={VARIANT} type="text" value={formData.initiative.totalBonus} disabled fullWidth />
+                    <InitiativeTextField i18nLabel="initiativeTotalBonus" value={formData.initiative.totalBonus} disabled fullWidth />
                 </Grid>
 
                 <Grid size={4}>

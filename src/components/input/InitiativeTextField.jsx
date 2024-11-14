@@ -7,7 +7,7 @@ import TextField from '@mui/material/TextField';
 
 import { VARIANT } from '../../constants/ui';
 
-const InitiativeTextField = ({ value, onChange, i18nLabel = 'initiative' }) => {
+const InitiativeTextField = ({ value, onChange, i18nLabel = 'initiative', disabled = false, required = false }) => {
 
     const { t } = useTranslation();
 
@@ -18,7 +18,8 @@ const InitiativeTextField = ({ value, onChange, i18nLabel = 'initiative' }) => {
             fullWidth
             value={value}
             onChange={onChange}
-            required
+            disabled={disabled}
+            required={required}
             slotProps={{
                 input: {
                     startAdornment: (
