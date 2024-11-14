@@ -17,6 +17,11 @@ import AddButton from '../../button/AddButton';
 import { API_CORE_URL, API_TACTICAL_URL } from "../../../constants/environment";
 import { DETAIL_BUTTON_SIZE } from '../../../constants/ui';
 
+function capitalize(string) {
+    if (!string) return ''; // Manejar caso vacío o null
+    return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+}
+
 function EditToolbar(props) {
 
     const { t } = useTranslation();
@@ -62,7 +67,7 @@ const StatisticsCell = ({ params }) => (
         justifyContent: 'center',
     }}>
         {params.row.statistics.map((e, index) => (
-            <Chip key={index} label={e} variant="outlined" size="small" />
+            <Chip key={index} label={capitalize(e)} variant="outlined" />
         ))}
     </Stack>
 );
@@ -166,11 +171,6 @@ const TacticalCharacterSkillDataGrid = ({ tacticalCharacter, setTacticalCharacte
             setTacticalCharacter(responseBody);
             setRows(responseBody.skills);
         }
-
-        // const editedRow = rows.find((row) => row.id === skillId);
-        // if (editedRow.isNew) {
-        //     setRows(rows.filter((row) => row.id !== skillId));
-        // }
     };
 
     const serverSideUpdate = async (updatedRow, originalRow) => {
@@ -245,32 +245,6 @@ const TacticalCharacterSkillDataGrid = ({ tacticalCharacter, setTacticalCharacte
         console.error(`handleProcessRowUpdateError ${error}`);
     };
 
-    const postNewSkill = async (newRow) => {
-        console.log(`TacticalCharacterSkillDataGrid.postNewSkill`);
-        try {
-            const request = {
-                skillId: newRow.skillId,
-                specialization: newRow.specialization,
-                ranks: newRow.ranks,
-                customBonus: newRow.customBonus
-            };
-            const requestOptions = {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(request)
-            };
-            const response = await fetch(`${API_TACTICAL_URL}/characters/${tacticalCharacter.id}/skills`, requestOptions);
-            if (response.status === 200) {
-                const responseBody = await response.json();
-                setTacticalCharacter(responseBody);
-            } else {
-                console.error(response.status);
-            }
-        } catch (error) {
-            console.error(error);
-        }
-    };
-
     useEffect(() => {
         console.log(`TacticalCharacterSkillDataGrid.useEffect triggered`);
         const fetchSkillCategories = async () => {
@@ -318,7 +292,7 @@ const TacticalCharacterSkillDataGrid = ({ tacticalCharacter, setTacticalCharacte
         },
         { field: 'specialization', headerName: 'Specialization', type: 'text', align: 'right', width: 250, editable: true },
         {
-            field: 'statistics', headerName: 'Statistics', width: 160,
+            field: 'statistics', headerName: 'Statistics', width: 180,
             renderCell: (params) => (<StatisticsCell params={params} />)
         },
         { field: 'ranks', headerName: 'Ranks', type: 'text', align: 'right', width: 120, editable: true },
