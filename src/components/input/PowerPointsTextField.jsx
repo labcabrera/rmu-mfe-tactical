@@ -7,18 +7,19 @@ import TextField from '@mui/material/TextField';
 
 import { VARIANT } from '../../constants/ui';
 
-const ManaTextField = ({ value, onChange }) => {
+const PowerPointsTextField = ({ value, onChange, i18nLabel = 'power-points', disabled = false, required = false }) => {
 
     const { t } = useTranslation();
 
     return (
         <TextField
-            label={t('power-points')}
+            label={t(i18nLabel)}
             variant={VARIANT}
             fullWidth
             value={value}
             onChange={onChange}
-            required
+            required={required}
+            disabled={disabled}
             slotProps={{
                 input: {
                     startAdornment: (
@@ -32,4 +33,4 @@ const ManaTextField = ({ value, onChange }) => {
     );
 };
 
-export default ManaTextField;
+export default PowerPointsTextField;

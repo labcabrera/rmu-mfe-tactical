@@ -15,9 +15,10 @@ import SelectCharacterSize from '../../select/SelectCharacterSize';
 import SelectFaction from '../../select/SelectFaction';
 import SelectLevel from '../../select/SelectLevel';
 import SelectRace from '../../select/SelectRace';
+import PowerPointsTextField from '../../input/PowerPointsTextField';
+import StrideTextField from '../../input/StrideTextField';
 
 import { VARIANT } from '../../../constants/ui';
-import ManaTextField from '../../input/ManaTextFields';
 
 const CharacterModificationAttributes = ({ formData, setFormData, factions }) => {
 
@@ -164,13 +165,13 @@ const CharacterModificationAttributes = ({ formData, setFormData, factions }) =>
                 </Grid>
 
                 <Grid size={4}>
-                    <TextField label="Base movement rate" variant={VARIANT} type="text" value={formData.movement.baseMovementRate} disabled fullWidth />
+                    <StrideTextField i18nLabel="base-movement-rate" value={formData.movement.baseMovementRate} disabled fullWidth />
                 </Grid>
                 <Grid size={4}>
-                    <TextField label="Stride racial bonus" variant={VARIANT} type="text" value={formData.movement.strideRacialBonus} disabled fullWidth />
+                    <StrideTextField i18nLabel="stride-racial-bonus" value={formData.movement.strideRacialBonus} disabled fullWidth />
                 </Grid>
                 <Grid size={4}>
-                    <TextField label="Stride custom bonus" variant={VARIANT} type="text" value={formData.movement.strideCustomBonus} onChange={handleStrideCustomBonusChange} fullWidth />
+                    <StrideTextField i18nLabel="stride-custom-bonus" value={formData.movement.strideCustomBonus} onChange={handleStrideCustomBonusChange} fullWidth />
                 </Grid>
 
                 <Grid size={4}>
@@ -202,10 +203,10 @@ const CharacterModificationAttributes = ({ formData, setFormData, factions }) =>
                 </Grid>
 
                 <Grid size={4}>
-                    <ManaTextField value={formData.power.max} onChange={handlePowerMaxChange} />
+                    <PowerPointsTextField i18nLabel="power-points-max" value={formData.power.max} onChange={handlePowerMaxChange} />
                 </Grid>
                 <Grid size={4}>
-                    <ManaTextField value={formData.power.current} onChange={handlePowerCurrentChange} />
+                    <PowerPointsTextField i18nLabel="power-points-current" value={formData.power.current} onChange={handlePowerCurrentChange} />
                 </Grid>
                 <Grid size={4}>
                 </Grid>

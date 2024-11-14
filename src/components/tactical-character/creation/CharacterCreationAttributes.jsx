@@ -4,19 +4,19 @@ import { useTranslation } from 'react-i18next';
 import Grid from '@mui/material/Grid2';
 import TextField from '@mui/material/TextField';
 
-import SelectSize from '../../select/SelectCharacterSize';
-import SelectFaction from '../../select/SelectFaction';
-import SelectLevel from '../../select/SelectLevel';
-import SelectRace from '../../select/SelectRace';
 import DefenseTextField from '../../input/DefenseTextField';
 import EnduranceTextField from '../../input/EnduranceDefenseTextField';
 import HeightTextField from '../../input/HeightTextField';
 import HpTextField from '../../input/HpTextField';
 import InitiativeTextField from '../../input/InitiativeTextField';
-import ManaTextField from '../../input/ManaTextFields';
 import MovementTextField from '../../input/MovementTextField';
 import NameTextField from '../../input/NameTextField';
+import PowerPointsTextField from '../../input/PowerPointsTextField';
 import WeightTextField from '../../input/WeightTextField';
+import SelectSize from '../../select/SelectCharacterSize';
+import SelectFaction from '../../select/SelectFaction';
+import SelectLevel from '../../select/SelectLevel';
+import SelectRace from '../../select/SelectRace';
 
 import { API_NPC_NAMES_URL } from '../../../constants/environment';
 import { VARIANT } from '../../../constants/ui';
@@ -152,7 +152,7 @@ const TacticalCharacterCreationAttributes = ({ formData, setFormData, factions }
                     <EnduranceTextField value={formData.endurance.max} onChange={handleEnduranceMaxChange} />
                 </Grid>
                 <Grid size={4}>
-                    <ManaTextField value={formData.power.max} onChange={handlePowerMaxChange} />
+                    <PowerPointsTextField value={formData.power.max} onChange={handlePowerMaxChange} />
                 </Grid>
 
                 <Grid size={4}>
