@@ -7,18 +7,19 @@ import TextField from '@mui/material/TextField';
 
 import { VARIANT } from '../../constants/ui';
 
-const EnduranceTextField = ({ value, onChange }) => {
+const EnduranceTextField = ({ value, onChange, i18nLabel = 'endurance', disabled = false, required = false }) => {
 
     const { t } = useTranslation();
 
     return (
         <TextField
-            label={t('endurance')}
+            label={t(i18nLabel)}
             variant={VARIANT}
             fullWidth
             value={value}
             onChange={onChange}
-            required
+            required={required}
+            disabled={disabled}
             slotProps={{
                 input: {
                     startAdornment: (

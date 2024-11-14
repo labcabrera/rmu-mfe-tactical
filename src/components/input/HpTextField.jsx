@@ -7,18 +7,19 @@ import TextField from '@mui/material/TextField';
 
 import { VARIANT } from '../../constants/ui';
 
-const HpTextField = ({ value, onChange }) => {
+const HpTextField = ({ value, onChange, i18nLabel = 'hit-points', disabled = false, required = false }) => {
 
     const { t } = useTranslation();
 
     return (
         <TextField
-            label={t('hit-points')}
+            label={t(i18nLabel)}
             variant={VARIANT}
             fullWidth
             value={value}
             onChange={onChange}
-            required
+            required={required}
+            disabled={disabled}
             slotProps={{
                 input: {
                     startAdornment: (

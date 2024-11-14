@@ -184,19 +184,19 @@ const CharacterModificationAttributes = ({ formData, setFormData, factions }) =>
                 </Grid>
 
                 <Grid size={4}>
-                    <HpTextField value={formData.hp.max} onChange={handleHpMaxChange} />
+                    <HpTextField i18nLabel="hit-points-max" value={formData.hp.max} onChange={handleHpMaxChange} />
                 </Grid>
                 <Grid size={4}>
-                    <HpTextField value={formData.hp.current} onChange={handleHpCurrentChange} />
+                    <HpTextField i18nLabel="hit-points-current" value={formData.hp.current} onChange={handleHpCurrentChange} />
                 </Grid>
                 <Grid size={4}>
                 </Grid>
 
                 <Grid size={4}>
-                    <EnduranceTextField value={formData.endurance.max} onChange={handleEnduranceMaxChange} />
+                    <EnduranceTextField i18nLabel="endurance-max" value={formData.endurance.max} onChange={handleEnduranceMaxChange} />
                 </Grid>
                 <Grid size={4}>
-                    <EnduranceTextField value={formData.endurance.current} onChange={handleEnduranceCurrentChange} />
+                    <EnduranceTextField i18nLabel="endurance-current" value={formData.endurance.current} onChange={handleEnduranceCurrentChange} />
                 </Grid>
                 <Grid size={4}>
                 </Grid>
