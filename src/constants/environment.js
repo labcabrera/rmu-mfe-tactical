@@ -5,7 +5,7 @@
 // const API_ITEMS_URL = process.env.RMU_API_ITEMS_URL || "http://localhost:3006/v1";
 // const API_NPC_NAMES_URL = process.env.RMU_API_NPC_NAMES_URL || "http://localhost:3007/v1";
 
-const API_CORE_URL = process.env.RMU_API_CORE_URL || "http://api-core,rmu.local/v1";
+const API_CORE_URL = process.env.RMU_API_CORE_URL || "http://api-core.rmu.local/v1";
 const API_STRATEGIC_URL = process.env.RMU_API_STRATEGIC_URL || "http://api-strategic.rmu.local/v1";
 const API_TACTICAL_URL = process.env.RMU_API_TACTICAL_URL || "http://api-tactical.rmu.local/v1";
 const API_ATTACK_TABLES_URL = process.env.RMU_API_ATTACK_TABLES_URL || "http://api-attack-tables.rmu.local/v1";
