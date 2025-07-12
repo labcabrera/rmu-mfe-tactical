@@ -20,6 +20,13 @@ spec:
         ports:
         - containerPort: 8083
         env:
+
+        - name: RMU_FE_TACTICAL_PUBLIC_PATH
+          valueFrom:
+            configMapKeyRef:
+              name: rmu-shared-configmap
+              key: RMU_FE_TACTICAL_PUBLIC_PATH
+
         - name: RMU_API_TACTICAL_URL
           valueFrom:
             configMapKeyRef:
