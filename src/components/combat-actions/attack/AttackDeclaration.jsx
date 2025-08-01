@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useSearchParams } from "react-router-dom";
 
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 
 import TacticalActionCreationActions from '../ActionCreationActions';
 import AttackDeclarationAttributes from './AttackDeclarationAttributes';
@@ -55,7 +55,7 @@ const AttackDeclaration = () => {
             <TacticalActionCreationActions game={game} character={character} formData={formData} isValid={isValid} />
             <div className="generic-main-content">
                 <Grid container spacing={2}>
-                    <Grid size={6}>
+                    <Grid item size={6}>
                         <AttackDeclarationAttributes formData={formData} setFormData={setFormData} character={character} characters={characters} />
                     </Grid>
                 </Grid>

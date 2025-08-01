@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import TextField from '@mui/material/TextField';
 
 import DefenseTextField from '../../input/DefenseTextField';
@@ -134,84 +134,84 @@ const CharacterModificationAttributes = ({ formData, setFormData, factions }) =>
         <div className="tactical-game-character-modification-attributes">
             <Grid container spacing={2}>
 
-                <Grid size={4}>
+                <Grid item xs={4}>
                     <TextField label={t('name')} variant={VARIANT} fullWidth name="name" value={formData.name} onChange={handleChange} required />
                 </Grid>
-                <Grid size={4}>
+                <Grid item xs={4}>
                     <SelectRace value={formData.info.race} onChange={onRaceChange} />
                 </Grid>
-                <Grid size={4}>
+                <Grid item xs={4}>
                     <SelectFaction factions={factions} value={formData.faction} onChange={onFactionChange} />
                 </Grid>
 
-                <Grid size={4}>
+                <Grid item xs={4}>
                     <SelectLevel value={formData.info.level} onChange={onLevelChange} />
                 </Grid>
-                <Grid size={4}>
+                <Grid item xs={4}>
                     <SelectArmorType value={formData.defense.armorType} onChange={onArmorTypeChange} />
                 </Grid>
-                <Grid size={4}>
+                <Grid item xs={4}>
                     <DefenseTextField value={formData.defense.defensiveBonus} onChange={handleDefensiveBonusChange} />
                 </Grid>
 
-                <Grid size={4}>
+                <Grid item xs={4}>
                     <SelectCharacterSize value={formData.info.sizeId} onChange={onSizeChange} />
                 </Grid>
-                <Grid size={4}>
+                <Grid item xs={4}>
                     <HeightTextField value={formData.info.height} onChange={handleHeightChange} />
                 </Grid>
-                <Grid size={4}>
+                <Grid item xs={4}>
                     <WeightTextField value={formData.info.weight} onChange={handleWeightChange} />
                 </Grid>
 
-                <Grid size={4}>
+                <Grid item xs={4}>
                     <StrideTextField i18nLabel="base-movement-rate" value={formData.movement.baseMovementRate} disabled fullWidth />
                 </Grid>
-                <Grid size={4}>
+                <Grid item xs={4}>
                     <StrideTextField i18nLabel="stride-racial-bonus" value={formData.movement.strideRacialBonus} disabled fullWidth />
                 </Grid>
-                <Grid size={4}>
+                <Grid item xs={4}>
                     <StrideTextField i18nLabel="stride-custom-bonus" value={formData.movement.strideCustomBonus} onChange={handleStrideCustomBonusChange} fullWidth />
                 </Grid>
 
-                <Grid size={4}>
+                <Grid item xs={4}>
                     <InitiativeTextField i18nLabel="iniativeBaseBonus" value={formData.initiative.baseBonus} disabled fullWidth />
                 </Grid>
-                <Grid size={4}>
+                <Grid item xs={4}>
                     <InitiativeTextField i18nLabel="initiativeCustomBonus" value={formData.initiative.customBonus} onChange={handleInitiativeCustomChange} />
                 </Grid>
-                <Grid size={4}>
+                <Grid item xs={4}>
                     <InitiativeTextField i18nLabel="initiativeTotalBonus" value={formData.initiative.totalBonus} disabled fullWidth />
                 </Grid>
 
-                <Grid size={4}>
+                <Grid item xs={4}>
                     <HpTextField i18nLabel="hit-points-max" value={formData.hp.max} onChange={handleHpMaxChange} />
                 </Grid>
-                <Grid size={4}>
+                <Grid item xs={4}>
                     <HpTextField i18nLabel="hit-points-current" value={formData.hp.current} onChange={handleHpCurrentChange} />
                 </Grid>
-                <Grid size={4}>
+                <Grid item xs={4}>
                 </Grid>
 
-                <Grid size={4}>
+                <Grid item xs={4}>
                     <EnduranceTextField i18nLabel="endurance-max" value={formData.endurance.max} onChange={handleEnduranceMaxChange} />
                 </Grid>
-                <Grid size={4}>
+                <Grid item xs={4}>
                     <EnduranceTextField i18nLabel="endurance-current" value={formData.endurance.current} onChange={handleEnduranceCurrentChange} />
                 </Grid>
-                <Grid size={4}>
+                <Grid item xs={4}>
                 </Grid>
 
-                <Grid size={4}>
+                <Grid item xs={4}>
                     <PowerPointsTextField i18nLabel="power-points-max" value={formData.power.max} onChange={handlePowerMaxChange} />
                 </Grid>
-                <Grid size={4}>
+                <Grid item xs={4}>
                     <PowerPointsTextField i18nLabel="power-points-current" value={formData.power.current} onChange={handlePowerCurrentChange} />
                 </Grid>
-                <Grid size={4}>
+                <Grid item xs={4}>
                 </Grid>
 
-                <Grid size={12}>
+                <Grid item xs={12}>
                     <TextField label="Description" variant={VARIANT} name="description" value={formData.description} onChange={handleChange} fullWidth multiline maxRows={4} />
                 </Grid>
             </Grid>

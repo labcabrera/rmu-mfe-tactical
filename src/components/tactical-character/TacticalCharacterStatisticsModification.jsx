@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import TextField from '@mui/material/TextField';
 
 import { VARIANT, VARIANT_DISABLED, SIZE } from '../../constants/ui';
@@ -44,20 +44,20 @@ const StatItemList = ({ formData, setFormData, statName, values, size, variant }
 
     return (
         <React.Fragment>
-            <Grid size={3}>
+            <Grid item xs={3}>
                 <TextField label={`${capitalize(statName)} Base`} variant={VARIANT} type='text' fullWidth size={SIZE} sx={{ input: { textAlign: 'right' } }}
                     onChange={handleBonusChange} value={values.bonus}
                 />
             </Grid>
-            <Grid size={3}>
+            <Grid item xs={3}>
                 <TextField label={`${capitalize(statName)} Custom`} variant={VARIANT} type='text' fullWidth size={SIZE} sx={{ input: { textAlign: 'right' } }}
                     value={values.custom} onChange={handleCustomChange} />
             </Grid>
-            <Grid size={3}>
+            <Grid item xs={3}>
                 <TextField label={`${capitalize(statName)} Racial`} variant={VARIANT_DISABLED} type='text' fullWidth disabled size={SIZE} sx={{ input: { textAlign: 'right' } }}
                     value={values.racial} />
             </Grid>
-            <Grid size={3}>
+            <Grid item xs={3}>
                 <TextField label={`${capitalize(statName)} Total`} variant={VARIANT_DISABLED} type='text' fullWidth disabled size={SIZE} sx={{ input: { textAlign: 'right' } }}
                     value={values.totalBonus} />
             </Grid>

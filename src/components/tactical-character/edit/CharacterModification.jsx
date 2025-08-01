@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
+//TODO remove lab tab context and use default MUI tabs
 import TabContext from '@mui/lab/TabContext';
 import TabList from '@mui/lab/TabList';
 import TabPanel from '@mui/lab/TabPanel';
 import Box from '@mui/material/Box';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import Tab from '@mui/material/Tab';
 
 import CharacterEquipment from '../items/CharacterEquipment';
@@ -117,16 +118,16 @@ const CharacterModification = () => {
                     </Box>
                     <TabPanel value='info'>
                         <Grid container spacing={2}>
-                            <Grid size={6}>
+                            <Grid item xs={6}>
                                 <CharacterModificationAttributes formData={formData} setFormData={setFormData} factions={factions} size='normal' variant='outlined' />
                             </Grid>
-                            <Grid size={6}>
+                            <Grid item xs={6}>
                             </Grid>
                         </Grid>
                     </TabPanel>
                     <TabPanel value='attributes'>
                         <Grid container spacing={2}>
-                            <Grid size={6}>
+                            <Grid item xs={6}>
                                 <TacticalCharacterStatisticsModification formData={formData} setFormData={setFormData} />
                             </Grid>
                         </Grid>

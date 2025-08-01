@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useTranslation } from 'react-i18next';
 import { useLocation } from "react-router-dom";
 
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import ForgeItemAttributes from "./ForgeItemAttributes";
 import ForgeItemCategories from "./ForgeItemCategories";
 import ForgeItemList from "./ForgeItemList";
@@ -86,11 +86,11 @@ const ForgeItem = () => {
             <ForgeItemActions game={game} character={character} formData={formData} />
             <div className="generic-main-content">
                 <Grid container spacing={2}>
-                    <Grid size={6}>
+                    <Grid item xs={6}>
                         <ForgeItemCategories onChange={fetchItems} />
                         <ForgeItemList items={items} onSelectedItem={loadItemForm} />
                     </Grid>
-                    <Grid size={6}>
+                    <Grid item xs={6}>
                         <ForgeItemAttributes formData={formData} setFormData={setFormData} />
                     </Grid>
                 </Grid>

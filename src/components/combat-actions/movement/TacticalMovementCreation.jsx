@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useSearchParams } from "react-router-dom";
 
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 
 import NameTextField from '../../input/NameTextField';
 import SelectPace from '../../select/SelectPace';
@@ -88,18 +88,18 @@ const TacticalMovementCreation = () => {
             <div className="generic-main-content">
                 <Grid container spacing={2}>
 
-                    <Grid size={4}>
+                    <Grid item xs={4}>
                         <NameTextField value={character.name} disabled />
                     </Grid>
-                    <Grid size={4}>
+                    <Grid item xs={4}>
                         <SelectPace value={formData.pace} onChange={updatePace} />
                     </Grid>
-                    <Grid size={4}>
+                    <Grid item xs={4}>
                         <MovementTextField i18nLabel='base-movement-rate' value={character.movement.baseMovementRate} disabled />
                     </Grid>
-                    <Grid size={4}></Grid>
+                    <Grid item xs={4}></Grid>
 
-                    <Grid size={4}>
+                    <Grid item xs={4}>
                         <ActionPointSelector
                             value={formData.actionPoints}
                             min={1}
@@ -107,19 +107,19 @@ const TacticalMovementCreation = () => {
                             defaultValue={1}
                             onChange={updateActionPoints} />
                     </Grid>
-                    <Grid size={4}>
+                    <Grid item xs={4}>
                         <MovementTextField i18nLabel='pace-multiplier' value={formData.paceMultiplier} disabled />
                     </Grid>
 
-                    <Grid size={4}></Grid>
-                    <Grid size={4}></Grid>
-                    <Grid size={4}>
+                    <Grid item xs={4}></Grid>
+                    <Grid item xs={4}></Grid>
+                    <Grid item xs={4}>
                         <MovementTextField i18nLabel='speed' value={formData.speed} disabled />
                     </Grid>
 
-                    <Grid size={4}></Grid>
-                    <Grid size={4}></Grid>
-                    <Grid size={4}>
+                    <Grid item xs={4}></Grid>
+                    <Grid item xs={4}></Grid>
+                    <Grid item xs={4}>
                         <MovementTextField i18nLabel='adjusted-speed' value={formData.adjustedSpeed} disabled />
                     </Grid>
 

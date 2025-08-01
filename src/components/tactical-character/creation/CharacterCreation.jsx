@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useLocation } from "react-router-dom";
 
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 
 import SnackbarError from '../../shared/SnackbarError';
 import CharacterCreationActions from './CharacterCreationActions';
@@ -80,11 +80,11 @@ const CharacterCreation = () => {
             <CharacterCreationActions tacticalGame={tacticalGame} formData={formData} onError={onError} />
             <div>
                 <Grid container spacing={2}>
-                    <Grid size={6}>
+                    <Grid item xs={6}>
                         <TacticalCharacterCreationAttributes formData={formData} setFormData={setFormData} factions={tacticalGame.factions} />
                     </Grid>
-                    <Grid size={2}></Grid>
-                    <Grid size={3}>
+                    <Grid item xs={2}></Grid>
+                    <Grid item xs={3}>
                         <TacticalCharacterStatisticsModification formData={formData} setFormData={setFormData} size='small' variant='standard' />
                     </Grid>
                 </Grid>

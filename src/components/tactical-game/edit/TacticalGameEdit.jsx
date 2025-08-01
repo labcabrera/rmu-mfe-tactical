@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
 
-import Grid from "@mui/material/Grid2";
+import Grid from "@mui/material/Grid";
 import TextField from "@mui/material/TextField";
 
 import { API_TACTICAL_URL } from "../../../constants/environment";
@@ -60,7 +60,7 @@ const TacticalGameEdit = ({ }) => {
             <TacticalGameEditActions tacticalGame={tacticalGame} formData={formData} />
             <div className="generic-main-content">
                 <Grid container spacing={2}>
-                    <Grid item size={12}>
+                    <Grid item xs={12}>
                         <TextField
                             fullWidth
                             label="Name"
@@ -69,7 +69,7 @@ const TacticalGameEdit = ({ }) => {
                             onChange={handleChange}
                         />
                     </Grid>
-                    <Grid item size={12}>
+                    <Grid item xs={12}>
                         <TextField
                             fullWidth
                             label="Description"

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
 
 import Box from '@mui/material/Box';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 
 import TacticalGameViewActions from './TacticalGameViewActions';
 import TacticalGameViewCharacters from "./TacticalGameViewCharacters";
@@ -45,10 +45,10 @@ const TacticalGameView = () => {
             <div className="generic-main-content">
                 <Box sx={{ flexGrow: 1 }}>
                     <Grid container spacing={2}>
-                        <Grid size={4}>
+                        <Grid item size={{ xs: 12, md: 4 }}>
                             <TacticalGameViewInfo tacticalGame={tacticalGame} />
                         </Grid>
-                        <Grid size={8}>
+                        <Grid item size={{ xs: 12, md: 8 }}>
                             <TacticalGameViewCharacters tacticalGame={tacticalGame} />
                         </Grid>
                     </Grid>

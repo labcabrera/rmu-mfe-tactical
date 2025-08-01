@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 
 import DropZone from '../../shared/DropZone';
@@ -134,47 +134,47 @@ const CharacterEquipment = ({ game, character, setCharacter }) => {
         <DndProvider backend={HTML5Backend}>
             <Grid container spacing={2}>
 
-                <Grid size={2}>
+                <Grid item xs={2}>
                     <DropZone images={imagesMainHand} onDrop={handleDropToMainHand} title="Main hand" />
                 </Grid>
-                <Grid size={2}>
+                <Grid item xs={2}>
                     <DropZone images={imagesOffHand} onDrop={handleDropToOffHand} title="Off hand" />
                 </Grid>
-                <Grid size={2}>
+                <Grid item xs={2}>
                 </Grid>
-                <Grid size={2}>
+                <Grid item xs={2}>
                     <DropZone images={selectedImages} onDrop={handleDropToDelete} title="Delete" />
                 </Grid>
-                <Grid size={4}>
+                <Grid item xs={4}>
 
                 </Grid>
 
-                <Grid size={2}>
+                <Grid item xs={2}>
                     <DropZone images={imagesBody} onDrop={handleDropToBody} title="Body" />
                 </Grid>
-                <Grid size={2}>
+                <Grid item xs={2}>
                     <DropZone images={selectedImages} onDrop={handleDropToAvailable} title="Head" />
                 </Grid>
-                <Grid size={2}>
+                <Grid item xs={2}>
                     <DropZone images={selectedImages} onDrop={handleDropToAvailable} title="Arms" />
                 </Grid>
-                <Grid size={2}>
+                <Grid item xs={2}>
                     <DropZone images={selectedImages} onDrop={handleDropToAvailable} title="Legs" />
                 </Grid>
-                <Grid size={4}>
+                <Grid item xs={4}>
                 </Grid>
 
-                <Grid size={8}>
+                <Grid item xs={8}>
                     <DropZone images={availableItems} onDrop={handleDropToUnequip} title="Inventory" />
                 </Grid>
-                <Grid size={4}>
+                <Grid item xs={4}>
                 </Grid>
 
 
-                <Grid size={12}>
+                <Grid item xs={12}>
                     <Typography variant="subtitle2" component="div">Character weight: {character.info.weight} lbs</Typography>
                 </Grid>
-                <Grid size={12}>
+                <Grid item xs={12}>
                     <Typography variant="subtitle2" component="div">Equipment weight: {character.equipment.weight} lbs</Typography>
                 </Grid>
 

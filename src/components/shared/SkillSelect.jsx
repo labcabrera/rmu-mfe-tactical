@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useTranslation } from 'react-i18next';
 
 import { Button, FormControl, InputLabel, MenuItem, Select } from '@mui/material';
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import IconButton from '@mui/material/IconButton';
 
@@ -59,7 +59,7 @@ const SkillSelect = ({ onAddSkill }) => {
     return (
 
         <Grid container spacing={2}>
-            <Grid size={5}>
+            <Grid item xs={5}>
                 <FormControl fullWidth>
                     <InputLabel id="select-skill-category-label">Skill category</InputLabel>
                     <Select
@@ -75,7 +75,7 @@ const SkillSelect = ({ onAddSkill }) => {
                     </Select>
                 </FormControl>
             </Grid>
-            <Grid size={5}>
+            <Grid item xs={5}>
                 <FormControl fullWidth>
                     <InputLabel id="select-skill-label">Skill</InputLabel>
                     <Select
@@ -91,7 +91,7 @@ const SkillSelect = ({ onAddSkill }) => {
                     </Select>
                 </FormControl>
             </Grid>
-            <Grid size={2}>
+            <Grid item xs={2}>
                 <IconButton aria-label="delete" size="small" disabled={!skill} onClick={handleAddSkill}>
                     <AddCircleOutlineIcon />
                 </IconButton>

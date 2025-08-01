@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 import TextField from '@mui/material/TextField';
 
 import DefenseTextField from '../../input/DefenseTextField';
@@ -106,65 +106,65 @@ const TacticalCharacterCreationAttributes = ({ formData, setFormData, factions }
         <div className='tactical-game-character-creation-attributes'>
             <Grid container spacing={2}>
 
-                <Grid size={8}>
+                <Grid item xs={8}>
                     <SelectRace value={formData.info.race} onChange={onRaceChange} />
                 </Grid>
-                <Grid size={4}></Grid>
+                <Grid item xs={4}></Grid>
 
-                <Grid size={8}>
+                <Grid item xs={8}>
                     <NameTextField value={formData.name} onChange={handleChange} generateRandom={true} generateRandomRaceValue={formData.info.race} />
                 </Grid>
-                <Grid size={4}></Grid>
+                <Grid item xs={4}></Grid>
 
-                <Grid size={4}>
+                <Grid item xs={4}>
                     <SelectFaction factions={factions} value={formData.faction} onChange={onFactionChange} />
                 </Grid>
-                <Grid size={4}>
+                <Grid item xs={4}>
                     <SelectLevel value={formData.info.level} onChange={onLevelChange} />
                 </Grid>
-                <Grid size={4}>
+                <Grid item xs={4}>
                     <SelectSize value={formData.info.sizeId} onChange={onSizeChange} />
                 </Grid>
 
-                <Grid size={4}>
+                <Grid item xs={4}>
                     <HeightTextField value={formData.info.height} onChange={handleHeightChange} />
                 </Grid>
-                <Grid size={4}>
+                <Grid item xs={4}>
                     <WeightTextField value={formData.info.weight} onChange={handleWeightChange} />
                 </Grid>
-                <Grid size={4}>
+                <Grid item xs={4}>
                 </Grid>
 
-                <Grid size={4}>
+                <Grid item xs={4}>
                     <MovementTextField i18nLabel='stride-custom-bonus' value={formData.movement.strideCustomBonus} onChange={handleStrideBonusChange} />
                 </Grid>
-                <Grid size={4}>
+                <Grid item xs={4}>
                     <MovementTextField i18nLabel='stride-racial-bonus' value={formData.movement.strideRacialBonus} disabled />
                 </Grid>
-                <Grid size={4}>
+                <Grid item xs={4}>
                 </Grid>
 
 
-                <Grid size={4}>
+                <Grid item xs={4}>
                     <HpTextField value={formData.hp.max} onChange={handleHpMaxChange} />
                 </Grid>
-                <Grid size={4}>
+                <Grid item xs={4}>
                     <EnduranceTextField value={formData.endurance.max} onChange={handleEnduranceMaxChange} />
                 </Grid>
-                <Grid size={4}>
+                <Grid item xs={4}>
                     <PowerPointsTextField value={formData.power.max} onChange={handlePowerMaxChange} />
                 </Grid>
 
-                <Grid size={4}>
+                <Grid item xs={4}>
                     <DefenseTextField value={formData.defense.defensiveBonus} onChange={handleDefensiveBonusChange} />
                 </Grid>
-                <Grid size={4}>
+                <Grid item xs={4}>
                     <InitiativeTextField value={formData.initiative.customBonus} onChange={handleInitiativeCustomBonusChange} />
                 </Grid>
-                <Grid size={4}>
+                <Grid item xs={4}>
                 </Grid>
 
-                <Grid size={12}>
+                <Grid item xs={12}>
                     <TextField label='Description' variant={VARIANT} name='description' value={formData.description} onChange={handleChange} fullWidth multiline maxRows={4} />
                 </Grid>
             </Grid>

@@ -66,19 +66,6 @@ const CombatCharacterPhaseOptions = ({ character, phase }) => {
                     style={{ width: '100%', height: '100%', borderRadius: '50%' }}
                 />
             </IconButton>
-            <IconButton disabled
-                style={{
-                    width: `70px`,
-                    height: `70px`,
-                    opacity: 0.5
-                }}
-            >
-                <img
-                    src={`/static/images/generic/wait.png`}
-                    alt={activeAction.actionType}
-                    style={{ width: '100%', height: '100%', borderRadius: '50%' }}
-                />
-            </IconButton>
         </Stack>
     );
 }
