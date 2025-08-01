@@ -18,8 +18,8 @@ const TacticalGameEdit = ({ }) => {
 
     const [tacticalGame, setTacticalGame] = useState();
 
-    const fetchTacticalGame = async (tacticalGameId) => {
-        const response = await fetch(`${API_TACTICAL_URL}/tactical-games/${tacticalGameId}`, { method: 'GET' });
+    const fetchTacticalGame = async (gameId) => {
+        const response = await fetch(`${API_TACTICAL_URL}/tactical-games/${gameId}`, { method: 'GET' });
         const responseBody = await response.json();
         setTacticalGame(responseBody);
     };

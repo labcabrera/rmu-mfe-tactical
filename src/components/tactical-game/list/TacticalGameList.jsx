@@ -26,6 +26,9 @@ const TacticalGameList = () => {
     const [errorMessage, setErrorMessage] = useState("");
 
     const fetchGames = async () => {
+
+        console.log(`Fetching tactical games from ${API_TACTICAL_URL}/tactical-games`);
+
         const url = `${API_TACTICAL_URL}/tactical-games`;
         try {
             const response = await fetch(url, { method: "GET", });

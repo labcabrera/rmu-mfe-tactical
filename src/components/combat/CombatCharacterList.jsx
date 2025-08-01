@@ -8,7 +8,7 @@ const CombatCharacterList = () => {
     const { characterRounds, setCharacterRounds } = useContext(CombatContext);
 
     if (!characterRounds) {
-        return <p>Loading...</p>
+        return <p>Loading character list...</p>
     }
 
     return (

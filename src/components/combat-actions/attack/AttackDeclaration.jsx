@@ -17,10 +17,10 @@ const AttackDeclaration = () => {
     const characters = location.state?.characters;
 
     const [formData, setFormData] = useState({
-        tacticalGameId: game.id,
+        gameId: game.id,
         round: game.round,
-        tacticalCharacterId: character.id,
-        type: 'attack',
+        characterId: character.id,
+        actionType: 'attack',
         phaseStart: phaseStart,
         actionPoints: 4,
         attackInfo: {

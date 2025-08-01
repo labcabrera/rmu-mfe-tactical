@@ -19,12 +19,12 @@ const NameTextField = ({ value, onChange, required = false, generateRandom, gene
             race = generateRandomRaceValue;
         }
         const response = await fetch(`${API_NPC_NAMES_URL}/random-names/${race}`);
-        const responseBody = await response.text();
-        console.log("readed name " + responseBody + " (" + race + ")");
+        const json = await response.json()
+        console.log("readed name " + json + " (" + race + ")");
         onChange({
             target: {
                 name: 'name',
-                value: responseBody
+                value: json.name
             }
         });
     };

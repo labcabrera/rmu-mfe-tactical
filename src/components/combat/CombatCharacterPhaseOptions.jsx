@@ -17,7 +17,7 @@ const CombatCharacterPhaseOptions = ({ character, phase }) => {
     const { roundActions, setRoundActions } = useContext(CombatContext);
 
     const loadActiveAction = () => {
-        const characterActions = roundActions.filter(e => e.tacticalCharacterId == character.id);
+        const characterActions = roundActions.filter(e => e.characterId == character.id);
         for (let action of characterActions) {
             const actionStart = action.phaseStart;
             const actionEnd = action.phaseStart + action.actionPoints - 1;
@@ -40,7 +40,7 @@ const CombatCharacterPhaseOptions = ({ character, phase }) => {
     }, [roundActions]);
 
     if (!character || !phase) {
-        return <p>Loading...</p>
+        return <p>Loading character phase...</p>
     }
 
     if (activeAction == null) {
@@ -61,9 +61,9 @@ const CombatCharacterPhaseOptions = ({ character, phase }) => {
                 }}
             >
                 <img
-                    src={`/static/images/actions/${activeAction.type}.png`}
-                    alt={activeAction.type}
-                    style={{ width: '100%', height: '100%', borderRadius: '50%' }} // Rounded image
+                    src={`/static/images/actions/${activeAction.actionType}.png`}
+                    alt={activeAction.actionType}
+                    style={{ width: '100%', height: '100%', borderRadius: '50%' }}
                 />
             </IconButton>
             <IconButton disabled
@@ -75,8 +75,8 @@ const CombatCharacterPhaseOptions = ({ character, phase }) => {
             >
                 <img
                     src={`/static/images/generic/wait.png`}
-                    alt={activeAction.type}
-                    style={{ width: '100%', height: '100%', borderRadius: '50%' }} // Rounded image
+                    alt={activeAction.actionType}
+                    style={{ width: '100%', height: '100%', borderRadius: '50%' }}
                 />
             </IconButton>
         </Stack>

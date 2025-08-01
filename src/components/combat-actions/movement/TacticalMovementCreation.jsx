@@ -21,10 +21,10 @@ const TacticalMovementCreation = () => {
     const character = location.state?.character;
 
     const [formData, setFormData] = useState({
-        tacticalGameId: game.id,
+        gameId: game.id,
         round: game.round,
-        tacticalCharacterId: character.id,
-        type: 'movement',
+        characterId: character.id,
+        actionType: 'movement',
         phaseStart: phaseStart,
         actionPoints: 1,
         pace: '',

@@ -39,7 +39,7 @@ const CombatDashboard = () => {
             console.info(`CombatDashboard.fetchCharacters aborted`);
             return;
         }
-        const charactersResponse = await fetch(`${API_TACTICAL_URL}/characters?tacticalGameId=${gameId}&page=0&size=100`);
+        const charactersResponse = await fetch(`${API_TACTICAL_URL}/characters?gameId=${gameId}&page=0&size=100`);
         const charactersResponseContent = await charactersResponse.json();
         setCharacters(charactersResponseContent.content);
     };
@@ -51,9 +51,9 @@ const CombatDashboard = () => {
             return;
         }
         try {
-            const response = await fetch(`${API_TACTICAL_URL}/tactical-games/${gameId}/rounds/${displayRound}/characters`);
-            const data = await response.json();
-            setCharacterRounds(data);
+            const response = await fetch(`${API_TACTICAL_URL}/tactical-character-rounds?gameId=${gameId}&round=${displayRound}`);
+            const json = await response.json();
+            setCharacterRounds(json.content);
         } catch (error) {
             console.error("CombatDashboard.fecthCharacterRounds error: " + error);
         }
@@ -66,7 +66,7 @@ const CombatDashboard = () => {
             return;
         }
         try {
-            const response = await fetch(`${API_TACTICAL_URL}/actions?tacticalGameId=${gameId}&round=${displayRound}`);
+            const response = await fetch(`${API_TACTICAL_URL}/actions?gameId=${gameId}&round=${displayRound}`);
             const data = await response.json();
             setRoundActions(data.content);
         } catch (error) {
@@ -75,7 +75,7 @@ const CombatDashboard = () => {
     };
 
     useEffect(() => {
-        console.log("CombatDashboard.useEffect[tacticalGameId] triggered");
+        console.log("CombatDashboard.useEffect[gameId] triggered");
         fetchTacticalGame();
         fetchCharacters();
     }, [gameId]);

@@ -10,7 +10,8 @@ const CopyWebpackPlugin = require("copy-webpack-plugin");
 
 module.exports = (_, argv) => ({
   output: {
-    publicPath: process.env.RMU_FE_TACTICAL_PUBLIC_PATH || "http://localhost:8083/"
+    //publicPath: process.env.RMU_FE_TACTICAL_PUBLIC_PATH || "http://localhost:8083/"
+    publicPath: "http://localhost:8083/"
   },
 
   resolve: {
@@ -109,6 +110,12 @@ module.exports = (_, argv) => ({
     new HtmlWebPackPlugin({
       template: "./src/index.html",
     }),
-    new Dotenv(),
+    new Dotenv({
+      path: `./.env.${argv.mode || 'development'}`,
+      safe: false,
+      systemvars: true,
+      silent: false,
+      defaults: './.env'
+    }),
   ]
 });

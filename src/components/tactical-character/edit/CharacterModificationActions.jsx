@@ -32,7 +32,7 @@ const CharacterModificationActions = ({ tacticalGame, tacticalCharacter, formDat
             };
             const response = await fetch(`${API_TACTICAL_URL}/characters/${tacticalCharacter.id}`, requestOptions);
             if (response.status == 200) {
-                navigate(`/tactical/view/${tacticalCharacter.tacticalGameId}`, { state: { tacticalGame: tacticalGame } });
+                navigate(`/tactical/view/${tacticalCharacter.gameId}`, { state: { tacticalGame: tacticalGame } });
             } else {
                 console.log(`TacticalCharacterModification.updateTacticalCharacter error ${response.status}`);
             }

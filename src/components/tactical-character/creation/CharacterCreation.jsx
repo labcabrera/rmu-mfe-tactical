@@ -20,7 +20,7 @@ const CharacterCreation = () => {
 
     const [formData, setFormData] = useState({
         name: '',
-        tacticalGameId: tacticalGame.id,
+        gameId: tacticalGame.id,
         faction: 'Neutral',
         info: {
             level: 1,

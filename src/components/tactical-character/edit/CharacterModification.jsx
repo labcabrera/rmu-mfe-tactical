@@ -47,7 +47,7 @@ const CharacterModification = () => {
             return;
         }
         try {
-            const response = await fetch(`${API_TACTICAL_URL}/tactical-games/${character.tacticalGameId}`);
+            const response = await fetch(`${API_TACTICAL_URL}/tactical-games/${character.gameId}`);
             const responseBody = await response.json();
             setGame(responseBody);
             setFactions(responseBody.factions);
@@ -61,7 +61,7 @@ const CharacterModification = () => {
             return;
         }
         const data = {
-            tacticalGameId: character.tacticalGameId,
+            gameId: character.gameId,
             name: character.name,
             faction: character.faction,
             statistics: character.statistics,

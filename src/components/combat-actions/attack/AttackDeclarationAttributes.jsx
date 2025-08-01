@@ -127,7 +127,7 @@ const AttackDeclarationAttributes = ({ formData, setFormData, character, charact
     return (
         <>
             <div className="generic-main-content">
-
+                attackdeclarationattributes.jsx
                 <Grid container spacing={2}>
 
                     <Grid size={6}>

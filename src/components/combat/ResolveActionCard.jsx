@@ -33,7 +33,7 @@ const ResolveActionCard = ({ character, action }) => {
     };
 
     const handleResolveActionClick = async () => {
-        navigate(`/tactical/combat/${action.tacticalGameId}/resolve-attack/${action.id}`, { state: { game, character, characters } });
+        navigate(`/tactical/combat/${action.gameId}/resolve-attack/${action.id}`, { state: { game, character, characters } });
         return;
     };
 
@@ -51,8 +51,8 @@ const ResolveActionCard = ({ character, action }) => {
                 }}
             >
                 <img
-                    src={`/static/images/actions/${action.type}.png`}
-                    alt={action.type}
+                    src={`/static/images/actions/${action.actionType}.png`}
+                    alt={action.actionType}
                     style={{ width: '100%', height: '100%', borderRadius: '50%' }}
                 />
             </IconButton>

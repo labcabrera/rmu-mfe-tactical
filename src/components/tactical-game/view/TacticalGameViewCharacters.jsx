@@ -23,7 +23,7 @@ const TacticalGameViewCharacters = ({ tacticalGame }) => {
 
     useEffect(() => {
         const fetchTacticalCharacters = async () => {
-            const url = `${API_TACTICAL_URL}/characters/?tacticalGameId=${tacticalGame.id}&page=0&size=100`;
+            const url = `${API_TACTICAL_URL}/characters?gameId=${tacticalGame.id}&page=0&size=100`;
             try {
                 const response = await fetch(url, { method: "GET", });
                 const data = await response.json();

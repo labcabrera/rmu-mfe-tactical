@@ -16,7 +16,7 @@ const CombatCharacterRound = ({ characterRound }) => {
     const { roundActions } = useContext(CombatContext);
 
     const loadCharacter = () => {
-        setCharacter(characters.find(item => item.id === characterRound.tacticalCharacterId));
+        setCharacter(characters.find(item => item.id === characterRound.characterId));
     };
 
     useEffect(() => {
@@ -24,7 +24,7 @@ const CombatCharacterRound = ({ characterRound }) => {
     }, []);
 
     if (!characterRound || !characters || !character || !roundActions) {
-        return <p>Loading...</p>
+        return <p>Loading character round...</p>
     }
 
     return (
