@@ -1,16 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
-//TODO remove lab tab context and use default MUI tabs
 import TabContext from '@mui/lab/TabContext';
 import TabList from '@mui/lab/TabList';
 import TabPanel from '@mui/lab/TabPanel';
 import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import ButtonGroup from '@mui/material/ButtonGroup';
 import Grid from '@mui/material/Grid';
 import Tab from '@mui/material/Tab';
+import Typography from '@mui/material/Typography';
 
 import CharacterEquipment from '../items/character-equipment';
-import CharacterSkillsDataGrid from '../skills/character-skills-data-grid';
+import CharacterSkillsEdit from '../skills/character-skills-edit';
 import TacticalCharacterStatisticsModification from '../statistics/character-statistics-edit';
 import CharacterEditActions from './character-edit-actions';
 import CharacterEditAttributes from './character-edit-attributes';
@@ -136,7 +138,9 @@ const CharacterEdit = () => {
                         <CharacterAttacks character={character} />
                     </TabPanel>
                     <TabPanel value='skills'>
-                        <CharacterSkillsDataGrid tacticalCharacter={character} setTacticalCharacter={setCharacter} />
+                        <Box sx={{ mb: 2 }}>
+                            <CharacterSkillsEdit  tacticalCharacter={character}  setTacticalCharacter={setCharacter} />
+                        </Box>
                     </TabPanel>
                     <TabPanel value='items'>
                         <CharacterEquipment game={game} character={character} setCharacter={setCharacter} />
