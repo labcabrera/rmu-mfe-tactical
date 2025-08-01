@@ -94,7 +94,7 @@ module.exports = (_, argv) => ({
       filename: "tactical-app.js",
       remotes: {},
       exposes: {
-        "./TacticalApp": "./src/App.jsx",
+        "./TacticalApp": "./src/app.jsx",
       },
       shared: {
         'react': {

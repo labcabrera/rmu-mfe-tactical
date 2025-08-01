@@ -5,7 +5,7 @@ import List from '@mui/material/List';
 import Stack from '@mui/material/Stack';
 
 import AddButton from "../../button/AddButton";
-import TacticalGameViewCharactersListItem from "./TacticalGameViewCharactersListItem";
+import TacticalGameViewCharactersListItem from "./game-view-characters-item";
 
 import { API_TACTICAL_URL } from "../../../constants/environment";
 import { DETAIL_BUTTON_SIZE } from "../../../constants/ui";

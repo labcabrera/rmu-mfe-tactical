@@ -3,12 +3,12 @@ import { useTranslation } from 'react-i18next';
 import { useLocation } from "react-router-dom";
 
 import Grid from '@mui/material/Grid';
-import ForgeItemAttributes from "./ForgeItemAttributes";
-import ForgeItemCategories from "./ForgeItemCategories";
-import ForgeItemList from "./ForgeItemList";
+import ForgeItemAttributes from "./forge-item-attributes";
+import ForgeItemCategories from "./forge-item-categories";
+import ForgeItemList from "./forge-item-list";
 
 import { API_ITEMS_URL } from '../../constants/environment';
-import ForgeItemActions from "./ForgeItemActions";
+import ForgeItemActions from "./forge-item-actions";
 
 const ForgeItem = () => {
 
@@ -86,11 +86,11 @@ const ForgeItem = () => {
             <ForgeItemActions game={game} character={character} formData={formData} />
             <div className="generic-main-content">
                 <Grid container spacing={2}>
-                    <Grid item xs={6}>
+                    <Grid item size={6}>
                         <ForgeItemCategories onChange={fetchItems} />
                         <ForgeItemList items={items} onSelectedItem={loadItemForm} />
                     </Grid>
-                    <Grid item xs={6}>
+                    <Grid item size={6}>
                         <ForgeItemAttributes formData={formData} setFormData={setFormData} />
                     </Grid>
                 </Grid>

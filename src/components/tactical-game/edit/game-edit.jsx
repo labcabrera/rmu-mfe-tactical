@@ -5,7 +5,7 @@ import Grid from "@mui/material/Grid";
 import TextField from "@mui/material/TextField";
 
 import { API_TACTICAL_URL } from "../../../constants/environment";
-import TacticalGameEditActions from "./TacticalGameEditActions";
+import TacticalGameEditActions from "./game-edit-actions";
 
 const TacticalGameEdit = ({ }) => {
 
@@ -60,7 +60,7 @@ const TacticalGameEdit = ({ }) => {
             <TacticalGameEditActions tacticalGame={tacticalGame} formData={formData} />
             <div className="generic-main-content">
                 <Grid container spacing={2}>
-                    <Grid item xs={12}>
+                    <Grid item size={12}>
                         <TextField
                             fullWidth
                             label="Name"
@@ -69,7 +69,7 @@ const TacticalGameEdit = ({ }) => {
                             onChange={handleChange}
                         />
                     </Grid>
-                    <Grid item xs={12}>
+                    <Grid item size={12}>
                         <TextField
                             fullWidth
                             label="Description"
@@ -81,11 +81,6 @@ const TacticalGameEdit = ({ }) => {
                         />
                     </Grid>
                 </Grid>
-                {debugMode ? (
-                    <pre>
-                        {JSON.stringify(formData, null, 2)}
-                    </pre>
-                ) : null}
             </div>
         </>
     );

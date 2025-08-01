@@ -4,9 +4,9 @@ import { useLocation, useParams } from "react-router-dom";
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 
-import TacticalGameViewActions from './TacticalGameViewActions';
-import TacticalGameViewCharacters from "./TacticalGameViewCharacters";
-import TacticalGameViewInfo from "./TacticalGameViewInfo";
+import TacticalGameViewActions from './game-view-actions';
+import TacticalGameViewCharacters from "./game-view-characters";
+import TacticalGameViewInfo from "./game-view-info";
 
 import { API_TACTICAL_URL } from "../../../constants/environment";
 

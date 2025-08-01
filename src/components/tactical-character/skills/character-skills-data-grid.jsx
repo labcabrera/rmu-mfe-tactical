@@ -72,7 +72,7 @@ const StatisticsCell = ({ params }) => (
     </Stack>
 );
 
-const TacticalCharacterSkillDataGrid = ({ tacticalCharacter, setTacticalCharacter }) => {
+const CharacterSkillsDataGrid = ({ tacticalCharacter, setTacticalCharacter }) => {
 
     const { t, i18n } = useTranslation();
 
@@ -386,4 +386,4 @@ const TacticalCharacterSkillDataGrid = ({ tacticalCharacter, setTacticalCharacte
     );
 }
 
-export default TacticalCharacterSkillDataGrid;
+export default CharacterSkillsDataGrid;

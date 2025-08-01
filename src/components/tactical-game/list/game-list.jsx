@@ -11,7 +11,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
 import AddButton from "../../button/AddButton";
-import TacticalGameListItem from "./TacticalGameListItem";
+import TacticalGameListItem from "./game-list-item";
 
 import { API_TACTICAL_URL } from "../../../constants/environment";
 import { ACTION_BUTTON_SIZE } from "../../../constants/ui";
@@ -72,7 +72,7 @@ const TacticalGameList = () => {
                 </Stack>
             </div>
             <div className="generic-main-content">
-                <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
+                <List sx={{ width: '100%', _bgcolor: 'background.paper' }}>
                     {games.map((item) => (
                         <TacticalGameListItem key={item.id} tacticalGame={item} />
                     ))}

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
-import GameCreationActions from './GameCreationActions';
-import GameCreationAttributes from './GameCreationAttributes';
+import GameCreationActions from './game-creation-actions';
+import GameCreationAttributes from './game-creation-attributes';
 
 const GameCreation = () => {
 

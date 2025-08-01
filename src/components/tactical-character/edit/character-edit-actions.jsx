@@ -13,7 +13,7 @@ import SaveButton from '../../button/SaveButton';
 import { API_TACTICAL_URL } from '../../../constants/environment';
 import { ACTION_BUTTON_SIZE } from '../../../constants/ui';
 
-const CharacterModificationActions = ({ tacticalGame, tacticalCharacter, formData, onError }) => {
+const CharacterEditActions = ({ tacticalGame, tacticalCharacter, formData, onError }) => {
 
     const navigate = useNavigate();
     const { t } = useTranslation();
@@ -73,4 +73,4 @@ const CharacterModificationActions = ({ tacticalGame, tacticalCharacter, formDat
     );
 }
 
-export default CharacterModificationActions;
+export default CharacterEditActions;

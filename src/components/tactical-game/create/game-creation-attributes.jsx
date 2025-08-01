@@ -1,8 +1,6 @@
-import React from 'react';
 import { useTranslation } from 'react-i18next';
 
 import Grid from '@mui/material/Grid';
-
 import TextField from '@mui/material/TextField';
 
 const GameCreationAttributes = ({ formData, setFormData }) => {
