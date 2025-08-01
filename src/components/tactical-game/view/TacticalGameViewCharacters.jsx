@@ -41,7 +41,7 @@ const TacticalGameViewCharacters = ({ tacticalGame }) => {
 
     return (
         <>
-            <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
+            <List sx={{ width: '100%' }}>
                 {tacticalCharacters.map((item, index) => (
                     <TacticalGameViewCharactersListItem
                         key={index}

@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 
 import { Box } from "@mui/material";
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 
 import CombatCharacterPhaseOptions from './CombatCharacterPhaseOptions';
 import CombatCharacterRoundInfo from "./CombatCharacterRoundInfo";
@@ -29,27 +29,31 @@ const CombatCharacterRound = ({ characterRound }) => {
 
     return (
         <Box sx={{ flexGrow: 1 }}>
-            <Grid container spacing={2} columns={24} alignItems="center" >
-                <Grid size={6}>
+            <Grid container spacing={0} columns={24} alignItems="center" >
+                <Grid item size={5}>
                     <CombatCharacterRoundInfo character={character} characterRound={characterRound} />
                 </Grid>
-                <Grid size={3} display='flex' justifyContent="center">
-                    <CombatCharacterRoundInitiative />
-                </Grid>
-                <Grid size={3} display='flex' justifyContent="center" >
-                    <CombatFreeActionButtons tacticalGame={game} character={character} />
-                </Grid>
-                <Grid size={3} display='flex' justifyContent="center">
-                    <CombatCharacterPhaseOptions character={character} phase={1} />
-                </Grid>
-                <Grid size={3} display='flex' justifyContent="center">
-                    <CombatCharacterPhaseOptions character={character} phase={2} />
-                </Grid>
-                <Grid size={3} display='flex' justifyContent="center">
-                    <CombatCharacterPhaseOptions character={character} phase={3} />
-                </Grid>
-                <Grid size={3} display='flex' justifyContent="center">
-                    <CombatCharacterPhaseOptions character={character} phase={4} />
+                <Grid item size={19}>
+                    <Grid container item alignItems="center">
+                        <Grid item size={2} display='flex' justifyContent="center">
+                            <CombatCharacterRoundInitiative />
+                        </Grid>
+                        <Grid item size={2} display='flex' justifyContent="center" >
+                            <CombatFreeActionButtons tacticalGame={game} character={character} />
+                        </Grid>
+                        <Grid item size={2} display='flex' justifyContent="center">
+                            <CombatCharacterPhaseOptions character={character} phase={1} />
+                        </Grid>
+                        <Grid item size={2} display='flex' justifyContent="center">
+                            <CombatCharacterPhaseOptions character={character} phase={2} />
+                        </Grid>
+                        <Grid item size={2} display='flex' justifyContent="center">
+                            <CombatCharacterPhaseOptions character={character} phase={3} />
+                        </Grid>
+                        <Grid item size={2} display='flex' justifyContent="center">
+                            <CombatCharacterPhaseOptions character={character} phase={4} />
+                        </Grid>
+                    </Grid>
                 </Grid>
             </Grid>
         </Box>

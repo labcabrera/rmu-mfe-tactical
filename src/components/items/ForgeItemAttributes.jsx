@@ -1,6 +1,6 @@
 import React from "react";
 
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 
 import ArmorTextField from "../input/ArmorTextField";
 import HeightTextField from "../input/HeightTextField";
@@ -65,80 +65,80 @@ const ForgeItemAttributes = ({ formData, setFormData }) => {
 
     return (
         <Grid container spacing={2}>
-            <Grid size={12}>
+            <Grid item xs={12}>
                 <ItemStrengthTextField i18nLabel="name" value={formData.name} onChange={handleNameChange} />
             </Grid>
-            <Grid size={6}>
+            <Grid item xs={6}>
                 <ItemStrengthTextField i18nLabel="item-type" value={formData.itemTypeId} disabled />
             </Grid>
-            <Grid size={6}>
+            <Grid item xs={6}>
                 <ItemStrengthTextField i18nLabel="category" value={formData.category} disabled />
             </Grid>
             {formData.weapon ? (
                 <>
-                    <Grid size={6}>
+                    <Grid item xs={6}>
                         <SelectAttackTable value={formData.weapon?.attackTable} onChange={handleChangeAttackTable} />
                     </Grid>
-                    <Grid size={6}>
+                    <Grid item xs={6}>
                         <SelectSizeAdjustment value={formData.weapon.sizeAdjustment} onChange={handleSizeAdjustmentChange} />
                     </Grid>
-                    <Grid size={6}>
+                    <Grid item xs={6}>
                         <SelectWeaponSkill value={formData.weapon?.skillId} onChange={handleSkillChange} />
                     </Grid>
-                    <Grid size={6}>
+                    <Grid item xs={6}>
                         <ItemStrengthTextField i18nLabel="fumble" value={formData.weapon.fumble} onChange={handleFumbleChange} />
                     </Grid>
-                    <Grid size={6}>
+                    <Grid item xs={6}>
                         <ItemStrengthTextField i18nLabel="requiredHands" value={formData.weapon.requiredHands} />
                     </Grid>
-                    <Grid size={6}>
+                    <Grid item xs={6}>
                         <ItemStrengthTextField i18nLabel="trowable" value={formData.weapon.trowable} />
                     </Grid>
                 </>
             ) : null}
             {formData.shield ? (
                 <>
-                    <Grid size={6}>
+                    <Grid item xs={6}>
                         <ItemStrengthTextField i18nLabel="defensive-bonus" value={formData.shield.defensiveBonus} onChange={handleWeightChange} />
                     </Grid>
-                    <Grid size={6}>
+                    <Grid item xs={6}>
                         <ItemStrengthTextField i18nLabel="max-blocks" value={formData.shield.maxAttacksBlocked} onChange={handleWeightChange} />
                     </Grid>
                 </>
             ) : null}
             {formData.armor ? (
                 <>
-                    <Grid size={6}>
+                    <Grid item xs={6}>
                         <ArmorTextField i18nLabel="armor-type" value={formData.armor.armorType} disabled />
                     </Grid>
-                    <Grid size={6}>
+                    <Grid item xs={6}>
                         <ItemStrengthTextField i18nLabel="enc" value={formData.armor.enc} />
                     </Grid>
-                    <Grid size={6}>
+                    <Grid item xs={6}>
                         <ItemStrengthTextField i18nLabel="maneuver-penalty" value={formData.armor.maneuver} />
                     </Grid>
-                    <Grid size={6}>
+                    <Grid item xs={6}>
                         <ItemStrengthTextField i18nLabel="ranged-penalty" value={formData.armor.rangedPenalty} />
                     </Grid>
-                    <Grid size={6}>
+                    <Grid item xs={6}>
                         <ItemStrengthTextField i18nLabel="perception-penalty" value={formData.armor.perception} />
                     </Grid>
-                    <Grid size={6}></Grid>
+                    <Grid item xs={6}></Grid>
                 </>
             ) : null}
             {formData.info ? (
                 <>
-                    <Grid size={6}>
+                    <Grid item xs={6}>
                         <ItemStrengthTextField i18nLabel="bonus" value={formData.info.bonus} onChange={handleBonusChange} />
                     </Grid>
 
-                    <Grid size={6}>
+                    <Grid item xs={6}>
                         <HeightTextField value={formData.info.length} onChange={handleLengthChange} />
                     </Grid>
-                    <Grid size={6}>
+                    <Grid item xs={6}>
                         <WeightTextField value={formData.info.weight} onChange={handleWeightChange} />
                     </Grid>
-                    <Grid size={6}>
+                    <Grid item xs={6}>
                         <ItemStrengthTextField i18nLabel="item-strength" value={formData.info.strength} onChange={handleStrengthChange} />
                     </Grid>
                 </>

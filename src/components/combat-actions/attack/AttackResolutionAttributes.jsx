@@ -1,6 +1,6 @@
 import React from 'react';
 
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
@@ -70,13 +70,13 @@ const AttackResolutionAttributes = ({ attackKey, formData, setFormData, characte
     return (
         <>
             <Grid container spacing={2}>
-                <Grid size={12}>
+                <Grid item xs={12}>
                     <SelectCover value={formData.attackInfo.attacks[attackKey].cover} onChange={handleSelectCoverChange} />
                 </Grid>
-                <Grid size={12}>
+                <Grid item xs={12}>
                     <SelectAttackPosition value={formData.attackInfo.attacks[attackKey].position} onChange={handleSelectAttackPositionChange} />
                 </Grid>
-                <Grid size={4}>
+                <Grid item xs={4}>
                     <List>
                         <ListItem key={-1}>
                             <Typography variant='body'>Attacker modifiers: {formData.attacks[attackKey].totalAttackerBonus}</Typography>
@@ -90,7 +90,7 @@ const AttackResolutionAttributes = ({ attackKey, formData, setFormData, characte
                         ))}
                     </List>
                 </Grid>
-                <Grid size={4}>
+                <Grid item xs={4}>
                     <List>
                         <ListItem key={-1}>
                             <Typography variant='body'>Defender modifiers: {formData.attacks[attackKey].totalDefenderBonus}</Typography>
@@ -104,7 +104,7 @@ const AttackResolutionAttributes = ({ attackKey, formData, setFormData, characte
                         ))}
                     </List>
                 </Grid>
-                <Grid size={4}>
+                <Grid item xs={4}>
                     <List>
                         <ListItem key={-1}>
                             <Typography variant='body'>Attack modifiers {formData.attacks[attackKey].totalAttackBonus}</Typography>
@@ -118,7 +118,7 @@ const AttackResolutionAttributes = ({ attackKey, formData, setFormData, characte
                         ))}
                     </List>
                 </Grid>
-                <Grid size={12}>
+                <Grid item xs={12}>
                     <Typography variant='body'>Total modifiers: {formData.attacks[attackKey].totalBonus}</Typography>
                 </Grid>
             </Grid>

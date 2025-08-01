@@ -2,7 +2,7 @@ import React from "react";
 import { useDrop } from "react-dnd";
 
 import { Paper, Typography } from "@mui/material";
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 
 import DraggableImage from './DraggableImage';
 

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import Grid from '@mui/material/Grid2';
+import Grid from '@mui/material/Grid';
 
 import { Typography } from '@mui/material';
 import DefenseTextField from '../../input/DefenseTextField';
@@ -130,22 +130,22 @@ const AttackDeclarationAttributes = ({ formData, setFormData, character, charact
                 attackdeclarationattributes.jsx
                 <Grid container spacing={2}>
 
-                    <Grid size={6}>
+                    <Grid item size={6}>
                         <ActionPointSelector value={formData.actionPoints} min={2} max={4} defaultValue={2} onChange={handleActionPointsChange} />
                     </Grid>
-                    <Grid size={6}>
+                    <Grid item size={6}>
                         <Typography>
                             Actions points penalty: {actionPointsPenalty}
                         </Typography>
                     </Grid>
 
-                    <Grid size={12}>
+                    <Grid item size={12}>
                         <SelectAttackMode character={character} value={attackMode} onChange={handleSelectedAttackModeChange} />
                     </Grid>
 
                     {formData.attackInfo.attacks.mainHand ? (
                         <>
-                            <Grid size={12}>
+                            <Grid item size={12}>
                                 <SelectDefender
                                     i18nLabel='main-hand-target'
                                     value={formData.attackInfo.attacks.mainHand.targetId}
@@ -158,7 +158,7 @@ const AttackDeclarationAttributes = ({ formData, setFormData, character, charact
 
                     {formData.attackInfo.attacks.offHand ? (
                         <>
-                            <Grid size={12}>
+                            <Grid item size={12}>
                                 <SelectDefender
                                     i18nLabel='off-hand-target'
                                     value={formData.attackInfo.attacks.offHand.targetId}
@@ -169,20 +169,13 @@ const AttackDeclarationAttributes = ({ formData, setFormData, character, charact
                         </>
                     ) : null}
 
-                    <Grid size={12}>
+                    <Grid item size={12}>
                         <DefenseTextField i18nLabel='parry' value={formData.attackInfo.parry} onChange={handleParryChange} />
-                    </Grid>
-
-                    <Grid size={12}>
-                        <SelectRestrictedQuarters value={formData.attackInfo.restrictedQuarters} onChange={handleRestrictedQuarterChange} />
-                    </Grid>
-                    <Grid size={12}>
-                        <SelectChargeSpeed value={formData.attackInfo.chargeSpeed} onChange={handleChargeSpeedChange} />
                     </Grid>
                 </Grid>
             </div>
         </>
-    );
+    );s
 }
 
 export default AttackDeclarationAttributes;

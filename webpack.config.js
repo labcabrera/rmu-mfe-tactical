@@ -7,6 +7,7 @@ const deps = require("./package.json").dependencies;
 
 const printCompilationMessage = require("./compilation.config.js");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
+const { error } = require("console");
 
 module.exports = (_, argv) => ({
   output: {
@@ -96,14 +97,41 @@ module.exports = (_, argv) => ({
         "./TacticalApp": "./src/App.jsx",
       },
       shared: {
-        ...deps,
-        react: {
+        'react': {
           singleton: true,
-          requiredVersion: deps.react,
+          requiredVersion: deps["react"],
         },
         'react-dom': {
           singleton: true,
           requiredVersion: deps["react-dom"],
+        },
+        'react-router-dom': {
+          singleton: true,
+          requiredVersion: deps["react-router-dom"],
+        },
+        '@mui/material': {
+          singleton: true,
+          requiredVersion: deps['@mui/material'],
+        },
+        '@mui/x-data-grid': {
+          singleton: true,
+          requiredVersion: deps['@mui/x-data-grid'],
+        },
+        '@mui/icons-material': {
+          singleton: true,
+          requiredVersion: deps['@mui/icons-material'],
+        },
+        '@mui/lab': {
+          singleton: true,
+          requiredVersion: deps['@mui/lab'],
+        },
+        '@emotion/react': {
+          singleton: true,
+          requiredVersion: deps['@emotion/react'],
+        },
+        '@emotion/styled': {
+          singleton: true,
+          requiredVersion: deps['@emotion/styled'],
         },
       },
     }),
