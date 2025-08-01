@@ -1,3 +1,4 @@
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 
 import Grid from '@mui/material/Grid';
@@ -18,8 +19,8 @@ const GameCreationAttributes = ({ formData, setFormData }) => {
     };
 
     return (
-        <Grid container spacing={2}>
-            <Grid item xs={12}>
+        <Grid container>
+            <Grid item size={12}>
                 <TextField
                     label={t('name')}
                     variant="outlined"
@@ -30,7 +31,7 @@ const GameCreationAttributes = ({ formData, setFormData }) => {
                     margin="normal"
                     required />
             </Grid>
-            <Grid item xs={12}>
+            <Grid item size={12}>
                 <TextField
                     label="Description"
                     variant="outlined"
@@ -40,7 +41,7 @@ const GameCreationAttributes = ({ formData, setFormData }) => {
                     fullWidth
                     margin="normal" />
             </Grid>
-            <Grid item xs={12}>
+            <Grid item size={12}>
                 <TextField
                     label={t('fatigue-multiplier')}
                     variant="outlined"
@@ -50,7 +51,7 @@ const GameCreationAttributes = ({ formData, setFormData }) => {
                     fullWidth
                     margin="normal" />
             </Grid>
-            <Grid item xs={12}>
+            <Grid item size={12}>
                 <TextField
                     label={t('board-scale')}
                     variant="outlined"

@@ -11,7 +11,7 @@ import Tab from '@mui/material/Tab';
 
 import CharacterEquipment from '../items/character-equipment';
 import CharacterSkillsDataGrid from '../skills/character-skills-data-grid';
-import TacticalCharacterStatisticsModification from '../TacticalCharacterStatisticsModification';
+import TacticalCharacterStatisticsModification from '../statistics/character-statistics-edit';
 import CharacterEditActions from './character-edit-actions';
 import CharacterEditAttributes from './character-edit-attributes';
 
@@ -118,16 +118,16 @@ const CharacterEdit = () => {
                     </Box>
                     <TabPanel value='info'>
                         <Grid container spacing={2}>
-                            <Grid item xs={6}>
+                            <Grid item size={6}>
                                 <CharacterEditAttributes formData={formData} setFormData={setFormData} factions={factions} size='normal' variant='outlined' />
                             </Grid>
-                            <Grid item xs={6}>
+                            <Grid item size={6}>
                             </Grid>
                         </Grid>
                     </TabPanel>
                     <TabPanel value='attributes'>
                         <Grid container spacing={2}>
-                            <Grid item xs={6}>
+                            <Grid item size={6}>
                                 <TacticalCharacterStatisticsModification formData={formData} setFormData={setFormData} />
                             </Grid>
                         </Grid>

@@ -5,7 +5,7 @@ import AttackDeclaration from './components/combat-actions/attack/AttackDeclarat
 import TacticalMovementCreation from './components/combat-actions/movement/TacticalMovementCreation';
 import CombatDashboardParent from './components/combat/CombatDashboardParent';
 import ForgeItem from './components/items/forge-item';
-import CharacterCreation from './components/tactical-character/creation/CharacterCreation';
+import CharacterCreation from './components/tactical-character/creation/character-creation';
 import CharacterEdit from './components/tactical-character/edit/character-edit';
 import GameCreation from './components/tactical-game/create/game-creation';
 import TacticalGameEdit from './components/tactical-game/edit/game-edit';
