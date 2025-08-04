@@ -6,9 +6,9 @@ import { CombatContext } from './CombatProvider';
 
 import { API_TACTICAL_URL } from "../../constants/environment";
 
-const CombatDashboard = () => {
+const CombatDashboardTabActions = () => {
 
-    const debugMode = true;
+    const debugMode = false;
 
     const { gameId } = useContext(CombatContext);
     const { displayRound, setDisplayRound } = useContext(CombatContext);
@@ -116,4 +116,4 @@ const CombatDashboard = () => {
     );
 }
 
-export default CombatDashboard;
+export default CombatDashboardTabActions;

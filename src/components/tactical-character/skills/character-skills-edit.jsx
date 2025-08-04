@@ -46,7 +46,7 @@ const SkillCard = ({
             <CardContent>
                 <Grid container spacing={2} alignItems="center">
                     {/* Skill Selection/Display */}
-                    <Grid item xs={12} md={4}>
+                    <Grid item size={2}>
                         {isNew && isEditing ? (
                             <FormControl fullWidth>
                                 <InputLabel>Skill</InputLabel>
@@ -68,7 +68,7 @@ const SkillCard = ({
                     </Grid>
 
                     {/* Statistics Display */}
-                    <Grid item xs={12} md={3}>
+                    <Grid item size={1}>
                         <Typography variant="body2" color="textSecondary" gutterBottom>
                             Statistics
                         </Typography>
@@ -85,7 +85,7 @@ const SkillCard = ({
                     </Grid>
 
                     {/* Specialization */}
-                    <Grid item xs={12} md={2}>
+                    <Grid item size={1}>
                         {isEditing ? (
                             <TextField
                                 fullWidth
@@ -107,7 +107,7 @@ const SkillCard = ({
                     </Grid>
 
                     {/* Ranks */}
-                    <Grid item xs={6} md={1}>
+                    <Grid item size={1}>
                         {isEditing ? (
                             <TextField
                                 fullWidth
@@ -129,7 +129,7 @@ const SkillCard = ({
                     </Grid>
 
                     {/* Custom Bonus */}
-                    <Grid item xs={6} md={1}>
+                    <Grid item size={1}>
                         {isEditing ? (
                             <TextField
                                 fullWidth
@@ -150,7 +150,7 @@ const SkillCard = ({
                     </Grid>
 
                     {/* Total Bonus */}
-                    <Grid item xs={12} md={1}>
+                    <Grid item size={1}>
                         <div>
                             <Typography variant="body2" color="textSecondary">
                                 Total

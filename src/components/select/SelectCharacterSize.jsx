@@ -27,7 +27,7 @@ const SelectCharacterSize = ({ value, onChange }) => {
         const fetchSizes = async () => {
             const response = await fetch(`${API_CORE_URL}/character-sizes`);
             const responseBody = await response.json();
-            setSizes(responseBody);
+            setSizes(responseBody.content);
         };
         fetchSizes();
     }, []);

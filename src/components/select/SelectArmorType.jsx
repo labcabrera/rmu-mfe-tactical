@@ -24,7 +24,7 @@ const SelectArmorType = ({ value, onChange }) => {
         const fetchArmorTypes = async () => {
             const response = await fetch(`${API_CORE_URL}/armor-types`);
             const responseBody = await response.json();
-            setArmorTypes(responseBody);
+            setArmorTypes(responseBody.content);
         };
         fetchArmorTypes();
     }, []);
