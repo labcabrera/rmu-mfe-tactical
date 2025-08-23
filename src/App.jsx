@@ -3,7 +3,7 @@ import { Route, Routes } from 'react-router-dom';
 import AttackDeclaration from './components/combat-actions/attack/AttackDeclaration';
 import AttackResolution from './components/combat-actions/attack/AttackResolution';
 import TacticalMovementCreation from './components/combat-actions/movement/TacticalMovementCreation';
-import CombatDashboard from './components/combat/combat-dashboard';
+import CombatDashboard from './components/combat-dashboard/CombatDashboard';
 import ForgeItem from './components/items/forge-item';
 import './i18n';
 import './index.css';
