@@ -46,27 +46,6 @@ const TacticalGameViewInfo = ({ tacticalGame }) => {
                     maxRows={4}
                     disabled
                 />
-                <TextField
-                    label="User"
-                    name="user"
-                    value={tacticalGame.user}
-                    disabled
-                />
-                <TextField
-                    label="Created"
-                    value={tacticalGame.createdAt}
-                    disabled
-                />
-                <TextField
-                    label="Updated"
-                    value={tacticalGame.updatedAt}
-                    disabled
-                />
-                <Stack direction="row" spacing={1}>
-                    {tacticalGame.factions.map((item) => (
-                        <Chip key={item} label={item} variant="outlined" onDelete={handleDeleteFaction(item)} />
-                    ))}
-                </Stack>
             </Box >
             {
                 debugMode ? (

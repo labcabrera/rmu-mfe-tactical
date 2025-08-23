@@ -11,32 +11,24 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 
 import AddButton from "../../button/AddButton";
-import TacticalGameListItem from "./game-list-item";
+import TacticalGameListItem from "./TacticalGameListItem";
+import { fetchTacticalGames} from "../../../modules/api/tactical-games";
 
-import { API_TACTICAL_URL } from "../../../constants/environment";
-import { ACTION_BUTTON_SIZE } from "../../../constants/ui";
 
 const TacticalGameList = () => {
-
     const navigate = useNavigate();
-    const { t, i18n } = useTranslation();
-
+    const { t } = useTranslation();
     const [games, setGames] = useState([]);
     const [displayError, setDisplayError] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
 
     const fetchGames = async () => {
-
-        console.log(`Fetching tactical games from ${API_TACTICAL_URL}/tactical-games`);
-
-        const url = `${API_TACTICAL_URL}/tactical-games`;
         try {
-            const response = await fetch(url, { method: "GET", });
-            const data = await response.json();
-            setGames(data.content);
+            const response = await fetchTacticalGames('', 0, 10);
+            setGames(response);
         } catch (error) {
             setDisplayError(true);
-            setErrorMessage(`Error loading games from ${url}. ${error.message}`);
+            setErrorMessage(`Error loading games. ${error.message}`);
         }
     };
 
@@ -68,7 +60,7 @@ const TacticalGameList = () => {
                     </Breadcrumbs>
 
                     <div style={{ flexGrow: 1 }} />
-                    <AddButton onClick={createNewGame} size={ACTION_BUTTON_SIZE} />
+                    <AddButton onClick={createNewGame} />   
                 </Stack>
             </div>
             <div className="generic-main-content">

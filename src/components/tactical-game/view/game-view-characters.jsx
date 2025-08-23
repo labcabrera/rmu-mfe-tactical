@@ -7,8 +7,6 @@ import Stack from '@mui/material/Stack';
 import AddButton from "../../button/AddButton";
 import TacticalGameViewCharactersListItem from "./game-view-characters-item";
 
-import { API_TACTICAL_URL } from "../../../constants/environment";
-import { DETAIL_BUTTON_SIZE } from "../../../constants/ui";
 
 const TacticalGameViewCharacters = ({ tacticalGame }) => {
 
@@ -22,22 +20,26 @@ const TacticalGameViewCharacters = ({ tacticalGame }) => {
     };
 
     useEffect(() => {
-        const fetchTacticalCharacters = async () => {
-            const url = `${API_TACTICAL_URL}/characters?gameId=${tacticalGame.id}&page=0&size=100`;
-            try {
-                const response = await fetch(url, { method: "GET", });
-                const data = await response.json();
-                setTacticalCharacters(data.content);
-            } catch (error) {
-                console.error("error loading characters :" + error);
-            }
-        };
-        fetchTacticalCharacters();
+        // const fetchTacticalCharacters = async () => {
+        //     const url = `${API_TACTICAL_URL}/characters?gameId=${tacticalGame.id}&page=0&size=100`;
+        //     try {
+        //         const response = await fetch(url, { method: "GET", });
+        //         const data = await response.json();
+        //         setTacticalCharacters(data.content);
+        //     } catch (error) {
+        //         console.error("error loading characters :" + error);
+        //     }
+        // };
+        // fetchTacticalCharacters();
     }, []);
 
     const handleAddNewCharacter = () => {
         navigate("/tactical/characters/creation", { state: { tacticalGame: tacticalGame } });
     };
+
+    if(!tacticalCharacters || tacticalCharacters.length === 0) {
+        return <p>No characters found.</p>;
+    }
 
     return (
         <>
@@ -55,7 +57,7 @@ const TacticalGameViewCharacters = ({ tacticalGame }) => {
                 alignItems: "flex-start",
                 marginLeft: "8px"
             }}>
-                <AddButton onClick={handleAddNewCharacter} size={DETAIL_BUTTON_SIZE} />
+                <AddButton onClick={handleAddNewCharacter} />
             </Stack>
             {debugMode ? (
                 <div>

@@ -8,21 +8,16 @@ import TacticalGameViewActions from './game-view-actions';
 import TacticalGameViewCharacters from "./game-view-characters";
 import TacticalGameViewInfo from "./game-view-info";
 
-import { API_TACTICAL_URL } from "../../../constants/environment";
+import {fetchTacticalGame} from '../../../modules/api/tactical-games';
 
 const TacticalGameView = () => {
-
-    const debugMode = false;
-
     const location = useLocation();
     const { gameId } = useParams();
-
     const [tacticalGame, setTacticalGame] = useState();
 
     const fetchTacticalGame = async (gameId) => {
-        const response = await fetch(`${API_TACTICAL_URL}/tactical-games/${gameId}`, { method: 'GET' });
-        const responseBody = await response.json();
-        setTacticalGame(responseBody);
+        const response = await fetchTacticalGame(gameId);
+        setTacticalGame(response);
     };
 
     useEffect(() => {
@@ -42,7 +37,6 @@ const TacticalGameView = () => {
     return (
         <>
             <TacticalGameViewActions tacticalGame={tacticalGame} />
-            <div className="generic-main-content">
                 <Box sx={{ flexGrow: 1 }}>
                     <Grid container spacing={2}>
                         <Grid item size={{ xs: 12, md: 4 }}>
@@ -53,15 +47,9 @@ const TacticalGameView = () => {
                         </Grid>
                     </Grid>
                 </Box>
-                {
-                    debugMode ? (
-                        <div>
                             <pre>
                                 {JSON.stringify(tacticalGame, null, 2)}
                             </pre>
-                        </div>
-                    ) : null}
-            </div >
         </>
     );
 }

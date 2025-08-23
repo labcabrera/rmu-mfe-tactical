@@ -11,7 +11,7 @@ const TacticalGameListItem = ({ tacticalGame }) => {
     const navigate = useNavigate();
 
     const handleGameClick = () => {
-        navigate(`view/${tacticalGame.id}`, { state: { tacticalGame: tacticalGame } });
+        navigate(`/tactical/games/view/${tacticalGame.id}`, { state: { tacticalGame: tacticalGame } });
     }
 
     if (!tacticalGame) {

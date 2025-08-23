@@ -9,8 +9,8 @@ import CharacterCreation from './components/tactical-character/creation/characte
 import CharacterEdit from './components/tactical-character/edit/character-edit';
 import GameCreation from './components/tactical-game/create/game-creation';
 import TacticalGameEdit from './components/tactical-game/edit/game-edit';
-import TacticalGameList from './components/tactical-game/list/game-list';
-import TacticalGameView from './components/tactical-game/view/game-view';
+import TacticalGameList from './components/tactical-game/list/TacticalGameList';
+import TacticalGameView from './components/tactical-game/view/TacticalGameView';
 import AttackResolution from './components/combat-actions/attack/AttackResolution';
 
 import './i18n';
@@ -21,8 +21,8 @@ const App = () => {
   return (
     <Routes>
       <Route path='/' element={<TacticalGameList />} />
-      <Route path='/view/:gameId' element={<TacticalGameView />} />
-      <Route path='/edit/:gameId' element={<TacticalGameEdit />} />
+      <Route path='/games/view/:gameId' element={<TacticalGameView />} />
+      <Route path='/games/edit/:gameId' element={<TacticalGameEdit />} />
       <Route path='/combat/:gameId' element={<CombatDashboard />} />
       <Route path='/combat/:gameId/declare-attack' element={<AttackDeclaration />} />
       <Route path='/combat/:gameId/resolve-attack/:actionId' element={<AttackResolution />} />
