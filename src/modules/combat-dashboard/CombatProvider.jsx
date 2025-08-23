@@ -7,10 +7,10 @@ import AccordionDetails from '@mui/material/AccordionDetails';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
-import { fetchActorRounds } from '../../modules/api/actor-rounds';
-import { fetchCharacters } from '../../modules/api/characters';
-import { fetchTacticalGame } from '../../modules/api/tactical-games';
-import SnackbarError from '../../modules/shared/errors/SnackbarError';
+import { fetchActorRounds } from '../api/actor-rounds';
+import { fetchCharacters } from '../api/characters';
+import { fetchTacticalGame } from '../api/tactical-games';
+import SnackbarError from '../shared/errors/SnackbarError';
 
 export const CombatContext = createContext();
 

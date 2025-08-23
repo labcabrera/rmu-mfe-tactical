@@ -7,7 +7,7 @@ import CardContent from '@mui/material/CardContent';
 import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import GenericBar from '../shared/GenericBar';
+import GenericBar from '../../components/shared/GenericBar';
 import { CombatContext } from './CombatProvider';
 
 const CombatCharacterRoundInfo = ({ actorRound }) => {
