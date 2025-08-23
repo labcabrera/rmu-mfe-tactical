@@ -15,7 +15,7 @@ import CloseButton from '../../../components/button/CloseButton';
 import DeleteButton from '../../../components/button/DeleteButton';
 import EditButton from '../../../components/button/EditButton';
 import PlayButton from '../../../components/button/PlayButton';
-import { deleteTacticalGame } from '../../api/tactical-games';
+import { deleteTacticalGame, startRound } from '../../api/tactical-games';
 
 const TacticalGameViewActions = ({ tacticalGame }) => {
   const navigate = useNavigate();
@@ -50,18 +50,15 @@ const TacticalGameViewActions = ({ tacticalGame }) => {
 
   const handleOpenClick = async () => {
     console.log('handleOpenClick ' + tacticalGame.status);
-    if (tacticalGame.status === 'created') {
-      console.log('status is created');
-      const startGameResponse = await fetch(`${API_TACTICAL_URL}/tactical-games/${tacticalGame.id}/rounds/start`, { method: 'POST' });
-      if (startGameResponse.status == 200) {
-        navigate(`/tactical/combat/${tacticalGame.id}`);
+    try {
+      if (tacticalGame.status === 'created') {
+        console.log('status is created');
+        const game = await startRound(tacticalGame.id);
+        navigate(`/tactical/combat/${game.id}`);
       } else {
-        const startGameResponseError = await startGameResponse.json();
-        console.log('creation error: ' + startGameResponseError.message);
+        navigate(`/tactical/combat/${tacticalGame.id}`, { state: { tacticalGame: tacticalGame } });
       }
-    } else {
-      navigate(`/tactical/combat/${tacticalGame.id}`, { state: { tacticalGame: tacticalGame } });
-    }
+    } catch (err) {}
   };
 
   const handleDeleteClick = () => {

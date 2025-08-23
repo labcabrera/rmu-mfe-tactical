@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import List from '@mui/material/List';
 import Stack from '@mui/material/Stack';
 import AddButton from '../../../components/button/AddButton';
 
-const TacticalGameViewCharacters = ({ tacticalGame }) => {
+const TacticalGameViewImportCharacters = ({ tacticalGame }) => {
   const debugMode = false;
 
   const navigate = useNavigate();
@@ -46,4 +45,4 @@ const TacticalGameViewCharacters = ({ tacticalGame }) => {
   );
 };
 
-export default TacticalGameViewCharacters;
+export default TacticalGameViewImportCharacters;

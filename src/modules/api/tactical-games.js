@@ -41,3 +41,12 @@ export async function deleteTacticalGame(gameId) {
   }
   return true;
 }
+
+export async function startRound(gameId) {
+  const url = `${process.env.RMU_API_TACTICAL_URL}/tactical-games/${gameId}/rounds/start`;
+  const response = await fetch(url, { method: 'POST' });
+  if (response.status != 201) {
+    throw new Error(`Error: ${response.status} ${response.statusText}. (${url})`);
+  }
+  return await response.json();
+}
