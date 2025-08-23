@@ -5,8 +5,8 @@ import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import BackButton from '../../../components/button/BackButton';
-import SaveButton from '../../../components/button/SaveButton';
+import BackButton from '../../shared/buttons/BackButton';
+import SaveButton from '../../shared/buttons/SaveButton';
 
 const TacticalGameEditActions = ({ tacticalGame, formData }) => {
   const navigate = useNavigate();

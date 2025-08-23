@@ -4,9 +4,9 @@ import Box from '@mui/material/Box';
 import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
-import BackButton from '../../../components/button/BackButton';
-import SaveButton from '../../../components/button/SaveButton';
 import { createTacticalGame } from '../../api/tactical-games';
+import BackButton from '../../shared/buttons/BackButton';
+import SaveButton from '../../shared/buttons/SaveButton';
 
 const TacticalGameCreationActions = ({ formData, isValid = false }) => {
   const navigate = useNavigate();

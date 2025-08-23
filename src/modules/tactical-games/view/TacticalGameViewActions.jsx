@@ -11,11 +11,11 @@ import DialogTitle from '@mui/material/DialogTitle';
 import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import CloseButton from '../../../components/button/CloseButton';
-import DeleteButton from '../../../components/button/DeleteButton';
-import EditButton from '../../../components/button/EditButton';
-import PlayButton from '../../../components/button/PlayButton';
 import { deleteTacticalGame, startRound } from '../../api/tactical-games';
+import CloseButton from '../../shared/buttons/CloseButton';
+import DeleteButton from '../../shared/buttons/DeleteButton';
+import EditButton from '../../shared/buttons/EditButton';
+import PlayButton from '../../shared/buttons/PlayButton';
 
 const TacticalGameViewActions = ({ tacticalGame }) => {
   const navigate = useNavigate();

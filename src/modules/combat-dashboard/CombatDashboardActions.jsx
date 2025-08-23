@@ -5,12 +5,12 @@ import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import AddButton from '../../components/button/AddButton';
-import BackButton from '../../components/button/BackButton';
-import CloseButton from '../../components/button/CloseButton';
-import NextButton from '../../components/button/NextButton';
 import { API_TACTICAL_URL } from '../../constants/environment';
 import { ACTION_BUTTON_SIZE } from '../../constants/ui';
+import AddButton from '../shared/buttons/AddButton';
+import BackButton from '../shared/buttons/BackButton';
+import CloseButton from '../shared/buttons/CloseButton';
+import NextButton from '../shared/buttons/NextButton';
 import { CombatContext } from './CombatProvider';
 
 const CombatDashboardActions = () => {

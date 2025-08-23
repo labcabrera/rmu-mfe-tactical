@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import CircleButtonGroup from '../../components/shared/CircleButtonGroup';
+import CircleButtonGroup from '../shared/generic/CircleButtonGroup';
 
 const CombatPhaseActionButtons = ({ game, character, characters, phaseNumber }) => {
   const navigate = useNavigate();

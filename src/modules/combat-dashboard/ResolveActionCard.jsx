@@ -2,9 +2,9 @@ import React, { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
-import DeleteButton from '../../components/button/DeleteButton';
-import PlayButton from '../../components/button/PlayButton';
 import { API_TACTICAL_URL } from '../../constants/environment';
+import DeleteButton from '../shared/buttons/DeleteButton';
+import PlayButton from '../shared/buttons/PlayButton';
 import { CombatContext } from './CombatProvider';
 
 const ResolveActionCard = ({ character, action }) => {

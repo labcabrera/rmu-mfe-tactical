@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import List from '@mui/material/List';
 import Stack from '@mui/material/Stack';
-import AddButton from '../../../components/button/AddButton';
+import AddButton from '../../shared/buttons/AddButton';
 
 const TacticalGameViewActors = ({ tacticalGame }) => {
   const debugMode = false;
