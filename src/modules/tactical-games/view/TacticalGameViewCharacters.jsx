@@ -42,11 +42,6 @@ const TacticalGameViewCharacters = ({ tacticalGame }) => {
       >
         <AddButton onClick={handleAddNewCharacter} />
       </Stack>
-      {debugMode ? (
-        <div>
-          <pre>{JSON.stringify(tacticalCharacters, null, 2)}</pre>
-        </div>
-      ) : null}
     </>
   );
 };

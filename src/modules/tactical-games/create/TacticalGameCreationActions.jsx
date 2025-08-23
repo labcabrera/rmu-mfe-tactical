@@ -1,58 +1,49 @@
 import React from 'react';
-import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import Box from '@mui/material/Box';
 import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
-import Typography from '@mui/material/Typography';
 import BackButton from '../../../components/button/BackButton';
 import SaveButton from '../../../components/button/SaveButton';
+import { createTacticalGame } from '../../api/tactical-games';
 
-const GameCreationActions = ({ formData, isValid = false }) => {
+const TacticalGameCreationActions = ({ formData, isValid = false }) => {
   const navigate = useNavigate();
-  const { t } = useTranslation();
 
-  const handleSaveButtonClick = () => {
-    // const requestOptions = {
-    //   method: 'POST',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify(formData),
-    // };
-    // const url = `${API_TACTICAL_URL}/tactical-games`;
-    // fetch(url, requestOptions)
-    //   .then((response) => response.json())
-    //   .then((data) => navigate('/tactical/view/' + data.id, { state: { game: data } }));
+  const handleSave = async () => {
+    try {
+      const game = await createTacticalGame(formData);
+      navigate(`/tactical/games/view/${game.id}`);
+    } catch (error) {
+      console.error('Error creating tactical game:', error);
+    }
   };
 
   const handleBackButtonClick = () => {
-    navigate(`/tactical`);
+    navigate(`/tactical/games`);
     return;
   };
 
   return (
-    <div className="generic-action-bar">
-      <Stack
-        direction="row"
-        justifyContent="space-between"
-        alignItems="center"
-        sx={{
-          width: '100%',
-        }}
-      >
+    <Stack spacing={2} direction="row" justifyContent="space-between" alignItems="center" sx={{ minHeight: 80 }}>
+      <Box>
         <Breadcrumbs aria-label="breadcrumb">
-          <Link underline="hover" color="inherit" href="/tactical">
-            {t('tactical-games')}
+          <Link underline="hover" color="inherit" href="/">
+            Home
           </Link>
-          <Typography sx={{ color: 'text.primary' }}>Create</Typography>
+          <Link underline="hover" color="inherit" href="/tactical">
+            Tactical
+          </Link>
+          <span>Games</span>
         </Breadcrumbs>
-
-        <div style={{ flexGrow: 1 }} />
-
-        <BackButton onClick={handleBackButtonClick} size={ACTION_BUTTON_SIZE} />
-        <SaveButton onClick={handleSaveButtonClick} size={ACTION_BUTTON_SIZE} disabled={!isValid} />
+      </Box>
+      <Stack spacing={2} direction="row" sx={{ justifyContent: 'flex-end', alignItems: 'flex-start' }}>
+        <BackButton onClick={handleBackButtonClick} size={80} />
+        <SaveButton onClick={handleSave} size={80} disabled={!isValid} />
       </Stack>
-    </div>
+    </Stack>
   );
 };
 
-export default GameCreationActions;
+export default TacticalGameCreationActions;

@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import GameCreationAttributes from './TacticalGameCreationActions';
-import GameCreationActions from './TacticalGameCreationAttributes';
+import { fetchStrategicGames } from '../../api/strategic-games';
+import { fetchTacticalGames } from '../../api/tactical-games';
+import TacticalGameCreationActions from './TacticalGameCreationActions';
+import TacticalGameCreationAttributes from './TacticalGameCreationAttributes';
 
-const GameCreation = () => {
-  const debugMode = true;
-
+const TacticalGameCreation = () => {
+  const [strategicGames, setStrategicGames] = useState([]);
   const [formData, setFormData] = useState({
+    strategicGameId: '',
     name: '',
+    actors: [],
     description: '',
-    fatigueMultiplier: 1,
-    boardScale: 0.6,
   });
   const [isValid, setIsValid] = useState(false);
 
@@ -19,19 +20,25 @@ const GameCreation = () => {
   };
 
   useEffect(() => {
+    const bindStrategicGames = async () => {
+      const games = await fetchStrategicGames('', 0, 100);
+      setStrategicGames(games);
+    };
+    bindStrategicGames();
+  }, []);
+
+  useEffect(() => {
     setIsValid(validateForm());
   }, [formData]);
 
   return (
     <>
-      <GameCreationActions formData={formData} isValid={isValid} />
-      <div className="generic-main-content">
-        <GameCreationAttributes formData={formData} setFormData={setFormData} />
-
-        {debugMode ? <pre>{JSON.stringify(formData, null, 2)}</pre> : null}
-      </div>
+      <TacticalGameCreationActions formData={formData} isValid={isValid} />
+      <TacticalGameCreationAttributes formData={formData} setFormData={setFormData} strategicGames={strategicGames} />
+      <pre>Form: {JSON.stringify(formData, null, 2)}</pre>
+      <pre>Strategic Games: {JSON.stringify(strategicGames, null, 2)}</pre>
     </>
   );
 };
 
-export default GameCreation;
+export default TacticalGameCreation;

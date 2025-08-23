@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
+import { fetchStrategicGame } from '../../api/strategic-games';
 import { fetchTacticalGame } from '../../api/tactical-games';
 import TacticalGameViewActions from './TacticalGameViewActions';
 import TacticalGameViewCharacters from './TacticalGameViewCharacters';
@@ -10,11 +11,18 @@ import TacticalGameViewInfo from './TacticalGameViewInfo';
 const TacticalGameView = () => {
   const location = useLocation();
   const { gameId } = useParams();
-  const [tacticalGame, setTacticalGame] = useState();
+  const [tacticalGame, setTacticalGame] = useState(null);
+  const [strategicGame, setStrategicGame] = useState(null);
 
-  const fetchTacticalGame = async (gameId) => {
+  const bindTacticalGame = async (gameId) => {
     const response = await fetchTacticalGame(gameId);
     setTacticalGame(response);
+  };
+
+  const bindStrategicGame = async (strategicGameId) => {
+    console.log(`TacticalGameView.bindStrategicGame: ${strategicGameId}`);
+    const response = await fetchStrategicGame(strategicGameId);
+    setStrategicGame(response);
   };
 
   useEffect(() => {
@@ -23,9 +31,16 @@ const TacticalGameView = () => {
       setTacticalGame(location.state.tacticalGame);
     } else {
       console.log(`TacticalGameView.useEffect: fetch tacticalGame ${gameId} from API`);
-      fetchTacticalGame(gameId);
+      bindTacticalGame(gameId);
     }
   }, [location.state]);
+
+  useEffect(() => {
+    console.log('TacticalGameView.useEffect: tacticalGame ', tacticalGame);
+    if (tacticalGame && tacticalGame.strategicGameId) {
+      bindStrategicGame(tacticalGame.strategicGameId);
+    }
+  }, [tacticalGame]);
 
   if (!tacticalGame) {
     return <p>Loading...</p>;
@@ -36,15 +51,16 @@ const TacticalGameView = () => {
       <TacticalGameViewActions tacticalGame={tacticalGame} />
       <Box sx={{ flexGrow: 1 }}>
         <Grid container spacing={2}>
-          <Grid item size={{ xs: 12, md: 4 }}>
-            <TacticalGameViewInfo tacticalGame={tacticalGame} />
+          <Grid item size={4}>
+            <TacticalGameViewInfo tacticalGame={tacticalGame} strategicGame={strategicGame} />
           </Grid>
-          <Grid item size={{ xs: 12, md: 8 }}>
+          <Grid item size={4}>
             <TacticalGameViewCharacters tacticalGame={tacticalGame} />
           </Grid>
         </Grid>
       </Box>
-      <pre>{JSON.stringify(tacticalGame, null, 2)}</pre>
+      <pre>Tactical: {JSON.stringify(tacticalGame, null, 2)}</pre>
+      <pre>Strategic: {JSON.stringify(strategicGame, null, 2)}</pre>
     </>
   );
 };

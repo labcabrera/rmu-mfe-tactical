@@ -15,6 +15,7 @@ import CloseButton from '../../../components/button/CloseButton';
 import DeleteButton from '../../../components/button/DeleteButton';
 import EditButton from '../../../components/button/EditButton';
 import PlayButton from '../../../components/button/PlayButton';
+import { deleteTacticalGame } from '../../api/tactical-games';
 
 const TacticalGameViewActions = ({ tacticalGame }) => {
   const navigate = useNavigate();
@@ -22,7 +23,13 @@ const TacticalGameViewActions = ({ tacticalGame }) => {
 
   const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
 
-  const deleteTacticalGame = async () => {
+  const handleDeleteTacticalGame = async () => {
+    try {
+      await deleteTacticalGame(tacticalGame.id);
+      navigate('/tactical/games');
+    } catch (error) {
+      console.error('Error deleting tactical game:', error);
+    }
     // const url = `${API_TACTICAL_URL}/tactical-games/${tacticalGame.id}`;
     // try {
     //   const response = await fetch(url, { method: 'DELETE' });
@@ -66,7 +73,7 @@ const TacticalGameViewActions = ({ tacticalGame }) => {
   };
 
   const handleDialogDelete = () => {
-    deleteTacticalGame();
+    handleDeleteTacticalGame();
     setDeleteDialogOpen(false);
   };
 
@@ -93,9 +100,9 @@ const TacticalGameViewActions = ({ tacticalGame }) => {
           </Breadcrumbs>
           <div style={{ flexGrow: 1 }} />
           <CloseButton size={80} />
-          <PlayButton onClick={handleOpenClick} size={80} />
-          <EditButton onClick={handleEditClick} size={80} />
-          <DeleteButton onClick={handleDeleteClick} size={80} />
+          <PlayButton onClick={() => handleOpenClick()} size={80} />
+          <EditButton onClick={() => handleEditClick()} size={80} />
+          <DeleteButton onClick={() => handleDeleteClick()} size={80} />
         </Stack>
       </div>
       <Dialog

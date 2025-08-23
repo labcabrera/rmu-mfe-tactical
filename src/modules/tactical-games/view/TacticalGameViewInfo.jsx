@@ -1,20 +1,22 @@
 import * as React from 'react';
+import { useTranslation } from 'react-i18next';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 
-const TacticalGameViewInfo = ({ tacticalGame }) => {
+const TacticalGameViewInfo = ({ tacticalGame, strategicGame }) => {
+  const { t } = useTranslation();
+
   return (
     <>
       <Box component="form" sx={{ '& > :not(style)': { m: 1, width: '100%' } }}>
-        <TextField label="Name" name="name" value={tacticalGame.name} readonly />
-        <TextField label="Status" name="status" value={tacticalGame.status} readonly />
-        <TextField label="Phase" name="phase" value={tacticalGame.phase} readonly />
-        <TextField label="Round" value={tacticalGame.round} readonly />
-        <TextField label="Owner" value={tacticalGame.owner} readonly />
-        <TextField label="Description" name="description" value={tacticalGame.description} multiline maxRows={4} readonly />
+        <TextField label={t('strategic-game')} name="name" value={strategicGame?.name || ''} readonly />
+        <TextField label={t('tactical-game')} name="name" value={tacticalGame.name} readonly />
+        <TextField label={t('status')} name="status" value={tacticalGame.status} readonly />
+        <TextField label={t('phase')} name="phase" value={tacticalGame.phase} readonly />
+        <TextField label={t('round')} value={tacticalGame.round} readonly />
+        <TextField label={t('owner')} value={tacticalGame.owner} readonly />
+        <TextField label={t('description')} name="description" value={tacticalGame.description} multiline maxRows={4} readonly />
       </Box>
-      <pre>{JSON.stringify(tacticalGame, null, 2)}</pre>
-      <pre>{JSON.stringify(location.state, null, 2)}</pre>
     </>
   );
 };

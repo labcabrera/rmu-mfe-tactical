@@ -18,3 +18,26 @@ export async function fetchTacticalGame(gameId) {
   return await response.json();
 }
 
+export async function createTacticalGame(gameData) {
+  const url = `${process.env.RMU_API_TACTICAL_URL}/tactical-games`;
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(gameData),
+  });
+  if (response.status != 201) {
+    throw new Error(`Error: ${response.status} ${response.statusText}. (${url})`);
+  }
+  return await response.json();
+}
+
+export async function deleteTacticalGame(gameId) {
+  const url = `${process.env.RMU_API_TACTICAL_URL}/tactical-games/${gameId}`;
+  const response = await fetch(url, { method: 'DELETE' });
+  if (response.status != 204) {
+    throw new Error(`Error: ${response.status} ${response.statusText}. (${url})`);
+  }
+  return true;
+}

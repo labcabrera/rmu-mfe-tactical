@@ -1,70 +1,37 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-
 import Grid from '@mui/material/Grid';
 import TextField from '@mui/material/TextField';
+import SelectStrategicGame from '../../shared/selects/SelectStrategicGame';
 
-const GameCreationAttributes = ({ formData, setFormData }) => {
+const TacticalGameCreationAttributes = ({ formData, setFormData, strategicGames }) => {
+  const { t } = useTranslation();
 
-    const { t } = useTranslation();
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData({ ...formData, [name]: value })
-    };
+  const handleGameChange = (gameId, game) => {
+    setFormData({ ...formData, strategicGameId: gameId });
+  };
 
-    const handleIntChange = (e) => {
-        const { name, value } = e.target;
-        setFormData({ ...formData, [name]: parseInt(value) })
-    };
-
-    return (
-        <Grid container>
-            <Grid item size={12}>
-                <TextField
-                    label={t('name')}
-                    variant="outlined"
-                    fullWidth
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    margin="normal"
-                    required />
-            </Grid>
-            <Grid item size={12}>
-                <TextField
-                    label="Description"
-                    variant="outlined"
-                    name="description"
-                    value={formData.description}
-                    onChange={handleChange}
-                    fullWidth
-                    margin="normal" />
-            </Grid>
-            <Grid item size={12}>
-                <TextField
-                    label={t('fatigue-multiplier')}
-                    variant="outlined"
-                    name="fatigueMultiplier"
-                    value={formData.fatigueMultiplier}
-                    onChange={handleIntChange}
-                    fullWidth
-                    margin="normal" />
-            </Grid>
-            <Grid item size={12}>
-                <TextField
-                    label={t('board-scale')}
-                    variant="outlined"
-                    name="boardScale"
-                    value={formData.boardScale}
-                    onChange={handleIntChange}
-                    fullWidth
-                    margin="normal" />
-            </Grid>
-
-        </Grid>
-    );
-
+  return (
+    <Grid container spacing={2}>
+      <Grid item size={4}>
+        <SelectStrategicGame value={formData.strategicGameId} onChange={handleGameChange} strategicGames={strategicGames} />
+      </Grid>
+      <Grid item size={8}></Grid>
+      <Grid item size={4}>
+        <TextField label={t('name')} variant="outlined" name="name" value={formData.name} onChange={handleChange} required fullWidth />
+      </Grid>
+      <Grid item size={8}></Grid>
+      <Grid item size={4}>
+        <TextField label={t('description')} variant="outlined" name="description" value={formData.description} onChange={handleChange} fullWidth />
+      </Grid>
+      <Grid item size={8}></Grid>
+    </Grid>
+  );
 };
 
-export default GameCreationAttributes;
+export default TacticalGameCreationAttributes;
