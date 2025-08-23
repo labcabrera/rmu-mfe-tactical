@@ -1,23 +1,21 @@
-import React, { useContext } from "react";
-
-import CombatCharacterRound from "./CombatCharacterRound";
-
+import React, { useContext } from 'react';
+import CombatActorRound from './CombatCharacterRound';
 import { CombatContext } from './CombatProvider';
 
 const CombatCharacterList = () => {
-    const { characterRounds, setCharacterRounds } = useContext(CombatContext);
+  const { actorRounds, setActorRounds } = useContext(CombatContext);
 
-    if (!characterRounds) {
-        return <p>Loading character list...</p>
-    }
+  if (!actorRounds) {
+    return <p>Loading character list...</p>;
+  }
 
-    return (
-        <>
-            {characterRounds.map((item, index) => (
-                <CombatCharacterRound key={index} characterRound={item} />
-            ))}
-        </>
-    );
-}
+  return (
+    <>
+      {actorRounds.map((item, index) => (
+        <CombatActorRound key={index} actorRound={item} />
+      ))}
+    </>
+  );
+};
 
 export default CombatCharacterList;
