@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
-import { API_TACTICAL_URL } from '../../../constants/environment';
+import { preprepareAttack } from '../../api/actions';
 import ActionResolutionActions from '../ActionResolutionActions';
 import AttackResolutionDetail from './AttackResolutionDetail';
 import AttackResolutionInfo from './AttackResolutionInfo';
@@ -18,8 +18,8 @@ const AttackResolution = () => {
   useEffect(() => {
     console.log(`AttackResolution.useEffect[actionId]`);
     const fetchPrepareAction = async (actionId) => {
-      const response = await fetch(`${API_TACTICAL_URL}/actions/${actionId}/prepare`, { method: 'POST' });
-      const responseBody = await response.json();
+      // const response = await fetch(`${API_TACTICAL_URL}/actions/${actionId}/prepare`, { method: 'POST' });
+      // const responseBody = await response.json();
       setFormData(responseBody);
     };
     fetchPrepareAction(actionId);

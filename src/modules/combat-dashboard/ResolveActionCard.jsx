@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
-import { API_TACTICAL_URL } from '../../constants/environment';
+import { deleteAction } from '../api/actions';
 import DeleteButton from '../shared/buttons/DeleteButton';
 import PlayButton from '../shared/buttons/PlayButton';
 import { CombatContext } from './CombatProvider';
@@ -15,15 +15,9 @@ const ResolveActionCard = ({ character, action }) => {
 
   const handleDeleteActionClick = async () => {
     try {
-      const response = await fetch(`${API_TACTICAL_URL}/actions/${action.id}`, { method: 'DELETE' });
-      const deleteResponse = await response;
-      if (deleteResponse.status == 204) {
-        const newActionList = roundActions.filter((e) => e.id !== action.id);
-        setRoundActions(newActionList);
-      } else {
-        //TODO display error
-        console.log('delete data: ' + deleteResponse.status);
-      }
+      await deleteAction(action.id);
+      const newActionList = roundActions.filter((e) => e.id !== action.id);
+      setRoundActions(newActionList);
     } catch (error) {
       console.log('delete error: ' + error);
     }

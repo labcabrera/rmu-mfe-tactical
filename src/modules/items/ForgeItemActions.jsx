@@ -5,7 +5,6 @@ import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import { API_TACTICAL_URL } from '../../constants/environment';
 import { ACTION_BUTTON_SIZE } from '../../constants/ui';
 import CloseButton from '../shared/buttons/CloseButton';
 import ForgeButton from '../shared/buttons/ForgeButton';
@@ -15,24 +14,24 @@ const ForgeItemActions = ({ game, character, formData }) => {
   const { t } = useTranslation();
 
   const handleForgeItemClick = async () => {
-    try {
-      const requestOptions = {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      };
-      const response = await fetch(`${API_TACTICAL_URL}/characters/${character.id}/items`, requestOptions);
-      if (response.status === 200) {
-        navigate(`/tactical/characters/edit/${character.id}?tab=items`);
-      } else {
-        const responseBody = await response.json();
-        throw responseBody.message;
-      }
-      return;
-    } catch (error) {
-      //TODO
-      console.error(`handleForgeItemClick error ${error}`);
-    }
+    // try {
+    //   const requestOptions = {
+    //     method: 'POST',
+    //     headers: { 'Content-Type': 'application/json' },
+    //     body: JSON.stringify(formData),
+    //   };
+    //   const response = await fetch(`${API_TACTICAL_URL}/characters/${character.id}/items`, requestOptions);
+    //   if (response.status === 200) {
+    //     navigate(`/tactical/characters/edit/${character.id}?tab=items`);
+    //   } else {
+    //     const responseBody = await response.json();
+    //     throw responseBody.message;
+    //   }
+    //   return;
+    // } catch (error) {
+    //   //TODO
+    //   console.error(`handleForgeItemClick error ${error}`);
+    // }
   };
 
   return (

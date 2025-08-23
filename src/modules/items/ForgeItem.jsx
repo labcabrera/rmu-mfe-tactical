@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation } from 'react-router-dom';
 import Grid from '@mui/material/Grid';
-import { API_ITEMS_URL } from '../../constants/environment';
 import ForgeItemActions from './ForgeItemActions';
 import ForgeItemAttributes from './ForgeItemAttributes';
 import ForgeItemCategories from './ForgeItemCategories';
@@ -50,20 +49,20 @@ const ForgeItem = () => {
   };
 
   const fetchItems = async (category) => {
-    try {
-      console.log(`TacticalCharacterAddItem.fetchItems ${category}`);
-      const response = await fetch(`${API_ITEMS_URL}/items?category=${category}&size=500`);
-      const responseBody = await response.json();
-      const items = responseBody.content.map(mapItem);
-      if (category === 'armor') {
-        items.sort((a, b) => a.armor.armorType - b.armor.armorType);
-      } else {
-        items.sort((a, b) => a.name.localeCompare(b.name));
-      }
-      setItems(items);
-    } catch (error) {
-      console.error(`TacticalCharacterAddItem.fetchItems error ${error}`);
-    }
+    // try {
+    //   console.log(`TacticalCharacterAddItem.fetchItems ${category}`);
+    //   const response = await fetch(`${API_ITEMS_URL}/items?category=${category}&size=500`);
+    //   const responseBody = await response.json();
+    //   const items = responseBody.content.map(mapItem);
+    //   if (category === 'armor') {
+    //     items.sort((a, b) => a.armor.armorType - b.armor.armorType);
+    //   } else {
+    //     items.sort((a, b) => a.name.localeCompare(b.name));
+    //   }
+    //   setItems(items);
+    // } catch (error) {
+    //   console.error(`TacticalCharacterAddItem.fetchItems error ${error}`);
+    // }
   };
 
   const loadItemForm = (item) => {

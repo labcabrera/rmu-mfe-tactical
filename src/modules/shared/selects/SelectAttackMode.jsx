@@ -4,7 +4,6 @@ import Avatar from '@mui/material/Avatar';
 import InputAdornment from '@mui/material/InputAdornment';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
-import { API_CORE_URL } from '../../../constants/environment';
 import { VARIANT } from '../../../constants/ui';
 
 const SelectAttackMode = ({ character, value, onChange }) => {
@@ -13,26 +12,15 @@ const SelectAttackMode = ({ character, value, onChange }) => {
   //TODO read options from character
   const options = ['mainHand', 'offHand', 'dual'];
 
-  const [sizes, setSizes] = useState([]);
-
   const handleChange = (event) => {
     onChange(event.target.value);
   };
-
-  useEffect(() => {
-    const fetchSizes = async () => {
-      const response = await fetch(`${API_CORE_URL}/character-sizes`);
-      const responseBody = await response.json();
-      setSizes(responseBody);
-    };
-    fetchSizes();
-  }, []);
 
   return (
     <TextField
       select
       label={t('attack-mode')}
-      value={value === undefined || value === null || sizes.length === 0 ? '' : value}
+      value={value === undefined || value === null}
       variant={VARIANT}
       fullWidth
       onChange={handleChange}

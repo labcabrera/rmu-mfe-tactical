@@ -1,5 +1,4 @@
 import React, { useContext, useEffect } from 'react';
-import { API_TACTICAL_URL } from '../../constants/environment';
 import CombatCharacterList from './CombatCharacterList';
 import CombatDashboardActions from './CombatDashboardActions';
 import { CombatContext } from './CombatProvider';

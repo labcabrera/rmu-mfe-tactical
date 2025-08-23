@@ -5,8 +5,8 @@ import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import { API_TACTICAL_URL } from '../../constants/environment';
 import { ACTION_BUTTON_SIZE } from '../../constants/ui';
+import { createAcion } from '../api/actions';
 import BackButton from '../shared/buttons/BackButton';
 import SaveButton from '../shared/buttons/SaveButton';
 
@@ -15,20 +15,8 @@ const ActionResolutionActions = ({ game: game, character, formData, isValid = tr
   const { t } = useTranslation();
 
   const createAction = async (e) => {
-    e.preventDefault();
-    const requestOptions = {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(formData),
-    };
-    const createActionResponse = await fetch(`${API_TACTICAL_URL}/actions`, requestOptions);
-    if (createActionResponse.status == 201) {
-      navigate(`/tactical/combat/${game.id}`);
-      return;
-    } else {
-      error = await createActionResponse.json();
-      console.log(error.message);
-    }
+    const action = await createAction(formData);
+    navigate(`/tactical/combat/${game.id}`);
   };
 
   const handleBackClick = () => {

@@ -5,8 +5,8 @@ import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import { API_TACTICAL_URL } from '../../constants/environment';
 import { ACTION_BUTTON_SIZE } from '../../constants/ui';
+import { startRound } from '../api/tactical-games';
 import AddButton from '../shared/buttons/AddButton';
 import BackButton from '../shared/buttons/BackButton';
 import CloseButton from '../shared/buttons/CloseButton';
@@ -30,10 +30,9 @@ const CombatDashboardActions = () => {
 
   const handleNextRoundClick = async () => {
     try {
-      const response = await fetch(`${API_TACTICAL_URL}/tactical-games/${game.id}/rounds/start`, { method: 'POST' });
-      const data = await response.json();
-      setGame(data);
-      setDisplayRound(data.round);
+      const game = await startRound(game.id);
+      setGame(game);
+      setDisplayRound(game.round);
     } catch (error) {
       console.error('CombatDashboardActions.fecthCharacterRounds error: ' + error);
     }

@@ -4,7 +4,7 @@ import ArmorTextField from '../shared/inputs/ArmorTextField';
 import HeightTextField from '../shared/inputs/HeightTextField';
 import ItemStrengthTextField from '../shared/inputs/ItemStrengthTextField';
 import WeightTextField from '../shared/inputs/WeightTextField';
-import SelectAttackTable from '../shared/selects/SelectAttackTable';
+// import SelectAttackTable from '../shared/selects/SelectAttackTable';
 import SelectSizeAdjustment from '../shared/selects/SelectSizeAdjustment';
 import SelectWeaponSkill from '../shared/selects/SelectWeaponSkill';
 
@@ -72,9 +72,9 @@ const ForgeItemAttributes = ({ formData, setFormData }) => {
       </Grid>
       {formData.weapon ? (
         <>
-          <Grid item xs={6}>
+          {/* <Grid item xs={6}>
             <SelectAttackTable value={formData.weapon?.attackTable} onChange={handleChangeAttackTable} />
-          </Grid>
+          </Grid> */}
           <Grid item xs={6}>
             <SelectSizeAdjustment value={formData.weapon.sizeAdjustment} onChange={handleSizeAdjustmentChange} />
           </Grid>
