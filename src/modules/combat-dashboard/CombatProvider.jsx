@@ -18,11 +18,11 @@ export const CombatProvider = ({ children }) => {
   const { gameId } = useParams();
   const [game, setGame] = useState(null);
   const [actorRounds, setActorRounds] = useState(null);
-  const [characters, setCharacters] = useState([]);
+  const [characters, setCharacters] = useState(null);
   const [roundActions, setRoundActions] = useState([]);
   const [displayRound, setDisplayRound] = useState(null);
   const [displayError, setDisplayError] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState(null);
 
   const bindGame = (gameId) => {
     try {

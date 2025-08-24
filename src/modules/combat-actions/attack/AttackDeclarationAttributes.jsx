@@ -13,34 +13,33 @@ const AttackDeclarationAttributes = ({ formData, setFormData, character, charact
   const handleMainHandTargetChange = (targetCharacterId) => {
     setFormData((prevState) => ({
       ...prevState,
-      attackInfo: {
-        ...prevState.attackInfo,
-        attacks: {
-          ...prevState.attackInfo.attacks,
+      attacks: [
+        {
+          ...prevState.attacks[0],
           mainHand: {
-            ...prevState.attackInfo.attacks.mainHand,
+            ...prevState.attacks[0].mainHand,
             targetId: targetCharacterId,
           },
         },
-      },
+      ],
     }));
   };
 
-  const handleOffHandTargetChange = (targetCharacterId) => {
-    setFormData((prevState) => ({
-      ...prevState,
-      attackInfo: {
-        ...prevState.attackInfo,
-        attacks: {
-          ...prevState.attackInfo.attacks,
-          offHand: {
-            ...prevState.attackInfo.attacks.offHand,
-            targetId: targetCharacterId,
-          },
-        },
-      },
-    }));
-  };
+  // const handleOffHandTargetChange = (targetCharacterId) => {
+  //   setFormData((prevState) => ({
+  //     ...prevState,
+  //     attackInfo: {
+  //       ...prevState.attackInfo,
+  //       attacks: {
+  //         ...prevState.attackInfo.attacks,
+  //         offHand: {
+  //           ...prevState.attackInfo.attacks.offHand,
+  //           targetId: targetCharacterId,
+  //         },
+  //       },
+  //     },
+  //   }));
+  // };
 
   const handleActionPointsChange = (actionPoints) => {
     if (actionPoints < 2) {
@@ -54,51 +53,51 @@ const AttackDeclarationAttributes = ({ formData, setFormData, character, charact
   };
 
   const handleSelectedAttackModeChange = (mode) => {
-    setAttackMode(mode);
-    switch (mode) {
-      case 'mainHand':
-        setFormData((prevState) => ({
-          ...formData,
-          attackInfo: {
-            ...formData.attackInfo,
-            attacks: {
-              mainHand: {
-                targetId: '',
-              },
-            },
-          },
-        }));
-        break;
-      case 'offHand':
-        setFormData((prevState) => ({
-          ...formData,
-          attackInfo: {
-            ...formData.attackInfo,
-            attacks: {
-              offHand: {
-                targetId: '',
-              },
-            },
-          },
-        }));
-        break;
-      case 'dual':
-        setFormData((prevState) => ({
-          ...formData,
-          attackInfo: {
-            ...formData.attackInfo,
-            attacks: {
-              mainHand: {
-                targetId: '',
-              },
-              offHand: {
-                targetId: '',
-              },
-            },
-          },
-        }));
-        break;
-    }
+    // setAttackMode(mode);
+    // switch (mode) {
+    //   case 'mainHand':
+    //     setFormData((prevState) => ({
+    //       ...formData,
+    //       attackInfo: {
+    //         ...formData.attackInfo,
+    //         attacks: {
+    //           mainHand: {
+    //             targetId: '',
+    //           },
+    //         },
+    //       },
+    //     }));
+    //     break;
+    //   case 'offHand':
+    //     setFormData((prevState) => ({
+    //       ...formData,
+    //       attackInfo: {
+    //         ...formData.attackInfo,
+    //         attacks: {
+    //           offHand: {
+    //             targetId: '',
+    //           },
+    //         },
+    //       },
+    //     }));
+    //     break;
+    //   case 'dual':
+    //     setFormData((prevState) => ({
+    //       ...formData,
+    //       attackInfo: {
+    //         ...formData.attackInfo,
+    //         attacks: {
+    //           mainHand: {
+    //             targetId: '',
+    //           },
+    //           offHand: {
+    //             targetId: '',
+    //           },
+    //         },
+    //       },
+    //     }));
+    //     break;
+    // }
   };
 
   const handleRestrictedQuarterChange = (e) => {
@@ -141,7 +140,7 @@ const AttackDeclarationAttributes = ({ formData, setFormData, character, charact
             <SelectAttackMode character={character} value={attackMode} onChange={handleSelectedAttackModeChange} />
           </Grid>
 
-          {formData.attackInfo.attacks.mainHand ? (
+          {/* {formData.attackInfo.attacks.mainHand ? (
             <>
               <Grid item size={12}>
                 <SelectDefender
@@ -153,9 +152,9 @@ const AttackDeclarationAttributes = ({ formData, setFormData, character, charact
                 />
               </Grid>
             </>
-          ) : null}
+          ) : null} */}
 
-          {formData.attackInfo.attacks.offHand ? (
+          {/* {formData.attackInfo.attacks.offHand ? (
             <>
               <Grid item size={12}>
                 <SelectDefender
@@ -167,10 +166,10 @@ const AttackDeclarationAttributes = ({ formData, setFormData, character, charact
                 />
               </Grid>
             </>
-          ) : null}
+          ) : null} */}
 
           <Grid item size={12}>
-            <DefenseTextField i18nLabel="parry" value={formData.attackInfo.parry} onChange={handleParryChange} />
+            <DefenseTextField i18nLabel="parry" value={formData.attacks[0].parry} onChange={handleParryChange} />
           </Grid>
         </Grid>
       </div>

@@ -6,7 +6,7 @@ import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { ACTION_BUTTON_SIZE } from '../../constants/ui';
-import { createAcion } from '../api/actions';
+import { createAction } from '../api/actions';
 import BackButton from '../shared/buttons/BackButton';
 import SaveButton from '../shared/buttons/SaveButton';
 

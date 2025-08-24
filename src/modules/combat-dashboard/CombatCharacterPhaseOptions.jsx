@@ -5,7 +5,7 @@ import CombatPhaseActionButtons from './ComabatPhaseActionButtons';
 import { CombatContext } from './CombatProvider';
 import ResolveActionCard from './ResolveActionCard';
 
-const CombatCharacterPhaseOptions = ({ actorRound, phase }) => {
+const CombatCharacterPhaseOptions = ({ actorRound, character, phase }) => {
   const [activeAction, setActiveAction] = useState(null);
 
   const { characters, setCharacters } = useContext(CombatContext);
