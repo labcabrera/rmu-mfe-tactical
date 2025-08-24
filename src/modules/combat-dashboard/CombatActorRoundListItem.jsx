@@ -1,8 +1,8 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Box } from '@mui/material';
 import Grid from '@mui/material/Grid';
-import CombatCharacterPhaseOptions from './CombatCharacterPhaseOptions';
-import CombatCharacterRoundInfo from './CombatCharacterRoundInfo';
+import CombatActorRoundListItemInfo from './CombatActorRoundListItemInfo';
+import CombatActorRoundPhaseOptions from './CombatActorRoundPhaseOptions';
 import CombatCharacterRoundInitiative from './CombatCharacterRoundInitiative';
 import CombatFreeActionButtons from './CombatFreeActionButtons';
 import { CombatContext } from './CombatProvider';
@@ -31,7 +31,7 @@ const CombatActorRoundListItem = ({ actorRound }) => {
     <Box sx={{ flexGrow: 1 }}>
       <Grid container spacing={0} columns={24} alignItems="center">
         <Grid item size={5}>
-          <CombatCharacterRoundInfo actorRound={actorRound} />
+          <CombatActorRoundListItemInfo actorRound={actorRound} />
         </Grid>
         <Grid item size={19}>
           <Grid container item alignItems="center">
@@ -42,16 +42,16 @@ const CombatActorRoundListItem = ({ actorRound }) => {
               <CombatFreeActionButtons />
             </Grid>
             <Grid item size={2} display="flex" justifyContent="center">
-              <CombatCharacterPhaseOptions actorRound={actorRound} character={character} phase={1} />
+              <CombatActorRoundPhaseOptions actorRound={actorRound} character={character} phase={1} />
             </Grid>
             <Grid item size={2} display="flex" justifyContent="center">
-              <CombatCharacterPhaseOptions actorRound={actorRound} character={character} phase={2} />
+              <CombatActorRoundPhaseOptions actorRound={actorRound} character={character} phase={2} />
             </Grid>
             <Grid item size={2} display="flex" justifyContent="center">
-              <CombatCharacterPhaseOptions actorRound={actorRound} character={character} phase={3} />
+              <CombatActorRoundPhaseOptions actorRound={actorRound} character={character} phase={3} />
             </Grid>
             <Grid item size={2} display="flex" justifyContent="center">
-              <CombatCharacterPhaseOptions actorRound={actorRound} character={character} phase={4} />
+              <CombatActorRoundPhaseOptions actorRound={actorRound} character={character} phase={4} />
             </Grid>
           </Grid>
         </Grid>

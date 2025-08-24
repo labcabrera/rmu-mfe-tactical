@@ -5,9 +5,8 @@ import CombatPhaseActionButtons from './ComabatPhaseActionButtons';
 import { CombatContext } from './CombatProvider';
 import ResolveActionCard from './ResolveActionCard';
 
-const CombatCharacterPhaseOptions = ({ actorRound, character, phase }) => {
+const CombatActorRoundPhaseOptions = ({ actorRound, character, phase }) => {
   const [activeAction, setActiveAction] = useState(null);
-
   const { characters, setCharacters } = useContext(CombatContext);
   const { game, setGame } = useContext(CombatContext);
   const { roundActions, setRoundActions } = useContext(CombatContext);
@@ -67,4 +66,4 @@ const CombatCharacterPhaseOptions = ({ actorRound, character, phase }) => {
   );
 };
 
-export default CombatCharacterPhaseOptions;
+export default CombatActorRoundPhaseOptions;

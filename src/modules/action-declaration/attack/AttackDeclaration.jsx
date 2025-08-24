@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import Grid from '@mui/material/Grid';
-import TacticalActionCreationActions from '../ActionCreationActions';
+import TacticalActionCreationActions from '../../combat-actions/ActionCreationActions';
 import AttackDeclarationAttributes from './AttackDeclarationAttributes';
 
 const AttackDeclaration = () => {

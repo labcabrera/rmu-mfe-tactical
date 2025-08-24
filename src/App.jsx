@@ -2,7 +2,7 @@ import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 import './i18n';
 import './index.css';
-import AttackDeclaration from './modules/combat-actions/attack/AttackDeclaration';
+import AttackDeclaration from './modules/action-declaration/attack/AttackDeclaration';
 import AttackResolution from './modules/combat-actions/attack/AttackResolution';
 import TacticalMovementCreation from './modules/combat-actions/movement/TacticalMovementCreation';
 import CombatDashboard from './modules/combat-dashboard/CombatDashboard';

@@ -10,7 +10,10 @@ import Typography from '@mui/material/Typography';
 import GenericBar from '../shared/generic/GenericBar';
 import { CombatContext } from './CombatProvider';
 
-const CombatCharacterRoundInfo = ({ actorRound }) => {
+/**
+ * Component that displays general information about the actor, such as their name, health bar, etc.
+ */
+const CombatActorRoundListItemInfo = ({ actorRound }) => {
   const { characters, setCharacters } = useContext(CombatContext);
   const [character, setCharacter] = useState(null);
 
@@ -79,4 +82,4 @@ const CombatCharacterRoundInfo = ({ actorRound }) => {
   );
 };
 
-export default CombatCharacterRoundInfo;
+export default CombatActorRoundListItemInfo;
