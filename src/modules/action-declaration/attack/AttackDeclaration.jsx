@@ -10,12 +10,15 @@ const AttackDeclaration = () => {
   const [isValid, setIsValid] = useState(false);
   const phaseStart = searchParams.get('phaseStart');
   const game = location.state?.game;
-  const character = location.state?.character;
+  const actorRound = location.state?.actorRound;
   const characters = location.state?.characters;
+  const character = location.state?.character;
+
+  //TODO read attacks from character
 
   const [formData, setFormData] = useState({
     gameId: game.id,
-    actorId: character.id,
+    actorId: actorRound.id,
     actionType: 'attack',
     phaseStart: phaseStart,
     actionPoints: 4,
@@ -37,26 +40,24 @@ const AttackDeclaration = () => {
     setIsValid(isValidForm);
   }, [formData]);
 
-  if (!game || !character || !characters) {
+  if (!game || !actorRound || !characters) {
     return <p>Loading...</p>;
   }
 
   return (
     <>
-      <TacticalActionCreationActions game={game} character={character} formData={formData} isValid={isValid} />
+      <TacticalActionCreationActions game={game} character={actorRound} formData={formData} isValid={isValid} />
       <div className="generic-main-content">
         <Grid container spacing={2}>
           <Grid item size={6}>
-            <AttackDeclarationAttributes formData={formData} setFormData={setFormData} character={character} characters={characters} />
+            <AttackDeclarationAttributes formData={formData} setFormData={setFormData} character={actorRound} characters={characters} />
           </Grid>
         </Grid>
         <div>
-          <h2>formData</h2>
-          <pre>{JSON.stringify(formData, null, 2)}</pre>
-          <h2>character</h2>
-          <pre>{JSON.stringify(character, null, 2)}</pre>
-          <h2>characters</h2>
-          <pre>{JSON.stringify(characters, null, 2)}</pre>
+          <pre>FormData: {JSON.stringify(formData, null, 2)}</pre>
+          <pre>ActorRound: {JSON.stringify(actorRound, null, 2)}</pre>
+          <pre>Character: {JSON.stringify(character, null, 2)}</pre>
+          <pre>Characters: {JSON.stringify(characters, null, 2)}</pre>
         </div>
       </div>
     </>

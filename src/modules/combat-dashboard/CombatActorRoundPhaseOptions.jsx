@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
-import CombatPhaseActionButtons from './ComabatPhaseActionButtons';
+import CombatActorRoundPhaseActionButtons from './CombatActorRoundPhaseActionButtons';
 import { CombatContext } from './CombatProvider';
 import ResolveActionCard from './ResolveActionCard';
 
@@ -39,7 +39,7 @@ const CombatActorRoundPhaseOptions = ({ actorRound, character, phase }) => {
   }
 
   if (activeAction == null) {
-    return <CombatPhaseActionButtons character={actorRound} game={game} characters={characters} phaseNumber={phase} />;
+    return <CombatActorRoundPhaseActionButtons actorRound={actorRound} game={game} character={character} phaseNumber={phase} />;
   }
 
   if (activeAction.phaseStart + activeAction.actionPoints - 1 == phase) {
