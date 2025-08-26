@@ -8,6 +8,7 @@ import { fetchStrategicGame } from '../../api/strategic-games';
 import { fetchTacticalGame } from '../../api/tactical-games';
 import TacticalGameViewActions from './TacticalGameViewActions';
 import TacticalGameViewActors from './TacticalGameViewActors';
+import TacticalGameViewFactions from './TacticalGameViewFactions';
 import TacticalGameViewInfo from './TacticalGameViewInfo';
 
 const TacticalGameView = () => {
@@ -68,6 +69,7 @@ const TacticalGameView = () => {
         <Grid container spacing={2}>
           <Grid item size={4}>
             <TacticalGameViewInfo tacticalGame={tacticalGame} strategicGame={strategicGame} />
+            <TacticalGameViewFactions tacticalGame={tacticalGame} setTacticalGame={setTacticalGame} factions={factions} />
           </Grid>
           <Grid item size={4}>
             <TacticalGameViewActors tacticalGame={tacticalGame} />

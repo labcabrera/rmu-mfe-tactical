@@ -2,17 +2,15 @@ import React, { useEffect, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import Grid from '@mui/material/Grid';
 import TextField from '@mui/material/TextField';
+import { fetchStrategicGame } from '../../api/strategic-games';
 import TacticalGameEditActions from './TacticalGameEditActions';
 
 const TacticalGameEdit = ({}) => {
-  const debugMode = true;
-
-  const [formData, setFormData] = useState({});
-
-  const location = useLocation();
   const { gameId } = useParams();
-
+  const location = useLocation();
+  const [formData, setFormData] = useState({});
   const [tacticalGame, setTacticalGame] = useState();
+  const [strategicGame, setStrategicGame] = useState(null);
 
   const fetchTacticalGame = async (gameId) => {
     const response = await fetch(`${API_TACTICAL_URL}/tactical-games/${gameId}`, { method: 'GET' });
@@ -26,6 +24,11 @@ const TacticalGameEdit = ({}) => {
       ...formData,
       [name]: value,
     });
+  };
+
+  const bindStrategicGame = async (strategicGameId) => {
+    const strategicGame = await fetchStrategicGame(strategicGameId);
+    setStrategicGame(strategicGame);
   };
 
   useEffect(() => {
@@ -44,6 +47,9 @@ const TacticalGameEdit = ({}) => {
       name: tacticalGame?.name,
       description: tacticalGame?.description,
     });
+    if (tacticalGame.strategicGameId) {
+      bindStrategicGame(tacticalGame.strategicGameId);
+    }
   }, [tacticalGame]);
 
   if (!tacticalGame) {
@@ -53,24 +59,16 @@ const TacticalGameEdit = ({}) => {
   return (
     <>
       <TacticalGameEditActions tacticalGame={tacticalGame} formData={formData} />
-      <div className="generic-main-content">
-        <Grid container spacing={2}>
-          <Grid item size={12}>
-            <TextField fullWidth label="Name" name="name" value={formData.name || ''} onChange={handleChange} />
-          </Grid>
-          <Grid item size={12}>
-            <TextField
-              fullWidth
-              label="Description"
-              name="description"
-              multiline
-              rows={4}
-              value={formData.description || ''}
-              onChange={handleChange}
-            />
-          </Grid>
+      <Grid container spacing={2}>
+        <Grid item size={12}>
+          <TextField fullWidth label="Name" name="name" value={formData.name || ''} onChange={handleChange} />
         </Grid>
-      </div>
+        <Grid item size={12}>
+          <TextField fullWidth label="Description" name="description" multiline rows={4} value={formData.description || ''} onChange={handleChange} />
+        </Grid>
+      </Grid>
+      <pre>FormData: {JSON.stringify(formData, null, 2)}</pre>
+      <pre>StrategicGame: {JSON.stringify(strategicGame, null, 2)}</pre>
     </>
   );
 };
