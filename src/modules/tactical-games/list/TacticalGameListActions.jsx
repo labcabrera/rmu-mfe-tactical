@@ -10,7 +10,7 @@ import Stack from '@mui/material/Stack';
 const TacticalGameListActions = () => {
   const navigate = useNavigate();
 
-  const createNewGame = async () => {
+  const handleNewGame = async () => {
     navigate('/tactical/games/create');
   };
 
@@ -29,7 +29,7 @@ const TacticalGameListActions = () => {
           </Breadcrumbs>
         </Box>
         <Stack spacing={2} direction="row" sx={{ justifyContent: 'flex-end', alignItems: 'flex-start' }}>
-          <IconButton variant="outlined" onClick={createNewGame}>
+          <IconButton variant="outlined" onClick={handleNewGame}>
             <AddCircleIcon />
           </IconButton>
         </Stack>

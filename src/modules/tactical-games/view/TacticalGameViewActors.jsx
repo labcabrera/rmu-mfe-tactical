@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import Checkbox from '@mui/material/Checkbox';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemAvatar from '@mui/material/ListItemAvatar';
+import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import Typography from '@mui/material/Typography';
 import { addActor, deleteActor } from '../../api/tactical-games';
@@ -12,6 +14,7 @@ import SnackbarError from '../../shared/errors/SnackbarError';
 
 const TacticalGameViewActorsFactionItem = ({ character, tacticalGame, setTacticalGame }) => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [displayError, setDisplayError] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
 
@@ -32,6 +35,9 @@ const TacticalGameViewActorsFactionItem = ({ character, tacticalGame, setTactica
         setErrorMessage('Error updating actor ' + err);
       });
   };
+  const handleNavigate = () => {
+    navigate(`/strategic/characters/view/${character.id}`);
+  };
 
   return (
     <>
@@ -40,10 +46,12 @@ const TacticalGameViewActorsFactionItem = ({ character, tacticalGame, setTactica
         secondaryAction={<Checkbox edge="end" onChange={(e) => handleToggle(e, character.id)} checked={isSelected()} />}
         disablePadding
       >
-        <ListItemAvatar>
-          <CharacterAvatar character={character} />
-        </ListItemAvatar>
-        <ListItemText id={character.id} primary={character.name} secondary={getCharacterResume()} />
+        <ListItemButton onClick={handleNavigate}>
+          <ListItemAvatar>
+            <CharacterAvatar character={character} size={50} />
+          </ListItemAvatar>
+          <ListItemText id={character.id} primary={character.name} secondary={getCharacterResume()} />
+        </ListItemButton>
       </ListItem>
       <SnackbarError errorMessage={errorMessage} displayError={displayError} setDisplayError={setDisplayError} />
     </>

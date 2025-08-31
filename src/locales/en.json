@@ -17,6 +17,7 @@
     "charge-speed": "Charge speed",
     "character": "Character",
     "cover": "Cover",
+    "create-new": "Create new",
     "defender": "Defender",
     "defender-size": "Defender size",
     "defensive-bonus": "Defensive bonus",
@@ -72,6 +73,7 @@
     "weight": "Weight",
 
     "game-status-created": "Created",
+    "game-status-in_progress": "In progress",
 
     "phase-not_started": "Not started",
     "phase-initiative": "Declare initiative",
