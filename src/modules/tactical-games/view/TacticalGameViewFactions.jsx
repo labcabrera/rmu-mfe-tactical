@@ -13,9 +13,10 @@ const TacticalGameViewFactions = ({ tacticalGame, setTacticalGame, factions }) =
     return tacticalGame.factions.includes(factionId);
   };
 
-  const handleFactionChange = (factionId) => {
-    const isSelected = tacticalGame.factions.includes(factionId);
+  const handleFactionChange = (e, factionId) => {
+    const isSelected = !e.target.checked;
     const func = isSelected ? deleteFaction : addFaction;
+    console.log('func:', func);
     func(tacticalGame.id, factionId)
       .then((updatedGame) => {
         setTacticalGame(updatedGame);
@@ -45,7 +46,7 @@ const TacticalGameViewFactions = ({ tacticalGame, setTacticalGame, factions }) =
           factions.map((faction) => (
             <FormControlLabel
               key={faction.id}
-              control={<Checkbox checked={isSelected(faction.id)} onChange={() => handleFactionChange(faction.id)} />}
+              control={<Checkbox checked={isSelected(faction.id)} onChange={(e) => handleFactionChange(e, faction.id)} />}
               label={faction.name}
             />
           ))}

@@ -1,6 +1,8 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link as RouterLink } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
+import Box from '@mui/material/Box';
 import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
@@ -80,28 +82,30 @@ const TacticalGameViewActions = ({ tacticalGame }) => {
 
   return (
     <>
-      <div className="generic-action-bar">
-        <Stack
-          direction="row"
-          justifyContent="space-between"
-          alignItems="center"
-          sx={{
-            width: '100%',
-          }}
-        >
+      <Stack spacing={2} direction="row" justifyContent="space-between" alignItems="center" sx={{ minHeight: 80 }}>
+        <Box>
           <Breadcrumbs aria-label="breadcrumb">
-            <Link underline="hover" color="inherit" href="/tactical">
-              {t('tactical-games')}
+            <Link underline="hover" color="inherit" href="/">
+              Home
             </Link>
-            <Typography sx={{ color: 'text.primary' }}>{tacticalGame.name}</Typography>
+            <Link component={RouterLink} underline="hover" color="inherit" to="/tactical/games">
+              Tactical
+            </Link>
+            <Link component={RouterLink} underline="hover" color="inherit" to="/tactical/games">
+              Games
+            </Link>
+            <span>{tacticalGame.name}</span>
+            <span>View</span>
           </Breadcrumbs>
-          <div style={{ flexGrow: 1 }} />
+        </Box>
+        <Stack direction="row" spacing={2}>
           <CloseButton size={80} />
           <PlayButton onClick={() => handleOpenClick()} size={80} />
           <EditButton onClick={() => handleEditClick()} size={80} />
           <DeleteButton onClick={() => handleDeleteClick()} size={80} />
         </Stack>
-      </div>
+      </Stack>
+
       <Dialog
         open={deleteDialogOpen}
         onClose={handleDialogDeleteClose}

@@ -1,56 +1,87 @@
-import React, { useEffect, useState } from 'react';
+import React, { use, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Checkbox from '@mui/material/Checkbox';
 import List from '@mui/material/List';
-import Stack from '@mui/material/Stack';
-import AddButton from '../../shared/buttons/AddButton';
+import ListItem from '@mui/material/ListItem';
+import ListItemAvatar from '@mui/material/ListItemAvatar';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemText from '@mui/material/ListItemText';
+import Typography from '@mui/material/Typography';
+import CharacterAvatar from '../../shared/avatars/CharacterAvatar';
 
-const TacticalGameViewActors = ({ tacticalGame, factions }) => {
-  const debugMode = false;
-
-  const navigate = useNavigate();
-  const [tacticalCharacters, setTacticalCharacters] = useState([]);
-
-  const removeCharacter = (id) => {
-    setTacticalCharacters(tacticalCharacters.filter((item) => item.id !== id));
+const TacticalGameViewActorsFactionItem = ({ character }) => {
+  const isChecked = () => {
+    return true;
+  };
+  const handleToggle = (id) => {
+    // Handle toggle logic here
   };
 
-  useEffect(() => {}, []);
+  return (
+    <ListItem key={character.id} secondaryAction={<Checkbox edge="end" onChange={handleToggle(character.id)} checked={isChecked()} />} disablePadding>
+      {/* <ListItemButton> */}
+      <ListItemAvatar>
+        <CharacterAvatar character={character} />
+      </ListItemAvatar>
+      <ListItemText id={character.id} primary={character.name} secondary={character.info.race} />
+      {/* </ListItemButton> */}
+    </ListItem>
+  );
+};
 
-  const handleAddNewCharacter = () => {
-    navigate('/tactical/characters/creation', { state: { tacticalGame: tacticalGame } });
-  };
+const TacticalGameViewActorsFaction = ({ factionId, factions, tacticalGame, characters }) => {
+  const [faction, setFaction] = useState(null);
+  const [factionCharacters, setFactionCharacters] = useState([]);
 
-  if (!tacticalGame) {
-    return <p>Required tactical game</p>;
+  useEffect(() => {
+    console.log('TacticalGameViewActorsFaction.useEffect: Faction ID:', factionId, 'Factions:', factions);
+    if (factionId && factions) {
+      const foundFaction = factions.find((f) => f.id === factionId);
+      setFaction(foundFaction);
+    }
+  }, [factionId, factions]);
+
+  useEffect(() => {
+    if (faction && characters) {
+      const filteredCharacters = characters.filter((c) => c.factionId === faction.id);
+      setFactionCharacters(filteredCharacters);
+    }
+  }, [faction, characters]);
+
+  return (
+    <>
+      <Typography variant="h6">{faction?.name}</Typography>
+      <List dense>
+        {factionCharacters.map((character) => (
+          <TacticalGameViewActorsFactionItem key={character.id} character={character} />
+        ))}
+      </List>
+      {/* <pre>Faction characters: {JSON.stringify(factionCharacters, null, 2)}</pre> */}
+    </>
+  );
+};
+
+const TacticalGameViewActors = ({ tacticalGame, factions, characters }) => {
+  if (!tacticalGame || !factions || !characters) {
+    return <p>Loading...</p>;
   }
 
-  if (!tacticalGame.factions || tacticalGame.factions.length === 0) {
-    return <p>No available factions</p>;
-  }
-
-  if (!tacticalCharacters || tacticalCharacters.length === 0) {
-    return <p>No characters found.</p>;
+  if (tacticalGame.factions.length < 1) {
+    return <p>No available characters</p>;
   }
 
   return (
     <>
       IMPORT ACTORS
-      {/* <List sx={{ width: '100%' }}>
-        {tacticalCharacters.map((item, index) => (
-          <TacticalGameViewCharactersListItem key={index} character={item} tacticalGame={tacticalGame} onRemoveCharacter={removeCharacter} />
-        ))}
-      </List> */}
-      <Stack
-        spacing={0}
-        direction="row"
-        sx={{
-          justifyContent: 'flex-start',
-          alignItems: 'flex-start',
-          marginLeft: '8px',
-        }}
-      >
-        <AddButton onClick={handleAddNewCharacter} />
-      </Stack>
+      {tacticalGame.factions.map((factionId) => (
+        <TacticalGameViewActorsFaction
+          key={factionId}
+          factionId={factionId}
+          tacticalGame={tacticalGame}
+          factions={factions}
+          characters={characters}
+        />
+      ))}
     </>
   );
 };

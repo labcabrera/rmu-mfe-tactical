@@ -35,10 +35,14 @@ const TacticalGameView = () => {
     setStrategicGame(response);
   };
 
-  const bindCharacters = async (strategicGameId) => {
-    const rsql = `gameId==${strategicGameId}`;
-    const response = await fetchCharacters(rsql, 0, 100);
-    setCharacters(response);
+  const bindCharacters = async (factions) => {
+    if (factions.length > 0) {
+      const rsql = `factionId=in=(${factions.join(',')})`;
+      const response = await fetchCharacters(rsql, 0, 100);
+      setCharacters(response);
+    } else {
+      setCharacters([]);
+    }
   };
 
   const bindFactions = async (strategicGameId) => {
@@ -58,8 +62,10 @@ const TacticalGameView = () => {
   useEffect(() => {
     if (tacticalGame && tacticalGame.strategicGameId) {
       bindStrategicGame(tacticalGame.strategicGameId);
-      bindCharacters(tacticalGame.strategicGameId);
       bindFactions(tacticalGame.strategicGameId);
+    }
+    if (tacticalGame && tacticalGame.factions) {
+      bindCharacters(tacticalGame.factions);
     }
   }, [tacticalGame]);
 
@@ -77,7 +83,7 @@ const TacticalGameView = () => {
             <TacticalGameViewFactions tacticalGame={tacticalGame} setTacticalGame={setTacticalGame} factions={factions} />
           </Grid>
           <Grid item size={4}>
-            <TacticalGameViewActors tacticalGame={tacticalGame} />
+            <TacticalGameViewActors tacticalGame={tacticalGame} factions={factions} characters={characters} />
           </Grid>
         </Grid>
       </Box>
