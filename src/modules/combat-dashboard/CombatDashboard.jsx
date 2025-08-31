@@ -1,13 +1,17 @@
-import React from 'react';
+import React, { useContext, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import CombatDashboardTabActions from './CombatDashboardTabActionRounds';
-import { CombatProvider } from './CombatProvider';
+import { CombatContext } from './CombatProvider';
 
 function CombatDashboard() {
-  return (
-    <CombatProvider>
-      <CombatDashboardTabActions />
-    </CombatProvider>
-  );
+  const { gameId } = useParams();
+  const { setGameId } = useContext(CombatContext);
+
+  useEffect(() => {
+    setGameId(gameId);
+  }, [gameId]);
+
+  return <CombatDashboardTabActions />;
 }
 
 export default CombatDashboard;

@@ -1,11 +1,9 @@
-import React, { createContext, use, useEffect, useState } from 'react';
+import React, { createContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Accordion from '@mui/material/Accordion';
-import AccordionActions from '@mui/material/AccordionActions';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import AccordionSummary from '@mui/material/AccordionSummary';
-import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import { fetchActionsByGameAndRound } from '../api/actions';
 import { fetchActorRounds } from '../api/actor-rounds';
@@ -16,7 +14,7 @@ import SnackbarError from '../shared/errors/SnackbarError';
 export const CombatContext = createContext();
 
 export const CombatProvider = ({ children }) => {
-  const { gameId } = useParams();
+  const [gameId, setGameId] = useState(null);
   const [game, setGame] = useState(null);
   const [actorRounds, setActorRounds] = useState(null);
   const [characters, setCharacters] = useState(null);
@@ -69,13 +67,6 @@ export const CombatProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    console.log('CombatProvider.useEffect[gameId] triggered', gameId);
-    if (gameId) {
-      bindGame(gameId);
-    }
-  }, [gameId]);
-
-  useEffect(() => {
     console.log('CombatProvider.useEffect[game] triggered', game, displayRound);
     if (game && displayRound) {
       bindActorRounds(game.id, displayRound);
@@ -86,11 +77,19 @@ export const CombatProvider = ({ children }) => {
     }
   }, [game, displayRound]);
 
+  useEffect(() => {
+    console.log('CombatProvider.useEffect[gameId] triggered', gameId);
+    if (gameId) {
+      bindGame(gameId);
+    }
+  }, [gameId]);
+
   return (
     <>
       <CombatContext.Provider
         value={{
           gameId,
+          setGameId,
           game,
           setGame,
           actorRounds,
