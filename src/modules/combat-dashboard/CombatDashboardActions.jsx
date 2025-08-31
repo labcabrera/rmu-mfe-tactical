@@ -1,6 +1,8 @@
 import React, { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { Link as RouterLink } from 'react-router-dom';
+import Box from '@mui/material/Box';
 import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
@@ -15,8 +17,7 @@ import { CombatContext } from './CombatProvider';
 
 const CombatDashboardActions = () => {
   const navigate = useNavigate();
-  const { t, i18n } = useTranslation();
-
+  const { t } = useTranslation();
   const { displayRound, setDisplayRound } = useContext(CombatContext);
   const { game, setGame } = useContext(CombatContext);
 
@@ -47,35 +48,36 @@ const CombatDashboardActions = () => {
   }
 
   return (
-    <div className="generic-action-bar">
-      <Stack
-        direction="row"
-        justifyContent="space-between"
-        alignItems="center"
-        sx={{
-          width: '100%',
-        }}
-      >
-        <Breadcrumbs aria-label="breadcrumb">
-          <Typography sx={{ color: 'text.primary' }}>{t('tactical-game')}</Typography>
-          <Link underline="hover" color="inherit" href={`/tactical/view/${game.id}`}>
-            {game.name}
-          </Link>
-          <Typography sx={{ color: 'text.primary' }}>Round</Typography>
-          <Typography sx={{ color: 'text.primary' }}>
-            {displayRound}/{game.round}
-          </Typography>
-          <Typography sx={{ color: 'text.primary' }}>{t(`phase-${game.phase}`)}</Typography>
-        </Breadcrumbs>
-
-        <div style={{ flexGrow: 1 }} />
-
-        <BackButton onClick={handleDisplayPreviousRoundClick} disabled={displayRound === 1} size={ACTION_BUTTON_SIZE} />
-        <NextButton onClick={handleDisplayNextRoundClick} disabled={displayRound === game.round} size={ACTION_BUTTON_SIZE} />
-        <AddButton onClick={handleNextRoundClick} size={ACTION_BUTTON_SIZE} />
-        <CloseButton onClick={handleCloseDashboardClick} size={ACTION_BUTTON_SIZE} />
+    <>
+      <Stack spacing={2} direction="row" justifyContent="space-between" alignItems="center" sx={{ minHeight: 80 }}>
+        <Box>
+          <Breadcrumbs aria-label="breadcrumb">
+            <Link underline="hover" color="inherit" href="/">
+              Home
+            </Link>
+            <Link component={RouterLink} underline="hover" color="inherit" to="/tactical/games">
+              Tactical
+            </Link>
+            <Link component={RouterLink} underline="hover" color="inherit" to="/tactical/games">
+              Games
+            </Link>
+            <Link component={RouterLink} underline="hover" color="inherit" to={`/tactical/games/view/${game.id}`}>
+              {game.name}
+            </Link>
+            <Typography sx={{ color: 'text.primary' }}>
+              Round {displayRound} of {game.round}
+            </Typography>
+            <Typography sx={{ color: 'text.primary' }}>{t(`phase-${game.phase}`)}</Typography>
+          </Breadcrumbs>
+        </Box>
+        <Stack direction="row" spacing={2}>
+          <BackButton onClick={handleDisplayPreviousRoundClick} disabled={displayRound === 1} size={ACTION_BUTTON_SIZE} />
+          <NextButton onClick={handleDisplayNextRoundClick} disabled={displayRound === game.round} size={ACTION_BUTTON_SIZE} />
+          <AddButton onClick={handleNextRoundClick} size={ACTION_BUTTON_SIZE} />
+          <CloseButton onClick={handleCloseDashboardClick} size={ACTION_BUTTON_SIZE} />
+        </Stack>
       </Stack>
-    </div>
+    </>
   );
 };
 

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useLocation, useParams } from 'react-router-dom';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Accordion from '@mui/material/Accordion';
@@ -6,11 +7,13 @@ import AccordionDetails from '@mui/material/AccordionDetails';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
+import Snackbar from '@mui/material/Snackbar';
 import Typography from '@mui/material/Typography';
 import { fetchCharacters } from '../../api/characters';
 import { fetchFactions } from '../../api/factions';
 import { fetchStrategicGame } from '../../api/strategic-games';
 import { fetchTacticalGame } from '../../api/tactical-games';
+import SnackbarError from '../../shared/errors/SnackbarError';
 import TacticalGameViewActions from './TacticalGameViewActions';
 import TacticalGameViewActors from './TacticalGameViewActors';
 import TacticalGameViewFactions from './TacticalGameViewFactions';
@@ -19,10 +22,13 @@ import TacticalGameViewInfo from './TacticalGameViewInfo';
 const TacticalGameView = () => {
   const location = useLocation();
   const { gameId } = useParams();
+  const { t } = useTranslation();
   const [tacticalGame, setTacticalGame] = useState(null);
   const [strategicGame, setStrategicGame] = useState(null);
   const [characters, setCharacters] = useState([]);
   const [factions, setFactions] = useState([]);
+  const [displayError, setDisplayError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(null);
 
   const bindTacticalGame = async (gameId) => {
     const response = await fetchTacticalGame(gameId);
@@ -79,6 +85,9 @@ const TacticalGameView = () => {
       <Box sx={{ flexGrow: 1 }}>
         <Grid container spacing={2}>
           <Grid item size={4}>
+            <Typography variant="h6" color="primary">
+              {t('game-info')}
+            </Typography>
             <TacticalGameViewInfo tacticalGame={tacticalGame} strategicGame={strategicGame} />
             <TacticalGameViewFactions tacticalGame={tacticalGame} setTacticalGame={setTacticalGame} factions={factions} />
           </Grid>
@@ -87,6 +96,7 @@ const TacticalGameView = () => {
           </Grid>
         </Grid>
       </Box>
+      <SnackbarError errorMessage={errorMessage} displayError={displayError} setDisplayError={setDisplayError} />
 
       <Typography component="h2" color="primary">
         Debug Info

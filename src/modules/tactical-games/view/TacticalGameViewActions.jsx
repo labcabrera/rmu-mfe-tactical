@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link as RouterLink } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
@@ -23,7 +23,7 @@ const TacticalGameViewActions = ({ tacticalGame }) => {
   const navigate = useNavigate();
   const { t } = useTranslation();
 
-  const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const handleDeleteTacticalGame = async () => {
     try {
@@ -32,17 +32,6 @@ const TacticalGameViewActions = ({ tacticalGame }) => {
     } catch (error) {
       console.error('Error deleting tactical game:', error);
     }
-    // const url = `${API_TACTICAL_URL}/tactical-games/${tacticalGame.id}`;
-    // try {
-    //   const response = await fetch(url, { method: 'DELETE' });
-    //   const deleteResponse = await response;
-    //   if (deleteResponse.status == 204) {
-    //     navigate('/tactical');
-    //   } else {
-    //     //TODO display error
-    //     console.log('delete data: ' + data);
-    //   }
-    // } catch (error) {}
   };
 
   const handleEditClick = () => {
