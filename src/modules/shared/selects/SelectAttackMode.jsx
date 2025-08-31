@@ -4,7 +4,6 @@ import Avatar from '@mui/material/Avatar';
 import InputAdornment from '@mui/material/InputAdornment';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
-import { VARIANT } from '../../../constants/ui';
 
 const SelectAttackMode = ({ character, value, onChange }) => {
   const { t } = useTranslation();
@@ -21,7 +20,6 @@ const SelectAttackMode = ({ character, value, onChange }) => {
       select
       label={t('attack-mode')}
       value={value === undefined || value === null}
-      variant={VARIANT}
       fullWidth
       onChange={handleChange}
       slotProps={{

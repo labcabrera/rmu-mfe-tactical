@@ -5,7 +5,6 @@ import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import { ACTION_BUTTON_SIZE } from '../../constants/ui';
 import CloseButton from '../shared/buttons/CloseButton';
 import ForgeButton from '../shared/buttons/ForgeButton';
 
@@ -59,7 +58,7 @@ const ForgeItemActions = ({ game, character, formData }) => {
         <div style={{ flexGrow: 1 }} />
 
         <CloseButton size={ACTION_BUTTON_SIZE} />
-        <ForgeButton onClick={handleForgeItemClick} size={ACTION_BUTTON_SIZE} disabled={!formData.itemTypeId} />
+        <ForgeButton onClick={handleForgeItemClick} size={80} disabled={!formData.itemTypeId} />
       </Stack>
     </div>
   );

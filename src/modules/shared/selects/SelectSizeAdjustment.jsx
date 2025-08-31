@@ -4,7 +4,6 @@ import Avatar from '@mui/material/Avatar';
 import InputAdornment from '@mui/material/InputAdornment';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
-import { VARIANT } from '../../../constants/ui';
 
 const SelectSizeAdjustment = ({ value, onChange, disabled = false }) => {
   const { t } = useTranslation();
@@ -22,7 +21,6 @@ const SelectSizeAdjustment = ({ value, onChange, disabled = false }) => {
       id="select-size-adjustment"
       value={value === undefined || value === null || values.length === 0 ? '' : value}
       disabled={disabled}
-      variant={VARIANT}
       fullWidth
       onChange={handleLevelChange}
       slotProps={{

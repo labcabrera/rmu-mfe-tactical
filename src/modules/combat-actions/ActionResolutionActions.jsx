@@ -5,7 +5,6 @@ import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import { ACTION_BUTTON_SIZE } from '../../constants/ui';
 import { createAcion } from '../api/actions';
 import BackButton from '../shared/buttons/BackButton';
 import SaveButton from '../shared/buttons/SaveButton';
@@ -53,8 +52,8 @@ const ActionResolutionActions = ({ game: game, character, formData, isValid = tr
 
         <div style={{ flexGrow: 1 }} />
 
-        <BackButton onClick={handleBackClick} size={ACTION_BUTTON_SIZE} />
-        <SaveButton onClick={createAction} size={ACTION_BUTTON_SIZE} disabled={!isValid} />
+        <BackButton onClick={handleBackClick} size={80} />
+        <SaveButton onClick={createAction} size={80} disabled={!isValid} />
       </Stack>
     </div>
   );

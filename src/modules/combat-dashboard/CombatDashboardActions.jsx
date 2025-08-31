@@ -7,7 +7,6 @@ import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import { ACTION_BUTTON_SIZE } from '../../constants/ui';
 import { startRound } from '../api/tactical-games';
 import AddButton from '../shared/buttons/AddButton';
 import BackButton from '../shared/buttons/BackButton';
@@ -71,10 +70,10 @@ const CombatDashboardActions = () => {
           </Breadcrumbs>
         </Box>
         <Stack direction="row" spacing={2}>
-          <BackButton onClick={handleDisplayPreviousRoundClick} disabled={displayRound === 1} size={ACTION_BUTTON_SIZE} />
-          <NextButton onClick={handleDisplayNextRoundClick} disabled={displayRound === game.round} size={ACTION_BUTTON_SIZE} />
-          <AddButton onClick={handleNextRoundClick} size={ACTION_BUTTON_SIZE} />
-          <CloseButton onClick={handleCloseDashboardClick} size={ACTION_BUTTON_SIZE} />
+          <BackButton onClick={handleDisplayPreviousRoundClick} disabled={displayRound === 1} size={80} />
+          <NextButton onClick={handleDisplayNextRoundClick} disabled={displayRound === game.round} size={80} />
+          <AddButton onClick={handleNextRoundClick} size={80} />
+          <CloseButton onClick={handleCloseDashboardClick} size={80} />
         </Stack>
       </Stack>
     </>

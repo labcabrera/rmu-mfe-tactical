@@ -4,7 +4,6 @@ import Avatar from '@mui/material/Avatar';
 import InputAdornment from '@mui/material/InputAdornment';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
-import { VARIANT } from '../../../constants/ui';
 
 const SelectDefender = ({ value, onChange, sourceId, targets, i18nLabel = 'defender' }) => {
   const { t } = useTranslation();

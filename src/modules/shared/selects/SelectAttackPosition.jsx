@@ -4,7 +4,6 @@ import Avatar from '@mui/material/Avatar';
 import InputAdornment from '@mui/material/InputAdornment';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
-import { VARIANT } from '../../../constants/ui';
 
 const SelectAttackPosition = ({ value, onChange }) => {
   const { t } = useTranslation();
@@ -19,7 +18,6 @@ const SelectAttackPosition = ({ value, onChange }) => {
       select
       label={t('positional-attack')}
       value={value === undefined || value === null || options.length === 0 ? '' : value}
-      variant={VARIANT}
       fullWidth
       onChange={handleChange}
       slotProps={{

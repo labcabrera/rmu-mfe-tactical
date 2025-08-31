@@ -4,7 +4,6 @@ import Avatar from '@mui/material/Avatar';
 import InputAdornment from '@mui/material/InputAdornment';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
-import { VARIANT } from '../../../constants/ui';
 
 const SelectWeaponSkill = ({ value, onChange }) => {
   const { t } = useTranslation();
@@ -35,7 +34,6 @@ const SelectWeaponSkill = ({ value, onChange }) => {
       select
       label={t('weapon-skill')}
       value={value === undefined || value === null || availableTables.length === 0 ? '' : value}
-      variant={VARIANT}
       fullWidth
       onChange={handleChange}
       slotProps={{

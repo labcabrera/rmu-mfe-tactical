@@ -4,7 +4,6 @@ import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
-import { VARIANT } from '../../../constants/ui';
 
 const SelectPace = ({ value, onChange }) => {
   const { t, i18n } = useTranslation();
@@ -32,7 +31,6 @@ const SelectPace = ({ value, onChange }) => {
         labelId="select-pace-label"
         label={t('pace')}
         value={value === undefined || value === null || paces.length === 0 ? '' : value}
-        variant={VARIANT}
         onChange={handleChange}
       >
         {paces.map((option, index) => (
