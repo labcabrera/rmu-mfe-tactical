@@ -2,9 +2,7 @@ import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 import './i18n';
 import './index.css';
-import AttackDeclaration from './modules/action-declaration/attack/AttackDeclaration';
 import AttackResolution from './modules/combat-actions/attack/AttackResolution';
-import TacticalMovementCreation from './modules/combat-actions/movement/TacticalMovementCreation';
 import CombatDashboard from './modules/combat-dashboard/CombatDashboard';
 import ForgeItem from './modules/items/ForgeItem';
 import TacticalGameCreation from './modules/tactical-games/create/TacticalGameCreation';
@@ -21,9 +19,7 @@ const App = () => {
       <Route path="/games/view/:gameId" element={<TacticalGameView />} />
       <Route path="/games/edit/:gameId" element={<TacticalGameEdit />} />
       <Route path="/combat/:gameId" element={<CombatDashboard />} />
-      <Route path="/combat/:gameId/declare-attack" element={<AttackDeclaration />} />
       <Route path="/combat/:gameId/resolve-attack/:actionId" element={<AttackResolution />} />
-      <Route path="/combat/:gameId/declare-movement" element={<TacticalMovementCreation />} />
       <Route path="/forge/:gameId" element={<ForgeItem />} />
     </Routes>
   );

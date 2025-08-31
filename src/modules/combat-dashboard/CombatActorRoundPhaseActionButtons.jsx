@@ -17,13 +17,26 @@ const CombatActorRoundPhaseActionButtons = ({ actorRound, phaseNumber }) => {
       actionType: 'attack',
       phaseStart: phaseNumber,
     };
+    declareAction(actionData);
+  };
+
+  const declareMovement = () => {
+    const actionData = {
+      gameId: game.id,
+      actorId: actorRound.actorId,
+      actionType: 'movement',
+      phaseStart: phaseNumber,
+    };
+    declareAction(actionData);
+  };
+
+  const declareAction = (actionData) => {
     createAction(actionData)
       .then((action) => {
-        console.log('Declared attack action: ', action);
         setRoundActions([...roundActions, action]);
       })
       .catch((error) => {
-        console.error('Error declaring attack:', error);
+        console.error(`Error declaring ${actionData.actionType} action:`, error);
       });
   };
 
@@ -32,7 +45,7 @@ const CombatActorRoundPhaseActionButtons = ({ actorRound, phaseNumber }) => {
       src: '/static/images/actions/movement.png',
       alt: 'Movement',
       action: () => {
-        navigate(`/tactical/combat/${game.id}/declare-movement?phaseStart=${phaseNumber}`, { state: { game, actorRound } });
+        declareMovement();
         return;
       },
     },
@@ -48,7 +61,7 @@ const CombatActorRoundPhaseActionButtons = ({ actorRound, phaseNumber }) => {
       src: '/static/images/actions/movement-maneuver.png',
       alt: 'Movement maneuver',
       action: () => {
-        navigate(`/tactical/combat/${game.id}/declare-movement-maneuver?phaseStart=${phaseNumber}`, { state: { game, character: actorRound } });
+        declareMovement();
         return;
       },
     },
