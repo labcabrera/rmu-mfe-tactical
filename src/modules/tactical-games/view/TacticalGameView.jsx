@@ -83,7 +83,7 @@ const TacticalGameView = () => {
             <TacticalGameViewFactions tacticalGame={tacticalGame} setTacticalGame={setTacticalGame} factions={factions} />
           </Grid>
           <Grid item size={4}>
-            <TacticalGameViewActors tacticalGame={tacticalGame} factions={factions} characters={characters} />
+            <TacticalGameViewActors tacticalGame={tacticalGame} setTacticalGame={setTacticalGame} factions={factions} characters={characters} />
           </Grid>
         </Grid>
       </Box>

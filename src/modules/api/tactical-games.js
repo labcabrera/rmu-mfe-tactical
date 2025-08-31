@@ -74,6 +74,32 @@ export async function deleteFaction(gameId, factionId) {
   return await response.json();
 }
 
+export async function addActor(gameId, actorId, type) {
+  const request = { actors: [{ id: actorId, type }] };
+  const url = `${process.env.RMU_API_TACTICAL_URL}/tactical-games/${gameId}/actors`;
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(request),
+  });
+  if (response.status != 200) {
+    throw new Error(`Error: ${response.status} ${response.statusText}. (${url})`);
+  }
+  return await response.json();
+}
+
+export async function deleteActor(gameId, actorId) {
+  const data = { actors: [actorId] };
+  const url = `${process.env.RMU_API_TACTICAL_URL}/tactical-games/${gameId}/actors`;
+  const response = await fetch(url, { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+  if (response.status != 200) {
+    throw new Error(`Error: ${response.status} ${response.statusText}. (${url})`);
+  }
+  return await response.json();
+}
+
 export async function startRound(gameId) {
   const url = `${process.env.RMU_API_TACTICAL_URL}/tactical-games/${gameId}/rounds/start`;
   const response = await fetch(url, { method: 'POST' });
