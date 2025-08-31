@@ -30,8 +30,7 @@ export async function createAction(actionData) {
   if (response.status != 201) {
     throw new Error(`Error: ${response.status} ${response.statusText}. (${url})`);
   }
-  const json = await response.json();
-  return json.content;
+  return await response.json();
 }
 
 export async function deleteAction(actionId) {

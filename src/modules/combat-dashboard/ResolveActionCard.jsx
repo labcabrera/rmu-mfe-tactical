@@ -16,7 +16,8 @@ const ResolveActionCard = ({ character, action }) => {
   const handleDeleteActionClick = async () => {
     try {
       await deleteAction(action.id);
-      const newActionList = roundActions.filter((e) => e.id !== action.id);
+      const newActionList = roundActions.filter((e) => e.id != action.id);
+      console.log('New action list: ' + JSON.stringify(newActionList));
       setRoundActions(newActionList);
     } catch (error) {
       console.log('delete error: ' + error);

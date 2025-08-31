@@ -7,19 +7,23 @@ import ResolveActionCard from './ResolveActionCard';
 
 const CombatActorRoundPhaseOptions = ({ actorRound, character, phase }) => {
   const [activeAction, setActiveAction] = useState(null);
-  const { game, setGame } = useContext(CombatContext);
-  const { roundActions, setRoundActions } = useContext(CombatContext);
+  const { game } = useContext(CombatContext);
+  const { roundActions } = useContext(CombatContext);
 
   const loadActiveAction = () => {
     console.log(`CombatCharacterPhaseOptions.loadActiveAction triggered for phase ${phase}. Actions: ${JSON.stringify(roundActions)}`);
-    const characterActions = roundActions.filter((e) => e.actorId == actorRound.id);
-    for (let action of characterActions) {
-      const actionStart = action.phaseStart;
-      const actionEnd = action.phaseStart + action.actionPoints - 1;
-      if (phase >= actionStart && phase <= actionEnd) {
+    try {
+      if (!roundActions || roundActions.length < 1) {
+        setActiveAction(null);
+      }
+      const actorActions = roundActions.filter((e) => e.actorId == actorRound.actorId && e.phaseStart <= phase);
+      for (let action of actorActions) {
         setActiveAction(action);
         return;
       }
+    } catch (error) {
+      console.error('Error in loadActiveAction: ', error);
+      setActiveAction(null);
     }
     setActiveAction(null);
   };
@@ -42,7 +46,7 @@ const CombatActorRoundPhaseOptions = ({ actorRound, character, phase }) => {
     return <CombatActorRoundPhaseActionButtons actorRound={actorRound} game={game} character={character} phaseNumber={phase} />;
   }
 
-  if (activeAction.phaseStart + activeAction.actionPoints - 1 == phase) {
+  if (activeAction) {
     return <ResolveActionCard action={activeAction} character={actorRound} />;
   }
 

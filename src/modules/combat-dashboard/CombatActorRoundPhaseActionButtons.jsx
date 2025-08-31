@@ -19,6 +19,7 @@ const CombatActorRoundPhaseActionButtons = ({ actorRound, phaseNumber }) => {
     };
     createAction(actionData)
       .then((action) => {
+        console.log('Declared attack action: ', action);
         setRoundActions([...roundActions, action]);
       })
       .catch((error) => {
