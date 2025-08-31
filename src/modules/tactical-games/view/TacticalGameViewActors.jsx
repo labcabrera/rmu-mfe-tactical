@@ -4,7 +4,7 @@ import List from '@mui/material/List';
 import Stack from '@mui/material/Stack';
 import AddButton from '../../shared/buttons/AddButton';
 
-const TacticalGameViewActors = ({ tacticalGame }) => {
+const TacticalGameViewActors = ({ tacticalGame, factions }) => {
   const debugMode = false;
 
   const navigate = useNavigate();
@@ -20,12 +20,21 @@ const TacticalGameViewActors = ({ tacticalGame }) => {
     navigate('/tactical/characters/creation', { state: { tacticalGame: tacticalGame } });
   };
 
+  if (!tacticalGame) {
+    return <p>Required tactical game</p>;
+  }
+
+  if (!tacticalGame.factions || tacticalGame.factions.length === 0) {
+    return <p>No available factions</p>;
+  }
+
   if (!tacticalCharacters || tacticalCharacters.length === 0) {
     return <p>No characters found.</p>;
   }
 
   return (
     <>
+      IMPORT ACTORS
       {/* <List sx={{ width: '100%' }}>
         {tacticalCharacters.map((item, index) => (
           <TacticalGameViewCharactersListItem key={index} character={item} tacticalGame={tacticalGame} onRemoveCharacter={removeCharacter} />

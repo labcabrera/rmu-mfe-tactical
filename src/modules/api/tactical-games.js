@@ -58,6 +58,22 @@ export async function addFaction(gameId, factionId) {
   return await response.json();
 }
 
+export async function deleteFaction(gameId, factionId) {
+  const url = `${process.env.RMU_API_TACTICAL_URL}/tactical-games/${gameId}/factions`;
+  const data = { factions: [factionId] };
+  const response = await fetch(url, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+  if (response.status != 200) {
+    throw new Error(`Error: ${response.status} ${response.statusText}. (${url})`);
+  }
+  return await response.json();
+}
+
 export async function startRound(gameId) {
   const url = `${process.env.RMU_API_TACTICAL_URL}/tactical-games/${gameId}/rounds/start`;
   const response = await fetch(url, { method: 'POST' });

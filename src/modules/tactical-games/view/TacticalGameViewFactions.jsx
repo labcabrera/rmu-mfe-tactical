@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import List from '@mui/material/List';
-import { addFaction } from '../../api/tactical-games';
+import Typography from '@mui/material/Typography';
+import { addFaction, deleteFaction } from '../../api/tactical-games';
 
 const TacticalGameViewFactions = ({ tacticalGame, setTacticalGame, factions }) => {
   const [tacticalCharacters, setTacticalCharacters] = useState([]);
@@ -13,17 +14,15 @@ const TacticalGameViewFactions = ({ tacticalGame, setTacticalGame, factions }) =
   };
 
   const handleFactionChange = (factionId) => {
-    if (isSelected(factionId)) {
-      //TODO
-      setTacticalGame({
-        ...tacticalGame,
-        factions: tacticalGame.factions.filter((id) => id !== factionId),
-      });
-    } else {
-      addFaction(tacticalGame.id, factionId).then((updatedGame) => {
+    const isSelected = tacticalGame.factions.includes(factionId);
+    const func = isSelected ? deleteFaction : addFaction;
+    func(tacticalGame.id, factionId)
+      .then((updatedGame) => {
         setTacticalGame(updatedGame);
+      })
+      .catch((error) => {
+        console.error('Error updating factions:', error);
       });
-    }
   };
 
   useEffect(() => {}, []);
@@ -38,7 +37,9 @@ const TacticalGameViewFactions = ({ tacticalGame, setTacticalGame, factions }) =
 
   return (
     <>
-      Factions
+      <Typography variant="h6" color="primary">
+        Factions
+      </Typography>
       <List sx={{ width: '100%' }}>
         {factions &&
           factions.map((faction) => (
