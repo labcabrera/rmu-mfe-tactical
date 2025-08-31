@@ -25,7 +25,7 @@ const ResolveActionCard = ({ character, action }) => {
   };
 
   const handleResolveActionClick = async () => {
-    navigate(`/tactical/combat/${action.gameId}/resolve-attack/${action.id}`, { state: { game, character, characters } });
+    navigate(`/tactical/combat/${action.gameId}/resolve/movement/${action.id}`, { state: { action } });
     return;
   };
 
