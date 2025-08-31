@@ -7,6 +7,7 @@ import AccordionDetails from '@mui/material/AccordionDetails';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
+import { fetchActionsByGameAndRound } from '../api/actions';
 import { fetchActorRounds } from '../api/actor-rounds';
 import { fetchCharacters } from '../api/characters';
 import { fetchTacticalGame } from '../api/tactical-games';
@@ -45,6 +46,16 @@ export const CombatProvider = ({ children }) => {
     }
   };
 
+  const bindActions = (gameId, displayRound) => {
+    try {
+      fetchActionsByGameAndRound(gameId, displayRound).then((data) => {
+        setRoundActions(data);
+      });
+    } catch (error) {
+      console.error('CombatProvider.bindActions error: ' + error);
+    }
+  };
+
   const bindCharacters = (game) => {
     const characterIds = game.actors.map((e) => e.id);
     const rsql = `id=in=(${characterIds.join(',')})`;
@@ -68,6 +79,7 @@ export const CombatProvider = ({ children }) => {
     console.log('CombatProvider.useEffect[game] triggered', game, displayRound);
     if (game && displayRound) {
       bindActorRounds(game.id, displayRound);
+      bindActions(game.id, displayRound);
     }
     if (game) {
       bindCharacters(game);

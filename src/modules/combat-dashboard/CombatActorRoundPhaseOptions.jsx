@@ -7,12 +7,12 @@ import ResolveActionCard from './ResolveActionCard';
 
 const CombatActorRoundPhaseOptions = ({ actorRound, character, phase }) => {
   const [activeAction, setActiveAction] = useState(null);
-  const { characters, setCharacters } = useContext(CombatContext);
   const { game, setGame } = useContext(CombatContext);
   const { roundActions, setRoundActions } = useContext(CombatContext);
 
   const loadActiveAction = () => {
-    const characterActions = roundActions.filter((e) => e.characterId == actorRound.id);
+    console.log(`CombatCharacterPhaseOptions.loadActiveAction triggered for phase ${phase}. Actions: ${JSON.stringify(roundActions)}`);
+    const characterActions = roundActions.filter((e) => e.actorId == actorRound.id);
     for (let action of characterActions) {
       const actionStart = action.phaseStart;
       const actionEnd = action.phaseStart + action.actionPoints - 1;

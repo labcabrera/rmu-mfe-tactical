@@ -42,16 +42,16 @@ const CombatActorRoundListItem = ({ actorRound }) => {
               <CombatFreeActionButtons />
             </Grid>
             <Grid item size={2} display="flex" justifyContent="center">
-              <CombatActorRoundPhaseOptions actorRound={actorRound} character={character} phase={1} />
+              <CombatActorRoundPhaseOptions actorRound={actorRound} actor={actorRound} phase={1} />
             </Grid>
             <Grid item size={2} display="flex" justifyContent="center">
-              <CombatActorRoundPhaseOptions actorRound={actorRound} character={character} phase={2} />
+              <CombatActorRoundPhaseOptions actorRound={actorRound} actor={actorRound} phase={2} />
             </Grid>
             <Grid item size={2} display="flex" justifyContent="center">
-              <CombatActorRoundPhaseOptions actorRound={actorRound} character={character} phase={3} />
+              <CombatActorRoundPhaseOptions actorRound={actorRound} actor={actorRound} phase={3} />
             </Grid>
             <Grid item size={2} display="flex" justifyContent="center">
-              <CombatActorRoundPhaseOptions actorRound={actorRound} character={character} phase={4} />
+              <CombatActorRoundPhaseOptions actorRound={actorRound} actor={actorRound} phase={4} />
             </Grid>
           </Grid>
         </Grid>

@@ -1,11 +1,30 @@
 import React, { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { createAction } from '../api/actions';
 import CircleButtonGroup from '../shared/generic/CircleButtonGroup';
 import { CombatContext } from './CombatProvider';
 
-const CombatActorRoundPhaseActionButtons = ({ game, actorRound, character, phaseNumber }) => {
+const CombatActorRoundPhaseActionButtons = ({ actorRound, phaseNumber }) => {
   const navigate = useNavigate();
+  const { game } = useContext(CombatContext);
   const { characters } = useContext(CombatContext);
+  const { roundActions, setRoundActions } = useContext(CombatContext);
+
+  const declareAttack = () => {
+    const actionData = {
+      gameId: game.id,
+      actorId: actorRound.actorId,
+      actionType: 'attack',
+      phaseStart: phaseNumber,
+    };
+    createAction(actionData)
+      .then((action) => {
+        setRoundActions([...roundActions, action]);
+      })
+      .catch((error) => {
+        console.error('Error declaring attack:', error);
+      });
+  };
 
   const options = [
     {
@@ -20,7 +39,7 @@ const CombatActorRoundPhaseActionButtons = ({ game, actorRound, character, phase
       src: '/static/images/actions/attack.png',
       alt: 'Declare attack',
       action: () => {
-        navigate(`/tactical/combat/${game.id}/declare-attack?phaseStart=${phaseNumber}`, { state: { game, actorRound, character, characters } });
+        declareAttack();
         return;
       },
     },
