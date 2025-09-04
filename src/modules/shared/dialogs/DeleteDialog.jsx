@@ -7,7 +7,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 
-const CharacterAvatar = ({ message, open, onDelete, onClose }) => {
+const DeleteDialog = ({ message, open, onDelete, onClose }) => {
   return (
     <Dialog open={open} onClose={onClose} aria-labelledby="alert-dialog-title" aria-describedby="alert-dialog-description">
       <DialogTitle id="alert-dialog-title">{'Faction delete confirmation'}</DialogTitle>
@@ -22,4 +22,4 @@ const CharacterAvatar = ({ message, open, onDelete, onClose }) => {
   );
 };
 
-export default CharacterAvatar;
+export default DeleteDialog;

@@ -1,9 +1,9 @@
 /* eslint-disable react/prop-types */
 import React, { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { createAction } from '../api/actions';
-import CircleButtonGroup from '../shared/generic/CircleButtonGroup';
-import { CombatContext } from './../../CombatContext';
+import { CombatContext } from '../../../CombatContext';
+import { createAction } from '../../api/actions';
+import CircleButtonGroup from '../../shared/generic/CircleButtonGroup';
 
 const CombatActorRoundPhaseActionButtons = ({ actorRound, phaseNumber }) => {
   const navigate = useNavigate();

@@ -1,16 +1,16 @@
 /* eslint-disable react/prop-types */
 import React, { useContext, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { deleteAction } from '../api/actions';
 import DeleteDialog from '../shared/dialogs/DeleteDialog';
 import CircleButtonGroup from '../shared/generic/CircleButtonGroup';
 import { CombatContext } from './../../CombatContext';
+import ResolveActionDialog from './dialogs/ResolveActionDialog';
 
-const ResolveActionCard = ({ character, action }) => {
-  const navigate = useNavigate();
+const ResolveActionCard = ({ actorRound, action }) => {
   const { roundActions, setRoundActions } = useContext(CombatContext);
   const { game } = useContext(CombatContext);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [resolveDialogOpen, setResolveDialogOpen] = useState(false);
 
   const handleOpenDeleteDialog = () => {
     setDeleteDialogOpen(true);
@@ -28,11 +28,10 @@ const ResolveActionCard = ({ character, action }) => {
   };
 
   const handleResolve = async () => {
-    navigate(`/tactical/combat/${action.gameId}/resolve/movement/${action.id}`, { state: { action } });
-    return;
+    setResolveDialogOpen(true);
   };
 
-  if (!action || !character || !game) {
+  if (!action || !actorRound || !game) {
     return <p>Loading...</p>;
   }
 
@@ -56,6 +55,7 @@ const ResolveActionCard = ({ character, action }) => {
   return (
     <>
       <CircleButtonGroup options={options} initialRotation={4.71} size={60} radius={40} xOffset={-70} yOffset={-110} />
+      <ResolveActionDialog action={action} character={actorRound} open={resolveDialogOpen} onClose={() => setResolveDialogOpen(false)} />
       <DeleteDialog
         message={`Are you sure you want to delete? This action cannot be undone.`}
         onDelete={() => handleDelete()}

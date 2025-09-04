@@ -3,8 +3,8 @@ import React from 'react';
 import Box from '@mui/material/Box';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
-import CombatActorRoundList from './CombatActorRoundList';
 import CombatDashboardActions from './CombatDashboardActions';
+import CombatActorRoundList from './actor-rounds/CombatActorRoundList';
 
 function CustomTabPanel(props) {
   const { children, value, index, ...other } = props;

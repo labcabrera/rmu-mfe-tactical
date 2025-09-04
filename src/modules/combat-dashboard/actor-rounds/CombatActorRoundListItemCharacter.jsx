@@ -7,9 +7,9 @@ import CardContent from '@mui/material/CardContent';
 import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import CharacterAvatar from '../shared/avatars/CharacterAvatar';
-import GenericBar from '../shared/generic/GenericBar';
-import { CombatContext } from './../../CombatContext';
+import { CombatContext } from '../../../CombatContext';
+import CharacterAvatar from '../../shared/avatars/CharacterAvatar';
+import GenericBar from '../../shared/generic/GenericBar';
 
 const barSize = 220;
 const green = '#4caf50';

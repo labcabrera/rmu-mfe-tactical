@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import Grid from '@mui/material/Grid';
-import { CombatContext } from './../../CombatContext';
+import { CombatContext } from '../../../CombatContext';
 import CombatActorRoundListItem from './CombatActorRoundListItem';
 
 const CombatActorRoundList = () => {

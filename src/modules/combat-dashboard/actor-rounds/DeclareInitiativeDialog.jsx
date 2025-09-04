@@ -8,9 +8,9 @@ import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Grid from '@mui/material/Grid';
 import TextField from '@mui/material/TextField';
-import { useError } from '../../ErrorContext';
-import { declareActorRoundInitiative } from '../api/actor-rounds';
-import { CombatContext } from './../../CombatContext';
+import { CombatContext } from '../../../CombatContext';
+import { useError } from '../../../ErrorContext';
+import { declareActorRoundInitiative } from '../../api/actor-rounds';
 
 const DeclareInitiativeDialog = ({ actorRound, open, setOpen }) => {
   const { showError } = useError();
