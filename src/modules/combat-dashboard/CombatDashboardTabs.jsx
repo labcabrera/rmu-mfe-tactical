@@ -3,11 +3,8 @@ import * as React from 'react';
 import Box from '@mui/material/Box';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
-import Typography from '@mui/material/Typography';
-import PropTypes from 'prop-types';
 import CombatDashboardTabActions from './combat-dashboard-tab-action-rounds';
 
-// Helper function for accessibility props
 function a11yProps(index) {
   return {
     id: `simple-tab-${index}`,
@@ -15,7 +12,6 @@ function a11yProps(index) {
   };
 }
 
-// Custom Tab Panel component
 function CustomTabPanel(props) {
   const { children, value, index, ...other } = props;
 
@@ -26,107 +22,7 @@ function CustomTabPanel(props) {
   );
 }
 
-CustomTabPanel.propTypes = {
-  children: PropTypes.node,
-  index: PropTypes.number.isRequired,
-  value: PropTypes.number.isRequired,
-};
-
-// Componente placeholder para Iniciativa
-const InitiativeComponent = ({ game, characters, actions }) => {
-  return (
-    <Box>
-      <Typography variant="h6" gutterBottom>
-        Combat Initiative
-      </Typography>
-      <Typography variant="body2" color="text.secondary">
-        Aquí se mostraría el componente de iniciativa del combate.
-      </Typography>
-      {/* TODO: Implementar componente de iniciativa */}
-    </Box>
-  );
-};
-
-// Componente placeholder para Ataques
-const AttacksComponent = ({ game, characters, actions }) => {
-  return (
-    <Box>
-      <Typography variant="h6" gutterBottom>
-        Combat Attacks
-      </Typography>
-      <Typography variant="body2" color="text.secondary">
-        Aquí se mostraría el componente de ataques del combate.
-      </Typography>
-      {/* TODO: Implementar componente de ataques */}
-    </Box>
-  );
-};
-
-// Componente Debug que muestra el JSON
-const DebugComponent = ({ game, characters, actions }) => {
-  return (
-    <Box>
-      <Typography variant="h6" gutterBottom>
-        Debug Information
-      </Typography>
-      <Box sx={{ mt: 2 }}>
-        <Typography variant="subtitle1" gutterBottom>
-          Game Data:
-        </Typography>
-        <Box
-          component="pre"
-          sx={{
-            backgroundColor: '#f5f5f5',
-            p: 2,
-            borderRadius: 1,
-            overflow: 'auto',
-            fontSize: '12px',
-            mb: 2,
-          }}
-        >
-          {JSON.stringify(game, null, 2)}
-        </Box>
-      </Box>
-      <Box sx={{ mt: 2 }}>
-        <Typography variant="subtitle1" gutterBottom>
-          Characters Data:
-        </Typography>
-        <Box
-          component="pre"
-          sx={{
-            backgroundColor: '#f5f5f5',
-            p: 2,
-            borderRadius: 1,
-            overflow: 'auto',
-            fontSize: '12px',
-            mb: 2,
-          }}
-        >
-          {JSON.stringify(characters, null, 2)}
-        </Box>
-      </Box>
-      <Box sx={{ mt: 2 }}>
-        <Typography variant="subtitle1" gutterBottom>
-          Actions Data:
-        </Typography>
-        <Box
-          component="pre"
-          sx={{
-            backgroundColor: '#f5f5f5',
-            p: 2,
-            borderRadius: 1,
-            overflow: 'auto',
-            fontSize: '12px',
-          }}
-        >
-          {JSON.stringify(actions, null, 2)}
-        </Box>
-      </Box>
-    </Box>
-  );
-};
-
-export default function CombatDashboardTabs({ game, characters, actions }) {
+export default function CombatDashboardTabs() {
   const [value, setValue] = React.useState(0);
 
   const handleChange = (event, newValue) => {
@@ -147,13 +43,13 @@ export default function CombatDashboardTabs({ game, characters, actions }) {
         <CombatDashboardTabActions />
       </CustomTabPanel>
       <CustomTabPanel value={value} index={1}>
-        <InitiativeComponent game={game} characters={characters} actions={actions} />
+        TODO
       </CustomTabPanel>
       <CustomTabPanel value={value} index={2}>
-        <AttacksComponent game={game} characters={characters} actions={actions} />
+        TODO
       </CustomTabPanel>
       <CustomTabPanel value={value} index={3}>
-        <DebugComponent game={game} characters={characters} actions={actions} />
+        TODO
       </CustomTabPanel>
     </Box>
   );
