@@ -92,47 +92,20 @@ module.exports = (_, argv) => ({
     new ModuleFederationPlugin({
       name: "tactical",
       filename: "tactical-app.js",
-      remotes: {},
+      remotes: {
+        host: "host@http://localhost:8080/host.js"
+      },
       exposes: {
         "./TacticalApp": "./src/App.jsx",
       },
       shared: {
-        'react': {
-          singleton: true,
-          requiredVersion: deps["react"],
-        },
-        'react-dom': {
-          singleton: true,
-          requiredVersion: deps["react-dom"],
-        },
-        'react-router-dom': {
-          singleton: true,
-          requiredVersion: deps["react-router-dom"],
-        },
-        '@mui/material': {
-          singleton: true,
-          requiredVersion: deps['@mui/material'],
-        },
-        '@mui/x-data-grid': {
-          singleton: true,
-          requiredVersion: deps['@mui/x-data-grid'],
-        },
-        '@mui/icons-material': {
-          singleton: true,
-          requiredVersion: deps['@mui/icons-material'],
-        },
-        '@mui/lab': {
-          singleton: true,
-          requiredVersion: deps['@mui/lab'],
-        },
-        '@emotion/react': {
-          singleton: true,
-          requiredVersion: deps['@emotion/react'],
-        },
-        '@emotion/styled': {
-          singleton: true,
-          requiredVersion: deps['@emotion/styled'],
-        },
+        react: { singleton: true, requiredVersion: deps.react },
+        'react-dom': { singleton: true, requiredVersion: deps['react-dom'] },
+        'react-router-dom': { singleton: true, requiredVersion: deps['react-router-dom'] },
+        '@mui/material': { singleton: true, requiredVersion: deps['@mui/material'] },
+        '@mui/icons-material': { singleton: true, requiredVersion: deps['@mui/icons-material'] },
+        '@emotion/react': { singleton: true, requiredVersion: deps['@emotion/react'] },
+        '@emotion/styled': { singleton: true, requiredVersion: deps['@emotion/styled'] },
       },
     }),
     new HtmlWebPackPlugin({
