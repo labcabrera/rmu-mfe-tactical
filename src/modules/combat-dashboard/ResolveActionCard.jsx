@@ -4,9 +4,9 @@ import { deleteAction } from '../api/actions';
 import DeleteDialog from '../shared/dialogs/DeleteDialog';
 import CircleButtonGroup from '../shared/generic/CircleButtonGroup';
 import { CombatContext } from './../../CombatContext';
-import ResolveActionDialog from './dialogs/ResolveActionDialog';
+import ResolveActionDialog from './resolve-action-dialog/ResolveActionDialog';
 
-const ResolveActionCard = ({ actorRound, action }) => {
+const ResolveActionCard = ({ actorRound, character, action }) => {
   const { roundActions, setRoundActions } = useContext(CombatContext);
   const { game } = useContext(CombatContext);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -55,7 +55,13 @@ const ResolveActionCard = ({ actorRound, action }) => {
   return (
     <>
       <CircleButtonGroup options={options} initialRotation={4.71} size={60} radius={40} xOffset={-70} yOffset={-110} />
-      <ResolveActionDialog action={action} character={actorRound} open={resolveDialogOpen} onClose={() => setResolveDialogOpen(false)} />
+      <ResolveActionDialog
+        action={action}
+        actorRound={actorRound}
+        character={character}
+        open={resolveDialogOpen}
+        onClose={() => setResolveDialogOpen(false)}
+      />
       <DeleteDialog
         message={`Are you sure you want to delete? This action cannot be undone.`}
         onDelete={() => handleDelete()}

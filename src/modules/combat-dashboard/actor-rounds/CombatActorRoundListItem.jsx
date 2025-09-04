@@ -8,7 +8,7 @@ import CombatActorRoundListItemCharacter from './CombatActorRoundListItemCharact
 import CombatActorRoundPhaseOptions from './CombatActorRoundPhaseOptions';
 import CombatCharacterRoundInitiative from './CombatCharacterRoundInitiative';
 
-const PhaseOptions = ({ actorRound, game, phase }) => {
+const PhaseOptions = ({ actorRound, character, game, phase }) => {
   return (
     <Grid item size={1}>
       <Paper
@@ -21,7 +21,7 @@ const PhaseOptions = ({ actorRound, game, phase }) => {
           justifyContent: 'center',
         }}
       >
-        <CombatActorRoundPhaseOptions actorRound={actorRound} phase={phase} />
+        <CombatActorRoundPhaseOptions actorRound={actorRound} character={character} phase={phase} />
       </Paper>
     </Grid>
   );
@@ -70,10 +70,10 @@ const CombatActorRoundListItem = ({ actorRound }) => {
           <CombatFreeActionButtons />
         </Paper>
       </Grid>
-      <PhaseOptions actorRound={actorRound} game={game} phase={1} />
-      <PhaseOptions actorRound={actorRound} game={game} phase={2} />
-      <PhaseOptions actorRound={actorRound} game={game} phase={3} />
-      <PhaseOptions actorRound={actorRound} game={game} phase={4} />
+      <PhaseOptions actorRound={actorRound} character={character} game={game} phase={1} />
+      <PhaseOptions actorRound={actorRound} character={character} game={game} phase={2} />
+      <PhaseOptions actorRound={actorRound} character={character} game={game} phase={3} />
+      <PhaseOptions actorRound={actorRound} character={character} game={game} phase={4} />
       <Grid item size={3}></Grid>
       <Grid item size={1}></Grid>
     </Grid>

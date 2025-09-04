@@ -45,7 +45,7 @@ const CombatActorRoundPhaseOptions = ({ actorRound, character, phase }) => {
   }
 
   if (activeAction && game.phase === `phase_${phase}`) {
-    return <ResolveActionCard action={activeAction} actorRound={actorRound} />;
+    return <ResolveActionCard action={activeAction} character={character} actorRound={actorRound} />;
   }
 
   if (!activeAction) {

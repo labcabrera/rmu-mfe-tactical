@@ -32,6 +32,7 @@ const SelectPace = ({ value, onChange }) => {
         labelId="select-pace-label"
         label={t('pace')}
         variant="standard"
+        required={true}
         value={value === undefined || value === null || paces.length === 0 ? '' : value}
         onChange={handleChange}
       >

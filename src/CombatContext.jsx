@@ -9,7 +9,8 @@ import { useError } from './ErrorContext.jsx';
 import { fetchActionsByGameAndRound } from './modules/api/actions.js';
 import { fetchActorRounds } from './modules/api/actor-rounds.js';
 import { fetchCharacters } from './modules/api/characters.js';
-import { fetchFactions } from './modules/api/factions.js';
+import { fetchFactions } from './modules/api/factions';
+import { fetchStrategicGame } from './modules/api/strategic-games.js';
 import { fetchTacticalGame } from './modules/api/tactical-games.js';
 
 export const CombatContext = createContext();
@@ -19,6 +20,7 @@ export const CombatProvider = ({ children }) => {
 
   const [gameId, setGameId] = useState(null);
   const [game, setGame] = useState(null);
+  const [strategicGame, setStrategicGame] = useState(null);
   const [actorRounds, setActorRounds] = useState(null);
   const [characters, setCharacters] = useState(null);
   const [factions, setFactions] = useState(null);
@@ -30,6 +32,16 @@ export const CombatProvider = ({ children }) => {
       .then((data) => {
         setGame(data);
         setDisplayRound(data.round);
+      })
+      .catch((err) => {
+        showError(err.message);
+      });
+  };
+
+  const bindStrategicGame = (strategicGameId) => {
+    fetchStrategicGame(strategicGameId)
+      .then((data) => {
+        setStrategicGame(data);
       })
       .catch((err) => {
         showError(err.message);
@@ -85,10 +97,11 @@ export const CombatProvider = ({ children }) => {
     if (game && displayRound) {
       bindActorRounds(game.id, displayRound);
       bindActions(game.id, displayRound);
-      bindFactions(game);
     }
     if (game) {
       bindCharacters(game);
+      bindFactions(game);
+      bindStrategicGame(game.strategicGameId);
     }
   }, [game, displayRound]);
 
@@ -105,6 +118,8 @@ export const CombatProvider = ({ children }) => {
         value={{
           gameId,
           setGameId,
+          strategicGame,
+          setStrategicGame,
           game,
           setGame,
           actorRounds,
@@ -152,6 +167,14 @@ export const CombatProvider = ({ children }) => {
         </AccordionSummary>
         <AccordionDetails>
           <pre>roundActions: {JSON.stringify(roundActions, null, 2)}</pre>
+        </AccordionDetails>
+      </Accordion>
+      <Accordion>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1-content" id="panel1-header">
+          <Typography component="span">Strategic Game</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <pre>strategicGame: {JSON.stringify(strategicGame, null, 2)}</pre>
         </AccordionDetails>
       </Accordion>
       <pre>DisplayRound: {JSON.stringify(displayRound, null, 2)}</pre>
