@@ -53,7 +53,7 @@ const CombatActorRoundListItem = ({ actorRound }) => {
       </Grid>
       <Grid item size={1}>
         <Paper
-          elevation={3}
+          elevation={game.phase === 'initiative' ? 0 : 2}
           style={{
             height: '100%',
             padding: '16px',
@@ -66,7 +66,7 @@ const CombatActorRoundListItem = ({ actorRound }) => {
         </Paper>
       </Grid>
       <Grid item size={1}>
-        <Paper elevation={3} style={{ height: '100%', padding: '16px' }}>
+        <Paper elevation={game.phase.startsWith('phase_') ? 2 : 0} style={{ height: '100%', padding: '16px' }}>
           <CombatFreeActionButtons />
         </Paper>
       </Grid>

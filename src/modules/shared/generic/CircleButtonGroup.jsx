@@ -35,7 +35,7 @@ const CircleButtonGroup = ({ options, initialRotation = 3.46, size = 50, radius 
         position: 'relative',
       }}
     >
-      <Circle x={0 + xOffset} y={radius + yOffset} radius={radius + 30} lineWidth={2} color="#9d9d9d" />
+      <Circle x={0 + xOffset} y={radius + yOffset} radius={radius + 30} lineWidth={2} color="#5e5e5eff" />
       <div className="circle-container">
         {options.map((option, index) => {
           const angle = index * angleStep + initialRotation;
