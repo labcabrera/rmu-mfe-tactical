@@ -3,7 +3,7 @@ import React, { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createAction } from '../api/actions';
 import CircleButtonGroup from '../shared/generic/CircleButtonGroup';
-import { CombatContext } from './CombatProvider';
+import { CombatContext } from './../../CombatContext';
 
 const CombatActorRoundPhaseActionButtons = ({ actorRound, phaseNumber }) => {
   const navigate = useNavigate();

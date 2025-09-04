@@ -2,8 +2,8 @@
 import React, { useContext, useEffect, useState } from 'react';
 import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
+import { CombatContext } from './../../CombatContext';
 import CombatActorRoundPhaseActionButtons from './CombatActorRoundPhaseActionButtons';
-import { CombatContext } from './CombatProvider';
 import ResolveActionCard from './ResolveActionCard';
 
 const CombatActorRoundPhaseOptions = ({ actorRound, character, phase }) => {

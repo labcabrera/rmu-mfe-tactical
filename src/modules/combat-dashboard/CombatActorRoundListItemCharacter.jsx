@@ -9,7 +9,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import CharacterAvatar from '../shared/avatars/CharacterAvatar';
 import GenericBar from '../shared/generic/GenericBar';
-import { CombatContext } from './CombatProvider';
+import { CombatContext } from './../../CombatContext';
 
 const barSize = 220;
 const green = '#4caf50';

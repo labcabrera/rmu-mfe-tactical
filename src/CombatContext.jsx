@@ -5,12 +5,12 @@ import Accordion from '@mui/material/Accordion';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import Typography from '@mui/material/Typography';
-import { useError } from '../../ErrorContext';
-import { fetchActionsByGameAndRound } from '../api/actions';
-import { fetchActorRounds } from '../api/actor-rounds';
-import { fetchCharacters } from '../api/characters';
-import { fetchFactions } from '../api/factions.js';
-import { fetchTacticalGame } from '../api/tactical-games';
+import { useError } from './ErrorContext.jsx';
+import { fetchActionsByGameAndRound } from './modules/api/actions.js';
+import { fetchActorRounds } from './modules/api/actor-rounds.js';
+import { fetchCharacters } from './modules/api/characters.js';
+import { fetchFactions } from './modules/api/factions.js';
+import { fetchTacticalGame } from './modules/api/tactical-games.js';
 
 export const CombatContext = createContext();
 

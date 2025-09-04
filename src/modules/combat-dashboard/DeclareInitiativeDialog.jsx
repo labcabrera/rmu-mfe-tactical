@@ -10,7 +10,7 @@ import Grid from '@mui/material/Grid';
 import TextField from '@mui/material/TextField';
 import { useError } from '../../ErrorContext';
 import { declareActorRoundInitiative } from '../api/actor-rounds';
-import { CombatContext } from './CombatProvider';
+import { CombatContext } from './../../CombatContext';
 
 const DeclareInitiativeDialog = ({ actorRound, open, setOpen }) => {
   const { showError } = useError();

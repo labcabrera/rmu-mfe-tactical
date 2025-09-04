@@ -14,7 +14,7 @@ import AddButton from '../shared/buttons/AddButton';
 import BackButton from '../shared/buttons/BackButton';
 import CloseButton from '../shared/buttons/CloseButton';
 import NextButton from '../shared/buttons/NextButton';
-import { CombatContext } from './CombatProvider';
+import { CombatContext } from './../../CombatContext';
 
 const CombatDashboardActions = () => {
   const navigate = useNavigate();

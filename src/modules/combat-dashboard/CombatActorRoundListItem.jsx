@@ -2,11 +2,11 @@
 import React, { useContext, useEffect, useState } from 'react';
 import Grid from '@mui/material/Grid';
 import Paper from '@mui/material/Paper';
+import { CombatContext } from './../../CombatContext';
 import CombatActorRoundListItemCharacter from './CombatActorRoundListItemCharacter';
 import CombatActorRoundPhaseOptions from './CombatActorRoundPhaseOptions';
 import CombatCharacterRoundInitiative from './CombatCharacterRoundInitiative';
 import CombatFreeActionButtons from './CombatFreeActionButtons';
-import { CombatContext } from './CombatProvider';
 
 const PhaseOptions = ({ actorRound, game, phase }) => {
   return (

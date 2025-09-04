@@ -1,18 +1,20 @@
 /* eslint-disable react/prop-types */
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import IconButton from '@mui/material/IconButton';
-import Stack from '@mui/material/Stack';
 import { deleteAction } from '../api/actions';
-import DeleteButton from '../shared/buttons/DeleteButton';
-import PlayButton from '../shared/buttons/PlayButton';
+import DeleteDialog from '../shared/dialogs/DeleteDialog';
 import CircleButtonGroup from '../shared/generic/CircleButtonGroup';
-import { CombatContext } from './CombatProvider';
+import { CombatContext } from './../../CombatContext';
 
 const ResolveActionCard = ({ character, action }) => {
   const navigate = useNavigate();
   const { roundActions, setRoundActions } = useContext(CombatContext);
   const { game } = useContext(CombatContext);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+
+  const handleOpenDeleteDialog = () => {
+    setDeleteDialogOpen(true);
+  };
 
   const handleDelete = async () => {
     try {
@@ -42,41 +44,25 @@ const ResolveActionCard = ({ character, action }) => {
     {
       src: '/static/images/generic/play.png',
       alt: 'Resolve',
-      action: () => {
-        handleResolve();
-        return;
-      },
+      action: () => handleResolve(),
     },
     {
       src: '/static/images/generic/delete.png',
       alt: 'Delete action',
-      action: () => {
-        handleDelete();
-        return;
-      },
+      action: () => handleOpenDeleteDialog(),
     },
   ];
 
   return (
-    <CircleButtonGroup options={options} initialRotation={4.71} size={60} radius={40} xOffset={-70} yOffset={-110} />
-    // <Stack direction="row">
-    //   <IconButton
-    //     disabled
-    //     style={{
-    //       width: `70px`,
-    //       height: `70px`,
-    //       opacity: 0.5,
-    //     }}
-    //   >
-    //     <img
-    //       src={`/static/images/actions/${action.actionType}.png`}
-    //       alt={action.actionType}
-    //       style={{ width: '100%', height: '100%', borderRadius: '50%' }}
-    //     />
-    //   </IconButton>
-    //   <PlayButton onClick={handleResolveActionClick} size={70} />
-    //   <DeleteButton onClick={() => handleDeleteActionClick()} size={70} />
-    // </Stack>
+    <>
+      <CircleButtonGroup options={options} initialRotation={4.71} size={60} radius={40} xOffset={-70} yOffset={-110} />
+      <DeleteDialog
+        message={`Are you sure you want to delete? This action cannot be undone.`}
+        onDelete={() => handleDelete()}
+        open={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+      />
+    </>
   );
 };
 
