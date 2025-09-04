@@ -1,56 +1,15 @@
-import React, { useEffect, useState } from 'react';
-import { useLocation, useParams } from 'react-router-dom';
-import Grid from '@mui/material/Grid';
-import TextField from '@mui/material/TextField';
-import { fetchStrategicGame } from '../../api/strategic-games';
+import React, { useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import TacticalGameEditActions from './TacticalGameEditActions';
+import TacticalGameEditAttributes from './TacticalGameEditAttributes';
 
-const TacticalGameEdit = ({}) => {
-  const { gameId } = useParams();
+const TacticalGameEdit = () => {
   const location = useLocation();
-  const [formData, setFormData] = useState({});
-  const [tacticalGame, setTacticalGame] = useState();
-  const [strategicGame, setStrategicGame] = useState(null);
-
-  const fetchTacticalGame = async (gameId) => {
-    const response = await fetch(`${API_TACTICAL_URL}/tactical-games/${gameId}`, { method: 'GET' });
-    const responseBody = await response.json();
-    setTacticalGame(responseBody);
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
-  };
-
-  const bindStrategicGame = async (strategicGameId) => {
-    const strategicGame = await fetchStrategicGame(strategicGameId);
-    setStrategicGame(strategicGame);
-  };
-
-  useEffect(() => {
-    if (location.state && location.state.tacticalGame) {
-      console.log(`TacticalGameView.useEffect: resolved tacticalGame from state`);
-      setTacticalGame(location.state.tacticalGame);
-    } else {
-      console.log(`TacticalGameView.useEffect: fetch tacticalGame ${gameId} from API`);
-      fetchTacticalGame(gameId);
-    }
-  }, [location.state]);
-
-  useEffect(() => {
-    console.log(`TacticalGameView.useEffect: set formData`);
-    setFormData({
-      name: tacticalGame?.name,
-      description: tacticalGame?.description,
-    });
-    if (tacticalGame.strategicGameId) {
-      bindStrategicGame(tacticalGame.strategicGameId);
-    }
-  }, [tacticalGame]);
+  const tacticalGame = location.state?.tacticalGame;
+  const [formData, setFormData] = useState({
+    name: tacticalGame.name,
+    description: tacticalGame.description || '',
+  });
 
   if (!tacticalGame) {
     return <div>Loading...</div>;
@@ -59,16 +18,9 @@ const TacticalGameEdit = ({}) => {
   return (
     <>
       <TacticalGameEditActions tacticalGame={tacticalGame} formData={formData} />
-      <Grid container spacing={2}>
-        <Grid item size={12}>
-          <TextField fullWidth label="Name" name="name" value={formData.name || ''} onChange={handleChange} />
-        </Grid>
-        <Grid item size={12}>
-          <TextField fullWidth label="Description" name="description" multiline rows={4} value={formData.description || ''} onChange={handleChange} />
-        </Grid>
-      </Grid>
+      <TacticalGameEditAttributes formData={formData} setFormData={setFormData} />
       <pre>FormData: {JSON.stringify(formData, null, 2)}</pre>
-      <pre>StrategicGame: {JSON.stringify(strategicGame, null, 2)}</pre>
+      <pre>TacticalGame: {JSON.stringify(tacticalGame, null, 2)}</pre>
     </>
   );
 };

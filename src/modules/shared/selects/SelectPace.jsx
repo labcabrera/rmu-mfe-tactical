@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import FormControl from '@mui/material/FormControl';
@@ -6,7 +7,7 @@ import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
 
 const SelectPace = ({ value, onChange }) => {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
 
   const paces = [
     { id: 'creep', multiplier: 1 / 8 },

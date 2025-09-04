@@ -33,6 +33,21 @@ export async function createTacticalGame(gameData) {
   return await response.json();
 }
 
+export async function updateTacticalGame(gameId, gameData) {
+  const url = `${process.env.RMU_API_TACTICAL_URL}/tactical-games/${gameId}`;
+  const response = await fetch(url, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(gameData),
+  });
+  if (response.status != 200) {
+    throw new Error(`Error: ${response.status} ${response.statusText}. (${url})`);
+  }
+  return await response.json();
+}
+
 export async function deleteTacticalGame(gameId) {
   const url = `${process.env.RMU_API_TACTICAL_URL}/tactical-games/${gameId}`;
   const response = await fetch(url, { method: 'DELETE' });

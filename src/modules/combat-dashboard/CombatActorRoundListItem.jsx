@@ -1,6 +1,5 @@
 /* eslint-disable react/prop-types */
 import React, { useContext, useEffect, useState } from 'react';
-import { Box } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import CombatActorRoundListItemCharacter from './CombatActorRoundListItemCharacter';
 import CombatActorRoundPhaseOptions from './CombatActorRoundPhaseOptions';
@@ -27,35 +26,31 @@ const CombatActorRoundListItem = ({ actorRound }) => {
   }
 
   return (
-    <Box sx={{ flexGrow: 1 }}>
-      <Grid container spacing={0} columns={24} alignItems="center">
-        <Grid item size={5}>
-          <CombatActorRoundListItemCharacter actorRound={actorRound} />
-        </Grid>
-        <Grid item size={19}>
-          <Grid container item alignItems="center">
-            <Grid item size={2} display="flex" justifyContent="center">
-              <CombatCharacterRoundInitiative />
-            </Grid>
-            <Grid item size={2} display="flex" justifyContent="center">
-              <CombatFreeActionButtons />
-            </Grid>
-            <Grid item size={2} display="flex" justifyContent="center">
-              <CombatActorRoundPhaseOptions actorRound={actorRound} actor={actorRound} phase={1} />
-            </Grid>
-            <Grid item size={2} display="flex" justifyContent="center">
-              <CombatActorRoundPhaseOptions actorRound={actorRound} actor={actorRound} phase={2} />
-            </Grid>
-            <Grid item size={2} display="flex" justifyContent="center">
-              <CombatActorRoundPhaseOptions actorRound={actorRound} actor={actorRound} phase={3} />
-            </Grid>
-            <Grid item size={2} display="flex" justifyContent="center">
-              <CombatActorRoundPhaseOptions actorRound={actorRound} actor={actorRound} phase={4} />
-            </Grid>
-          </Grid>
-        </Grid>
+    <Grid container spacing={2} columns={12} sx={{ mt: 1, mb: 1 }}>
+      <Grid item size={2}>
+        <CombatActorRoundListItemCharacter actorRound={actorRound} />
       </Grid>
-    </Box>
+      <Grid item size={1} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <CombatCharacterRoundInitiative />
+      </Grid>
+      <Grid item size={1}>
+        <CombatFreeActionButtons />
+      </Grid>
+      <Grid item size={1}>
+        <CombatActorRoundPhaseOptions actorRound={actorRound} actor={actorRound} phase={1} />
+      </Grid>
+      <Grid item size={1}>
+        <CombatActorRoundPhaseOptions actorRound={actorRound} actor={actorRound} phase={2} />
+      </Grid>
+      <Grid item size={1}>
+        <CombatActorRoundPhaseOptions actorRound={actorRound} actor={actorRound} phase={3} />
+      </Grid>
+      <Grid item size={1}>
+        <CombatActorRoundPhaseOptions actorRound={actorRound} actor={actorRound} phase={4} />
+      </Grid>
+      <Grid item size={3}></Grid>
+      <Grid item size={1}></Grid>
+    </Grid>
   );
 };
 

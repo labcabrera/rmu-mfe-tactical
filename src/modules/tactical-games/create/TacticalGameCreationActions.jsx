@@ -1,28 +1,33 @@
+/* eslint-disable react/prop-types */
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
+import { useError } from '../../../ErrorContext';
 import { createTacticalGame } from '../../api/tactical-games';
 import BackButton from '../../shared/buttons/BackButton';
 import SaveButton from '../../shared/buttons/SaveButton';
 
 const TacticalGameCreationActions = ({ formData, isValid = false }) => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
+  const { showError } = useError();
 
   const handleSave = async () => {
-    try {
-      const game = await createTacticalGame(formData);
-      navigate(`/tactical/games/view/${game.id}`);
-    } catch (error) {
-      console.error('Error creating tactical game:', error);
-    }
+    createTacticalGame(formData)
+      .then((game) => {
+        navigate(`/tactical/games/view/${game.id}`);
+      })
+      .catch((err) => {
+        showError(err.message);
+      });
   };
 
-  const handleBackButtonClick = () => {
+  const handleBack = () => {
     navigate(`/tactical/games`);
-    return;
   };
 
   return (
@@ -30,16 +35,16 @@ const TacticalGameCreationActions = ({ formData, isValid = false }) => {
       <Box>
         <Breadcrumbs aria-label="breadcrumb">
           <Link underline="hover" color="inherit" href="/">
-            Home
+            {t('home')}
           </Link>
           <Link underline="hover" color="inherit" href="/tactical">
-            Tactical
+            {t('tactical')}
           </Link>
-          <span>Games</span>
+          <span>{t('games')}</span>
         </Breadcrumbs>
       </Box>
       <Stack spacing={2} direction="row" sx={{ justifyContent: 'flex-end', alignItems: 'flex-start' }}>
-        <BackButton onClick={handleBackButtonClick} size={80} />
+        <BackButton onClick={handleBack} size={80} />
         <SaveButton onClick={handleSave} size={80} disabled={!isValid} />
       </Stack>
     </Stack>

@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import React from 'react';
 import { Box } from '@mui/material';
 import StyledIconButton from '../buttons/StyledIconButton';
@@ -24,10 +25,6 @@ const CircleButtonGroup = ({ options, initialRotation = 3.46, size = 50, radius 
   const buttonCount = options.length;
   const angleStep = (2 * Math.PI) / buttonCount;
 
-  const handleAction = (e) => {
-    console.log('handleAction ' + e);
-  };
-
   if (!options) {
     return <p>Loading...</p>;
   }
@@ -38,7 +35,7 @@ const CircleButtonGroup = ({ options, initialRotation = 3.46, size = 50, radius 
         position: 'relative',
       }}
     >
-      <Circle x={0 + xOffset} y={radius} radius={radius + 35} lineWidth={2} color="#9d9d9d" />
+      <Circle x={0 + xOffset} y={radius + yOffset} radius={radius + 30} lineWidth={2} color="#9d9d9d" />
       <div className="circle-container">
         {options.map((option, index) => {
           const angle = index * angleStep + initialRotation;
@@ -49,7 +46,6 @@ const CircleButtonGroup = ({ options, initialRotation = 3.46, size = 50, radius 
             <StyledIconButton
               key={index}
               onClick={option.action}
-              //onClick={handleAction}
               style={{
                 position: 'absolute',
                 top: `${y + radius}px`,

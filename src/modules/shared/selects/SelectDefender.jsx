@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import Avatar from '@mui/material/Avatar';
@@ -24,7 +25,7 @@ const SelectDefender = ({ value, onChange, sourceId, targets, i18nLabel = 'defen
       label={t(i18nLabel)}
       fullWidth
       value={value === undefined || value === null || targets.length === 0 ? '' : value}
-      variant={VARIANT}
+      variant="standard"
       onChange={handleChange}
       slotProps={{
         input: {

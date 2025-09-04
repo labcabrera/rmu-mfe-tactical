@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import Grid from '@mui/material/Grid';
@@ -12,7 +13,7 @@ const TacticalGameCreationAttributes = ({ formData, setFormData, strategicGames 
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleGameChange = (gameId, game) => {
+  const handleGameChange = (gameId) => {
     setFormData({ ...formData, strategicGameId: gameId });
   };
 

@@ -39,7 +39,6 @@ const TacticalGameView = () => {
   };
 
   const bindStrategicGame = (strategicGameId) => {
-    console.log(`TacticalGameView.bindStrategicGame: ${strategicGameId}`);
     fetchStrategicGame(strategicGameId)
       .then((response) => {
         setStrategicGame(response);
@@ -51,8 +50,7 @@ const TacticalGameView = () => {
 
   const bindCharacters = (factions) => {
     if (factions.length > 0) {
-      const rsql = `factionId=in=(${factions.join(',')})`;
-      fetchCharacters(rsql, 0, 100)
+      fetchCharacters(`factionId=in=(${factions.join(',')})`, 0, 100)
         .then((response) => {
           setCharacters(response);
         })

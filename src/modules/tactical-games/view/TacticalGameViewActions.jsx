@@ -31,7 +31,7 @@ const TacticalGameViewActions = ({ tacticalGame }) => {
   };
 
   const handleEditClick = () => {
-    navigate(`/tactical/edit/${tacticalGame.id}`, { state: { tacticalGame: tacticalGame } });
+    navigate(`/tactical/games/edit/${tacticalGame.id}`, { state: { tacticalGame: tacticalGame } });
     return;
   };
 
@@ -92,7 +92,7 @@ const TacticalGameViewActions = ({ tacticalGame }) => {
         </Stack>
       </Stack>
       <DeleteDialog
-        message={`Are you sure you want to delete ${tacticalGame.name} game? All factions and characters will be eliminated. This action cannot be undone.`}
+        message={`Are you sure you want to delete ${tacticalGame.name} game? This action cannot be undone.`}
         onDelete={() => handleDialogDelete()}
         open={deleteDialogOpen}
         onClose={() => handleDialogDeleteClose()}

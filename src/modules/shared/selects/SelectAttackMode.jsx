@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from 'react';
+/* eslint-disable react/prop-types */
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 import Avatar from '@mui/material/Avatar';
 import InputAdornment from '@mui/material/InputAdornment';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 
-const SelectAttackMode = ({ character, value, onChange }) => {
+const SelectAttackMode = ({ value, onChange }) => {
   const { t } = useTranslation();
 
   //TODO read options from character

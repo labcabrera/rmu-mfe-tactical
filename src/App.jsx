@@ -8,7 +8,6 @@ import MovementResolution from './modules/action-resolution/movement/MovementRes
 import AttackResolution from './modules/combat-actions/attack/AttackResolution';
 import CombatDashboard from './modules/combat-dashboard/CombatDashboard';
 import { CombatProvider } from './modules/combat-dashboard/CombatProvider';
-import ForgeItem from './modules/items/ForgeItem';
 import TacticalGameCreation from './modules/tactical-games/create/TacticalGameCreation';
 import TacticalGameEdit from './modules/tactical-games/edit/TacticalGameEdit';
 import TacticalGameList from './modules/tactical-games/list/TacticalGameList';
@@ -28,7 +27,6 @@ const App = () => {
             <Route path="/combat/:gameId" element={<CombatDashboard />} />
             <Route path="/combat/:gameId/resolve-attack/:actionId" element={<AttackResolution />} />
             <Route path="/combat/:gameId/resolve/movement/:actionId" element={<MovementResolution />} />
-            <Route path="/forge/:gameId" element={<ForgeItem />} />
           </Routes>
         </Box>
       </CombatProvider>

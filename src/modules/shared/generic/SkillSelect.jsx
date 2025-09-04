@@ -1,13 +1,15 @@
+/* eslint-disable react/prop-types */
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
-import { Button, FormControl, InputLabel, MenuItem, Select } from '@mui/material';
+import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import IconButton from '@mui/material/IconButton';
 import { API_CORE_URL } from '../../../constants/environment';
+import MenuItem from '@mui/material';
 
 const SkillSelect = ({ onAddSkill }) => {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
 
   const [skillCategories, setSkillCategories] = useState([]);
   const [skills, setSkills] = useState([]);

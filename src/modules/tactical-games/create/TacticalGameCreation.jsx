@@ -11,6 +11,7 @@ const TacticalGameCreation = () => {
 
   const validateForm = () => {
     if (!formData.name) return false;
+    if (!formData.strategicGameId) return false;
     return true;
   };
 
