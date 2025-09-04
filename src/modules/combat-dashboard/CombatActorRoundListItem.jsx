@@ -1,7 +1,8 @@
+/* eslint-disable react/prop-types */
 import React, { useContext, useEffect, useState } from 'react';
 import { Box } from '@mui/material';
 import Grid from '@mui/material/Grid';
-import CombatActorRoundListItemInfo from './CombatActorRoundListItemInfo';
+import CombatActorRoundListItemCharacter from './CombatActorRoundListItemCharacter';
 import CombatActorRoundPhaseOptions from './CombatActorRoundPhaseOptions';
 import CombatCharacterRoundInitiative from './CombatCharacterRoundInitiative';
 import CombatFreeActionButtons from './CombatFreeActionButtons';
@@ -12,12 +13,10 @@ const CombatActorRoundListItem = ({ actorRound }) => {
   const { characters } = useContext(CombatContext);
 
   const loadCharacter = (actorRound, characters) => {
-    console.log('loadCharacter', actorRound, characters);
     setCharacter(characters.find((item) => item.id === actorRound.actorId));
   };
 
   useEffect(() => {
-    console.log('actorRound changed', actorRound, characters);
     if (actorRound && characters) {
       loadCharacter(actorRound, characters);
     }
@@ -31,7 +30,7 @@ const CombatActorRoundListItem = ({ actorRound }) => {
     <Box sx={{ flexGrow: 1 }}>
       <Grid container spacing={0} columns={24} alignItems="center">
         <Grid item size={5}>
-          <CombatActorRoundListItemInfo actorRound={actorRound} />
+          <CombatActorRoundListItemCharacter actorRound={actorRound} />
         </Grid>
         <Grid item size={19}>
           <Grid container item alignItems="center">

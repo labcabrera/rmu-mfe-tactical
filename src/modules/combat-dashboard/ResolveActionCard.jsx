@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import React, { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import IconButton from '@mui/material/IconButton';
@@ -11,7 +12,6 @@ const ResolveActionCard = ({ character, action }) => {
   const navigate = useNavigate();
   const { roundActions, setRoundActions } = useContext(CombatContext);
   const { game } = useContext(CombatContext);
-  const { characters } = useContext(CombatContext);
 
   const handleDeleteActionClick = async () => {
     try {

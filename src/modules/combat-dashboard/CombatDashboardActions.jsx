@@ -7,6 +7,7 @@ import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
+import { useError } from '../../ErrorContext';
 import { startRound } from '../api/tactical-games';
 import AddButton from '../shared/buttons/AddButton';
 import BackButton from '../shared/buttons/BackButton';
@@ -19,6 +20,7 @@ const CombatDashboardActions = () => {
   const { t } = useTranslation();
   const { displayRound, setDisplayRound } = useContext(CombatContext);
   const { game, setGame } = useContext(CombatContext);
+  const { showError } = useError();
 
   const handleDisplayPreviousRoundClick = () => {
     setDisplayRound(displayRound > 1 ? displayRound - 1 : 1);
@@ -33,8 +35,8 @@ const CombatDashboardActions = () => {
       const game = await startRound(game.id);
       setGame(game);
       setDisplayRound(game.round);
-    } catch (error) {
-      console.error('CombatDashboardActions.fecthCharacterRounds error: ' + error);
+    } catch (err) {
+      showError(err.message);
     }
   };
 
@@ -51,16 +53,16 @@ const CombatDashboardActions = () => {
       <Stack spacing={2} direction="row" justifyContent="space-between" alignItems="center" sx={{ minHeight: 80 }}>
         <Box>
           <Breadcrumbs aria-label="breadcrumb">
-            <Link underline="hover" color="inherit" href="/">
-              Home
+            <Link color="inherit" href="/">
+              {t('home')}
             </Link>
-            <Link component={RouterLink} underline="hover" color="inherit" to="/tactical/games">
-              Tactical
+            <Link component={RouterLink} color="inherit" to="/tactical/games">
+              {t('tactical')}
             </Link>
-            <Link component={RouterLink} underline="hover" color="inherit" to="/tactical/games">
-              Games
+            <Link component={RouterLink} color="inherit" to="/tactical/games">
+              {t('games')}
             </Link>
-            <Link component={RouterLink} underline="hover" color="inherit" to={`/tactical/games/view/${game.id}`}>
+            <Link component={RouterLink} color="inherit" to={`/tactical/games/view/${game.id}`}>
               {game.name}
             </Link>
             <Typography sx={{ color: 'text.primary' }}>

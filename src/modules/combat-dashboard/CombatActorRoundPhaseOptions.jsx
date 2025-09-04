@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import React, { useContext, useEffect, useState } from 'react';
 import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
@@ -11,7 +12,7 @@ const CombatActorRoundPhaseOptions = ({ actorRound, character, phase }) => {
   const { roundActions } = useContext(CombatContext);
 
   const loadActiveAction = () => {
-    console.log(`CombatCharacterPhaseOptions.loadActiveAction triggered for phase ${phase}. Actions: ${JSON.stringify(roundActions)}`);
+    // console.log(`CombatCharacterPhaseOptions.loadActiveAction triggered for phase ${phase}. Actions: ${JSON.stringify(roundActions)}`);
     try {
       if (!roundActions || roundActions.length < 1) {
         setActiveAction(null);
@@ -29,12 +30,12 @@ const CombatActorRoundPhaseOptions = ({ actorRound, character, phase }) => {
   };
 
   useEffect(() => {
-    console.log(`CombatCharacterPhaseOptions.useEffect triggered`);
+    // console.log(`CombatCharacterPhaseOptions.useEffect triggered`);
     loadActiveAction();
   }, []);
 
   useEffect(() => {
-    console.log(`CombatCharacterPhaseOptions.useEffect[roundActions] triggered roundActions.length: ` + roundActions.length);
+    // console.log(`CombatCharacterPhaseOptions.useEffect[roundActions] triggered roundActions.length: ` + roundActions.length);
     loadActiveAction();
   }, [roundActions]);
 

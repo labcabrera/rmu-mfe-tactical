@@ -7,13 +7,12 @@ import AccordionDetails from '@mui/material/AccordionDetails';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
-import Snackbar from '@mui/material/Snackbar';
 import Typography from '@mui/material/Typography';
+import { useError } from '../../../ErrorContext';
 import { fetchCharacters } from '../../api/characters';
 import { fetchFactions } from '../../api/factions';
 import { fetchStrategicGame } from '../../api/strategic-games';
 import { fetchTacticalGame } from '../../api/tactical-games';
-import SnackbarError from '../../shared/errors/SnackbarError';
 import TacticalGameViewActions from './TacticalGameViewActions';
 import TacticalGameViewActors from './TacticalGameViewActors';
 import TacticalGameViewFactions from './TacticalGameViewFactions';
@@ -23,38 +22,56 @@ const TacticalGameView = () => {
   const location = useLocation();
   const { gameId } = useParams();
   const { t } = useTranslation();
+  const { showError } = useError();
   const [tacticalGame, setTacticalGame] = useState(null);
   const [strategicGame, setStrategicGame] = useState(null);
   const [characters, setCharacters] = useState([]);
   const [factions, setFactions] = useState([]);
-  const [displayError, setDisplayError] = useState(false);
-  const [errorMessage, setErrorMessage] = useState(null);
 
   const bindTacticalGame = async (gameId) => {
-    const response = await fetchTacticalGame(gameId);
-    setTacticalGame(response);
+    fetchTacticalGame(gameId)
+      .then((response) => {
+        setTacticalGame(response);
+      })
+      .catch((err) => {
+        showError(err.message);
+      });
   };
 
-  const bindStrategicGame = async (strategicGameId) => {
+  const bindStrategicGame = (strategicGameId) => {
     console.log(`TacticalGameView.bindStrategicGame: ${strategicGameId}`);
-    const response = await fetchStrategicGame(strategicGameId);
-    setStrategicGame(response);
+    fetchStrategicGame(strategicGameId)
+      .then((response) => {
+        setStrategicGame(response);
+      })
+      .catch((err) => {
+        showError(err.message);
+      });
   };
 
-  const bindCharacters = async (factions) => {
+  const bindCharacters = (factions) => {
     if (factions.length > 0) {
       const rsql = `factionId=in=(${factions.join(',')})`;
-      const response = await fetchCharacters(rsql, 0, 100);
-      setCharacters(response);
+      fetchCharacters(rsql, 0, 100)
+        .then((response) => {
+          setCharacters(response);
+        })
+        .catch((err) => {
+          showError(err.message);
+        });
     } else {
       setCharacters([]);
     }
   };
 
   const bindFactions = async (strategicGameId) => {
-    const rsql = `gameId==${strategicGameId}`;
-    const response = await fetchFactions(rsql, 0, 100);
-    setFactions(response);
+    fetchFactions(`gameId==${strategicGameId}`, 0, 100)
+      .then((response) => {
+        setFactions(response);
+      })
+      .catch((err) => {
+        showError(err.message);
+      });
   };
 
   useEffect(() => {
@@ -96,7 +113,6 @@ const TacticalGameView = () => {
           </Grid>
         </Grid>
       </Box>
-      <SnackbarError errorMessage={errorMessage} displayError={displayError} setDisplayError={setDisplayError} />
 
       <Typography component="h2" color="primary">
         Debug Info

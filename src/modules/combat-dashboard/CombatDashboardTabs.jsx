@@ -1,10 +1,10 @@
-import * as React from "react";
-import PropTypes from "prop-types";
-import Tabs from "@mui/material/Tabs";
-import Tab from "@mui/material/Tab";
-import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
-
+/* eslint-disable react/prop-types */
+import * as React from 'react';
+import Box from '@mui/material/Box';
+import Tab from '@mui/material/Tab';
+import Tabs from '@mui/material/Tabs';
+import Typography from '@mui/material/Typography';
+import PropTypes from 'prop-types';
 import CombatDashboardTabActions from './combat-dashboard-tab-action-rounds';
 
 // Helper function for accessibility props
@@ -20,18 +20,8 @@ function CustomTabPanel(props) {
   const { children, value, index, ...other } = props;
 
   return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`simple-tabpanel-${index}`}
-      aria-labelledby={`simple-tab-${index}`}
-      {...other}
-    >
-      {value === index && (
-        <Box sx={{ p: 3 }}>
-          {children}
-        </Box>
-      )}
+    <div role="tabpanel" hidden={value !== index} id={`simple-tabpanel-${index}`} aria-labelledby={`simple-tab-${index}`} {...other}>
+      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
     </div>
   );
 }
@@ -83,14 +73,17 @@ const DebugComponent = ({ game, characters, actions }) => {
         <Typography variant="subtitle1" gutterBottom>
           Game Data:
         </Typography>
-        <Box component="pre" sx={{ 
-          backgroundColor: '#f5f5f5', 
-          p: 2, 
-          borderRadius: 1, 
-          overflow: 'auto',
-          fontSize: '12px',
-          mb: 2
-        }}>
+        <Box
+          component="pre"
+          sx={{
+            backgroundColor: '#f5f5f5',
+            p: 2,
+            borderRadius: 1,
+            overflow: 'auto',
+            fontSize: '12px',
+            mb: 2,
+          }}
+        >
           {JSON.stringify(game, null, 2)}
         </Box>
       </Box>
@@ -98,14 +91,17 @@ const DebugComponent = ({ game, characters, actions }) => {
         <Typography variant="subtitle1" gutterBottom>
           Characters Data:
         </Typography>
-        <Box component="pre" sx={{ 
-          backgroundColor: '#f5f5f5', 
-          p: 2, 
-          borderRadius: 1, 
-          overflow: 'auto',
-          fontSize: '12px',
-          mb: 2
-        }}>
+        <Box
+          component="pre"
+          sx={{
+            backgroundColor: '#f5f5f5',
+            p: 2,
+            borderRadius: 1,
+            overflow: 'auto',
+            fontSize: '12px',
+            mb: 2,
+          }}
+        >
           {JSON.stringify(characters, null, 2)}
         </Box>
       </Box>
@@ -113,13 +109,16 @@ const DebugComponent = ({ game, characters, actions }) => {
         <Typography variant="subtitle1" gutterBottom>
           Actions Data:
         </Typography>
-        <Box component="pre" sx={{ 
-          backgroundColor: '#f5f5f5', 
-          p: 2, 
-          borderRadius: 1, 
-          overflow: 'auto',
-          fontSize: '12px'
-        }}>
+        <Box
+          component="pre"
+          sx={{
+            backgroundColor: '#f5f5f5',
+            p: 2,
+            borderRadius: 1,
+            overflow: 'auto',
+            fontSize: '12px',
+          }}
+        >
           {JSON.stringify(actions, null, 2)}
         </Box>
       </Box>
@@ -128,19 +127,16 @@ const DebugComponent = ({ game, characters, actions }) => {
 };
 
 export default function CombatDashboardTabs({ game, characters, actions }) {
-    const [value, setValue] = React.useState(0);
+  const [value, setValue] = React.useState(0);
 
-    const handleChange = (event, newValue) => {
-        setValue(newValue);
-    };
+  const handleChange = (event, newValue) => {
+    setValue(newValue);
+  };
 
   return (
-    <Box sx={{ width: "100%" }}>
-      <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-        <Tabs
-          value={value}
-          onChange={handleChange}
-          aria-label="combat dashboard tabs">
+    <Box sx={{ width: '100%' }}>
+      <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+        <Tabs value={value} onChange={handleChange} aria-label="combat dashboard tabs">
           <Tab label="Actions" {...a11yProps(0)} />
           <Tab label="Initiative" {...a11yProps(1)} />
           <Tab label="Attacks" {...a11yProps(2)} />
@@ -151,27 +147,14 @@ export default function CombatDashboardTabs({ game, characters, actions }) {
         <CombatDashboardTabActions />
       </CustomTabPanel>
       <CustomTabPanel value={value} index={1}>
-        <InitiativeComponent 
-          game={game} 
-          characters={characters} 
-          actions={actions} 
-        />
+        <InitiativeComponent game={game} characters={characters} actions={actions} />
       </CustomTabPanel>
       <CustomTabPanel value={value} index={2}>
-        <AttacksComponent 
-          game={game} 
-          characters={characters} 
-          actions={actions} 
-        />
+        <AttacksComponent game={game} characters={characters} actions={actions} />
       </CustomTabPanel>
       <CustomTabPanel value={value} index={3}>
-        <DebugComponent 
-          game={game} 
-          characters={characters} 
-          actions={actions} 
-        />
+        <DebugComponent game={game} characters={characters} actions={actions} />
       </CustomTabPanel>
     </Box>
   );
 }
-

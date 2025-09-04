@@ -1,28 +1,24 @@
+/* eslint-disable react/prop-types */
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link as RouterLink } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import Breadcrumbs from '@mui/material/Breadcrumbs';
-import Button from '@mui/material/Button';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
 import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
-import Typography from '@mui/material/Typography';
+import { useError } from '../../../ErrorContext';
 import { deleteTacticalGame, startRound } from '../../api/tactical-games';
 import CloseButton from '../../shared/buttons/CloseButton';
 import DeleteButton from '../../shared/buttons/DeleteButton';
 import EditButton from '../../shared/buttons/EditButton';
 import PlayButton from '../../shared/buttons/PlayButton';
+import DeleteDialog from '../../shared/dialogs/DeleteDialog';
 
 const TacticalGameViewActions = ({ tacticalGame }) => {
   const navigate = useNavigate();
+  const { showError } = useError();
   const { t } = useTranslation();
-
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const handleDeleteTacticalGame = async () => {
@@ -49,7 +45,9 @@ const TacticalGameViewActions = ({ tacticalGame }) => {
       } else {
         navigate(`/tactical/combat/${tacticalGame.id}`, { state: { tacticalGame: tacticalGame } });
       }
-    } catch (err) {}
+    } catch (err) {
+      showError('Error starting tactical game: ', err);
+    }
   };
 
   const handleDeleteClick = () => {
@@ -74,17 +72,16 @@ const TacticalGameViewActions = ({ tacticalGame }) => {
       <Stack spacing={2} direction="row" justifyContent="space-between" alignItems="center" sx={{ minHeight: 80 }}>
         <Box>
           <Breadcrumbs aria-label="breadcrumb">
-            <Link underline="hover" color="inherit" href="/">
-              Home
+            <Link color="inherit" href="/">
+              {t('home')}
             </Link>
-            <Link component={RouterLink} underline="hover" color="inherit" to="/tactical/games">
-              Tactical
+            <Link component={RouterLink} color="inherit" to="/tactical/games">
+              {t('tactical')}
             </Link>
-            <Link component={RouterLink} underline="hover" color="inherit" to="/tactical/games">
-              Games
+            <Link component={RouterLink} color="inherit" to="/tactical/games">
+              {t('games')}
             </Link>
             <span>{tacticalGame.name}</span>
-            <span>View</span>
           </Breadcrumbs>
         </Box>
         <Stack direction="row" spacing={2}>
@@ -94,26 +91,12 @@ const TacticalGameViewActions = ({ tacticalGame }) => {
           <DeleteButton onClick={() => handleDeleteClick()} size={80} />
         </Stack>
       </Stack>
-
-      <Dialog
+      <DeleteDialog
+        message={`Are you sure you want to delete ${tacticalGame.name} game? All factions and characters will be eliminated. This action cannot be undone.`}
+        onDelete={() => handleDialogDelete()}
         open={deleteDialogOpen}
-        onClose={handleDialogDeleteClose}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogTitle id="alert-dialog-title">{'Tactical game delete confirmation'}</DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            Are you sure you want to remove '{tacticalGame.name}'? This action cannot be undone
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleDialogDeleteClose}>Cancel</Button>
-          <Button onClick={handleDialogDelete} autoFocus>
-            Delete
-          </Button>
-        </DialogActions>
-      </Dialog>
+        onClose={() => handleDialogDeleteClose()}
+      />
     </>
   );
 };

@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
@@ -8,7 +9,7 @@ import Typography from '@mui/material/Typography';
 import BackButton from '../../shared/buttons/BackButton';
 import SaveButton from '../../shared/buttons/SaveButton';
 
-const TacticalGameEditActions = ({ tacticalGame, formData }) => {
+const TacticalGameEditActions = ({ tacticalGame }) => {
   const navigate = useNavigate();
   const { t } = useTranslation();
 
@@ -17,19 +18,7 @@ const TacticalGameEditActions = ({ tacticalGame, formData }) => {
   }
 
   const handleSaveButtonClick = async () => {
-    // const response = await fetch(`${API_TACTICAL_URL}/tactical-games/${tacticalGame.id}`, {
-    //   method: 'PATCH',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //   },
-    //   body: JSON.stringify(formData),
-    // });
-    // if (response.status == 200) {
-    //   const responseBody = await response.json();
-    //   navigate(`/tactical/view/${tacticalGame.id}`, { state: { tacticalGame: responseBody } });
-    // } else {
-    //   //TODO handle error
-    // }
+    //TODO
   };
 
   const handleBackButtonClick = () => {
@@ -67,8 +56,8 @@ const TacticalGameEditActions = ({ tacticalGame, formData }) => {
 
         <div style={{ flexGrow: 1 }} />
 
-        <BackButton onClick={handleBackButtonClick} size={ACTION_BUTTON_SIZE} />
-        <SaveButton onClick={handleSaveButtonClick} size={ACTION_BUTTON_SIZE} />
+        <BackButton onClick={handleBackButtonClick} />
+        <SaveButton onClick={handleSaveButtonClick} />
       </Stack>
     </div>
   );

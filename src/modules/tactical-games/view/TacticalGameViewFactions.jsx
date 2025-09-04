@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+/* eslint-disable react/prop-types */
+import React from 'react';
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import List from '@mui/material/List';
@@ -7,8 +7,6 @@ import Typography from '@mui/material/Typography';
 import { addFaction, deleteFaction } from '../../api/tactical-games';
 
 const TacticalGameViewFactions = ({ tacticalGame, setTacticalGame, factions }) => {
-  const [tacticalCharacters, setTacticalCharacters] = useState([]);
-
   const isSelected = (factionId) => {
     return tacticalGame.factions.includes(factionId);
   };
@@ -25,8 +23,6 @@ const TacticalGameViewFactions = ({ tacticalGame, setTacticalGame, factions }) =
         console.error('Error updating factions:', error);
       });
   };
-
-  useEffect(() => {}, []);
 
   if (!tacticalGame) {
     return <p>Loading game...</p>;

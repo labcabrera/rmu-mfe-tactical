@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
-import { preprepareAttack } from '../../api/actions';
 import ActionResolutionActions from '../ActionResolutionActions';
 import AttackResolutionDetail from './AttackResolutionDetail';
 import AttackResolutionInfo from './AttackResolutionInfo';

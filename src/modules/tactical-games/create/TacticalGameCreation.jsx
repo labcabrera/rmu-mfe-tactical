@@ -1,17 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { fetchStrategicGames } from '../../api/strategic-games';
-import { fetchTacticalGames } from '../../api/tactical-games';
+import { createGameTemplate } from '../../data/tactical-game-data';
 import TacticalGameCreationActions from './TacticalGameCreationActions';
 import TacticalGameCreationAttributes from './TacticalGameCreationAttributes';
 
 const TacticalGameCreation = () => {
   const [strategicGames, setStrategicGames] = useState([]);
-  const [formData, setFormData] = useState({
-    strategicGameId: '',
-    name: '',
-    actors: [],
-    description: '',
-  });
+  const [formData, setFormData] = useState(createGameTemplate);
   const [isValid, setIsValid] = useState(false);
 
   const validateForm = () => {

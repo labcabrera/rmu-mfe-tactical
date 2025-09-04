@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import CircleButtonGroup from '../shared/generic/CircleButtonGroup';
@@ -7,7 +8,6 @@ const CombatFreeActionButtons = ({ tacticalGame, character }) => {
 
   const options = [
     {
-      action: 'drop-item',
       src: '/static/images/actions/drop-item.png',
       alt: 'Drop item',
       action: () => {
@@ -21,7 +21,6 @@ const CombatFreeActionButtons = ({ tacticalGame, character }) => {
       },
     },
     {
-      action: 'perception',
       src: '/static/images/actions/perception.png',
       alt: 'Perception',
       action: () => {
@@ -35,7 +34,6 @@ const CombatFreeActionButtons = ({ tacticalGame, character }) => {
       },
     },
     {
-      action: 'cast-instant-spell',
       src: '/static/images/actions/cast-instant-spell.png',
       alt: 'Instant spell',
       action: () => {

@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -8,33 +9,34 @@ import ListItemAvatar from '@mui/material/ListItemAvatar';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import Typography from '@mui/material/Typography';
+import { useError } from '../../../ErrorContext';
 import { addActor, deleteActor } from '../../api/tactical-games';
 import CharacterAvatar from '../../shared/avatars/CharacterAvatar';
-import SnackbarError from '../../shared/errors/SnackbarError';
 
 const TacticalGameViewActorsFactionItem = ({ character, tacticalGame, setTacticalGame }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [displayError, setDisplayError] = useState(false);
-  const [errorMessage, setErrorMessage] = useState(null);
+  const { showError } = useError();
 
   const isSelected = () => {
     return tacticalGame.actors.some((actor) => actor.id === character.id);
   };
+
   const getCharacterResume = () => {
-    return `${t(character.info.race)} - ${t(character.info.professionId)} - Lvl ${character.experience.availableLevel}`;
+    return `${t(character.info.raceId)} - ${t(character.info.professionId)} - Lvl ${character.experience.availableLevel}`;
   };
-  const handleToggle = (e, id) => {
+
+  const handleToggle = (e) => {
     const func = e.target.checked ? addActor(tacticalGame.id, character.id, 'character') : deleteActor(tacticalGame.id, character.id);
     func
       .then((response) => {
         setTacticalGame(response);
       })
       .catch((err) => {
-        setDisplayError(true);
-        setErrorMessage('Error updating actor ' + err);
+        showError(err.message);
       });
   };
+
   const handleNavigate = () => {
     navigate(`/strategic/characters/view/${character.id}`);
   };
@@ -47,13 +49,12 @@ const TacticalGameViewActorsFactionItem = ({ character, tacticalGame, setTactica
         disablePadding
       >
         <ListItemButton onClick={handleNavigate}>
-          <ListItemAvatar>
-            <CharacterAvatar character={character} size={50} />
+          <ListItemAvatar sx={{ mr: 2 }}>
+            <CharacterAvatar character={character} />
           </ListItemAvatar>
           <ListItemText id={character.id} primary={character.name} secondary={getCharacterResume()} />
         </ListItemButton>
       </ListItem>
-      <SnackbarError errorMessage={errorMessage} displayError={displayError} setDisplayError={setDisplayError} />
     </>
   );
 };
@@ -63,7 +64,6 @@ const TacticalGameViewActorsFaction = ({ factionId, factions, tacticalGame, setT
   const [factionCharacters, setFactionCharacters] = useState([]);
 
   useEffect(() => {
-    console.log('TacticalGameViewActorsFaction.useEffect: Faction ID:', factionId, 'Factions:', factions);
     if (factionId && factions) {
       const foundFaction = factions.find((f) => f.id === factionId);
       setFaction(foundFaction);

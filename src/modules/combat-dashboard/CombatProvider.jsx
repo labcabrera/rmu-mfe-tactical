@@ -1,57 +1,59 @@
+/* eslint-disable react/prop-types */
 import React, { createContext, useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Accordion from '@mui/material/Accordion';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import Typography from '@mui/material/Typography';
+import { useError } from '../../ErrorContext';
 import { fetchActionsByGameAndRound } from '../api/actions';
 import { fetchActorRounds } from '../api/actor-rounds';
 import { fetchCharacters } from '../api/characters';
+import { fetchFactions } from '../api/factions.js';
 import { fetchTacticalGame } from '../api/tactical-games';
-import SnackbarError from '../shared/errors/SnackbarError';
 
 export const CombatContext = createContext();
 
 export const CombatProvider = ({ children }) => {
+  const { showError } = useError();
+
   const [gameId, setGameId] = useState(null);
   const [game, setGame] = useState(null);
   const [actorRounds, setActorRounds] = useState(null);
   const [characters, setCharacters] = useState(null);
-  const [roundActions, setRoundActions] = useState([]);
+  const [factions, setFactions] = useState(null);
+  const [roundActions, setRoundActions] = useState(null);
   const [displayRound, setDisplayRound] = useState(null);
-  const [displayError, setDisplayError] = useState(false);
-  const [errorMessage, setErrorMessage] = useState(null);
 
   const bindGame = (gameId) => {
-    try {
-      fetchTacticalGame(gameId).then((data) => {
+    fetchTacticalGame(gameId)
+      .then((data) => {
         setGame(data);
         setDisplayRound(data.round);
+      })
+      .catch((err) => {
+        showError(err.message);
       });
-    } catch (error) {
-      console.error('CombatProvider.bindGame error: ' + error);
-    }
   };
 
   const bindActorRounds = (gameId, displayRound) => {
-    try {
-      fetchActorRounds(gameId, displayRound).then((data) => {
+    fetchActorRounds(gameId, displayRound)
+      .then((data) => {
         setActorRounds(data);
+      })
+      .catch((err) => {
+        showError(err.message);
       });
-    } catch (error) {
-      console.error('CombatProvider.bindActors error: ' + error);
-    }
   };
 
   const bindActions = (gameId, displayRound) => {
-    try {
-      fetchActionsByGameAndRound(gameId, displayRound).then((data) => {
+    fetchActionsByGameAndRound(gameId, displayRound)
+      .then((data) => {
         setRoundActions(data);
+      })
+      .catch((err) => {
+        showError(err.message);
       });
-    } catch (error) {
-      console.error('CombatProvider.bindActions error: ' + error);
-    }
   };
 
   const bindCharacters = (game) => {
@@ -66,11 +68,23 @@ export const CombatProvider = ({ children }) => {
     }
   };
 
+  const bindFactions = (game) => {
+    const rsql = `id=in=(${game.factions.join(',')})`;
+    fetchFactions(rsql, 0, 100)
+      .then((data) => {
+        setFactions(data);
+      })
+      .catch((err) => {
+        showError(err.message);
+      });
+  };
+
   useEffect(() => {
     console.log('CombatProvider.useEffect[game] triggered', game, displayRound);
     if (game && displayRound) {
       bindActorRounds(game.id, displayRound);
       bindActions(game.id, displayRound);
+      bindFactions(game);
     }
     if (game) {
       bindCharacters(game);
@@ -96,6 +110,8 @@ export const CombatProvider = ({ children }) => {
           setActorRounds,
           characters,
           setCharacters,
+          factions,
+          setFactions,
           roundActions,
           setRoundActions,
           displayRound,
@@ -138,7 +154,6 @@ export const CombatProvider = ({ children }) => {
         </AccordionDetails>
       </Accordion>
       <pre>DisplayRound: {JSON.stringify(displayRound, null, 2)}</pre>
-      <SnackbarError errorMessage={errorMessage} displayError={displayError} setDisplayError={setDisplayError} />
     </>
   );
 };

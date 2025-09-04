@@ -1,27 +1,27 @@
+/* eslint-disable react/jsx-key */
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import Link from '@mui/material/Link';
+import { useError } from '../../../ErrorContext';
 import { fetchTacticalGames } from '../../api/tactical-games';
-import SnackbarError from '../../shared/errors/SnackbarError';
+import GameListItem from './../../shared/list-items/GameListItem';
 import TacticalGameListActions from './TacticalGameListActions';
-import TacticalGameListItem from './TacticalGameListItem';
 
 const TacticalGameList = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { showError } = useError();
   const [games, setGames] = useState([]);
-  const [displayError, setDisplayError] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
 
-  const fetchGames = async () => {
-    try {
-      const response = await fetchTacticalGames('', 0, 10);
-      setGames(response);
-    } catch (error) {
-      setDisplayError(true);
-      setErrorMessage(`Error loading games. ${error.message}`);
-    }
+  const fetchGames = () => {
+    fetchTacticalGames('', 0, 20)
+      .then((response) => {
+        setGames(response);
+      })
+      .catch((err) => {
+        showError(err.message);
+      });
   };
 
   const handleNewGame = async () => {
@@ -36,7 +36,7 @@ const TacticalGameList = () => {
     <>
       <TacticalGameListActions />
       {games.map((game) => (
-        <TacticalGameListItem tacticalGame={game} />
+        <GameListItem game={game} />
       ))}
       {games.length === 0 ? (
         <>
@@ -48,7 +48,6 @@ const TacticalGameList = () => {
           </p>
         </>
       ) : null}
-      <SnackbarError displayError={displayError} errorMessage={errorMessage} setDisplayError={setDisplayError} />
     </>
   );
 };

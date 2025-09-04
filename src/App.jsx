@@ -1,5 +1,7 @@
 import React from 'react';
 import { Route, Routes } from 'react-router-dom';
+import { Box } from '@mui/material';
+import { ErrorProvider } from './ErrorContext';
 import './i18n';
 import './index.css';
 import MovementResolution from './modules/action-resolution/movement/MovementResolution';
@@ -14,19 +16,23 @@ import TacticalGameView from './modules/tactical-games/view/TacticalGameView';
 
 const App = () => {
   return (
-    <CombatProvider>
-      <Routes>
-        <Route path="/" element={<TacticalGameList />} />
-        <Route path="/games" element={<TacticalGameList />} />
-        <Route path="/games/create" element={<TacticalGameCreation />} />
-        <Route path="/games/view/:gameId" element={<TacticalGameView />} />
-        <Route path="/games/edit/:gameId" element={<TacticalGameEdit />} />
-        <Route path="/combat/:gameId" element={<CombatDashboard />} />
-        <Route path="/combat/:gameId/resolve-attack/:actionId" element={<AttackResolution />} />
-        <Route path="/combat/:gameId/resolve/movement/:actionId" element={<MovementResolution />} />
-        <Route path="/forge/:gameId" element={<ForgeItem />} />
-      </Routes>
-    </CombatProvider>
+    <ErrorProvider>
+      <CombatProvider>
+        <Box sx={{ p: 5 }}>
+          <Routes>
+            <Route path="/" element={<TacticalGameList />} />
+            <Route path="/games" element={<TacticalGameList />} />
+            <Route path="/games/create" element={<TacticalGameCreation />} />
+            <Route path="/games/view/:gameId" element={<TacticalGameView />} />
+            <Route path="/games/edit/:gameId" element={<TacticalGameEdit />} />
+            <Route path="/combat/:gameId" element={<CombatDashboard />} />
+            <Route path="/combat/:gameId/resolve-attack/:actionId" element={<AttackResolution />} />
+            <Route path="/combat/:gameId/resolve/movement/:actionId" element={<MovementResolution />} />
+            <Route path="/forge/:gameId" element={<ForgeItem />} />
+          </Routes>
+        </Box>
+      </CombatProvider>
+    </ErrorProvider>
   );
 };
 

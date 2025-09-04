@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import React, { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createAction } from '../api/actions';
@@ -7,7 +8,6 @@ import { CombatContext } from './CombatProvider';
 const CombatActorRoundPhaseActionButtons = ({ actorRound, phaseNumber }) => {
   const navigate = useNavigate();
   const { game } = useContext(CombatContext);
-  const { characters } = useContext(CombatContext);
   const { roundActions, setRoundActions } = useContext(CombatContext);
 
   const declareAttack = () => {
