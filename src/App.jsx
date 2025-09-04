@@ -1,13 +1,13 @@
 import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { Box } from '@mui/material';
+import { CombatProvider } from './CombatContext';
 import { ErrorProvider } from './ErrorContext';
 import './i18n';
 import './index.css';
 import MovementResolution from './modules/action-resolution/movement/MovementResolution';
 import AttackResolution from './modules/combat-actions/attack/AttackResolution';
 import CombatDashboard from './modules/combat-dashboard/CombatDashboard';
-import { CombatProvider } from './modules/combat-dashboard/CombatProvider';
 import TacticalGameCreation from './modules/tactical-games/create/TacticalGameCreation';
 import TacticalGameEdit from './modules/tactical-games/edit/TacticalGameEdit';
 import TacticalGameList from './modules/tactical-games/list/TacticalGameList';
