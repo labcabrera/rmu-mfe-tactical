@@ -4,11 +4,12 @@ import { useNavigate } from 'react-router-dom';
 import { Link as RouterLink } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import Breadcrumbs from '@mui/material/Breadcrumbs';
+import Button from '@mui/material/Button';
 import Link from '@mui/material/Link';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { useError } from '../../ErrorContext';
-import { startRound } from '../api/tactical-games';
+import { startRound, startPhase } from '../api/tactical-games';
 import AddButton from '../shared/buttons/AddButton';
 import BackButton from '../shared/buttons/BackButton';
 import CloseButton from '../shared/buttons/CloseButton';
@@ -31,17 +32,28 @@ const CombatDashboardActions = () => {
   };
 
   const handleNextRoundClick = async () => {
-    try {
-      const game = await startRound(game.id);
-      setGame(game);
-      setDisplayRound(game.round);
-    } catch (err) {
-      showError(err.message);
-    }
+    startRound(game.id)
+      .then((game) => {
+        setGame(game);
+        setDisplayRound(game.round);
+      })
+      .catch((err) => showError(err.message));
+  };
+
+  const handleNextPhaseClick = async () => {
+    startPhase(game.id)
+      .then((game) => {
+        setGame(game);
+      })
+      .catch((err) => showError(err.message));
   };
 
   const handleCloseDashboardClick = () => {
     navigate(`/tactical/view/${game.id}`, { state: { game } });
+  };
+
+  const nextPhaseAvailable = () => {
+    return game.phase !== 'phase_4';
   };
 
   if (!displayRound || !game) {
@@ -68,7 +80,7 @@ const CombatDashboardActions = () => {
             <Typography sx={{ color: 'text.primary' }}>
               Round {displayRound} of {game.round}
             </Typography>
-            <Typography sx={{ color: 'text.primary' }}>{t(`phase-${game.phase}`)}</Typography>
+            <Typography sx={{ color: 'text.primary' }}>{t(game.phase)}</Typography>
           </Breadcrumbs>
         </Box>
         <Stack direction="row" spacing={2}>
@@ -76,6 +88,11 @@ const CombatDashboardActions = () => {
           <NextButton onClick={handleDisplayNextRoundClick} disabled={displayRound === game.round} size={80} />
           <AddButton onClick={handleNextRoundClick} size={80} />
           <CloseButton onClick={handleCloseDashboardClick} size={80} />
+          {nextPhaseAvailable() ? (
+            <Button onClick={handleNextPhaseClick}>Next phase</Button>
+          ) : (
+            <Button onClick={handleNextRoundClick}>Next round</Button>
+          )}
         </Stack>
       </Stack>
     </>

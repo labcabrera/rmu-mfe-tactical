@@ -14,7 +14,7 @@ import { CombatContext } from './CombatProvider';
 
 const DeclareInitiativeDialog = ({ actorRound, open, setOpen }) => {
   const { showError } = useError();
-  const [roll, setRoll] = useState(actorRound.initiative?.roll || 0);
+  const [roll, setRoll] = useState(actorRound.initiative?.roll || '');
   const { actorRounds, setActorRounds } = useContext(CombatContext);
 
   const handleClose = () => {
@@ -28,6 +28,7 @@ const DeclareInitiativeDialog = ({ actorRound, open, setOpen }) => {
         updatedActorRounds.push(updatedActorRound);
         updatedActorRounds.sort((a, b) => b.initiative.total || 0 - a.initiative.total || 0);
         setActorRounds(updatedActorRounds);
+        setRoll('');
         setOpen(false);
       })
       .catch((error) => {

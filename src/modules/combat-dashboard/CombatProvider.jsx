@@ -37,6 +37,7 @@ export const CombatProvider = ({ children }) => {
   };
 
   const bindActorRounds = (gameId, displayRound) => {
+    console.log('CombatProvider.bindActorRounds', gameId, displayRound);
     fetchActorRounds(gameId, displayRound)
       .then((data) => {
         setActorRounds(data);

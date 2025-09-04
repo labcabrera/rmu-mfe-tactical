@@ -2,6 +2,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { Link as RouterLink } from 'react-router-dom';
 import Box from '@mui/material/Box';
 import Breadcrumbs from '@mui/material/Breadcrumbs';
 import Link from '@mui/material/Link';
@@ -34,13 +35,16 @@ const TacticalGameCreationActions = ({ formData, isValid = false }) => {
     <Stack spacing={2} direction="row" justifyContent="space-between" alignItems="center" sx={{ minHeight: 80 }}>
       <Box>
         <Breadcrumbs aria-label="breadcrumb">
-          <Link underline="hover" color="inherit" href="/">
+          <Link color="inherit" href="/">
             {t('home')}
           </Link>
-          <Link underline="hover" color="inherit" href="/tactical">
+          <Link component={RouterLink} to="/tactical/games" color="inherit">
             {t('tactical')}
           </Link>
-          <span>{t('games')}</span>
+          <Link component={RouterLink} to="/tactical/games" color="inherit">
+            {t('games')}
+          </Link>
+          <span>{t('creation')}</span>
         </Breadcrumbs>
       </Box>
       <Stack spacing={2} direction="row" sx={{ justifyContent: 'flex-end', alignItems: 'flex-start' }}>

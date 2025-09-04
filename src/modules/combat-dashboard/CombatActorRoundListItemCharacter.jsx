@@ -39,7 +39,7 @@ const CombatActorRoundListItemCharacter = ({ actorRound }) => {
   };
 
   useEffect(() => {
-    console.log('actorRound changed', actorRound, characters, factions);
+    console.log('CombatActorRoundListItemCharacter: actorRound changed', actorRound, characters, factions);
     if (actorRound && characters && factions) {
       bindCharacterAndFaction();
     }

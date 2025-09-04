@@ -24,11 +24,11 @@ const TacticalGameCreationAttributes = ({ formData, setFormData, strategicGames 
       </Grid>
       <Grid item size={8}></Grid>
       <Grid item size={4}>
-        <TextField label={t('name')} variant="outlined" name="name" value={formData.name} onChange={handleChange} required fullWidth />
+        <TextField label={t('name')} variant="standard" name="name" value={formData.name} onChange={handleChange} required fullWidth />
       </Grid>
       <Grid item size={8}></Grid>
       <Grid item size={4}>
-        <TextField label={t('description')} variant="outlined" name="description" value={formData.description} onChange={handleChange} fullWidth />
+        <TextField label={t('description')} variant="standard" name="description" value={formData.description} onChange={handleChange} fullWidth />
       </Grid>
       <Grid item size={8}></Grid>
     </Grid>

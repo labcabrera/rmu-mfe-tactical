@@ -1,3 +1,5 @@
+import { buildErrorFromResponse } from './api-errors';
+
 export async function fetchTacticalGames(rsql, page, size) {
   const url = `${process.env.RMU_API_TACTICAL_URL}/tactical-games?q=${rsql}&page=${page}&size=${size}`;
   console.log(`Fetching tactical games from ${url}`);
@@ -118,8 +120,17 @@ export async function deleteActor(gameId, actorId) {
 export async function startRound(gameId) {
   const url = `${process.env.RMU_API_TACTICAL_URL}/tactical-games/${gameId}/rounds/start`;
   const response = await fetch(url, { method: 'POST' });
-  if (response.status != 201) {
+  if (response.status != 200) {
     throw new Error(`Error: ${response.status} ${response.statusText}. (${url})`);
+  }
+  return await response.json();
+}
+
+export async function startPhase(gameId) {
+  const url = `${process.env.RMU_API_TACTICAL_URL}/tactical-games/${gameId}/phases/start`;
+  const response = await fetch(url, { method: 'POST' });
+  if (response.status != 200) {
+    throw await buildErrorFromResponse(response, url);
   }
   return await response.json();
 }

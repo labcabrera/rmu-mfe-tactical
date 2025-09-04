@@ -23,6 +23,7 @@ const SelectStrategicGame = ({ value, onChange, strategicGames }) => {
       label={t('strategic-game')}
       value={value === undefined || value === null || strategicGames.length === 0 ? '' : value}
       fullWidth
+      variant="standard"
       onChange={handleChange}
     >
       {strategicGames.map((option, index) => (

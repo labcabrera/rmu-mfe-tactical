@@ -78,9 +78,11 @@
   "game-status-created": "Created",
   "game-status-in_progress": "In progress",
 
-  "phase-not_started": "Not started",
-  "phase-initiative": "Declare initiative",
-  "phase-declare_actions": "Declare actions",
+  "declare_initiative": "Declare initiative",
+  "phase_1": "Phase 1",
+  "phase_2": "Phase 2",
+  "phase_3": "Phase 3",
+  "phase_4": "Phase 4",
 
   "fighter": "Fighter",
   "rogue": "Rogue",

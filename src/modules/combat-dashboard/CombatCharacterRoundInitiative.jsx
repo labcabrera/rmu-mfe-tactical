@@ -10,7 +10,7 @@ const CombatCharacterRoundInitiative = ({ actorRound }) => {
   return (
     <>
       <IconButton onClick={() => setDialogOpen(true)}>
-        <Avatar src={`/static/images/generic/initiative.png`} />
+        <Avatar src={`/static/images/generic/initiative.png`} sx={{ width: 50, height: 50 }} />
       </IconButton>
       <DeclareInitiativeDialog open={dialogOpen} setOpen={setDialogOpen} actorRound={actorRound} />
       {actorRound.initiative?.roll && <div>{actorRound.initiative.roll}</div>}

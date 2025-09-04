@@ -48,7 +48,7 @@ const CombatFreeActionButtons = ({ tacticalGame, character }) => {
     },
   ];
 
-  return <CircleButtonGroup options={options} initialRotation={2.6} size={60} radius={40} xOffset={0} yOffset={-10} />;
+  return <CircleButtonGroup options={options} initialRotation={2.6} size={60} radius={40} xOffset={8} yOffset={-30} />;
 };
 
 export default CombatFreeActionButtons;
