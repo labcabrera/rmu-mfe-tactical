@@ -2,7 +2,7 @@ import React from 'react';
 import Grid from '@mui/material/Grid';
 import ActionPointSelector from '../../shared/generic/ActionPointSelector';
 
-const AttackResolutionInfo = ({ formData, character }) => {
+const AttackResolutionInfo = ({ formData }) => {
   return (
     <Grid container spacing={2}>
       <Grid item xs={2}>

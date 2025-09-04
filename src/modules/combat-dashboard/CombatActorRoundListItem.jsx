@@ -31,7 +31,7 @@ const CombatActorRoundListItem = ({ actorRound }) => {
         <CombatActorRoundListItemCharacter actorRound={actorRound} />
       </Grid>
       <Grid item size={1} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <CombatCharacterRoundInitiative />
+        <CombatCharacterRoundInitiative actorRound={actorRound} />
       </Grid>
       <Grid item size={1}>
         <CombatFreeActionButtons />
