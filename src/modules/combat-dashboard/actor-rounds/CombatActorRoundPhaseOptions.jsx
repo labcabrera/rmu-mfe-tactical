@@ -36,7 +36,7 @@ const CombatActorRoundPhaseOptions = ({ actorRound, character, phase }) => {
     loadActiveAction();
   }, [roundActions]);
 
-  if (!actorRound || !phase) {
+  if (!actorRound || !phase || !roundActions) {
     return <p>Loading character phase...</p>;
   }
 

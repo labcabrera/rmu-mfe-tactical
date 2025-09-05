@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import React, { useState } from 'react';
-import { Divider, Grid, TextField } from '@mui/material';
+import { Grid, TextField } from '@mui/material';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
 import NumericTextField from '../../../shared/inputs/NumericTextField';
@@ -8,7 +8,7 @@ import SelectDifficulty from '../../../shared/selects/SelectDifficulty';
 import SelectMovementSkill from '../../../shared/selects/SelectMovementSkill';
 import SelectPace from '../../../shared/selects/SelectPace';
 
-const ResolveMovement = ({ formData, setFormData, character, game, strategicGame, action }) => {
+const ResolveMovementForm = ({ formData, setFormData, character, game, strategicGame, action }) => {
   const [paceMultiplier, setPaceMultiplier] = useState('');
   const [movement, setMovement] = useState('');
   const [adjustedMovement, setAdjustedMovement] = useState('');
@@ -65,7 +65,6 @@ const ResolveMovement = ({ formData, setFormData, character, game, strategicGame
         <SelectDifficulty value={formData.difficulty} onChange={handleDifficultyChange} />
       </Grid>
       <Grid size={12}></Grid>
-      <Divider />
       <Grid size={2}>
         <FormControlLabel
           control={
@@ -99,4 +98,4 @@ const ResolveMovement = ({ formData, setFormData, character, game, strategicGame
   );
 };
 
-export default ResolveMovement;
+export default ResolveMovementForm;

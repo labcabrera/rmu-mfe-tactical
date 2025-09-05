@@ -3,19 +3,15 @@ import React, { useContext, useState } from 'react';
 import { CombatContext } from '../../../../CombatContext';
 import { useError } from '../../../../ErrorContext';
 import { resolveMovement } from '../../../api/actions';
-import ResolveMovementStepper from './ResolveMovementStepper';
+import ResolveActionDialogMovementStepper from './ResolveAttackStepper';
 
-const ResolveMovement = ({ action, character, onClose }) => {
+const ResolveAttack = ({ action, character, onClose }) => {
   const { showError } = useError();
   const { game, strategicGame, updateAction } = useContext(CombatContext);
   const [activeStep, setActiveStep] = useState(action.status === 'declared' ? 0 : 1);
   const [formData, setFormData] = useState({
-    phase: parseInt(game.phase.replace('phase_', '')),
-    pace: '',
-    requiredManeuver: false,
-    difficulty: character.equipment.movementBaseDifficulty || '',
-    skillId: 'running',
-    roll: '',
+    targetId: '',
+    attacks: [],
   });
 
   const onResolve = () => {
@@ -40,7 +36,7 @@ const ResolveMovement = ({ action, character, onClose }) => {
 
   return (
     <>
-      <ResolveMovementStepper
+      <ResolveActionDialogMovementStepper
         formData={formData}
         setFormData={setFormData}
         activeStep={activeStep}
@@ -52,10 +48,10 @@ const ResolveMovement = ({ action, character, onClose }) => {
         onClose={onClose}
         onResolve={onResolve}
       />
-      {/* <pre>FormData: {JSON.stringify(formData, null, 2)}</pre>
-      <pre>Action: {JSON.stringify(action, null, 2)}</pre> */}
+      <pre>FormData: {JSON.stringify(formData, null, 2)}</pre>
+      <pre>Action: {JSON.stringify(action, null, 2)}</pre>
     </>
   );
 };
 
-export default ResolveMovement;
+export default ResolveAttack;
