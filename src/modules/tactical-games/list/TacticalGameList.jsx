@@ -35,8 +35,8 @@ const TacticalGameList = () => {
   return (
     <>
       <TacticalGameListActions />
-      {games.map((game) => (
-        <GameListItem game={game} />
+      {games.map((game, index) => (
+        <GameListItem key={index} game={game} />
       ))}
       {games.length === 0 ? (
         <>

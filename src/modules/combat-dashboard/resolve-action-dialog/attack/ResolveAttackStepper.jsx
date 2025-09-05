@@ -6,10 +6,9 @@ import Step from '@mui/material/Step';
 import StepLabel from '@mui/material/StepLabel';
 import Stepper from '@mui/material/Stepper';
 import ResolveMovementForm from './ResolveAttackForm';
-import ResolveAttackResults from './ResolveAttackResults';
 import ResolveAttackTabDeclaration from './ResolveAttackTabDeclaration';
 
-const steps = ['Declare attacks and targets', 'Resolve attacks', 'Results'];
+const steps = ['Declare attacks and targets', 'Choose attack options', 'Resolve attacks', 'Results'];
 
 export default function ResolveAttackStepper({
   formData,

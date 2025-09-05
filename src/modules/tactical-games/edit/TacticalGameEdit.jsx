@@ -19,8 +19,8 @@ const TacticalGameEdit = () => {
     <>
       <TacticalGameEditActions tacticalGame={tacticalGame} formData={formData} />
       <TacticalGameEditAttributes formData={formData} setFormData={setFormData} />
-      <pre>FormData: {JSON.stringify(formData, null, 2)}</pre>
-      <pre>TacticalGame: {JSON.stringify(tacticalGame, null, 2)}</pre>
+      {/* <pre>FormData: {JSON.stringify(formData, null, 2)}</pre>
+      <pre>TacticalGame: {JSON.stringify(tacticalGame, null, 2)}</pre> */}
     </>
   );
 };

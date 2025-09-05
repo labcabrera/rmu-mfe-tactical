@@ -31,8 +31,8 @@ const TacticalGameCreation = () => {
     <>
       <TacticalGameCreationActions formData={formData} isValid={isValid} />
       <TacticalGameCreationAttributes formData={formData} setFormData={setFormData} strategicGames={strategicGames} />
-      <pre>Form: {JSON.stringify(formData, null, 2)}</pre>
-      <pre>Strategic Games: {JSON.stringify(strategicGames, null, 2)}</pre>
+      {/* <pre>Form: {JSON.stringify(formData, null, 2)}</pre>
+      <pre>Strategic Games: {JSON.stringify(strategicGames, null, 2)}</pre> */}
     </>
   );
 };

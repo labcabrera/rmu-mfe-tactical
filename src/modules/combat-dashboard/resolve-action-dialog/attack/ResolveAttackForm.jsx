@@ -19,7 +19,23 @@ const AttackList = ({ formData, setFormData, character, characters }) => {
     if (exists) {
       newSelected = selected.filter((a) => a.attackName !== attackName);
     } else {
-      newSelected = [...selected, { attackName, targetId: '' }];
+      newSelected = [
+        ...selected,
+        {
+          attackName,
+          targetId: '',
+          cover: 'none',
+          restrictedQuarters: 'none',
+          positionalSource: 'none',
+          positionalTarget: 'none',
+          dodge: 'none',
+          range: '0',
+          customBonus: '0',
+          disabledDB: false,
+          disabledShield: false,
+          disabledParry: false,
+        },
+      ];
     }
     setFormData({ ...formData, attacks: newSelected });
   };

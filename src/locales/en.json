@@ -261,6 +261,28 @@
   "at-9": "Brigandine (9)",
   "at-10": "Plate (10)",
 
+  "positional-source": "Positional source",
+  "positional-target": "Positional target",
+  "positional-none": "None",
+  "positional-flank": "Flank",
+  "positional-rear": "Rear",
+  "positional-to_flank": "To flank",
+  "positional-to_rear": "To rear",
+
+  "cover-none": "None",
+  "cover-partial-light": "Partial light",
+  "cover-half-light": "Half light",
+  "cover-full-light": "Full light",
+  "cover-partial-hard": "Partial hard",
+  "cover-half-hard": "Half hard",
+  "cover-full-hard": "Full hard",
+
+  "dodge": "Dodge",
+  "dodge-none": "None",
+  "dodge-passive": "Passive",
+  "dodge-partial": "Partial",
+  "dodge-full": "Full",
+
   "arming-sword": "Arming sword",
   "battle-axe": "Battle axe",
   "blackjack": "Blackjack",
@@ -342,10 +364,10 @@
   "body": "Body",
 
   "restricted-quarter-none": "None",
-  "restricted-quarter-close": "Close (-25)",
-  "restricted-quarter-cramped": "Cramped (-50)",
-  "restricted-quarter-tigth": "Tigth (-75)",
-  "restricted-quarter-confined": "Confined (-100)",
+  "restricted-quarter-close": "Close",
+  "restricted-quarter-cramped": "Cramped",
+  "restricted-quarter-tight": "Tight",
+  "restricted-quarter-confined": "Confined",
 
   "lotr-orc-lesser": "Lesser orc",
   "lotr-human-common": "Common human",

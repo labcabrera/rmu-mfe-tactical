@@ -1,10 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useParams } from 'react-router-dom';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import Accordion from '@mui/material/Accordion';
-import AccordionDetails from '@mui/material/AccordionDetails';
-import AccordionSummary from '@mui/material/AccordionSummary';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
@@ -112,7 +108,7 @@ const TacticalGameView = () => {
         </Grid>
       </Box>
 
-      <Typography component="h2" color="primary">
+      {/* <Typography component="h2" color="primary">
         Debug Info
       </Typography>
       <Accordion>
@@ -146,7 +142,7 @@ const TacticalGameView = () => {
         <AccordionDetails>
           <pre>Characters: {JSON.stringify(characters, null, 2)}</pre>
         </AccordionDetails>
-      </Accordion>
+      </Accordion> */}
     </>
   );
 };
