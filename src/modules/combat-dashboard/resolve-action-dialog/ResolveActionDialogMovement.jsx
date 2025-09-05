@@ -1,10 +1,13 @@
 /* eslint-disable react/prop-types */
 import React, { useContext, useState } from 'react';
-import { Grid, TextField } from '@mui/material';
+import { Divider, Grid, TextField } from '@mui/material';
 import Button from '@mui/material/Button';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Switch from '@mui/material/Switch';
 import { CombatContext } from '../../../CombatContext';
 import { useError } from '../../../ErrorContext';
 import { resolveMovement } from '../../api/actions';
+import NumericTextField from '../../shared/inputs/NumericTextField';
 import SelectDifficulty from '../../shared/selects/SelectDifficulty';
 import SelectMovementSkill from '../../shared/selects/SelectMovementSkill';
 import SelectPace from '../../shared/selects/SelectPace';
@@ -16,17 +19,19 @@ const ResolveActionDialogMovement = ({ action, character }) => {
   const { strategicGame } = useContext(CombatContext);
   const [paceMultiplier, setPaceMultiplier] = useState('');
   const [movement, setMovement] = useState('');
+  const [requiredManeuver, setRequiredManeuver] = useState(true);
   const [adjustedMovement, setAdjustedMovement] = useState('');
   const [formData, setFormData] = useState({
     pace: '',
     difficulty: character.equipment.movementBaseDifficulty || '',
     skill: 'running',
+    roll: '',
   });
 
   const handleResolve = () => {
     resolveMovement(action.id, formData)
       .then((result) => {
-        //TODO
+        //TODO not implemented api
         console.log('Movement resolved:', result);
       })
       .catch((err) => {
@@ -60,17 +65,6 @@ const ResolveActionDialogMovement = ({ action, character }) => {
     return currentPhase - startPhase + 1;
   };
 
-  // "equipment": {
-  //   "mainHand": "84ac78f9-7948-4a6a-9677-3c7ab0289413",
-  //   "weight": 1,
-  //   "encumbrance": 0,
-  //   "maneuverPenalty": -20,
-  //   "baseManeuverPenalty": 0,
-  //   "rangedPenalty": 0,
-  //   "perceptionPenalty": 0,
-  //   "movementBaseDifficulty": "c"
-  // },
-
   return (
     <Grid container spacing={2}>
       <Grid size={12}>
@@ -103,6 +97,27 @@ const ResolveActionDialogMovement = ({ action, character }) => {
       <Grid size={2}>
         <SelectMovementSkill value={formData.skill} onChange={handleMovementSkillChange} />
       </Grid>
+      <Grid size={12}></Grid>
+      <Divider />
+      <Grid size={2}>
+        <FormControlLabel
+          control={<Switch defaultChecked value={requiredManeuver} onChange={(e) => setRequiredManeuver(e.target.checked)} />}
+          label="Required maneuver"
+        />
+      </Grid>
+      <Grid size={12}></Grid>
+      {requiredManeuver && (
+        <Grid size={2}>
+          <NumericTextField
+            label="Roll"
+            value={formData.roll}
+            onChange={(val) => setFormData({ ...formData, roll: val })}
+            variant="standard"
+            fullWidth
+          />
+        </Grid>
+      )}
+      <Grid size={12}></Grid>
       <Grid size={2}>
         <Button onClick={handleResolve}>Resolve</Button>
       </Grid>

@@ -7,7 +7,7 @@ import TextField from '@mui/material/TextField';
 const SelectMovementSkill = ({ value, onChange }) => {
   const { t } = useTranslation();
 
-  const codes = ['running', 'swimming', 'climbing'];
+  const codes = ['running', 'swimming', 'climbing', 'flying'];
 
   const handleChange = (event) => {
     const value = event.target.value;
