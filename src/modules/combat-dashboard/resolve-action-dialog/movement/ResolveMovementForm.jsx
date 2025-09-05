@@ -1,35 +1,17 @@
 /* eslint-disable react/prop-types */
-import React, { useState, useContext } from 'react';
+import React, { useState } from 'react';
 import { Divider, Grid, TextField } from '@mui/material';
-import Button from '@mui/material/Button';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
-import { CombatContext } from '../../../../CombatContext';
-import { useError } from '../../../../ErrorContext';
-import { resolveMovement } from '../../../api/actions';
 import NumericTextField from '../../../shared/inputs/NumericTextField';
 import SelectDifficulty from '../../../shared/selects/SelectDifficulty';
 import SelectMovementSkill from '../../../shared/selects/SelectMovementSkill';
 import SelectPace from '../../../shared/selects/SelectPace';
 
-const ResolveMovement = ({ formData, setFormData, setActiveStep, character, game, strategicGame, action }) => {
-  const { showError } = useError();
-  const { updateAction } = useContext(CombatContext);
+const ResolveMovement = ({ formData, setFormData, character, game, strategicGame, action }) => {
   const [paceMultiplier, setPaceMultiplier] = useState('');
   const [movement, setMovement] = useState('');
   const [adjustedMovement, setAdjustedMovement] = useState('');
-
-  const handleResolve = () => {
-    const dataToSend = { ...formData, roll: processInteger(formData.roll) };
-    resolveMovement(action.id, dataToSend)
-      .then((result) => {
-        updateAction(result);
-        setActiveStep(1);
-      })
-      .catch((err) => {
-        showError(err.message);
-      });
-  };
 
   const handlePaceChange = (value, pace) => {
     setFormData({ ...formData, pace: value });
@@ -43,18 +25,9 @@ const ResolveMovement = ({ formData, setFormData, setActiveStep, character, game
   };
 
   const getActionPoints = () => {
-    //TODO check other actions in previous phases
     const startPhase = action.phaseStart;
     const currentPhase = parseInt(game.phase.replace('phase_', ''));
     return currentPhase - startPhase + 1;
-  };
-
-  const processInteger = (value) => {
-    if (!value || value === '') {
-      return undefined;
-    }
-    const check = Number(value);
-    return Number.isInteger(check) ? check : undefined;
   };
 
   const handleDifficultyChange = (value) => {
@@ -122,10 +95,6 @@ const ResolveMovement = ({ formData, setFormData, setActiveStep, character, game
           </Grid>
         </>
       )}
-      <Grid size={12}></Grid>
-      <Grid size={2}>
-        <Button onClick={handleResolve}>Resolve</Button>
-      </Grid>
     </Grid>
   );
 };
