@@ -1,21 +1,32 @@
 /* eslint-disable react/prop-types */
 import React from 'react';
+import Grid from '@mui/material/Grid';
 import TextField from '@mui/material/TextField';
+import SelectCover from '../../../shared/selects/SelectCover';
 
 const ResolveAttackFormModifiers = ({ formData, setFormData, character, attack, index }) => {
-  // Get the current value of foo for this attack
-  const fooValue = formData.attacks?.[index]?.foo || '';
+  const customBonus = formData.attacks?.[index]?.customBonus || '';
+  const cover = formData.attacks?.[index]?.cover || '';
 
-  // Handler to update foo for the correct attack
-  const handleFooChange = (e) => {
-    console.log('Foo changed:', e.target.value, index);
-    const newValue = e.target.value;
-    const newAttacks = formData.attacks.map((a, i) => (i === index ? { ...a, foo: newValue } : a));
-    console.log('New attacks array:', newAttacks);
+  const handleChangeEvent = (e) => handleChange(e.target.name, e.target.value);
+  const handleCoverChange = (value) => handleChange('cover', value);
+
+  const handleChange = (name, value) => {
+    console.log('Changing', name, value);
+    const newAttacks = formData.attacks.map((a, i) => (i === index ? { ...a, [name]: value } : a));
     setFormData({ ...formData, attacks: newAttacks });
   };
 
-  return <TextField label="Foo" value={fooValue} onChange={handleFooChange} fullWidth size="small" variant="outlined" />;
+  return (
+    <Grid container spacing={2} sx={{ marginTop: 1, marginBottom: 1 }}>
+      <Grid size={2}>
+        <SelectCover value={cover} onChange={handleCoverChange} />
+      </Grid>
+      <Grid size={2}>
+        <TextField label="custom-bonus" value={customBonus} name="customBonus" onChange={handleChangeEvent} fullWidth variant="standard" />
+      </Grid>
+    </Grid>
+  );
 };
 
 export default ResolveAttackFormModifiers;
