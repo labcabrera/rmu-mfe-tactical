@@ -27,15 +27,6 @@ const SelectAttackTarget = ({ value, onChange, sourceId, includeSource = false, 
       value={value === undefined || value === null || targets.length === 0 ? '' : value}
       variant="standard"
       onChange={handleChange}
-      slotProps={{
-        input: {
-          startAdornment: (
-            <InputAdornment position="start">
-              <Avatar src="/static/images/generic/shield.png" sx={{ width: 25, height: 25 }} />
-            </InputAdornment>
-          ),
-        },
-      }}
     >
       {targets
         .filter((e) => e.id != sourceId || includeSource)

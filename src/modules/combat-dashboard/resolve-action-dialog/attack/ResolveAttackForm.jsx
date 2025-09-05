@@ -1,5 +1,6 @@
 /* eslint-disable react/prop-types */
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
+import { useTranslation } from 'react-i18next';
 import Checkbox from '@mui/material/Checkbox';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
@@ -7,16 +8,25 @@ import { CombatContext } from '../../../../CombatContext';
 import SelectAttackTarget from '../../../shared/selects/SelectAttackTarget';
 
 const AttackList = ({ formData, setFormData, character, characters }) => {
+  const { t } = useTranslation();
   const selected = formData.attacks || [];
 
-  const handleToggle = (attackId) => {
-    console.log('Toggling attack:', attackId);
-    const newSelected = selected.includes(attackId) ? selected.filter((id) => id !== attackId) : [...selected, attackId];
+  const findAttack = (attackName) => selected.find((a) => a.attackName === attackName);
+
+  const handleToggle = (attackName) => {
+    const exists = findAttack(attackName);
+    let newSelected;
+    if (exists) {
+      newSelected = selected.filter((a) => a.attackName !== attackName);
+    } else {
+      newSelected = [...selected, { attackName, targetId: '' }];
+    }
     setFormData({ ...formData, attacks: newSelected });
   };
 
-  const handleTargetChange = (value) => {
-    //setFormData({ ...formData, targetId: value });
+  const handleTargetChange = (attackName, targetId) => {
+    const newSelected = selected.map((a) => (a.attackName === attackName ? { ...a, targetId } : a));
+    setFormData({ ...formData, attacks: newSelected });
   };
 
   if (!character?.attacks || character.attacks.length === 0) {
@@ -27,58 +37,41 @@ const AttackList = ({ formData, setFormData, character, characters }) => {
     <>
       {character.attacks.map((attack) => (
         <Grid container key={attack.attackName} spacing={2} alignItems="center" style={{ marginBottom: 8 }}>
-          <Grid size={2}>
-            <Checkbox checked={selected.includes(attack.id)} onChange={() => handleToggle(attack.id)} />
+          <Grid size={1}>
+            <Checkbox checked={!!findAttack(attack.attackName)} onChange={() => handleToggle(attack.attackName)} />
           </Grid>
           <Grid size={2}>
-            <Typography variant="body2">{attack.attackName}</Typography>
+            <Typography variant="body2">{t(attack.attackName)}</Typography>
           </Grid>
           <Grid size={2}>
-            <SelectAttackTarget
-              value={formData.targetId}
-              onChange={handleTargetChange}
-              includeSource={false}
-              source={character.id}
-              targets={characters}
-            />
+            <Typography variant="body2">
+              {t(attack.attackTable)}: {t(attack.bo)}
+            </Typography>
           </Grid>
+          {!!findAttack(attack.attackName) && (
+            <Grid size={2}>
+              <SelectAttackTarget
+                value={findAttack(attack.attackName)?.targetId || ''}
+                onChange={(value) => handleTargetChange(attack.attackName, value)}
+                includeSource={false}
+                source={character.id}
+                targets={characters}
+                i18nLabel="target-attack"
+                disabled={!findAttack(attack.attackName)}
+              />
+            </Grid>
+          )}
         </Grid>
-
-        //   </Grid>
-        //   <ListItem key={attack.attackName} divider>
-        //     <ListItemText
-        //       primary={<Typography variant="subtitle1">{attack.attackName}</Typography>}
-        //       secondary={
-        //         <>
-        //           <Typography variant="body2">BO: {attack.bo}</Typography>
-        //           <Typography variant="body2">Table: {attack.attackTable}</Typography>
-        //         </>
-        //       }
-        //     />
-        //     <ListItemText
-        //       primary={<Typography variant="subtitle1">{attack.attackName}</Typography>}
-        //       secondary={
-        //         <>
-        //           <Typography variant="body2">BO: {attack.bo}</Typography>
-        //           <Typography variant="body2">Table: {attack.attackTable}</Typography>
-        //         </>
-        //       }
-        //     />
-        //     <AttackList character={character} formData={formData} setFormData={setFormData} />
-        //   </ListItem>
       ))}
     </>
   );
 };
 
-const ResolveAttackForm = ({ formData, setFormData, character, game, strategicGame, action }) => {
-  const { actorRounds, characters } = useContext(CombatContext);
+const ResolveAttackForm = ({ formData, setFormData, character }) => {
+  const { characters } = useContext(CombatContext);
 
   return (
     <>
-      <Grid container spacing={2}>
-        todo: select attacks to resolve
-      </Grid>
       <AttackList character={character} characters={characters} formData={formData} setFormData={setFormData} />
     </>
   );

@@ -73,6 +73,8 @@
   "tactical": "Tactical",
   "tactical-game": "Game",
   "tactical-games": "Games",
+  "target": "Target",
+  "target-attack": "Target attack",
   "weapon-skill": "Weapon skill",
   "weight": "Weight",
 
@@ -269,7 +271,7 @@
   "club": "Club",
   "composite-bow": "Composite bow",
   "crossbow": "Crossbow",
-  "dager": "Dager",
+  "dagger": "Dagger",
   "dart": "Dart",
   "epee": "Epee",
   "falchion": "Falchion",

@@ -8,7 +8,7 @@ import Stepper from '@mui/material/Stepper';
 import ResolveMovementForm from './ResolveAttackForm';
 import ResolveAttackResults from './ResolveAttackResults';
 
-const steps = ['Resolve', 'Results'];
+const steps = ['Declare attacks and targets', 'Resolve attacks', 'Results'];
 
 export default function ResolveAttackStepper({
   formData,
@@ -49,15 +49,17 @@ export default function ResolveAttackStepper({
       </Stepper>
       {activeStep === 0 && (
         <>
-          <ResolveMovementForm
-            formData={formData}
-            setFormData={setFormData}
-            setActiveStep={setActiveStep}
-            character={character}
-            strategicGame={strategicGame}
-            action={action}
-            game={game}
-          />
+          <Box sx={{ mt: 5 }}>
+            <ResolveMovementForm
+              formData={formData}
+              setFormData={setFormData}
+              setActiveStep={setActiveStep}
+              character={character}
+              strategicGame={strategicGame}
+              action={action}
+              game={game}
+            />
+          </Box>
         </>
       )}
       {activeStep === 1 && (

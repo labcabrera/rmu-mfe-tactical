@@ -10,7 +10,6 @@ const ResolveAttack = ({ action, character, onClose }) => {
   const { game, strategicGame, updateAction } = useContext(CombatContext);
   const [activeStep, setActiveStep] = useState(action.status === 'declared' ? 0 : 1);
   const [formData, setFormData] = useState({
-    targetId: '',
     attacks: [],
   });
 
