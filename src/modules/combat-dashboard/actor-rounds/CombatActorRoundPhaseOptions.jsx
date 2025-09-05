@@ -15,6 +15,7 @@ const CombatActorRoundPhaseOptions = ({ actorRound, character, phase }) => {
     try {
       if (!roundActions || roundActions.length < 1) {
         setActiveAction(null);
+        return;
       }
       const actorActions = roundActions.filter((e) => e.actorId == actorRound.actorId && e.phaseStart <= phase);
       for (let action of actorActions) {

@@ -5,6 +5,7 @@ import Button from '@mui/material/Button';
 import Step from '@mui/material/Step';
 import StepLabel from '@mui/material/StepLabel';
 import Stepper from '@mui/material/Stepper';
+import ResolveAttackTabDeclaration from '../attack/ResolveAttackTabDeclaration';
 import ResolveMovementForm from './ResolveMovementForm';
 import ResolveMovementResults from './ResolveMovementResults';
 
@@ -62,10 +63,17 @@ export default function ResolveMovementStepper({
       )}
       {activeStep === 1 && (
         <>
+          <p>tabs</p>
+          <ResolveAttackTabDeclaration formData={formData} />
+        </>
+      )}
+      {activeStep === 2 && (
+        <>
           <ResolveMovementResults action={action} />
         </>
       )}
       <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2, mt: 'auto' }}>
+        <p>{`Active Step: ${activeStep}`}</p>
         <Button color="inherit" disabled={activeStep === 0} onClick={handleBack} sx={{ mr: 1 }}>
           Back
         </Button>

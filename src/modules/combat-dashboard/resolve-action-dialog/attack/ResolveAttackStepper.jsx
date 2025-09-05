@@ -7,6 +7,7 @@ import StepLabel from '@mui/material/StepLabel';
 import Stepper from '@mui/material/Stepper';
 import ResolveMovementForm from './ResolveAttackForm';
 import ResolveAttackResults from './ResolveAttackResults';
+import ResolveAttackTabDeclaration from './ResolveAttackTabDeclaration';
 
 const steps = ['Declare attacks and targets', 'Resolve attacks', 'Results'];
 
@@ -64,7 +65,7 @@ export default function ResolveAttackStepper({
       )}
       {activeStep === 1 && (
         <>
-          <ResolveAttackResults action={action} />
+          <ResolveAttackTabDeclaration formData={formData} setFormData={setFormData} />
         </>
       )}
       <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2, mt: 'auto' }}>
