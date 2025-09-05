@@ -92,6 +92,10 @@ export const CombatProvider = ({ children }) => {
       });
   };
 
+  const updateAction = (updatedAction) => {
+    setRoundActions((prevActions) => prevActions.map((action) => (action.id === updatedAction.id ? updatedAction : action)));
+  };
+
   useEffect(() => {
     console.log('CombatProvider.useEffect[game] triggered', game, displayRound);
     if (game && displayRound) {
@@ -132,6 +136,7 @@ export const CombatProvider = ({ children }) => {
           setRoundActions,
           displayRound,
           setDisplayRound,
+          updateAction,
         }}
       >
         {children}

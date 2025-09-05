@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import React, { useState } from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -5,11 +6,11 @@ import Step from '@mui/material/Step';
 import StepLabel from '@mui/material/StepLabel';
 import Stepper from '@mui/material/Stepper';
 import Typography from '@mui/material/Typography';
+import ResolveActionDialogMovementResults from './ResolveMovementResults';
 
-const steps = ['Resolve movement', 'Select difficulty', 'Results'];
+const steps = ['Resolve', 'Results'];
 
-export default function ResolveActionDialogMovementStepper() {
-  const [activeStep, setActiveStep] = useState(0);
+export default function ResolveMovementStepper({ action, activeStep, setActiveStep }) {
   const [skipped, setSkipped] = useState(new Set());
 
   const isStepOptional = (step) => {
@@ -71,13 +72,9 @@ export default function ResolveActionDialogMovementStepper() {
           );
         })}
       </Stepper>
-      {activeStep === steps.length ? (
+      {activeStep === 2 ? (
         <>
-          <Typography sx={{ mt: 2, mb: 1 }}>All steps completed - you&apos;re finished</Typography>
-          <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
-            <Box sx={{ flex: '1 1 auto' }} />
-            <Button onClick={handleReset}>Reset</Button>
-          </Box>
+          <ResolveActionDialogMovementResults action={action} />
         </>
       ) : (
         <>
