@@ -10,13 +10,22 @@ const ResolveMovementResults = ({ action }) => {
   return (
     <Grid container spacing={2}>
       <Grid size={2}>
-        <TextField label="action-percent" name="actionPercent" value={action.movement.calculated?.percent} variant="standard" fullWidth />
+        <TextField label="action-percent" name="actionPercent" value={action.movement.calculated.percent} variant="standard" fullWidth />
       </Grid>
       <Grid size={2}>
-        <TextField label="bmr" name="bmr" value={action.movement.calculated?.bmr} variant="standard" fullWidth />
+        <TextField label="action-points" name="actionPoints" value={action.actionPoints} variant="standard" fullWidth />
       </Grid>
       <Grid size={2}>
-        <TextField label="pace-multiplier" name="paceMultiplier" value={action.movement.calculated?.paceMultiplier} variant="standard" fullWidth />
+        <TextField label="distance" name="distance" value={action.movement.calculated.distance} variant="standard" fullWidth />
+      </Grid>
+      <Grid size={2}>
+        <TextField label="bmr" name="bmr" value={action.movement.calculated.bmr} variant="standard" fullWidth />
+      </Grid>
+      <Grid size={2}>
+        <TextField label="pace-multiplier" name="paceMultiplier" value={action.movement.calculated.paceMultiplier} variant="standard" fullWidth />
+      </Grid>
+      <Grid size={2}>
+        <TextField label="description" name="description" value={action.movement.calculated.description} variant="standard" fullWidth />
       </Grid>
     </Grid>
   );
