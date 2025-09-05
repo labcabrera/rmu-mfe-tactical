@@ -8,10 +8,6 @@ const SelectCover = ({ value, name = 'cover', onChange }) => {
   const { t } = useTranslation();
   const options = ['none', 'partial-light', 'half-light', 'full-light', 'partial-hard', 'half-hard', 'full-hard'];
 
-  const handleChange = (event) => {
-    onChange(event.target.value);
-  };
-
   return (
     <TextField
       select
@@ -20,7 +16,7 @@ const SelectCover = ({ value, name = 'cover', onChange }) => {
       value={value === undefined || value === null || options.length === 0 ? '' : value}
       fullWidth
       variant="standard"
-      onChange={handleChange}
+      onChange={onChange}
     >
       {options.map((option, index) => (
         <MenuItem key={index} value={option}>

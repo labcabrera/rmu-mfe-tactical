@@ -5,7 +5,6 @@ import { CombatProvider } from './CombatContext';
 import { ErrorProvider } from './ErrorContext';
 import './i18n';
 import './index.css';
-import AttackResolution from './modules/combat-actions/attack/AttackResolution';
 import CombatDashboard from './modules/combat-dashboard/CombatDashboard';
 import TacticalGameCreation from './modules/tactical-games/create/TacticalGameCreation';
 import TacticalGameEdit from './modules/tactical-games/edit/TacticalGameEdit';
@@ -24,7 +23,6 @@ const App = () => {
             <Route path="/games/view/:gameId" element={<TacticalGameView />} />
             <Route path="/games/edit/:gameId" element={<TacticalGameEdit />} />
             <Route path="/combat/:gameId" element={<CombatDashboard />} />
-            <Route path="/combat/:gameId/resolve-attack/:actionId" element={<AttackResolution />} />
           </Routes>
         </Box>
       </CombatProvider>
