@@ -54,7 +54,7 @@ const ResolveActionCard = ({ actorRound, character, action }) => {
 
   return (
     <>
-      <CircleButtonGroup options={options} initialRotation={4.71} size={60} radius={40} xOffset={-70} yOffset={-110} />
+      <CircleButtonGroup options={options} initialRotation={4.71} size={60} radius={40} xOffset={-70} yOffset={-110} backgroundColor="#212121" />
       <ResolveActionDialog
         action={action}
         actorRound={actorRound}

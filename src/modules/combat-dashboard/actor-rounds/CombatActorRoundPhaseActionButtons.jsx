@@ -87,7 +87,9 @@ const CombatActorRoundPhaseActionButtons = ({ actorRound, phaseNumber }) => {
     return <p>Loading...</p>;
   }
 
-  return <CircleButtonGroup options={options} initialRotation={3.46} size={60} radius={40} xOffset={-70} yOffset={-110} />;
+  return (
+    <CircleButtonGroup options={options} initialRotation={3.46} size={60} radius={40} xOffset={-70} yOffset={-110} backgroundColor="#13260bff" />
+  );
 };
 
 export default CombatActorRoundPhaseActionButtons;
