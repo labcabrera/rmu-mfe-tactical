@@ -4,6 +4,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Accordion from '@mui/material/Accordion';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import AccordionSummary from '@mui/material/AccordionSummary';
+import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import { useError } from './ErrorContext.jsx';
 import { fetchActionsByGameAndRound } from './modules/api/actions.js';
@@ -142,47 +143,49 @@ export const CombatProvider = ({ children }) => {
         {children}
       </CombatContext.Provider>
 
-      <Accordion>
-        <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1-content" id="panel1-header">
-          <Typography component="span">Tactical game</Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <pre>TacticalGame: {JSON.stringify(game, null, 2)}</pre>
-        </AccordionDetails>
-      </Accordion>
-      <Accordion>
-        <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1-content" id="panel1-header">
-          <Typography component="span">Actor rounds</Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <pre>actorRounds: {JSON.stringify(actorRounds, null, 2)}</pre>
-        </AccordionDetails>
-      </Accordion>
-      <Accordion>
-        <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1-content" id="panel1-header">
-          <Typography component="span">Characters</Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <pre>characters: {JSON.stringify(characters, null, 2)}</pre>
-        </AccordionDetails>
-      </Accordion>
-      <Accordion>
-        <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1-content" id="panel1-header">
-          <Typography component="span">Round actions</Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <pre>roundActions: {JSON.stringify(roundActions, null, 2)}</pre>
-        </AccordionDetails>
-      </Accordion>
-      <Accordion>
-        <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1-content" id="panel1-header">
-          <Typography component="span">Strategic Game</Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <pre>strategicGame: {JSON.stringify(strategicGame, null, 2)}</pre>
-        </AccordionDetails>
-      </Accordion>
-      <pre>DisplayRound: {JSON.stringify(displayRound, null, 2)}</pre>
+      <Box sx={{ mt: 100 }}>
+        <Accordion>
+          <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1-content" id="panel1-header">
+            <Typography component="span">Tactical game</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <pre>TacticalGame: {JSON.stringify(game, null, 2)}</pre>
+          </AccordionDetails>
+        </Accordion>
+        <Accordion>
+          <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1-content" id="panel1-header">
+            <Typography component="span">Actor rounds</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <pre>actorRounds: {JSON.stringify(actorRounds, null, 2)}</pre>
+          </AccordionDetails>
+        </Accordion>
+        <Accordion>
+          <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1-content" id="panel1-header">
+            <Typography component="span">Characters</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <pre>characters: {JSON.stringify(characters, null, 2)}</pre>
+          </AccordionDetails>
+        </Accordion>
+        <Accordion>
+          <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1-content" id="panel1-header">
+            <Typography component="span">Round actions</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <pre>roundActions: {JSON.stringify(roundActions, null, 2)}</pre>
+          </AccordionDetails>
+        </Accordion>
+        <Accordion>
+          <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1-content" id="panel1-header">
+            <Typography component="span">Strategic Game</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <pre>strategicGame: {JSON.stringify(strategicGame, null, 2)}</pre>
+          </AccordionDetails>
+        </Accordion>
+        <pre>DisplayRound: {JSON.stringify(displayRound, null, 2)}</pre>
+      </Box>
     </>
   );
 };
