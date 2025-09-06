@@ -1,11 +1,11 @@
-import React, { useContext } from 'react';
+import React, { FC, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import Checkbox from '@mui/material/Checkbox';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 import { CombatContext } from '../../../../CombatContext';
 import { AttackDeclaration, DeclareAttackDto } from '../../../api/actions';
-import type { Character } from '../../../api/characters';
+import type { Character, CharacterAttack } from '../../../api/characters';
 import SelectAttackTarget from '../../../shared/selects/SelectAttackTarget';
 
 type AttackListProps = {
@@ -15,7 +15,7 @@ type AttackListProps = {
   characters: Character[];
 };
 
-const AttackList: React.FC<AttackListProps> = ({ formData, setFormData, character, characters }) => {
+const AttackList: FC<AttackListProps> = ({ formData, setFormData, character, characters }) => {
   const { t } = useTranslation();
   const selected = formData.attacks || [];
 
@@ -59,7 +59,7 @@ const AttackList: React.FC<AttackListProps> = ({ formData, setFormData, characte
 
   return (
     <>
-      {character.attacks.map((attack: any) => (
+      {character.attacks.map((attack: CharacterAttack) => (
         <Grid container key={attack.attackName} spacing={2} alignItems="center" style={{ marginBottom: 8 }}>
           <Grid size={1}>
             <Checkbox checked={!!findAttack(attack.attackName)} onChange={() => handleToggle(attack.attackName)} />
@@ -69,7 +69,7 @@ const AttackList: React.FC<AttackListProps> = ({ formData, setFormData, characte
           </Grid>
           <Grid size={2}>
             <Typography variant="body2">
-              {t(attack.attackTable)}: {t(attack.bo)}
+              {t(attack.attackTable)}: {attack.bo}
             </Typography>
           </Grid>
           {!!findAttack(attack.attackName) && (
@@ -77,7 +77,7 @@ const AttackList: React.FC<AttackListProps> = ({ formData, setFormData, characte
               <SelectAttackTarget
                 value={findAttack(attack.attackName)?.targetId || ''}
                 onChange={(value: string) => handleTargetChange(attack.attackName, value)}
-                includeSource={false}
+                includeSource={true}
                 sourceId={character.id}
                 targets={characters}
                 i18nLabel="target-attack"
@@ -92,7 +92,7 @@ const AttackList: React.FC<AttackListProps> = ({ formData, setFormData, characte
 
 type ResolveAttackFormProps = {
   formData: DeclareAttackDto;
-  setFormData: (data: any) => void;
+  setFormData: (data: DeclareAttackDto) => void;
   character: Character;
 };
 

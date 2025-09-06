@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ChangeEvent } from 'react';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Grid from '@mui/material/Grid';
 import Switch from '@mui/material/Switch';
@@ -28,9 +28,9 @@ const ResolveAttackFormModifiers: React.FC<ResolveAttackFormModifiersProps> = ({
   const disabledShield = formData.attacks?.[index]?.disabledShield || false;
   const disabledParry = formData.attacks?.[index]?.disabledParry || false;
 
-  const handleChangeEvent = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => handleChange(e.target.name, e.target.value);
+  const handleChangeEvent = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => handleChange(e.target.name, e.target.value);
 
-  const handleSwitchChangeEvent = (e: React.ChangeEvent<HTMLInputElement>) => handleChange(e.target.name, e.target.checked);
+  const handleSwitchChangeEvent = (e: ChangeEvent<HTMLInputElement>) => handleChange(e.target.name, e.target.checked);
 
   const handleChange = (name: string, value: string | boolean) => {
     const newAttacks = formData.attacks.map((a, i) => (i === index ? { ...a, [name]: value } : a));

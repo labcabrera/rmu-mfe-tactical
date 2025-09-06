@@ -1,9 +1,6 @@
-import React, { useContext, useState } from 'react';
-import { CombatContext } from '../../../../CombatContext';
+import React, { useState } from 'react';
 import type { Action, DeclareAttackDto } from '../../../api/actions';
 import type { Character } from '../../../api/characters';
-import type { StrategicGame } from '../../../api/strategic-games';
-import type { TacticalGame } from '../../../api/tactical-games';
 import ResolveActionDialogMovementStepper from './ResolveAttackStepper';
 
 type ResolveAttackProps = {
@@ -13,7 +10,6 @@ type ResolveAttackProps = {
 };
 
 const ResolveAttack: React.FC<ResolveAttackProps> = ({ action, character, onClose }) => {
-  const { game, strategicGame } = useContext(CombatContext)!;
   const [activeStep, setActiveStep] = useState<number>(action.status === 'declared' ? 0 : 1);
   const [formData, setFormData] = useState<DeclareAttackDto>({
     attacks: [],
@@ -28,8 +24,6 @@ const ResolveAttack: React.FC<ResolveAttackProps> = ({ action, character, onClos
         setFormData={setFormData}
         activeStep={activeStep}
         setActiveStep={setActiveStep}
-        strategicGame={strategicGame as StrategicGame}
-        game={game as TacticalGame}
         character={character}
         action={action}
         onClose={onClose}

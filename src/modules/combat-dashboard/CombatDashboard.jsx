@@ -9,7 +9,7 @@ function CombatDashboard() {
 
   useEffect(() => {
     setGameId(gameId);
-  }, [gameId]);
+  }, [gameId, setGameId]);
 
   return <CombatDashboardTabActions />;
 }

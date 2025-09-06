@@ -2,6 +2,7 @@ import { buildErrorFromResponse } from './api-errors';
 
 export type Action = {
   id: string;
+  status: 'declared' | 'in_progress' | 'resolved';
   [key: string]: any;
 };
 
