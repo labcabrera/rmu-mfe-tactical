@@ -2,7 +2,7 @@
 import React from 'react';
 import { Box, LinearProgress, Typography } from '@mui/material';
 
-const EnduranceBar = ({ title, width, max, current, colorOk = '#4caf50', colorKo = '#ffeb3b', backgroundColor = '#f44336' }) => {
+const GenericBar = ({ title, width, max, current, colorOk = '#4caf50', colorKo = '#ffeb3b', backgroundColor = '#1e231dff' }) => {
   const healthPercentage = (current / max) * 100;
 
   return (
@@ -13,7 +13,7 @@ const EnduranceBar = ({ title, width, max, current, colorOk = '#4caf50', colorKo
           value={healthPercentage}
           sx={{
             height: 10,
-            borderRadius: 5,
+            borderRadius: 1,
             backgroundColor: backgroundColor,
             '& .MuiLinearProgress-bar': {
               backgroundColor: healthPercentage > 50 ? colorOk : colorKo,
@@ -30,4 +30,4 @@ const EnduranceBar = ({ title, width, max, current, colorOk = '#4caf50', colorKo
   );
 };
 
-export default EnduranceBar;
+export default GenericBar;

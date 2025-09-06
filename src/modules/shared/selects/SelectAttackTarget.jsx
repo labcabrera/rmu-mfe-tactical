@@ -6,7 +6,7 @@ import InputAdornment from '@mui/material/InputAdornment';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 
-const SelectDefender = ({ value, onChange, sourceId, targets, i18nLabel = 'defender' }) => {
+const SelectAttackTarget = ({ value, onChange, sourceId, includeSource = false, targets, i18nLabel = 'target' }) => {
   const { t } = useTranslation();
 
   const handleChange = (event) => {
@@ -14,7 +14,7 @@ const SelectDefender = ({ value, onChange, sourceId, targets, i18nLabel = 'defen
     onChange(targetId);
   };
 
-  if (!sourceId || !targets) {
+  if (!targets) {
     return <p>Loading...</p>;
   }
 
@@ -27,18 +27,9 @@ const SelectDefender = ({ value, onChange, sourceId, targets, i18nLabel = 'defen
       value={value === undefined || value === null || targets.length === 0 ? '' : value}
       variant="standard"
       onChange={handleChange}
-      slotProps={{
-        input: {
-          startAdornment: (
-            <InputAdornment position="start">
-              <Avatar src="/static/images/generic/shield.png" sx={{ width: 25, height: 25 }} />
-            </InputAdornment>
-          ),
-        },
-      }}
     >
       {targets
-        .filter((e) => e.id != sourceId)
+        .filter((e) => e.id != sourceId || includeSource)
         .map((option, index) => (
           <MenuItem key={index} value={option.id}>
             {option.name}
@@ -48,4 +39,4 @@ const SelectDefender = ({ value, onChange, sourceId, targets, i18nLabel = 'defen
   );
 };
 
-export default SelectDefender;
+export default SelectAttackTarget;

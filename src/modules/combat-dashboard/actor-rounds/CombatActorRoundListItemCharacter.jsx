@@ -12,10 +12,11 @@ import CharacterAvatar from '../../shared/avatars/CharacterAvatar';
 import GenericBar from '../../shared/generic/GenericBar';
 
 const barSize = 220;
-const green = '#4caf50';
-const blue = '#4180d3';
-const brown = '#a6a271';
-const gray = '#686868';
+const colorHpOk = '#144214ff';
+const colorPowerOk = '#4180d3';
+const colorEnduranceOk = '#433a21ff';
+const colorEnduranceAccumulator = '#686868';
+const colorKo = '#2e140aff';
 
 /**
  * Component that displays general information about the actor, such as their name, health bar, etc.
@@ -68,19 +69,32 @@ const CombatActorRoundListItemCharacter = ({ actorRound }) => {
             </Typography>
           </Stack>
         </Stack>
-        <GenericBar current={character.hp.current} max={character.hp.max} title="HP" width={barSize} colorOk={green} />
+        <GenericBar current={character.hp.current} max={character.hp.max} title="HP" width={barSize} colorOk={colorHpOk} />
         {character.power && character.power.max > 0 ? (
-          <GenericBar current={character.power.current} max={character.power.max} title="Power" width={barSize} colorOk={blue} colorKo={gray} />
+          <GenericBar
+            current={character.power.current}
+            max={character.power.max}
+            title="Power"
+            width={barSize}
+            colorOk={colorPowerOk}
+            colorKo={colorEnduranceAccumulator}
+          />
         ) : null}
-        <GenericBar current={character.endurance.current} max={character.endurance.max} title="Endurance" width={barSize} colorOk={brown} />
+        <GenericBar
+          current={character.endurance.current}
+          max={character.endurance.max}
+          title="Endurance"
+          width={barSize}
+          colorOk={colorKo}
+          colorKo={colorEnduranceOk}
+        />
         <GenericBar
           current={character.endurance.accumulator}
           max={100}
           title="Fatigue"
           width={barSize}
-          colorOk={brown}
-          colorKo={brown}
-          backgroundColor={gray}
+          colorOk={colorKo}
+          colorKo={colorEnduranceAccumulator}
         />
       </CardContent>
     </Card>

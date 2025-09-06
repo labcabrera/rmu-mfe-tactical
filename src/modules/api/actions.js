@@ -1,3 +1,5 @@
+import { buildErrorFromResponse } from './api-errors';
+
 export async function fetchAction(actionId) {
   const url = `${process.env.RMU_API_TACTICAL_URL}/actions/${actionId}`;
   const response = await fetch(url, { method: 'GET' });
@@ -45,14 +47,14 @@ export async function deleteAction(actionId) {
 export async function resolveMovement(actionId, data) {
   const url = `${process.env.RMU_API_TACTICAL_URL}/actions/${actionId}/resolve/movement`;
   const response = await fetch(url, {
-    method: 'POST',
+    method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(data),
   });
   if (response.status != 200) {
-    throw new Error(`Error: ${response.status} ${response.statusText}. (${url})`);
+    throw await buildErrorFromResponse(response, url);
   }
   return await response.json();
 }
