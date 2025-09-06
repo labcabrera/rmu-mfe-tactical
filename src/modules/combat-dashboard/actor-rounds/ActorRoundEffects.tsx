@@ -14,7 +14,7 @@ const ActorRoundEffects: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
           <ActorRoundEffect key={index} effect={effect} />
         ))}
       </Stack>
-      <pre>{JSON.stringify(actorRound.effects, null, 2)}</pre>
+      {/* <pre>{JSON.stringify(actorRound.effects, null, 2)}</pre> */}
     </>
   );
 };
@@ -23,6 +23,11 @@ export default ActorRoundEffects;
 
 const ActorRoundEffect: FC<{ effect: ActorRoundEffect }> = ({ effect }) => {
   const getLabel = () => {
+    switch (effect.status) {
+      case 'death':
+        return 'Death';
+        break;
+    }
     return '';
   };
 
