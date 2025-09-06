@@ -2,7 +2,7 @@
 import React from 'react';
 import IconButton from '@mui/material/IconButton';
 
-const CloseButton = ({ onClick, size }) => {
+const CloseButton = ({ onClick, size = 80 }) => {
   return (
     <IconButton
       onClick={onClick}

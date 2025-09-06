@@ -1,22 +1,22 @@
-const HtmlWebPackPlugin = require("html-webpack-plugin");
-const ModuleFederationPlugin = require("webpack/lib/container/ModuleFederationPlugin");
-const path = require("path");
-const Dotenv = require("dotenv-webpack");
+const HtmlWebPackPlugin = require('html-webpack-plugin');
+const ModuleFederationPlugin = require('webpack/lib/container/ModuleFederationPlugin');
+const path = require('path');
+const Dotenv = require('dotenv-webpack');
 
-const deps = require("./package.json").dependencies;
+const deps = require('./package.json').dependencies;
 
-const printCompilationMessage = require("./compilation.config.js");
-const CopyWebpackPlugin = require("copy-webpack-plugin");
-const { error } = require("console");
+const printCompilationMessage = require('./compilation.config.js');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+const { error } = require('console');
 
 module.exports = (_, argv) => ({
   output: {
     //publicPath: process.env.RMU_FE_TACTICAL_PUBLIC_PATH || "http://localhost:8083/"
-    publicPath: "http://localhost:8083/"
+    publicPath: 'http://localhost:8083/',
   },
 
   resolve: {
-    extensions: [".tsx", ".ts", ".jsx", ".js", ".json"],
+    extensions: ['.tsx', '.ts', '.jsx', '.js', '.json'],
   },
 
   devServer: {
@@ -27,21 +27,21 @@ module.exports = (_, argv) => ({
     headers: {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
-      'Access-Control-Allow-Headers': 'X-Requested-With, content-type, Authorization'
+      'Access-Control-Allow-Headers': 'X-Requested-With, content-type, Authorization',
     },
     historyApiFallback: true,
-    watchFiles: [path.resolve(__dirname, "src")],
+    watchFiles: [path.resolve(__dirname, 'src')],
     onListening: function (devServer) {
       const port = devServer.server.address().port;
 
-      printCompilationMessage("compiling", port);
+      printCompilationMessage('compiling', port);
 
-      devServer.compiler.hooks.done.tap("OutputMessagePlugin", (stats) => {
+      devServer.compiler.hooks.done.tap('OutputMessagePlugin', (stats) => {
         setImmediate(() => {
           if (stats.hasErrors()) {
-            printCompilationMessage("failure", port);
+            printCompilationMessage('failure', port);
           } else {
-            printCompilationMessage("success", port);
+            printCompilationMessage('success', port);
           }
         });
       });
@@ -52,25 +52,25 @@ module.exports = (_, argv) => ({
     rules: [
       {
         test: /\.m?js/,
-        type: "javascript/auto",
+        type: 'javascript/auto',
         resolve: {
           fullySpecified: false,
         },
       },
       {
         test: /\.(css|s[ac]ss)$/i,
-        use: ["style-loader", "css-loader", "postcss-loader"],
+        use: ['style-loader', 'css-loader', 'postcss-loader'],
       },
       {
         test: /\.(ts|tsx|js|jsx)$/,
         exclude: /node_modules/,
         use: {
-          loader: "babel-loader",
+          loader: 'babel-loader',
         },
       },
       {
         test: /\.(ico|jpg|jpeg|png|gif|jfif)$/i,
-        use: ["file-loader"],
+        use: ['file-loader'],
       },
       {
         test: /\.json$/,
@@ -84,19 +84,19 @@ module.exports = (_, argv) => ({
     new CopyWebpackPlugin({
       patterns: [
         {
-          from: path.resolve(__dirname, "public"),
-          to: path.resolve(__dirname, "dist"),
+          from: path.resolve(__dirname, 'public'),
+          to: path.resolve(__dirname, 'dist'),
         },
       ],
     }),
     new ModuleFederationPlugin({
-      name: "tactical",
-      filename: "tactical-app.js",
+      name: 'tactical',
+      filename: 'tactical-app.js',
       remotes: {
-        host: "host@http://localhost:8080/host.js"
+        host: 'host@http://localhost:8080/host.js',
       },
       exposes: {
-        "./TacticalApp": "./src/App.jsx",
+        './TacticalApp': './src/App.tsx',
       },
       shared: {
         react: { singleton: true, requiredVersion: deps.react },
@@ -109,14 +109,14 @@ module.exports = (_, argv) => ({
       },
     }),
     new HtmlWebPackPlugin({
-      template: "./src/index.html",
+      template: './src/index.html',
     }),
     new Dotenv({
       path: `./.env.${argv.mode || 'development'}`,
       safe: false,
       systemvars: true,
       silent: false,
-      defaults: './.env'
+      defaults: './.env',
     }),
-  ]
+  ],
 });

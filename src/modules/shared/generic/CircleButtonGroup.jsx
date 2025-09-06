@@ -21,7 +21,7 @@ const Circle = ({ x, y, radius, lineWidth, backgroundColor, color }) => {
   );
 };
 
-const CircleButtonGroup = ({ options, initialRotation = 3.46, size = 50, radius = 32, xOffset = 0, yOffset = 0, backgroundColor }) => {
+const CircleButtonGroup = ({ options, initialRotation = 3.46, size = 50, radius = 32, xOffset = 0, yOffset = 0, backgroundColor = undefined }) => {
   const buttonCount = options.length;
   const angleStep = (2 * Math.PI) / buttonCount;
 

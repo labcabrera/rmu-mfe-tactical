@@ -2,7 +2,7 @@
 import React from 'react';
 import StyledIconButton from './StyledIconButton';
 
-const EditButton = ({ onClick, size = 40, disabled = false }) => {
+const EditButton = ({ onClick, size = 80, disabled = false }) => {
   return (
     <StyledIconButton
       disabled={disabled}
