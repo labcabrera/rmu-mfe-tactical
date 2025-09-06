@@ -10,8 +10,8 @@ import { StrategicGame, fetchStrategicGame } from './modules/api/strategic-games
 import { TacticalGame, fetchTacticalGame } from './modules/api/tactical-games';
 
 type CombatContextType = {
-  gameId: number | null;
-  setGameId: Dispatch<SetStateAction<number | null>>;
+  gameId: string | null;
+  setGameId: Dispatch<SetStateAction<string | null>>;
   strategicGame: StrategicGame | null;
   setStrategicGame: Dispatch<SetStateAction<StrategicGame | null>>;
   game: TacticalGame | null;
@@ -39,7 +39,7 @@ type CombatProviderProps = {
 export const CombatProvider: React.FC<CombatProviderProps> = ({ children }) => {
   const { showError } = useError();
 
-  const [gameId, setGameId] = useState<number | null>(null);
+  const [gameId, setGameId] = useState<string | null>(null);
   const [game, setGame] = useState<TacticalGame | null>(null);
   const [strategicGame, setStrategicGame] = useState<StrategicGame | null>(null);
   const [actorRounds, setActorRounds] = useState<ActorRound[] | null>(null);
@@ -48,7 +48,7 @@ export const CombatProvider: React.FC<CombatProviderProps> = ({ children }) => {
   const [roundActions, setRoundActions] = useState<Action[] | null>(null);
   const [displayRound, setDisplayRound] = useState<number | null>(null);
 
-  const bindGame = (gameId: number) => {
+  const bindGame = (gameId: string) => {
     fetchTacticalGame(gameId)
       .then((data: TacticalGame) => {
         setGame(data);
@@ -59,7 +59,7 @@ export const CombatProvider: React.FC<CombatProviderProps> = ({ children }) => {
       });
   };
 
-  const bindStrategicGame = (strategicGameId: number) => {
+  const bindStrategicGame = (strategicGameId: string) => {
     fetchStrategicGame(strategicGameId)
       .then((data: StrategicGame) => {
         setStrategicGame(data);
@@ -69,7 +69,7 @@ export const CombatProvider: React.FC<CombatProviderProps> = ({ children }) => {
       });
   };
 
-  const bindActorRounds = (gameId: number, displayRound: number) => {
+  const bindActorRounds = (gameId: string, displayRound: number) => {
     fetchActorRounds(gameId, displayRound)
       .then((data: ActorRound[]) => {
         setActorRounds(data);
@@ -79,7 +79,7 @@ export const CombatProvider: React.FC<CombatProviderProps> = ({ children }) => {
       });
   };
 
-  const bindActions = (gameId: number, displayRound: number) => {
+  const bindActions = (gameId: string, displayRound: number) => {
     fetchActionsByGameAndRound(gameId, displayRound)
       .then((data: Action[]) => {
         setRoundActions(data);

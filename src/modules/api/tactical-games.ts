@@ -1,7 +1,8 @@
 import { buildErrorFromResponse } from './api-errors';
 
 export type TacticalGame = {
-  id: number;
+  id: string;
+  strategicGameId: string;
   [key: string]: any;
 };
 
@@ -16,7 +17,7 @@ export async function fetchTacticalGames(rsql: string, page: number, size: numbe
   return pageContent.content;
 }
 
-export async function fetchTacticalGame(gameId: number): Promise<TacticalGame> {
+export async function fetchTacticalGame(gameId: string): Promise<TacticalGame> {
   const url = `${process.env.RMU_API_TACTICAL_URL}/tactical-games/${gameId}`;
   const response = await fetch(url, { method: 'GET' });
   if (response.status !== 200) {

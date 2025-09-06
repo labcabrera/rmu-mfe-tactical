@@ -13,7 +13,7 @@ type ResolveAttackProps = {
 };
 
 const ResolveAttack: React.FC<ResolveAttackProps> = ({ action, character, onClose }) => {
-  const { game, strategicGame, updateAction } = useContext(CombatContext)!;
+  const { game, strategicGame } = useContext(CombatContext)!;
   const [activeStep, setActiveStep] = useState<number>(action.status === 'declared' ? 0 : 1);
   const [formData, setFormData] = useState<DeclareAttackDto>({
     attacks: [],

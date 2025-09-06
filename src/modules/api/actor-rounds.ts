@@ -1,11 +1,11 @@
 import { buildErrorFromResponse } from './api-errors';
 
 export type ActorRound = {
-  id: number;
+  id: string;
   [key: string]: any;
 };
 
-export async function fetchActorRounds(gameId: number, round: number): Promise<ActorRound[]> {
+export async function fetchActorRounds(gameId: string, round: number): Promise<ActorRound[]> {
   const rsql = `gameId==${gameId};round==${round}`;
   const url = `${process.env.RMU_API_TACTICAL_URL}/actor-rounds?q=${rsql}&page=0&size=100`;
   const response = await fetch(url, { method: 'GET' });
@@ -16,7 +16,7 @@ export async function fetchActorRounds(gameId: number, round: number): Promise<A
   return json.content;
 }
 
-export async function declareActorRoundInitiative(actorRoundId: number, roll: number): Promise<ActorRound> {
+export async function declareActorRoundInitiative(actorRoundId: string, roll: number): Promise<ActorRound> {
   const url = `${process.env.RMU_API_TACTICAL_URL}/actor-rounds/${actorRoundId}/initiative`;
   const response = await fetch(url, {
     method: 'PATCH',

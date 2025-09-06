@@ -15,7 +15,7 @@ export async function fetchStrategicGames(rsql: string, page: number, size: numb
   return pageContent.content;
 }
 
-export async function fetchStrategicGame(gameId: number): Promise<StrategicGame> {
+export async function fetchStrategicGame(gameId: string): Promise<StrategicGame> {
   const url = `${process.env.RMU_API_STRATEGIC_URL}/strategic-games/${gameId}`;
   const response = await fetch(url, { method: 'GET' });
   if (response.status !== 200) {
