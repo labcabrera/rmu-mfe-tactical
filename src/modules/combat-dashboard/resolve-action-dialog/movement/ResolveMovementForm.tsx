@@ -1,27 +1,42 @@
-/* eslint-disable react/prop-types */
 import React, { useState } from 'react';
-import { Grid, TextField } from '@mui/material';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Switch from '@mui/material/Switch';
+import { FormControlLabel, Grid, Switch, TextField } from '@mui/material';
+import type { Action, ResolveMovementDto } from '../../../api/actions';
+import type { Character } from '../../../api/characters';
+import type { StrategicGame } from '../../../api/strategic-games';
+import type { TacticalGame } from '../../../api/tactical-games';
 import NumericTextField from '../../../shared/inputs/NumericTextField';
 import SelectDifficulty from '../../../shared/selects/SelectDifficulty';
 import SelectMovementSkill from '../../../shared/selects/SelectMovementSkill';
 import SelectPace from '../../../shared/selects/SelectPace';
 
-const ResolveMovementForm = ({ formData, setFormData, character, game, strategicGame, action }) => {
-  const [paceMultiplier, setPaceMultiplier] = useState('');
-  const [movement, setMovement] = useState('');
-  const [adjustedMovement, setAdjustedMovement] = useState('');
+type Pace = {
+  value: string;
+  multiplier: number;
+};
 
-  const handlePaceChange = (value, pace) => {
+type ResolveMovementFormProps = {
+  formData: ResolveMovementDto;
+  setFormData: (data: ResolveMovementDto) => void;
+  character: Character;
+  game: TacticalGame;
+  strategicGame: StrategicGame;
+  action: Action;
+};
+
+const ResolveMovementForm: React.FC<ResolveMovementFormProps> = ({ formData, setFormData, character, game, strategicGame, action }) => {
+  const [paceMultiplier, setPaceMultiplier] = useState<number | string>('');
+  const [movement, setMovement] = useState<number | string>('');
+  const [adjustedMovement, setAdjustedMovement] = useState<number | string>('');
+
+  const handlePaceChange = (value: string, pace: Pace) => {
     setFormData({ ...formData, pace: value });
     setPaceMultiplier(pace.multiplier);
     const actionPoints = getActionPoints();
-    const movement = character.movement.baseMovementRate * pace.multiplier * actionPoints;
+    const movementValue = character.movement.baseMovementRate * pace.multiplier * actionPoints;
     const scaleMultiplier = strategicGame?.options?.boardScaleMultiplier || 1;
-    const adjustedMovement = movement * scaleMultiplier;
-    setMovement(movement);
-    setAdjustedMovement(`${adjustedMovement} (x${scaleMultiplier})`);
+    const adjustedMovementValue = movementValue * scaleMultiplier;
+    setMovement(movementValue);
+    setAdjustedMovement(`${adjustedMovementValue} (x${scaleMultiplier})`);
   };
 
   const getActionPoints = () => {
@@ -30,12 +45,12 @@ const ResolveMovementForm = ({ formData, setFormData, character, game, strategic
     return currentPhase - startPhase + 1;
   };
 
-  const handleDifficultyChange = (value) => {
+  const handleDifficultyChange = (value: string) => {
     setFormData({ ...formData, difficulty: value });
   };
 
-  const handleMovementSkillChange = (value) => {
-    setFormData({ ...formData, skill: value });
+  const handleMovementSkillChange = (value: string) => {
+    setFormData({ ...formData, skillId: value });
   };
 
   return (
@@ -67,13 +82,7 @@ const ResolveMovementForm = ({ formData, setFormData, character, game, strategic
       <Grid size={12}></Grid>
       <Grid size={2}>
         <FormControlLabel
-          control={
-            <Switch
-              defaultChecked
-              value={formData.requiredManeuver}
-              onChange={(e) => setFormData({ ...formData, requiredManeuver: e.target.checked })}
-            />
-          }
+          control={<Switch checked={formData.requiredManeuver} onChange={(e) => setFormData({ ...formData, requiredManeuver: e.target.checked })} />}
           label="Required maneuver"
         />
       </Grid>
@@ -87,7 +96,7 @@ const ResolveMovementForm = ({ formData, setFormData, character, game, strategic
             <NumericTextField
               label="Roll"
               value={formData.roll}
-              onChange={(val) => setFormData({ ...formData, roll: val })}
+              onChange={(val: string | number) => setFormData({ ...formData, roll: val })}
               variant="standard"
               fullWidth
             />

@@ -6,6 +6,15 @@ export type Action = {
   [key: string]: any;
 };
 
+export type ResolveMovementDto = {
+  phase: number;
+  pace: string;
+  requiredManeuver: boolean;
+  difficulty: string;
+  skillId: string;
+  roll: string | number;
+};
+
 export type AttackDeclaration = {
   attackName: string;
   targetId: string;

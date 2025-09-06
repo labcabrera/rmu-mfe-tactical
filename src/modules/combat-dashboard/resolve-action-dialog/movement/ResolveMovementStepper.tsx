@@ -1,17 +1,28 @@
-/* eslint-disable react/prop-types */
-import React, { useState } from 'react';
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import Step from '@mui/material/Step';
-import StepLabel from '@mui/material/StepLabel';
-import Stepper from '@mui/material/Stepper';
-import ResolveAttackTabDeclaration from '../attack/ResolveAttackTabDeclaration';
+import React, { FC } from 'react';
+import { Box, Button, Step, StepLabel, Stepper } from '@mui/material';
+import type { Action, ResolveMovementDto } from '../../../api/actions';
+import type { Character } from '../../../api/characters';
+import type { StrategicGame } from '../../../api/strategic-games';
+import type { TacticalGame } from '../../../api/tactical-games';
 import ResolveMovementForm from './ResolveMovementForm';
 import ResolveMovementResults from './ResolveMovementResults';
 
 const steps = ['Resolve', 'Results'];
 
-export default function ResolveMovementStepper({
+type ResolveMovementStepperProps = {
+  formData: ResolveMovementDto;
+  setFormData: (data: ResolveMovementDto) => void;
+  activeStep: number;
+  setActiveStep: (step: number) => void;
+  onClose: () => void;
+  onResolve: () => void;
+  action: Action;
+  character: Character;
+  game: TacticalGame;
+  strategicGame: StrategicGame;
+};
+
+const ResolveMovementStepper: FC<ResolveMovementStepperProps> = ({
   formData,
   setFormData,
   activeStep,
@@ -22,13 +33,9 @@ export default function ResolveMovementStepper({
   character,
   game,
   strategicGame,
-}) {
-  const [skipped, setSkipped] = useState(new Set());
-
+}) => {
   const handleNext = () => {
-    let newSkipped = skipped;
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
-    setSkipped(newSkipped);
   };
 
   const handleBack = () => {
@@ -39,8 +46,8 @@ export default function ResolveMovementStepper({
     <Box sx={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', minHeight: 300 }}>
       <Stepper activeStep={activeStep}>
         {steps.map((label, index) => {
-          const stepProps = {};
-          const labelProps = {};
+          const stepProps: Record<string, unknown> = {};
+          const labelProps: Record<string, unknown> = {};
           return (
             <Step key={index} {...stepProps}>
               <StepLabel {...labelProps}>{label}</StepLabel>
@@ -49,31 +56,17 @@ export default function ResolveMovementStepper({
         })}
       </Stepper>
       {activeStep === 0 && (
-        <>
-          <ResolveMovementForm
-            formData={formData}
-            setFormData={setFormData}
-            setActiveStep={setActiveStep}
-            character={character}
-            strategicGame={strategicGame}
-            action={action}
-            game={game}
-          />
-        </>
+        <ResolveMovementForm
+          formData={formData}
+          setFormData={setFormData}
+          character={character}
+          strategicGame={strategicGame}
+          action={action}
+          game={game}
+        />
       )}
-      {activeStep === 1 && (
-        <>
-          <p>tabs</p>
-          <ResolveAttackTabDeclaration formData={formData} />
-        </>
-      )}
-      {activeStep === 2 && (
-        <>
-          <ResolveMovementResults action={action} />
-        </>
-      )}
+      {activeStep === 1 && <ResolveMovementResults action={action} />}
       <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2, mt: 'auto' }}>
-        <p>{`Active Step: ${activeStep}`}</p>
         <Button color="inherit" disabled={activeStep === 0} onClick={handleBack} sx={{ mr: 1 }}>
           Back
         </Button>
@@ -86,4 +79,6 @@ export default function ResolveMovementStepper({
       </Box>
     </Box>
   );
-}
+};
+
+export default ResolveMovementStepper;

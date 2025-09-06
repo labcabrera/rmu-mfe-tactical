@@ -1,9 +1,13 @@
-/* eslint-disable react/prop-types */
-import React from 'react';
+import React, { FC } from 'react';
 import { Grid, TextField } from '@mui/material';
+import type { Action } from '../../../api/actions';
 
-const ResolveMovementResults = ({ action }) => {
-  if (!action?.movement?.calculated) {
+type ResolveMovementResultsProps = {
+  action: Action;
+};
+
+const ResolveMovementResults: FC<ResolveMovementResultsProps> = ({ action }) => {
+  if (!action || !action.movement || !action.movement.calculated) {
     return <div>Unresolved movement</div>;
   }
 
