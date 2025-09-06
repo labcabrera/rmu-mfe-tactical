@@ -6,6 +6,18 @@ export type TacticalGame = {
   [key: string]: any;
 };
 
+export type CreateTacticalGameDto = {
+  strategicGameId: string;
+  name: string;
+  description?: string;
+  [key: string]: any;
+};
+
+export type UpdateTacticalGameDto = {
+  name: string | undefined;
+  description: string | undefined;
+};
+
 export async function fetchTacticalGames(rsql: string, page: number, size: number): Promise<TacticalGame[]> {
   const url = `${process.env.RMU_API_TACTICAL_URL}/tactical-games?q=${rsql}&page=${page}&size=${size}`;
   const response = await fetch(url, { method: 'GET' });

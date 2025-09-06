@@ -1,12 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import React, { FC, useEffect, useState } from 'react';
+import { useError } from '../../../ErrorContext';
 import { fetchStrategicGames } from '../../api/strategic-games';
+import type { StrategicGame } from '../../api/strategic-games';
+import { CreateTacticalGameDto } from '../../api/tactical-games';
 import { createGameTemplate } from '../../data/tactical-game-data';
 import TacticalGameCreationActions from './TacticalGameCreationActions';
 import TacticalGameCreationAttributes from './TacticalGameCreationAttributes';
 
-const TacticalGameCreation = () => {
-  const [strategicGames, setStrategicGames] = useState([]);
-  const [formData, setFormData] = useState(createGameTemplate);
+const TacticalGameCreation: FC = () => {
+  const { showError } = useError();
+  const [strategicGames, setStrategicGames] = useState<StrategicGame[]>([]);
+  const [formData, setFormData] = useState<CreateTacticalGameDto>({ ...createGameTemplate });
   const [isValid, setIsValid] = useState(false);
 
   const validateForm = () => {
@@ -15,11 +19,18 @@ const TacticalGameCreation = () => {
     return true;
   };
 
+  const bindStrategicGames = async () => {
+    fetchStrategicGames('', 0, 100)
+      .then((response) => {
+        setStrategicGames(response);
+      })
+      .catch((err: unknown) => {
+        if (err instanceof Error) showError(err.message);
+        else showError('Unknown error occurred');
+      });
+  };
+
   useEffect(() => {
-    const bindStrategicGames = async () => {
-      const games = await fetchStrategicGames('', 0, 100);
-      setStrategicGames(games);
-    };
     bindStrategicGames();
   }, []);
 
