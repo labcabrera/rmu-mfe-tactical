@@ -1,9 +1,11 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, FC, useEffect, ChangeEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grid, TextField } from '@mui/material';
 import { CombatContext } from '../../../CombatContext';
 import { useError } from '../../../ErrorContext';
 import { declareActorRoundInitiative } from '../../api/actor-rounds';
 import type { ActorRound } from '../../api/actor-rounds';
+import NumericTextField from '../../shared/inputs/NumericTextField';
 
 type DeclareInitiativeDialogProps = {
   actorRound: ActorRound;
@@ -11,9 +13,10 @@ type DeclareInitiativeDialogProps = {
   setOpen: (open: boolean) => void;
 };
 
-const DeclareInitiativeDialog: React.FC<DeclareInitiativeDialogProps> = ({ actorRound, open, setOpen }) => {
+const DeclareInitiativeDialog: FC<DeclareInitiativeDialogProps> = ({ actorRound, open, setOpen }) => {
+  const { t } = useTranslation();
   const { showError } = useError();
-  const [roll, setRoll] = useState<string | number>(actorRound.initiative?.roll || '');
+  const [roll, setRoll] = useState<number>(actorRound.initiative?.roll || 0);
   const { updateActorRound } = useContext(CombatContext)!;
 
   const handleClose = () => {
@@ -21,10 +24,10 @@ const DeclareInitiativeDialog: React.FC<DeclareInitiativeDialogProps> = ({ actor
   };
 
   const handleDeclare = () => {
-    declareActorRoundInitiative(actorRound.id, parseInt(roll as string, 10))
+    declareActorRoundInitiative(actorRound.id, roll)
       .then((updatedActorRound) => {
         updateActorRound(updatedActorRound);
-        setRoll('');
+        setRoll(2);
         setOpen(false);
       })
       .catch((error: unknown) => {
@@ -33,29 +36,31 @@ const DeclareInitiativeDialog: React.FC<DeclareInitiativeDialogProps> = ({ actor
       });
   };
 
+  const handleRollChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const check = Number(e.target.value);
+    if (isNaN(check)) {
+      setRoll(1);
+      return;
+    }
+    setRoll(Math.max(1, Math.min(20, check)));
+  };
+
+  useEffect(() => {
+    setRoll(actorRound.initiative?.roll || '');
+  }, [actorRound]);
+
   return (
     <Dialog open={open} onClose={handleClose}>
-      <DialogTitle>Declare actor round initiative</DialogTitle>
+      <DialogTitle>{actorRound.actorName} initiative declaration</DialogTitle>
       <DialogContent>
         <DialogContentText>Declare initiative (2D10)</DialogContentText>
-        <pre>Actor round: {JSON.stringify(actorRound, null, 2)}</pre>
         <Grid container spacing={2}>
           <Grid size={6}>Initiative base:</Grid>
           <Grid size={6}>{actorRound.initiative?.base || 0}</Grid>
-          <Grid size={6}>Modifier:</Grid>
+          <Grid size={6}>Modifiers:</Grid>
           <Grid size={6}>{actorRound.initiative?.penalty || 0}</Grid>
           <Grid size={6}>
-            <TextField
-              autoFocus
-              required
-              id="roll"
-              name="roll"
-              label="initiative-roll"
-              value={roll}
-              fullWidth
-              variant="standard"
-              onChange={(e) => setRoll(e.target.value)}
-            />
+            <NumericTextField label={t('initiative-roll')} value={roll} onChange={handleRollChange} />
           </Grid>
         </Grid>
       </DialogContent>

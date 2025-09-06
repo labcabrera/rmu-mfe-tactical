@@ -30,3 +30,17 @@ export async function declareActorRoundInitiative(actorRoundId: string, roll: nu
   }
   return await response.json();
 }
+
+export async function addActorRoundHp(actorRoundId: string, hp: number): Promise<ActorRound> {
+  const url = `${process.env.RMU_API_TACTICAL_URL}/actor-rounds/${actorRoundId}/add-hp/${hp}`;
+  const response = await fetch(url, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+  if (response.status !== 200) {
+    throw await buildErrorFromResponse(response, url);
+  }
+  return await response.json();
+}

@@ -1,21 +1,14 @@
-import * as React from 'react';
-import Box from '@mui/material/Box';
-import Tab from '@mui/material/Tab';
-import Tabs from '@mui/material/Tabs';
-import CombatDashboardTabActions from './CombatDashboardTabActionRounds';
+import React, { FC, ReactNode, SyntheticEvent, useState } from 'react';
+import { Box, Tab, Tabs } from '@mui/material';
+import CombatDashboardActions from './CombatDashboardActions';
+import CombatDashboardManagement from './CombatDashboardManagement';
+import CombatActorRoundList from './actor-rounds/CombatActorRoundList';
 
 type CustomTabPanelProps = {
-  children?: React.ReactNode;
+  children?: ReactNode;
   value: number;
   index: number;
 };
-
-function a11yProps(index: number) {
-  return {
-    id: `simple-tab-${index}`,
-    'aria-controls': `simple-tabpanel-${index}`,
-  };
-}
 
 function CustomTabPanel(props: CustomTabPanelProps) {
   const { children, value, index, ...other } = props;
@@ -27,36 +20,44 @@ function CustomTabPanel(props: CustomTabPanelProps) {
   );
 }
 
-const CombatDashboardTabs: React.FC = () => {
-  const [value, setValue] = React.useState<number>(0);
+function a11yProps(index: number) {
+  return {
+    id: `simple-tab-${index}`,
+    'aria-controls': `simple-tabpanel-${index}`,
+  };
+}
 
-  const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
+const CombatDashboardTabs: FC = () => {
+  const [value, setValue] = useState<number>(0);
+
+  const handleChange = (_event: SyntheticEvent, newValue: number) => {
     setValue(newValue);
   };
 
   return (
-    <Box sx={{ width: '100%' }}>
-      <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-        <Tabs value={value} onChange={handleChange} aria-label="combat dashboard tabs">
-          <Tab label="Actions" {...a11yProps(0)} />
-          <Tab label="Initiative" {...a11yProps(1)} />
-          <Tab label="Attacks" {...a11yProps(2)} />
-          <Tab label="Debug" {...a11yProps(3)} />
-        </Tabs>
+    <>
+      <CombatDashboardActions />
+      <Box sx={{ width: '100%' }}>
+        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+          <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
+            <Tab label="Dashboard" {...a11yProps(0)} />
+            <Tab label="Management" {...a11yProps(1)} />
+            <Tab label="Actions" {...a11yProps(2)} />
+            <Tab label="Attacks" {...a11yProps(3)} />
+            <Tab label="Log" {...a11yProps(4)} />
+          </Tabs>
+        </Box>
+        <CustomTabPanel value={value} index={0}>
+          <CombatActorRoundList />
+        </CustomTabPanel>
+        <CustomTabPanel value={value} index={1}>
+          <CombatDashboardManagement />
+        </CustomTabPanel>
+        <CustomTabPanel value={value} index={2}></CustomTabPanel>
+        <CustomTabPanel value={value} index={3}></CustomTabPanel>
+        <CustomTabPanel value={value} index={3}></CustomTabPanel>
       </Box>
-      <CustomTabPanel value={value} index={0}>
-        <CombatDashboardTabActions />
-      </CustomTabPanel>
-      <CustomTabPanel value={value} index={1}>
-        TODO
-      </CustomTabPanel>
-      <CustomTabPanel value={value} index={2}>
-        TODO
-      </CustomTabPanel>
-      <CustomTabPanel value={value} index={3}>
-        TODO
-      </CustomTabPanel>
-    </Box>
+    </>
   );
 };
 

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { FC, useContext, useEffect, useState } from 'react';
 import { Grid, Paper } from '@mui/material';
 import { CombatContext } from '../../../CombatContext';
 import type { ActorRound } from '../../api/actor-rounds';
@@ -16,7 +16,7 @@ type PhaseOptionsProps = {
   phase: number;
 };
 
-const PhaseOptions: React.FC<PhaseOptionsProps> = ({ actorRound, character, game, phase }) => {
+const PhaseOptions: FC<PhaseOptionsProps> = ({ actorRound, character, game, phase }) => {
   return (
     <Grid size={1}>
       <Paper
@@ -39,7 +39,7 @@ type CombatActorRoundListItemProps = {
   actorRound: ActorRound;
 };
 
-const CombatActorRoundListItem: React.FC<CombatActorRoundListItemProps> = ({ actorRound }) => {
+const CombatActorRoundListItem: FC<CombatActorRoundListItemProps> = ({ actorRound }) => {
   const [character, setCharacter] = useState<Character | undefined>();
   const { characters, game } = useContext(CombatContext)!;
 
@@ -60,7 +60,7 @@ const CombatActorRoundListItem: React.FC<CombatActorRoundListItemProps> = ({ act
       </Grid>
       <Grid size={1}>
         <Paper
-          elevation={game.phase === 'initiative' ? 0 : 2}
+          elevation={game.phase === 'declare_initiative' ? 2 : 0}
           style={{
             height: '100%',
             padding: '16px',
