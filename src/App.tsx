@@ -4,7 +4,6 @@ import { Box } from '@mui/material';
 import { CombatProvider } from './CombatContext';
 import { ErrorProvider } from './ErrorContext';
 import './i18n';
-import './index.css';
 import CombatDashboard from './modules/combat-dashboard/CombatDashboard';
 import TacticalGameCreation from './modules/tactical-games/create/TacticalGameCreation';
 import TacticalGameEdit from './modules/tactical-games/edit/TacticalGameEdit';
