@@ -1,12 +1,24 @@
-/* eslint-disable react/prop-types */
-import React from 'react';
+import React, { FC } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Character } from '../api/characters';
+import { TacticalGame } from '../api/tactical-games';
 import CircleButtonGroup from '../shared/generic/CircleButtonGroup';
 
-const CombatFreeActionButtons = ({ tacticalGame, character }) => {
+type Option = {
+  src: string;
+  alt: string;
+  action: () => void;
+};
+
+type CombatFreeActionButtonsProps = {
+  tacticalGame: TacticalGame;
+  character: Character;
+};
+
+const CombatFreeActionButtons: FC<CombatFreeActionButtonsProps> = ({ tacticalGame, character }) => {
   const navigate = useNavigate();
 
-  const options = [
+  const options: Option[] = [
     {
       src: '/static/images/actions/drop-item.png',
       alt: 'Drop item',
@@ -17,7 +29,6 @@ const CombatFreeActionButtons = ({ tacticalGame, character }) => {
             character: character,
           },
         });
-        return;
       },
     },
     {
@@ -30,7 +41,6 @@ const CombatFreeActionButtons = ({ tacticalGame, character }) => {
             character: character,
           },
         });
-        return;
       },
     },
     {
@@ -43,7 +53,6 @@ const CombatFreeActionButtons = ({ tacticalGame, character }) => {
             character: character,
           },
         });
-        return;
       },
     },
   ];

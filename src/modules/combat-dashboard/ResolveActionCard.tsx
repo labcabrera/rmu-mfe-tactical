@@ -1,14 +1,23 @@
-/* eslint-disable react/prop-types */
 import React, { useContext, useState } from 'react';
+import { CombatContext } from '../../CombatContext';
+import { useError } from '../../ErrorContext';
 import { deleteAction } from '../api/actions';
+import type { Action } from '../api/actions';
+import { ActorRound } from '../api/actor-rounds';
+import type { Character } from '../api/characters';
 import DeleteDialog from '../shared/dialogs/DeleteDialog';
 import CircleButtonGroup from '../shared/generic/CircleButtonGroup';
-import { CombatContext } from './../../CombatContext';
 import ResolveActionDialog from './resolve-action-dialog/ResolveActionDialog';
 
-const ResolveActionCard = ({ actorRound, character, action }) => {
-  const { roundActions, setRoundActions } = useContext(CombatContext);
-  const { game } = useContext(CombatContext);
+type ResolveActionCardProps = {
+  actorRound: ActorRound;
+  character: Character;
+  action: Action;
+};
+
+const ResolveActionCard: React.FC<ResolveActionCardProps> = ({ actorRound, character, action }) => {
+  const { showError } = useError();
+  const { roundActions, setRoundActions, game } = useContext(CombatContext)!;
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [resolveDialogOpen, setResolveDialogOpen] = useState(false);
 
@@ -16,18 +25,18 @@ const ResolveActionCard = ({ actorRound, character, action }) => {
     setDeleteDialogOpen(true);
   };
 
-  const handleDelete = async () => {
-    try {
-      await deleteAction(action.id);
-      const newActionList = roundActions.filter((e) => e.id != action.id);
-      console.log('New action list: ' + JSON.stringify(newActionList));
-      setRoundActions(newActionList);
-    } catch (error) {
-      console.log('delete error: ' + error);
-    }
+  const handleDeleteAction = async () => {
+    deleteAction(action.id)
+      .then(() => {
+        const newActionList = roundActions.filter((e: Action) => e.id !== action.id);
+        setRoundActions(newActionList);
+      })
+      .catch((err) => {
+        showError(err.message);
+      });
   };
 
-  const handleResolve = async () => {
+  const handleResolve = () => {
     setResolveDialogOpen(true);
   };
 
@@ -55,16 +64,10 @@ const ResolveActionCard = ({ actorRound, character, action }) => {
   return (
     <>
       <CircleButtonGroup options={options} initialRotation={4.71} size={60} radius={40} xOffset={-70} yOffset={-110} backgroundColor="#212121" />
-      <ResolveActionDialog
-        action={action}
-        actorRound={actorRound}
-        character={character}
-        open={resolveDialogOpen}
-        onClose={() => setResolveDialogOpen(false)}
-      />
+      <ResolveActionDialog action={action} character={character} open={resolveDialogOpen} onClose={() => setResolveDialogOpen(false)} />
       <DeleteDialog
         message={`Are you sure you want to delete? This action cannot be undone.`}
-        onDelete={() => handleDelete()}
+        onDelete={handleDeleteAction}
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
       />

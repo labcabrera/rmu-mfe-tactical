@@ -8,7 +8,6 @@ export type TacticalGame = {
 
 export async function fetchTacticalGames(rsql: string, page: number, size: number): Promise<TacticalGame[]> {
   const url = `${process.env.RMU_API_TACTICAL_URL}/tactical-games?q=${rsql}&page=${page}&size=${size}`;
-  console.log(`Fetching tactical games from ${url}`);
   const response = await fetch(url, { method: 'GET' });
   if (response.status !== 200) {
     throw await buildErrorFromResponse(response, url);
@@ -41,7 +40,7 @@ export async function createTacticalGame(gameData: any): Promise<TacticalGame> {
   return await response.json();
 }
 
-export async function updateTacticalGame(gameId: number, gameData: any): Promise<TacticalGame> {
+export async function updateTacticalGame(gameId: string, gameData: any): Promise<TacticalGame> {
   const url = `${process.env.RMU_API_TACTICAL_URL}/tactical-games/${gameId}`;
   const response = await fetch(url, {
     method: 'PATCH',
@@ -56,7 +55,7 @@ export async function updateTacticalGame(gameId: number, gameData: any): Promise
   return await response.json();
 }
 
-export async function deleteTacticalGame(gameId: number): Promise<boolean> {
+export async function deleteTacticalGame(gameId: string): Promise<boolean> {
   const url = `${process.env.RMU_API_TACTICAL_URL}/tactical-games/${gameId}`;
   const response = await fetch(url, { method: 'DELETE' });
   if (response.status !== 204) {
@@ -65,7 +64,7 @@ export async function deleteTacticalGame(gameId: number): Promise<boolean> {
   return true;
 }
 
-export async function addFaction(gameId: number, factionId: number): Promise<TacticalGame> {
+export async function addFaction(gameId: string, factionId: string): Promise<TacticalGame> {
   const url = `${process.env.RMU_API_TACTICAL_URL}/tactical-games/${gameId}/factions`;
   const data = { factions: [factionId] };
   const response = await fetch(url, {
@@ -81,7 +80,7 @@ export async function addFaction(gameId: number, factionId: number): Promise<Tac
   return await response.json();
 }
 
-export async function deleteFaction(gameId: number, factionId: number): Promise<TacticalGame> {
+export async function deleteFaction(gameId: string, factionId: string): Promise<TacticalGame> {
   const url = `${process.env.RMU_API_TACTICAL_URL}/tactical-games/${gameId}/factions`;
   const data = { factions: [factionId] };
   const response = await fetch(url, {
@@ -97,7 +96,7 @@ export async function deleteFaction(gameId: number, factionId: number): Promise<
   return await response.json();
 }
 
-export async function addActor(gameId: number, actorId: number, type: string): Promise<TacticalGame> {
+export async function addActor(gameId: string, actorId: string, type: string): Promise<TacticalGame> {
   const request = { actors: [{ id: actorId, type }] };
   const url = `${process.env.RMU_API_TACTICAL_URL}/tactical-games/${gameId}/actors`;
   const response = await fetch(url, {
@@ -113,7 +112,7 @@ export async function addActor(gameId: number, actorId: number, type: string): P
   return await response.json();
 }
 
-export async function deleteActor(gameId: number, actorId: number): Promise<TacticalGame> {
+export async function deleteActor(gameId: string, actorId: string): Promise<TacticalGame> {
   const data = { actors: [actorId] };
   const url = `${process.env.RMU_API_TACTICAL_URL}/tactical-games/${gameId}/actors`;
   const response = await fetch(url, {
@@ -127,7 +126,7 @@ export async function deleteActor(gameId: number, actorId: number): Promise<Tact
   return await response.json();
 }
 
-export async function startRound(gameId: number): Promise<TacticalGame> {
+export async function startRound(gameId: string): Promise<TacticalGame> {
   const url = `${process.env.RMU_API_TACTICAL_URL}/tactical-games/${gameId}/rounds/start`;
   const response = await fetch(url, { method: 'POST' });
   if (response.status !== 200) {
@@ -136,7 +135,7 @@ export async function startRound(gameId: number): Promise<TacticalGame> {
   return await response.json();
 }
 
-export async function startPhase(gameId: number): Promise<TacticalGame> {
+export async function startPhase(gameId: string): Promise<TacticalGame> {
   const url = `${process.env.RMU_API_TACTICAL_URL}/tactical-games/${gameId}/phases/start`;
   const response = await fetch(url, { method: 'POST' });
   if (response.status !== 200) {

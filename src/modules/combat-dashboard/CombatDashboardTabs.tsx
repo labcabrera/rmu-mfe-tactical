@@ -1,18 +1,23 @@
-/* eslint-disable react/prop-types */
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
-import CombatDashboardTabActions from './combat-dashboard-tab-action-rounds';
+import CombatDashboardTabActions from './CombatDashboardTabActionRounds';
 
-function a11yProps(index) {
+type CustomTabPanelProps = {
+  children?: React.ReactNode;
+  value: number;
+  index: number;
+};
+
+function a11yProps(index: number) {
   return {
     id: `simple-tab-${index}`,
     'aria-controls': `simple-tabpanel-${index}`,
   };
 }
 
-function CustomTabPanel(props) {
+function CustomTabPanel(props: CustomTabPanelProps) {
   const { children, value, index, ...other } = props;
 
   return (
@@ -22,10 +27,10 @@ function CustomTabPanel(props) {
   );
 }
 
-export default function CombatDashboardTabs() {
-  const [value, setValue] = React.useState(0);
+const CombatDashboardTabs: React.FC = () => {
+  const [value, setValue] = React.useState<number>(0);
 
-  const handleChange = (event, newValue) => {
+  const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
   };
 
@@ -53,4 +58,6 @@ export default function CombatDashboardTabs() {
       </CustomTabPanel>
     </Box>
   );
-}
+};
+
+export default CombatDashboardTabs;
