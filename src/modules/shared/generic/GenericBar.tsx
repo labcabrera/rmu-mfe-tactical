@@ -1,8 +1,17 @@
-/* eslint-disable react/prop-types */
-import React from 'react';
+import React, { FC } from 'react';
 import { Box, LinearProgress, Typography } from '@mui/material';
 
-const GenericBar = ({ title, width, max, current, colorOk = '#4caf50', colorKo = '#ffeb3b', backgroundColor = '#1e231dff' }) => {
+type GenericBarProps = {
+  title: string;
+  width: number;
+  max: number;
+  current: number;
+  colorOk?: string;
+  colorKo?: string;
+  backgroundColor?: string;
+};
+
+const GenericBar: FC<GenericBarProps> = ({ title, width, max, current, colorOk = '#4caf50', colorKo = '#ffeb3b', backgroundColor = '#1e231dff' }) => {
   const healthPercentage = (current / max) * 100;
 
   return (
