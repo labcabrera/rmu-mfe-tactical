@@ -25,21 +25,19 @@ const CombatDashboardManagement: FC = () => {
   if (!actorRounds) return <p>Loading...</p>;
 
   return (
-    <>
-      <Grid container spacing={2}>
-        <Grid size={1}>
-          <SelectActorRound value={hpActorId} actorRounds={actorRounds} onChange={(e) => setHpActorId(e.target.value)} />
-        </Grid>
-        <Grid size={1}>
-          <NumericTextField label="Test Input" value={hpValue} onChange={(e) => setHpValue(e.target.value)} />
-        </Grid>
-        <Grid size={1}>
-          <Button variant="contained" disabled={!hpActorId || !hpValue} onClick={handleAddHp}>
-            Add HP
-          </Button>
-        </Grid>
+    <Grid container spacing={2}>
+      <Grid size={1}>
+        <SelectActorRound value={hpActorId} actorRounds={actorRounds} onChange={(e) => setHpActorId(e.id)} />
       </Grid>
-    </>
+      <Grid size={1}>
+        <NumericTextField label="HP" value={hpValue} onChange={(e) => setHpValue(e.target.value)} />
+      </Grid>
+      <Grid size={1}>
+        <Button variant="contained" disabled={!hpActorId || !hpValue} onClick={handleAddHp}>
+          Add HP
+        </Button>
+      </Grid>
+    </Grid>
   );
 };
 

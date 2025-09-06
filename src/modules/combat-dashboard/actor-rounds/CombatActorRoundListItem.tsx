@@ -5,6 +5,7 @@ import type { ActorRound } from '../../api/actor-rounds';
 import type { Character } from '../../api/characters';
 import type { TacticalGame } from '../../api/tactical-games';
 import CombatFreeActionButtons from '../CombatFreeActionButtons';
+import ActorRoundEffects from './ActorRoundEffects';
 import CombatActorRoundListItemCharacter from './CombatActorRoundListItemCharacter';
 import CombatActorRoundPhaseOptions from './CombatActorRoundPhaseOptions';
 import CombatCharacterRoundInitiative from './CombatCharacterRoundInitiative';
@@ -81,6 +82,10 @@ const CombatActorRoundListItem: FC<CombatActorRoundListItemProps> = ({ actorRoun
       <PhaseOptions actorRound={actorRound} character={character} game={game} phase={2} />
       <PhaseOptions actorRound={actorRound} character={character} game={game} phase={3} />
       <PhaseOptions actorRound={actorRound} character={character} game={game} phase={4} />
+      <Grid size={1}></Grid>
+      <Grid size={3}>
+        <ActorRoundEffects actorRound={actorRound} />
+      </Grid>
     </Grid>
   );
 };

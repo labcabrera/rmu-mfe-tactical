@@ -2,7 +2,15 @@ import { buildErrorFromResponse } from './api-errors';
 
 export type ActorRound = {
   id: string;
+  actorName: string;
+  effects: ActorRoundEffect[];
   [key: string]: any;
+};
+
+export type ActorRoundEffect = {
+  status: string;
+  value: number | undefined;
+  rounds: number | undefined;
 };
 
 export async function fetchActorRounds(gameId: string, round: number): Promise<ActorRound[]> {
