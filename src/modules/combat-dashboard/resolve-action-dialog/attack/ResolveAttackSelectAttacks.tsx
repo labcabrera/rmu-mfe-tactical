@@ -10,7 +10,7 @@ import SelectAttackTarget from '../../../shared/selects/SelectAttackTarget';
 
 type AttackListProps = {
   formData: DeclareAttackDto;
-  setFormData: (data: any) => void;
+  setFormData: (data: DeclareAttackDto) => void;
   character: Character;
   characters: Character[];
 };
@@ -96,10 +96,10 @@ type ResolveAttackFormProps = {
   character: Character;
 };
 
-const ResolveAttackForm: React.FC<ResolveAttackFormProps> = ({ formData, setFormData, character }) => {
+const ResolveAttackSelectAttacks: React.FC<ResolveAttackFormProps> = ({ formData, setFormData, character }) => {
   const { characters } = useContext(CombatContext) as { characters: Character[] };
 
   return <AttackList character={character} characters={characters} formData={formData} setFormData={setFormData} />;
 };
 
-export default ResolveAttackForm;
+export default ResolveAttackSelectAttacks;

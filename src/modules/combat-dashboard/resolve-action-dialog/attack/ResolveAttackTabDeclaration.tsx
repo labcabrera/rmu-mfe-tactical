@@ -1,18 +1,29 @@
-/* eslint-disable react/prop-types */
 import React, { useState } from 'react';
 import Box from '@mui/material/Box';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
+import { DeclareAttackDto } from '../../../api/actions';
 import ResolveAttackFormModifiers from './ResolveAttackFormModifiers';
 
-function a11yProps(index) {
+type ResolveAttackTabDeclarationProps = {
+  formData: DeclareAttackDto;
+  setFormData: (data: DeclareAttackDto) => void;
+};
+
+function a11yProps(index: number) {
   return {
     id: `simple-tab-${index}`,
     'aria-controls': `simple-tabpanel-${index}`,
   };
 }
 
-function CustomTabPanel(props) {
+type CustomTabPanelProps = {
+  children?: React.ReactNode;
+  value: number;
+  index: number;
+};
+
+function CustomTabPanel(props: CustomTabPanelProps) {
   const { children, value, index, ...other } = props;
 
   return (
@@ -22,10 +33,10 @@ function CustomTabPanel(props) {
   );
 }
 
-export default function ResolveAttackTabDeclaration({ formData, setFormData }) {
+const ResolveAttackTabDeclaration: React.FC<ResolveAttackTabDeclarationProps> = ({ formData, setFormData }) => {
   const [tabIndex, setTabIndex] = useState(0);
 
-  const handleChange = (event, newValue) => {
+  const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabIndex(newValue);
   };
 
@@ -45,4 +56,6 @@ export default function ResolveAttackTabDeclaration({ formData, setFormData }) {
       ))}
     </Box>
   );
-}
+};
+
+export default ResolveAttackTabDeclaration;

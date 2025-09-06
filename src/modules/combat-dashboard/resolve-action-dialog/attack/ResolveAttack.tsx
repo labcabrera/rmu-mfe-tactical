@@ -19,7 +19,7 @@ const ResolveAttack: React.FC<ResolveAttackProps> = ({ action, character, onClos
     attacks: [],
   });
 
-  const onResolve = () => {};
+  const onDeclare = () => {};
 
   return (
     <>
@@ -33,7 +33,7 @@ const ResolveAttack: React.FC<ResolveAttackProps> = ({ action, character, onClos
         character={character}
         action={action}
         onClose={onClose}
-        onResolve={onResolve}
+        onDeclare={onDeclare}
       />
       <pre>FormData: {JSON.stringify(formData, null, 2)}</pre>
       <pre>Action: {JSON.stringify(action, null, 2)}</pre>

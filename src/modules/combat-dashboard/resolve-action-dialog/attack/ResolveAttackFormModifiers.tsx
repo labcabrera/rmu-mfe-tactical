@@ -1,16 +1,22 @@
-/* eslint-disable react/prop-types */
 import React from 'react';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Grid from '@mui/material/Grid';
 import Switch from '@mui/material/Switch';
 import TextField from '@mui/material/TextField';
+import { DeclareAttackDto } from '../../../api/actions';
 import SelectCover from '../../../shared/selects/SelectCover';
 import SelectDodge from '../../../shared/selects/SelectDodge';
 import SelectPositionalSource from '../../../shared/selects/SelectPositionalSource';
 import SelectPositionalTarget from '../../../shared/selects/SelectPositionalTarget';
 import SelectRestrictedQuarters from '../../../shared/selects/SelectRestrictedQuarters';
 
-const ResolveAttackFormModifiers = ({ formData, setFormData, character, attack, index }) => {
+type ResolveAttackFormModifiersProps = {
+  formData: DeclareAttackDto;
+  setFormData: (data: DeclareAttackDto) => void;
+  index: number;
+};
+
+const ResolveAttackFormModifiers: React.FC<ResolveAttackFormModifiersProps> = ({ formData, setFormData, index }) => {
   const customBonus = formData.attacks?.[index]?.customBonus || '';
   const cover = formData.attacks?.[index]?.cover || '';
   const restrictedQuarters = formData.attacks?.[index]?.restrictedQuarters || '';
@@ -18,15 +24,15 @@ const ResolveAttackFormModifiers = ({ formData, setFormData, character, attack, 
   const positionalTarget = formData.attacks?.[index]?.positionalTarget || '';
   const dodge = formData.attacks?.[index]?.dodge || '';
   const range = formData.attacks?.[index]?.range || '';
-  const disabledDB = formData.attacks?.[index]?.disabledDB || '';
-  const disabledShield = formData.attacks?.[index]?.disabledShield || '';
-  const disabledParry = formData.attacks?.[index]?.disabledParry || '';
+  const disabledDB = formData.attacks?.[index]?.disabledDB || false;
+  const disabledShield = formData.attacks?.[index]?.disabledShield || false;
+  const disabledParry = formData.attacks?.[index]?.disabledParry || false;
 
-  const handleChangeEvent = (e) => handleChange(e.target.name, e.target.value);
-  const handleSwitchChangeEvent = (e) => handleChange(e.target.name, e.target.checked);
+  const handleChangeEvent = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => handleChange(e.target.name, e.target.value);
 
-  const handleChange = (name, value) => {
-    console.log('Changing', name, value);
+  const handleSwitchChangeEvent = (e: React.ChangeEvent<HTMLInputElement>) => handleChange(e.target.name, e.target.checked);
+
+  const handleChange = (name: string, value: string | boolean) => {
     const newAttacks = formData.attacks.map((a, i) => (i === index ? { ...a, [name]: value } : a));
     setFormData({ ...formData, attacks: newAttacks });
   };
@@ -50,13 +56,15 @@ const ResolveAttackFormModifiers = ({ formData, setFormData, character, attack, 
       </Grid>
       <Grid size={12}></Grid>
       <Grid size={2}>
-        <FormControlLabel control={<Switch value={disabledDB} name="disabledDB" onChange={handleSwitchChangeEvent} />} label="Disabled DB" />
+        <FormControlLabel control={<Switch checked={!!disabledDB} name="disabledDB" onChange={handleSwitchChangeEvent} />} label="Disabled DB" />
         <FormControlLabel
-          control={<Switch value={disabledShield} name="disabledShield" onChange={handleSwitchChangeEvent} />}
+          control={<Switch checked={!!disabledShield} name="disabledShield" onChange={handleSwitchChangeEvent} />}
           label="Disabled Shield"
         />
-        <FormControlLabel control={<Switch value={disabledParry} name="disabledParry" onChange={handleSwitchChangeEvent} />} label="Disabled Parry" />
-        <FormControlLabel control={<Switch value={disabledParry} name="disabledParry" onChange={handleSwitchChangeEvent} />} label="Disabled Parry" />
+        <FormControlLabel
+          control={<Switch checked={!!disabledParry} name="disabledParry" onChange={handleSwitchChangeEvent} />}
+          label="Disabled Parry"
+        />
       </Grid>
       <Grid size={12}></Grid>
       <Grid size={2}>
