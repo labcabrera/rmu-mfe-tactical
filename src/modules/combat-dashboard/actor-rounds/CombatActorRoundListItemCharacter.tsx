@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import React, { useContext, useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -8,6 +7,9 @@ import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { CombatContext } from '../../../CombatContext';
+import type { ActorRound } from '../../api/actor-rounds';
+import type { Character } from '../../api/characters';
+import type { Faction } from '../../api/factions';
 import CharacterAvatar from '../../shared/avatars/CharacterAvatar';
 import GenericBar from '../../shared/generic/GenericBar';
 
@@ -18,32 +20,37 @@ const colorEnduranceOk = '#433a21ff';
 const colorEnduranceAccumulator = '#686868';
 const colorKo = '#2e140aff';
 
+type CombatActorRoundListItemCharacterProps = {
+  actorRound: ActorRound;
+};
+
 /**
  * Component that displays general information about the actor, such as their name, health bar, etc.
  */
-const CombatActorRoundListItemCharacter = ({ actorRound }) => {
+const CombatActorRoundListItemCharacter: React.FC<CombatActorRoundListItemCharacterProps> = ({ actorRound }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { characters } = useContext(CombatContext);
-  const { factions } = useContext(CombatContext);
-  const [character, setCharacter] = useState(null);
-  const [faction, setFaction] = useState(null);
+  const { characters, factions } = useContext(CombatContext)!;
+  const [character, setCharacter] = useState<Character | null>(null);
+  const [faction, setFaction] = useState<Faction | null>(null);
 
   const handleCharacterClick = () => {
-    navigate(`/strategic/characters/view/${character.id}`);
+    if (character) {
+      navigate(`/strategic/characters/view/${character.id}`);
+    }
   };
 
   const bindCharacterAndFaction = () => {
-    const check = characters.find((c) => c.id === actorRound.actorId);
+    const check = characters.find((c: Character) => c.id === actorRound.actorId) || null;
     setCharacter(check);
-    setFaction(factions.find((f) => f.id === check.factionId));
+    setFaction(check ? factions.find((f: Faction) => f.id === check.factionId) || null : null);
   };
 
   useEffect(() => {
-    console.log('CombatActorRoundListItemCharacter: actorRound changed', actorRound, characters, factions);
     if (actorRound && characters && factions) {
       bindCharacterAndFaction();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [actorRound, characters, factions]);
 
   if (!character) {
@@ -58,7 +65,7 @@ const CombatActorRoundListItemCharacter = ({ actorRound }) => {
             <CharacterAvatar character={character} variant="square" />
           </IconButton>
           <Stack>
-            <Typography variant="content1" component="div">
+            <Typography variant="body1" component="div">
               {character.name}
             </Typography>
             <Typography variant="subtitle2" component="div">

@@ -1,14 +1,18 @@
-/* eslint-disable react/prop-types */
-import React, { useContext } from 'react';
+import React, { FC, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CombatContext } from '../../../CombatContext';
 import { createAction } from '../../api/actions';
+import type { ActorRound } from '../../api/actor-rounds';
 import CircleButtonGroup from '../../shared/generic/CircleButtonGroup';
 
-const CombatActorRoundPhaseActionButtons = ({ actorRound, phaseNumber }) => {
+type CombatActorRoundPhaseActionButtonsProps = {
+  actorRound: ActorRound;
+  phaseNumber: number;
+};
+
+const CombatActorRoundPhaseActionButtons: FC<CombatActorRoundPhaseActionButtonsProps> = ({ actorRound, phaseNumber }) => {
   const navigate = useNavigate();
-  const { game } = useContext(CombatContext);
-  const { roundActions, setRoundActions } = useContext(CombatContext);
+  const { game, roundActions, setRoundActions } = useContext(CombatContext)!;
 
   const declareAttack = () => {
     const actionData = {
@@ -30,7 +34,7 @@ const CombatActorRoundPhaseActionButtons = ({ actorRound, phaseNumber }) => {
     declareAction(actionData);
   };
 
-  const declareAction = (actionData) => {
+  const declareAction = (actionData: any) => {
     createAction(actionData)
       .then((action) => {
         setRoundActions([...roundActions, action]);

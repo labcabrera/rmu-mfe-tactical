@@ -1,10 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
-import Box from '@mui/material/Box';
-import Breadcrumbs from '@mui/material/Breadcrumbs';
-import Link from '@mui/material/Link';
-import Stack from '@mui/material/Stack';
+import { Box, Breadcrumbs, Stack, Link } from '@mui/material';
 import { useError } from '../../../ErrorContext';
 import { createTacticalGame, CreateTacticalGameDto } from '../../api/tactical-games';
 import BackButton from '../../shared/buttons/BackButton';

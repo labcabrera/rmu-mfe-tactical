@@ -1,15 +1,22 @@
-/* eslint-disable react/prop-types */
 import React, { useContext, useEffect, useState } from 'react';
 import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
 import { CombatContext } from '../../../CombatContext';
+import type { Action } from '../../api/actions';
+import type { ActorRound } from '../../api/actor-rounds';
+import type { Character } from '../../api/characters';
 import ResolveActionCard from '../ResolveActionCard';
 import CombatActorRoundPhaseActionButtons from './CombatActorRoundPhaseActionButtons';
 
-const CombatActorRoundPhaseOptions = ({ actorRound, character, phase }) => {
-  const [activeAction, setActiveAction] = useState(null);
-  const { game } = useContext(CombatContext);
-  const { roundActions } = useContext(CombatContext);
+type CombatActorRoundPhaseOptionsProps = {
+  actorRound: ActorRound;
+  character: Character;
+  phase: number;
+};
+
+const CombatActorRoundPhaseOptions: React.FC<CombatActorRoundPhaseOptionsProps> = ({ actorRound, character, phase }) => {
+  const [activeAction, setActiveAction] = useState<Action | null>(null);
+  const { game, roundActions } = useContext(CombatContext)!;
 
   const loadActiveAction = () => {
     try {
@@ -17,8 +24,8 @@ const CombatActorRoundPhaseOptions = ({ actorRound, character, phase }) => {
         setActiveAction(null);
         return;
       }
-      const actorActions = roundActions.filter((e) => e.actorId == actorRound.actorId && e.phaseStart <= phase);
-      for (let action of actorActions) {
+      const actorActions = roundActions.filter((e: Action) => e.actorId === actorRound.actorId && e.phaseStart <= phase);
+      for (const action of actorActions) {
         setActiveAction(action);
         return;
       }
@@ -31,18 +38,20 @@ const CombatActorRoundPhaseOptions = ({ actorRound, character, phase }) => {
 
   useEffect(() => {
     loadActiveAction();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     loadActiveAction();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roundActions]);
 
   if (!actorRound || !phase || !roundActions) {
     return <p>Loading character phase...</p>;
   }
 
-  if (activeAction == null && game && game.phase && game.phase === `phase_${phase}`) {
-    return <CombatActorRoundPhaseActionButtons actorRound={actorRound} game={game} character={character} phaseNumber={phase} />;
+  if (!activeAction && game && game.phase && game.phase === `phase_${phase}`) {
+    return <CombatActorRoundPhaseActionButtons actorRound={actorRound} phaseNumber={phase} />;
   }
 
   if (activeAction && game.phase === `phase_${phase}`) {

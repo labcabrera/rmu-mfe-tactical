@@ -1,7 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Typography, Grid } from '@mui/material';
-import TextField from '@mui/material/TextField';
+import { Typography, Grid, TextField } from '@mui/material';
 import { UpdateTacticalGameDto } from '../../api/tactical-games';
 
 type TacticalGameEditAttributesProps = {

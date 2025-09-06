@@ -1,10 +1,14 @@
-/* eslint-disable react/prop-types */
 import React, { useState } from 'react';
 import { IconButton } from '@mui/material';
 import Avatar from '@mui/material/Avatar';
+import type { ActorRound } from '../../api/actor-rounds';
 import DeclareInitiativeDialog from './DeclareInitiativeDialog';
 
-const CombatCharacterRoundInitiative = ({ actorRound }) => {
+type CombatCharacterRoundInitiativeProps = {
+  actorRound: ActorRound;
+};
+
+const CombatCharacterRoundInitiative: React.FC<CombatCharacterRoundInitiativeProps> = ({ actorRound }) => {
   const [dialogOpen, setDialogOpen] = useState(false);
 
   return (

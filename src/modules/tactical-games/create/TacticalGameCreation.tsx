@@ -20,7 +20,7 @@ const TacticalGameCreation: FC = () => {
   };
 
   const bindStrategicGames = async () => {
-    fetchStrategicGames('', 0, 100)
+    fetchStrategicGames('', 0, 20)
       .then((response) => {
         setStrategicGames(response);
       })
