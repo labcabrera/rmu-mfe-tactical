@@ -1,11 +1,11 @@
 import { buildErrorFromResponse } from './api-errors';
 
 export type Character = {
-  id: number;
+  id: string;
   [key: string]: any;
 };
 
-export async function fetchCharacter(characterId: number): Promise<Character> {
+export async function fetchCharacter(characterId: string): Promise<Character> {
   const url = `${process.env.RMU_API_STRATEGIC_URL}/characters/${characterId}`;
   const response = await fetch(url, { method: 'GET' });
   if (response.status !== 200) {

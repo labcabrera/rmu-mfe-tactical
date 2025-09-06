@@ -27,6 +27,7 @@ type CombatContextType = {
   displayRound: number | null;
   setDisplayRound: Dispatch<SetStateAction<number | null>>;
   updateAction: (updatedAction: Action) => void;
+  updateActorRound: (updatedActorRound: ActorRound) => void;
 };
 
 export const CombatContext = createContext<CombatContextType | undefined>(undefined);
@@ -117,6 +118,12 @@ export const CombatProvider: React.FC<CombatProviderProps> = ({ children }) => {
     );
   };
 
+  const updateActorRound = (updatedActorRound: ActorRound) => {
+    setActorRounds((prevRounds) =>
+      prevRounds ? prevRounds.map((round) => (round.id === updatedActorRound.id ? updatedActorRound : round)) : prevRounds
+    );
+  };
+
   useEffect(() => {
     if (game && displayRound !== null) {
       bindActorRounds(game.id, displayRound);
@@ -156,6 +163,7 @@ export const CombatProvider: React.FC<CombatProviderProps> = ({ children }) => {
           displayRound,
           setDisplayRound,
           updateAction,
+          updateActorRound,
         }}
       >
         {children}

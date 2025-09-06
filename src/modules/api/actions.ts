@@ -1,11 +1,31 @@
 import { buildErrorFromResponse } from './api-errors';
 
 export type Action = {
-  id: number;
+  id: string;
   [key: string]: any;
 };
 
-export async function fetchAction(actionId: number): Promise<Action> {
+export type AttackDeclaration = {
+  attackName: string;
+  targetId: string;
+  cover?: string;
+  restrictedQuarters?: string;
+  positionalSource?: string;
+  positionalTarget?: string;
+  dodge?: string;
+  range?: string;
+  customBonus?: string;
+  disabledDB?: boolean;
+  disabledShield?: boolean;
+  disabledParry?: boolean;
+  [key: string]: any;
+};
+
+export type DeclareAttackDto = {
+  attacks: AttackDeclaration[];
+};
+
+export async function fetchAction(actionId: string): Promise<Action> {
   const url = `${process.env.RMU_API_TACTICAL_URL}/actions/${actionId}`;
   const response = await fetch(url, { method: 'GET' });
   if (response.status !== 200) {
@@ -15,7 +35,7 @@ export async function fetchAction(actionId: number): Promise<Action> {
   return json.content;
 }
 
-export async function fetchActionsByGameAndRound(gameId: number, round: number): Promise<Action[]> {
+export async function fetchActionsByGameAndRound(gameId: string, round: number): Promise<Action[]> {
   const url = `${process.env.RMU_API_TACTICAL_URL}/actions?q=gameId==${gameId};round==${round}`;
   const response = await fetch(url, { method: 'GET' });
   if (response.status !== 200) {
@@ -40,7 +60,7 @@ export async function createAction(actionData: any): Promise<Action> {
   return await response.json();
 }
 
-export async function deleteAction(actionId: number): Promise<boolean> {
+export async function deleteAction(actionId: string): Promise<boolean> {
   const url = `${process.env.RMU_API_TACTICAL_URL}/actions/${actionId}`;
   const response = await fetch(url, { method: 'DELETE' });
   if (response.status !== 204) {
@@ -49,7 +69,7 @@ export async function deleteAction(actionId: number): Promise<boolean> {
   return true;
 }
 
-export async function resolveMovement(actionId: number, data: any): Promise<any> {
+export async function resolveMovement(actionId: string, data: any): Promise<any> {
   const url = `${process.env.RMU_API_TACTICAL_URL}/actions/${actionId}/resolve/movement`;
   const response = await fetch(url, {
     method: 'PATCH',

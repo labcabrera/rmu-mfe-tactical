@@ -3,21 +3,14 @@ import { useTranslation } from 'react-i18next';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
+import { Action } from '../../api/actions';
+import { Character } from '../../api/characters';
 import ResolveAttack from './attack/ResolveAttack';
 import ResolveMovement from './movement/ResolveMovement';
 
-type ActionType = {
-  actionType: string;
-  [key: string]: any;
-};
-
-type CharacterType = {
-  [key: string]: any;
-};
-
 type ResolveActionDialogProps = {
-  action: ActionType;
-  character: CharacterType;
+  action: Action;
+  character: Character;
   open: boolean;
   onClose: () => void;
 };
