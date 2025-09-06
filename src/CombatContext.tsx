@@ -2,46 +2,31 @@ import React, { createContext, useEffect, useState, ReactNode, Dispatch, SetStat
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { Box, Typography, Accordion, AccordionDetails, AccordionSummary } from '@mui/material';
 import { useError } from './ErrorContext';
-import { fetchActionsByGameAndRound } from './modules/api/actions.js';
-import { fetchActorRounds } from './modules/api/actor-rounds.js';
-import { fetchCharacters } from './modules/api/characters.js';
-import { fetchFactions } from './modules/api/factions';
-import { fetchStrategicGame } from './modules/api/strategic-games.js';
-import { fetchTacticalGame } from './modules/api/tactical-games.js';
-
-type Game = {
-  id: number;
-  round: number;
-  actors: { id: number }[];
-  factions: number[];
-  strategicGameId: number;
-  [key: string]: any;
-};
-
-type StrategicGame = any;
-type ActorRound = any;
-type Character = any;
-type Faction = any;
-type RoundAction = { id: number; [key: string]: any };
+import { Action, fetchActionsByGameAndRound } from './modules/api/actions';
+import { ActorRound, fetchActorRounds } from './modules/api/actor-rounds';
+import { Character, fetchCharacters } from './modules/api/characters';
+import { Faction, fetchFactions } from './modules/api/factions';
+import { StrategicGame, fetchStrategicGame } from './modules/api/strategic-games';
+import { TacticalGame, fetchTacticalGame } from './modules/api/tactical-games';
 
 type CombatContextType = {
   gameId: number | null;
   setGameId: Dispatch<SetStateAction<number | null>>;
   strategicGame: StrategicGame | null;
   setStrategicGame: Dispatch<SetStateAction<StrategicGame | null>>;
-  game: Game | null;
-  setGame: Dispatch<SetStateAction<Game | null>>;
+  game: TacticalGame | null;
+  setGame: Dispatch<SetStateAction<TacticalGame | null>>;
   actorRounds: ActorRound[] | null;
   setActorRounds: Dispatch<SetStateAction<ActorRound[] | null>>;
   characters: Character[] | null;
   setCharacters: Dispatch<SetStateAction<Character[] | null>>;
   factions: Faction[] | null;
   setFactions: Dispatch<SetStateAction<Faction[] | null>>;
-  roundActions: RoundAction[] | null;
-  setRoundActions: Dispatch<SetStateAction<RoundAction[] | null>>;
+  roundActions: Action[] | null;
+  setRoundActions: Dispatch<SetStateAction<Action[] | null>>;
   displayRound: number | null;
   setDisplayRound: Dispatch<SetStateAction<number | null>>;
-  updateAction: (updatedAction: RoundAction) => void;
+  updateAction: (updatedAction: Action) => void;
 };
 
 export const CombatContext = createContext<CombatContextType | undefined>(undefined);
@@ -54,17 +39,17 @@ export const CombatProvider: React.FC<CombatProviderProps> = ({ children }) => {
   const { showError } = useError();
 
   const [gameId, setGameId] = useState<number | null>(null);
-  const [game, setGame] = useState<Game | null>(null);
+  const [game, setGame] = useState<TacticalGame | null>(null);
   const [strategicGame, setStrategicGame] = useState<StrategicGame | null>(null);
   const [actorRounds, setActorRounds] = useState<ActorRound[] | null>(null);
   const [characters, setCharacters] = useState<Character[] | null>(null);
   const [factions, setFactions] = useState<Faction[] | null>(null);
-  const [roundActions, setRoundActions] = useState<RoundAction[] | null>(null);
+  const [roundActions, setRoundActions] = useState<Action[] | null>(null);
   const [displayRound, setDisplayRound] = useState<number | null>(null);
 
   const bindGame = (gameId: number) => {
     fetchTacticalGame(gameId)
-      .then((data: Game) => {
+      .then((data: TacticalGame) => {
         setGame(data);
         setDisplayRound(data.round);
       })
@@ -95,7 +80,7 @@ export const CombatProvider: React.FC<CombatProviderProps> = ({ children }) => {
 
   const bindActions = (gameId: number, displayRound: number) => {
     fetchActionsByGameAndRound(gameId, displayRound)
-      .then((data: RoundAction[]) => {
+      .then((data: Action[]) => {
         setRoundActions(data);
       })
       .catch((err: any) => {
@@ -103,7 +88,7 @@ export const CombatProvider: React.FC<CombatProviderProps> = ({ children }) => {
       });
   };
 
-  const bindCharacters = (game: Game) => {
+  const bindCharacters = (game: TacticalGame) => {
     const characterIds = game.actors.map((e) => e.id);
     const rsql = `id=in=(${characterIds.join(',')})`;
     fetchCharacters(rsql, 0, 100)
@@ -115,7 +100,7 @@ export const CombatProvider: React.FC<CombatProviderProps> = ({ children }) => {
       });
   };
 
-  const bindFactions = (game: Game) => {
+  const bindFactions = (game: TacticalGame) => {
     const rsql = `id=in=(${game.factions.join(',')})`;
     fetchFactions(rsql, 0, 100)
       .then((data: Faction[]) => {
@@ -126,14 +111,13 @@ export const CombatProvider: React.FC<CombatProviderProps> = ({ children }) => {
       });
   };
 
-  const updateAction = (updatedAction: RoundAction) => {
+  const updateAction = (updatedAction: Action) => {
     setRoundActions((prevActions) =>
       prevActions ? prevActions.map((action) => (action.id === updatedAction.id ? updatedAction : action)) : prevActions
     );
   };
 
   useEffect(() => {
-    console.log('CombatProvider.useEffect[game] triggered', game, displayRound);
     if (game && displayRound !== null) {
       bindActorRounds(game.id, displayRound);
       bindActions(game.id, displayRound);
@@ -146,7 +130,6 @@ export const CombatProvider: React.FC<CombatProviderProps> = ({ children }) => {
   }, [game, displayRound]);
 
   useEffect(() => {
-    console.log('CombatProvider.useEffect[gameId] triggered', gameId);
     if (gameId !== null) {
       bindGame(gameId);
     }

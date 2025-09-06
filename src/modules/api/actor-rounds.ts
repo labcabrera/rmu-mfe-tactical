@@ -1,15 +1,22 @@
-export async function fetchActorRounds(gameId, round) {
+import { buildErrorFromResponse } from './api-errors';
+
+export type ActorRound = {
+  id: number;
+  [key: string]: any;
+};
+
+export async function fetchActorRounds(gameId: number, round: number): Promise<ActorRound[]> {
   const rsql = `gameId==${gameId};round==${round}`;
   const url = `${process.env.RMU_API_TACTICAL_URL}/actor-rounds?q=${rsql}&page=0&size=100`;
   const response = await fetch(url, { method: 'GET' });
-  if (response.status != 200) {
-    throw new Error(`Error: ${response.status} ${response.statusText}. (${url})`);
+  if (response.status !== 200) {
+    throw await buildErrorFromResponse(response, url);
   }
   const json = await response.json();
   return json.content;
 }
 
-export async function declareActorRoundInitiative(actorRoundId, roll) {
+export async function declareActorRoundInitiative(actorRoundId: number, roll: number): Promise<ActorRound> {
   const url = `${process.env.RMU_API_TACTICAL_URL}/actor-rounds/${actorRoundId}/initiative`;
   const response = await fetch(url, {
     method: 'PATCH',
@@ -18,8 +25,8 @@ export async function declareActorRoundInitiative(actorRoundId, roll) {
     },
     body: JSON.stringify({ roll }),
   });
-  if (response.status != 200) {
-    throw new Error(`Error: ${response.status} ${response.statusText}. (${url})`);
+  if (response.status !== 200) {
+    throw await buildErrorFromResponse(response, url);
   }
   return await response.json();
 }

@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import Dialog from '@mui/material/Dialog';
@@ -7,7 +6,23 @@ import DialogTitle from '@mui/material/DialogTitle';
 import ResolveAttack from './attack/ResolveAttack';
 import ResolveMovement from './movement/ResolveMovement';
 
-const ResolveActionDialog = ({ action, character, open, onClose }) => {
+type ActionType = {
+  actionType: string;
+  [key: string]: any;
+};
+
+type CharacterType = {
+  [key: string]: any;
+};
+
+type ResolveActionDialogProps = {
+  action: ActionType;
+  character: CharacterType;
+  open: boolean;
+  onClose: () => void;
+};
+
+const ResolveActionDialog: React.FC<ResolveActionDialogProps> = ({ action, character, open, onClose }) => {
   const { t } = useTranslation();
 
   return (
