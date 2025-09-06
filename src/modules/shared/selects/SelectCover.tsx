@@ -1,10 +1,15 @@
-/* eslint-disable react/prop-types */
-import React from 'react';
+import React, { ChangeEvent, FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 
-const SelectCover = ({ value, name = 'cover', onChange }) => {
+type SelectCoverProps = {
+  value: string;
+  name?: string;
+  onChange: (event: ChangeEvent<HTMLInputElement>) => void;
+};
+
+const SelectCover: FC<SelectCoverProps> = ({ value, name = 'cover', onChange }) => {
   const { t } = useTranslation();
   const options = ['none', 'partial-light', 'half-light', 'full-light', 'partial-hard', 'half-hard', 'full-hard'];
 

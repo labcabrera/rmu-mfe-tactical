@@ -1,9 +1,23 @@
-/* eslint-disable react/prop-types */
 import React from 'react';
 import { Box } from '@mui/material';
 import StyledIconButton from '../buttons/StyledIconButton';
 
-const Circle = ({ x, y, radius, lineWidth, backgroundColor, color }) => {
+type Option = {
+  src: string;
+  alt: string;
+  action?: () => void;
+};
+
+type CircleProps = {
+  x: number;
+  y: number;
+  radius: number;
+  lineWidth: number;
+  backgroundColor?: string;
+  color: string;
+};
+
+const Circle: React.FC<CircleProps> = ({ x, y, radius, lineWidth, backgroundColor, color }) => {
   return (
     <Box
       sx={{
@@ -21,7 +35,25 @@ const Circle = ({ x, y, radius, lineWidth, backgroundColor, color }) => {
   );
 };
 
-const CircleButtonGroup = ({ options, initialRotation = 3.46, size = 50, radius = 32, xOffset = 0, yOffset = 0, backgroundColor = undefined }) => {
+type CircleButtonGroupProps = {
+  options: Option[];
+  initialRotation?: number;
+  size?: number;
+  radius?: number;
+  xOffset?: number;
+  yOffset?: number;
+  backgroundColor?: string;
+};
+
+const CircleButtonGroup: React.FC<CircleButtonGroupProps> = ({
+  options,
+  initialRotation = 3.46,
+  size = 50,
+  radius = 32,
+  xOffset = 0,
+  yOffset = 0,
+  backgroundColor = undefined,
+}) => {
   const buttonCount = options.length;
   const angleStep = (2 * Math.PI) / buttonCount;
 

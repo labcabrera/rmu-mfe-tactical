@@ -1,11 +1,15 @@
-/* eslint-disable react/prop-types */
 import React from 'react';
 import Stack from '@mui/material/Stack';
 
-const HealthBar = ({ currentHP, maxHP }) => {
+type HealthBarProps = {
+  currentHP: number;
+  maxHP: number;
+};
+
+const HealthBar: React.FC<HealthBarProps> = ({ currentHP, maxHP }) => {
   const percent = (currentHP / maxHP) * 100;
 
-  const getColor = () => {
+  const getColor = (): string => {
     if (currentHP < 1) {
       return 'rgb(100, 250, 150)';
     }
@@ -14,7 +18,7 @@ const HealthBar = ({ currentHP, maxHP }) => {
     return `rgb(${r}, ${g}, 0)`;
   };
 
-  const barStyle = {
+  const barStyle: React.CSSProperties = {
     width: `${percent}%`,
     height: '100%',
     backgroundColor: getColor(),
@@ -22,31 +26,29 @@ const HealthBar = ({ currentHP, maxHP }) => {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    color: '#fff', // Color del texto dentro de la barra
+    color: '#fff',
     fontWeight: 'bold',
   };
 
-  const containerStyle = {
+  const containerStyle: React.CSSProperties = {
     border: '1px solid #000',
     width: '100%',
-    height: '40px', // Altura de la barra de vida
-    backgroundColor: '#ddd', // Color de fondo cuando la barra no está llena
-    position: 'relative', // Para que el texto esté alineado correctamente
+    height: '40px',
+    backgroundColor: '#ddd',
+    position: 'relative',
     display: 'flex',
     alignItems: 'center',
   };
 
   return (
-    <>
-      <Stack direction="row" spacing={2}>
-        <div style={containerStyle}>
-          <div style={barStyle}></div>
-        </div>
-        <div>
-          {currentHP}/{maxHP}
-        </div>
-      </Stack>
-    </>
+    <Stack direction="row" spacing={2}>
+      <div style={containerStyle}>
+        <div style={barStyle}></div>
+      </div>
+      <div>
+        {currentHP}/{maxHP}
+      </div>
+    </Stack>
   );
 };
 

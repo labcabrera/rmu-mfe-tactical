@@ -7,7 +7,7 @@ import es from './locales/es.json';
 const resources = {
   en: { translation: en },
   es: { translation: es },
-};
+} as const;
 
 i18n
   .use(initReactI18next)
