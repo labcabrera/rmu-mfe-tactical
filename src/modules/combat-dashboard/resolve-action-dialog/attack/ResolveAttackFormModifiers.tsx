@@ -4,7 +4,7 @@ import Grid from '@mui/material/Grid';
 import Switch from '@mui/material/Switch';
 import TextField from '@mui/material/TextField';
 import { CombatContext } from '../../../../CombatContext';
-import { DeclareAttackDto } from '../../../api/actions';
+import { AttackDeclarationDto } from '../../../api/actions';
 import SelectAttackTarget from '../../../shared/selects/SelectAttackTarget';
 import SelectCover from '../../../shared/selects/SelectCover';
 import SelectDodge from '../../../shared/selects/SelectDodge';
@@ -13,8 +13,8 @@ import SelectPositionalTarget from '../../../shared/selects/SelectPositionalTarg
 import SelectRestrictedQuarters from '../../../shared/selects/SelectRestrictedQuarters';
 
 type ResolveAttackFormModifiersProps = {
-  formData: DeclareAttackDto;
-  setFormData: (data: DeclareAttackDto) => void;
+  formData: AttackDeclarationDto;
+  setFormData: (data: AttackDeclarationDto) => void;
   index: number;
 };
 

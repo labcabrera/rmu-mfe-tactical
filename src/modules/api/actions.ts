@@ -18,7 +18,11 @@ export type ResolveMovementDto = {
   roll: string | number;
 };
 
-export type AttackDeclaration = {
+export type AttackDeclarationDto = {
+  attacks: AttackDeclarationItemDto[];
+};
+
+export type AttackDeclarationItemDto = {
   attackName: string;
   targetId: string;
   cover?: string;
@@ -32,10 +36,6 @@ export type AttackDeclaration = {
   disabledShield?: boolean;
   disabledParry?: boolean;
   [key: string]: any;
-};
-
-export type DeclareAttackDto = {
-  attacks: AttackDeclaration[];
 };
 
 export async function fetchAction(actionId: string): Promise<Action> {
@@ -97,7 +97,7 @@ export async function resolveMovement(actionId: string, data: any): Promise<any>
   return await response.json();
 }
 
-export async function declareAttack(actionId: string, data: DeclareAttackDto): Promise<Action> {
+export async function declareAttack(actionId: string, data: AttackDeclarationDto): Promise<Action> {
   const url = `${process.env.RMU_API_TACTICAL_URL}/actions/${actionId}/declare/attack`;
   const response = await fetch(url, {
     method: 'PATCH',

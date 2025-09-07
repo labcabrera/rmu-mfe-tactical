@@ -4,13 +4,13 @@ import Checkbox from '@mui/material/Checkbox';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 import { CombatContext } from '../../../../CombatContext';
-import { AttackDeclaration, DeclareAttackDto } from '../../../api/actions';
+import { AttackDeclarationItemDto, AttackDeclarationDto } from '../../../api/actions';
 import type { Character, CharacterAttack } from '../../../api/characters';
 import SelectAttackTarget from '../../../shared/selects/SelectAttackTarget';
 
 const ResolveAttackSelectAttacks: React.FC<{
-  formData: DeclareAttackDto;
-  setFormData: (data: DeclareAttackDto) => void;
+  formData: AttackDeclarationDto;
+  setFormData: (data: AttackDeclarationDto) => void;
   character: Character;
 }> = ({ formData, setFormData, character }) => {
   const { characters } = useContext(CombatContext) as { characters: Character[] };
@@ -21,8 +21,8 @@ const ResolveAttackSelectAttacks: React.FC<{
 export default ResolveAttackSelectAttacks;
 
 type AttackListProps = {
-  formData: DeclareAttackDto;
-  setFormData: (data: DeclareAttackDto) => void;
+  formData: AttackDeclarationDto;
+  setFormData: (data: AttackDeclarationDto) => void;
   character: Character;
   characters: Character[];
 };
@@ -35,7 +35,7 @@ const AttackList: FC<AttackListProps> = ({ formData, setFormData, character, cha
 
   const handleToggle = (attackName: string) => {
     const exists = findAttack(attackName);
-    let newSelected: AttackDeclaration[];
+    let newSelected: AttackDeclarationItemDto[];
     if (exists) {
       newSelected = selected.filter((a) => a.attackName !== attackName);
     } else {
@@ -44,6 +44,7 @@ const AttackList: FC<AttackListProps> = ({ formData, setFormData, character, cha
         {
           attackName,
           targetId: '',
+          bo: 0,
           cover: 'none',
           restrictedQuarters: 'none',
           positionalSource: 'none',

@@ -4,14 +4,14 @@ import Button from '@mui/material/Button';
 import Step from '@mui/material/Step';
 import StepLabel from '@mui/material/StepLabel';
 import Stepper from '@mui/material/Stepper';
-import { Action, DeclareAttackDto } from '../../../api/actions';
+import { Action, AttackDeclarationDto } from '../../../api/actions';
 import { Character } from '../../../api/characters';
 import ResolveAttackSelectAttacks from './ResolveAttackSelectAttacks';
 import ResolveAttackTabDeclaration from './ResolveAttackTabDeclaration';
 
 type ResolveAttackStepperProps = {
-  formData: DeclareAttackDto;
-  setFormData: (data: DeclareAttackDto) => void;
+  formData: AttackDeclarationDto;
+  setFormData: (data: AttackDeclarationDto) => void;
   activeStep: number;
   setActiveStep: (step: number) => void;
   onClose: () => void;

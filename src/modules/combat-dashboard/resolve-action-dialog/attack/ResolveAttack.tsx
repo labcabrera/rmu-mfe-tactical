@@ -1,6 +1,6 @@
 import React, { FC, useState } from 'react';
 import { useError } from '../../../../ErrorContext';
-import type { Action, DeclareAttackDto } from '../../../api/actions';
+import type { Action, AttackDeclarationDto } from '../../../api/actions';
 import { declareAttack } from '../../../api/actions';
 import type { Character } from '../../../api/characters';
 import ResolveActionDialogMovementStepper from './ResolveAttackStepper';
@@ -12,7 +12,7 @@ const ResolveAttack: FC<{
 }> = ({ action, character, onClose }) => {
   const [activeStep, setActiveStep] = useState<number>(action.status === 'declared' ? 0 : 1);
   const { showError } = useError();
-  const [formData, setFormData] = useState<DeclareAttackDto>({
+  const [formData, setFormData] = useState<AttackDeclarationDto>({
     attacks: [],
   });
 
