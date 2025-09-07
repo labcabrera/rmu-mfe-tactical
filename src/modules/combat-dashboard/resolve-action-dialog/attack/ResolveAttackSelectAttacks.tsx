@@ -8,6 +8,18 @@ import { AttackDeclaration, DeclareAttackDto } from '../../../api/actions';
 import type { Character, CharacterAttack } from '../../../api/characters';
 import SelectAttackTarget from '../../../shared/selects/SelectAttackTarget';
 
+const ResolveAttackSelectAttacks: React.FC<{
+  formData: DeclareAttackDto;
+  setFormData: (data: DeclareAttackDto) => void;
+  character: Character;
+}> = ({ formData, setFormData, character }) => {
+  const { characters } = useContext(CombatContext) as { characters: Character[] };
+
+  return <AttackList character={character} characters={characters} formData={formData} setFormData={setFormData} />;
+};
+
+export default ResolveAttackSelectAttacks;
+
 type AttackListProps = {
   formData: DeclareAttackDto;
   setFormData: (data: DeclareAttackDto) => void;
@@ -89,17 +101,3 @@ const AttackList: FC<AttackListProps> = ({ formData, setFormData, character, cha
     </>
   );
 };
-
-type ResolveAttackFormProps = {
-  formData: DeclareAttackDto;
-  setFormData: (data: DeclareAttackDto) => void;
-  character: Character;
-};
-
-const ResolveAttackSelectAttacks: React.FC<ResolveAttackFormProps> = ({ formData, setFormData, character }) => {
-  const { characters } = useContext(CombatContext) as { characters: Character[] };
-
-  return <AttackList character={character} characters={characters} formData={formData} setFormData={setFormData} />;
-};
-
-export default ResolveAttackSelectAttacks;

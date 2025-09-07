@@ -1,9 +1,11 @@
-import React, { ChangeEvent } from 'react';
+import React, { ChangeEvent, useContext } from 'react';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Grid from '@mui/material/Grid';
 import Switch from '@mui/material/Switch';
 import TextField from '@mui/material/TextField';
+import { CombatContext } from '../../../../CombatContext';
 import { DeclareAttackDto } from '../../../api/actions';
+import SelectAttackTarget from '../../../shared/selects/SelectAttackTarget';
 import SelectCover from '../../../shared/selects/SelectCover';
 import SelectDodge from '../../../shared/selects/SelectDodge';
 import SelectPositionalSource from '../../../shared/selects/SelectPositionalSource';
@@ -17,6 +19,8 @@ type ResolveAttackFormModifiersProps = {
 };
 
 const ResolveAttackFormModifiers: React.FC<ResolveAttackFormModifiersProps> = ({ formData, setFormData, index }) => {
+  const { characters } = useContext(CombatContext);
+
   const customBonus = formData.attacks?.[index]?.customBonus || '';
   const cover = formData.attacks?.[index]?.cover || '';
   const restrictedQuarters = formData.attacks?.[index]?.restrictedQuarters || '';
@@ -27,6 +31,7 @@ const ResolveAttackFormModifiers: React.FC<ResolveAttackFormModifiersProps> = ({
   const disabledDB = formData.attacks?.[index]?.disabledDB || false;
   const disabledShield = formData.attacks?.[index]?.disabledShield || false;
   const disabledParry = formData.attacks?.[index]?.disabledParry || false;
+  const targetName = characters.find((c) => c.id === formData.attacks?.[index]?.targetId)?.name || '';
 
   const handleChangeEvent = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => handleChange(e.target.name, e.target.value);
 
@@ -39,6 +44,10 @@ const ResolveAttackFormModifiers: React.FC<ResolveAttackFormModifiersProps> = ({
 
   return (
     <Grid container spacing={2} sx={{ marginTop: 1, marginBottom: 1 }}>
+      <Grid size={2}>
+        <TextField label="Target" value={targetName} name="target" fullWidth variant="standard" />
+      </Grid>
+      <Grid size={12}></Grid>
       <Grid size={2}>
         <SelectCover value={cover} onChange={handleChangeEvent} />
       </Grid>
