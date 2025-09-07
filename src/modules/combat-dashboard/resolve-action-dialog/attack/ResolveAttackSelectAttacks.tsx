@@ -5,29 +5,30 @@ import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 import { CombatContext } from '../../../../CombatContext';
 import { AttackDeclarationItemDto, AttackDeclarationDto } from '../../../api/actions';
+import { ActorRound } from '../../../api/actor-rounds';
 import type { Character, CharacterAttack } from '../../../api/characters';
 import SelectAttackTarget from '../../../shared/selects/SelectAttackTarget';
 
 const ResolveAttackSelectAttacks: React.FC<{
   formData: AttackDeclarationDto;
   setFormData: (data: AttackDeclarationDto) => void;
+  actorRound: ActorRound;
   character: Character;
-}> = ({ formData, setFormData, character }) => {
+}> = ({ formData, setFormData, actorRound, character }) => {
   const { characters } = useContext(CombatContext) as { characters: Character[] };
 
-  return <AttackList character={character} characters={characters} formData={formData} setFormData={setFormData} />;
+  return <AttackList actorRound={actorRound} character={character} characters={characters} formData={formData} setFormData={setFormData} />;
 };
 
 export default ResolveAttackSelectAttacks;
 
-type AttackListProps = {
+const AttackList: FC<{
   formData: AttackDeclarationDto;
   setFormData: (data: AttackDeclarationDto) => void;
+  actorRound: ActorRound;
   character: Character;
   characters: Character[];
-};
-
-const AttackList: FC<AttackListProps> = ({ formData, setFormData, character, characters }) => {
+}> = ({ formData, setFormData, actorRound, character, characters }) => {
   const { t } = useTranslation();
   const selected = formData.attacks || [];
 
@@ -66,13 +67,13 @@ const AttackList: FC<AttackListProps> = ({ formData, setFormData, character, cha
     setFormData({ ...formData, attacks: newSelected });
   };
 
-  if (!character?.attacks || character.attacks.length === 0) {
+  if (!actorRound || !actorRound.attacks) {
     return <Typography>No attacks available</Typography>;
   }
 
   return (
     <>
-      {character.attacks.map((attack: CharacterAttack) => (
+      {actorRound.attacks.map((attack) => (
         <Grid container key={attack.attackName} spacing={2} alignItems="center" style={{ marginBottom: 8 }}>
           <Grid size={1}>
             <Checkbox checked={!!findAttack(attack.attackName)} onChange={() => handleToggle(attack.attackName)} />
@@ -82,7 +83,7 @@ const AttackList: FC<AttackListProps> = ({ formData, setFormData, character, cha
           </Grid>
           <Grid size={2}>
             <Typography variant="body2">
-              {t(attack.attackTable)}: {attack.bo}
+              {t(attack.attackTable)}: {attack.currentBo}
             </Typography>
           </Grid>
           {!!findAttack(attack.attackName) && (

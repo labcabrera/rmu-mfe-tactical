@@ -5,11 +5,14 @@ import Step from '@mui/material/Step';
 import StepLabel from '@mui/material/StepLabel';
 import Stepper from '@mui/material/Stepper';
 import { Action, AttackDeclarationDto } from '../../../api/actions';
+import { ActorRound } from '../../../api/actor-rounds';
 import { Character } from '../../../api/characters';
 import ResolveAttackSelectAttacks from './ResolveAttackSelectAttacks';
 import ResolveAttackTabDeclaration from './ResolveAttackTabDeclaration';
 
-type ResolveAttackStepperProps = {
+const steps = ['Declare attacks and targets', 'Choose attack options', 'Resolve attacks', 'Results'];
+
+const ResolveAttackStepper: React.FC<{
   formData: AttackDeclarationDto;
   setFormData: (data: AttackDeclarationDto) => void;
   activeStep: number;
@@ -17,21 +20,9 @@ type ResolveAttackStepperProps = {
   onClose: () => void;
   onDeclare: () => void;
   action: Action;
+  actorRound: ActorRound;
   character: Character;
-};
-
-const steps = ['Declare attacks and targets', 'Choose attack options', 'Resolve attacks', 'Results'];
-
-const ResolveAttackStepper: React.FC<ResolveAttackStepperProps> = ({
-  formData,
-  setFormData,
-  activeStep,
-  setActiveStep,
-  onClose,
-  onDeclare,
-  action,
-  character,
-}) => {
+}> = ({ formData, setFormData, activeStep, setActiveStep, onClose, onDeclare, action, actorRound, character }) => {
   const handleNext = () => {
     setActiveStep(activeStep + 1);
   };
@@ -39,6 +30,8 @@ const ResolveAttackStepper: React.FC<ResolveAttackStepperProps> = ({
   const handleBack = () => {
     setActiveStep(activeStep - 1);
   };
+
+  if (!actorRound) return <p>Loading...</p>;
 
   return (
     <Box sx={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', minHeight: 300 }}>
@@ -55,7 +48,7 @@ const ResolveAttackStepper: React.FC<ResolveAttackStepperProps> = ({
       </Stepper>
       {activeStep === 0 && (
         <Box sx={{ mt: 5 }}>
-          <ResolveAttackSelectAttacks formData={formData} setFormData={setFormData} character={character} />
+          <ResolveAttackSelectAttacks formData={formData} setFormData={setFormData} actorRound={actorRound} character={character} />
         </Box>
       )}
       {activeStep === 1 && <ResolveAttackTabDeclaration formData={formData} setFormData={setFormData} />}
