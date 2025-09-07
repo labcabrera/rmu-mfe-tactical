@@ -1,12 +1,11 @@
 import React, { useContext, useEffect, useState } from 'react';
-import IconButton from '@mui/material/IconButton';
-import Stack from '@mui/material/Stack';
 import { CombatContext } from '../../../CombatContext';
 import type { Action } from '../../api/actions';
 import type { ActorRound } from '../../api/actor-rounds';
 import type { Character } from '../../api/characters';
 import ResolveActionCard from '../ResolveActionCard';
-import CombatActorRoundPhaseActionButtons from './CombatActorRoundPhaseActionButtons';
+import PhaseActionButton from './PhaseActionButton';
+import ViewPrevAction from './ViewPrevAction';
 
 type CombatActorRoundPhaseOptionsProps = {
   actorRound: ActorRound;
@@ -50,36 +49,19 @@ const CombatActorRoundPhaseOptions: React.FC<CombatActorRoundPhaseOptionsProps> 
     return <p>Loading character phase...</p>;
   }
 
+  if (!activeAction) {
+    return <p>No active action</p>;
+  }
+
   if (!activeAction && game && game.phase && game.phase === `phase_${phase}`) {
-    return <CombatActorRoundPhaseActionButtons actorRound={actorRound} phaseNumber={phase} />;
+    return <PhaseActionButton actorRound={actorRound} phaseNumber={phase} />;
   }
 
   if (activeAction && game.phase === `phase_${phase}`) {
     return <ResolveActionCard action={activeAction} character={character} actorRound={actorRound} />;
   }
 
-  if (!activeAction) {
-    return <p>No active action</p>;
-  }
-
-  return (
-    <Stack direction="row">
-      <IconButton
-        disabled
-        style={{
-          width: `70px`,
-          height: `70px`,
-          opacity: 0.5,
-        }}
-      >
-        <img
-          src={`/static/images/actions/${activeAction.actionType}.png`}
-          alt={activeAction.actionType}
-          style={{ width: '100%', height: '100%', borderRadius: '50%' }}
-        />
-      </IconButton>
-    </Stack>
-  );
+  return <ViewPrevAction activeAction={activeAction} actorRound={actorRound} character={character} phase={phase} />;
 };
 
 export default CombatActorRoundPhaseOptions;

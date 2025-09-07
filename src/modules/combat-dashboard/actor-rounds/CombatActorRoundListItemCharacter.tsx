@@ -90,7 +90,7 @@ const CombatActorRoundListItemCharacter: FC<CombatActorRoundListItemCharacterPro
         <GenericBar
           current={Math.round(actorRound.fatigue.accumulator)}
           max={100}
-          title="Fatigue"
+          title="FA"
           width={barSize}
           colorOk={colorKo}
           colorKo={colorEnduranceOk}

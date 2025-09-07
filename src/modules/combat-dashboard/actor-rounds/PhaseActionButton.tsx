@@ -5,12 +5,10 @@ import { createAction } from '../../api/actions';
 import type { ActorRound } from '../../api/actor-rounds';
 import CircleButtonGroup from '../../shared/generic/CircleButtonGroup';
 
-type CombatActorRoundPhaseActionButtonsProps = {
+const PhaseActionButton: FC<{
   actorRound: ActorRound;
   phaseNumber: number;
-};
-
-const CombatActorRoundPhaseActionButtons: FC<CombatActorRoundPhaseActionButtonsProps> = ({ actorRound, phaseNumber }) => {
+}> = ({ actorRound, phaseNumber }) => {
   const navigate = useNavigate();
   const { game, roundActions, setRoundActions } = useContext(CombatContext)!;
 
@@ -96,4 +94,4 @@ const CombatActorRoundPhaseActionButtons: FC<CombatActorRoundPhaseActionButtonsP
   );
 };
 
-export default CombatActorRoundPhaseActionButtons;
+export default PhaseActionButton;

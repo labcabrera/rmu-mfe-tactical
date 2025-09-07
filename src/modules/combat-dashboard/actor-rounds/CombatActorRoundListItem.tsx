@@ -10,14 +10,12 @@ import CombatActorRoundListItemCharacter from './CombatActorRoundListItemCharact
 import CombatActorRoundPhaseOptions from './CombatActorRoundPhaseOptions';
 import CombatCharacterRoundInitiative from './CombatCharacterRoundInitiative';
 
-type PhaseOptionsProps = {
+const PhaseOptions: FC<{
   actorRound: ActorRound;
   character: Character;
   game: TacticalGame;
   phase: number;
-};
-
-const PhaseOptions: FC<PhaseOptionsProps> = ({ actorRound, character, game, phase }) => {
+}> = ({ actorRound, character, game, phase }) => {
   return (
     <Grid size={1}>
       <Paper
