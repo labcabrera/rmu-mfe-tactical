@@ -1,6 +1,7 @@
 import React, { FC, useContext, useEffect, useState } from 'react';
 import { Grid, Paper } from '@mui/material';
 import { CombatContext } from '../../../CombatContext';
+import { Action } from '../../api/actions';
 import type { ActorRound } from '../../api/actor-rounds';
 import type { Character } from '../../api/characters';
 import type { TacticalGame } from '../../api/tactical-games';
@@ -10,37 +11,11 @@ import CombatActorRoundListItemCharacter from './CombatActorRoundListItemCharact
 import CombatActorRoundPhaseOptions from './CombatActorRoundPhaseOptions';
 import CombatCharacterRoundInitiative from './CombatCharacterRoundInitiative';
 
-const PhaseOptions: FC<{
+const CombatActorRoundListItem: FC<{
   actorRound: ActorRound;
-  character: Character;
-  game: TacticalGame;
-  phase: number;
-}> = ({ actorRound, character, game, phase }) => {
-  return (
-    <Grid size={1}>
-      <Paper
-        elevation={game.phase === `phase_${phase}` ? 2 : 0}
-        style={{
-          height: '100%',
-          padding: '16px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        <CombatActorRoundPhaseOptions actorRound={actorRound} character={character} phase={phase} />
-      </Paper>
-    </Grid>
-  );
-};
-
-type CombatActorRoundListItemProps = {
-  actorRound: ActorRound;
-};
-
-const CombatActorRoundListItem: FC<CombatActorRoundListItemProps> = ({ actorRound }) => {
+}> = ({ actorRound }) => {
   const [character, setCharacter] = useState<Character | undefined>();
-  const { characters, game } = useContext(CombatContext)!;
+  const { characters, game, roundActions } = useContext(CombatContext)!;
 
   useEffect(() => {
     if (actorRound && characters) {
@@ -76,14 +51,57 @@ const CombatActorRoundListItem: FC<CombatActorRoundListItemProps> = ({ actorRoun
           <CombatFreeActionButtons tacticalGame={game} character={character} />
         </Paper>
       </Grid>
-      <PhaseOptions actorRound={actorRound} character={character} game={game} phase={1} />
-      <PhaseOptions actorRound={actorRound} character={character} game={game} phase={2} />
-      <PhaseOptions actorRound={actorRound} character={character} game={game} phase={3} />
-      <PhaseOptions actorRound={actorRound} character={character} game={game} phase={4} />
+      <PhaseOptions actorRound={actorRound} character={character} game={game} roundActions={roundActions} phase={1} />
+      <PhaseOptions actorRound={actorRound} character={character} game={game} roundActions={roundActions} phase={2} />
+      <PhaseOptions actorRound={actorRound} character={character} game={game} roundActions={roundActions} phase={3} />
+      <PhaseOptions actorRound={actorRound} character={character} game={game} roundActions={roundActions} phase={4} />
       <Grid size={1}></Grid>
       <Grid size={3}>
         <ActorRoundEffects actorRound={actorRound} />
       </Grid>
+    </Grid>
+  );
+};
+
+const PhaseOptions: FC<{
+  actorRound: ActorRound;
+  character: Character;
+  game: TacticalGame;
+  roundActions: Action[];
+  phase: number;
+}> = ({ actorRound, character, game, roundActions, phase }) => {
+  if (!roundActions || !game) return <p>Loading...</p>;
+
+  const gamePhaseAsInt = game.phase.startsWith('phase_') ? parseInt(game.phase.replace('phase_', '')) : 5;
+
+  const getActiveActionByPhase = (phase: number) => {
+    return roundActions
+      .filter(() => phase <= gamePhaseAsInt)
+      .filter((action) => action.actorId === actorRound.actorId)
+      .filter((action) => phase >= action.phaseStart)
+      .find((action) => !action.phaseEnd || action.phaseEnd >= phase);
+  };
+
+  return (
+    <Grid size={1}>
+      <Paper
+        elevation={game.phase === `phase_${phase}` ? 2 : 0}
+        style={{
+          height: '100%',
+          padding: '16px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <CombatActorRoundPhaseOptions
+          game={game}
+          actorRound={actorRound}
+          character={character}
+          phase={phase}
+          activeAction={getActiveActionByPhase(phase)}
+        />
+      </Paper>
     </Grid>
   );
 };

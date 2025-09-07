@@ -7,17 +7,21 @@ import { declareActorRoundInitiative } from '../../api/actor-rounds';
 import type { ActorRound } from '../../api/actor-rounds';
 import NumericTextField from '../../shared/inputs/NumericTextField';
 
-type DeclareInitiativeDialogProps = {
+const DeclareInitiativeDialog: FC<{
   actorRound: ActorRound;
   open: boolean;
   setOpen: (open: boolean) => void;
-};
-
-const DeclareInitiativeDialog: FC<DeclareInitiativeDialogProps> = ({ actorRound, open, setOpen }) => {
+}> = ({ actorRound, open, setOpen }) => {
   const { t } = useTranslation();
   const { showError } = useError();
   const [roll, setRoll] = useState<number>(actorRound.initiative?.roll || 0);
   const { updateActorRound } = useContext(CombatContext)!;
+
+  const handleRandomRoll = () => {
+    const die1 = Math.floor(Math.random() * 10) + 1;
+    const die2 = Math.floor(Math.random() * 10) + 1;
+    setRoll(die1 + die2);
+  };
 
   const handleClose = () => {
     setOpen(false);
@@ -66,6 +70,7 @@ const DeclareInitiativeDialog: FC<DeclareInitiativeDialogProps> = ({ actorRound,
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose}>Cancel</Button>
+        <Button onClick={handleRandomRoll}>Random Roll</Button>
         <Button onClick={handleDeclare}>Declare</Button>
       </DialogActions>
     </Dialog>

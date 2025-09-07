@@ -2,7 +2,10 @@ import { buildErrorFromResponse } from './api-errors';
 
 export type Action = {
   id: string;
-  status: 'declared' | 'in_progress' | 'resolved';
+  status: 'declared' | 'in_progress' | 'completed';
+  phaseStart: number;
+  phaseEnd: number | undefined;
+  type: 'movement' | 'attack' | 'skill' | 'free';
   [key: string]: any;
 };
 

@@ -53,7 +53,7 @@ const CombatDashboardActions: FC = () => {
   };
 
   const nextPhaseAvailable = () => {
-    return game.phase !== 'phase_4';
+    return game.phase !== 'upkeep';
   };
 
   if (!displayRound || !game) {
