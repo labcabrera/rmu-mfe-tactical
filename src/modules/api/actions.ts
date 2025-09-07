@@ -97,16 +97,16 @@ export async function resolveMovement(actionId: string, data: any): Promise<any>
   return await response.json();
 }
 
-export async function prepareAttack(actionId: number, actionData: any): Promise<Action> {
-  const url = `${process.env.RMU_API_TACTICAL_URL}/actions/${actionId}/prepare`;
+export async function declareAttack(actionId: string, data: DeclareAttackDto): Promise<Action> {
+  const url = `${process.env.RMU_API_TACTICAL_URL}/actions/${actionId}/declare/attack`;
   const response = await fetch(url, {
-    method: 'POST',
+    method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(actionData),
+    body: JSON.stringify(data),
   });
-  if (response.status !== 201) {
+  if (response.status !== 200) {
     throw await buildErrorFromResponse(response, url);
   }
   const json = await response.json();

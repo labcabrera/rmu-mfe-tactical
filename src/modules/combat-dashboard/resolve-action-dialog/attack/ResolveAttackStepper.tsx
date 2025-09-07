@@ -33,11 +33,11 @@ const ResolveAttackStepper: React.FC<ResolveAttackStepperProps> = ({
   character,
 }) => {
   const handleNext = () => {
-    setActiveStep((prevActiveStep) => (prevActiveStep as number) + 1);
+    setActiveStep(activeStep + 1);
   };
 
   const handleBack = () => {
-    setActiveStep((prevActiveStep) => prevActiveStep - 1);
+    setActiveStep(activeStep - 1);
   };
 
   return (
@@ -64,7 +64,7 @@ const ResolveAttackStepper: React.FC<ResolveAttackStepperProps> = ({
           Back
         </Button>
         <Box sx={{ flex: '1 1 auto' }} />
-        {activeStep === 0 && action.status === 'declared' && <Button onClick={onDeclare}>Declare</Button>}
+        {activeStep === 1 && action.status === 'declared' && <Button onClick={onDeclare}>Declare</Button>}
         <Button onClick={handleNext} disabled={activeStep !== 0 && action.status !== 'declared'}>
           Next
         </Button>
