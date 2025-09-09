@@ -1,21 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
-import Typography from '@mui/material/Typography';
-
-/**
- * NumericInput (en-US con MUI)
- *
- * Un input numérico controlado con formato inglés (separador de miles "," y decimal ".").
- *
- * Características:
- * - Parametrizable para solo enteros, permitir negativos y número de decimales.
- * - Sincroniza un `number | null` con un string de entrada formateado.
- * - Formatea con Intl.NumberFormat("en-US").
- * - Acepta valores temporales durante la escritura ("-", "1.") para no bloquear al usuario.
- * - Opción para formatear al blur o en cada cambio.
- */
 
 export type NumericInputProps = {
   value: number | null;

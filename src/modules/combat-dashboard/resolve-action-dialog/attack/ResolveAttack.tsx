@@ -1,7 +1,7 @@
 import React, { FC, useEffect, useState } from 'react';
 import { useError } from '../../../../ErrorContext';
 import type { Action, AttackDeclarationDto } from '../../../api/actions';
-import { declareAttack } from '../../../api/actions';
+import { prepareAttack } from '../../../api/actions';
 import { ActorRound } from '../../../api/actor-rounds';
 import type { Character } from '../../../api/characters';
 import ResolveActionDialogMovementStepper from './ResolveAttackStepper';
@@ -20,7 +20,7 @@ const ResolveAttack: FC<{
   });
 
   const onDeclare = () => {
-    declareAttack(action.id, formData)
+    prepareAttack(action.id, formData)
       .then(() => {
         //TODO
         setActiveStep(2);

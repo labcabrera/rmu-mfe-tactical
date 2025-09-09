@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Step from '@mui/material/Step';
@@ -12,7 +13,7 @@ import ResolveAttackTabDeclaration from './ResolveAttackTabDeclaration';
 
 const steps = ['Declare attacks and targets', 'Choose attack options', 'Resolve attacks', 'Results'];
 
-const ResolveAttackStepper: React.FC<{
+const ResolveAttackStepper: FC<{
   formData: AttackDeclarationDto;
   setFormData: (data: AttackDeclarationDto) => void;
   activeStep: number;
@@ -24,6 +25,8 @@ const ResolveAttackStepper: React.FC<{
   character: Character;
   isValidDeclaration: boolean;
 }> = ({ formData, setFormData, activeStep, setActiveStep, onClose, onDeclare, action, actorRound, character, isValidDeclaration }) => {
+  const { t } = useTranslation();
+
   const handleNext = () => {
     setActiveStep(activeStep + 1);
   };
@@ -60,14 +63,14 @@ const ResolveAttackStepper: React.FC<{
       {activeStep === 1 && <ResolveAttackTabDeclaration formData={formData} setFormData={setFormData} />}
       <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2, mt: 'auto' }}>
         <Button color="inherit" disabled={activeStep === 0} onClick={handleBack} sx={{ mr: 1 }}>
-          Back
+          {t('back')}
         </Button>
         <Box sx={{ flex: '1 1 auto' }} />
-        {activeStep === 1 && action.status === 'declared' && <Button onClick={onDeclare}>Declare</Button>}
+        {activeStep === 1 && action.status === 'declared' && <Button onClick={onDeclare}>{t('prepare')}</Button>}
         <Button onClick={handleNext} disabled={isDisabledNext()}>
-          Next
+          {t('next')}
         </Button>
-        <Button onClick={onClose}>Close</Button>
+        <Button onClick={onClose}>{t('close')}</Button>
       </Box>
     </Box>
   );

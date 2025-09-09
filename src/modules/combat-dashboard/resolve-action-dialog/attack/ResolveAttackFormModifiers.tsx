@@ -3,8 +3,11 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import Grid from '@mui/material/Grid';
 import Switch from '@mui/material/Switch';
 import TextField from '@mui/material/TextField';
+import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { AttackDeclarationDto } from '../../../api/actions';
+import { NumericInput } from '../../../shared/inputs/NumericInput';
+import NumericReadonlyInput from '../../../shared/inputs/NumericReadonlyInput';
 import SelectAttackTarget from '../../../shared/selects/SelectAttackTarget';
 import SelectCover from '../../../shared/selects/SelectCover';
 import SelectDodge from '../../../shared/selects/SelectDodge';
@@ -21,13 +24,14 @@ type ResolveAttackFormModifiersProps = {
 const ResolveAttackFormModifiers: React.FC<ResolveAttackFormModifiersProps> = ({ formData, setFormData, index }) => {
   const { characters } = useContext(CombatContext);
 
-  const customBonus = formData.attacks?.[index]?.customBonus || '';
+  const bo = formData.attacks?.[index]?.bo || '';
+  const customBonus = formData.attacks?.[index]?.customBonus || null;
   const cover = formData.attacks?.[index]?.cover || '';
   const restrictedQuarters = formData.attacks?.[index]?.restrictedQuarters || '';
   const positionalSource = formData.attacks?.[index]?.positionalSource || '';
   const positionalTarget = formData.attacks?.[index]?.positionalTarget || '';
   const dodge = formData.attacks?.[index]?.dodge || '';
-  const range = formData.attacks?.[index]?.range || '';
+  const range = formData.attacks?.[index]?.range || null;
   const disabledDB = formData.attacks?.[index]?.disabledDB || false;
   const disabledShield = formData.attacks?.[index]?.disabledShield || false;
   const disabledParry = formData.attacks?.[index]?.disabledParry || false;
@@ -42,10 +46,23 @@ const ResolveAttackFormModifiers: React.FC<ResolveAttackFormModifiersProps> = ({
     setFormData({ ...formData, attacks: newAttacks });
   };
 
+  const onCustomBonusChange = (value: number | null) => {
+    const newAttacks = formData.attacks.map((a, i) => (i === index ? { ...a, customBonus: value } : a));
+    setFormData({ ...formData, attacks: newAttacks });
+  };
+
+  const onRangeChange = (value: number | null) => {
+    const newAttacks = formData.attacks.map((a, i) => (i === index ? { ...a, range: value } : a));
+    setFormData({ ...formData, attacks: newAttacks });
+  };
+
   return (
     <Grid container spacing={2} sx={{ marginTop: 1, marginBottom: 1 }}>
       <Grid size={2}>
-        <TextField label="Target" value={targetName} name="target" fullWidth variant="standard" />
+        <TextField label={t('target')} value={targetName} name="target" fullWidth variant="standard" />
+      </Grid>
+      <Grid size={2}>
+        <NumericReadonlyInput label={t('attack-used-bo')} value={bo} name="target" />
       </Grid>
       <Grid size={12}></Grid>
       <Grid size={2}>
@@ -77,10 +94,10 @@ const ResolveAttackFormModifiers: React.FC<ResolveAttackFormModifiersProps> = ({
       </Grid>
       <Grid size={12}></Grid>
       <Grid size={2}>
-        <TextField label="custom-bonus" value={customBonus} name="customBonus" onChange={handleChangeEvent} fullWidth variant="standard" />
+        <NumericInput label={t('custom-bonus')} value={customBonus} name="customBonus" onChange={onCustomBonusChange} integer />
       </Grid>
       <Grid size={2}>
-        <TextField label="range" value={range} name="range" onChange={handleChangeEvent} fullWidth variant="standard" />
+        <NumericInput label={t('range')} value={range} name="range" onChange={onRangeChange} maxFractionDigits={1} allowNegatives={false} />
       </Grid>
     </Grid>
   );

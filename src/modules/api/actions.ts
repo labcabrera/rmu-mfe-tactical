@@ -30,8 +30,8 @@ export type AttackDeclarationItemDto = {
   positionalSource?: string;
   positionalTarget?: string;
   dodge?: string;
-  range?: string;
-  customBonus?: string;
+  range?: number | null;
+  customBonus?: number | null;
   disabledDB?: boolean;
   disabledShield?: boolean;
   disabledParry?: boolean;
@@ -97,8 +97,8 @@ export async function resolveMovement(actionId: string, data: any): Promise<any>
   return await response.json();
 }
 
-export async function declareAttack(actionId: string, data: AttackDeclarationDto): Promise<Action> {
-  const url = `${process.env.RMU_API_TACTICAL_URL}/actions/${actionId}/declare/attack`;
+export async function prepareAttack(actionId: string, data: AttackDeclarationDto): Promise<Action> {
+  const url = `${process.env.RMU_API_TACTICAL_URL}/actions/${actionId}/prepare/attack`;
   const response = await fetch(url, {
     method: 'PATCH',
     headers: {
