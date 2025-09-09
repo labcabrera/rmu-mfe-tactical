@@ -1,4 +1,4 @@
-import React, { FC, useState } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 import { useError } from '../../../../ErrorContext';
 import type { Action, AttackDeclarationDto } from '../../../api/actions';
 import { declareAttack } from '../../../api/actions';
@@ -14,6 +14,7 @@ const ResolveAttack: FC<{
 }> = ({ action, actorRound, character, onClose }) => {
   const [activeStep, setActiveStep] = useState<number>(action.status === 'declared' ? 0 : 1);
   const { showError } = useError();
+  const [isValidDeclaration, setIsValidDeclaration] = useState(false);
   const [formData, setFormData] = useState<AttackDeclarationDto>({
     attacks: [],
   });
@@ -30,6 +31,16 @@ const ResolveAttack: FC<{
       });
   };
 
+  const checkValidForm = (): boolean => {
+    if (!formData || !formData.attacks || formData.attacks.length < 1) return false;
+    if (formData.attacks.some((a) => !a.targetId)) return false;
+    return true;
+  };
+
+  useEffect(() => {
+    setIsValidDeclaration(checkValidForm());
+  }, [formData]);
+
   return (
     <>
       <ResolveActionDialogMovementStepper
@@ -42,6 +53,7 @@ const ResolveAttack: FC<{
         action={action}
         onClose={onClose}
         onDeclare={onDeclare}
+        isValidDeclaration={isValidDeclaration}
       />
       <pre>FormData: {JSON.stringify(formData, null, 2)}</pre>
       <pre>Action: {JSON.stringify(action, null, 2)}</pre>

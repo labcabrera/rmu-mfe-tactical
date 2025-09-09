@@ -22,13 +22,19 @@ const ResolveAttackStepper: React.FC<{
   action: Action;
   actorRound: ActorRound;
   character: Character;
-}> = ({ formData, setFormData, activeStep, setActiveStep, onClose, onDeclare, action, actorRound, character }) => {
+  isValidDeclaration: boolean;
+}> = ({ formData, setFormData, activeStep, setActiveStep, onClose, onDeclare, action, actorRound, character, isValidDeclaration }) => {
   const handleNext = () => {
     setActiveStep(activeStep + 1);
   };
 
   const handleBack = () => {
     setActiveStep(activeStep - 1);
+  };
+
+  const isDisabledNext = () => {
+    if (activeStep === 0 && !isValidDeclaration) return true;
+    return false;
   };
 
   if (!actorRound) return <p>Loading...</p>;
@@ -58,7 +64,7 @@ const ResolveAttackStepper: React.FC<{
         </Button>
         <Box sx={{ flex: '1 1 auto' }} />
         {activeStep === 1 && action.status === 'declared' && <Button onClick={onDeclare}>Declare</Button>}
-        <Button onClick={handleNext} disabled={activeStep !== 0 && action.status !== 'declared'}>
+        <Button onClick={handleNext} disabled={isDisabledNext()}>
           Next
         </Button>
         <Button onClick={onClose}>Close</Button>
