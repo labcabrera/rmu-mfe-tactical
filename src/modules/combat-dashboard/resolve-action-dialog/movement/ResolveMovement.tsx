@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { FC, useContext, useEffect, useState } from 'react';
 import { CombatContext } from '../../../../CombatContext';
 import { useError } from '../../../../ErrorContext';
 import { resolveMovement } from '../../../api/actions';
@@ -7,16 +7,15 @@ import type { Character } from '../../../api/characters';
 import type { TacticalGame } from '../../../api/tactical-games';
 import ResolveMovementStepper from './ResolveMovementStepper';
 
-type ResolveMovementProps = {
+const ResolveMovement: FC<{
   action: Action;
   character: Character;
   onClose: () => void;
-};
-
-const ResolveMovement: React.FC<ResolveMovementProps> = ({ action, character, onClose }) => {
+}> = ({ action, character, onClose }) => {
   const { showError } = useError();
   const { game, strategicGame, updateAction } = useContext(CombatContext)!;
   const [activeStep, setActiveStep] = useState<number>(action.status === 'declared' ? 0 : 1);
+  const [isValidForm, setIsValidForm] = useState<boolean>(false);
   const [formData, setFormData] = useState<ResolveMovementDto>({
     phase: parseInt((game as TacticalGame).phase.replace('phase_', '')),
     pace: '',
@@ -47,6 +46,17 @@ const ResolveMovement: React.FC<ResolveMovementProps> = ({ action, character, on
       });
   };
 
+  const checkValidForm = () => {
+    let check = true;
+    if (!formData.pace) check = false;
+    else if (formData.requiredManeuver && !formData.roll) check = false;
+    setIsValidForm(check);
+  };
+
+  useEffect(() => {
+    checkValidForm();
+  }, [formData]);
+
   return (
     <ResolveMovementStepper
       formData={formData}
@@ -57,6 +67,7 @@ const ResolveMovement: React.FC<ResolveMovementProps> = ({ action, character, on
       game={game}
       character={character}
       action={action}
+      isValidForm={isValidForm}
       onClose={onClose}
       onResolve={onResolve}
     />

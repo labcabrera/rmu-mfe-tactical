@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Chip, Divider, Grid, List, ListItem, ListItemText, Stack, TextField } from '@mui/material';
+import { Chip, Grid, Stack, TextField } from '@mui/material';
 import type { Action } from '../../../api/actions';
 import NumericReadonlyInput from '../../../shared/inputs/NumericReadonlyInput';
 

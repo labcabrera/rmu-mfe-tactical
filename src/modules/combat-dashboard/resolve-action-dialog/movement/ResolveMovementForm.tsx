@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { FC, useState } from 'react';
 import { FormControlLabel, Grid, Switch, TextField } from '@mui/material';
 import type { Action, ResolveMovementDto } from '../../../api/actions';
 import type { Character } from '../../../api/characters';
@@ -15,19 +15,23 @@ type Pace = {
   multiplier: number;
 };
 
-type ResolveMovementFormProps = {
+const ResolveMovementForm: FC<{
   formData: ResolveMovementDto;
   setFormData: (data: ResolveMovementDto) => void;
   character: Character;
   game: TacticalGame;
   strategicGame: StrategicGame;
   action: Action;
-};
-
-const ResolveMovementForm: React.FC<ResolveMovementFormProps> = ({ formData, setFormData, character, game, strategicGame, action }) => {
+}> = ({ formData, setFormData, character, game, strategicGame, action }) => {
   const [paceMultiplier, setPaceMultiplier] = useState<number | null>(null);
   const [movement, setMovement] = useState<number | null>(null);
   const [adjustedMovement, setAdjustedMovement] = useState<number | null>(null);
+
+  const getActionPoints = () => {
+    const startPhase = action.phaseStart;
+    const currentPhase = parseInt(game.phase.replace('phase_', ''));
+    return currentPhase - startPhase + 1;
+  };
 
   const handlePaceChange = (value: string, pace: Pace) => {
     setFormData({ ...formData, pace: value });
@@ -37,15 +41,8 @@ const ResolveMovementForm: React.FC<ResolveMovementFormProps> = ({ formData, set
     const scaleMultiplier = strategicGame?.options?.boardScaleMultiplier || 1;
     const adjustedMovementValue = movementValue * scaleMultiplier;
     setMovement(Number(movementValue.toFixed(2)));
-    setAdjustedMovement(`${Number(adjustedMovementValue.toFixed(1))} (x${scaleMultiplier})`);
+    setAdjustedMovement(Number(adjustedMovementValue.toFixed(1)));
   };
-
-  const getActionPoints = () => {
-    const startPhase = action.phaseStart;
-    const currentPhase = parseInt(game.phase.replace('phase_', ''));
-    return currentPhase - startPhase + 1;
-  };
-
   const handleDifficultyChange = (value: string) => {
     setFormData({ ...formData, difficulty: value });
   };

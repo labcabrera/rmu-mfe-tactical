@@ -1,4 +1,5 @@
 import React, { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Box, Button, Step, StepLabel, Stepper } from '@mui/material';
 import type { Action, ResolveMovementDto } from '../../../api/actions';
 import type { Character } from '../../../api/characters';
@@ -9,37 +10,27 @@ import ResolveMovementResults from './ResolveMovementResults';
 
 const steps = ['Resolve', 'Results'];
 
-type ResolveMovementStepperProps = {
+const ResolveMovementStepper: FC<{
   formData: ResolveMovementDto;
   setFormData: (data: ResolveMovementDto) => void;
   activeStep: number;
   setActiveStep: (step: number) => void;
   onClose: () => void;
   onResolve: () => void;
+  isValidForm: boolean;
   action: Action;
   character: Character;
   game: TacticalGame;
   strategicGame: StrategicGame;
-};
+}> = ({ formData, setFormData, activeStep, setActiveStep, onClose, onResolve, isValidForm, action, character, game, strategicGame }) => {
+  const { t } = useTranslation();
 
-const ResolveMovementStepper: FC<ResolveMovementStepperProps> = ({
-  formData,
-  setFormData,
-  activeStep,
-  setActiveStep,
-  onClose,
-  onResolve,
-  action,
-  character,
-  game,
-  strategicGame,
-}) => {
   const handleNext = () => {
-    setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    setActiveStep(activeStep + 1);
   };
 
   const handleBack = () => {
-    setActiveStep((prevActiveStep) => prevActiveStep - 1);
+    setActiveStep(activeStep - 1);
   };
 
   return (
@@ -63,19 +54,24 @@ const ResolveMovementStepper: FC<ResolveMovementStepperProps> = ({
           strategicGame={strategicGame}
           action={action}
           game={game}
+          isValidForm={isValidForm}
         />
       )}
       {activeStep === 1 && <ResolveMovementResults action={action} />}
       <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2, mt: 'auto' }}>
         <Button color="inherit" disabled={activeStep === 0} onClick={handleBack} sx={{ mr: 1 }}>
-          Back
+          {t('back')}
         </Button>
         <Box sx={{ flex: '1 1 auto' }} />
-        {activeStep === 0 && action.status === 'declared' && <Button onClick={onResolve}>Resolve</Button>}
+        {activeStep === 0 && action.status === 'declared' && (
+          <Button onClick={onResolve} disabled={!isValidForm}>
+            {t('resolve')}
+          </Button>
+        )}
         <Button onClick={handleNext} disabled={activeStep !== 0 && action.status !== 'declared'}>
-          Next
+          {t('next')}
         </Button>
-        <Button onClick={onClose}>Close</Button>
+        <Button onClick={onClose}>{t('close')}</Button>
       </Box>
     </Box>
   );
