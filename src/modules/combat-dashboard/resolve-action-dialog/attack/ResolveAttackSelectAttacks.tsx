@@ -1,12 +1,14 @@
 import React, { FC, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Slider } from '@mui/material';
 import Checkbox from '@mui/material/Checkbox';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 import { CombatContext } from '../../../../CombatContext';
 import { AttackDeclarationItemDto, AttackDeclarationDto } from '../../../api/actions';
 import { ActorRound } from '../../../api/actor-rounds';
-import type { Character, CharacterAttack } from '../../../api/characters';
+import type { Character } from '../../../api/characters';
+import NumericTextField from '../../../shared/inputs/NumericTextField_excluded.tsx';
 import SelectAttackTarget from '../../../shared/selects/SelectAttackTarget';
 
 const ResolveAttackSelectAttacks: React.FC<{
@@ -67,6 +69,11 @@ const AttackList: FC<{
     setFormData({ ...formData, attacks: newSelected });
   };
 
+  const handleBoChange = (attackName: string) => (e) => {
+    const newSelected = selected.map((a) => (a.attackName === attackName ? { ...a, bo: e.target.value } : a));
+    setFormData({ ...formData, attacks: newSelected });
+  };
+
   if (!actorRound || !actorRound.attacks) {
     return <Typography>No attacks available</Typography>;
   }
@@ -86,17 +93,25 @@ const AttackList: FC<{
               {t(attack.attackTable)}: {attack.currentBo}
             </Typography>
           </Grid>
-          {!!findAttack(attack.attackName) && (
-            <Grid size={2}>
-              <SelectAttackTarget
-                value={findAttack(attack.attackName)?.targetId || ''}
-                onChange={(value: string) => handleTargetChange(attack.attackName, value)}
-                includeSource={true}
-                sourceId={character.id}
-                targets={characters}
-                i18nLabel="target-attack"
-              />
-            </Grid>
+          {!!findAttack(attack.attackName) && attack.currentBo > 0 && (
+            <>
+              <Grid size={2}>
+                <SelectAttackTarget
+                  value={findAttack(attack.attackName)?.targetId || ''}
+                  onChange={(value: string) => handleTargetChange(attack.attackName, value)}
+                  includeSource={true}
+                  sourceId={character.id}
+                  targets={characters}
+                  i18nLabel="target-attack"
+                />
+              </Grid>
+              <Grid size={2}>
+                <NumericTextField label={t('bo')} value={attack.currentBo} onChange={handleBoChange} />
+              </Grid>
+              <Grid size={2}>
+                <Slider defaultValue={attack.currentBo} aria-label="Default" valueLabelDisplay="auto" max={attack.currentBo} />
+              </Grid>
+            </>
           )}
         </Grid>
       ))}

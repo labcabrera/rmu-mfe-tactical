@@ -3,7 +3,7 @@ import { Button, Grid } from '@mui/material';
 import { CombatContext } from '../../CombatContext';
 import { useError } from '../../ErrorContext';
 import { ActorRoundEffect, addActorRoundHp, addActorRoundEffect } from '../api/actor-rounds';
-import NumericTextField from '../shared/inputs/NumericTextField';
+import NumericTextField from '../shared/inputs/NumericTextField_excluded.tsx';
 import SelectActorRound from '../shared/selects/SelectActorRound';
 import SelectEffect from '../shared/selects/SelectEffect';
 

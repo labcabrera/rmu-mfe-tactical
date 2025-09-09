@@ -4,7 +4,7 @@ import type { Action, ResolveMovementDto } from '../../../api/actions';
 import type { Character } from '../../../api/characters';
 import type { StrategicGame } from '../../../api/strategic-games';
 import type { TacticalGame } from '../../../api/tactical-games';
-import NumericTextField from '../../../shared/inputs/NumericTextField';
+import { NumericInput } from '../../../shared/inputs/NumericInput';
 import SelectDifficulty from '../../../shared/selects/SelectDifficulty';
 import SelectMovementSkill from '../../../shared/selects/SelectMovementSkill';
 import SelectPace from '../../../shared/selects/SelectPace';
@@ -93,13 +93,7 @@ const ResolveMovementForm: React.FC<ResolveMovementFormProps> = ({ formData, set
             <SelectMovementSkill value={formData.skillId} onChange={handleMovementSkillChange} />
           </Grid>
           <Grid size={2}>
-            <NumericTextField
-              label="Roll"
-              value={formData.roll}
-              onChange={(val: string | number) => setFormData({ ...formData, roll: val })}
-              variant="standard"
-              fullWidth
-            />
+            <NumericInput label="Roll" value={formData.roll} onChange={(val: number | null) => setFormData({ ...formData, roll: val })} integer />
           </Grid>
         </>
       )}

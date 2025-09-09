@@ -15,7 +15,7 @@ export type ResolveMovementDto = {
   requiredManeuver: boolean;
   difficulty: string;
   skillId: string;
-  roll: string | number;
+  roll: number | null;
 };
 
 export type AttackDeclarationDto = {

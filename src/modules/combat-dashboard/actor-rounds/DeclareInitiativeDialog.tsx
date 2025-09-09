@@ -5,7 +5,7 @@ import { CombatContext } from '../../../CombatContext';
 import { useError } from '../../../ErrorContext';
 import { declareActorRoundInitiative } from '../../api/actor-rounds';
 import type { ActorRound } from '../../api/actor-rounds';
-import NumericTextField from '../../shared/inputs/NumericTextField';
+import { NumericInput } from '../../shared/inputs/NumericInput';
 
 const DeclareInitiativeDialog: FC<{
   actorRound: ActorRound;
@@ -40,17 +40,13 @@ const DeclareInitiativeDialog: FC<{
       });
   };
 
-  const handleRollChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const check = Number(e.target.value);
-    if (isNaN(check)) {
-      setRoll(1);
-      return;
-    }
-    setRoll(Math.max(1, Math.min(20, check)));
+  const handleRollChange = (e: number | null) => {
+    const check = Math.max(2, Math.min(20, e));
+    setRoll(check);
   };
 
   useEffect(() => {
-    setRoll(actorRound.initiative?.roll || '');
+    setRoll(actorRound.initiative?.roll || 0);
   }, [actorRound]);
 
   return (
@@ -64,9 +60,10 @@ const DeclareInitiativeDialog: FC<{
           <Grid size={6}>Modifiers:</Grid>
           <Grid size={6}>{actorRound.initiative?.penalty || 0}</Grid>
           <Grid size={6}>
-            <NumericTextField label={t('initiative-roll')} value={roll} onChange={handleRollChange} />
+            <NumericInput label={t('initiative-roll')} value={roll} onChange={handleRollChange} inputMode="numeric" integer allowNegatives={false} />
           </Grid>
         </Grid>
+        <pre>{JSON.stringify({ roll }, null, 2)}</pre>
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose}>Cancel</Button>
