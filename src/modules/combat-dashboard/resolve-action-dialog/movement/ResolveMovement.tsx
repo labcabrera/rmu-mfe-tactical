@@ -23,7 +23,7 @@ const ResolveMovement: React.FC<ResolveMovementProps> = ({ action, character, on
     requiredManeuver: false,
     difficulty: character.equipment.movementBaseDifficulty || '',
     skillId: 'running',
-    roll: '',
+    roll: null,
   });
 
   const processInteger = (value: unknown): number | undefined => {

@@ -5,8 +5,6 @@ import Stack from '@mui/material/Stack';
 import type { Action } from '../../api/actions';
 import type { ActorRound } from '../../api/actor-rounds';
 import type { Character } from '../../api/characters';
-import StyledIconButton from '../../shared/buttons/StyledIconButton';
-import CircleButtonGroup from '../../shared/generic/CircleButtonGroup';
 import ResolveActionDialog from '../resolve-action-dialog/ResolveActionDialog';
 
 const ViewPrevAction: FC<{
@@ -14,30 +12,21 @@ const ViewPrevAction: FC<{
   actorRound: ActorRound;
   character: Character;
   phase: number;
-}> = ({ activeAction, character, phase }) => {
+}> = ({ activeAction, actorRound, character, phase }) => {
   const [resolveDialogOpen, setResolveDialogOpen] = useState(false);
 
   if (!activeAction) return <p>Loading...</p>;
 
-  const options = [
-    {
-      src: `/static/images/actions/${activeAction.actionType}.png`,
-      alt: `${activeAction.actionType}`,
-      action: () => {},
-    },
-    {
-      src: '/static/images/actions/perception.png',
-      alt: 'Declare attack',
-      action: () => {
-        setResolveDialogOpen(true);
-      },
-    },
-  ];
-
   if (activeAction.phaseEnd === phase) {
     return (
       <>
-        <ResolveActionDialog action={activeAction} character={character} open={resolveDialogOpen} onClose={() => setResolveDialogOpen(false)} />
+        <ResolveActionDialog
+          action={activeAction}
+          actorRound={actorRound}
+          character={character}
+          open={resolveDialogOpen}
+          onClose={() => setResolveDialogOpen(false)}
+        />
         <Avatar src={`/static/images/actions/${activeAction.actionType}.png`} sx={{ width: 55, height: 55 }}></Avatar>
         <IconButton onClick={() => setResolveDialogOpen(true)}>
           <Avatar src="/static/images/actions/perception.png" sx={{ width: 55, height: 55 }}></Avatar>

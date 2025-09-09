@@ -22,7 +22,7 @@ const ResolveActionDialog: FC<{
 
   return (
     <Dialog open={open} onClose={onClose} aria-labelledby="alert-dialog-title" aria-describedby="alert-dialog-description" maxWidth="xl" fullWidth>
-      <DialogTitle id="alert-dialog-title">Resolve {t(action.actionType)}</DialogTitle>
+      <DialogTitle id="alert-dialog-title">{t(action.actionType)}</DialogTitle>
       <DialogContent>
         {action.actionType === 'movement' && <ResolveMovement action={action} character={character} onClose={onClose} />}
         {action.actionType === 'attack' && <ResolveAttack action={action} actorRound={actorRound} character={character} onClose={onClose} />}

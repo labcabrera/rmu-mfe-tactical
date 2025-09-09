@@ -5,6 +5,7 @@ import type { Character } from '../../../api/characters';
 import type { StrategicGame } from '../../../api/strategic-games';
 import type { TacticalGame } from '../../../api/tactical-games';
 import { NumericInput } from '../../../shared/inputs/NumericInput';
+import NumericReadonlyInput from '../../../shared/inputs/NumericReadonlyInput';
 import SelectDifficulty from '../../../shared/selects/SelectDifficulty';
 import SelectMovementSkill from '../../../shared/selects/SelectMovementSkill';
 import SelectPace from '../../../shared/selects/SelectPace';
@@ -24,9 +25,9 @@ type ResolveMovementFormProps = {
 };
 
 const ResolveMovementForm: React.FC<ResolveMovementFormProps> = ({ formData, setFormData, character, game, strategicGame, action }) => {
-  const [paceMultiplier, setPaceMultiplier] = useState<number | string>('');
-  const [movement, setMovement] = useState<number | string>('');
-  const [adjustedMovement, setAdjustedMovement] = useState<number | string>('');
+  const [paceMultiplier, setPaceMultiplier] = useState<number | null>(null);
+  const [movement, setMovement] = useState<number | null>(null);
+  const [adjustedMovement, setAdjustedMovement] = useState<number | null>(null);
 
   const handlePaceChange = (value: string, pace: Pace) => {
     setFormData({ ...formData, pace: value });
@@ -35,8 +36,8 @@ const ResolveMovementForm: React.FC<ResolveMovementFormProps> = ({ formData, set
     const movementValue = character.movement.baseMovementRate * pace.multiplier * actionPoints;
     const scaleMultiplier = strategicGame?.options?.boardScaleMultiplier || 1;
     const adjustedMovementValue = movementValue * scaleMultiplier;
-    setMovement(movementValue);
-    setAdjustedMovement(`${adjustedMovementValue} (x${scaleMultiplier})`);
+    setMovement(Number(movementValue.toFixed(2)));
+    setAdjustedMovement(`${Number(adjustedMovementValue.toFixed(1))} (x${scaleMultiplier})`);
   };
 
   const getActionPoints = () => {
@@ -56,22 +57,22 @@ const ResolveMovementForm: React.FC<ResolveMovementFormProps> = ({ formData, set
   return (
     <Grid container spacing={2}>
       <Grid size={2}>
-        <SelectPace value={formData.pace} onChange={handlePaceChange} />
+        <SelectPace value={formData.pace} name="pace" onChange={handlePaceChange} />
       </Grid>
       <Grid size={2}>
-        <TextField label="BMR" name="bmr" value={character.movement.baseMovementRate} variant="standard" fullWidth />
+        <NumericReadonlyInput label="BMR" name="bmr" value={character.movement.baseMovementRate} />
       </Grid>
       <Grid size={2}>
-        <TextField label="Action points" name="actionPoints" value={getActionPoints()} variant="standard" fullWidth />
+        <NumericReadonlyInput label="Action points" name="actionPoints" value={getActionPoints()} />
       </Grid>
       <Grid size={2}>
-        <TextField label="Pace multiplier" name="paceMultiplier" value={paceMultiplier} variant="standard" fullWidth />
+        <NumericReadonlyInput label="Pace multiplier" name="paceMultiplier" value={paceMultiplier} />
       </Grid>
       <Grid size={2}>
-        <TextField label="Movement" name="movement" value={movement} variant="standard" fullWidth />
+        <NumericReadonlyInput label="Movement" name="movement" value={movement} />
       </Grid>
       <Grid size={2}>
-        <TextField label="Adjusted movement" name="adjustedMovement" value={adjustedMovement} variant="standard" fullWidth />
+        <NumericReadonlyInput label="Adjusted movement" name="adjustedMovement" value={adjustedMovement} />
       </Grid>
       <Grid size={2}>
         <TextField label="Maneuver penalty" name="maneuverPenalty" value={character.equipment.maneuverPenalty} variant="standard" fullWidth />

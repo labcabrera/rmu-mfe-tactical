@@ -6,6 +6,7 @@ import { useError } from '../../../ErrorContext';
 import { declareActorRoundInitiative } from '../../api/actor-rounds';
 import type { ActorRound } from '../../api/actor-rounds';
 import { NumericInput } from '../../shared/inputs/NumericInput';
+import NumericReadonlyInput from '../../shared/inputs/NumericReadonlyInput';
 
 const DeclareInitiativeDialog: FC<{
   actorRound: ActorRound;
@@ -55,15 +56,18 @@ const DeclareInitiativeDialog: FC<{
       <DialogContent>
         <DialogContentText>Declare initiative (2D10)</DialogContentText>
         <Grid container spacing={2}>
-          <Grid size={6}>Initiative base:</Grid>
-          <Grid size={6}>{actorRound.initiative?.base || 0}</Grid>
-          <Grid size={6}>Modifiers:</Grid>
-          <Grid size={6}>{actorRound.initiative?.penalty || 0}</Grid>
+          <Grid size={6}>
+            <NumericReadonlyInput label={t('initiative-base')} name="initiative-base" value={actorRound.initiative?.base} />
+          </Grid>
+          <Grid size={6}></Grid>
+          <Grid size={6}>
+            <NumericReadonlyInput label={t('initiative-penalty')} name="initiative-penalty" value={actorRound.initiative?.penalty} />
+          </Grid>
+          <Grid size={6}></Grid>
           <Grid size={6}>
             <NumericInput label={t('initiative-roll')} value={roll} onChange={handleRollChange} inputMode="numeric" integer allowNegatives={false} />
           </Grid>
         </Grid>
-        <pre>{JSON.stringify({ roll }, null, 2)}</pre>
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose}>Cancel</Button>
