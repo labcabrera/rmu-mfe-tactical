@@ -45,19 +45,37 @@ const ResolveAttackFormModifiers: FC<{
       </Grid>
       <Grid size={12}></Grid>
       <Grid size={2}>
-        <TextField label={t('attack-cover')} value={t(modifiers.cover)} name="cover" fullWidth variant="standard" />
+        <TextField label={t('attack-cover')} value={t(`cover-${modifiers.cover}`)} name="cover" fullWidth variant="standard" />
       </Grid>
       <Grid size={2}>
-        <TextField label={t('attack-restricted-quarters')} value={restrictedQuarters} name="restrictedQuarters" fullWidth variant="standard" />
+        <TextField
+          label={t('attack-restricted-quarters')}
+          value={t(modifiers.restrictedQuarters)}
+          name="restrictedQuarters"
+          fullWidth
+          variant="standard"
+        />
       </Grid>
       <Grid size={2}>
-        <TextField label={t('attack-positional-source')} value={positionalSource} name="positionalSource" fullWidth variant="standard" />
+        <TextField
+          label={t('attack-positional-source')}
+          value={t(`positional-${modifiers.positionalSource}`)}
+          name="positionalSource"
+          fullWidth
+          variant="standard"
+        />
       </Grid>
       <Grid size={2}>
-        <TextField label={t('attack-positional-target')} value={positionalTarget} name="positionalTarget" fullWidth variant="standard" />
+        <TextField
+          label={t('attack-positional-target')}
+          value={t(`positional-${modifiers.positionalTarget}`)}
+          name="positionalTarget"
+          fullWidth
+          variant="standard"
+        />
       </Grid>
       <Grid size={2}>
-        <TextField label={t('attack-dodge')} value={dodge} name="dodge" fullWidth variant="standard" />
+        <TextField label={t('attack-dodge')} value={t(`dodge-${modifiers.dodge}`)} name="dodge" fullWidth variant="standard" />
       </Grid>
       <Grid size={12}></Grid>
       <Grid size={2}>
