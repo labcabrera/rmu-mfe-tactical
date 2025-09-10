@@ -1,6 +1,6 @@
 {
   "name": "product",
-  "version": "0.4.6",
+  "version": "0.4.7",
   "scripts": {
     "build": "webpack --mode production",
     "build:dev": "webpack --mode development",
