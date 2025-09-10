@@ -43,13 +43,13 @@ const ResolveAttackTabParry: FC<{
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs value={tabIndex} onChange={handleChange} aria-label="combat dashboard tabs">
           {formData.attacks.map((attack, index) => (
-            <Tab key={index} label={attack.attackName} {...a11yProps(index)} />
+            <Tab key={index} label={attack.modifiers?.attackName} {...a11yProps(index)} />
           ))}
         </Tabs>
       </Box>
       {formData.attacks.map((attack, index) => (
         <CustomTabPanel value={tabIndex} index={index} key={index}>
-          <ResolveAttackFormModifiers formData={formData} setFormData={setFormData} attack={attack} index={index} />
+          <ResolveAttackFormModifiers formData={formData} setFormData={setFormData} attack={attack.modifiers} index={index} />
         </CustomTabPanel>
       ))}
     </Box>

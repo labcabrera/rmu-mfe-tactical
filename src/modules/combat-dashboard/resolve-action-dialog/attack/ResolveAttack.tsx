@@ -43,6 +43,11 @@ const ResolveAttack: FC<{
 
   useEffect(() => {
     //TODO set formData and current step
+    if (action && action.attacks) {
+      setFormData({ attacks: action.attacks });
+      if (action.status === 'in_progress') setActiveStep(2);
+    }
+
     console.log('Action changed', action);
   }, [action]);
 
