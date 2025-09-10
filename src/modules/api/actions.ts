@@ -18,13 +18,21 @@ export type ResolveMovementDto = {
   roll: number | null;
 };
 
-export type AttackDeclarationDto = {
+export type AttackDto = {
   attacks: AttackDeclarationItemDto[];
 };
 
 export type AttackDeclarationItemDto = {
+  modifiers: AttackModifiersDto;
+  calculated: AttackCalculationsDto;
+  //TODO map
+  // [key: string]: any;
+};
+
+export type AttackModifiersDto = {
   attackName: string;
   targetId: string;
+  bo: number | null;
   cover?: string;
   restrictedQuarters?: string;
   positionalSource?: string;
@@ -35,7 +43,15 @@ export type AttackDeclarationItemDto = {
   disabledDB?: boolean;
   disabledShield?: boolean;
   disabledParry?: boolean;
-  [key: string]: any;
+};
+
+export type AttackDeclarationDto = {
+  attacks: AttackModifiersDto[];
+};
+
+export type AttackCalculationsDto = {
+  rollModifiers: { key: string; value: number }[];
+  rollTotal: number;
 };
 
 export async function fetchAction(actionId: string): Promise<Action> {

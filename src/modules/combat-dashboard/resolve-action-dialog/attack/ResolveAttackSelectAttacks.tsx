@@ -1,19 +1,18 @@
 import React, { FC, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Slider } from '@mui/material';
 import Checkbox from '@mui/material/Checkbox';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 import { CombatContext } from '../../../../CombatContext';
-import { AttackDeclarationItemDto, AttackDeclarationDto } from '../../../api/actions';
+import { AttackDeclarationItemDto, AttackDto } from '../../../api/actions';
 import { ActorRound } from '../../../api/actor-rounds';
 import type { Character } from '../../../api/characters';
 import { NumericInput } from '../../../shared/inputs/NumericInput';
 import SelectAttackTarget from '../../../shared/selects/SelectAttackTarget';
 
 const ResolveAttackSelectAttacks: React.FC<{
-  formData: AttackDeclarationDto;
-  setFormData: (data: AttackDeclarationDto) => void;
+  formData: AttackDto;
+  setFormData: (data: AttackDto) => void;
   actorRound: ActorRound;
   character: Character;
 }> = ({ formData, setFormData, actorRound, character }) => {
@@ -25,8 +24,8 @@ const ResolveAttackSelectAttacks: React.FC<{
 export default ResolveAttackSelectAttacks;
 
 const AttackList: FC<{
-  formData: AttackDeclarationDto;
-  setFormData: (data: AttackDeclarationDto) => void;
+  formData: AttackDto;
+  setFormData: (data: AttackDto) => void;
   actorRound: ActorRound;
   character: Character;
   characters: Character[];
@@ -34,30 +33,32 @@ const AttackList: FC<{
   const { t } = useTranslation();
   const selected = formData.attacks || [];
 
-  const findAttack = (attackName: string) => selected.find((a) => a.attackName === attackName);
+  const findAttack = (attackName: string) => selected.find((a) => a.modifiers.attackName === attackName);
 
   const handleToggle = (attackName: string) => {
     const exists = findAttack(attackName);
     let newSelected: AttackDeclarationItemDto[];
     if (exists) {
-      newSelected = selected.filter((a) => a.attackName !== attackName);
+      newSelected = selected.filter((a) => a.modifiers.attackName !== attackName);
     } else {
       newSelected = [
         ...selected,
         {
-          attackName,
-          targetId: null,
-          bo: actorRound.attacks.find((a) => a.attackName === attackName)?.currentBo || 0,
-          cover: 'none',
-          restrictedQuarters: 'none',
-          positionalSource: 'none',
-          positionalTarget: 'none',
-          dodge: 'none',
-          range: null,
-          customBonus: 0,
-          disabledDB: false,
-          disabledShield: false,
-          disabledParry: false,
+          modifiers: {
+            attackName,
+            targetId: null,
+            bo: actorRound.attacks.find((a) => a.attackName === attackName)?.currentBo || 0,
+            cover: 'none',
+            restrictedQuarters: 'none',
+            positionalSource: 'none',
+            positionalTarget: 'none',
+            dodge: 'none',
+            range: null,
+            customBonus: 0,
+            disabledDB: false,
+            disabledShield: false,
+            disabledParry: false,
+          },
         },
       ];
     }
@@ -65,13 +66,12 @@ const AttackList: FC<{
   };
 
   const handleTargetChange = (attackName: string, targetId: string) => {
-    const newSelected = selected.map((a) => (a.attackName === attackName ? { ...a, targetId } : a));
+    const newSelected = selected.map((a) => (a.modifiers.attackName === attackName ? { ...a, modifiers: { ...a.modifiers, targetId } } : a));
     setFormData({ ...formData, attacks: newSelected });
   };
 
   const handleBoChange = (attackName, bo: number) => {
-    console.log('Bo change', attackName, bo);
-    const newSelected = selected.map((a) => (a.attackName === attackName ? { ...a, bo: bo } : a));
+    const newSelected = selected.map((a) => (a.modifiers.attackName === attackName ? { ...a, modifiers: { ...a.modifiers, bo } } : a));
     setFormData({ ...formData, attacks: newSelected });
   };
 

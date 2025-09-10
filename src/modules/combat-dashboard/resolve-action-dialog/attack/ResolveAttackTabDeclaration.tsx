@@ -2,12 +2,12 @@ import React, { useState } from 'react';
 import Box from '@mui/material/Box';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
-import { AttackDeclarationDto } from '../../../api/actions';
+import { AttackDto } from '../../../api/actions';
 import ResolveAttackFormModifiers from './ResolveAttackFormModifiers';
 
 type ResolveAttackTabDeclarationProps = {
-  formData: AttackDeclarationDto;
-  setFormData: (data: AttackDeclarationDto) => void;
+  formData: AttackDto;
+  setFormData: (data: AttackDto) => void;
 };
 
 function a11yProps(index: number) {

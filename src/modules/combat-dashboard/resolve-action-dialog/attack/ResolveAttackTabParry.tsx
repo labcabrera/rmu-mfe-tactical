@@ -2,8 +2,8 @@ import React, { FC, useState } from 'react';
 import Box from '@mui/material/Box';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
-import { AttackDeclarationDto } from '../../../api/actions';
-import ResolveAttackFormModifiers from './ResolveAttackFormModifiers';
+import { AttackDto } from '../../../api/actions';
+import ResolveAttackFormParry from './ResolveAttackFormParry';
 
 function a11yProps(index: number) {
   return {
@@ -29,8 +29,8 @@ function CustomTabPanel(props: CustomTabPanelProps) {
 }
 
 const ResolveAttackTabParry: FC<{
-  formData: AttackDeclarationDto;
-  setFormData: (data: AttackDeclarationDto) => void;
+  formData: AttackDto;
+  setFormData: (data: AttackDto) => void;
 }> = ({ formData, setFormData }) => {
   const [tabIndex, setTabIndex] = useState(0);
 
@@ -49,7 +49,7 @@ const ResolveAttackTabParry: FC<{
       </Box>
       {formData.attacks.map((attack, index) => (
         <CustomTabPanel value={tabIndex} index={index} key={index}>
-          <ResolveAttackFormModifiers formData={formData} setFormData={setFormData} attack={attack.modifiers} index={index} />
+          <ResolveAttackFormParry formData={formData} setFormData={setFormData} attack={attack} index={index} />
         </CustomTabPanel>
       ))}
     </Box>

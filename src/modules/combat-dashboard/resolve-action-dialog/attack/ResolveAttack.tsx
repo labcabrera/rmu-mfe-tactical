@@ -1,7 +1,7 @@
 import React, { FC, useContext, useEffect, useState } from 'react';
 import { CombatContext } from '../../../../CombatContext';
 import { useError } from '../../../../ErrorContext';
-import type { Action, AttackDeclarationDto } from '../../../api/actions';
+import type { Action, AttackDto } from '../../../api/actions';
 import { prepareAttack } from '../../../api/actions';
 import { ActorRound } from '../../../api/actor-rounds';
 import type { Character } from '../../../api/characters';
@@ -17,12 +17,19 @@ const ResolveAttack: FC<{
   const [activeStep, setActiveStep] = useState<number>(action.status === 'declared' ? 0 : 1);
   const { showError } = useError();
   const [isValidDeclaration, setIsValidDeclaration] = useState(false);
-  const [formData, setFormData] = useState<AttackDeclarationDto>({
+  const [formData, setFormData] = useState<AttackDto>({
     attacks: [],
   });
 
   const onDeclare = () => {
-    prepareAttack(action.id, formData)
+    if (!formData || !formData.attacks || formData.attacks.length < 1) {
+      showError('You must declare at least one attack');
+      return;
+    }
+    const attackDeclarationDto = {
+      attacks: formData.attacks.map((a) => a.modifiers),
+    };
+    prepareAttack(action.id, attackDeclarationDto)
       .then((updatedAction) => {
         console.log('Prepared attack', updatedAction);
         updateAction(updatedAction);
@@ -37,7 +44,7 @@ const ResolveAttack: FC<{
 
   const checkValidForm = (): boolean => {
     if (!formData || !formData.attacks || formData.attacks.length < 1) return false;
-    if (formData.attacks.some((a) => !a.targetId)) return false;
+    if (formData.attacks.some((a) => !a.modifiers.targetId)) return false;
     return true;
   };
 
