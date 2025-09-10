@@ -3,20 +3,20 @@ import { useTranslation } from 'react-i18next';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 
-type SelectCoverProps = {
+type SelectEffectProps = {
   value: string;
   name?: string;
   onChange: (event: ChangeEvent<HTMLInputElement>) => void;
 };
 
-const SelectCover: FC<SelectCoverProps> = ({ value, name = 'cover', onChange }) => {
+const SelectEffect: FC<SelectEffectProps> = ({ value, name = 'effect', onChange }) => {
   const { t } = useTranslation();
-  const options = ['none', 'soft_partial', 'soft_half', 'soft_full', 'hard_partial', 'hard_half', 'hard_full'];
+  const options = ['death', 'bleeding', 'stunned', 'blinded', 'prone'];
 
   return (
     <TextField
       select
-      label={t('cover')}
+      label={t('effect')}
       name={name}
       value={value === undefined || value === null || options.length === 0 ? '' : value}
       fullWidth
@@ -25,11 +25,11 @@ const SelectCover: FC<SelectCoverProps> = ({ value, name = 'cover', onChange }) 
     >
       {options.map((option, index) => (
         <MenuItem key={index} value={option}>
-          {t(`cover-${option}`)}
+          {t(`effect-${option}`)}
         </MenuItem>
       ))}
     </TextField>
   );
 };
 
-export default SelectCover;
+export default SelectEffect;

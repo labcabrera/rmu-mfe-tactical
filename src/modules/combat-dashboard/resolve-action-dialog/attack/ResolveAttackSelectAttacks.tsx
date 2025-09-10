@@ -1,21 +1,36 @@
 import React, { FC, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Slider } from '@mui/material';
 import Checkbox from '@mui/material/Checkbox';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 import { CombatContext } from '../../../../CombatContext';
-import { AttackDeclaration, DeclareAttackDto } from '../../../api/actions';
-import type { Character, CharacterAttack } from '../../../api/characters';
+import { AttackDeclarationItemDto, AttackDeclarationDto } from '../../../api/actions';
+import { ActorRound } from '../../../api/actor-rounds';
+import type { Character } from '../../../api/characters';
+import { NumericInput } from '../../../shared/inputs/NumericInput';
 import SelectAttackTarget from '../../../shared/selects/SelectAttackTarget';
 
-type AttackListProps = {
-  formData: DeclareAttackDto;
-  setFormData: (data: DeclareAttackDto) => void;
+const ResolveAttackSelectAttacks: React.FC<{
+  formData: AttackDeclarationDto;
+  setFormData: (data: AttackDeclarationDto) => void;
+  actorRound: ActorRound;
   character: Character;
-  characters: Character[];
+}> = ({ formData, setFormData, actorRound, character }) => {
+  const { characters } = useContext(CombatContext) as { characters: Character[] };
+
+  return <AttackList actorRound={actorRound} character={character} characters={characters} formData={formData} setFormData={setFormData} />;
 };
 
-const AttackList: FC<AttackListProps> = ({ formData, setFormData, character, characters }) => {
+export default ResolveAttackSelectAttacks;
+
+const AttackList: FC<{
+  formData: AttackDeclarationDto;
+  setFormData: (data: AttackDeclarationDto) => void;
+  actorRound: ActorRound;
+  character: Character;
+  characters: Character[];
+}> = ({ formData, setFormData, actorRound, character, characters }) => {
   const { t } = useTranslation();
   const selected = formData.attacks || [];
 
@@ -23,7 +38,7 @@ const AttackList: FC<AttackListProps> = ({ formData, setFormData, character, cha
 
   const handleToggle = (attackName: string) => {
     const exists = findAttack(attackName);
-    let newSelected: AttackDeclaration[];
+    let newSelected: AttackDeclarationItemDto[];
     if (exists) {
       newSelected = selected.filter((a) => a.attackName !== attackName);
     } else {
@@ -31,14 +46,15 @@ const AttackList: FC<AttackListProps> = ({ formData, setFormData, character, cha
         ...selected,
         {
           attackName,
-          targetId: '',
+          targetId: null,
+          bo: actorRound.attacks.find((a) => a.attackName === attackName)?.currentBo || 0,
           cover: 'none',
           restrictedQuarters: 'none',
           positionalSource: 'none',
           positionalTarget: 'none',
           dodge: 'none',
-          range: '0',
-          customBonus: '0',
+          range: null,
+          customBonus: 0,
           disabledDB: false,
           disabledShield: false,
           disabledParry: false,
@@ -53,14 +69,20 @@ const AttackList: FC<AttackListProps> = ({ formData, setFormData, character, cha
     setFormData({ ...formData, attacks: newSelected });
   };
 
-  if (!character?.attacks || character.attacks.length === 0) {
+  const handleBoChange = (attackName, bo: number) => {
+    console.log('Bo change', attackName, bo);
+    const newSelected = selected.map((a) => (a.attackName === attackName ? { ...a, bo: bo } : a));
+    setFormData({ ...formData, attacks: newSelected });
+  };
+
+  if (!actorRound || !actorRound.attacks) {
     return <Typography>No attacks available</Typography>;
   }
 
   return (
     <>
-      {character.attacks.map((attack: CharacterAttack) => (
-        <Grid container key={attack.attackName} spacing={2} alignItems="center" style={{ marginBottom: 8 }}>
+      {actorRound.attacks.map((attack, index) => (
+        <Grid container key={index} spacing={2} alignItems="center" style={{ marginBottom: 8 }}>
           <Grid size={1}>
             <Checkbox checked={!!findAttack(attack.attackName)} onChange={() => handleToggle(attack.attackName)} />
           </Grid>
@@ -69,37 +91,39 @@ const AttackList: FC<AttackListProps> = ({ formData, setFormData, character, cha
           </Grid>
           <Grid size={2}>
             <Typography variant="body2">
-              {t(attack.attackTable)}: {attack.bo}
+              {t(attack.attackTable)}: {attack.currentBo}
             </Typography>
           </Grid>
-          {!!findAttack(attack.attackName) && (
-            <Grid size={2}>
-              <SelectAttackTarget
-                value={findAttack(attack.attackName)?.targetId || ''}
-                onChange={(value: string) => handleTargetChange(attack.attackName, value)}
-                includeSource={true}
-                sourceId={character.id}
-                targets={characters}
-                i18nLabel="target-attack"
-              />
-            </Grid>
+          {!!findAttack(attack.attackName) && attack.currentBo > 0 && (
+            <>
+              <Grid size={2}>
+                <SelectAttackTarget
+                  value={findAttack(attack.attackName)?.targetId || ''}
+                  onChange={(value: string) => handleTargetChange(attack.attackName, value)}
+                  includeSource={true}
+                  sourceId={character.id}
+                  targets={characters}
+                  i18nLabel="target-attack"
+                />
+              </Grid>
+              <Grid size={2}>
+                <NumericInput
+                  label={t('attack-used-bo')}
+                  name={`${attack.attackName}.bo`}
+                  value={attack.currentBo}
+                  min={1}
+                  max={attack.currentBo}
+                  onChange={(bo) => {
+                    handleBoChange(attack.attackName, bo);
+                  }}
+                  integer
+                  allowNegatives={false}
+                />
+              </Grid>
+            </>
           )}
         </Grid>
       ))}
     </>
   );
 };
-
-type ResolveAttackFormProps = {
-  formData: DeclareAttackDto;
-  setFormData: (data: DeclareAttackDto) => void;
-  character: Character;
-};
-
-const ResolveAttackSelectAttacks: React.FC<ResolveAttackFormProps> = ({ formData, setFormData, character }) => {
-  const { characters } = useContext(CombatContext) as { characters: Character[] };
-
-  return <AttackList character={character} characters={characters} formData={formData} setFormData={setFormData} />;
-};
-
-export default ResolveAttackSelectAttacks;

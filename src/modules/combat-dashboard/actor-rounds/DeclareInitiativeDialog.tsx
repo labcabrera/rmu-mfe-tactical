@@ -1,30 +1,38 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, FC, useEffect, ChangeEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grid, TextField } from '@mui/material';
 import { CombatContext } from '../../../CombatContext';
 import { useError } from '../../../ErrorContext';
 import { declareActorRoundInitiative } from '../../api/actor-rounds';
 import type { ActorRound } from '../../api/actor-rounds';
+import { NumericInput } from '../../shared/inputs/NumericInput';
+import NumericReadonlyInput from '../../shared/inputs/NumericReadonlyInput';
 
-type DeclareInitiativeDialogProps = {
+const DeclareInitiativeDialog: FC<{
   actorRound: ActorRound;
   open: boolean;
   setOpen: (open: boolean) => void;
-};
-
-const DeclareInitiativeDialog: React.FC<DeclareInitiativeDialogProps> = ({ actorRound, open, setOpen }) => {
+}> = ({ actorRound, open, setOpen }) => {
+  const { t } = useTranslation();
   const { showError } = useError();
-  const [roll, setRoll] = useState<string | number>(actorRound.initiative?.roll || '');
+  const [roll, setRoll] = useState<number>(actorRound.initiative?.roll || 0);
   const { updateActorRound } = useContext(CombatContext)!;
+
+  const handleRandomRoll = () => {
+    const die1 = Math.floor(Math.random() * 10) + 1;
+    const die2 = Math.floor(Math.random() * 10) + 1;
+    setRoll(die1 + die2);
+  };
 
   const handleClose = () => {
     setOpen(false);
   };
 
   const handleDeclare = () => {
-    declareActorRoundInitiative(actorRound.id, parseInt(roll as string, 10))
+    declareActorRoundInitiative(actorRound.id, roll)
       .then((updatedActorRound) => {
         updateActorRound(updatedActorRound);
-        setRoll('');
+        setRoll(2);
         setOpen(false);
       })
       .catch((error: unknown) => {
@@ -33,34 +41,37 @@ const DeclareInitiativeDialog: React.FC<DeclareInitiativeDialogProps> = ({ actor
       });
   };
 
+  const handleRollChange = (e: number | null) => {
+    const check = Math.max(2, Math.min(20, e));
+    setRoll(check);
+  };
+
+  useEffect(() => {
+    setRoll(actorRound.initiative?.roll || 0);
+  }, [actorRound]);
+
   return (
     <Dialog open={open} onClose={handleClose}>
-      <DialogTitle>Declare actor round initiative</DialogTitle>
+      <DialogTitle>{actorRound.actorName} initiative declaration</DialogTitle>
       <DialogContent>
         <DialogContentText>Declare initiative (2D10)</DialogContentText>
-        <pre>Actor round: {JSON.stringify(actorRound, null, 2)}</pre>
         <Grid container spacing={2}>
-          <Grid size={6}>Initiative base:</Grid>
-          <Grid size={6}>{actorRound.initiative?.base || 0}</Grid>
-          <Grid size={6}>Modifier:</Grid>
-          <Grid size={6}>{actorRound.initiative?.penalty || 0}</Grid>
           <Grid size={6}>
-            <TextField
-              autoFocus
-              required
-              id="roll"
-              name="roll"
-              label="initiative-roll"
-              value={roll}
-              fullWidth
-              variant="standard"
-              onChange={(e) => setRoll(e.target.value)}
-            />
+            <NumericReadonlyInput label={t('initiative-base')} name="initiative-base" value={actorRound.initiative?.base} />
+          </Grid>
+          <Grid size={6}></Grid>
+          <Grid size={6}>
+            <NumericReadonlyInput label={t('initiative-penalty')} name="initiative-penalty" value={actorRound.initiative?.penalty} />
+          </Grid>
+          <Grid size={6}></Grid>
+          <Grid size={6}>
+            <NumericInput label={t('initiative-roll')} value={roll} onChange={handleRollChange} inputMode="numeric" integer allowNegatives={false} />
           </Grid>
         </Grid>
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose}>Cancel</Button>
+        <Button onClick={handleRandomRoll}>Random Roll</Button>
         <Button onClick={handleDeclare}>Declare</Button>
       </DialogActions>
     </Dialog>

@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect, FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import Card from '@mui/material/Card';
@@ -27,7 +27,7 @@ type CombatActorRoundListItemCharacterProps = {
 /**
  * Component that displays general information about the actor, such as their name, health bar, etc.
  */
-const CombatActorRoundListItemCharacter: React.FC<CombatActorRoundListItemCharacterProps> = ({ actorRound }) => {
+const CombatActorRoundListItemCharacter: FC<CombatActorRoundListItemCharacterProps> = ({ actorRound }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { characters, factions } = useContext(CombatContext)!;
@@ -76,7 +76,7 @@ const CombatActorRoundListItemCharacter: React.FC<CombatActorRoundListItemCharac
             </Typography>
           </Stack>
         </Stack>
-        <GenericBar current={character.hp.current} max={character.hp.max} title="HP" width={barSize} colorOk={colorHpOk} />
+        <GenericBar current={actorRound.hp.current} max={actorRound.hp.max} title="HP" width={barSize} colorOk={colorHpOk} />
         {character.power && character.power.max > 0 ? (
           <GenericBar
             current={character.power.current}
@@ -88,20 +88,12 @@ const CombatActorRoundListItemCharacter: React.FC<CombatActorRoundListItemCharac
           />
         ) : null}
         <GenericBar
-          current={character.endurance.current}
-          max={character.endurance.max}
-          title="Endurance"
+          current={Math.round(actorRound.fatigue.accumulator)}
+          max={100}
+          title="FA"
           width={barSize}
           colorOk={colorKo}
           colorKo={colorEnduranceOk}
-        />
-        <GenericBar
-          current={character.endurance.accumulator}
-          max={100}
-          title="Fatigue"
-          width={barSize}
-          colorOk={colorKo}
-          colorKo={colorEnduranceAccumulator}
         />
       </CardContent>
     </Card>

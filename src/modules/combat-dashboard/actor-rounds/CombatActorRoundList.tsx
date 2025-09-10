@@ -21,8 +21,8 @@ const CombatActorRoundList: React.FC = () => {
         <Grid size={1}>Phase 2</Grid>
         <Grid size={1}>Phase 3</Grid>
         <Grid size={1}>Phase 4</Grid>
-        <Grid size={3}></Grid>
-        <Grid size={1}></Grid>
+        <Grid size={1}>Alerts</Grid>
+        <Grid size={3}>Effects</Grid>
       </Grid>
       {actorRounds.map((item: ActorRound, index: number) => (
         <CombatActorRoundListItem key={index} actorRound={item} />

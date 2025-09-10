@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 
-const SelectPace = ({ value, onChange }) => {
+const SelectPace = ({ name, value, onChange }) => {
   const { t } = useTranslation();
 
   const codes = [
@@ -23,10 +23,10 @@ const SelectPace = ({ value, onChange }) => {
   };
 
   return (
-    <TextField select label={t('pace')} value={value} fullWidth onChange={handleChange} variant="standard">
+    <TextField select label={t('pace')} name={name} value={value} fullWidth onChange={handleChange} variant="standard">
       {codes.map((option, index) => (
         <MenuItem key={index} value={option.id}>
-          {t(option.id)} (x{option.multiplier})
+          {t(option.id)}
         </MenuItem>
       ))}
     </TextField>

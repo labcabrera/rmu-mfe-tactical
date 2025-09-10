@@ -1,85 +1,56 @@
-import React, { useContext, useEffect, useState } from 'react';
-import IconButton from '@mui/material/IconButton';
-import Stack from '@mui/material/Stack';
-import { CombatContext } from '../../../CombatContext';
+import React from 'react';
 import type { Action } from '../../api/actions';
 import type { ActorRound } from '../../api/actor-rounds';
 import type { Character } from '../../api/characters';
+import { TacticalGame } from '../../api/tactical-games';
 import ResolveActionCard from '../ResolveActionCard';
-import CombatActorRoundPhaseActionButtons from './CombatActorRoundPhaseActionButtons';
+import PhaseActionButton from './PhaseActionButton';
+import ViewPrevAction from './ViewPrevAction';
 
-type CombatActorRoundPhaseOptionsProps = {
+const CombatActorRoundPhaseOptions: React.FC<{
+  game: TacticalGame;
   actorRound: ActorRound;
   character: Character;
   phase: number;
-};
-
-const CombatActorRoundPhaseOptions: React.FC<CombatActorRoundPhaseOptionsProps> = ({ actorRound, character, phase }) => {
-  const [activeAction, setActiveAction] = useState<Action | null>(null);
-  const { game, roundActions } = useContext(CombatContext)!;
-
-  const loadActiveAction = () => {
-    try {
-      if (!roundActions || roundActions.length < 1) {
-        setActiveAction(null);
-        return;
-      }
-      const actorActions = roundActions.filter((e: Action) => e.actorId === actorRound.actorId && e.phaseStart <= phase);
-      for (const action of actorActions) {
-        setActiveAction(action);
-        return;
-      }
-    } catch (error) {
-      console.error('Error in loadActiveAction: ', error);
-      setActiveAction(null);
-    }
-    setActiveAction(null);
+  activeAction: Action | null;
+}> = ({ game, actorRound, character, phase, activeAction }) => {
+  const canResolve = (action: Action, phase: number) => {
+    return game.phase === `phase_${phase}`;
   };
 
-  useEffect(() => {
-    loadActiveAction();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const ignoreAction = (action: Action | null) => {
+    if (!action) return false;
+    if (game.status === 'upkeep') return false;
+    const gamePhaseAsInt = parseInt(game.phase.replace('phase_', ''));
+    const ignore = gamePhaseAsInt < phase;
+    return ignore;
+  };
 
-  useEffect(() => {
-    loadActiveAction();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [roundActions]);
-
-  if (!actorRound || !phase || !roundActions) {
-    return <p>Loading character phase...</p>;
+  if (ignoreAction(activeAction)) {
+    return null;
   }
 
-  if (!activeAction && game && game.phase && game.phase === `phase_${phase}`) {
-    return <CombatActorRoundPhaseActionButtons actorRound={actorRound} phaseNumber={phase} />;
+  if (activeAction && activeAction.status === 'completed') {
+    return <ViewPrevAction activeAction={activeAction} actorRound={actorRound} character={character} phase={phase} />;
   }
 
-  if (activeAction && game.phase === `phase_${phase}`) {
+  if (activeAction && canResolve(activeAction, phase)) {
     return <ResolveActionCard action={activeAction} character={character} actorRound={actorRound} />;
   }
 
-  if (!activeAction) {
-    return <p>No active action</p>;
+  if (activeAction) {
+    return <ViewPrevAction activeAction={activeAction} actorRound={actorRound} character={character} phase={phase} />;
   }
 
-  return (
-    <Stack direction="row">
-      <IconButton
-        disabled
-        style={{
-          width: `70px`,
-          height: `70px`,
-          opacity: 0.5,
-        }}
-      >
-        <img
-          src={`/static/images/actions/${activeAction.actionType}.png`}
-          alt={activeAction.actionType}
-          style={{ width: '100%', height: '100%', borderRadius: '50%' }}
-        />
-      </IconButton>
-    </Stack>
-  );
+  if (!activeAction && game.phase === `phase_${phase}`) {
+    return (
+      <>
+        <PhaseActionButton actorRound={actorRound} phaseNumber={phase} />
+      </>
+    );
+  }
+
+  return null;
 };
 
 export default CombatActorRoundPhaseOptions;

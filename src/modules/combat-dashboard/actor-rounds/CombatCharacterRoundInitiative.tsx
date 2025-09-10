@@ -17,7 +17,7 @@ const CombatCharacterRoundInitiative: React.FC<CombatCharacterRoundInitiativePro
         <Avatar src={`/static/images/generic/initiative.png`} sx={{ width: 50, height: 50 }} />
       </IconButton>
       <DeclareInitiativeDialog open={dialogOpen} setOpen={setDialogOpen} actorRound={actorRound} />
-      {actorRound.initiative?.roll && <div>{actorRound.initiative.roll}</div>}
+      {actorRound.initiative?.roll && <div>{actorRound.initiative.total}</div>}
     </>
   );
 };

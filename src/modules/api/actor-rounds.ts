@@ -2,7 +2,15 @@ import { buildErrorFromResponse } from './api-errors';
 
 export type ActorRound = {
   id: string;
+  actorName: string;
+  effects: ActorRoundEffect[];
   [key: string]: any;
+};
+
+export type ActorRoundEffect = {
+  status: string;
+  value: number | undefined;
+  rounds: number | undefined;
 };
 
 export async function fetchActorRounds(gameId: string, round: number): Promise<ActorRound[]> {
@@ -26,6 +34,36 @@ export async function declareActorRoundInitiative(actorRoundId: string, roll: nu
     body: JSON.stringify({ roll }),
   });
   if (response.status !== 200) {
+    throw await buildErrorFromResponse(response, url);
+  }
+  return await response.json();
+}
+
+export async function addActorRoundHp(actorRoundId: string, hp: number): Promise<ActorRound> {
+  const url = `${process.env.RMU_API_TACTICAL_URL}/actor-rounds/${actorRoundId}/hp/`;
+  const response = await fetch(url, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ hp }),
+  });
+  if (response.status !== 200) {
+    throw await buildErrorFromResponse(response, url);
+  }
+  return await response.json();
+}
+
+export async function addActorRoundEffect(actorRoundId: string, effect: ActorRoundEffect): Promise<ActorRound> {
+  const url = `${process.env.RMU_API_TACTICAL_URL}/actor-rounds/${actorRoundId}/effects`;
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(effect),
+  });
+  if (response.status !== 201) {
     throw await buildErrorFromResponse(response, url);
   }
   return await response.json();

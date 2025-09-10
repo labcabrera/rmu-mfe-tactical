@@ -3,6 +3,7 @@ import { buildErrorFromResponse } from './api-errors';
 export type TacticalGame = {
   id: string;
   strategicGameId: string;
+  status: string;
   phase: string;
   [key: string]: any;
 };

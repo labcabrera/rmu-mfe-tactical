@@ -1,7 +1,7 @@
 import React, { FC, useContext, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { CombatContext } from '../../CombatContext';
-import CombatDashboardTabActions from './CombatDashboardTabActionRounds';
+import CombatDashboardTabs from './CombatDashboardTabs';
 
 const CombatDashboard: FC = () => {
   const { gameId } = useParams<{ gameId?: string }>();
@@ -11,7 +11,7 @@ const CombatDashboard: FC = () => {
     setGameId(gameId || null);
   }, [gameId, setGameId]);
 
-  return <CombatDashboardTabActions />;
+  return <CombatDashboardTabs />;
 };
 
 export default CombatDashboard;

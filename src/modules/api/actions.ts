@@ -2,11 +2,27 @@ import { buildErrorFromResponse } from './api-errors';
 
 export type Action = {
   id: string;
-  status: 'declared' | 'in_progress' | 'resolved';
+  status: 'declared' | 'in_progress' | 'completed';
+  phaseStart: number;
+  phaseEnd: number | undefined;
+  type: 'movement' | 'attack' | 'skill' | 'free';
   [key: string]: any;
 };
 
-export type AttackDeclaration = {
+export type ResolveMovementDto = {
+  phase: number;
+  pace: string;
+  requiredManeuver: boolean;
+  difficulty: string;
+  skillId: string;
+  roll: number | null;
+};
+
+export type AttackDeclarationDto = {
+  attacks: AttackDeclarationItemDto[];
+};
+
+export type AttackDeclarationItemDto = {
   attackName: string;
   targetId: string;
   cover?: string;
@@ -14,16 +30,12 @@ export type AttackDeclaration = {
   positionalSource?: string;
   positionalTarget?: string;
   dodge?: string;
-  range?: string;
-  customBonus?: string;
+  range?: number | null;
+  customBonus?: number | null;
   disabledDB?: boolean;
   disabledShield?: boolean;
   disabledParry?: boolean;
   [key: string]: any;
-};
-
-export type DeclareAttackDto = {
-  attacks: AttackDeclaration[];
 };
 
 export async function fetchAction(actionId: string): Promise<Action> {
@@ -85,18 +97,17 @@ export async function resolveMovement(actionId: string, data: any): Promise<any>
   return await response.json();
 }
 
-export async function prepareAttack(actionId: number, actionData: any): Promise<Action> {
-  const url = `${process.env.RMU_API_TACTICAL_URL}/actions/${actionId}/prepare`;
+export async function prepareAttack(actionId: string, data: AttackDeclarationDto): Promise<Action> {
+  const url = `${process.env.RMU_API_TACTICAL_URL}/actions/${actionId}/prepare/attack`;
   const response = await fetch(url, {
-    method: 'POST',
+    method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(actionData),
+    body: JSON.stringify(data),
   });
-  if (response.status !== 201) {
+  if (response.status !== 200) {
     throw await buildErrorFromResponse(response, url);
   }
-  const json = await response.json();
-  return json.content;
+  return await response.json();
 }

@@ -57,7 +57,7 @@ const CombatFreeActionButtons: FC<CombatFreeActionButtonsProps> = ({ tacticalGam
     },
   ];
 
-  return <CircleButtonGroup options={options} initialRotation={2.6} size={60} radius={40} xOffset={10} yOffset={-28} />;
+  return <CircleButtonGroup options={options} initialRotation={2.6} size={60} radius={40} xOffset={10} yOffset={-40} />;
 };
 
 export default CombatFreeActionButtons;

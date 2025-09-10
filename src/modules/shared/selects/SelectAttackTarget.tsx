@@ -10,8 +10,8 @@ type Target = {
 
 type SelectAttackTargetProps = {
   value: string | number;
-  onChange: (targetId: string | number) => void;
-  sourceId: string | number;
+  onChange: (targetId: string) => void | undefined;
+  sourceId: string | undefined;
   includeSource?: boolean;
   targets?: Target[];
   i18nLabel?: string;
