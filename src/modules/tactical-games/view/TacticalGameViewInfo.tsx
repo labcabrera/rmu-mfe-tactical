@@ -18,7 +18,7 @@ const TacticalGameViewInfo: React.FC<TacticalGameViewInfoProps> = ({ tacticalGam
       <TextField label={t('strategic-game')} name="strategicGame" value={strategicGame?.name || ''} variant="standard" />
       <TextField label={t('tactical-game')} name="tacticalGame" value={tacticalGame.name} variant="standard" />
       <TextField label={t('game-status')} name="status" value={t(`game-status-${tacticalGame.status}`)} variant="standard" />
-      <TextField label={t('phase')} name="phase" value={t(`phase-${tacticalGame.phase}`)} variant="standard" />
+      <TextField label={t('phase')} name="phase" value={t(`${tacticalGame.phase}`)} variant="standard" />
       <TextField label={t('round')} value={tacticalGame.round} variant="standard" />
       <TextField label={t('owner')} value={tacticalGame.owner} variant="standard" />
       <TextField label={t('description')} name="description" value={tacticalGame.description} multiline maxRows={4} variant="standard" />

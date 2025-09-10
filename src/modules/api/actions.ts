@@ -109,6 +109,5 @@ export async function prepareAttack(actionId: string, data: AttackDeclarationDto
   if (response.status !== 200) {
     throw await buildErrorFromResponse(response, url);
   }
-  const json = await response.json();
-  return json.content;
+  return await response.json();
 }

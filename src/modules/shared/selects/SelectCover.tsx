@@ -11,7 +11,7 @@ type SelectCoverProps = {
 
 const SelectCover: FC<SelectCoverProps> = ({ value, name = 'cover', onChange }) => {
   const { t } = useTranslation();
-  const options = ['none', 'partial-light', 'half-light', 'full-light', 'partial-hard', 'half-hard', 'full-hard'];
+  const options = ['none', 'soft_partial', 'soft_half', 'soft_full', 'hard_partial', 'hard_half', 'hard_full'];
 
   return (
     <TextField

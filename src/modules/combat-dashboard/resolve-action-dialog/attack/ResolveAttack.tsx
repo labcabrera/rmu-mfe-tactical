@@ -1,4 +1,5 @@
-import React, { FC, useEffect, useState } from 'react';
+import React, { FC, useContext, useEffect, useState } from 'react';
+import { CombatContext } from '../../../../CombatContext';
 import { useError } from '../../../../ErrorContext';
 import type { Action, AttackDeclarationDto } from '../../../api/actions';
 import { prepareAttack } from '../../../api/actions';
@@ -12,6 +13,7 @@ const ResolveAttack: FC<{
   character: Character;
   onClose: () => void;
 }> = ({ action, actorRound, character, onClose }) => {
+  const { updateAction } = useContext(CombatContext);
   const [activeStep, setActiveStep] = useState<number>(action.status === 'declared' ? 0 : 1);
   const { showError } = useError();
   const [isValidDeclaration, setIsValidDeclaration] = useState(false);
@@ -21,8 +23,10 @@ const ResolveAttack: FC<{
 
   const onDeclare = () => {
     prepareAttack(action.id, formData)
-      .then(() => {
-        //TODO
+      .then((updatedAction) => {
+        console.log('Prepared attack', updatedAction);
+        updateAction(updatedAction);
+        setFormData({ ...formData, attacks: updatedAction.attacks });
         setActiveStep(2);
       })
       .catch((err: unknown) => {
@@ -36,6 +40,11 @@ const ResolveAttack: FC<{
     if (formData.attacks.some((a) => !a.targetId)) return false;
     return true;
   };
+
+  useEffect(() => {
+    //TODO set formData and current step
+    console.log('Action changed', action);
+  }, [action]);
 
   useEffect(() => {
     setIsValidDeclaration(checkValidForm());

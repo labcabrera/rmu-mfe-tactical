@@ -6,7 +6,7 @@ import TextField from '@mui/material/TextField';
 
 const SelectPositionalTarget = ({ value, onChange, name = 'positionalTarget' }) => {
   const { t } = useTranslation();
-  const options = ['none', 'to_flank', 'to_rear'];
+  const options = ['none', 'flank', 'rear'];
 
   return (
     <TextField
