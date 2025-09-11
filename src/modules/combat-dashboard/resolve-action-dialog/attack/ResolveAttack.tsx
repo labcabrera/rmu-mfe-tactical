@@ -31,7 +31,6 @@ const ResolveAttack: FC<{
     };
     prepareAttack(action.id, attackDeclarationDto)
       .then((updatedAction) => {
-        console.log('Prepared attack', updatedAction);
         updateAction(updatedAction);
         setFormData({ ...formData, attacks: updatedAction.attacks });
         setActiveStep(2);
@@ -54,8 +53,6 @@ const ResolveAttack: FC<{
       setFormData({ attacks: action.attacks });
       if (action.status === 'in_progress') setActiveStep(2);
     }
-
-    console.log('Action changed', action);
   }, [action]);
 
   useEffect(() => {

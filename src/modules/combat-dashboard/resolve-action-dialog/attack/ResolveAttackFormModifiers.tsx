@@ -1,4 +1,5 @@
 import React, { ChangeEvent, FC, useContext } from 'react';
+import { Stack } from '@mui/material';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Grid from '@mui/material/Grid';
 import Switch from '@mui/material/Switch';
@@ -80,10 +81,14 @@ const ResolveAttackFormModifiers: FC<{
       <Grid size={12}></Grid>
       <Grid size={2}>
         <FormControlLabel control={<Switch checked={!!disabledDB} name="disabledDB" onChange={handleSwitchChangeEvent} />} label="Disabled DB" />
+      </Grid>
+      <Grid size={2}>
         <FormControlLabel
           control={<Switch checked={!!disabledShield} name="disabledShield" onChange={handleSwitchChangeEvent} />}
           label="Disabled Shield"
         />
+      </Grid>
+      <Grid size={2}>
         <FormControlLabel
           control={<Switch checked={!!disabledParry} name="disabledParry" onChange={handleSwitchChangeEvent} />}
           label="Disabled Parry"

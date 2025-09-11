@@ -7,6 +7,7 @@ import TextField from '@mui/material/TextField';
 import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { AttackCalculationsDto, AttackDto } from '../../../api/actions';
+import { NumericInput } from '../../../shared/inputs/NumericInput';
 import NumericReadonlyInput from '../../../shared/inputs/NumericReadonlyInput';
 
 const ResolveAttackFormModifiers: FC<{
@@ -17,17 +18,17 @@ const ResolveAttackFormModifiers: FC<{
   const { characters } = useContext(CombatContext);
 
   const modifiers = formData.attacks?.[index]?.modifiers;
-  const customBonus = formData.attacks?.[index]?.modifiers.customBonus || null;
-  const restrictedQuarters = formData.attacks?.[index]?.modifiers.restrictedQuarters || '';
-  const positionalSource = formData.attacks?.[index]?.modifiers.positionalSource || '';
-  const positionalTarget = formData.attacks?.[index]?.modifiers.positionalTarget || '';
-  const dodge = formData.attacks?.[index]?.modifiers.dodge || '';
-  const range = formData.attacks?.[index]?.modifiers.range || null;
-  const disabledDB = formData.attacks?.[index]?.modifiers.disabledDB || false;
-  const disabledShield = formData.attacks?.[index]?.modifiers.disabledShield || false;
-  const disabledParry = formData.attacks?.[index]?.modifiers.disabledParry || false;
   const targetName = characters.find((c) => c.id === formData.attacks?.[index]?.modifiers.targetId)?.name || '';
   const calculated = formData.attacks?.[index]?.calculated || ({} as AttackCalculationsDto);
+
+  const getAvailableParry = (attackName: string) => {
+    return 10;
+  };
+
+  const handleChange = (name: string, value: string | boolean | number | null) => {
+    const newAttacks = formData.attacks.map((a, i) => (i === index ? { ...a, modifiers: { ...a.modifiers, [name]: value } } : a));
+    setFormData({ ...formData, attacks: newAttacks });
+  };
 
   const getModifierColor = (value: number) => {
     if (value > 0) return 'primary';
@@ -45,20 +46,14 @@ const ResolveAttackFormModifiers: FC<{
       </Grid>
       <Grid size={12}></Grid>
       <Grid size={2}>
-        <TextField label={t('attack-cover')} value={t(`cover-${modifiers.cover}`)} name="cover" fullWidth variant="standard" />
+        <TextField label={t('cover')} value={t(`cover-${modifiers.cover}`)} name="cover" fullWidth variant="standard" />
+      </Grid>
+      <Grid size={2}>
+        <TextField label={t('restricted-quarters')} value={t(modifiers.restrictedQuarters)} name="restrictedQuarters" fullWidth variant="standard" />
       </Grid>
       <Grid size={2}>
         <TextField
-          label={t('attack-restricted-quarters')}
-          value={t(modifiers.restrictedQuarters)}
-          name="restrictedQuarters"
-          fullWidth
-          variant="standard"
-        />
-      </Grid>
-      <Grid size={2}>
-        <TextField
-          label={t('attack-positional-source')}
+          label={t('positional-source')}
           value={t(`positional-${modifiers.positionalSource}`)}
           name="positionalSource"
           fullWidth
@@ -67,7 +62,7 @@ const ResolveAttackFormModifiers: FC<{
       </Grid>
       <Grid size={2}>
         <TextField
-          label={t('attack-positional-target')}
+          label={t('positional-target')}
           value={t(`positional-${modifiers.positionalTarget}`)}
           name="positionalTarget"
           fullWidth
@@ -79,16 +74,20 @@ const ResolveAttackFormModifiers: FC<{
       </Grid>
       <Grid size={12}></Grid>
       <Grid size={2}>
-        <FormControlLabel control={<Switch checked={!!disabledDB} name="disabledDB" />} label="Disabled DB" />
-        <FormControlLabel control={<Switch checked={!!disabledShield} name="disabledShield" />} label="Disabled Shield" />
-        <FormControlLabel control={<Switch checked={!!disabledParry} name="disabledParry" />} label="Disabled Parry" />
+        <FormControlLabel control={<Switch checked={modifiers.disabledDB} name="disabledDB" />} label="Disabled DB" />
+      </Grid>
+      <Grid size={2}>
+        <FormControlLabel control={<Switch checked={modifiers.disabledShield} name="disabledShield" />} label="Disabled Shield" />
+      </Grid>
+      <Grid size={2}>
+        <FormControlLabel control={<Switch checked={modifiers.disabledParry} name="disabledParry" />} label="Disabled Parry" />
       </Grid>
       <Grid size={12}></Grid>
       <Grid size={2}>
-        <NumericReadonlyInput label={t('custom-bonus')} value={customBonus} name="customBonus" />
+        <NumericReadonlyInput label={t('custom-bonus')} value={modifiers.customBonus} name="customBonus" />
       </Grid>
       <Grid size={2}>
-        <NumericReadonlyInput label={t('range')} value={range} name="range" />
+        <NumericReadonlyInput label={t('range')} value={modifiers.range} name="range" />
       </Grid>
       <Grid size={12}></Grid>
       <Grid size={2}>
@@ -102,6 +101,22 @@ const ResolveAttackFormModifiers: FC<{
             </Stack>
           ))}
         </Stack>
+      </Grid>
+      <Grid size={12}></Grid>
+      <Grid size={2}>
+        <NumericReadonlyInput label={t('available-parry')} value={getAvailableParry(modifiers.attackName)} name="availableParry" />
+      </Grid>
+      <Grid size={2}>
+        <NumericInput
+          label={t('parry')}
+          value={modifiers.parry}
+          name="parry"
+          onChange={(e) => handleChange('parry', e)}
+          integer
+          allowNegatives={false}
+          max={getAvailableParry(modifiers.attackName)}
+          min={0}
+        />
       </Grid>
     </Grid>
   );

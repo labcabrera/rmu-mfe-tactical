@@ -59,6 +59,7 @@ const AttackList: FC<{
             disabledShield: false,
             disabledParry: false,
           },
+          calculated: undefined,
         },
       ];
     }
@@ -98,7 +99,7 @@ const AttackList: FC<{
             <>
               <Grid size={2}>
                 <SelectAttackTarget
-                  value={findAttack(attack.attackName)?.targetId || ''}
+                  value={findAttack(attack.attackName)?.modifiers.targetId || ''}
                   onChange={(value: string) => handleTargetChange(attack.attackName, value)}
                   includeSource={true}
                   sourceId={character.id}

@@ -24,7 +24,7 @@ export type AttackDto = {
 
 export type AttackDeclarationItemDto = {
   modifiers: AttackModifiersDto;
-  calculated: AttackCalculationsDto;
+  calculated: AttackCalculationsDto | undefined;
   //TODO map
   // [key: string]: any;
 };
@@ -39,10 +39,11 @@ export type AttackModifiersDto = {
   positionalTarget?: string;
   dodge?: string;
   range?: number | null;
-  customBonus?: number | null;
-  disabledDB?: boolean;
-  disabledShield?: boolean;
-  disabledParry?: boolean;
+  customBonus: number | null;
+  disabledDB: boolean | null;
+  disabledShield: boolean | null;
+  disabledParry: boolean | null;
+  parry: number | null;
 };
 
 export type AttackDeclarationDto = {
