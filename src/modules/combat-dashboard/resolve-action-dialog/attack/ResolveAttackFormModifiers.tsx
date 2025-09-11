@@ -1,11 +1,12 @@
 import React, { ChangeEvent, FC, useContext } from 'react';
+import { Stack } from '@mui/material';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Grid from '@mui/material/Grid';
 import Switch from '@mui/material/Switch';
 import TextField from '@mui/material/TextField';
 import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
-import { AttackDeclarationDto } from '../../../api/actions';
+import { AttackDto } from '../../../api/actions';
 import { NumericInput } from '../../../shared/inputs/NumericInput';
 import NumericReadonlyInput from '../../../shared/inputs/NumericReadonlyInput';
 import SelectCover from '../../../shared/selects/SelectCover';
@@ -15,41 +16,41 @@ import SelectPositionalTarget from '../../../shared/selects/SelectPositionalTarg
 import SelectRestrictedQuarters from '../../../shared/selects/SelectRestrictedQuarters';
 
 const ResolveAttackFormModifiers: FC<{
-  formData: AttackDeclarationDto;
-  setFormData: (data: AttackDeclarationDto) => void;
+  formData: AttackDto;
+  setFormData: (data: AttackDto) => void;
   index: number;
 }> = ({ formData, setFormData, index }) => {
   const { characters } = useContext(CombatContext);
 
-  const bo = formData.attacks?.[index]?.bo || '';
-  const customBonus = formData.attacks?.[index]?.customBonus || null;
-  const cover = formData.attacks?.[index]?.cover || '';
-  const restrictedQuarters = formData.attacks?.[index]?.restrictedQuarters || '';
-  const positionalSource = formData.attacks?.[index]?.positionalSource || '';
-  const positionalTarget = formData.attacks?.[index]?.positionalTarget || '';
-  const dodge = formData.attacks?.[index]?.dodge || '';
-  const range = formData.attacks?.[index]?.range || null;
-  const disabledDB = formData.attacks?.[index]?.disabledDB || false;
-  const disabledShield = formData.attacks?.[index]?.disabledShield || false;
-  const disabledParry = formData.attacks?.[index]?.disabledParry || false;
-  const targetName = characters.find((c) => c.id === formData.attacks?.[index]?.targetId)?.name || '';
+  const bo = formData.attacks?.[index]?.modifiers?.bo || '';
+  const customBonus = formData.attacks?.[index]?.modifiers?.customBonus || null;
+  const cover = formData.attacks?.[index]?.modifiers?.cover || '';
+  const restrictedQuarters = formData.attacks?.[index]?.modifiers?.restrictedQuarters || '';
+  const positionalSource = formData.attacks?.[index]?.modifiers?.positionalSource || '';
+  const positionalTarget = formData.attacks?.[index]?.modifiers?.positionalTarget || '';
+  const dodge = formData.attacks?.[index]?.modifiers?.dodge || '';
+  const range = formData.attacks?.[index]?.modifiers?.range || null;
+  const disabledDB = formData.attacks?.[index]?.modifiers?.disabledDB || false;
+  const disabledShield = formData.attacks?.[index]?.modifiers?.disabledShield || false;
+  const disabledParry = formData.attacks?.[index]?.modifiers?.disabledParry || false;
+  const targetName = characters.find((c) => c.id === formData.attacks?.[index]?.modifiers.targetId)?.name || '';
 
   const handleChangeEvent = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => handleChange(e.target.name, e.target.value);
 
   const handleSwitchChangeEvent = (e: ChangeEvent<HTMLInputElement>) => handleChange(e.target.name, e.target.checked);
 
   const handleChange = (name: string, value: string | boolean) => {
-    const newAttacks = formData.attacks.map((a, i) => (i === index ? { ...a, [name]: value } : a));
+    const newAttacks = formData.attacks.map((a, i) => (i === index ? { ...a, modifiers: { ...a.modifiers, [name]: value } } : a));
     setFormData({ ...formData, attacks: newAttacks });
   };
 
   const onCustomBonusChange = (value: number | null) => {
-    const newAttacks = formData.attacks.map((a, i) => (i === index ? { ...a, customBonus: value } : a));
+    const newAttacks = formData.attacks.map((a, i) => (i === index ? { ...a, modifiers: { ...a.modifiers, customBonus: value } } : a));
     setFormData({ ...formData, attacks: newAttacks });
   };
 
   const onRangeChange = (value: number | null) => {
-    const newAttacks = formData.attacks.map((a, i) => (i === index ? { ...a, range: value } : a));
+    const newAttacks = formData.attacks.map((a, i) => (i === index ? { ...a, modifiers: { ...a.modifiers, range: value } } : a));
     setFormData({ ...formData, attacks: newAttacks });
   };
 
@@ -80,10 +81,14 @@ const ResolveAttackFormModifiers: FC<{
       <Grid size={12}></Grid>
       <Grid size={2}>
         <FormControlLabel control={<Switch checked={!!disabledDB} name="disabledDB" onChange={handleSwitchChangeEvent} />} label="Disabled DB" />
+      </Grid>
+      <Grid size={2}>
         <FormControlLabel
           control={<Switch checked={!!disabledShield} name="disabledShield" onChange={handleSwitchChangeEvent} />}
           label="Disabled Shield"
         />
+      </Grid>
+      <Grid size={2}>
         <FormControlLabel
           control={<Switch checked={!!disabledParry} name="disabledParry" onChange={handleSwitchChangeEvent} />}
           label="Disabled Parry"

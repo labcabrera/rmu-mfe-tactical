@@ -1,6 +1,7 @@
 import React, { FC, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CombatContext } from '../../../CombatContext';
+import { useError } from '../../../ErrorContext';
 import { createAction } from '../../api/actions';
 import type { ActorRound } from '../../api/actor-rounds';
 import CircleButtonGroup from '../../shared/generic/CircleButtonGroup';
@@ -10,6 +11,7 @@ const PhaseActionButton: FC<{
   phaseNumber: number;
 }> = ({ actorRound, phaseNumber }) => {
   const navigate = useNavigate();
+  const { showError } = useError();
   const { game, roundActions, setRoundActions } = useContext(CombatContext)!;
 
   const declareAttack = () => {
@@ -37,8 +39,9 @@ const PhaseActionButton: FC<{
       .then((action) => {
         setRoundActions([...roundActions, action]);
       })
-      .catch((error) => {
-        console.error(`Error declaring ${actionData.actionType} action:`, error);
+      .catch((err: unknown) => {
+        if (err instanceof Error) showError(err.message);
+        else showError('An unknown error occurred');
       });
   };
 
