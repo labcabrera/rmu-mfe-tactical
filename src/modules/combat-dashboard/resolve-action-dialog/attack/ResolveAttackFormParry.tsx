@@ -1,4 +1,4 @@
-import React, { FC, useContext, useEffect } from 'react';
+import React, { FC, useContext } from 'react';
 import { Stack, Chip } from '@mui/material';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Grid from '@mui/material/Grid';
@@ -6,7 +6,7 @@ import Switch from '@mui/material/Switch';
 import TextField from '@mui/material/TextField';
 import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
-import { AttackCalculationsDto, AttackDto, AttackParryDto } from '../../../api/actions';
+import { AttackCalculationsDto, AttackDto } from '../../../api/actions';
 import { NumericInput } from '../../../shared/inputs/NumericInput';
 import NumericReadonlyInput from '../../../shared/inputs/NumericReadonlyInput';
 
@@ -16,19 +16,21 @@ const ResolveAttackFormModifiers: FC<{
   index: number;
 }> = ({ formData, setFormData, index }) => {
   const { characters, actorRounds } = useContext(CombatContext);
-  const [parryFormData, setParryFormData] = React.useState<AttackParryDto>(null);
 
+  if (!formData || !formData.attacks || formData.attacks.length <= index) return <div>Loading...</div>;
+
+  const parries = formData.attacks?.[index]?.parries || [];
   const modifiers = formData.attacks?.[index]?.modifiers;
   const targetName = characters.find((c) => c.id === formData.attacks?.[index]?.modifiers.targetId)?.name || '';
   const calculated = formData.attacks?.[index]?.calculated || ({} as AttackCalculationsDto);
 
-  const getAvailableParry = (attackName: string) => {
-    return 10;
-  };
+  // const handleChange = (name: string, value: string | boolean | number | null) => {
+  //   const newAttacks = formData.attacks.map((a, i) => (i === index ? { ...a, modifiers: { ...a.modifiers, [name]: value } } : a));
+  //   setFormData({ ...formData, attacks: newAttacks });
+  // };
 
-  const handleChange = (name: string, value: string | boolean | number | null) => {
-    const newAttacks = formData.attacks.map((a, i) => (i === index ? { ...a, modifiers: { ...a.modifiers, [name]: value } } : a));
-    setFormData({ ...formData, attacks: newAttacks });
+  const getActorName = (id: string) => {
+    return actorRounds.find((a) => a.id === id)?.name || '';
   };
 
   const getModifierColor = (value: number) => {
@@ -37,29 +39,7 @@ const ResolveAttackFormModifiers: FC<{
     return undefined;
   };
 
-  const bindParryFormData = (formData: AttackDto) => {
-    console.log('Bind parry form data');
-    for (const attack of formData.attacks) {
-      const attackParryDto = { parries: [] } as AttackParryDto;
-      const targetActorId = attack.modifiers.targetId;
-      const targetAttaks = actorRounds.find((e) => e.actorId === targetActorId)?.attacks || [];
-      for (const targetAttack of targetAttaks) {
-        attackParryDto.parries.push({
-          attackSourceName: attack.modifiers.attackName,
-          attackTargetName: targetAttack.attackName,
-          availableParry: targetAttack.currentBo,
-          parry: 0,
-        });
-      }
-      setParryFormData(attackParryDto);
-    }
-  };
-
-  useEffect(() => {
-    if (formData && !parryFormData) {
-      bindParryFormData(formData);
-    }
-  }, [formData]);
+  // return <pre>{JSON.stringify(formData, null, 2)}</pre>;
 
   return (
     <Grid container spacing={2} sx={{ marginTop: 1, marginBottom: 1 }}>
@@ -128,29 +108,31 @@ const ResolveAttackFormModifiers: FC<{
         </Stack>
       </Grid>
       <Grid size={12}></Grid>
-      {parryFormData && parryFormData.parries.length > 0 && (
+      {parries && parries.length > 0 && (
         <>
-          {parryFormData.parries.map((p, index) => (
+          {parries.map((parry, index) => (
             <React.Fragment key={index}>
               <Grid size={2}>
-                <TextField label={t('defending-with')} value={t(p.attackTargetName)} name="attackTargetName" variant="standard" />
+                <TextField label={t('defending-with')} value={t(getActorName(parry.parryActorId))} name="parryActorId" variant="standard" />
               </Grid>
               <Grid size={2}>
-                <NumericReadonlyInput label={t('available-parry')} value={p.availableParry} name="availableParry" />
+                <TextField label={t('parry-type')} value={t(parry.parryType)} name="parryType" variant="standard" />
+              </Grid>
+              <Grid size={2}>
+                <NumericReadonlyInput label={t('available-parry')} value={parry.parryAvailable} name="availableParry" />
               </Grid>
               <Grid size={2}>
                 <NumericInput
                   label={t('parry')}
-                  value={p.parry}
+                  value={parry.parry}
                   name="parry"
                   onChange={(e) => {
-                    const newParries = parryFormData.parries.map((parry, idx) => (idx === index ? { ...parry, parry: e } : parry));
-                    setParryFormData({ ...parryFormData, parries: newParries });
-                    handleChange('parry', e);
+                    parry.parry = e;
+                    setFormData({ ...formData, parries: formData.parries });
                   }}
                   integer
                   allowNegatives={false}
-                  max={p.availableParry}
+                  max={parry.parryAvailable}
                   min={0}
                 />
               </Grid>
@@ -159,9 +141,6 @@ const ResolveAttackFormModifiers: FC<{
           ))}
         </>
       )}
-      <Grid size={12}>
-        <pre>Parry: {JSON.stringify(parryFormData, null, 2)}</pre>
-      </Grid>
     </Grid>
   );
 };

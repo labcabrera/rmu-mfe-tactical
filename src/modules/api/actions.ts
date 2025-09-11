@@ -20,13 +20,13 @@ export type ResolveMovementDto = {
 
 export type AttackDto = {
   attacks: AttackDeclarationItemDto[];
+  parries: AttackParryDto[];
 };
 
 export type AttackDeclarationItemDto = {
   modifiers: AttackModifiersDto;
+  parries: AttackParryDto[];
   calculated: AttackCalculationsDto | undefined;
-  //TODO map
-  // [key: string]: any;
 };
 
 export type AttackModifiersDto = {
@@ -39,15 +39,15 @@ export type AttackModifiersDto = {
   positionalTarget?: string;
   dodge?: string;
   range?: number | null;
-  customBonus: number | null;
   disabledDB: boolean | null;
   disabledShield: boolean | null;
   disabledParry: boolean | null;
-  parry: number | null;
+  customBonus: number | null;
 };
 
 export type AttackDeclarationDto = {
   attacks: AttackModifiersDto[];
+  parries: AttackParryDto[];
 };
 
 export type AttackCalculationsDto = {
@@ -56,14 +56,21 @@ export type AttackCalculationsDto = {
 };
 
 export type AttackParryDto = {
-  parries: AttackParryItemDto[];
+  parryActorId: string;
+  targetId: string;
+  parryType: 'parry' | 'protect' | undefined;
+  parryAvailable: number | undefined;
+  parry: number | undefined;
 };
 
-export type AttackParryItemDto = {
-  attackSourceName: string;
-  attackTargetName: string;
-  availableParry: number;
-  parry: number | null;
+export type DeclareParryDto = {
+  parries: DeclareParryItemDto[];
+};
+
+export type DeclareParryItemDto = {
+  parryActorId: string;
+  targetId: string;
+  parry: number;
 };
 
 export async function fetchAction(actionId: string): Promise<Action> {
@@ -111,7 +118,7 @@ export async function deleteAction(actionId: string): Promise<boolean> {
 }
 
 export async function resolveMovement(actionId: string, data: any): Promise<any> {
-  const url = `${process.env.RMU_API_TACTICAL_URL}/actions/${actionId}/resolve/movement`;
+  const url = `${process.env.RMU_API_TACTICAL_URL}/actions/${actionId}/movement/resolve`;
   const response = await fetch(url, {
     method: 'PATCH',
     headers: {
@@ -126,7 +133,22 @@ export async function resolveMovement(actionId: string, data: any): Promise<any>
 }
 
 export async function prepareAttack(actionId: string, data: AttackDeclarationDto): Promise<Action> {
-  const url = `${process.env.RMU_API_TACTICAL_URL}/actions/${actionId}/prepare/attack`;
+  const url = `${process.env.RMU_API_TACTICAL_URL}/actions/${actionId}/attack/prepare`;
+  const response = await fetch(url, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+  if (response.status !== 200) {
+    throw await buildErrorFromResponse(response, url);
+  }
+  return await response.json();
+}
+
+export async function declareParry(actionId: string, data: DeclareParryItemDto): Promise<Action> {
+  const url = `${process.env.RMU_API_TACTICAL_URL}/actions/${actionId}/attack/parry`;
   const response = await fetch(url, {
     method: 'PATCH',
     headers: {

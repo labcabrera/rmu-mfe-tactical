@@ -1,8 +1,8 @@
 import React, { FC, useContext, useEffect, useState } from 'react';
 import { CombatContext } from '../../../../CombatContext';
 import { useError } from '../../../../ErrorContext';
-import type { Action, AttackDto } from '../../../api/actions';
-import { prepareAttack } from '../../../api/actions';
+import type { Action, AttackDto, DeclareParryDto } from '../../../api/actions';
+import { prepareAttack, declareParry } from '../../../api/actions';
 import { ActorRound } from '../../../api/actor-rounds';
 import type { Character } from '../../../api/characters';
 import ResolveActionDialogMovementStepper from './ResolveAttackStepper';
@@ -19,6 +19,7 @@ const ResolveAttack: FC<{
   const [isValidDeclaration, setIsValidDeclaration] = useState(false);
   const [formData, setFormData] = useState<AttackDto>({
     attacks: [],
+    parries: [],
   });
 
   const onDeclare = () => {
@@ -28,17 +29,54 @@ const ResolveAttack: FC<{
     }
     const attackDeclarationDto = {
       attacks: formData.attacks.map((a) => a.modifiers),
+      parries: formData.parries,
     };
     prepareAttack(action.id, attackDeclarationDto)
       .then((updatedAction) => {
-        updateAction(updatedAction);
-        setFormData({ ...formData, attacks: updatedAction.attacks });
+        loadActionFromResponse(updatedAction);
         setActiveStep(2);
       })
       .catch((err: unknown) => {
         if (err instanceof Error) showError(err.message);
         else showError('An unknown error occurred');
       });
+  };
+
+  const onParry = () => {
+    if (!formData || !formData.attacks || formData.attacks.length < 1) {
+      showError('You must declare at least one attack');
+      return;
+    }
+    const parryData = { parries: [] } as DeclareParryDto;
+    formData.attacks.forEach((attack) => {
+      attack.parries.forEach((parry) => {
+        if (parry.parry > 0) {
+          parryData.parries.push({
+            parryActorId: parry.parryActorId,
+            targetId: attack.modifiers.targetId,
+            parry: parry.parry,
+          });
+        }
+      });
+    });
+    declareParry(action.id, parryData as any)
+      .then((updatedAction) => {
+        loadActionFromResponse(updatedAction);
+        setActiveStep(3);
+      })
+      .catch((err: unknown) => {
+        if (err instanceof Error) showError(err.message);
+        else showError('An unknown error occurred');
+      });
+  };
+
+  const loadActionFromResponse = (updatedAction: Action) => {
+    if (updatedAction && updatedAction.attacks) {
+      const newFormData = { attacks: updatedAction.attacks, parries: updatedAction.parries };
+      updateAction(updatedAction);
+      //TODO fix types when model is updated
+      setFormData(newFormData as any);
+    }
   };
 
   const checkValidForm = (): boolean => {
@@ -50,13 +88,15 @@ const ResolveAttack: FC<{
   useEffect(() => {
     //TODO set formData and current step
     if (action && action.attacks) {
-      setFormData({ attacks: action.attacks });
+      setFormData({ attacks: action.attacks } as any);
       if (action.status === 'in_progress') setActiveStep(2);
     }
   }, [action]);
 
   useEffect(() => {
-    setIsValidDeclaration(checkValidForm());
+    if (formData) {
+      setIsValidDeclaration(checkValidForm());
+    }
   }, [formData]);
 
   return (
@@ -71,6 +111,7 @@ const ResolveAttack: FC<{
         action={action}
         onClose={onClose}
         onDeclare={onDeclare}
+        onParry={onParry}
         isValidDeclaration={isValidDeclaration}
       />
       <pre>FormData: {JSON.stringify(formData, null, 2)}</pre>

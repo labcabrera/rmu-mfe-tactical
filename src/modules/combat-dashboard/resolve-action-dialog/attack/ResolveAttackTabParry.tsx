@@ -49,7 +49,7 @@ const ResolveAttackTabParry: FC<{
       </Box>
       {formData.attacks.map((attack, index) => (
         <CustomTabPanel value={tabIndex} index={index} key={index}>
-          <ResolveAttackFormParry formData={formData} setFormData={setFormData} attack={attack} index={index} />
+          <ResolveAttackFormParry formData={formData} setFormData={setFormData} index={index} />
         </CustomTabPanel>
       ))}
     </Box>

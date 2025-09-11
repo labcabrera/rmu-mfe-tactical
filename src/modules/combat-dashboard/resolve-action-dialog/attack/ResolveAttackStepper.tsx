@@ -5,7 +5,7 @@ import Button from '@mui/material/Button';
 import Step from '@mui/material/Step';
 import StepLabel from '@mui/material/StepLabel';
 import Stepper from '@mui/material/Stepper';
-import { Action, AttackDto } from '../../../api/actions';
+import { Action, AttackDto, ActionAttackParry } from '../../../api/actions';
 import { ActorRound } from '../../../api/actor-rounds';
 import { Character } from '../../../api/characters';
 import ResolveAttackSelectAttacks from './ResolveAttackSelectAttacks';
@@ -21,11 +21,12 @@ const ResolveAttackStepper: FC<{
   setActiveStep: (step: number) => void;
   onClose: () => void;
   onDeclare: () => void;
+  onParry: () => void;
   action: Action;
   actorRound: ActorRound;
   character: Character;
   isValidDeclaration: boolean;
-}> = ({ formData, setFormData, activeStep, setActiveStep, onClose, onDeclare, action, actorRound, character, isValidDeclaration }) => {
+}> = ({ formData, setFormData, activeStep, setActiveStep, onClose, onDeclare, onParry, action, actorRound, character, isValidDeclaration }) => {
   const { t } = useTranslation();
 
   const handleNext = () => {
@@ -69,7 +70,7 @@ const ResolveAttackStepper: FC<{
         </Button>
         <Box sx={{ flex: '1 1 auto' }} />
         {activeStep === 1 && (action.status === 'declared' || action.status === 'in_progress') && <Button onClick={onDeclare}>{t('prepare')}</Button>}
-        {activeStep === 2 && action.status === 'in_progress' && <Button onClick={onDeclare}>{t('parry')}</Button>}
+        {activeStep === 2 && action.status === 'in_progress' && <Button onClick={onParry}>{t('parry')}</Button>}
         <Button onClick={handleNext} disabled={isDisabledNext()}>
           {t('next')}
         </Button>
