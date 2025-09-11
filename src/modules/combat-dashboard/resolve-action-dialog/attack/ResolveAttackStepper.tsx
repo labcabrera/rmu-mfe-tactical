@@ -11,6 +11,7 @@ import { Character } from '../../../api/characters';
 import ResolveAttackSelectAttacks from './ResolveAttackSelectAttacks';
 import ResolveAttackTabDeclaration from './ResolveAttackTabDeclaration';
 import ResolveAttackTabParry from './ResolveAttackTabParry';
+import ResolveAttackTabRoll from './ResolveAttackTabRoll';
 
 const steps = ['Declare attacks and targets', 'Choose attack options', 'Parry', 'Resolve attacks', 'Results'];
 
@@ -64,6 +65,7 @@ const ResolveAttackStepper: FC<{
       )}
       {activeStep === 1 && <ResolveAttackTabDeclaration formData={formData} setFormData={setFormData} />}
       {activeStep === 2 && <ResolveAttackTabParry formData={formData} setFormData={setFormData} />}
+      {activeStep === 3 && <ResolveAttackTabRoll formData={formData} setFormData={setFormData} />}
       <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2, mt: 'auto' }}>
         <Button color="inherit" disabled={activeStep === 0} onClick={handleBack} sx={{ mr: 1 }}>
           {t('back')}
