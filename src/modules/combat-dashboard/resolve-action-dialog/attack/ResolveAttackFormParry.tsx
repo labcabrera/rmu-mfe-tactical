@@ -1,4 +1,4 @@
-import React, { FC, useContext } from 'react';
+import React, { FC, useContext, useEffect } from 'react';
 import { Stack, Chip } from '@mui/material';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Grid from '@mui/material/Grid';
@@ -6,7 +6,7 @@ import Switch from '@mui/material/Switch';
 import TextField from '@mui/material/TextField';
 import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
-import { AttackCalculationsDto, AttackDto } from '../../../api/actions';
+import { AttackCalculationsDto, AttackDto, AttackParryDto } from '../../../api/actions';
 import { NumericInput } from '../../../shared/inputs/NumericInput';
 import NumericReadonlyInput from '../../../shared/inputs/NumericReadonlyInput';
 
@@ -15,7 +15,8 @@ const ResolveAttackFormModifiers: FC<{
   setFormData: (data: AttackDto) => void;
   index: number;
 }> = ({ formData, setFormData, index }) => {
-  const { characters } = useContext(CombatContext);
+  const { characters, actorRounds } = useContext(CombatContext);
+  const [parryFormData, setParryFormData] = React.useState<AttackParryDto>(null);
 
   const modifiers = formData.attacks?.[index]?.modifiers;
   const targetName = characters.find((c) => c.id === formData.attacks?.[index]?.modifiers.targetId)?.name || '';
@@ -35,6 +36,30 @@ const ResolveAttackFormModifiers: FC<{
     if (value < 0) return 'error';
     return undefined;
   };
+
+  const bindParryFormData = (formData: AttackDto) => {
+    console.log('Bind parry form data');
+    for (const attack of formData.attacks) {
+      const attackParryDto = { parries: [] } as AttackParryDto;
+      const targetActorId = attack.modifiers.targetId;
+      const targetAttaks = actorRounds.find((e) => e.actorId === targetActorId)?.attacks || [];
+      for (const targetAttack of targetAttaks) {
+        attackParryDto.parries.push({
+          attackSourceName: attack.modifiers.attackName,
+          attackTargetName: targetAttack.attackName,
+          availableParry: targetAttack.currentBo,
+          parry: 0,
+        });
+      }
+      setParryFormData(attackParryDto);
+    }
+  };
+
+  useEffect(() => {
+    if (formData && !parryFormData) {
+      bindParryFormData(formData);
+    }
+  }, [formData]);
 
   return (
     <Grid container spacing={2} sx={{ marginTop: 1, marginBottom: 1 }}>
@@ -103,20 +128,39 @@ const ResolveAttackFormModifiers: FC<{
         </Stack>
       </Grid>
       <Grid size={12}></Grid>
-      <Grid size={2}>
-        <NumericReadonlyInput label={t('available-parry')} value={getAvailableParry(modifiers.attackName)} name="availableParry" />
-      </Grid>
-      <Grid size={2}>
-        <NumericInput
-          label={t('parry')}
-          value={modifiers.parry}
-          name="parry"
-          onChange={(e) => handleChange('parry', e)}
-          integer
-          allowNegatives={false}
-          max={getAvailableParry(modifiers.attackName)}
-          min={0}
-        />
+      {parryFormData && parryFormData.parries.length > 0 && (
+        <>
+          {parryFormData.parries.map((p, index) => (
+            <React.Fragment key={index}>
+              <Grid size={2}>
+                <TextField label={t('defending-with')} value={t(p.attackTargetName)} name="attackTargetName" variant="standard" />
+              </Grid>
+              <Grid size={2}>
+                <NumericReadonlyInput label={t('available-parry')} value={p.availableParry} name="availableParry" />
+              </Grid>
+              <Grid size={2}>
+                <NumericInput
+                  label={t('parry')}
+                  value={p.parry}
+                  name="parry"
+                  onChange={(e) => {
+                    const newParries = parryFormData.parries.map((parry, idx) => (idx === index ? { ...parry, parry: e } : parry));
+                    setParryFormData({ ...parryFormData, parries: newParries });
+                    handleChange('parry', e);
+                  }}
+                  integer
+                  allowNegatives={false}
+                  max={p.availableParry}
+                  min={0}
+                />
+              </Grid>
+              <Grid size={6}></Grid>
+            </React.Fragment>
+          ))}
+        </>
+      )}
+      <Grid size={12}>
+        <pre>Parry: {JSON.stringify(parryFormData, null, 2)}</pre>
       </Grid>
     </Grid>
   );

@@ -68,7 +68,8 @@ const ResolveAttackStepper: FC<{
           {t('back')}
         </Button>
         <Box sx={{ flex: '1 1 auto' }} />
-        {activeStep === 1 && action.status === 'declared' && <Button onClick={onDeclare}>{t('prepare')}</Button>}
+        {activeStep === 1 && (action.status === 'declared' || action.status === 'in_progress') && <Button onClick={onDeclare}>{t('prepare')}</Button>}
+        {activeStep === 2 && action.status === 'in_progress' && <Button onClick={onDeclare}>{t('parry')}</Button>}
         <Button onClick={handleNext} disabled={isDisabledNext()}>
           {t('next')}
         </Button>

@@ -55,6 +55,17 @@ export type AttackCalculationsDto = {
   rollTotal: number;
 };
 
+export type AttackParryDto = {
+  parries: AttackParryItemDto[];
+};
+
+export type AttackParryItemDto = {
+  attackSourceName: string;
+  attackTargetName: string;
+  availableParry: number;
+  parry: number | null;
+};
+
 export async function fetchAction(actionId: string): Promise<Action> {
   const url = `${process.env.RMU_API_TACTICAL_URL}/actions/${actionId}`;
   const response = await fetch(url, { method: 'GET' });

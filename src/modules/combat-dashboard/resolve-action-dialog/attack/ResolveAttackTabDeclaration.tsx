@@ -45,7 +45,7 @@ const ResolveAttackTabDeclaration: React.FC<ResolveAttackTabDeclarationProps> = 
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
         <Tabs value={tabIndex} onChange={handleChange} aria-label="combat dashboard tabs">
           {formData.attacks.map((attack, index) => (
-            <Tab key={index} label={attack.attackName} {...a11yProps(index)} />
+            <Tab key={index} label={attack.modifiers.attackName} {...a11yProps(index)} />
           ))}
         </Tabs>
       </Box>
