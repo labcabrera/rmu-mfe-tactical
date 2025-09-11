@@ -2,7 +2,7 @@ import React, { FC, useState } from 'react';
 import Box from '@mui/material/Box';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
-import { AttackDto } from '../../../api/actions';
+import { Action, AttackDto } from '../../../api/actions';
 import ResolveAttackFormParry from './ResolveAttackFormParry';
 import ResolveAttackFormRoll from './ResolveAttackFormRoll';
 import ResolveAttackInfo from './ResolveAttackInfo';
@@ -33,7 +33,8 @@ function CustomTabPanel(props: CustomTabPanelProps) {
 const ResolveAttackTabRoll: FC<{
   formData: AttackDto;
   setFormData: (data: AttackDto) => void;
-}> = ({ formData, setFormData }) => {
+  action: Action;
+}> = ({ formData, setFormData, action }) => {
   const [tabIndex, setTabIndex] = useState(0);
 
   const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
@@ -51,7 +52,7 @@ const ResolveAttackTabRoll: FC<{
       </Box>
       {formData.attacks.map((attack, index) => (
         <CustomTabPanel value={tabIndex} index={index} key={index}>
-          <ResolveAttackFormRoll formData={formData} setFormData={setFormData} index={index} />
+          <ResolveAttackFormRoll formData={formData} setFormData={setFormData} action={action} index={index} />
         </CustomTabPanel>
       ))}
     </Box>

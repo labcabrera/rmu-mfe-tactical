@@ -25,8 +25,9 @@ const TacticalGameViewActions: React.FC<TacticalGameViewActionsProps> = ({ tacti
     try {
       await deleteTacticalGame(tacticalGame.id);
       navigate('/tactical/games');
-    } catch (error) {
-      console.error('Error deleting tactical game:', error);
+    } catch (err: unknown) {
+      if (err instanceof Error) showError(err.message);
+      else showError('An unknown error occurred');
     }
   };
 

@@ -65,7 +65,7 @@ const ResolveAttackStepper: FC<{
       )}
       {activeStep === 1 && <ResolveAttackTabDeclaration formData={formData} setFormData={setFormData} />}
       {activeStep === 2 && <ResolveAttackTabParry formData={formData} setFormData={setFormData} />}
-      {activeStep === 3 && <ResolveAttackTabRoll formData={formData} setFormData={setFormData} />}
+      {activeStep === 3 && <ResolveAttackTabRoll formData={formData} action={action} setFormData={setFormData} />}
       <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2, mt: 'auto' }}>
         <Button color="inherit" disabled={activeStep === 0} onClick={handleBack} sx={{ mr: 1 }}>
           {t('back')}

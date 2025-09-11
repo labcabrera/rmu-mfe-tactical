@@ -1,5 +1,6 @@
 import React from 'react';
 import { Checkbox, FormControlLabel, List, Typography } from '@mui/material';
+import { useError } from '../../../ErrorContext';
 import type { Faction } from '../../api/factions';
 import { addFaction, deleteFaction } from '../../api/tactical-games';
 import type { TacticalGame } from '../../api/tactical-games';
@@ -11,6 +12,8 @@ type TacticalGameViewFactionsProps = {
 };
 
 const TacticalGameViewFactions: React.FC<TacticalGameViewFactionsProps> = ({ tacticalGame, setTacticalGame, factions }) => {
+  const { showError } = useError();
+
   const isSelected = (factionId: string) => {
     return tacticalGame.factions.includes(factionId);
   };
@@ -22,8 +25,9 @@ const TacticalGameViewFactions: React.FC<TacticalGameViewFactionsProps> = ({ tac
       .then((updatedGame) => {
         setTacticalGame(updatedGame);
       })
-      .catch((error) => {
-        console.error('Error updating factions:', error);
+      .catch((err: unknown) => {
+        if (err instanceof Error) showError(err.message);
+        else showError('An unknown error occurred');
       });
   };
 

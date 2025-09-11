@@ -26,7 +26,11 @@ export type AttackDto = {
 export type AttackDeclarationItemDto = {
   modifiers: AttackModifiersDto;
   parries: AttackParryDto[];
+  roll: {
+    roll: number | null;
+  };
   calculated: AttackCalculationsDto | undefined;
+  results: any;
 };
 
 export type AttackModifiersDto = {
@@ -155,6 +159,21 @@ export async function declareParry(actionId: string, data: DeclareParryItemDto):
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(data),
+  });
+  if (response.status !== 200) {
+    throw await buildErrorFromResponse(response, url);
+  }
+  return await response.json();
+}
+
+export async function updateAttackRoll(actionId: string, attackName: string, roll: number, criticalRoll: number | undefined): Promise<Action> {
+  const url = `${process.env.RMU_API_TACTICAL_URL}/actions/${actionId}/attack/roll`;
+  const response = await fetch(url, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ attackName, roll, criticalRoll }),
   });
   if (response.status !== 200) {
     throw await buildErrorFromResponse(response, url);
