@@ -3,7 +3,7 @@ import { CombatContext } from '../../../../CombatContext';
 import { useError } from '../../../../ErrorContext';
 import type { Action, AttackDto, DeclareParryDto } from '../../../api/actions';
 import { prepareAttack, declareParry } from '../../../api/actions';
-import { ActorRound } from '../../../api/actor-rounds';
+import { ActorRound } from '../../../api/actor-rounds.dto';
 import type { Character } from '../../../api/characters';
 import ResolveActionDialogMovementStepper from './ResolveAttackStepper';
 

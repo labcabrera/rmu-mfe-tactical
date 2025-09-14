@@ -8,6 +8,7 @@ import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { AttackDeclarationItemDto as ResolveAttackInfo } from '../../../api/actions';
 import NumericReadonlyInput from '../../../shared/inputs/NumericReadonlyInput';
+import ActorRoundArmor from './ActorRoundArmor';
 
 const ResolveAttackFormModifiers: FC<{
   attack: ResolveAttackInfo;
@@ -16,8 +17,8 @@ const ResolveAttackFormModifiers: FC<{
 
   if (!attack) return <div>Loading...</div>;
 
-  const getActorName = (id: string) => {
-    return actorRounds.find((a) => a.id === id)?.name || '';
+  const getTarget = () => {
+    return actorRounds.find((a) => a.actorId === attack.modifiers?.targetId);
   };
 
   const getModifierColor = (value: number) => {
@@ -26,15 +27,16 @@ const ResolveAttackFormModifiers: FC<{
     return undefined;
   };
 
-  // return <pre>{JSON.stringify(formData, null, 2)}</pre>;
-
   return (
     <>
       <Grid size={2}>
-        <TextField label={t('target')} value={getActorName(attack.modifiers?.targetId)} name="target" fullWidth variant="standard" />
+        <TextField label={t('target')} value={getTarget()?.name || ''} name="target" fullWidth variant="standard" />
       </Grid>
       <Grid size={2}>
         <NumericReadonlyInput label={t('attack-used-bo')} value={attack.modifiers.bo} name="target" />
+      </Grid>
+      <Grid size={2}>
+        <ActorRoundArmor actorRound={getTarget()} />
       </Grid>
       <Grid size={12}></Grid>
       <Grid size={2}>

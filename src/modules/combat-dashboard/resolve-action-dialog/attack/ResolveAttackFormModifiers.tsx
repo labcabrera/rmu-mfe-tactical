@@ -14,15 +14,16 @@ import SelectDodge from '../../../shared/selects/SelectDodge';
 import SelectPositionalSource from '../../../shared/selects/SelectPositionalSource';
 import SelectPositionalTarget from '../../../shared/selects/SelectPositionalTarget';
 import SelectRestrictedQuarters from '../../../shared/selects/SelectRestrictedQuarters';
+import ActorRoundArmor from './ActorRoundArmor';
 
 const ResolveAttackFormModifiers: FC<{
   formData: AttackDto;
   setFormData: (data: AttackDto) => void;
   index: number;
 }> = ({ formData, setFormData, index }) => {
-  const { characters } = useContext(CombatContext);
+  const { actorRounds } = useContext(CombatContext);
 
-  const bo = formData.attacks?.[index]?.modifiers?.bo || '';
+  const bo = formData.attacks?.[index]?.modifiers?.bo || null;
   const customBonus = formData.attacks?.[index]?.modifiers?.customBonus || null;
   const cover = formData.attacks?.[index]?.modifiers?.cover || '';
   const restrictedQuarters = formData.attacks?.[index]?.modifiers?.restrictedQuarters || '';
@@ -33,7 +34,7 @@ const ResolveAttackFormModifiers: FC<{
   const disabledDB = formData.attacks?.[index]?.modifiers?.disabledDB || false;
   const disabledShield = formData.attacks?.[index]?.modifiers?.disabledShield || false;
   const disabledParry = formData.attacks?.[index]?.modifiers?.disabledParry || false;
-  const targetName = characters.find((c) => c.id === formData.attacks?.[index]?.modifiers.targetId)?.name || '';
+  const target = actorRounds.find((actorRound) => actorRound.actorId === formData.attacks?.[index]?.modifiers.targetId);
 
   const handleChangeEvent = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => handleChange(e.target.name, e.target.value);
 
@@ -57,10 +58,13 @@ const ResolveAttackFormModifiers: FC<{
   return (
     <Grid container spacing={2} sx={{ marginTop: 1, marginBottom: 1 }}>
       <Grid size={2}>
-        <TextField label={t('target')} value={targetName} name="target" fullWidth variant="standard" />
+        <TextField label={t('target')} value={target?.actorName || ''} name="target" fullWidth variant="standard" />
       </Grid>
       <Grid size={2}>
         <NumericReadonlyInput label={t('attack-used-bo')} value={bo} name="target" />
+      </Grid>
+      <Grid size={2}>
+        <ActorRoundArmor actorRound={target} />
       </Grid>
       <Grid size={12}></Grid>
       <Grid size={2}>

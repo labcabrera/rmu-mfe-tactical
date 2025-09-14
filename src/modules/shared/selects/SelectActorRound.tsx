@@ -1,49 +1,36 @@
-import React from 'react';
+import React, { ChangeEvent, FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
-import { ActorRound } from '../../api/actor-rounds';
 
-type SelectActorRoundProps = {
-  value: string | number;
-  onChange: (e: ActorRound) => void;
+type SelectDodgeProps = {
+  value: string;
+  onChange: (event: ChangeEvent<HTMLInputElement>) => void;
   name?: string;
-  actorRounds: ActorRound[];
-  i18nLabel?: string;
+  label?: string;
 };
 
-const SelectActorRound: React.FC<SelectActorRoundProps> = ({ value, onChange, actorRounds, name = 'selectActorRound', i18nLabel = 'actor' }) => {
+const SelectCalledShot: FC<SelectDodgeProps> = ({ value, onChange, name = 'called-shot', label = 'Called Shot' }) => {
   const { t } = useTranslation();
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedActorRound = actorRounds.find((ar) => ar.id === e.target.value);
-    if (selectedActorRound) {
-      onChange(selectedActorRound);
-    }
-  };
-
-  if (!actorRounds) {
-    return <p>Loading...</p>;
-  }
+  const options = ['none', 'head', 'body', 'arms', 'legs'];
 
   return (
     <TextField
       select
-      id="select-actor-round"
+      label={label}
       name={name}
-      label={t(i18nLabel)}
-      fullWidth
-      value={value === undefined || value === null || actorRounds.length === 0 ? '' : value}
+      value={value === undefined || value === null || options.length === 0 ? '' : value}
       variant="standard"
-      onChange={handleChange}
+      fullWidth
+      onChange={onChange}
     >
-      {actorRounds.map((option, index) => (
-        <MenuItem key={index} value={option.id}>
-          {option.actorName}
+      {options.map((option, index) => (
+        <MenuItem key={index} value={option}>
+          {t(`${option}`)}
         </MenuItem>
       ))}
     </TextField>
   );
 };
 
-export default SelectActorRound;
+export default SelectCalledShot;
