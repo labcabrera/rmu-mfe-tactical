@@ -1,36 +1,49 @@
-import React, { ChangeEvent, FC } from 'react';
+import React, { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
+import { ActorRound } from '../../api/actor-rounds.dto';
 
-type SelectDodgeProps = {
-  value: string;
-  onChange: (event: ChangeEvent<HTMLInputElement>) => void;
+type SelectActorRoundProps = {
+  value: string | number;
+  onChange: (e: ActorRound) => void;
   name?: string;
-  label?: string;
+  actorRounds: ActorRound[];
+  i18nLabel?: string;
 };
 
-const SelectCalledShot: FC<SelectDodgeProps> = ({ value, onChange, name = 'calledShot', label = 'Called Shot' }) => {
+const SelectActorRound: FC<SelectActorRoundProps> = ({ value, onChange, actorRounds, name = 'selectActorRound', i18nLabel = 'actor' }) => {
   const { t } = useTranslation();
-  const options = ['none', 'head', 'body', 'arms', 'legs'];
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedActorRound = actorRounds.find((ar) => ar.id === e.target.value);
+    if (selectedActorRound) {
+      onChange(selectedActorRound);
+    }
+  };
+
+  if (!actorRounds) {
+    return <p>Loading...</p>;
+  }
 
   return (
     <TextField
       select
-      label={label}
+      id="select-actor-round"
       name={name}
-      value={value === undefined || value === null || options.length === 0 ? '' : value}
-      variant="standard"
+      label={t(i18nLabel)}
       fullWidth
-      onChange={onChange}
+      value={value === undefined || value === null || actorRounds.length === 0 ? '' : value}
+      variant="standard"
+      onChange={handleChange}
     >
-      {options.map((option, index) => (
-        <MenuItem key={index} value={option}>
-          {t(`${option}`)}
+      {actorRounds.map((option, index) => (
+        <MenuItem key={index} value={option.id}>
+          {option.actorName}
         </MenuItem>
       ))}
     </TextField>
   );
 };
 
-export default SelectCalledShot;
+export default SelectActorRound;

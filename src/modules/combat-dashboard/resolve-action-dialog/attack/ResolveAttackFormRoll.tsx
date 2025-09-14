@@ -1,4 +1,4 @@
-import React, { FC, useContext } from 'react';
+import React, { FC, useState, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button, TextField } from '@mui/material';
 import Grid from '@mui/material/Grid';
@@ -6,6 +6,7 @@ import { CombatContext } from '../../../../CombatContext';
 import { useError } from '../../../../ErrorContext';
 import { Action, AttackDto, updateAttackRoll } from '../../../api/actions';
 import { NumericInput } from '../../../shared/inputs/NumericInput';
+import SelectLocation from '../../../shared/selects/SelectLocation';
 import ResolveAttackInfo from './ResolveAttackInfo';
 
 const ResolveAttackFormRoll: FC<{
@@ -19,12 +20,13 @@ const ResolveAttackFormRoll: FC<{
   const { t } = useTranslation();
 
   const attack = formData.attacks[index];
+  const roll = attack.roll?.roll || 0;
+  const location = attack.roll?.location || null;
 
   const handleRollClick = () => {
     const attackName = attack.modifiers.attackName;
-    const roll = attack.roll?.roll || 0;
 
-    updateAttackRoll(action.id, attackName, roll, undefined)
+    updateAttackRoll(action.id, attackName, roll, location)
       .then((updatedAction) => {
         const newFormData = { attacks: updatedAction.attacks, parries: updatedAction.parries };
         updateAction(updatedAction);
@@ -43,11 +45,24 @@ const ResolveAttackFormRoll: FC<{
     const updated = { ...formData };
     if (updated.attacks && updated.attacks[index]) {
       if (!updated.attacks[index].roll) {
-        updated.attacks[index].roll = { roll: null };
+        updated.attacks[index].roll = { roll: null, location: null };
       } else {
         updated.attacks[index].roll = { ...updated.attacks[index].roll };
       }
       updated.attacks[index].roll.roll = value;
+      setFormData(updated);
+    }
+  };
+
+  const updateLocation = (value: string | null) => {
+    const updated = { ...formData };
+    if (updated.attacks && updated.attacks[index]) {
+      if (!updated.attacks[index].roll) {
+        updated.attacks[index].roll = { roll: null, location: null };
+      } else {
+        updated.attacks[index].roll = { ...updated.attacks[index].roll };
+      }
+      updated.attacks[index].roll.location = value;
       setFormData(updated);
     }
   };
@@ -57,6 +72,9 @@ const ResolveAttackFormRoll: FC<{
       <ResolveAttackInfo attack={formData.attacks[index]} />
       <Grid size={2}>
         <NumericInput label={t('attack-roll')} value={0} onChange={(e) => updateRoll(e)} />
+      </Grid>
+      <Grid size={2}>
+        <SelectLocation value={attack.roll?.location || null} onChange={(e) => updateLocation(e.target.value)} />
       </Grid>
       <Grid size={2}>
         <Button onClick={() => handleRollClick()} variant="outlined">

@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
 import { Avatar, Chip, Stack } from '@mui/material';
-import type { ActorRound, ActorRoundEffect } from '../../api/actor-rounds';
+import { ActorRound, ActorRoundEffect } from '../../api/actor-rounds.dto';
 
 const ActorRoundEffects: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
   if (!actorRound) return <p>Loading...</p>;
@@ -11,7 +11,7 @@ const ActorRoundEffects: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
     <>
       <Stack direction="row" spacing={1}>
         {actorRound.effects.map((effect, index) => (
-          <ActorRoundEffect key={index} effect={effect} />
+          <ActorRoundEffectItem key={index} effect={effect} />
         ))}
       </Stack>
       {/* <pre>{JSON.stringify(actorRound.effects, null, 2)}</pre> */}
@@ -21,7 +21,7 @@ const ActorRoundEffects: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
 
 export default ActorRoundEffects;
 
-const ActorRoundEffect: FC<{ effect: ActorRoundEffect }> = ({ effect }) => {
+const ActorRoundEffectItem: FC<{ effect: ActorRoundEffect }> = ({ effect }) => {
   const getLabel = () => {
     switch (effect.status) {
       case 'death':

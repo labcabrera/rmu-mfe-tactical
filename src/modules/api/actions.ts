@@ -28,6 +28,7 @@ export type AttackDeclarationItemDto = {
   parries: AttackParryDto[];
   roll: {
     roll: number | null;
+    location: string | null;
   };
   calculated: AttackCalculationsDto | undefined;
   results: any;
@@ -168,14 +169,14 @@ export async function declareParry(actionId: string, data: DeclareParryItemDto):
   return await response.json();
 }
 
-export async function updateAttackRoll(actionId: string, attackName: string, roll: number, criticalRoll: number | undefined): Promise<Action> {
+export async function updateAttackRoll(actionId: string, attackName: string, roll: number, location: string | undefined): Promise<Action> {
   const url = `${process.env.RMU_API_TACTICAL_URL}/actions/${actionId}/attack/roll`;
   const response = await fetch(url, {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ attackName, roll, criticalRoll }),
+    body: JSON.stringify({ attackName, roll, location }),
   });
   if (response.status !== 200) {
     throw await buildErrorFromResponse(response, url);
