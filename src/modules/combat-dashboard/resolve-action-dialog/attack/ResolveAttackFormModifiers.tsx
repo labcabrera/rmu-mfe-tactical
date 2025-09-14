@@ -9,6 +9,7 @@ import { CombatContext } from '../../../../CombatContext';
 import { AttackDto } from '../../../api/actions';
 import { NumericInput } from '../../../shared/inputs/NumericInput';
 import NumericReadonlyInput from '../../../shared/inputs/NumericReadonlyInput';
+import SelectCalledShot from '../../../shared/selects/SelectActorRound';
 import SelectCover from '../../../shared/selects/SelectCover';
 import SelectDodge from '../../../shared/selects/SelectDodge';
 import SelectPositionalSource from '../../../shared/selects/SelectPositionalSource';
@@ -23,6 +24,7 @@ const ResolveAttackFormModifiers: FC<{
 }> = ({ formData, setFormData, index }) => {
   const { actorRounds } = useContext(CombatContext);
 
+  const modifiers = formData.attacks?.[index]?.modifiers;
   const bo = formData.attacks?.[index]?.modifiers?.bo || null;
   const customBonus = formData.attacks?.[index]?.modifiers?.customBonus || null;
   const cover = formData.attacks?.[index]?.modifiers?.cover || '';
@@ -78,6 +80,9 @@ const ResolveAttackFormModifiers: FC<{
       </Grid>
       <Grid size={2}>
         <SelectPositionalTarget value={positionalTarget} onChange={handleChangeEvent} />
+      </Grid>
+      <Grid size={2}>
+        <SelectCalledShot value={modifiers.calledShot || ''} onChange={handleChangeEvent} />
       </Grid>
       <Grid size={2}>
         <SelectDodge value={dodge} onChange={handleChangeEvent} />

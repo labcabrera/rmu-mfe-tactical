@@ -10,7 +10,7 @@ type SelectDodgeProps = {
   label?: string;
 };
 
-const SelectCalledShot: FC<SelectDodgeProps> = ({ value, onChange, name = 'called-shot', label = 'Called Shot' }) => {
+const SelectCalledShot: FC<SelectDodgeProps> = ({ value, onChange, name = 'calledShot', label = 'Called Shot' }) => {
   const { t } = useTranslation();
   const options = ['none', 'head', 'body', 'arms', 'legs'];
 
