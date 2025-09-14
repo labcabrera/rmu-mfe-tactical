@@ -73,7 +73,8 @@ const ResolveAttackFormRoll: FC<{
         </>
       )}
       <Grid size={12}>Criticals</Grid>
-      {attack.results.criticals &&
+      {attack.results &&
+        attack.results.criticals &&
         attack.results.criticals.map((critical: any, index: number) => (
           <>
             <Grid size={2} key={index}>

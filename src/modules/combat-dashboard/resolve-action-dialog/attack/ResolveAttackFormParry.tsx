@@ -20,7 +20,7 @@ const ResolveAttackFormModifiers: FC<{
   const parries = formData.attacks?.[index]?.parries || [];
 
   const getActorName = (id: string) => {
-    return actorRounds.find((a) => a.id === id)?.name || '';
+    return actorRounds.find((a) => a.actorId === id)?.actorName || '';
   };
 
   return (
