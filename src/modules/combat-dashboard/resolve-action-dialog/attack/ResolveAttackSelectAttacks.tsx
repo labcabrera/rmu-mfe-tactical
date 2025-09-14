@@ -48,6 +48,7 @@ const AttackList: FC<{
             attackName,
             targetId: null,
             bo: actorRound.attacks.find((a) => a.attackName === attackName)?.currentBo || 0,
+            calledShot: 'none',
             cover: 'none',
             restrictedQuarters: 'none',
             positionalSource: 'none',

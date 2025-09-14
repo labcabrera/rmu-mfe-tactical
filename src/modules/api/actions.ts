@@ -38,6 +38,7 @@ export type AttackModifiersDto = {
   targetId: string;
   bo: number | null;
   calledShot: string | null;
+  calledShotPenalty: number | null;
   cover?: string;
   restrictedQuarters?: string;
   positionalSource?: string;

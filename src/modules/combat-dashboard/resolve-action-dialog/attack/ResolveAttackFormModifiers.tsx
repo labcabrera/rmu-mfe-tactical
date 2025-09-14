@@ -57,6 +57,23 @@ const ResolveAttackFormModifiers: FC<{
     setFormData({ ...formData, attacks: newAttacks });
   };
 
+  const onCalledShotChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    let penalty = 0;
+    if (value !== 'none') {
+      penalty = -25;
+    }
+    const newAttacks = formData.attacks.map((a, i) =>
+      i === index ? { ...a, modifiers: { ...a.modifiers, calledShot: value, calledShotPenalty: penalty } } : a
+    );
+    setFormData({ ...formData, attacks: newAttacks });
+  };
+
+  const onCalledShotPenaltyChange = (value: number | null) => {
+    const newAttacks = formData.attacks.map((a, i) => (i === index ? { ...a, modifiers: { ...a.modifiers, calledShotPenalty: value } } : a));
+    setFormData({ ...formData, attacks: newAttacks });
+  };
+
   return (
     <Grid container spacing={2} sx={{ marginTop: 1, marginBottom: 1 }}>
       <Grid size={2}>
@@ -82,10 +99,22 @@ const ResolveAttackFormModifiers: FC<{
         <SelectPositionalTarget value={positionalTarget} onChange={handleChangeEvent} />
       </Grid>
       <Grid size={2}>
-        <SelectCalledShot value={modifiers.calledShot || ''} onChange={handleChangeEvent} />
+        <SelectDodge value={dodge} onChange={handleChangeEvent} />
+      </Grid>
+      <Grid size={12}></Grid>
+      <Grid size={2}>
+        <SelectCalledShot value={modifiers.calledShot || ''} onChange={onCalledShotChange} />
       </Grid>
       <Grid size={2}>
-        <SelectDodge value={dodge} onChange={handleChangeEvent} />
+        {modifiers.calledShot && modifiers.calledShot !== 'none' && (
+          <NumericInput
+            label={t('called-shot-penalty')}
+            value={modifiers.calledShotPenalty || null}
+            name="calledShotPenalty"
+            onChange={onCalledShotPenaltyChange}
+            integer
+          />
+        )}
       </Grid>
       <Grid size={12}></Grid>
       <Grid size={2}>
