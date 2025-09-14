@@ -5,7 +5,7 @@ import Button from '@mui/material/Button';
 import Step from '@mui/material/Step';
 import StepLabel from '@mui/material/StepLabel';
 import Stepper from '@mui/material/Stepper';
-import { Action, AttackDto, ActionAttackParry } from '../../../api/actions';
+import { Action, ActionAttack, ActionAttackParry } from '../../../api/actions';
 import { ActorRound } from '../../../api/actor-rounds';
 import { Character } from '../../../api/characters';
 import ResolveAttackSelectAttacks from './ResolveAttackSelectAttacks';
@@ -16,8 +16,8 @@ import ResolveAttackTabRoll from './ResolveAttackTabRoll';
 const steps = ['Declare attacks and targets', 'Choose attack options', 'Parry', 'Resolve attacks', 'Results'];
 
 const ResolveAttackStepper: FC<{
-  formData: AttackDto;
-  setFormData: (data: AttackDto) => void;
+  formData: ActionAttack;
+  setFormData: (data: ActionAttack) => void;
   activeStep: number;
   setActiveStep: (step: number) => void;
   onClose: () => void;

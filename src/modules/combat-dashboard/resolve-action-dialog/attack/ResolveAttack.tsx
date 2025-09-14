@@ -1,7 +1,7 @@
 import React, { FC, useContext, useEffect, useState } from 'react';
 import { CombatContext } from '../../../../CombatContext';
 import { useError } from '../../../../ErrorContext';
-import type { Action, AttackDto, DeclareParryDto } from '../../../api/actions';
+import type { Action, ActionAttack, DeclareParryDto } from '../../../api/actions';
 import { prepareAttack, declareParry } from '../../../api/actions';
 import { ActorRound } from '../../../api/actor-rounds.dto';
 import type { Character } from '../../../api/characters';
@@ -17,7 +17,7 @@ const ResolveAttack: FC<{
   const [activeStep, setActiveStep] = useState<number>(action.status === 'declared' ? 0 : 1);
   const { showError } = useError();
   const [isValidDeclaration, setIsValidDeclaration] = useState(false);
-  const [formData, setFormData] = useState<AttackDto>({
+  const [formData, setFormData] = useState<ActionAttack>({
     attacks: [],
     parries: [],
   });

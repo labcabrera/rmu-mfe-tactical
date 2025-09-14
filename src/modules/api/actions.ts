@@ -2,11 +2,15 @@ import { buildErrorFromResponse } from './api-errors';
 
 export type Action = {
   id: string;
-  status: 'declared' | 'in_progress' | 'completed';
+  gameId: string;
+  actorId: string;
+  round: number;
+  actionType: 'movement' | 'attack' | 'skill' | 'free';
   phaseStart: number;
   phaseEnd: number | undefined;
-  type: 'movement' | 'attack' | 'skill' | 'free';
-  [key: string]: any;
+  status: 'declared' | 'in_progress' | 'completed';
+  actionPoints: number | undefined;
+  attacks: ActionAttack[] | undefined;
 };
 
 export type ResolveMovementDto = {
@@ -18,7 +22,7 @@ export type ResolveMovementDto = {
   roll: number | null;
 };
 
-export type AttackDto = {
+export type ActionAttack = {
   attacks: AttackDeclarationItemDto[];
   parries: AttackParryDto[];
 };
@@ -29,6 +33,7 @@ export type AttackDeclarationItemDto = {
   roll: {
     roll: number | null;
     location: string | null;
+    criticalRolls?: Record<string, number | undefined>;
   };
   calculated: AttackCalculationsDto | undefined;
   results: any;
@@ -177,6 +182,21 @@ export async function updateAttackRoll(actionId: string, attackName: string, rol
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({ attackName, roll, location }),
+  });
+  if (response.status !== 200) {
+    throw await buildErrorFromResponse(response, url);
+  }
+  return await response.json();
+}
+
+export async function updateCriticalRoll(actionId: string, attackName: string, criticalKey: string, roll: number): Promise<Action> {
+  const url = `${process.env.RMU_API_TACTICAL_URL}/actions/${actionId}/attack/critical-roll`;
+  const response = await fetch(url, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ attackName, criticalKey, roll }),
   });
   if (response.status !== 200) {
     throw await buildErrorFromResponse(response, url);

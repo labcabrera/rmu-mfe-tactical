@@ -4,15 +4,15 @@ import Checkbox from '@mui/material/Checkbox';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 import { CombatContext } from '../../../../CombatContext';
-import { AttackDeclarationItemDto, AttackDto } from '../../../api/actions';
+import { AttackDeclarationItemDto, ActionAttack } from '../../../api/actions';
 import { ActorRound } from '../../../api/actor-rounds';
 import type { Character } from '../../../api/characters';
 import { NumericInput } from '../../../shared/inputs/NumericInput';
 import SelectAttackTarget from '../../../shared/selects/SelectAttackTarget';
 
 const ResolveAttackSelectAttacks: React.FC<{
-  formData: AttackDto;
-  setFormData: (data: AttackDto) => void;
+  formData: ActionAttack;
+  setFormData: (data: ActionAttack) => void;
   actorRound: ActorRound;
   character: Character;
 }> = ({ formData, setFormData, actorRound, character }) => {
@@ -24,8 +24,8 @@ const ResolveAttackSelectAttacks: React.FC<{
 export default ResolveAttackSelectAttacks;
 
 const AttackList: FC<{
-  formData: AttackDto;
-  setFormData: (data: AttackDto) => void;
+  formData: ActionAttack;
+  setFormData: (data: ActionAttack) => void;
   actorRound: ActorRound;
   character: Character;
   characters: Character[];

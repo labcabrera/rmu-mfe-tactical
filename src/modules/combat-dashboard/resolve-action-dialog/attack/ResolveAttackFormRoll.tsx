@@ -1,17 +1,17 @@
-import React, { FC, useState, useContext } from 'react';
+import React, { FC, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button, TextField } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import { CombatContext } from '../../../../CombatContext';
 import { useError } from '../../../../ErrorContext';
-import { Action, AttackDto, updateAttackRoll } from '../../../api/actions';
+import { Action, ActionAttack, updateAttackRoll } from '../../../api/actions';
 import { NumericInput } from '../../../shared/inputs/NumericInput';
 import SelectLocation from '../../../shared/selects/SelectLocation';
 import ResolveAttackInfo from './ResolveAttackInfo';
 
 const ResolveAttackFormRoll: FC<{
-  formData: AttackDto;
-  setFormData: (data: AttackDto) => void;
+  formData: ActionAttack;
+  setFormData: (data: ActionAttack) => void;
   action: Action;
   index: number;
 }> = ({ formData, setFormData, action, index }) => {
@@ -25,7 +25,6 @@ const ResolveAttackFormRoll: FC<{
 
   const handleRollClick = () => {
     const attackName = attack.modifiers.attackName;
-
     updateAttackRoll(action.id, attackName, roll, location)
       .then((updatedAction) => {
         const newFormData = { attacks: updatedAction.attacks, parries: updatedAction.parries };
@@ -39,6 +38,10 @@ const ResolveAttackFormRoll: FC<{
       });
   };
 
+  const handleCriticalRollClick = (criticalKey: string, roll: number) => {
+    // TODO implement
+  };
+
   if (!formData || !formData.attacks || formData.attacks.length <= index) return <div>Loading...</div>;
 
   const updateRoll = (value: number) => {
@@ -50,6 +53,22 @@ const ResolveAttackFormRoll: FC<{
         updated.attacks[index].roll = { ...updated.attacks[index].roll };
       }
       updated.attacks[index].roll.roll = value;
+      setFormData(updated);
+    }
+  };
+
+  const updateCriticalRoll = (criticalKey: string, roll: number) => {
+    const updated = { ...formData };
+    if (updated.attacks && updated.attacks[index]) {
+      if (!updated.attacks[index].roll) {
+        updated.attacks[index].roll = { roll: null, location: null };
+      } else {
+        updated.attacks[index].roll = { ...updated.attacks[index].roll };
+      }
+      updated.attacks[index].roll.criticalRolls = {
+        ...updated.attacks[index].roll.criticalRolls,
+        [criticalKey]: roll,
+      };
       setFormData(updated);
     }
   };
@@ -71,21 +90,21 @@ const ResolveAttackFormRoll: FC<{
     <Grid container spacing={2} sx={{ marginTop: 1, marginBottom: 1 }}>
       <ResolveAttackInfo attack={formData.attacks[index]} />
       <Grid size={2}>
-        <NumericInput label={t('attack-roll')} value={0} onChange={(e) => updateRoll(e)} />
+        <NumericInput label={t('attack-roll')} value={attack.roll?.roll || 0} onChange={(e) => updateRoll(e)} />
       </Grid>
       <Grid size={2}>
         <SelectLocation value={attack.roll?.location || null} onChange={(e) => updateLocation(e.target.value)} />
       </Grid>
       <Grid size={2}>
         <Button onClick={() => handleRollClick()} variant="outlined">
-          Roll
+          {t('roll-attack')}
         </Button>
       </Grid>
       <Grid size={12}></Grid>
       {attack.results && attack.results.attackTableEntry && (
         <>
           <Grid size={2}>
-            <TextField label={t('results')} value={attack.results.attackTableEntry.text} variant="standard" fullWidth />
+            <TextField label={t('attack-table-result')} value={attack.results.attackTableEntry.text} variant="standard" fullWidth />
           </Grid>
           <Grid size={12}></Grid>
         </>
@@ -107,13 +126,16 @@ const ResolveAttackFormRoll: FC<{
             <Grid size={1} key={index}>
               <TextField label={t('critical-roll')} value={0} variant="standard" fullWidth />
             </Grid>
+            <Grid size={1} key={index}>
+              <NumericInput label={t('new-roll')} value={0} onChange={(e) => updateCriticalRoll(critical.key, e)} />
+            </Grid>
             <Grid size={2} key={index}>
               <Button variant="outlined">Critical roll</Button>
             </Grid>
             <Grid size={12} key={index}></Grid>
+            <pre>{JSON.stringify(critical, null, 2)}</pre>
           </>
         ))}
-      <Grid size={12}>TODO</Grid>
     </Grid>
   );
 };

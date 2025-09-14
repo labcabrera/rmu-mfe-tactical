@@ -1,15 +1,11 @@
 import React, { ChangeEvent, FC, useContext } from 'react';
-import { Stack } from '@mui/material';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Grid from '@mui/material/Grid';
-import Switch from '@mui/material/Switch';
-import TextField from '@mui/material/TextField';
+import { FormControlLabel, Grid, Switch, TextField } from '@mui/material';
 import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
-import { AttackDto } from '../../../api/actions';
+import { ActionAttack } from '../../../api/actions';
 import { NumericInput } from '../../../shared/inputs/NumericInput';
 import NumericReadonlyInput from '../../../shared/inputs/NumericReadonlyInput';
-import SelectCalledShot from '../../../shared/selects/SelectActorRound';
+import SelectCalledShot from '../../../shared/selects/SelectCalledShot';
 import SelectCover from '../../../shared/selects/SelectCover';
 import SelectDodge from '../../../shared/selects/SelectDodge';
 import SelectPositionalSource from '../../../shared/selects/SelectPositionalSource';
@@ -18,8 +14,8 @@ import SelectRestrictedQuarters from '../../../shared/selects/SelectRestrictedQu
 import ActorRoundArmor from './ActorRoundArmor';
 
 const ResolveAttackFormModifiers: FC<{
-  formData: AttackDto;
-  setFormData: (data: AttackDto) => void;
+  formData: ActionAttack;
+  setFormData: (data: ActionAttack) => void;
   index: number;
 }> = ({ formData, setFormData, index }) => {
   const { actorRounds } = useContext(CombatContext);

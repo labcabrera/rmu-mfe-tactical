@@ -3,14 +3,14 @@ import Grid from '@mui/material/Grid';
 import TextField from '@mui/material/TextField';
 import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
-import { AttackDto } from '../../../api/actions';
+import { ActionAttack } from '../../../api/actions';
 import { NumericInput } from '../../../shared/inputs/NumericInput';
 import NumericReadonlyInput from '../../../shared/inputs/NumericReadonlyInput';
 import ResolveAttackInfo from './ResolveAttackInfo';
 
 const ResolveAttackFormModifiers: FC<{
-  formData: AttackDto;
-  setFormData: (data: AttackDto) => void;
+  formData: ActionAttack;
+  setFormData: (data: ActionAttack) => void;
   index: number;
 }> = ({ formData, setFormData, index }) => {
   const { actorRounds } = useContext(CombatContext);
