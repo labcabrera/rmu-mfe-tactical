@@ -115,6 +115,12 @@ export const CombatProvider: React.FC<CombatProviderProps> = ({ children }) => {
       });
   };
 
+  const refreshActorRounds = () => {
+    if (game && displayRound !== null) {
+      bindActorRounds(game.id, displayRound);
+    }
+  };
+
   const updateAction = (updatedAction: Action) => {
     setRoundActions((prevActions) =>
       prevActions ? prevActions.map((action) => (action.id === updatedAction.id ? updatedAction : action)) : prevActions
@@ -167,6 +173,7 @@ export const CombatProvider: React.FC<CombatProviderProps> = ({ children }) => {
           setDisplayRound,
           updateAction,
           updateActorRound,
+          refreshActorRounds,
         }}
       >
         {children}

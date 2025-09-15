@@ -7,7 +7,7 @@ import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { CombatContext } from '../../../CombatContext';
-import type { ActorRound } from '../../api/actor-rounds';
+import { ActorRound } from '../../api/actor-rounds.dto';
 import type { Character } from '../../api/characters';
 import type { Faction } from '../../api/factions';
 import CharacterAvatar from '../../shared/avatars/CharacterAvatar';
@@ -33,6 +33,10 @@ const CombatActorRoundListItemCharacter: FC<CombatActorRoundListItemCharacterPro
   const { characters, factions } = useContext(CombatContext)!;
   const [character, setCharacter] = useState<Character | null>(null);
   const [faction, setFaction] = useState<Faction | null>(null);
+
+  const idDead = (): boolean => {
+    return actorRound.effects.some((e) => e.status === 'dead');
+  };
 
   const handleCharacterClick = () => {
     if (character) {
@@ -62,7 +66,7 @@ const CombatActorRoundListItemCharacter: FC<CombatActorRoundListItemCharacterPro
       <CardContent>
         <Stack direction="row" spacing={2}>
           <IconButton onClick={handleCharacterClick}>
-            <CharacterAvatar character={character} variant="square" />
+            <CharacterAvatar character={character} dead={idDead()} variant="square" />
           </IconButton>
           <Stack>
             <Typography variant="body1" component="div">

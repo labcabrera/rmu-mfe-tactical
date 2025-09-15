@@ -13,7 +13,7 @@ const ResolveAttack: FC<{
   character: Character;
   onClose: () => void;
 }> = ({ action, actorRound, character, onClose }) => {
-  const { updateAction } = useContext(CombatContext);
+  const { refreshActorRounds, updateAction } = useContext(CombatContext);
   const [activeStep, setActiveStep] = useState<number>(action.status === 'declared' ? 0 : 1);
   const { showError } = useError();
   const [isValidDeclaration, setIsValidDeclaration] = useState(false);
@@ -74,6 +74,7 @@ const ResolveAttack: FC<{
     applyAttack(action.id)
       .then((updatedAction) => {
         loadActionFromResponse(updatedAction);
+        refreshActorRounds();
         setActiveStep(4);
       })
       .catch((err: unknown) => {
