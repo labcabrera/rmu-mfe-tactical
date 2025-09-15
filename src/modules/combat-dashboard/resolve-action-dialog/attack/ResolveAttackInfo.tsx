@@ -30,7 +30,7 @@ const ResolveAttackFormModifiers: FC<{
   return (
     <>
       <Grid size={2}>
-        <TextField label={t('target')} value={getTarget()?.name || ''} name="target" fullWidth variant="standard" />
+        <TextField label={t('target')} value={getTarget()?.actorName || ''} name="target" fullWidth variant="standard" />
       </Grid>
       <Grid size={2}>
         <NumericReadonlyInput label={t('attack-used-bo')} value={attack.modifiers.bo} name="target" />

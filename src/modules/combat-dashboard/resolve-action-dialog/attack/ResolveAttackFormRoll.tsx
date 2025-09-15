@@ -132,6 +132,7 @@ const ResolveAttackFormRoll: FC<{
       <Grid size={12}>Criticals</Grid>
       {attack.results &&
         attack.results.criticals &&
+        attack.results.criticals.length > 0 &&
         attack.results.criticals.map((critical: any, index: number) => (
           <Fragment key={index}>
             <Grid size={1}>
@@ -154,8 +155,9 @@ const ResolveAttackFormRoll: FC<{
             <Grid size={1}></Grid>
             <Grid size={11}>
               <Stack direction="row" spacing={1}>
-                {critical.result && critical.result.damage > 0 && <Effect effect={'dmg'} value={critical.result.damage} />}
-                {critical.result.effects &&
+                {critical.result && critical.result.damage && critical.result.damage > 0 && <Effect effect={'dmg'} value={critical.result.damage} />}
+                {critical.result &&
+                  critical.result.effects &&
                   critical.result.effects.length > 0 &&
                   critical.result.effects.map((effect, effectIndex) => (
                     <Effect key={effectIndex} effect={effect.status} rounds={effect.rounds} value={effect.value} />

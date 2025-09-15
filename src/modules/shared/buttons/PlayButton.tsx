@@ -1,8 +1,13 @@
-/* eslint-disable react/prop-types */
-import React from 'react';
+import React, { FC } from 'react';
 import StyledIconButton from './StyledIconButton';
 
-const PlayButton = ({ onClick, size = 80, disabled = false }) => {
+type PlayButtonProps = {
+  onClick?: () => void;
+  size?: number;
+  disabled?: boolean;
+};
+
+const PlayButton: FC<PlayButtonProps> = ({ onClick, size = 80, disabled = false }) => {
   return (
     <StyledIconButton
       disabled={disabled}
