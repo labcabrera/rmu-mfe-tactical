@@ -72,7 +72,7 @@ const ResolveAttack: FC<{
 
   const loadActionFromResponse = (updatedAction: Action) => {
     if (updatedAction && updatedAction.attacks) {
-      const newFormData = { attacks: updatedAction.attacks, parries: updatedAction.parries };
+      const newFormData = { attacks: updatedAction.attacks, parries: undefined };
       updateAction(updatedAction);
       //TODO fix types when model is updated
       setFormData(newFormData as any);
@@ -135,8 +135,8 @@ const ResolveAttack: FC<{
         onParry={onParry}
         isValidDeclaration={isValidDeclaration}
       />
-      <pre>FormData: {JSON.stringify(formData, null, 2)}</pre>
-      <pre>Action: {JSON.stringify(action, null, 2)}</pre>
+      {/* <pre>FormData: {JSON.stringify(formData, null, 2)}</pre>
+      <pre>Action: {JSON.stringify(action, null, 2)}</pre> */}
     </>
   );
 };

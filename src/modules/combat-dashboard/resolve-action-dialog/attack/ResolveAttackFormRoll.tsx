@@ -1,10 +1,10 @@
-import React, { Dispatch, FC, SetStateAction, useContext } from 'react';
+import React, { Dispatch, FC, Fragment, SetStateAction, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button, TextField } from '@mui/material';
-import Grid from '@mui/material/Grid';
+import { Button, Stack, TextField, Grid } from '@mui/material';
 import { CombatContext } from '../../../../CombatContext';
 import { useError } from '../../../../ErrorContext';
 import { Action, ActionAttack, updateAttackRoll, updateCriticalRoll } from '../../../api/actions';
+import Effect from '../../../shared/generic/Effect';
 import { NumericInput } from '../../../shared/inputs/NumericInput';
 import SelectLocation from '../../../shared/selects/SelectLocation';
 import ResolveAttackInfo from './ResolveAttackInfo';
@@ -38,16 +38,18 @@ const ResolveAttackFormRoll: FC<{
       });
   };
 
-  const onUpdateCriticalRollClick = (criticalKey: string) => {
-    let roll = undefined;
+  const getCriticalRoll = (criticalKey: string): number | undefined => {
+    let roll: number | undefined;
     try {
       roll = attack.roll!.criticalRolls[criticalKey];
     } catch (e) {
-      showError('Critical roll is not defined');
-      console.log(e);
-      return;
+      console.error(e);
     }
-    updateCriticalRoll(action.id, attack.modifiers.attackName, criticalKey, roll)
+    return roll;
+  };
+
+  const onUpdateCriticalRollClick = (criticalKey: string) => {
+    updateCriticalRoll(action.id, attack.modifiers.attackName, criticalKey, getCriticalRoll(criticalKey)!)
       .then((updatedAction) => {
         const newFormData = { attacks: updatedAction.attacks, parries: undefined };
         updateAction(updatedAction);
@@ -131,30 +133,37 @@ const ResolveAttackFormRoll: FC<{
       {attack.results &&
         attack.results.criticals &&
         attack.results.criticals.map((critical: any, index: number) => (
-          <>
-            <Grid size={2} key={index}>
-              <TextField label={t('status')} value={critical.status} variant="standard" fullWidth />
-            </Grid>
-            <Grid size={1} key={index}>
+          <Fragment key={index}>
+            <Grid size={1}>
               <TextField label={t('critical-type')} value={critical.criticalType} variant="standard" fullWidth />
             </Grid>
-            <Grid size={1} key={index}>
+            <Grid size={1}>
               <TextField label={t('critical-severity')} value={critical.criticalSeverity} variant="standard" fullWidth />
             </Grid>
-            <Grid size={1} key={index}>
-              <TextField label={t('critical-roll')} value={0} variant="standard" fullWidth />
+            <Grid size={1}>
+              <NumericInput label={t('roll')} value={getCriticalRoll(critical.key)} onChange={(e) => onUpdateCriticalRoll(critical.key, e)} />
             </Grid>
-            <Grid size={1} key={index}>
-              <NumericInput label={t('new-roll')} value={0} onChange={(e) => onUpdateCriticalRoll(critical.key, e)} />
-            </Grid>
-            <Grid size={2} key={index}>
+            <Grid size={2}>
               <Button variant="outlined" onClick={() => onUpdateCriticalRollClick(critical.key)}>
                 Critical roll
               </Button>
             </Grid>
-            <Grid size={12} key={index}></Grid>
-            <pre>{JSON.stringify(critical, null, 2)}</pre>
-          </>
+            <Grid size={12}></Grid>
+            <Grid size={1}></Grid>
+            <Grid size={11}>{critical.result?.text || ''}</Grid>
+            <Grid size={1}></Grid>
+            <Grid size={11}>
+              <Stack direction="row" spacing={1}>
+                {critical.result && critical.result.damage > 0 && <Effect effect={'dmg'} value={critical.result.damage} />}
+                {critical.result.effects &&
+                  critical.result.effects.length > 0 &&
+                  critical.result.effects.map((effect, effectIndex) => (
+                    <Effect key={effectIndex} effect={effect.status} rounds={effect.rounds} value={effect.value} />
+                  ))}
+              </Stack>
+            </Grid>
+            <Grid size={12}></Grid>
+          </Fragment>
         ))}
     </Grid>
   );
