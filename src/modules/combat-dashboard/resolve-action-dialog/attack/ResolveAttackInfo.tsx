@@ -28,7 +28,7 @@ const ResolveAttackFormModifiers: FC<{
   };
 
   return (
-    <>
+    <Grid container spacing={1} sx={{ marginTop: 1, marginBottom: 1 }}>
       <Grid size={2}>
         <TextField label={t('target')} value={getTarget()?.actorName || ''} name="target" fullWidth variant="standard" />
       </Grid>
@@ -72,6 +72,9 @@ const ResolveAttackFormModifiers: FC<{
       <Grid size={2}>
         <TextField label={t('attack-dodge')} value={t(`dodge-${attack.modifiers.dodge}`)} name="dodge" fullWidth variant="standard" />
       </Grid>
+      <Grid size={2}>
+        <NumericReadonlyInput label={t('range')} value={attack.modifiers.range} name="range" />
+      </Grid>
       <Grid size={12}></Grid>
       <Grid size={2}>
         <FormControlLabel control={<Switch checked={attack.modifiers.disabledDB} name="disabledDB" />} label="Disabled DB" />
@@ -83,26 +86,20 @@ const ResolveAttackFormModifiers: FC<{
         <FormControlLabel control={<Switch checked={attack.modifiers.disabledParry} name="disabledParry" />} label="Disabled Parry" />
       </Grid>
       <Grid size={12}></Grid>
-      <Grid size={2}>
-        <NumericReadonlyInput label={t('custom-bonus')} value={attack.modifiers.customBonus} name="customBonus" />
-      </Grid>
-      <Grid size={2}>
-        <NumericReadonlyInput label={t('range')} value={attack.modifiers.range} name="range" />
-      </Grid>
       <Grid size={12}></Grid>
       <Grid size={2}>
         <NumericReadonlyInput label={t('total-modifiers')} value={attack.calculated.rollTotal} name="totalModifiers" />
       </Grid>
-      <Grid size={12}>
+      <Grid size={10}>
         <Stack direction="row" spacing={1}>
           {attack.calculated.rollModifiers.map((item, index) => (
-            <Stack key={index} direction="row" spacing={1} alignItems="center">
+            <Stack key={index} direction="row" spacing={1}>
               <Chip label={`${t(item.key)}: ${item.value}`} color={getModifierColor(item.value)} />
             </Stack>
           ))}
         </Stack>
       </Grid>
-    </>
+    </Grid>
   );
 };
 

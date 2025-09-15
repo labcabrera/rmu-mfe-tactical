@@ -1,5 +1,6 @@
 import React, { Dispatch, FC, Fragment, SetStateAction, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
+import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 import { Button, Stack, TextField, Grid } from '@mui/material';
 import { CombatContext } from '../../../../CombatContext';
 import { useError } from '../../../../ErrorContext';
@@ -64,7 +65,8 @@ const ResolveAttackFormRoll: FC<{
 
   if (!formData || !formData.attacks || formData.attacks.length <= index) return <div>Loading...</div>;
 
-  const updateRoll = (value: number) => {
+  const updateRoll = (value: number | undefined) => {
+    console.log('updateRoll', value);
     const updated = { ...formData };
     if (updated.attacks && updated.attacks[index]) {
       if (!updated.attacks[index].roll) {
@@ -108,7 +110,9 @@ const ResolveAttackFormRoll: FC<{
 
   return (
     <Grid container spacing={2} sx={{ marginTop: 1, marginBottom: 1 }}>
-      <ResolveAttackInfo attack={formData.attacks[index]} />
+      <Grid size={12}>
+        <ResolveAttackInfo attack={formData.attacks[index]} />
+      </Grid>
       <Grid size={2}>
         <NumericInput label={t('attack-roll')} value={attack.roll?.roll || 0} onChange={(e) => updateRoll(e)} />
       </Grid>
@@ -116,8 +120,8 @@ const ResolveAttackFormRoll: FC<{
         <SelectLocation value={attack.roll?.location || null} onChange={(e) => updateLocation(e.target.value)} />
       </Grid>
       <Grid size={2}>
-        <Button onClick={() => handleRollClick()} variant="outlined">
-          {t('roll-attack')}
+        <Button onClick={() => handleRollClick()} disabled={!attack.roll?.roll} variant="outlined" endIcon={<PlayCircleOutlineIcon />}>
+          {t('roll')}
         </Button>
       </Grid>
       <Grid size={12}></Grid>
@@ -129,7 +133,6 @@ const ResolveAttackFormRoll: FC<{
           <Grid size={12}></Grid>
         </>
       )}
-      <Grid size={12}>Criticals</Grid>
       {attack.results &&
         attack.results.criticals &&
         attack.results.criticals.length > 0 &&
@@ -145,8 +148,13 @@ const ResolveAttackFormRoll: FC<{
               <NumericInput label={t('roll')} value={getCriticalRoll(critical.key)} onChange={(e) => onUpdateCriticalRoll(critical.key, e)} />
             </Grid>
             <Grid size={2}>
-              <Button variant="outlined" onClick={() => onUpdateCriticalRollClick(critical.key)}>
-                Critical roll
+              <Button
+                variant="outlined"
+                disabled={!getCriticalRoll(critical.key)}
+                onClick={() => onUpdateCriticalRollClick(critical.key)}
+                endIcon={<PlayCircleOutlineIcon />}
+              >
+                {t('roll')}
               </Button>
             </Grid>
             <Grid size={12}></Grid>
