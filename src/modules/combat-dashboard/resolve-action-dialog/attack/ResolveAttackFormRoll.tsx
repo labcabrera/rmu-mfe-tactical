@@ -4,10 +4,11 @@ import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 import { Button, Stack, TextField, Grid } from '@mui/material';
 import { CombatContext } from '../../../../CombatContext';
 import { useError } from '../../../../ErrorContext';
-import { Action, ActionAttack, updateAttackRoll, updateCriticalRoll } from '../../../api/actions';
+import { Action, ActionAttack, updateAttackRoll, updateCriticalRoll } from '../../../api/action';
 import Effect from '../../../shared/generic/Effect';
 import { NumericInput } from '../../../shared/inputs/NumericInput';
 import SelectLocation from '../../../shared/selects/SelectLocation';
+import ResolveAttackFormCriticals from './ResolveAttackFormCriticals';
 import ResolveAttackInfo from './ResolveAttackInfo';
 
 const ResolveAttackFormRoll: FC<{
@@ -131,50 +132,9 @@ const ResolveAttackFormRoll: FC<{
             <TextField label={t('attack-table-result')} value={attack.results.attackTableEntry.text} variant="standard" fullWidth />
           </Grid>
           <Grid size={12}></Grid>
+          <ResolveAttackFormCriticals attack={attack} formData={formData} setFormData={setFormData} action={action} index={index} />
         </>
       )}
-      {attack.results &&
-        attack.results.criticals &&
-        attack.results.criticals.length > 0 &&
-        attack.results.criticals.map((critical: any, index: number) => (
-          <Fragment key={index}>
-            <Grid size={1}>
-              <TextField label={t('critical-type')} value={critical.criticalType} variant="standard" fullWidth />
-            </Grid>
-            <Grid size={1}>
-              <TextField label={t('critical-severity')} value={critical.criticalSeverity} variant="standard" fullWidth />
-            </Grid>
-            <Grid size={1}>
-              <NumericInput label={t('roll')} value={getCriticalRoll(critical.key)} onChange={(e) => onUpdateCriticalRoll(critical.key, e)} />
-            </Grid>
-            <Grid size={2}>
-              <Button
-                variant="outlined"
-                disabled={!getCriticalRoll(critical.key)}
-                onClick={() => onUpdateCriticalRollClick(critical.key)}
-                endIcon={<PlayCircleOutlineIcon />}
-              >
-                {t('roll')}
-              </Button>
-            </Grid>
-            <Grid size={12}></Grid>
-            <Grid size={1}></Grid>
-            <Grid size={11}>{critical.result?.text || ''}</Grid>
-            <Grid size={1}></Grid>
-            <Grid size={11}>
-              <Stack direction="row" spacing={1}>
-                {critical.result && critical.result.damage && critical.result.damage > 0 && <Effect effect={'dmg'} value={critical.result.damage} />}
-                {critical.result &&
-                  critical.result.effects &&
-                  critical.result.effects.length > 0 &&
-                  critical.result.effects.map((effect, effectIndex) => (
-                    <Effect key={effectIndex} effect={effect.status} rounds={effect.rounds} value={effect.value} />
-                  ))}
-              </Stack>
-            </Grid>
-            <Grid size={12}></Grid>
-          </Fragment>
-        ))}
     </Grid>
   );
 };

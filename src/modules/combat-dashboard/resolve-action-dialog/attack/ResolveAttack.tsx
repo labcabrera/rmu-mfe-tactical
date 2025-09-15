@@ -1,8 +1,8 @@
 import React, { FC, useContext, useEffect, useState } from 'react';
 import { CombatContext } from '../../../../CombatContext';
 import { useError } from '../../../../ErrorContext';
-import type { Action, ActionAttack, DeclareParryDto } from '../../../api/actions';
-import { prepareAttack, declareParry } from '../../../api/actions';
+import { prepareAttack, declareParry, applyAttack } from '../../../api/action';
+import { Action, ActionAttack, DeclareParryDto } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
 import type { Character } from '../../../api/characters';
 import ResolveActionDialogMovementStepper from './ResolveAttackStepper';
@@ -63,6 +63,18 @@ const ResolveAttack: FC<{
       .then((updatedAction) => {
         loadActionFromResponse(updatedAction);
         setActiveStep(3);
+      })
+      .catch((err: unknown) => {
+        if (err instanceof Error) showError(err.message);
+        else showError('An unknown error occurred');
+      });
+  };
+
+  const onApply = () => {
+    applyAttack(action.id)
+      .then((updatedAction) => {
+        loadActionFromResponse(updatedAction);
+        setActiveStep(4);
       })
       .catch((err: unknown) => {
         if (err instanceof Error) showError(err.message);
@@ -133,6 +145,7 @@ const ResolveAttack: FC<{
         onClose={onClose}
         onDeclare={onDeclare}
         onParry={onParry}
+        onApply={onApply}
         isValidDeclaration={isValidDeclaration}
       />
       {/* <pre>FormData: {JSON.stringify(formData, null, 2)}</pre>

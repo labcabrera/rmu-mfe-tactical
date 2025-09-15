@@ -1,8 +1,8 @@
 import React, { FC, useContext, useEffect, useState } from 'react';
 import { CombatContext } from '../../../../CombatContext';
 import { useError } from '../../../../ErrorContext';
-import { resolveMovement } from '../../../api/actions';
-import type { Action, ResolveMovementDto } from '../../../api/actions';
+import { resolveMovement } from '../../../api/action';
+import type { Action, ResolveMovementDto } from '../../../api/action';
 import type { Character } from '../../../api/characters';
 import type { TacticalGame } from '../../../api/tactical-games';
 import ResolveMovementStepper from './ResolveMovementStepper';

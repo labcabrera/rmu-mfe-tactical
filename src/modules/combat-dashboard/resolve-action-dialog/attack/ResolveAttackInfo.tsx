@@ -6,7 +6,7 @@ import Switch from '@mui/material/Switch';
 import TextField from '@mui/material/TextField';
 import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
-import { AttackDeclarationItemDto as ResolveAttackInfo } from '../../../api/actions';
+import { AttackDeclarationItemDto as ResolveAttackInfo } from '../../../api/action';
 import NumericReadonlyInput from '../../../shared/inputs/NumericReadonlyInput';
 import ActorRoundArmor from './ActorRoundArmor';
 

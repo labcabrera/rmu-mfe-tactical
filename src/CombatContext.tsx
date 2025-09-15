@@ -2,8 +2,10 @@ import React, { createContext, useEffect, useState, ReactNode, Dispatch, SetStat
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { Box, Typography, Accordion, AccordionDetails, AccordionSummary } from '@mui/material';
 import { useError } from './ErrorContext';
-import { Action, fetchActionsByGameAndRound } from './modules/api/actions';
-import { ActorRound, fetchActorRounds } from './modules/api/actor-rounds';
+import { fetchActionsByGameAndRound } from './modules/api/action';
+import { Action } from './modules/api/action.dto';
+import { fetchActorRounds } from './modules/api/actor-rounds';
+import { ActorRound } from './modules/api/actor-rounds.dto';
 import { Character, fetchCharacters } from './modules/api/characters';
 import { Faction, fetchFactions } from './modules/api/factions';
 import { StrategicGame, fetchStrategicGame } from './modules/api/strategic-games';
@@ -72,6 +74,7 @@ export const CombatProvider: React.FC<CombatProviderProps> = ({ children }) => {
   const bindActorRounds = (gameId: string, displayRound: number) => {
     fetchActorRounds(gameId, displayRound)
       .then((data: ActorRound[]) => {
+        data.sort((a, b) => a.actorName.localeCompare(b.actorName));
         setActorRounds(data);
       })
       .catch((err: any) => {

@@ -2,7 +2,7 @@ import React, { ChangeEvent, Dispatch, FC, SetStateAction, useContext } from 're
 import { FormControlLabel, Grid, Switch, TextField } from '@mui/material';
 import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
-import { ActionAttack } from '../../../api/actions';
+import { ActionAttack } from '../../../api/action';
 import { NumericInput } from '../../../shared/inputs/NumericInput';
 import NumericReadonlyInput from '../../../shared/inputs/NumericReadonlyInput';
 import SelectCalledShot from '../../../shared/selects/SelectCalledShot';

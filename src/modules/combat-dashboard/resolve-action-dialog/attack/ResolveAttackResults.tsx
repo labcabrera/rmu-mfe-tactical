@@ -1,6 +1,6 @@
 import React from 'react';
 import { Grid } from '@mui/material';
-import type { Action } from '../../../api/actions';
+import type { Action } from '../../../api/action';
 
 type ResolveAttackResultsProps = {
   action: Action;

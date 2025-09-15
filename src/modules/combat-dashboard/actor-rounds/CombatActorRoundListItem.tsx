@@ -1,7 +1,7 @@
 import React, { FC, useContext, useEffect, useState } from 'react';
 import { Grid, Paper } from '@mui/material';
 import { CombatContext } from '../../../CombatContext';
-import { Action } from '../../api/actions';
+import { Action } from '../../api/action';
 import type { ActorRound } from '../../api/actor-rounds';
 import type { Character } from '../../api/characters';
 import type { TacticalGame } from '../../api/tactical-games';

@@ -1,7 +1,7 @@
 import React, { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Chip, Grid, Stack, TextField } from '@mui/material';
-import type { Action } from '../../../api/actions';
+import type { Action } from '../../../api/action';
 import NumericReadonlyInput from '../../../shared/inputs/NumericReadonlyInput';
 
 type ResolveMovementResultsProps = {

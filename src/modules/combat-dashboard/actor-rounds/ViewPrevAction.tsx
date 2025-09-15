@@ -2,7 +2,7 @@ import React, { FC, useState } from 'react';
 import { Avatar } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
-import type { Action } from '../../api/actions';
+import type { Action } from '../../api/action';
 import type { ActorRound } from '../../api/actor-rounds';
 import type { Character } from '../../api/characters';
 import ResolveActionDialog from '../resolve-action-dialog/ResolveActionDialog';

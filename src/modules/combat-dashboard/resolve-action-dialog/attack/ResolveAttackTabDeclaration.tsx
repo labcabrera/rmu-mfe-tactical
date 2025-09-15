@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Box from '@mui/material/Box';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
-import { ActionAttack } from '../../../api/actions';
+import { ActionAttack } from '../../../api/action';
 import ResolveAttackFormModifiers from './ResolveAttackFormModifiers';
 
 type ResolveAttackTabDeclarationProps = {

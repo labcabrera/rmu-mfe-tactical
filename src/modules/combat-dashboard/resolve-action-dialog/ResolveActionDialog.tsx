@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-import { Action } from '../../api/actions';
+import { Action } from '../../api/action';
 import { ActorRound } from '../../api/actor-rounds';
 import { Character } from '../../api/characters';
 import ResolveAttack from './attack/ResolveAttack';

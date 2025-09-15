@@ -2,7 +2,7 @@ import React, { FC, useState } from 'react';
 import Box from '@mui/material/Box';
 import Tab from '@mui/material/Tab';
 import Tabs from '@mui/material/Tabs';
-import { Action, ActionAttack } from '../../../api/actions';
+import { Action, ActionAttack } from '../../../api/action';
 import ResolveAttackFormParry from './ResolveAttackFormParry';
 import ResolveAttackFormRoll from './ResolveAttackFormRoll';
 import ResolveAttackInfo from './ResolveAttackInfo';

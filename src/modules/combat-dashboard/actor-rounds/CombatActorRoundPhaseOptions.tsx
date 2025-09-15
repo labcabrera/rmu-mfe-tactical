@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Action } from '../../api/actions';
+import type { Action } from '../../api/action';
 import type { ActorRound } from '../../api/actor-rounds';
 import type { Character } from '../../api/characters';
 import { TacticalGame } from '../../api/tactical-games';
