@@ -1,5 +1,14 @@
 import { buildErrorFromResponse } from './api-errors';
 
+export type ActionStatus =
+  | 'declared'
+  | 'in_progress'
+  | 'parry_declaration'
+  | 'roll_declaration'
+  | 'critical_and_fumble_roll_declaration'
+  | 'pending_apply'
+  | 'completed';
+
 export type Action = {
   id: string;
   gameId: string;
@@ -8,7 +17,7 @@ export type Action = {
   actionType: 'movement' | 'attack' | 'skill' | 'free';
   phaseStart: number;
   phaseEnd: number | undefined;
-  status: 'declared' | 'in_progress' | 'completed';
+  status: ActionStatus;
   actionPoints: number | undefined;
   attacks: ActionAttack[] | undefined;
 };
@@ -33,7 +42,7 @@ export type AttackDeclarationItemDto = {
   roll: {
     roll: number | null;
     location: string | null;
-    criticalRolls?: Record<string, number | undefined>;
+    criticalRolls?: Map<string, number | undefined>;
   };
   calculated: AttackCalculationsDto | undefined;
   results: any;

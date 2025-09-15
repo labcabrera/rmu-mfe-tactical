@@ -5,7 +5,7 @@ import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 import { CombatContext } from '../../../../CombatContext';
 import { AttackDeclarationItemDto, ActionAttack } from '../../../api/actions';
-import { ActorRound } from '../../../api/actor-rounds';
+import { ActorRound } from '../../../api/actor-rounds.dto';
 import type { Character } from '../../../api/characters';
 import { NumericInput } from '../../../shared/inputs/NumericInput';
 import SelectAttackTarget from '../../../shared/selects/SelectAttackTarget';

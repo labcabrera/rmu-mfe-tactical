@@ -1,4 +1,4 @@
-import React, { FC, useContext } from 'react';
+import React, { Dispatch, FC, SetStateAction, useContext } from 'react';
 import Grid from '@mui/material/Grid';
 import TextField from '@mui/material/TextField';
 import { t } from 'i18next';
@@ -10,7 +10,7 @@ import ResolveAttackInfo from './ResolveAttackInfo';
 
 const ResolveAttackFormModifiers: FC<{
   formData: ActionAttack;
-  setFormData: (data: ActionAttack) => void;
+  setFormData: Dispatch<SetStateAction<ActionAttack>>;
   index: number;
 }> = ({ formData, setFormData, index }) => {
   const { actorRounds } = useContext(CombatContext);

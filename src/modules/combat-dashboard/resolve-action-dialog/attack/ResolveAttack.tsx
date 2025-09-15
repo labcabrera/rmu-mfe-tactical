@@ -89,7 +89,28 @@ const ResolveAttack: FC<{
     //TODO set formData and current step
     if (action && action.attacks) {
       setFormData({ attacks: action.attacks } as any);
-      if (action.status === 'in_progress') setActiveStep(2);
+      //if (action.attacks.roll?.roll) setActiveStep(1);
+      //if (action.status === 'in_progress') setActiveStep(2);
+    }
+    if (action && action.status) {
+      switch (action.status) {
+        case 'in_progress':
+          setActiveStep(1);
+          break;
+        case 'parry_declaration':
+          setActiveStep(2);
+          break;
+        case 'roll_declaration':
+        case 'critical_and_fumble_roll_declaration':
+        case 'pending_apply':
+          setActiveStep(3);
+          break;
+        case 'completed':
+          setActiveStep(4);
+          break;
+        default:
+          setActiveStep(0);
+      }
     }
   }, [action]);
 
