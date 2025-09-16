@@ -30,6 +30,7 @@ type CombatContextType = {
   setDisplayRound: Dispatch<SetStateAction<number | null>>;
   updateAction: (updatedAction: Action) => void;
   updateActorRound: (updatedActorRound: ActorRound) => void;
+  refreshActorRounds: () => void;
 };
 
 export const CombatContext = createContext<CombatContextType | undefined>(undefined);
