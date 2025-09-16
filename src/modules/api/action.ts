@@ -1,4 +1,4 @@
-import { Action, ActionAttack, AttackDeclaration, DeclareParryItemDto, ParryDeclaration } from './action.dto';
+import { Action, AttackDeclaration, ParryDeclaration } from './action.dto';
 import { buildErrorFromResponse } from './api-errors';
 
 export async function fetchAction(actionId: string): Promise<Action> {

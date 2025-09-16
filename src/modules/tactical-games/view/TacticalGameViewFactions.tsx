@@ -1,17 +1,15 @@
-import React from 'react';
+import React, { Dispatch, FC, SetStateAction } from 'react';
 import { Checkbox, FormControlLabel, List, Typography } from '@mui/material';
 import { useError } from '../../../ErrorContext';
 import type { Faction } from '../../api/factions';
 import { addFaction, deleteFaction } from '../../api/tactical-games';
 import type { TacticalGame } from '../../api/tactical-games';
 
-type TacticalGameViewFactionsProps = {
+const TacticalGameViewFactions: FC<{
   tacticalGame: TacticalGame;
-  setTacticalGame: (game: TacticalGame) => void;
+  setTacticalGame: Dispatch<SetStateAction<TacticalGame>>;
   factions: Faction[];
-};
-
-const TacticalGameViewFactions: React.FC<TacticalGameViewFactionsProps> = ({ tacticalGame, setTacticalGame, factions }) => {
+}> = ({ tacticalGame, setTacticalGame, factions }) => {
   const { showError } = useError();
 
   const isSelected = (factionId: string) => {

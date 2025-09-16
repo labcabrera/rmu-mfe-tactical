@@ -1,17 +1,15 @@
-import React from 'react';
+import React, { ChangeEvent, Dispatch, FC, SetStateAction } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Typography, Grid, TextField } from '@mui/material';
 import { UpdateTacticalGameDto } from '../../api/tactical-games';
 
-type TacticalGameEditAttributesProps = {
+const TacticalGameEditAttributes: FC<{
   formData: UpdateTacticalGameDto;
-  setFormData: (data: UpdateTacticalGameDto) => void;
-};
-
-const TacticalGameEditAttributes: React.FC<TacticalGameEditAttributesProps> = ({ formData, setFormData }) => {
+  setFormData: Dispatch<SetStateAction<UpdateTacticalGameDto>>;
+}> = ({ formData, setFormData }) => {
   const { t } = useTranslation();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData({
       ...formData,

@@ -59,6 +59,7 @@ const ResolveAttack: FC<{
       .then((updatedAction) => {
         loadActionFromResponse(updatedAction);
         setActiveStep(3);
+        refreshActorRounds();
       })
       .catch((err: unknown) => {
         if (err instanceof Error) showError(err.message);
@@ -67,10 +68,8 @@ const ResolveAttack: FC<{
   };
 
   const loadActionFromResponse = (updatedAction: Action) => {
-    console.log('ResolveAttacks loadActionFromResponse updatedAction', updatedAction);
     updateAction(updatedAction);
     setFormData({ attacks: updatedAction.attacks, parries: updatedAction.parries });
-    console.log('ResolveAttacks loadActionFromResponse formData', formData);
   };
 
   const checkValidForm = (): boolean => {
@@ -81,7 +80,6 @@ const ResolveAttack: FC<{
 
   useEffect(() => {
     if (action && action.attacks) {
-      console.log('Resolve attack useEffect with action', action);
       setFormData({ attacks: action.attacks, parries: action.parries });
     }
     if (action && action.status) {

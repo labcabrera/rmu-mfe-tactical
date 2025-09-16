@@ -4,16 +4,17 @@ import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 import { Button, Stack, TextField, Grid } from '@mui/material';
 import { CombatContext } from '../../../../CombatContext';
 import { useError } from '../../../../ErrorContext';
-import { Action, ActionAttack, AttackDeclarationItemDto, updateCriticalRoll } from '../../../api/action';
+import { updateCriticalRoll } from '../../../api/action';
+import { Action, ActionAttack, AttackDeclaration } from '../../../api/action.dto';
 import Effect from '../../../shared/generic/Effect';
 import { NumericInput } from '../../../shared/inputs/NumericInput';
 
 const ResolveAttackFormCriticals: FC<{
-  formData: ActionAttack;
-  setFormData: Dispatch<SetStateAction<ActionAttack>>;
+  formData: AttackDeclaration;
+  setFormData: Dispatch<SetStateAction<AttackDeclaration>>;
   action: Action;
   index: number;
-  attack: AttackDeclarationItemDto;
+  attack: ActionAttack;
 }> = ({ formData, setFormData, action, index, attack }) => {
   const { updateAction } = useContext(CombatContext);
   const { showError } = useError();
