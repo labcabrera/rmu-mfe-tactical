@@ -1,28 +1,27 @@
-import React, { ChangeEvent, FC, useContext } from 'react';
-import { Stack } from '@mui/material';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Grid from '@mui/material/Grid';
-import Switch from '@mui/material/Switch';
-import TextField from '@mui/material/TextField';
+import React, { ChangeEvent, Dispatch, FC, SetStateAction, useContext } from 'react';
+import { FormControlLabel, Grid, Switch, TextField } from '@mui/material';
 import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
-import { AttackDto } from '../../../api/actions';
+import { ActionAttack } from '../../../api/action';
 import { NumericInput } from '../../../shared/inputs/NumericInput';
 import NumericReadonlyInput from '../../../shared/inputs/NumericReadonlyInput';
+import SelectCalledShot from '../../../shared/selects/SelectCalledShot';
 import SelectCover from '../../../shared/selects/SelectCover';
 import SelectDodge from '../../../shared/selects/SelectDodge';
 import SelectPositionalSource from '../../../shared/selects/SelectPositionalSource';
 import SelectPositionalTarget from '../../../shared/selects/SelectPositionalTarget';
 import SelectRestrictedQuarters from '../../../shared/selects/SelectRestrictedQuarters';
+import ActorRoundArmor from './ActorRoundArmor';
 
 const ResolveAttackFormModifiers: FC<{
-  formData: AttackDto;
-  setFormData: (data: AttackDto) => void;
+  formData: ActionAttack;
+  setFormData: Dispatch<SetStateAction<ActionAttack>>;
   index: number;
 }> = ({ formData, setFormData, index }) => {
-  const { characters } = useContext(CombatContext);
+  const { actorRounds } = useContext(CombatContext);
 
-  const bo = formData.attacks?.[index]?.modifiers?.bo || '';
+  const modifiers = formData.attacks?.[index]?.modifiers;
+  const bo = formData.attacks?.[index]?.modifiers?.bo || null;
   const customBonus = formData.attacks?.[index]?.modifiers?.customBonus || null;
   const cover = formData.attacks?.[index]?.modifiers?.cover || '';
   const restrictedQuarters = formData.attacks?.[index]?.modifiers?.restrictedQuarters || '';
@@ -33,7 +32,7 @@ const ResolveAttackFormModifiers: FC<{
   const disabledDB = formData.attacks?.[index]?.modifiers?.disabledDB || false;
   const disabledShield = formData.attacks?.[index]?.modifiers?.disabledShield || false;
   const disabledParry = formData.attacks?.[index]?.modifiers?.disabledParry || false;
-  const targetName = characters.find((c) => c.id === formData.attacks?.[index]?.modifiers.targetId)?.name || '';
+  const target = actorRounds.find((actorRound) => actorRound.actorId === formData.attacks?.[index]?.modifiers.targetId);
 
   const handleChangeEvent = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => handleChange(e.target.name, e.target.value);
 
@@ -54,13 +53,33 @@ const ResolveAttackFormModifiers: FC<{
     setFormData({ ...formData, attacks: newAttacks });
   };
 
+  const onCalledShotChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    let penalty = 0;
+    if (value !== 'none') {
+      penalty = -25;
+    }
+    const newAttacks = formData.attacks.map((a, i) =>
+      i === index ? { ...a, modifiers: { ...a.modifiers, calledShot: value, calledShotPenalty: penalty } } : a
+    );
+    setFormData({ ...formData, attacks: newAttacks });
+  };
+
+  const onCalledShotPenaltyChange = (value: number | null) => {
+    const newAttacks = formData.attacks.map((a, i) => (i === index ? { ...a, modifiers: { ...a.modifiers, calledShotPenalty: value } } : a));
+    setFormData({ ...formData, attacks: newAttacks });
+  };
+
   return (
     <Grid container spacing={2} sx={{ marginTop: 1, marginBottom: 1 }}>
       <Grid size={2}>
-        <TextField label={t('target')} value={targetName} name="target" fullWidth variant="standard" />
+        <TextField label={t('target')} value={target?.actorName || ''} name="target" fullWidth variant="standard" />
       </Grid>
       <Grid size={2}>
         <NumericReadonlyInput label={t('attack-used-bo')} value={bo} name="target" />
+      </Grid>
+      <Grid size={2}>
+        <ActorRoundArmor actorRound={target} />
       </Grid>
       <Grid size={12}></Grid>
       <Grid size={2}>
@@ -77,6 +96,21 @@ const ResolveAttackFormModifiers: FC<{
       </Grid>
       <Grid size={2}>
         <SelectDodge value={dodge} onChange={handleChangeEvent} />
+      </Grid>
+      <Grid size={12}></Grid>
+      <Grid size={2}>
+        <SelectCalledShot value={modifiers.calledShot || ''} onChange={onCalledShotChange} />
+      </Grid>
+      <Grid size={2}>
+        {modifiers.calledShot && modifiers.calledShot !== 'none' && (
+          <NumericInput
+            label={t('called-shot-penalty')}
+            value={modifiers.calledShotPenalty || null}
+            name="calledShotPenalty"
+            onChange={onCalledShotPenaltyChange}
+            integer
+          />
+        )}
       </Grid>
       <Grid size={12}></Grid>
       <Grid size={2}>

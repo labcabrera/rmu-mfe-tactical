@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, FC } from 'react';
 import { Snackbar, Alert } from '@mui/material';
 
 type ErrorContextType = {
@@ -11,7 +11,7 @@ type ErrorProviderProps = {
   children: ReactNode;
 };
 
-export const ErrorProvider: React.FC<ErrorProviderProps> = ({ children }) => {
+export const ErrorProvider: FC<ErrorProviderProps> = ({ children }) => {
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState('');
 

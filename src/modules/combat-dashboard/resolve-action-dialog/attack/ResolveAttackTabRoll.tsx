@@ -1,11 +1,6 @@
 import React, { FC, useState } from 'react';
-import Box from '@mui/material/Box';
-import Tab from '@mui/material/Tab';
-import Tabs from '@mui/material/Tabs';
-import { Action, AttackDto } from '../../../api/actions';
-import ResolveAttackFormParry from './ResolveAttackFormParry';
+import { Box, Tab, Tabs } from '@mui/material';
 import ResolveAttackFormRoll from './ResolveAttackFormRoll';
-import ResolveAttackInfo from './ResolveAttackInfo';
 
 function a11yProps(index: number) {
   return {
@@ -31,8 +26,8 @@ function CustomTabPanel(props: CustomTabPanelProps) {
 }
 
 const ResolveAttackTabRoll: FC<{
-  formData: AttackDto;
-  setFormData: (data: AttackDto) => void;
+  formData: ActionAttack;
+  setFormData: (data: ActionAttack) => void;
   action: Action;
 }> = ({ formData, setFormData, action }) => {
   const [tabIndex, setTabIndex] = useState(0);

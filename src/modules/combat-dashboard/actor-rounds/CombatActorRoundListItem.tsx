@@ -1,8 +1,8 @@
 import React, { FC, useContext, useEffect, useState } from 'react';
 import { Grid, Paper } from '@mui/material';
 import { CombatContext } from '../../../CombatContext';
-import { Action } from '../../api/actions';
-import type { ActorRound } from '../../api/actor-rounds';
+import { Action } from '../../api/action.dto';
+import { ActorRound } from '../../api/actor-rounds.dto';
 import type { Character } from '../../api/characters';
 import type { TacticalGame } from '../../api/tactical-games';
 import CombatFreeActionButtons from '../CombatFreeActionButtons';

@@ -2,8 +2,10 @@ import React, { createContext, useEffect, useState, ReactNode, Dispatch, SetStat
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { Box, Typography, Accordion, AccordionDetails, AccordionSummary } from '@mui/material';
 import { useError } from './ErrorContext';
-import { Action, fetchActionsByGameAndRound } from './modules/api/actions';
-import { ActorRound, fetchActorRounds } from './modules/api/actor-rounds';
+import { fetchActionsByGameAndRound } from './modules/api/action';
+import { Action } from './modules/api/action.dto';
+import { fetchActorRounds } from './modules/api/actor-rounds';
+import { ActorRound } from './modules/api/actor-rounds.dto';
 import { Character, fetchCharacters } from './modules/api/characters';
 import { Faction, fetchFactions } from './modules/api/factions';
 import { StrategicGame, fetchStrategicGame } from './modules/api/strategic-games';
@@ -28,6 +30,7 @@ type CombatContextType = {
   setDisplayRound: Dispatch<SetStateAction<number | null>>;
   updateAction: (updatedAction: Action) => void;
   updateActorRound: (updatedActorRound: ActorRound) => void;
+  refreshActorRounds: () => void;
 };
 
 export const CombatContext = createContext<CombatContextType | undefined>(undefined);
@@ -72,6 +75,7 @@ export const CombatProvider: React.FC<CombatProviderProps> = ({ children }) => {
   const bindActorRounds = (gameId: string, displayRound: number) => {
     fetchActorRounds(gameId, displayRound)
       .then((data: ActorRound[]) => {
+        data.sort((a, b) => a.actorName.localeCompare(b.actorName));
         setActorRounds(data);
       })
       .catch((err: any) => {
@@ -110,6 +114,12 @@ export const CombatProvider: React.FC<CombatProviderProps> = ({ children }) => {
       .catch((err: any) => {
         showError(err.message);
       });
+  };
+
+  const refreshActorRounds = () => {
+    if (game && displayRound !== null) {
+      bindActorRounds(game.id, displayRound);
+    }
   };
 
   const updateAction = (updatedAction: Action) => {
@@ -164,6 +174,7 @@ export const CombatProvider: React.FC<CombatProviderProps> = ({ children }) => {
           setDisplayRound,
           updateAction,
           updateActorRound,
+          refreshActorRounds,
         }}
       >
         {children}

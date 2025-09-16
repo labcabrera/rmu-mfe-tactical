@@ -1,6 +1,6 @@
 import React from 'react';
-import type { Action } from '../../api/actions';
-import type { ActorRound } from '../../api/actor-rounds';
+import { Action } from '../../api/action.dto';
+import { ActorRound } from '../../api/actor-rounds.dto';
 import type { Character } from '../../api/characters';
 import { TacticalGame } from '../../api/tactical-games';
 import ResolveActionCard from '../ResolveActionCard';

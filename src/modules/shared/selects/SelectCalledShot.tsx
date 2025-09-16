@@ -1,17 +1,23 @@
-/* eslint-disable react/prop-types */
-import React from 'react';
+import React, { ChangeEvent, FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 
-const SelectDodge = ({ value, onChange, name = 'dodge' }) => {
+type SelectDodgeProps = {
+  value: string;
+  onChange: (event: ChangeEvent<HTMLInputElement>) => void;
+  name?: string;
+  label?: string;
+};
+
+const SelectCalledShot: FC<SelectDodgeProps> = ({ value, onChange, name = 'calledShot', label = 'Called Shot' }) => {
   const { t } = useTranslation();
-  const options = ['none', 'passive', 'partial', 'full'];
+  const options = ['none', 'head', 'body', 'arms', 'legs'];
 
   return (
     <TextField
       select
-      label={t('dodge')}
+      label={label}
       name={name}
       value={value === undefined || value === null || options.length === 0 ? '' : value}
       variant="standard"
@@ -20,11 +26,11 @@ const SelectDodge = ({ value, onChange, name = 'dodge' }) => {
     >
       {options.map((option, index) => (
         <MenuItem key={index} value={option}>
-          {t(`dodge-${option}`)}
+          {t(`${option}`)}
         </MenuItem>
       ))}
     </TextField>
   );
 };
 
-export default SelectDodge;
+export default SelectCalledShot;

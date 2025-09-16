@@ -1,7 +1,7 @@
 import React, { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Box, Button, Step, StepLabel, Stepper } from '@mui/material';
-import type { Action, ResolveMovementDto } from '../../../api/actions';
+import type { Action, ResolveMovementDto } from '../../../api/action';
 import type { Character } from '../../../api/characters';
 import type { StrategicGame } from '../../../api/strategic-games';
 import type { TacticalGame } from '../../../api/tactical-games';

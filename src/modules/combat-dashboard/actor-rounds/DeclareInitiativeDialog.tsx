@@ -1,10 +1,10 @@
-import React, { useState, useContext, FC, useEffect, ChangeEvent } from 'react';
+import React, { useState, useContext, FC, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grid, TextField } from '@mui/material';
+import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grid } from '@mui/material';
 import { CombatContext } from '../../../CombatContext';
 import { useError } from '../../../ErrorContext';
 import { declareActorRoundInitiative } from '../../api/actor-rounds';
-import type { ActorRound } from '../../api/actor-rounds';
+import { ActorRound } from '../../api/actor-rounds.dto';
 import { NumericInput } from '../../shared/inputs/NumericInput';
 import NumericReadonlyInput from '../../shared/inputs/NumericReadonlyInput';
 

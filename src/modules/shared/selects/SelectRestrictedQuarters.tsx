@@ -1,10 +1,12 @@
-/* eslint-disable react/prop-types */
-import React from 'react';
+import React, { ChangeEvent, FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import MenuItem from '@mui/material/MenuItem';
-import TextField from '@mui/material/TextField';
+import { MenuItem, TextField } from '@mui/material';
 
-const SelectRestrictedQuarters = ({ value, onChange, name = 'restrictedQuarters' }) => {
+const SelectRestrictedQuarters: FC<{
+  value: string;
+  onChange: (event: ChangeEvent<HTMLInputElement>) => void;
+  name?: string;
+}> = ({ value, onChange, name = 'restrictedQuarters' }) => {
   const { t } = useTranslation();
   const options = ['none', 'close', 'cramped', 'tight', 'confined'];
 

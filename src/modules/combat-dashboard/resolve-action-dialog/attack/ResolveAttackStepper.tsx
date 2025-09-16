@@ -1,12 +1,12 @@
-import React, { FC } from 'react';
+import React, { Dispatch, FC, SetStateAction } from 'react';
 import { useTranslation } from 'react-i18next';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Step from '@mui/material/Step';
 import StepLabel from '@mui/material/StepLabel';
 import Stepper from '@mui/material/Stepper';
-import { Action, AttackDto, ActionAttackParry } from '../../../api/actions';
-import { ActorRound } from '../../../api/actor-rounds';
+import { Action, AttackDeclaration } from '../../../api/action.dto';
+import { ActorRound } from '../../../api/actor-rounds.dto';
 import { Character } from '../../../api/characters';
 import ResolveAttackSelectAttacks from './ResolveAttackSelectAttacks';
 import ResolveAttackTabDeclaration from './ResolveAttackTabDeclaration';
@@ -16,18 +16,32 @@ import ResolveAttackTabRoll from './ResolveAttackTabRoll';
 const steps = ['Declare attacks and targets', 'Choose attack options', 'Parry', 'Resolve attacks', 'Results'];
 
 const ResolveAttackStepper: FC<{
-  formData: AttackDto;
-  setFormData: (data: AttackDto) => void;
+  formData: AttackDeclaration;
+  setFormData: Dispatch<SetStateAction<AttackDeclaration>>;
   activeStep: number;
-  setActiveStep: (step: number) => void;
+  setActiveStep: Dispatch<SetStateAction<number>>;
   onClose: () => void;
   onDeclare: () => void;
   onParry: () => void;
+  onApply: () => void;
   action: Action;
   actorRound: ActorRound;
   character: Character;
   isValidDeclaration: boolean;
-}> = ({ formData, setFormData, activeStep, setActiveStep, onClose, onDeclare, onParry, action, actorRound, character, isValidDeclaration }) => {
+}> = ({
+  formData,
+  setFormData,
+  activeStep,
+  setActiveStep,
+  onClose,
+  onDeclare,
+  onParry,
+  onApply,
+  action,
+  actorRound,
+  character,
+  isValidDeclaration,
+}) => {
   const { t } = useTranslation();
 
   const handleNext = () => {
@@ -72,7 +86,8 @@ const ResolveAttackStepper: FC<{
         </Button>
         <Box sx={{ flex: '1 1 auto' }} />
         {activeStep === 1 && (action.status === 'declared' || action.status === 'in_progress') && <Button onClick={onDeclare}>{t('prepare')}</Button>}
-        {activeStep === 2 && action.status === 'in_progress' && <Button onClick={onParry}>{t('parry')}</Button>}
+        {activeStep === 2 && action.status === 'parry_declaration' && <Button onClick={onParry}>{t('parry')}</Button>}
+        {activeStep === 3 && action.status !== 'completed' && <Button onClick={onApply}>{t('apply')}</Button>}
         <Button onClick={handleNext} disabled={isDisabledNext()}>
           {t('next')}
         </Button>

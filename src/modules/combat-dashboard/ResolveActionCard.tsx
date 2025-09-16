@@ -1,8 +1,8 @@
 import React, { FC, useContext, useState } from 'react';
 import { CombatContext } from '../../CombatContext';
 import { useError } from '../../ErrorContext';
-import { deleteAction } from '../api/actions';
-import type { Action } from '../api/actions';
+import { deleteAction } from '../api/action';
+import type { Action } from '../api/action';
 import { ActorRound } from '../api/actor-rounds';
 import type { Character } from '../api/characters';
 import DeleteDialog from '../shared/dialogs/DeleteDialog';

@@ -2,7 +2,7 @@ import React, { FC, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CombatContext } from '../../../CombatContext';
 import { useError } from '../../../ErrorContext';
-import { createAction } from '../../api/actions';
+import { createAction } from '../../api/action';
 import type { ActorRound } from '../../api/actor-rounds';
 import CircleButtonGroup from '../../shared/generic/CircleButtonGroup';
 

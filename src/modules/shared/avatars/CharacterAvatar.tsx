@@ -5,10 +5,11 @@ import type { Character } from '../../api/characters';
 type CharacterAvatarProps = {
   character: Character;
   size?: number;
+  dead?: boolean;
   variant?: 'circular' | 'rounded' | 'square';
 };
 
-const CharacterAvatar: FC<CharacterAvatarProps> = ({ character, variant = 'circular', size = 70 }) => {
+const CharacterAvatar: FC<CharacterAvatarProps> = ({ character, dead = false, variant = 'circular', size = 70 }) => {
   const defaultImage = '/static/images/races/unknown.png';
 
   const resolveImage = (): string => {
@@ -24,7 +25,17 @@ const CharacterAvatar: FC<CharacterAvatarProps> = ({ character, variant = 'circu
     return defaultImage;
   };
 
-  return <Avatar src={resolveImage()} variant={variant} sx={{ width: size, height: size }} />;
+  return (
+    <Avatar
+      src={resolveImage()}
+      variant={variant}
+      sx={{
+        width: size,
+        height: size,
+        filter: dead ? 'grayscale(1)' : undefined,
+      }}
+    />
+  );
 };
 
 export default CharacterAvatar;

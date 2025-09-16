@@ -1,6 +1,6 @@
 import React, { FC, useState } from 'react';
 import { FormControlLabel, Grid, Switch, TextField } from '@mui/material';
-import type { Action, ResolveMovementDto } from '../../../api/actions';
+import type { Action, ResolveMovementDto } from '../../../api/action';
 import type { Character } from '../../../api/characters';
 import type { StrategicGame } from '../../../api/strategic-games';
 import type { TacticalGame } from '../../../api/tactical-games';
