@@ -1,9 +1,12 @@
-import React from 'react';
+import React, { ChangeEvent, FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import MenuItem from '@mui/material/MenuItem';
-import TextField from '@mui/material/TextField';
+import { MenuItem, TextField } from '@mui/material';
 
-const SelectPositionalSource = ({ value, onChange, name = 'positionalSource' }) => {
+const SelectPositionalSource: FC<{
+  value: string;
+  onChange: (event: ChangeEvent<HTMLInputElement>) => void;
+  name?: string;
+}> = ({ value, onChange, name = 'positionalSource' }) => {
   const { t } = useTranslation();
   const options = ['none', 'to_flank', 'to_rear'];
 

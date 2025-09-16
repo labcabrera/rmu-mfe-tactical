@@ -1,22 +1,28 @@
-/* eslint-disable react/prop-types */
-import React from 'react';
+import React, { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import Avatar from '@mui/material/Avatar';
 import InputAdornment from '@mui/material/InputAdornment';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
-import { VARIANT } from '../../../constants/ui';
 
-const SelectChargeSpeed = ({ value, onChange }) => {
+type ChargeSpeedOption = {
+  id: string;
+  size: number;
+};
+
+const SelectChargeSpeed: FC<{
+  value: string;
+  onChange: (value: string) => void;
+}> = ({ value, onChange }) => {
   const { t } = useTranslation();
 
-  const restrictedQuartersOptions = [
+  const restrictedQuartersOptions: ChargeSpeedOption[] = [
     { id: 'none', size: 0 },
     { id: 'jog', size: 1 },
     { id: 'sprint', size: 2 },
   ];
 
-  const handleChange = (event) => {
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     onChange(event.target.value);
   };
 
@@ -25,7 +31,7 @@ const SelectChargeSpeed = ({ value, onChange }) => {
       select
       label={t('charge-speed')}
       value={value === undefined || value === null || restrictedQuartersOptions.length === 0 ? '' : value}
-      variant={VARIANT}
+      variant="standard"
       fullWidth
       onChange={handleChange}
       slotProps={{

@@ -1,18 +1,16 @@
-import React, { FC, useContext } from 'react';
+import React, { Dispatch, FC, SetStateAction, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import Checkbox from '@mui/material/Checkbox';
-import Grid from '@mui/material/Grid';
-import Typography from '@mui/material/Typography';
+import { Checkbox, Grid, Typography } from '@mui/material';
 import { CombatContext } from '../../../../CombatContext';
-import { AttackDeclarationItemDto, ActionAttack } from '../../../api/action';
+import { ActionAttack, AttackDeclaration } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
 import type { Character } from '../../../api/characters';
 import { NumericInput } from '../../../shared/inputs/NumericInput';
 import SelectAttackTarget from '../../../shared/selects/SelectAttackTarget';
 
 const ResolveAttackSelectAttacks: React.FC<{
-  formData: ActionAttack;
-  setFormData: (data: ActionAttack) => void;
+  formData: AttackDeclaration;
+  setFormData: Dispatch<SetStateAction<AttackDeclaration>>;
   actorRound: ActorRound;
   character: Character;
 }> = ({ formData, setFormData, actorRound, character }) => {
@@ -24,8 +22,8 @@ const ResolveAttackSelectAttacks: React.FC<{
 export default ResolveAttackSelectAttacks;
 
 const AttackList: FC<{
-  formData: ActionAttack;
-  setFormData: (data: ActionAttack) => void;
+  formData: AttackDeclaration;
+  setFormData: Dispatch<SetStateAction<AttackDeclaration>>;
   actorRound: ActorRound;
   character: Character;
   characters: Character[];
@@ -37,7 +35,7 @@ const AttackList: FC<{
 
   const handleToggle = (attackName: string) => {
     const exists = findAttack(attackName);
-    let newSelected: AttackDeclarationItemDto[];
+    let newSelected: ActionAttack[];
     if (exists) {
       newSelected = selected.filter((a) => a.modifiers.attackName !== attackName);
     } else {
@@ -53,6 +51,8 @@ const AttackList: FC<{
             restrictedQuarters: 'none',
             positionalSource: 'none',
             positionalTarget: 'none',
+            calledShot: undefined,
+            calledShotPenalty: undefined,
             dodge: 'none',
             range: null,
             customBonus: 0,

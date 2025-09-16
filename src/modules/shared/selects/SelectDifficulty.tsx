@@ -1,13 +1,20 @@
-/* eslint-disable react/prop-types */
-import React from 'react';
+import React, { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 
-const SelectDifficulty = ({ value, onChange }) => {
+type DifficultyCode = {
+  id: string;
+  modifier: number;
+};
+
+const SelectDifficulty: FC<{
+  value: string;
+  onChange: (value: string, code?: DifficultyCode) => void;
+}> = ({ value, onChange }) => {
   const { t } = useTranslation();
 
-  const codes = [
+  const codes: DifficultyCode[] = [
     { id: 'c', modifier: 70 },
     { id: 's', modifier: 50 },
     { id: 'r', modifier: 30 },
@@ -22,17 +29,18 @@ const SelectDifficulty = ({ value, onChange }) => {
     { id: 'ni', modifier: -100 },
   ];
 
-  const handleChange = (event) => {
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
-    const pace = codes.find((e) => e.id === value);
-    onChange(value, pace);
+    const code = codes.find((e) => e.id === value);
+    onChange(value, code);
   };
 
   return (
     <TextField select label={t('difficulty')} value={value} fullWidth onChange={handleChange} variant="standard">
       {codes.map((option, index) => (
         <MenuItem key={index} value={option.id}>
-          {t(`difficulty-${option.id}`)} ({option.modifier >= 0 ? '+' : ''} {option.modifier})
+          {t(`difficulty-${option.id}`)} ({option.modifier >= 0 ? '+' : ''}
+          {option.modifier})
         </MenuItem>
       ))}
     </TextField>

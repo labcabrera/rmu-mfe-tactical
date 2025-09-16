@@ -1,15 +1,18 @@
-import React from 'react';
+import React, { ChangeEvent, FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import MenuItem from '@mui/material/MenuItem';
-import TextField from '@mui/material/TextField';
+import { MenuItem, TextField } from '@mui/material';
+import { StrategicGame } from '../../api/strategic-games';
 
-const SelectStrategicGame = ({ value, onChange, strategicGames }) => {
+const SelectStrategicGame: FC<{
+  value: string;
+  onChange: (value: string) => void;
+  strategicGames: StrategicGame[];
+}> = ({ value, onChange, strategicGames }) => {
   const { t } = useTranslation();
 
-  const handleChange = (event) => {
-    const value = event.target.value;
-    const game = strategicGames.find((e) => e.id === value);
-    onChange(value, game);
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const selectedValue = event.target.value;
+    onChange(selectedValue);
   };
 
   if (!strategicGames) {

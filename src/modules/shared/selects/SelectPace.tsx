@@ -1,12 +1,20 @@
-import React from 'react';
+import React, { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import MenuItem from '@mui/material/MenuItem';
-import TextField from '@mui/material/TextField';
+import { MenuItem, TextField } from '@mui/material';
 
-const SelectPace = ({ name, value, onChange }) => {
+type Pace = {
+  id: string;
+  multiplier: number;
+};
+
+const SelectPace: FC<{
+  name?: string;
+  value: string;
+  onChange: (value: string, pace?: Pace) => void;
+}> = ({ name, value, onChange }) => {
   const { t } = useTranslation();
 
-  const codes = [
+  const codes: Pace[] = [
     { id: 'creep', multiplier: 1 / 8 },
     { id: 'walk', multiplier: 1 / 4 },
     { id: 'jog', multiplier: 1 / 2 },
@@ -15,7 +23,7 @@ const SelectPace = ({ name, value, onChange }) => {
     { id: 'dash', multiplier: 1.25 },
   ];
 
-  const handleChange = (event) => {
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
     const pace = codes.find((e) => e.id === value);
     onChange(value, pace);

@@ -2,7 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import Avatar from '@mui/material/Avatar';
 import InputAdornment from '@mui/material/InputAdornment';
-import TextField, { TextFieldProps } from '@mui/material/TextField';
+import TextField from '@mui/material/TextField';
 
 type AttackTextFieldProps = {
   i18Label?: string;
@@ -12,13 +12,7 @@ type AttackTextFieldProps = {
   required?: boolean;
 };
 
-const AttackTextField: React.FC<AttackTextFieldProps> = ({
-  i18Label = 'attack',
-  value,
-  onChange,
-  disabled = false,
-  required = false,
-}) => {
+const AttackTextField: React.FC<AttackTextFieldProps> = ({ i18Label = 'attack', value, onChange, disabled = false, required = false }) => {
   const { t } = useTranslation();
 
   return (

@@ -1,19 +1,19 @@
-import React, { Dispatch, FC, Fragment, SetStateAction, useContext } from 'react';
+import React, { Dispatch, FC, SetStateAction, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
-import { Button, Stack, TextField, Grid } from '@mui/material';
+import { Button, TextField, Grid } from '@mui/material';
 import { CombatContext } from '../../../../CombatContext';
 import { useError } from '../../../../ErrorContext';
-import { Action, ActionAttack, updateAttackRoll, updateCriticalRoll } from '../../../api/action';
-import Effect from '../../../shared/generic/Effect';
+import { updateAttackRoll } from '../../../api/action';
+import { Action, AttackDeclaration } from '../../../api/action.dto';
 import { NumericInput } from '../../../shared/inputs/NumericInput';
 import SelectLocation from '../../../shared/selects/SelectLocation';
 import ResolveAttackFormCriticals from './ResolveAttackFormCriticals';
 import ResolveAttackInfo from './ResolveAttackInfo';
 
 const ResolveAttackFormRoll: FC<{
-  formData: ActionAttack;
-  setFormData: Dispatch<SetStateAction<ActionAttack>>;
+  formData: AttackDeclaration;
+  setFormData: Dispatch<SetStateAction<AttackDeclaration>>;
   action: Action;
   index: number;
 }> = ({ formData, setFormData, action, index }) => {
@@ -29,34 +29,9 @@ const ResolveAttackFormRoll: FC<{
     const attackName = attack.modifiers.attackName;
     updateAttackRoll(action.id, attackName, roll, location)
       .then((updatedAction) => {
-        const newFormData = { attacks: updatedAction.attacks, parries: updatedAction.parries };
+        const newFormData = { attacks: updatedAction.attacks, parries: updatedAction.parries } as AttackDeclaration;
         updateAction(updatedAction);
-        //TODO fix types when model is updated
-        setFormData(newFormData as any);
-      })
-      .catch((err: unknown) => {
-        if (err instanceof Error) showError(err.message);
-        else showError('An unknown error occurred');
-      });
-  };
-
-  const getCriticalRoll = (criticalKey: string): number | undefined => {
-    let roll: number | undefined;
-    try {
-      roll = attack.roll!.criticalRolls[criticalKey];
-    } catch (e) {
-      console.error(e);
-    }
-    return roll;
-  };
-
-  const onUpdateCriticalRollClick = (criticalKey: string) => {
-    updateCriticalRoll(action.id, attack.modifiers.attackName, criticalKey, getCriticalRoll(criticalKey)!)
-      .then((updatedAction) => {
-        const newFormData = { attacks: updatedAction.attacks, parries: undefined };
-        updateAction(updatedAction);
-        //TODO fix types when model is updated
-        setFormData(newFormData as any);
+        setFormData(newFormData);
       })
       .catch((err: unknown) => {
         if (err instanceof Error) showError(err.message);
@@ -67,7 +42,6 @@ const ResolveAttackFormRoll: FC<{
   if (!formData || !formData.attacks || formData.attacks.length <= index) return <div>Loading...</div>;
 
   const updateRoll = (value: number | undefined) => {
-    console.log('updateRoll', value);
     const updated = { ...formData };
     if (updated.attacks && updated.attacks[index]) {
       if (!updated.attacks[index].roll) {
@@ -76,22 +50,6 @@ const ResolveAttackFormRoll: FC<{
         updated.attacks[index].roll = { ...updated.attacks[index].roll };
       }
       updated.attacks[index].roll.roll = value;
-      setFormData(updated);
-    }
-  };
-
-  const onUpdateCriticalRoll = (criticalKey: string, roll: number) => {
-    const updated = { ...formData };
-    if (updated.attacks && updated.attacks[index]) {
-      if (!updated.attacks[index].roll) {
-        updated.attacks[index].roll = { roll: null, location: null };
-      } else {
-        updated.attacks[index].roll = { ...updated.attacks[index].roll };
-      }
-      updated.attacks[index].roll.criticalRolls = {
-        ...updated.attacks[index].roll.criticalRolls,
-        [criticalKey]: roll,
-      };
       setFormData(updated);
     }
   };

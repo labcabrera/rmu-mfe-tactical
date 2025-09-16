@@ -1,17 +1,18 @@
-import React from 'react';
+import React, { ChangeEvent, FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import MenuItem from '@mui/material/MenuItem';
-import TextField from '@mui/material/TextField';
+import { MenuItem, TextField } from '@mui/material';
 
-const SelectMovementSkill = ({ value, onChange }) => {
+const SelectMovementSkill: FC<{
+  value: string;
+  onChange: (value: string) => void;
+}> = ({ value, onChange }) => {
   const { t } = useTranslation();
 
-  const codes = ['running', 'swimming', 'climbing', 'flying'];
+  const codes: string[] = ['running', 'swimming', 'climbing', 'flying'];
 
-  const handleChange = (event) => {
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
-    const pace = codes.find((e) => e.id === value);
-    onChange(value, pace);
+    onChange(value);
   };
 
   return (
