@@ -6,16 +6,16 @@ import Switch from '@mui/material/Switch';
 import TextField from '@mui/material/TextField';
 import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
-import { AttackDeclarationItemDto as ResolveAttackInfo } from '../../../api/action';
+import { ActionAttack } from '../../../api/action.dto';
 import NumericReadonlyInput from '../../../shared/inputs/NumericReadonlyInput';
 import ActorRoundArmor from './ActorRoundArmor';
 
 const ResolveAttackFormModifiers: FC<{
-  attack: ResolveAttackInfo;
+  attack: ActionAttack;
 }> = ({ attack }) => {
   const { actorRounds } = useContext(CombatContext);
 
-  if (!attack) return <div>Loading...</div>;
+  if (!attack || !attack.calculated) return <div>Loading...</div>;
 
   const getTarget = () => {
     return actorRounds.find((a) => a.actorId === attack.modifiers?.targetId);

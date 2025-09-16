@@ -1,4 +1,4 @@
-import { Action, AttackDeclarationDto, DeclareParryItemDto } from './action.dto';
+import { Action, ActionAttack, AttackDeclaration, DeclareParryItemDto, ParryDeclaration } from './action.dto';
 import { buildErrorFromResponse } from './api-errors';
 
 export async function fetchAction(actionId: string): Promise<Action> {
@@ -60,14 +60,17 @@ export async function resolveMovement(actionId: string, data: any): Promise<any>
   return await response.json();
 }
 
-export async function prepareAttack(actionId: string, data: AttackDeclarationDto): Promise<Action> {
+export async function prepareAttack(actionId: string, data: AttackDeclaration): Promise<Action> {
+  const body = {
+    attacks: data.attacks.map((a) => a.modifiers),
+  };
   const url = `${process.env.RMU_API_TACTICAL_URL}/actions/${actionId}/attack/prepare`;
   const response = await fetch(url, {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(data),
+    body: JSON.stringify(body),
   });
   if (response.status !== 200) {
     throw await buildErrorFromResponse(response, url);
@@ -75,7 +78,7 @@ export async function prepareAttack(actionId: string, data: AttackDeclarationDto
   return await response.json();
 }
 
-export async function declareParry(actionId: string, data: DeclareParryItemDto): Promise<Action> {
+export async function declareParry(actionId: string, data: ParryDeclaration): Promise<Action> {
   const url = `${process.env.RMU_API_TACTICAL_URL}/actions/${actionId}/attack/parry`;
   const response = await fetch(url, {
     method: 'PATCH',

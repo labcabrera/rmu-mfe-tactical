@@ -2,7 +2,7 @@ import React, { FC, useContext, useEffect, useState } from 'react';
 import { CombatContext } from '../../../../CombatContext';
 import { useError } from '../../../../ErrorContext';
 import { prepareAttack, declareParry, applyAttack } from '../../../api/action';
-import { Action, ActionAttack, DeclareParryDto } from '../../../api/action.dto';
+import { Action, AttackDeclaration, DeclareParryDto, ParryDeclaration } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
 import type { Character } from '../../../api/characters';
 import ResolveActionDialogMovementStepper from './ResolveAttackStepper';
@@ -17,7 +17,7 @@ const ResolveAttack: FC<{
   const [activeStep, setActiveStep] = useState<number>(action.status === 'declared' ? 0 : 1);
   const { showError } = useError();
   const [isValidDeclaration, setIsValidDeclaration] = useState(false);
-  const [formData, setFormData] = useState<ActionAttack>({
+  const [formData, setFormData] = useState<AttackDeclaration>({
     attacks: [],
     parries: [],
   });
@@ -27,13 +27,9 @@ const ResolveAttack: FC<{
       showError('You must declare at least one attack');
       return;
     }
-    const attackDeclarationDto = {
-      attacks: formData.attacks.map((a) => a.modifiers),
-      parries: formData.parries,
-    };
-    prepareAttack(action.id, attackDeclarationDto)
+    prepareAttack(action.id, formData)
       .then((updatedAction) => {
-        loadActionFromResponse(updatedAction);
+        updateAction(updatedAction);
         setActiveStep(2);
       })
       .catch((err: unknown) => {
@@ -43,25 +39,13 @@ const ResolveAttack: FC<{
   };
 
   const onParry = () => {
-    if (!formData || !formData.attacks || formData.attacks.length < 1) {
-      showError('You must declare at least one attack');
-      return;
-    }
-    const parryData = { parries: [] } as DeclareParryDto;
-    formData.attacks.forEach((attack) => {
-      attack.parries.forEach((parry) => {
-        if (parry.parry > 0) {
-          parryData.parries.push({
-            parryActorId: parry.parryActorId,
-            targetId: attack.modifiers.targetId,
-            parry: parry.parry,
-          });
-        }
-      });
+    const parryDeclaration = { parries: [] } as ParryDeclaration;
+    formData.parries.forEach((p) => {
+      parryDeclaration.parries.push({ parryId: p.id, parry: p.parry });
     });
-    declareParry(action.id, parryData as any)
+    declareParry(action.id, parryDeclaration)
       .then((updatedAction) => {
-        loadActionFromResponse(updatedAction);
+        updateAction(updatedAction);
         setActiveStep(3);
       })
       .catch((err: unknown) => {
@@ -85,10 +69,7 @@ const ResolveAttack: FC<{
 
   const loadActionFromResponse = (updatedAction: Action) => {
     if (updatedAction && updatedAction.attacks) {
-      const newFormData = { attacks: updatedAction.attacks, parries: undefined };
       updateAction(updatedAction);
-      //TODO fix types when model is updated
-      setFormData(newFormData as any);
     }
   };
 
@@ -99,30 +80,27 @@ const ResolveAttack: FC<{
   };
 
   useEffect(() => {
-    //TODO set formData and current step
     if (action && action.attacks) {
-      setFormData({ attacks: action.attacks } as any);
-      //if (action.attacks.roll?.roll) setActiveStep(1);
-      //if (action.status === 'in_progress') setActiveStep(2);
+      setFormData({ attacks: action.attacks, parries: action.parries });
     }
     if (action && action.status) {
       switch (action.status) {
         case 'in_progress':
-          setActiveStep(1);
+          //setActiveStep(1);
           break;
         case 'parry_declaration':
-          setActiveStep(2);
+          // setActiveStep(2);
           break;
         case 'roll_declaration':
         case 'critical_and_fumble_roll_declaration':
         case 'pending_apply':
-          setActiveStep(3);
+          // setActiveStep(3);
           break;
         case 'completed':
-          setActiveStep(4);
+          // setActiveStep(4);
           break;
         default:
-          setActiveStep(0);
+        // setActiveStep(0);
       }
     }
   }, [action]);
@@ -149,8 +127,8 @@ const ResolveAttack: FC<{
         onApply={onApply}
         isValidDeclaration={isValidDeclaration}
       />
-      {/* <pre>FormData: {JSON.stringify(formData, null, 2)}</pre>
-      <pre>Action: {JSON.stringify(action, null, 2)}</pre> */}
+      <pre>FormData: {JSON.stringify(formData, null, 2)}</pre>
+      {/* <pre>Action: {JSON.stringify(action, null, 2)}</pre> */}
     </>
   );
 };

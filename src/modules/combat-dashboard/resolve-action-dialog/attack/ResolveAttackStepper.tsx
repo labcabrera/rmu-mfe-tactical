@@ -1,12 +1,12 @@
-import React, { FC } from 'react';
+import React, { Dispatch, FC, SetStateAction } from 'react';
 import { useTranslation } from 'react-i18next';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Step from '@mui/material/Step';
 import StepLabel from '@mui/material/StepLabel';
 import Stepper from '@mui/material/Stepper';
-import { Action, ActionAttack, ActionAttackParry } from '../../../api/action';
-import { ActorRound } from '../../../api/actor-rounds';
+import { Action, AttackDeclaration } from '../../../api/action.dto';
+import { ActorRound } from '../../../api/actor-rounds.dto';
 import { Character } from '../../../api/characters';
 import ResolveAttackSelectAttacks from './ResolveAttackSelectAttacks';
 import ResolveAttackTabDeclaration from './ResolveAttackTabDeclaration';
@@ -16,10 +16,10 @@ import ResolveAttackTabRoll from './ResolveAttackTabRoll';
 const steps = ['Declare attacks and targets', 'Choose attack options', 'Parry', 'Resolve attacks', 'Results'];
 
 const ResolveAttackStepper: FC<{
-  formData: ActionAttack;
-  setFormData: (data: ActionAttack) => void;
+  formData: AttackDeclaration;
+  setFormData: Dispatch<SetStateAction<AttackDeclaration>>;
   activeStep: number;
-  setActiveStep: (step: number) => void;
+  setActiveStep: Dispatch<SetStateAction<number>>;
   onClose: () => void;
   onDeclare: () => void;
   onParry: () => void;

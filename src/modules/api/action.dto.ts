@@ -7,6 +7,20 @@ export type ActionStatus =
   | 'pending_apply'
   | 'completed';
 
+export type AttackDeclaration = {
+  attacks: ActionAttack[];
+  parries: ActionParry[] | undefined;
+};
+
+export type ParryDeclarationItem = {
+  parryId: string;
+  parry: number;
+};
+
+export type ParryDeclaration = {
+  parries: ParryDeclarationItem[];
+};
+
 export type Action = {
   id: string;
   gameId: string;
@@ -18,6 +32,7 @@ export type Action = {
   status: ActionStatus;
   actionPoints: number | undefined;
   attacks: ActionAttack[] | undefined;
+  parries: ActionParry[] | undefined;
 };
 
 export type ResolveMovementDto = {
@@ -29,14 +44,13 @@ export type ResolveMovementDto = {
   roll: number | null;
 };
 
-export type ActionAttack = {
-  attacks: AttackDeclarationItemDto[];
-  parries: AttackParryDto[];
-};
+// export type ActionAttack = {
+//   attacks: AttackDeclarationItemDto[];
+//   parries: ActionParryDto[];
+// };
 
-export type AttackDeclarationItemDto = {
+export type ActionAttack = {
   modifiers: AttackModifiersDto;
-  parries: AttackParryDto[];
   roll: {
     roll: number | null;
     location: string | null;
@@ -64,22 +78,19 @@ export type AttackModifiersDto = {
   customBonus: number | null;
 };
 
-export type AttackDeclarationDto = {
-  attacks: AttackModifiersDto[];
-  parries: AttackParryDto[];
-};
-
 export type AttackCalculationsDto = {
   rollModifiers: { key: string; value: number }[];
   rollTotal: number;
 };
 
-export type AttackParryDto = {
-  parryActorId: string;
-  targetId: string;
+export type ActionParry = {
+  id: string;
+  actorId: string;
+  targetActorId: string;
   parryType: 'parry' | 'protect' | undefined;
-  parryAvailable: number | undefined;
-  parry: number | undefined;
+  targetAttackName: string | undefined;
+  parryAvailable: number;
+  parry: number;
 };
 
 export type DeclareParryDto = {
