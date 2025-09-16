@@ -36,6 +36,8 @@ const ResolveAttackTabParry: FC<{
     setTabIndex(newValue);
   };
 
+  if (!formData || !formData.attacks) return <div>Loading...</div>;
+
   return (
     <Box sx={{ width: '100%' }}>
       <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>

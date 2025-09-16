@@ -56,7 +56,7 @@ const ResolveAttackFormModifiers: FC<{
                   min={0}
                 />
               </Grid>
-              <Grid size={6}></Grid>
+              <Grid size={12}></Grid>
             </React.Fragment>
           ))}
         </>

@@ -2,7 +2,7 @@ import React, { FC, useContext, useEffect, useState } from 'react';
 import { CombatContext } from '../../../../CombatContext';
 import { useError } from '../../../../ErrorContext';
 import { prepareAttack, declareParry, applyAttack } from '../../../api/action';
-import { Action, AttackDeclaration, DeclareParryDto, ParryDeclaration } from '../../../api/action.dto';
+import { Action, AttackDeclaration, ParryDeclaration } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
 import type { Character } from '../../../api/characters';
 import ResolveActionDialogMovementStepper from './ResolveAttackStepper';
@@ -29,7 +29,7 @@ const ResolveAttack: FC<{
     }
     prepareAttack(action.id, formData)
       .then((updatedAction) => {
-        updateAction(updatedAction);
+        loadActionFromResponse(updatedAction);
         setActiveStep(2);
       })
       .catch((err: unknown) => {
@@ -45,7 +45,7 @@ const ResolveAttack: FC<{
     });
     declareParry(action.id, parryDeclaration)
       .then((updatedAction) => {
-        updateAction(updatedAction);
+        loadActionFromResponse(updatedAction);
         setActiveStep(3);
       })
       .catch((err: unknown) => {
@@ -58,8 +58,7 @@ const ResolveAttack: FC<{
     applyAttack(action.id)
       .then((updatedAction) => {
         loadActionFromResponse(updatedAction);
-        refreshActorRounds();
-        setActiveStep(4);
+        setActiveStep(3);
       })
       .catch((err: unknown) => {
         if (err instanceof Error) showError(err.message);
@@ -68,9 +67,10 @@ const ResolveAttack: FC<{
   };
 
   const loadActionFromResponse = (updatedAction: Action) => {
-    if (updatedAction && updatedAction.attacks) {
-      updateAction(updatedAction);
-    }
+    console.log('ResolveAttacks loadActionFromResponse updatedAction', updatedAction);
+    updateAction(updatedAction);
+    setFormData({ attacks: updatedAction.attacks, parries: updatedAction.parries });
+    console.log('ResolveAttacks loadActionFromResponse formData', formData);
   };
 
   const checkValidForm = (): boolean => {
@@ -81,6 +81,7 @@ const ResolveAttack: FC<{
 
   useEffect(() => {
     if (action && action.attacks) {
+      console.log('Resolve attack useEffect with action', action);
       setFormData({ attacks: action.attacks, parries: action.parries });
     }
     if (action && action.status) {
