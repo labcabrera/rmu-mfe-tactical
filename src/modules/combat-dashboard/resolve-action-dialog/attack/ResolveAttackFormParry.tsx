@@ -1,18 +1,15 @@
 import React, { Dispatch, FC, SetStateAction, useContext } from 'react';
-import Grid from '@mui/material/Grid';
-import TextField from '@mui/material/TextField';
+import { Grid, TextField, Typography } from '@mui/material';
 import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { AttackDeclaration } from '../../../api/action.dto';
 import { NumericInput } from '../../../shared/inputs/NumericInput';
 import NumericReadonlyInput from '../../../shared/inputs/NumericReadonlyInput';
-import ResolveAttackInfo from './ResolveAttackInfo';
 
 const ResolveAttackFormModifiers: FC<{
   formData: AttackDeclaration;
   setFormData: Dispatch<SetStateAction<AttackDeclaration>>;
-  index: number;
-}> = ({ formData, setFormData, index }) => {
+}> = ({ formData, setFormData }) => {
   const { actorRounds } = useContext(CombatContext);
 
   if (!formData || !formData.attacks) return <div>Loading...</div>;
@@ -22,13 +19,16 @@ const ResolveAttackFormModifiers: FC<{
   };
 
   return (
-    <Grid container spacing={2} sx={{ marginTop: 1, marginBottom: 1 }}>
-      <ResolveAttackInfo attack={formData.attacks[index]} />
-      <Grid size={12}></Grid>
+    <Grid container spacing={1}>
       {formData.parries && (
         <>
           {formData.parries.map((parry, index) => (
             <React.Fragment key={index}>
+              <Grid size={12}>
+                <Typography variant="h6" color="primary">
+                  {t('parries')}
+                </Typography>
+              </Grid>
               <Grid size={2}>
                 <TextField label={t('defending-with')} value={t(getActorName(parry.actorId))} name="actorId" variant="standard" />
               </Grid>

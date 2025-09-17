@@ -1,5 +1,5 @@
 import React, { FC, useContext } from 'react';
-import { Stack, Chip, FormControlLabel, Grid, Switch, TextField } from '@mui/material';
+import { Stack, Chip, FormControlLabel, Grid, Switch, TextField, Typography } from '@mui/material';
 import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { ActionAttack } from '../../../api/action.dto';
@@ -25,6 +25,11 @@ const ResolveAttackFormModifiers: FC<{
 
   return (
     <Grid container spacing={1} sx={{ marginTop: 1, marginBottom: 1 }}>
+      <Grid size={12}>
+        <Typography variant="h6" color="primary">
+          {t(attack.modifiers.attackName)}
+        </Typography>
+      </Grid>
       <Grid size={2}>
         <TextField label={t('target')} value={getTarget()?.actorName || ''} name="target" fullWidth variant="standard" />
       </Grid>
@@ -84,7 +89,8 @@ const ResolveAttackFormModifiers: FC<{
       <Grid size={12}></Grid>
       <Grid size={12}></Grid>
       <Grid size={2}>
-        <NumericReadonlyInput label={t('total-modifiers')} value={attack.calculated.rollTotal} name="totalModifiers" />
+        {/* <NumericReadonlyInput label={t('total-modifiers')} value={attack.calculated.rollTotal} name="totalModifiers" /> */}
+        <Chip label={`${t('total-modifiers')}: ${attack.calculated.rollTotal}`} />
       </Grid>
       <Grid size={10}>
         <Stack direction="row" spacing={1}>
