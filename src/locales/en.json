@@ -53,6 +53,7 @@
   "effect-dead": "Dead",
   "effect-dying": "Dying",
   "effect-fatigue": "Fatigue",
+  "effect-knocked_back_distance": "Knocked back",
   "effect-penalty": "Penalty",
   "effect-prone": "Prone",
   "effect-staggered": "Staggered",

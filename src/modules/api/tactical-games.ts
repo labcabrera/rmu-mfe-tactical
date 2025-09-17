@@ -157,3 +157,12 @@ export async function startPhase(gameId: string): Promise<TacticalGame> {
   }
   return await response.json();
 }
+
+export async function randomizeInitiatives(gameId: string): Promise<TacticalGame> {
+  const url = `${process.env.RMU_API_TACTICAL_URL}/tactical-games/${gameId}/initiatives/randomize`;
+  const response = await fetch(url, { method: 'POST' });
+  if (response.status !== 200) {
+    throw await buildErrorFromResponse(response, url);
+  }
+  return await response.json();
+}
