@@ -1,5 +1,5 @@
 import React, { ChangeEvent, Dispatch, FC, SetStateAction, useContext } from 'react';
-import { FormControlLabel, Grid, Switch, TextField } from '@mui/material';
+import { FormControlLabel, Grid, Switch, TextField, Typography } from '@mui/material';
 import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { AttackDeclaration } from '../../../api/action.dto';
@@ -72,8 +72,13 @@ const ResolveAttackFormModifiers: FC<{
 
   return (
     <Grid container spacing={2} sx={{ marginTop: 1, marginBottom: 1 }}>
+      <Grid size={12}>
+        <Typography variant="h6" color="primary">
+          {t(modifiers.attackName)}
+        </Typography>
+      </Grid>
       <Grid size={2}>
-        <TextField label={t('target')} value={target?.actorName || ''} name="target" fullWidth variant="standard" />
+        <TextField label={t('target')} value={target?.actorName || ''} name="target" fullWidth disabled variant="standard" />
       </Grid>
       <Grid size={2}>
         <NumericReadonlyInput label={t('attack-used-bo')} value={bo} name="target" />
@@ -81,38 +86,6 @@ const ResolveAttackFormModifiers: FC<{
       <Grid size={2}>
         <ActorRoundArmor actorRound={target} />
       </Grid>
-      <Grid size={12}></Grid>
-      <Grid size={2}>
-        <SelectCover value={cover} onChange={handleChangeEvent} />
-      </Grid>
-      <Grid size={2}>
-        <SelectRestrictedQuarters value={restrictedQuarters} onChange={handleChangeEvent} />
-      </Grid>
-      <Grid size={2}>
-        <SelectPositionalSource value={positionalSource} onChange={handleChangeEvent} />
-      </Grid>
-      <Grid size={2}>
-        <SelectPositionalTarget value={positionalTarget} onChange={handleChangeEvent} />
-      </Grid>
-      <Grid size={2}>
-        <SelectDodge value={dodge} onChange={handleChangeEvent} />
-      </Grid>
-      <Grid size={12}></Grid>
-      <Grid size={2}>
-        <SelectCalledShot value={modifiers.calledShot || ''} onChange={onCalledShotChange} />
-      </Grid>
-      <Grid size={2}>
-        {modifiers.calledShot && modifiers.calledShot !== 'none' && (
-          <NumericInput
-            label={t('called-shot-penalty')}
-            value={modifiers.calledShotPenalty || null}
-            name="calledShotPenalty"
-            onChange={onCalledShotPenaltyChange}
-            integer
-          />
-        )}
-      </Grid>
-      <Grid size={12}></Grid>
       <Grid size={2}>
         <FormControlLabel control={<Switch checked={!!disabledDB} name="disabledDB" onChange={handleSwitchChangeEvent} />} label="Disabled DB" />
       </Grid>
@@ -130,11 +103,42 @@ const ResolveAttackFormModifiers: FC<{
       </Grid>
       <Grid size={12}></Grid>
       <Grid size={2}>
-        <NumericInput label={t('custom-bonus')} value={customBonus} name="customBonus" onChange={onCustomBonusChange} integer />
+        <SelectCover value={cover} onChange={handleChangeEvent} />
+      </Grid>
+      <Grid size={2}>
+        <SelectRestrictedQuarters value={restrictedQuarters} onChange={handleChangeEvent} />
+      </Grid>
+      <Grid size={2}>
+        <SelectPositionalSource value={positionalSource} onChange={handleChangeEvent} />
+      </Grid>
+      <Grid size={2}>
+        <SelectPositionalTarget value={positionalTarget} onChange={handleChangeEvent} />
+      </Grid>
+      <Grid size={2}>
+        <SelectDodge value={dodge} onChange={handleChangeEvent} />
       </Grid>
       <Grid size={2}>
         <NumericInput label={t('range')} value={range} name="range" onChange={onRangeChange} maxFractionDigits={1} allowNegatives={false} />
       </Grid>
+      <Grid size={12}></Grid>
+      <Grid size={2}>
+        <NumericInput label={t('custom-bonus')} value={customBonus} name="customBonus" onChange={onCustomBonusChange} integer />
+      </Grid>
+      <Grid size={2}>
+        <SelectCalledShot value={modifiers.calledShot || ''} onChange={onCalledShotChange} />
+      </Grid>
+      <Grid size={2}>
+        {modifiers.calledShot && modifiers.calledShot !== 'none' && (
+          <NumericInput
+            label={t('called-shot-penalty')}
+            value={modifiers.calledShotPenalty || null}
+            name="calledShotPenalty"
+            onChange={onCalledShotPenaltyChange}
+            integer
+          />
+        )}
+      </Grid>
+      <Grid size={12}></Grid>
     </Grid>
   );
 };
