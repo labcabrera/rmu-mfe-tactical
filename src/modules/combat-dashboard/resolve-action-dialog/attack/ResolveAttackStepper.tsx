@@ -6,8 +6,8 @@ import { ActorRound } from '../../../api/actor-rounds.dto';
 import { Character } from '../../../api/characters';
 import ResolveAttackDeclaration from './ResolveAttackDeclaration';
 import ResolveAttackParry from './ResolveAttackParry';
+import ResolveAttackTabRoll from './ResolveAttackRoll';
 import ResolveAttackSelectAttacks from './ResolveAttackSelectAttacks';
-import ResolveAttackTabRoll from './ResolveAttackTabRoll';
 
 const steps = ['Declare attacks and targets', 'Choose attack options', 'Parry', 'Resolve attacks', 'Results'];
 

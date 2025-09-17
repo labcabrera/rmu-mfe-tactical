@@ -1,17 +1,16 @@
 import React, { ChangeEvent, Dispatch, FC, SetStateAction, useContext } from 'react';
-import { FormControlLabel, Grid, Switch, TextField, Typography } from '@mui/material';
+import { FormControlLabel, Grid, Switch, Typography } from '@mui/material';
 import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { AttackDeclaration } from '../../../api/action.dto';
 import { NumericInput } from '../../../shared/inputs/NumericInput';
-import NumericReadonlyInput from '../../../shared/inputs/NumericReadonlyInput';
 import SelectCalledShot from '../../../shared/selects/SelectCalledShot';
 import SelectCover from '../../../shared/selects/SelectCover';
 import SelectDodge from '../../../shared/selects/SelectDodge';
 import SelectPositionalSource from '../../../shared/selects/SelectPositionalSource';
 import SelectPositionalTarget from '../../../shared/selects/SelectPositionalTarget';
 import SelectRestrictedQuarters from '../../../shared/selects/SelectRestrictedQuarters';
-import ActorRoundArmor from './ActorRoundArmor';
+import AttackTitle from './AttackTitle';
 
 const ResolveAttackFormModifiers: FC<{
   formData: AttackDeclaration;
@@ -20,19 +19,20 @@ const ResolveAttackFormModifiers: FC<{
 }> = ({ formData, setFormData, index }) => {
   const { actorRounds } = useContext(CombatContext);
 
-  const modifiers = formData.attacks?.[index]?.modifiers;
-  const bo = formData.attacks?.[index]?.modifiers?.bo || null;
-  const customBonus = formData.attacks?.[index]?.modifiers?.customBonus || null;
-  const cover = formData.attacks?.[index]?.modifiers?.cover || '';
-  const restrictedQuarters = formData.attacks?.[index]?.modifiers?.restrictedQuarters || '';
-  const positionalSource = formData.attacks?.[index]?.modifiers?.positionalSource || '';
-  const positionalTarget = formData.attacks?.[index]?.modifiers?.positionalTarget || '';
-  const dodge = formData.attacks?.[index]?.modifiers?.dodge || '';
-  const range = formData.attacks?.[index]?.modifiers?.range || null;
-  const disabledDB = formData.attacks?.[index]?.modifiers?.disabledDB || false;
-  const disabledShield = formData.attacks?.[index]?.modifiers?.disabledShield || false;
-  const disabledParry = formData.attacks?.[index]?.modifiers?.disabledParry || false;
-  const target = actorRounds.find((actorRound) => actorRound.actorId === formData.attacks?.[index]?.modifiers.targetId);
+  const attack = formData.attacks?.[index];
+  const modifiers = attack?.modifiers;
+  const bo = modifiers?.bo || null;
+  const customBonus = modifiers?.customBonus || null;
+  const cover = modifiers?.cover || '';
+  const restrictedQuarters = modifiers?.restrictedQuarters || '';
+  const positionalSource = modifiers?.positionalSource || '';
+  const positionalTarget = modifiers?.positionalTarget || '';
+  const dodge = modifiers?.dodge || '';
+  const range = modifiers?.range || null;
+  const disabledDB = modifiers?.disabledDB || false;
+  const disabledShield = modifiers?.disabledShield || false;
+  const disabledParry = modifiers?.disabledParry || false;
+  const target = actorRounds.find((actorRound) => actorRound.actorId === modifiers?.targetId);
 
   const handleChangeEvent = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => handleChange(e.target.name, e.target.value);
 
@@ -73,33 +73,7 @@ const ResolveAttackFormModifiers: FC<{
   return (
     <Grid container spacing={2} sx={{ marginTop: 1, marginBottom: 1 }}>
       <Grid size={12}>
-        <Typography variant="h6" color="primary">
-          {t(modifiers.attackName)}
-        </Typography>
-      </Grid>
-      <Grid size={2}>
-        <TextField label={t('target')} value={target?.actorName || ''} name="target" fullWidth disabled variant="standard" />
-      </Grid>
-      <Grid size={2}>
-        <NumericReadonlyInput label={t('attack-used-bo')} value={bo} name="target" />
-      </Grid>
-      <Grid size={2}>
-        <ActorRoundArmor actorRound={target} />
-      </Grid>
-      <Grid size={2}>
-        <FormControlLabel control={<Switch checked={!!disabledDB} name="disabledDB" onChange={handleSwitchChangeEvent} />} label="Disabled DB" />
-      </Grid>
-      <Grid size={2}>
-        <FormControlLabel
-          control={<Switch checked={!!disabledShield} name="disabledShield" onChange={handleSwitchChangeEvent} />}
-          label="Disabled Shield"
-        />
-      </Grid>
-      <Grid size={2}>
-        <FormControlLabel
-          control={<Switch checked={!!disabledParry} name="disabledParry" onChange={handleSwitchChangeEvent} />}
-          label="Disabled Parry"
-        />
+        <AttackTitle attack={attack} target={target} />
       </Grid>
       <Grid size={12}></Grid>
       <Grid size={2}>
@@ -138,7 +112,21 @@ const ResolveAttackFormModifiers: FC<{
           />
         )}
       </Grid>
-      <Grid size={12}></Grid>
+      <Grid size={2}>
+        <FormControlLabel control={<Switch checked={!!disabledDB} name="disabledDB" onChange={handleSwitchChangeEvent} />} label="Disabled DB" />
+      </Grid>
+      <Grid size={2}>
+        <FormControlLabel
+          control={<Switch checked={!!disabledShield} name="disabledShield" onChange={handleSwitchChangeEvent} />}
+          label="Disabled Shield"
+        />
+      </Grid>
+      <Grid size={2}>
+        <FormControlLabel
+          control={<Switch checked={!!disabledParry} name="disabledParry" onChange={handleSwitchChangeEvent} />}
+          label="Disabled Parry"
+        />
+      </Grid>
     </Grid>
   );
 };

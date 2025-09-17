@@ -1,11 +1,11 @@
 import React, { Dispatch, FC, SetStateAction, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
-import { Button, TextField, Grid } from '@mui/material';
+import { Button, TextField, Grid, Chip, Typography } from '@mui/material';
 import { CombatContext } from '../../../../CombatContext';
 import { useError } from '../../../../ErrorContext';
 import { updateAttackRoll } from '../../../api/action';
-import { Action, AttackDeclaration } from '../../../api/action.dto';
+import { Action, ActionAttack, AttackDeclaration } from '../../../api/action.dto';
 import { NumericInput } from '../../../shared/inputs/NumericInput';
 import SelectLocation from '../../../shared/selects/SelectLocation';
 import ResolveAttackFormCriticals from './ResolveAttackFormCriticals';
@@ -15,13 +15,13 @@ const ResolveAttackFormRoll: FC<{
   formData: AttackDeclaration;
   setFormData: Dispatch<SetStateAction<AttackDeclaration>>;
   action: Action;
+  attack: ActionAttack;
   index: number;
-}> = ({ formData, setFormData, action, index }) => {
+}> = ({ formData, setFormData, action, attack, index }) => {
   const { updateAction } = useContext(CombatContext);
   const { showError } = useError();
   const { t } = useTranslation();
 
-  const attack = formData.attacks[index];
   const roll = attack.roll?.roll || undefined;
   const location = attack.roll?.location || null;
 
@@ -68,7 +68,7 @@ const ResolveAttackFormRoll: FC<{
   };
 
   return (
-    <Grid container spacing={2} sx={{ marginTop: 1, marginBottom: 1 }}>
+    <Grid container spacing={1}>
       <Grid size={12}>
         <ResolveAttackInfo attack={formData.attacks[index]} />
       </Grid>
@@ -78,21 +78,23 @@ const ResolveAttackFormRoll: FC<{
       <Grid size={2}>
         <SelectLocation value={attack.roll?.location || null} onChange={(e) => updateLocation(e.target.value)} />
       </Grid>
-      <Grid size={2}>
+      <Grid size={1}>
         <Button onClick={() => handleRollClick()} disabled={!attack.roll?.roll} variant="outlined" endIcon={<PlayCircleOutlineIcon />}>
           {t('roll')}
         </Button>
       </Grid>
+      {attack.results && attack.results.attackTableEntry && (
+        <Grid size={1}>
+          <Chip label={attack.results.attackTableEntry.text} />
+        </Grid>
+      )}
       <Grid size={12}></Grid>
       {attack.results && attack.results.attackTableEntry && (
         <>
-          <Grid size={2}>
-            <TextField label={t('attack-table-result')} value={attack.results.attackTableEntry.text} variant="standard" fullWidth />
-          </Grid>
-          <Grid size={12}></Grid>
           <ResolveAttackFormCriticals attack={attack} formData={formData} setFormData={setFormData} action={action} index={index} />
         </>
       )}
+      <Grid size={12}></Grid>
     </Grid>
   );
 };

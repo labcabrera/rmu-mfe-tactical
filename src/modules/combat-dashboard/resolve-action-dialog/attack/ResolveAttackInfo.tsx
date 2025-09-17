@@ -1,21 +1,21 @@
 import React, { FC, useContext } from 'react';
-import { Stack, Chip, FormControlLabel, Grid, Switch, TextField, Typography } from '@mui/material';
+import { Stack, Chip, Grid, TextField, FormControlLabel, Switch } from '@mui/material';
 import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { ActionAttack } from '../../../api/action.dto';
 import NumericReadonlyInput from '../../../shared/inputs/NumericReadonlyInput';
 import ActorRoundArmor from './ActorRoundArmor';
+import AttackTitle from './AttackTitle';
 
 const ResolveAttackFormModifiers: FC<{
   attack: ActionAttack;
-}> = ({ attack }) => {
+  showDetail?: boolean;
+}> = ({ attack, showDetail = false }) => {
   const { actorRounds } = useContext(CombatContext);
 
   if (!attack || !attack.calculated) return <div>Loading...</div>;
 
-  const getTarget = () => {
-    return actorRounds.find((a) => a.actorId === attack.modifiers?.targetId);
-  };
+  const target = actorRounds.find((a) => a.actorId === attack.modifiers?.targetId);
 
   const getModifierColor = (value: number) => {
     if (value > 0) return 'primary';
@@ -26,70 +26,61 @@ const ResolveAttackFormModifiers: FC<{
   return (
     <Grid container spacing={1} sx={{ marginTop: 1, marginBottom: 1 }}>
       <Grid size={12}>
-        <Typography variant="h6" color="primary">
-          {t(attack.modifiers.attackName)}
-        </Typography>
-      </Grid>
-      <Grid size={2}>
-        <TextField label={t('target')} value={getTarget()?.actorName || ''} name="target" fullWidth variant="standard" />
-      </Grid>
-      <Grid size={2}>
-        <NumericReadonlyInput label={t('attack-used-bo')} value={attack.modifiers.bo} name="target" />
-      </Grid>
-      <Grid size={2}>
-        <ActorRoundArmor actorRound={getTarget()} />
+        <AttackTitle attack={attack} target={target} />
       </Grid>
       <Grid size={12}></Grid>
+      {showDetail && (
+        <>
+          <Grid size={2}>
+            <TextField label={t('cover')} value={t(`cover-${attack.modifiers.cover}`)} name="cover" fullWidth variant="standard" />
+          </Grid>
+          <Grid size={2}>
+            <TextField
+              label={t('restricted-quarters')}
+              value={t(attack.modifiers.restrictedQuarters)}
+              name="restrictedQuarters"
+              fullWidth
+              variant="standard"
+            />
+          </Grid>
+          <Grid size={2}>
+            <TextField
+              label={t('positional-source')}
+              value={t(`positional-${attack.modifiers.positionalSource}`)}
+              name="positionalSource"
+              fullWidth
+              variant="standard"
+            />
+          </Grid>
+          <Grid size={2}>
+            <TextField
+              label={t('positional-target')}
+              value={t(`positional-${attack.modifiers.positionalTarget}`)}
+              name="positionalTarget"
+              fullWidth
+              variant="standard"
+            />
+          </Grid>
+          <Grid size={2}>
+            <TextField label={t('attack-dodge')} value={t(`dodge-${attack.modifiers.dodge}`)} name="dodge" fullWidth variant="standard" />
+          </Grid>
+          <Grid size={2}>
+            <NumericReadonlyInput label={t('range')} value={attack.modifiers.range} name="range" />
+          </Grid>
+          <Grid size={12}></Grid>
+          <Grid size={2}>
+            <FormControlLabel control={<Switch checked={attack.modifiers.disabledDB} name="disabledDB" />} label="Disabled DB" />
+          </Grid>
+          <Grid size={2}>
+            <FormControlLabel control={<Switch checked={attack.modifiers.disabledShield} name="disabledShield" />} label="Disabled Shield" />
+          </Grid>
+          <Grid size={2}>
+            <FormControlLabel control={<Switch checked={attack.modifiers.disabledParry} name="disabledParry" />} label="Disabled Parry" />
+          </Grid>
+          <Grid size={12}></Grid>
+        </>
+      )}
       <Grid size={2}>
-        <TextField label={t('cover')} value={t(`cover-${attack.modifiers.cover}`)} name="cover" fullWidth variant="standard" />
-      </Grid>
-      <Grid size={2}>
-        <TextField
-          label={t('restricted-quarters')}
-          value={t(attack.modifiers.restrictedQuarters)}
-          name="restrictedQuarters"
-          fullWidth
-          variant="standard"
-        />
-      </Grid>
-      <Grid size={2}>
-        <TextField
-          label={t('positional-source')}
-          value={t(`positional-${attack.modifiers.positionalSource}`)}
-          name="positionalSource"
-          fullWidth
-          variant="standard"
-        />
-      </Grid>
-      <Grid size={2}>
-        <TextField
-          label={t('positional-target')}
-          value={t(`positional-${attack.modifiers.positionalTarget}`)}
-          name="positionalTarget"
-          fullWidth
-          variant="standard"
-        />
-      </Grid>
-      <Grid size={2}>
-        <TextField label={t('attack-dodge')} value={t(`dodge-${attack.modifiers.dodge}`)} name="dodge" fullWidth variant="standard" />
-      </Grid>
-      <Grid size={2}>
-        <NumericReadonlyInput label={t('range')} value={attack.modifiers.range} name="range" />
-      </Grid>
-      <Grid size={12}></Grid>
-      <Grid size={2}>
-        <FormControlLabel control={<Switch checked={attack.modifiers.disabledDB} name="disabledDB" />} label="Disabled DB" />
-      </Grid>
-      <Grid size={2}>
-        <FormControlLabel control={<Switch checked={attack.modifiers.disabledShield} name="disabledShield" />} label="Disabled Shield" />
-      </Grid>
-      <Grid size={2}>
-        <FormControlLabel control={<Switch checked={attack.modifiers.disabledParry} name="disabledParry" />} label="Disabled Parry" />
-      </Grid>
-      <Grid size={12}></Grid>
-      <Grid size={12}></Grid>
-      <Grid size={2}>
-        {/* <NumericReadonlyInput label={t('total-modifiers')} value={attack.calculated.rollTotal} name="totalModifiers" /> */}
         <Chip label={`${t('total-modifiers')}: ${attack.calculated.rollTotal}`} />
       </Grid>
       <Grid size={10}>
