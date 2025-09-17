@@ -31,6 +31,7 @@ export type Action = {
   phaseEnd: number | undefined;
   status: ActionStatus;
   actionPoints: number | undefined;
+  movement: any | undefined;
   attacks: ActionAttack[] | undefined;
   parries: ActionParry[] | undefined;
 };

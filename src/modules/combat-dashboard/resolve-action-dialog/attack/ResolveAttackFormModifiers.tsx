@@ -2,7 +2,7 @@ import React, { ChangeEvent, Dispatch, FC, SetStateAction, useContext } from 're
 import { FormControlLabel, Grid, Switch, TextField } from '@mui/material';
 import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
-import { ActionAttack } from '../../../api/action';
+import { AttackDeclaration } from '../../../api/action.dto';
 import { NumericInput } from '../../../shared/inputs/NumericInput';
 import NumericReadonlyInput from '../../../shared/inputs/NumericReadonlyInput';
 import SelectCalledShot from '../../../shared/selects/SelectCalledShot';
@@ -14,8 +14,8 @@ import SelectRestrictedQuarters from '../../../shared/selects/SelectRestrictedQu
 import ActorRoundArmor from './ActorRoundArmor';
 
 const ResolveAttackFormModifiers: FC<{
-  formData: ActionAttack;
-  setFormData: Dispatch<SetStateAction<ActionAttack>>;
+  formData: AttackDeclaration;
+  setFormData: Dispatch<SetStateAction<AttackDeclaration>>;
   index: number;
 }> = ({ formData, setFormData, index }) => {
   const { actorRounds } = useContext(CombatContext);

@@ -1,9 +1,5 @@
 import React, { FC, useContext } from 'react';
-import { Stack, Chip } from '@mui/material';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Grid from '@mui/material/Grid';
-import Switch from '@mui/material/Switch';
-import TextField from '@mui/material/TextField';
+import { Stack, Chip, FormControlLabel, Grid, Switch, TextField } from '@mui/material';
 import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { ActionAttack } from '../../../api/action.dto';

@@ -1,10 +1,6 @@
 import React, { Dispatch, FC, SetStateAction } from 'react';
 import { useTranslation } from 'react-i18next';
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import Step from '@mui/material/Step';
-import StepLabel from '@mui/material/StepLabel';
-import Stepper from '@mui/material/Stepper';
+import { Box, Button, Step, StepLabel, Stepper } from '@mui/material';
 import { Action, AttackDeclaration } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
 import { Character } from '../../../api/characters';

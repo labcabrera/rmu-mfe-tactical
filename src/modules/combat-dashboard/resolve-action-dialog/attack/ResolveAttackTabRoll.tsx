@@ -1,5 +1,6 @@
-import React, { FC, useState } from 'react';
+import React, { Dispatch, FC, SetStateAction, SyntheticEvent, useState } from 'react';
 import { Box, Tab, Tabs } from '@mui/material';
+import { Action, AttackDeclaration } from '../../../api/action.dto';
 import ResolveAttackFormRoll from './ResolveAttackFormRoll';
 
 function a11yProps(index: number) {
@@ -26,13 +27,13 @@ function CustomTabPanel(props: CustomTabPanelProps) {
 }
 
 const ResolveAttackTabRoll: FC<{
-  formData: ActionAttack;
-  setFormData: (data: ActionAttack) => void;
+  formData: AttackDeclaration;
+  setFormData: Dispatch<SetStateAction<AttackDeclaration>>;
   action: Action;
 }> = ({ formData, setFormData, action }) => {
   const [tabIndex, setTabIndex] = useState(0);
 
-  const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
+  const handleChange = (_event: SyntheticEvent, newValue: number) => {
     setTabIndex(newValue);
   };
 

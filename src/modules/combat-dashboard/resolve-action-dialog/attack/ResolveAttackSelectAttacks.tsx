@@ -55,7 +55,7 @@ const AttackList: FC<{
             calledShotPenalty: undefined,
             dodge: 'none',
             range: null,
-            customBonus: 0,
+            customBonus: undefined,
             disabledDB: false,
             disabledShield: false,
             disabledParry: false,

@@ -1,14 +1,7 @@
-import React, { useState } from 'react';
-import Box from '@mui/material/Box';
-import Tab from '@mui/material/Tab';
-import Tabs from '@mui/material/Tabs';
-import { ActionAttack } from '../../../api/action';
+import React, { Dispatch, FC, SetStateAction, SyntheticEvent, useState } from 'react';
+import { Box, Tab, Tabs } from '@mui/material';
+import { AttackDeclaration } from '../../../api/action.dto';
 import ResolveAttackFormModifiers from './ResolveAttackFormModifiers';
-
-type ResolveAttackTabDeclarationProps = {
-  formData: ActionAttack;
-  setFormData: (data: ActionAttack) => void;
-};
 
 function a11yProps(index: number) {
   return {
@@ -33,10 +26,13 @@ function CustomTabPanel(props: CustomTabPanelProps) {
   );
 }
 
-const ResolveAttackTabDeclaration: React.FC<ResolveAttackTabDeclarationProps> = ({ formData, setFormData }) => {
+const ResolveAttackTabDeclaration: FC<{
+  formData: AttackDeclaration;
+  setFormData: Dispatch<SetStateAction<AttackDeclaration>>;
+}> = ({ formData, setFormData }) => {
   const [tabIndex, setTabIndex] = useState(0);
 
-  const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
+  const handleChange = (_event: SyntheticEvent, newValue: number) => {
     setTabIndex(newValue);
   };
 
@@ -51,7 +47,7 @@ const ResolveAttackTabDeclaration: React.FC<ResolveAttackTabDeclarationProps> = 
       </Box>
       {formData.attacks.map((attack, index) => (
         <CustomTabPanel value={tabIndex} index={index} key={index}>
-          <ResolveAttackFormModifiers formData={formData} setFormData={setFormData} attack={attack} index={index} />
+          <ResolveAttackFormModifiers formData={formData} setFormData={setFormData} index={index} />
         </CustomTabPanel>
       ))}
     </Box>

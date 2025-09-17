@@ -22,7 +22,7 @@ const ResolveAttackFormRoll: FC<{
   const { t } = useTranslation();
 
   const attack = formData.attacks[index];
-  const roll = attack.roll?.roll || 0;
+  const roll = attack.roll?.roll || undefined;
   const location = attack.roll?.location || null;
 
   const handleRollClick = () => {
