@@ -21,7 +21,7 @@ const CardListItem: FC<{
         maxWidth: { maxWidth },
         minWidth: { minWidth },
         height: { height },
-        cursor: 'pointer',
+        cursor: onClick ? 'pointer' : 'default',
         transition: 'box-shadow 0.2s, background 0.2s',
         '&:hover': {
           boxShadow: 6,

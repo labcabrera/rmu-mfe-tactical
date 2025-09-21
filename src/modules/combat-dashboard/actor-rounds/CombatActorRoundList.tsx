@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { FC, useContext } from 'react';
 import NextPlanIcon from '@mui/icons-material/NextPlan';
 import { IconButton } from '@mui/material';
 import Grid from '@mui/material/Grid';
@@ -8,7 +8,7 @@ import { ActorRound } from '../../api/actor-rounds.dto';
 import { randomizeInitiatives } from '../../api/tactical-games';
 import CombatActorRoundListItem from './CombatActorRoundListItem';
 
-const CombatActorRoundList: React.FC = () => {
+const CombatActorRoundList: FC = () => {
   const { game, actorRounds, refreshActorRounds } = useContext(CombatContext)!;
   const { showError } = useError();
 

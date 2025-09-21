@@ -6,7 +6,7 @@ const TacticalGameAvatar: React.FC<{
   tacticalGame: TacticalGame;
   size?: number;
 }> = ({ tacticalGame, size = 70 }) => {
-  const defaultImage = '/static/images/avatars/sauron.png';
+  const defaultImage = '/static/images/avatars/avatar-017.png';
 
   const resolveImage = (game: TacticalGame) => {
     if (game.imageUrl) return game.imageUrl;

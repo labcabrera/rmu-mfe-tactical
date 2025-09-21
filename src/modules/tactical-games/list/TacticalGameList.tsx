@@ -30,6 +30,10 @@ const TacticalGameList: FC = () => {
     navigate('/tactical/games/create');
   };
 
+  const onTacticalGameClick = (tacticalGame: TacticalGame) => {
+    navigate(`/tactical/games/view/${tacticalGame.id}`, { state: { tacticalGame: tacticalGame } });
+  };
+
   useEffect(() => {
     fetchGames();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -52,7 +56,7 @@ const TacticalGameList: FC = () => {
         <Grid size={12}>
           <Box mb={2} display="flex" flexDirection="row" flexWrap="wrap" gap={2}>
             {games.map((game) => (
-              <TacticalGameCard key={game.id} tacticalGame={game} />
+              <TacticalGameCard key={game.id} tacticalGame={game} onClick={() => onTacticalGameClick(game)} />
             ))}
           </Box>
           {games.length === 0 && <span>No games found.</span>}
