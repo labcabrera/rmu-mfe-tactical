@@ -1,11 +1,12 @@
 import React, { FC, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { Link } from '@mui/material';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
+import { Box, Grid, IconButton, Typography } from '@mui/material';
 import { useError } from '../../../ErrorContext';
 import { fetchTacticalGames } from '../../api/tactical-games';
 import type { TacticalGame } from '../../api/tactical-games';
-import GameListItem from '../../shared/list-items/GameListItem';
+import TacticalGameCard from '../../shared/cards/TacticalGameCard';
 import TacticalGameListActions from './TacticalGameListActions';
 
 const TacticalGameList: FC = () => {
@@ -37,17 +38,26 @@ const TacticalGameList: FC = () => {
   return (
     <>
       <TacticalGameListActions />
-      {games.map((game) => (
-        <GameListItem key={game.id} game={game} />
-      ))}
-      {games.length === 0 ? (
-        <p>
-          No games found.{' '}
-          <Link component="button" onClick={handleNewGame}>
-            {t('create-new')}
-          </Link>
-        </p>
-      ) : null}
+      <Grid container spacing={2} mb={2} alignItems="center">
+        <Grid size={12}>
+          <Box display="flex" alignItems="center">
+            <Typography variant="h6" color="primary" display="inline">
+              {t('tactical-games')}
+            </Typography>
+            <IconButton onClick={handleNewGame} sx={{ ml: 1 }}>
+              <AddCircleIcon />
+            </IconButton>
+          </Box>
+        </Grid>
+        <Grid size={12}>
+          <Box mb={2} display="flex" flexDirection="row" flexWrap="wrap" gap={2}>
+            {games.map((game) => (
+              <TacticalGameCard key={game.id} tacticalGame={game} />
+            ))}
+          </Box>
+          {games.length === 0 && <span>No games found.</span>}
+        </Grid>
+      </Grid>
     </>
   );
 };

@@ -1,9 +1,11 @@
 import React, { Dispatch, FC, SetStateAction } from 'react';
-import { Checkbox, FormControlLabel, List, Typography } from '@mui/material';
+import { Box, Typography } from '@mui/material';
+import { t } from 'i18next';
 import { useError } from '../../../ErrorContext';
 import type { Faction } from '../../api/factions';
 import { addFaction, deleteFaction } from '../../api/tactical-games';
 import type { TacticalGame } from '../../api/tactical-games';
+import FactionCard from '../../shared/cards/FactionCard';
 
 const TacticalGameViewFactions: FC<{
   tacticalGame: TacticalGame;
@@ -16,9 +18,9 @@ const TacticalGameViewFactions: FC<{
     return tacticalGame.factions.includes(factionId);
   };
 
-  const handleFactionChange = (e: React.ChangeEvent<HTMLInputElement>, factionId: string) => {
-    const checked = e.target.checked;
-    const func = checked ? addFaction : deleteFaction;
+  const handleFactionChange = (factionId: string) => {
+    const checked = isSelected(factionId);
+    const func = checked ? deleteFaction : addFaction;
     func(tacticalGame.id, factionId)
       .then((updatedGame) => {
         setTacticalGame(updatedGame);
@@ -29,28 +31,20 @@ const TacticalGameViewFactions: FC<{
       });
   };
 
-  if (!tacticalGame) {
-    return <p>Loading game...</p>;
-  }
+  if (!tacticalGame) return <p>Loading game...</p>;
 
-  if (!factions) {
-    return <p>Loading factions...</p>;
-  }
+  if (!factions) return <p>Loading factions...</p>;
 
   return (
     <>
       <Typography variant="h6" color="primary">
-        Factions
+        {t('factions')}
       </Typography>
-      <List sx={{ width: '100%' }}>
+      <Box mb={2} display="flex" flexDirection="row" flexWrap="wrap" gap={2}>
         {factions.map((faction) => (
-          <FormControlLabel
-            key={faction.id}
-            control={<Checkbox checked={isSelected(faction.id)} onChange={(e) => handleFactionChange(e, faction.id)} />}
-            label={faction.name}
-          />
+          <FactionCard key={faction.id} disabled={!isSelected(faction.id)} faction={faction} onClick={() => handleFactionChange(faction.id)} />
         ))}
-      </List>
+      </Box>
     </>
   );
 };

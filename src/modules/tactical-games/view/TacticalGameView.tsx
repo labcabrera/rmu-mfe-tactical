@@ -1,7 +1,6 @@
 import React, { FC, useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { useLocation, useParams } from 'react-router-dom';
-import { Box, Grid, Typography } from '@mui/material';
+import { Grid } from '@mui/material';
 import { useError } from '../../../ErrorContext';
 import { fetchCharacters } from '../../api/characters';
 import type { Character } from '../../api/characters';
@@ -11,15 +10,15 @@ import { fetchStrategicGame } from '../../api/strategic-games';
 import type { StrategicGame } from '../../api/strategic-games';
 import { fetchTacticalGame } from '../../api/tactical-games';
 import type { TacticalGame } from '../../api/tactical-games';
+import TacticalGameAvatar from '../../shared/avatars/TacticalGameAvatar';
 import TacticalGameViewActions from './TacticalGameViewActions';
 import TacticalGameViewActors from './TacticalGameViewActors';
 import TacticalGameViewFactions from './TacticalGameViewFactions';
-import TacticalGameViewInfo from './TacticalGameViewInfo';
+import TacticalGameViewResume from './TacticalGameViewResume';
 
 const TacticalGameView: FC = () => {
   const location = useLocation();
   const { gameId } = useParams<{ gameId?: string }>();
-  const { t } = useTranslation();
   const { showError } = useError();
   const [tacticalGame, setTacticalGame] = useState<TacticalGame | null>(null);
   const [strategicGame, setStrategicGame] = useState<StrategicGame | null>(null);
@@ -100,20 +99,16 @@ const TacticalGameView: FC = () => {
   return (
     <>
       <TacticalGameViewActions tacticalGame={tacticalGame} />
-      <Box sx={{ flexGrow: 1 }}>
-        <Grid container spacing={2}>
-          <Grid size={4}>
-            <Typography variant="h6" color="primary">
-              {t('game-info')}
-            </Typography>
-            <TacticalGameViewInfo tacticalGame={tacticalGame} strategicGame={strategicGame} />
-            <TacticalGameViewFactions tacticalGame={tacticalGame} setTacticalGame={setTacticalGame} factions={factions} />
-          </Grid>
-          <Grid size={4}>
-            <TacticalGameViewActors tacticalGame={tacticalGame} setTacticalGame={setTacticalGame} factions={factions} characters={characters} />
-          </Grid>
+      <Grid container spacing={5}>
+        <Grid size={2}>
+          <TacticalGameAvatar tacticalGame={tacticalGame} size={300} />
+          <TacticalGameViewResume tacticalGame={tacticalGame} strategicGame={strategicGame} />
+          <TacticalGameViewFactions tacticalGame={tacticalGame} setTacticalGame={setTacticalGame} factions={factions} />
         </Grid>
-      </Box>
+        <Grid size={10}>
+          <TacticalGameViewActors tacticalGame={tacticalGame} setTacticalGame={setTacticalGame} factions={factions} characters={characters} />
+        </Grid>
+      </Grid>
     </>
   );
 };

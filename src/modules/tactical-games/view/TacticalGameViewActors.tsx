@@ -1,13 +1,11 @@
 import React, { Dispatch, FC, SetStateAction, useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
-import { Checkbox, List, ListItem, ListItemAvatar, ListItemButton, ListItemText, Typography } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import { useError } from '../../../ErrorContext';
 import type { Character } from '../../api/characters';
 import type { Faction } from '../../api/factions';
 import { addActor, deleteActor } from '../../api/tactical-games';
 import type { TacticalGame } from '../../api/tactical-games';
-import CharacterAvatar from '../../shared/avatars/CharacterAvatar';
+import CharacterCard from '../../shared/cards/CharacterCard';
 
 const TacticalGameViewActors: FC<{
   tacticalGame: TacticalGame;
@@ -15,16 +13,11 @@ const TacticalGameViewActors: FC<{
   factions: Faction[];
   characters: Character[];
 }> = ({ tacticalGame, setTacticalGame, factions, characters }) => {
-  const { t } = useTranslation();
-
   if (!tacticalGame || !factions || !characters) return <p>Loading...</p>;
-  if (tacticalGame.factions.length < 1) return <p>No available characters</p>;
+  if (tacticalGame.factions.length < 1) return <p>Select at least one faction to import actors.</p>;
 
   return (
     <>
-      <Typography variant="h6" color="primary">
-        {t('import-actors')}
-      </Typography>
       {tacticalGame.factions.map((factionId: string) => (
         <TacticalGameViewActorsFaction
           key={factionId}
@@ -65,12 +58,23 @@ const TacticalGameViewActorsFaction: FC<{
 
   return (
     <>
-      <Typography variant="h6">{faction?.name}</Typography>
-      <List dense>
-        {factionCharacters.map((character) => (
-          <TacticalGameViewActorsFactionItem key={character.id} tacticalGame={tacticalGame} setTacticalGame={setTacticalGame} character={character} />
-        ))}
-      </List>
+      <Typography variant="h6" color="primary">
+        {faction?.name}
+      </Typography>
+      {factionCharacters.length === 0 ? (
+        <p>No characters available for this faction.</p>
+      ) : (
+        <Box mb={2} display="flex" flexDirection="row" flexWrap="wrap" gap={2}>
+          {factionCharacters.map((character) => (
+            <TacticalGameViewActorsFactionItem
+              key={character.id}
+              tacticalGame={tacticalGame}
+              setTacticalGame={setTacticalGame}
+              character={character}
+            />
+          ))}
+        </Box>
+      )}
     </>
   );
 };
@@ -80,20 +84,14 @@ const TacticalGameViewActorsFactionItem: FC<{
   tacticalGame: TacticalGame;
   setTacticalGame: Dispatch<SetStateAction<TacticalGame>>;
 }> = ({ character, tacticalGame, setTacticalGame }) => {
-  const { t } = useTranslation();
-  const navigate = useNavigate();
   const { showError } = useError();
 
   const isSelected = () => {
     return tacticalGame.actors.some((actor: { id: string }) => actor.id === character.id);
   };
 
-  const getCharacterResume = () => {
-    return `${t(character.info.raceId)} - ${t(character.info.professionId)} - Lvl ${character.experience.availableLevel}`;
-  };
-
-  const handleToggle = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const func = e.target.checked ? addActor(tacticalGame.id, character.id, 'character') : deleteActor(tacticalGame.id, character.id);
+  const handleToggle = (character) => {
+    const func = isSelected() ? deleteActor(tacticalGame.id, character.id) : addActor(tacticalGame.id, character.id, 'character');
     func
       .then((response) => {
         setTacticalGame(response);
@@ -104,20 +102,7 @@ const TacticalGameViewActorsFactionItem: FC<{
       });
   };
 
-  const handleNavigate = () => {
-    navigate(`/strategic/characters/view/${character.id}`);
-  };
-
-  return (
-    <ListItem key={character.id} secondaryAction={<Checkbox edge="end" onChange={handleToggle} checked={isSelected()} />} disablePadding>
-      <ListItemButton onClick={handleNavigate}>
-        <ListItemAvatar sx={{ mr: 2 }}>
-          <CharacterAvatar character={character} />
-        </ListItemAvatar>
-        <ListItemText id={String(character.id)} primary={character.name} secondary={getCharacterResume()} />
-      </ListItemButton>
-    </ListItem>
-  );
+  return <CharacterCard character={character} disabled={!isSelected()} onClick={() => handleToggle(character)} />;
 };
 
 export default TacticalGameViewActors;
