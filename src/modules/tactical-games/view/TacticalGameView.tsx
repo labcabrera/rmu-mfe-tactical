@@ -100,12 +100,12 @@ const TacticalGameView: FC = () => {
     <>
       <TacticalGameViewActions tacticalGame={tacticalGame} />
       <Grid container spacing={5}>
-        <Grid size={2}>
+        <Grid size={3}>
           <TacticalGameAvatar tacticalGame={tacticalGame} size={300} />
           <TacticalGameViewResume tacticalGame={tacticalGame} strategicGame={strategicGame} />
           <TacticalGameViewFactions tacticalGame={tacticalGame} setTacticalGame={setTacticalGame} factions={factions} />
         </Grid>
-        <Grid size={10}>
+        <Grid size={9}>
           <TacticalGameViewActors tacticalGame={tacticalGame} setTacticalGame={setTacticalGame} factions={factions} characters={characters} />
         </Grid>
       </Grid>
