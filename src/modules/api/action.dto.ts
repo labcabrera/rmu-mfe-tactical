@@ -31,6 +31,7 @@ export type Action = {
   phaseEnd: number | undefined;
   status: ActionStatus;
   actionPoints: number | undefined;
+  movement: any | undefined;
   attacks: ActionAttack[] | undefined;
   parries: ActionParry[] | undefined;
 };
@@ -44,13 +45,8 @@ export type ResolveMovementDto = {
   roll: number | null;
 };
 
-// export type ActionAttack = {
-//   attacks: AttackDeclarationItemDto[];
-//   parries: ActionParryDto[];
-// };
-
 export type ActionAttack = {
-  modifiers: AttackModifiersDto;
+  modifiers: ActionAttackModifiers;
   roll: {
     roll: number | null;
     location: string | null;
@@ -60,7 +56,7 @@ export type ActionAttack = {
   results: any;
 };
 
-export type AttackModifiersDto = {
+export type ActionAttackModifiers = {
   attackName: string;
   targetId: string;
   bo: number | null;

@@ -73,7 +73,7 @@ const CombatActorRoundListItemCharacter: FC<CombatActorRoundListItemCharacterPro
               {character.name}
             </Typography>
             <Typography variant="subtitle2" component="div">
-              {t(character.info.raceId)} - {t(character.info.professionId)} - lvl {character.experience.level}
+              {character.info.raceName} - {t(character.info.professionId)} - lvl {character.experience.level}
             </Typography>
             <Typography variant="subtitle2" component="div">
               {faction?.name}

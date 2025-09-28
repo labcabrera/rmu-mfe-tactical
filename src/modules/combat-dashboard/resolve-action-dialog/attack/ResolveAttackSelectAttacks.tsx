@@ -2,7 +2,7 @@ import React, { Dispatch, FC, SetStateAction, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Checkbox, Grid, Typography } from '@mui/material';
 import { CombatContext } from '../../../../CombatContext';
-import { ActionAttack, AttackDeclaration } from '../../../api/action.dto';
+import { ActionAttack, ActionAttackModifiers, AttackDeclaration } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
 import type { Character } from '../../../api/characters';
 import { NumericInput } from '../../../shared/inputs/NumericInput';
@@ -39,30 +39,24 @@ const AttackList: FC<{
     if (exists) {
       newSelected = selected.filter((a) => a.modifiers.attackName !== attackName);
     } else {
-      newSelected = [
-        ...selected,
-        {
-          modifiers: {
-            attackName,
-            targetId: null,
-            bo: actorRound.attacks.find((a) => a.attackName === attackName)?.currentBo || 0,
-            calledShot: 'none',
-            cover: 'none',
-            restrictedQuarters: 'none',
-            positionalSource: 'none',
-            positionalTarget: 'none',
-            calledShot: undefined,
-            calledShotPenalty: undefined,
-            dodge: 'none',
-            range: null,
-            customBonus: 0,
-            disabledDB: false,
-            disabledShield: false,
-            disabledParry: false,
-          },
-          calculated: undefined,
-        },
-      ];
+      const modifiers = {
+        attackName,
+        targetId: null,
+        bo: actorRound.attacks.find((a) => a.attackName === attackName)?.currentBo || 0,
+        calledShot: 'none',
+        calledShotPenalty: undefined,
+        cover: 'none',
+        restrictedQuarters: 'none',
+        positionalSource: 'none',
+        positionalTarget: 'none',
+        dodge: 'none',
+        range: null,
+        disabledDB: false,
+        disabledShield: false,
+        disabledParry: false,
+        customBonus: undefined,
+      } as ActionAttackModifiers;
+      newSelected = [...selected, { modifiers, calculated: undefined, roll: undefined, results: undefined }];
     }
     setFormData({ ...formData, attacks: newSelected });
   };

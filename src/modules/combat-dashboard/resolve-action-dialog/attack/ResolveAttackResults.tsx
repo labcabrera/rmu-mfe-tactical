@@ -1,12 +1,10 @@
-import React from 'react';
+import React, { FC } from 'react';
 import { Grid } from '@mui/material';
-import type { Action } from '../../../api/action';
+import { Action } from '../../../api/action.dto';
 
-type ResolveAttackResultsProps = {
+const ResolveAttackResults: FC<{
   action: Action;
-};
-
-const ResolveAttackResults: React.FC<ResolveAttackResultsProps> = ({ action }) => {
+}> = ({ action }) => {
   if (!action?.movement?.calculated) {
     return <div>Unresolved movement</div>;
   }

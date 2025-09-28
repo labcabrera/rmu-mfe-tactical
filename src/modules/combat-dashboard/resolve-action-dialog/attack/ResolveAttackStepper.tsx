@@ -1,17 +1,13 @@
 import React, { Dispatch, FC, SetStateAction } from 'react';
 import { useTranslation } from 'react-i18next';
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import Step from '@mui/material/Step';
-import StepLabel from '@mui/material/StepLabel';
-import Stepper from '@mui/material/Stepper';
+import { Box, Button, Step, StepLabel, Stepper } from '@mui/material';
 import { Action, AttackDeclaration } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
 import { Character } from '../../../api/characters';
+import ResolveAttackDeclaration from './ResolveAttackDeclaration';
+import ResolveAttackParry from './ResolveAttackParry';
+import ResolveAttackTabRoll from './ResolveAttackRoll';
 import ResolveAttackSelectAttacks from './ResolveAttackSelectAttacks';
-import ResolveAttackTabDeclaration from './ResolveAttackTabDeclaration';
-import ResolveAttackTabParry from './ResolveAttackTabParry';
-import ResolveAttackTabRoll from './ResolveAttackTabRoll';
 
 const steps = ['Declare attacks and targets', 'Choose attack options', 'Parry', 'Resolve attacks', 'Results'];
 
@@ -77,8 +73,8 @@ const ResolveAttackStepper: FC<{
           <ResolveAttackSelectAttacks formData={formData} setFormData={setFormData} actorRound={actorRound} character={character} />
         </Box>
       )}
-      {activeStep === 1 && <ResolveAttackTabDeclaration formData={formData} setFormData={setFormData} />}
-      {activeStep === 2 && <ResolveAttackTabParry formData={formData} setFormData={setFormData} />}
+      {activeStep === 1 && <ResolveAttackDeclaration formData={formData} setFormData={setFormData} />}
+      {activeStep === 2 && <ResolveAttackParry formData={formData} setFormData={setFormData} />}
       {activeStep === 3 && <ResolveAttackTabRoll formData={formData} action={action} setFormData={setFormData} />}
       <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2, mt: 'auto' }}>
         <Button color="inherit" disabled={activeStep === 0} onClick={handleBack} sx={{ mr: 1 }}>
@@ -86,7 +82,7 @@ const ResolveAttackStepper: FC<{
         </Button>
         <Box sx={{ flex: '1 1 auto' }} />
         {activeStep === 1 && (action.status === 'declared' || action.status === 'in_progress') && <Button onClick={onDeclare}>{t('prepare')}</Button>}
-        {activeStep === 2 && action.status === 'parry_declaration' && <Button onClick={onParry}>{t('parry')}</Button>}
+        {activeStep === 2 && <Button onClick={onParry}>{t('parry')}</Button>}
         {activeStep === 3 && action.status !== 'completed' && <Button onClick={onApply}>{t('apply')}</Button>}
         <Button onClick={handleNext} disabled={isDisabledNext()}>
           {t('next')}

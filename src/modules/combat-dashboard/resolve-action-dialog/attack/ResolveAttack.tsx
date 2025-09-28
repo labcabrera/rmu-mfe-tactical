@@ -84,22 +84,9 @@ const ResolveAttack: FC<{
     }
     if (action && action.status) {
       switch (action.status) {
-        case 'in_progress':
-          //setActiveStep(1);
-          break;
-        case 'parry_declaration':
-          // setActiveStep(2);
-          break;
-        case 'roll_declaration':
-        case 'critical_and_fumble_roll_declaration':
-        case 'pending_apply':
-          // setActiveStep(3);
-          break;
         case 'completed':
-          // setActiveStep(4);
+          setActiveStep(3);
           break;
-        default:
-        // setActiveStep(0);
       }
     }
   }, [action]);
@@ -126,7 +113,7 @@ const ResolveAttack: FC<{
         onApply={onApply}
         isValidDeclaration={isValidDeclaration}
       />
-      <pre>FormData: {JSON.stringify(formData, null, 2)}</pre>
+      {/* <pre>FormData: {JSON.stringify(formData, null, 2)}</pre> */}
       {/* <pre>Action: {JSON.stringify(action, null, 2)}</pre> */}
     </>
   );
