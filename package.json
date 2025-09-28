@@ -1,5 +1,5 @@
 {
-  "name": "rmu-fe-tactical",
+  "name": "rmu-mfe-tactical",
   "version": "0.5.0",
   "scripts": {
     "build": "webpack --mode production",

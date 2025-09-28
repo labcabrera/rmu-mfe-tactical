@@ -1,7 +1,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: rmu-fe-tactical-ingress
+  name: rmu-mfe-tactical-ingress
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
@@ -17,6 +17,6 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: rmu-fe-tactical-service
+                name: rmu-mfe-tactical-service
                 port:
                   number: 80

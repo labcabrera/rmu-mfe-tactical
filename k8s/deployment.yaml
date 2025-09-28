@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: rmu-fe-tactical
+  name: rmu-mfe-tactical
   labels:
-    app: rmu-fe-tactical
+    app: rmu-mfe-tactical
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: rmu-fe-tactical
+      app: rmu-mfe-tactical
   template:
     metadata:
       labels:
-        app: rmu-fe-tactical
+        app: rmu-mfe-tactical
     spec:
       containers:
-      - name: rmu-fe-tactical
-        image: labcabrera/rmu-fe-tactical:latest
+      - name: rmu-mfe-tactical
+        image: labcabrera/rmu-mfe-tactical:latest
         ports:
         - containerPort: 8083
         env:
