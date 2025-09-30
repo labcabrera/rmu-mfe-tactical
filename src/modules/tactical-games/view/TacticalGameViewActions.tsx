@@ -58,7 +58,7 @@ const TacticalGameViewActions: FC<{
             <span>{tacticalGame.name}</span>
           </Breadcrumbs>
         </Box>
-        <Stack direction="row" spacing={2}>
+        <Stack direction="row" spacing={1}>
           <CloseButton onClick={() => {}} />
           <PlayButton onClick={onPlay} />
           <EditButton onClick={onEdit} />
