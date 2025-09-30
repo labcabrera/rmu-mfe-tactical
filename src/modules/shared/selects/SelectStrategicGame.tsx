@@ -25,6 +25,7 @@ const SelectStrategicGame: FC<{
       fullWidth
       variant="standard"
       onChange={handleChange}
+      error={!value}
     >
       {strategicGames.map((option, index) => (
         <MenuItem key={index} value={option.id}>

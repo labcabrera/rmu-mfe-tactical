@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import React, { FC, useState } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { Box, Breadcrumbs, Link, Stack } from '@mui/material';
+import { t } from 'i18next';
 import { useError } from '../../../ErrorContext';
 import { deleteTacticalGame, startRound } from '../../api/tactical-games';
 import type { TacticalGame } from '../../api/tactical-games';
@@ -11,73 +11,48 @@ import EditButton from '../../shared/buttons/EditButton';
 import PlayButton from '../../shared/buttons/PlayButton';
 import DeleteDialog from '../../shared/dialogs/DeleteDialog';
 
-type TacticalGameViewActionsProps = {
+const TacticalGameViewActions: FC<{
   tacticalGame: TacticalGame;
-};
-
-const TacticalGameViewActions: React.FC<TacticalGameViewActionsProps> = ({ tacticalGame }) => {
+}> = ({ tacticalGame }) => {
   const navigate = useNavigate();
   const { showError } = useError();
-  const { t } = useTranslation();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
-  const handleDeleteTacticalGame = async () => {
-    try {
-      await deleteTacticalGame(tacticalGame.id);
-      navigate('/tactical/games');
-    } catch (err: unknown) {
-      if (err instanceof Error) showError(err.message);
-      else showError('An unknown error occurred');
-    }
+  const onDelete = () => {
+    deleteTacticalGame(tacticalGame.id)
+      .then(() => {
+        navigate('/tactical/games');
+        setDeleteDialogOpen(false);
+      })
+      .catch((err) => showError(err.message));
   };
 
-  const handleEditClick = () => {
+  const onEdit = () => {
     navigate(`/tactical/games/edit/${tacticalGame.id}`, { state: { tacticalGame } });
   };
 
-  const handleOpenClick = async () => {
-    try {
-      if (tacticalGame.status === 'created') {
-        const game = await startRound(tacticalGame.id);
-        navigate(`/tactical/combat/${game.id}`);
-      } else {
-        navigate(`/tactical/combat/${tacticalGame.id}`, { state: { tacticalGame } });
-      }
-    } catch (err) {
-      if (err instanceof Error) showError('Error starting tactical game: ' + err.message);
-      else showError('Error starting tactical game');
+  const onPlay = async () => {
+    if (tacticalGame.status === 'created') {
+      startRound(tacticalGame.id)
+        .then((data) => navigate(`/tactical/combat/${data.id}`, { state: { tacticalGame: data } }))
+        .catch((err) => showError(err.message));
+    } else {
+      navigate(`/tactical/combat/${tacticalGame.id}`, { state: { tacticalGame } });
     }
   };
-
-  const handleDeleteClick = () => {
-    setDeleteDialogOpen(true);
-  };
-
-  const handleDialogDeleteClose = () => {
-    setDeleteDialogOpen(false);
-  };
-
-  const handleDialogDelete = () => {
-    handleDeleteTacticalGame();
-    setDeleteDialogOpen(false);
-  };
-
-  if (!tacticalGame) {
-    return <p>Loading...</p>;
-  }
 
   return (
     <>
       <Stack spacing={2} direction="row" justifyContent="space-between" alignItems="center" sx={{ minHeight: 80 }}>
         <Box>
           <Breadcrumbs aria-label="breadcrumb">
-            <Link color="inherit" href="/">
+            <Link color="primary" underline="hover" href="/">
               {t('home')}
             </Link>
-            <Link component={RouterLink} color="inherit" to="/tactical/games">
+            <Link component={RouterLink} color="primary" underline="hover" to="/tactical/games">
               {t('tactical')}
             </Link>
-            <Link component={RouterLink} color="inherit" to="/tactical/games">
+            <Link component={RouterLink} color="primary" underline="hover" to="/tactical/games">
               {t('games')}
             </Link>
             <span>{tacticalGame.name}</span>
@@ -85,16 +60,16 @@ const TacticalGameViewActions: React.FC<TacticalGameViewActionsProps> = ({ tacti
         </Box>
         <Stack direction="row" spacing={2}>
           <CloseButton onClick={() => {}} />
-          <PlayButton onClick={handleOpenClick} />
-          <EditButton onClick={handleEditClick} />
-          <DeleteButton onClick={handleDeleteClick} />
+          <PlayButton onClick={onPlay} />
+          <EditButton onClick={onEdit} />
+          <DeleteButton onClick={() => setDeleteDialogOpen(true)} />
         </Stack>
       </Stack>
       <DeleteDialog
         message={`Are you sure you want to delete ${tacticalGame.name} game? This action cannot be undone.`}
-        onDelete={handleDialogDelete}
+        onDelete={() => onDelete()}
         open={deleteDialogOpen}
-        onClose={handleDialogDeleteClose}
+        onClose={() => setDeleteDialogOpen(false)}
       />
     </>
   );

@@ -13,21 +13,21 @@ const TacticalGameCreationResume: FC<{
   return (
     <Grid container spacing={2}>
       <Grid size={12}>
-        <SelectStrategicGame
-          value={formData.strategicGameId}
-          onChange={(e) => setFormData({ ...formData, strategicGameId: e })}
-          strategicGames={strategicGames}
-        />
-      </Grid>
-      <Grid size={12}>
         <TextField
           label={t('name')}
           variant="standard"
           name="name"
           value={formData.name}
           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          required
           fullWidth
+          error={!formData.name || formData.name.trim() === ''}
+        />
+      </Grid>
+      <Grid size={12}>
+        <SelectStrategicGame
+          value={formData.strategicGameId}
+          onChange={(e) => setFormData({ ...formData, strategicGameId: e })}
+          strategicGames={strategicGames}
         />
       </Grid>
     </Grid>
