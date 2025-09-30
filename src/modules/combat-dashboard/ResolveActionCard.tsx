@@ -2,8 +2,8 @@ import React, { FC, useContext, useState } from 'react';
 import { CombatContext } from '../../CombatContext';
 import { useError } from '../../ErrorContext';
 import { deleteAction } from '../api/action';
-import type { Action } from '../api/action';
-import { ActorRound } from '../api/actor-rounds';
+import { Action } from '../api/action.dto';
+import { ActorRound } from '../api/actor-rounds.dto';
 import type { Character } from '../api/characters';
 import DeleteDialog from '../shared/dialogs/DeleteDialog';
 import CircleButtonGroup from '../shared/generic/CircleButtonGroup';
@@ -19,28 +19,16 @@ const ResolveActionCard: FC<{
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [resolveDialogOpen, setResolveDialogOpen] = useState(false);
 
-  const handleOpenDeleteDialog = () => {
-    setDeleteDialogOpen(true);
-  };
-
-  const handleDeleteAction = async () => {
+  const onDelete = async () => {
     deleteAction(action.id)
       .then(() => {
         const newActionList = roundActions.filter((e: Action) => e.id !== action.id);
         setRoundActions(newActionList);
       })
-      .catch((err) => {
-        showError(err.message);
-      });
+      .catch((err) => showError(err.message));
   };
 
-  const handleResolve = () => {
-    setResolveDialogOpen(true);
-  };
-
-  if (!action || !actorRound || !game) {
-    return <p>Loading...</p>;
-  }
+  if (!action || !actorRound || !game) return <p>Loading...</p>;
 
   const options = [
     {
@@ -50,18 +38,26 @@ const ResolveActionCard: FC<{
     {
       src: '/static/images/generic/play.png',
       alt: 'Resolve',
-      action: () => handleResolve(),
+      action: () => setResolveDialogOpen(true),
     },
     {
       src: '/static/images/generic/delete.png',
       alt: 'Delete action',
-      action: () => handleOpenDeleteDialog(),
+      action: () => setDeleteDialogOpen(true),
     },
   ];
 
   return (
     <>
-      <CircleButtonGroup options={options} initialRotation={4.71} size={60} radius={40} xOffset={-70} yOffset={-110} backgroundColor="#212121" />
+      <CircleButtonGroup
+        options={options}
+        initialRotation={4.71}
+        size={60}
+        radius={40}
+        xOffset={-70}
+        yOffset={-110}
+        backgroundColor="#212121"
+      />
       <ResolveActionDialog
         action={action}
         actorRound={actorRound}
@@ -71,7 +67,7 @@ const ResolveActionCard: FC<{
       />
       <DeleteDialog
         message={`Are you sure you want to delete? This action cannot be undone.`}
-        onDelete={handleDeleteAction}
+        onDelete={onDelete}
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
       />

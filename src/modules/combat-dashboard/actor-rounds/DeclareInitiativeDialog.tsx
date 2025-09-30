@@ -1,6 +1,6 @@
 import React, { useState, useContext, FC, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grid } from '@mui/material';
+import { t } from 'i18next';
 import { CombatContext } from '../../../CombatContext';
 import { useError } from '../../../ErrorContext';
 import { declareActorRoundInitiative } from '../../api/actor-rounds';
@@ -13,7 +13,6 @@ const DeclareInitiativeDialog: FC<{
   open: boolean;
   setOpen: (open: boolean) => void;
 }> = ({ actorRound, open, setOpen }) => {
-  const { t } = useTranslation();
   const { showError } = useError();
   const [roll, setRoll] = useState<number>(actorRound.initiative?.roll || 0);
   const { updateActorRound } = useContext(CombatContext)!;
@@ -35,10 +34,7 @@ const DeclareInitiativeDialog: FC<{
         setRoll(2);
         setOpen(false);
       })
-      .catch((error: unknown) => {
-        if (error instanceof Error) showError(error.message);
-        else showError('An unknown error occurred');
-      });
+      .catch((err) => showError(err.message));
   };
 
   const handleRollChange = (e: number | null) => {
@@ -57,15 +53,30 @@ const DeclareInitiativeDialog: FC<{
         <DialogContentText>Declare initiative (2D10)</DialogContentText>
         <Grid container spacing={2}>
           <Grid size={6}>
-            <NumericReadonlyInput label={t('initiative-base')} name="initiative-base" value={actorRound.initiative?.base} />
+            <NumericReadonlyInput
+              label={t('initiative-base')}
+              name="initiative-base"
+              value={actorRound.initiative?.base}
+            />
           </Grid>
           <Grid size={6}></Grid>
           <Grid size={6}>
-            <NumericReadonlyInput label={t('initiative-penalty')} name="initiative-penalty" value={actorRound.initiative?.penalty} />
+            <NumericReadonlyInput
+              label={t('initiative-penalty')}
+              name="initiative-penalty"
+              value={actorRound.initiative?.penalty}
+            />
           </Grid>
           <Grid size={6}></Grid>
           <Grid size={6}>
-            <NumericInput label={t('initiative-roll')} value={roll} onChange={handleRollChange} inputMode="numeric" integer allowNegatives={false} />
+            <NumericInput
+              label={t('initiative-roll')}
+              value={roll}
+              onChange={handleRollChange}
+              inputMode="numeric"
+              integer
+              allowNegatives={false}
+            />
           </Grid>
         </Grid>
       </DialogContent>

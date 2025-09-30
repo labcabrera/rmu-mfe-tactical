@@ -1,11 +1,11 @@
 import React, { useContext, useState, useEffect, FC } from 'react';
-import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
+import { t } from 'i18next';
 import { CombatContext } from '../../../CombatContext';
 import { ActorRound } from '../../api/actor-rounds.dto';
 import type { Character } from '../../api/characters';
@@ -20,15 +20,12 @@ const colorEnduranceOk = '#433a21ff';
 const colorEnduranceAccumulator = '#686868';
 const colorKo = '#2e140aff';
 
-type CombatActorRoundListItemCharacterProps = {
-  actorRound: ActorRound;
-};
-
 /**
  * Component that displays general information about the actor, such as their name, health bar, etc.
  */
-const CombatActorRoundListItemCharacter: FC<CombatActorRoundListItemCharacterProps> = ({ actorRound }) => {
-  const { t } = useTranslation();
+const CombatActorRoundListItemCharacter: FC<{
+  actorRound: ActorRound;
+}> = ({ actorRound }) => {
   const navigate = useNavigate();
   const { characters, factions } = useContext(CombatContext)!;
   const [character, setCharacter] = useState<Character | null>(null);
@@ -44,22 +41,15 @@ const CombatActorRoundListItemCharacter: FC<CombatActorRoundListItemCharacterPro
     }
   };
 
-  const bindCharacterAndFaction = () => {
-    const check = characters.find((c: Character) => c.id === actorRound.actorId) || null;
-    setCharacter(check);
-    setFaction(check ? factions.find((f: Faction) => f.id === check.factionId) || null : null);
-  };
-
   useEffect(() => {
     if (actorRound && characters && factions) {
-      bindCharacterAndFaction();
+      const check = characters.find((c: Character) => c.id === actorRound.actorId) || null;
+      setCharacter(check);
+      setFaction(check ? factions.find((f: Faction) => f.id === check.factionId) || null : null);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [actorRound, characters, factions]);
 
-  if (!character) {
-    return <p>CombatCharacterRoundInfo Loading...</p>;
-  }
+  if (!character) return <p>CombatCharacterRoundInfo Loading...</p>;
 
   return (
     <Card>
@@ -80,7 +70,13 @@ const CombatActorRoundListItemCharacter: FC<CombatActorRoundListItemCharacterPro
             </Typography>
           </Stack>
         </Stack>
-        <GenericBar current={actorRound.hp.current} max={actorRound.hp.max} title="HP" width={barSize} colorOk={colorHpOk} />
+        <GenericBar
+          current={actorRound.hp.current}
+          max={actorRound.hp.max}
+          title="HP"
+          width={barSize}
+          colorOk={colorHpOk}
+        />
         {character.power && character.power.max > 0 ? (
           <GenericBar
             current={character.power.current}

@@ -23,9 +23,7 @@ const CombatActorRoundListItem: FC<{
     }
   }, [actorRound, characters]);
 
-  if (!actorRound || !character || !game) {
-    return <p>CombatActorRoundListItem: loading...</p>;
-  }
+  if (!actorRound || !character || !game) return <p>CombatActorRoundListItem: loading...</p>;
 
   return (
     <Grid container spacing={2} columns={12} sx={{ mt: 1, mb: 1 }}>

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { CombatContext } from '../../../CombatContext';
 import { useError } from '../../../ErrorContext';
 import { createAction } from '../../api/action';
-import type { ActorRound } from '../../api/actor-rounds';
+import { ActorRound } from '../../api/actor-rounds.dto';
 import CircleButtonGroup from '../../shared/generic/CircleButtonGroup';
 
 const PhaseActionButton: FC<{
@@ -39,10 +39,7 @@ const PhaseActionButton: FC<{
       .then((action) => {
         setRoundActions([...roundActions, action]);
       })
-      .catch((err: unknown) => {
-        if (err instanceof Error) showError(err.message);
-        else showError('An unknown error occurred');
-      });
+      .catch((err) => showError(err.message));
   };
 
   const options = [
@@ -74,7 +71,9 @@ const PhaseActionButton: FC<{
       src: '/static/images/actions/static-maneuver.png',
       alt: 'Static maneuver',
       action: () => {
-        navigate(`/tactical/combat/${game.id}/declare-static-maneuver?phaseStart=${phaseNumber}`, { state: { game, character: actorRound } });
+        navigate(`/tactical/combat/${game.id}/declare-static-maneuver?phaseStart=${phaseNumber}`, {
+          state: { game, character: actorRound },
+        });
         return;
       },
     },
@@ -82,7 +81,9 @@ const PhaseActionButton: FC<{
       src: '/static/images/actions/cast-spell.png',
       alt: 'Cast spell',
       action: () => {
-        navigate(`/tactical/combat/${game.id}/cast-spell?phaseStart=${phaseNumber}`, { state: { game, character: actorRound } });
+        navigate(`/tactical/combat/${game.id}/cast-spell?phaseStart=${phaseNumber}`, {
+          state: { game, character: actorRound },
+        });
         return;
       },
     },
@@ -93,7 +94,15 @@ const PhaseActionButton: FC<{
   }
 
   return (
-    <CircleButtonGroup options={options} initialRotation={3.46} size={60} radius={40} xOffset={-70} yOffset={-110} backgroundColor="#13260bff" />
+    <CircleButtonGroup
+      options={options}
+      initialRotation={3.46}
+      size={60}
+      radius={40}
+      xOffset={-70}
+      yOffset={-110}
+      backgroundColor="#13260bff"
+    />
   );
 };
 

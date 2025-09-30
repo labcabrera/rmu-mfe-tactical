@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { IconButton } from '@mui/material';
 import Avatar from '@mui/material/Avatar';
-import type { ActorRound } from '../../api/actor-rounds';
+import { ActorRound } from '../../api/actor-rounds.dto';
 import DeclareInitiativeDialog from './DeclareInitiativeDialog';
 
 type CombatCharacterRoundInitiativeProps = {

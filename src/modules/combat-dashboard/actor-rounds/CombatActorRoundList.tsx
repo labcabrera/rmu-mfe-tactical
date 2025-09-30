@@ -19,10 +19,7 @@ const CombatActorRoundList: FC = () => {
   const onRandomizeInitiatives = () => {
     randomizeInitiatives(game.id)
       .then(() => refreshActorRounds())
-      .catch((error: unknown) => {
-        if (error instanceof Error) showError(error.message);
-        else showError('Unknown error occurred');
-      });
+      .catch((err) => showError(err.message));
   };
 
   return (
