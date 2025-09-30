@@ -58,7 +58,7 @@ const TacticalGameView: FC = () => {
 
   return (
     <>
-      <TacticalGameViewActions tacticalGame={tacticalGame} />
+      <TacticalGameViewActions tacticalGame={tacticalGame} setTacticalGame={setTacticalGame} />
       <Grid container spacing={5}>
         <Grid size={3}>
           <TacticalGameAvatar tacticalGame={tacticalGame} size={300} />

@@ -18,12 +18,12 @@ const TacticalGameEditAttributes: FC<{
         <TextField
           label="Description"
           name="description"
-          multiline
-          rows={4}
           value={formData.description}
           onChange={(e) => setFormData({ ...formData, description: e.target.value })}
           variant="standard"
           fullWidth
+          multiline
+          maxRows={4}
         />
       </Grid>
     </Grid>

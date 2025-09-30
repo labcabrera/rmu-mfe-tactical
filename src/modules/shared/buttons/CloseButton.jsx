@@ -1,16 +1,11 @@
 import React from 'react';
+import CloseIcon from '@mui/icons-material/Close';
 import IconButton from '@mui/material/IconButton';
 
-const CloseButton = ({ onClick, size = 80 }) => {
+const CloseButton = ({ onClick }) => {
   return (
-    <IconButton
-      onClick={onClick}
-      style={{
-        width: `${size}px`,
-        height: `${size}px`,
-      }}
-    >
-      <img src="/static/images/generic/door.png" alt="Add" style={{ width: '100%', height: '100%', borderRadius: '50%' }} />
+    <IconButton onClick={onClick} aria-label="close" size="large" color="primary">
+      <CloseIcon fontSize="inherit" />
     </IconButton>
   );
 };

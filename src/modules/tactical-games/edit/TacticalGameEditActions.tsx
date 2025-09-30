@@ -1,18 +1,18 @@
 import React, { FC } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
-import { Link, Breadcrumbs, Stack, Typography } from '@mui/material';
+import { Link, Breadcrumbs, Stack } from '@mui/material';
 import { t } from 'i18next';
 import { useError } from '../../../ErrorContext';
 import { updateTacticalGame } from '../../api/tactical-games';
 import type { TacticalGame, UpdateTacticalGameDto } from '../../api/tactical-games';
-import BackButton from '../../shared/buttons/BackButton';
 import CancelButton from '../../shared/buttons/CancelButton';
 import SaveButton from '../../shared/buttons/SaveButton';
 
 const TacticalGameEditActions: FC<{
   tacticalGame: TacticalGame;
   formData: UpdateTacticalGameDto;
-}> = ({ tacticalGame, formData }) => {
+  isValid: boolean;
+}> = ({ tacticalGame, formData, isValid }) => {
   const navigate = useNavigate();
   const { showError } = useError();
 
@@ -30,7 +30,13 @@ const TacticalGameEditActions: FC<{
   return (
     <Stack spacing={2} direction="row" justifyContent="space-between" alignItems="center" sx={{ minHeight: 80 }}>
       <Breadcrumbs aria-label="breadcrumb">
-        <Link color="primary" underline="hover" href="/tactical">
+        <Link color="primary" underline="hover" href="/">
+          {t('home')}
+        </Link>
+        <Link component={RouterLink} color="primary" underline="hover" to="/tactical">
+          {t('tactical')}
+        </Link>
+        <Link component={RouterLink} color="primary" underline="hover" to="/tactical/games">
           {t('tactical-games')}
         </Link>
         <Link
@@ -46,7 +52,7 @@ const TacticalGameEditActions: FC<{
       </Breadcrumbs>
       <Stack direction="row" spacing={1}>
         <CancelButton onClick={onCancel} />
-        <SaveButton onClick={onUpdate} />
+        <SaveButton onClick={onUpdate} disabled={!isValid} />
       </Stack>
     </Stack>
   );

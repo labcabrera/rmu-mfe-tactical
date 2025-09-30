@@ -1,24 +1,15 @@
 import React, { FC } from 'react';
-import StyledIconButton from './StyledIconButton';
+import PlayCircleIcon from '@mui/icons-material/PlayCircle';
+import { IconButton } from '@mui/material';
 
-type PlayButtonProps = {
+const PlayButton: FC<{
   onClick?: () => void;
-  size?: number;
   disabled?: boolean;
-};
-
-const PlayButton: FC<PlayButtonProps> = ({ onClick, size = 80, disabled = false }) => {
+}> = ({ onClick, disabled = false }) => {
   return (
-    <StyledIconButton
-      disabled={disabled}
-      onClick={onClick}
-      style={{
-        width: `${size}px`,
-        height: `${size}px`,
-      }}
-    >
-      <img src="/static/images/generic/play.png" alt="Play" style={{ width: '100%', height: '100%', borderRadius: '50%' }} />
-    </StyledIconButton>
+    <IconButton onClick={onClick} aria-label="add" disabled={disabled} size="large" color="primary">
+      <PlayCircleIcon fontSize="inherit" />
+    </IconButton>
   );
 };
 

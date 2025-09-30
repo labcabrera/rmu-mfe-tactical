@@ -14,6 +14,18 @@ const TacticalGameEdit: FC = () => {
   const { gameId } = useParams<{ gameId?: string }>();
   const [tacticalGame, setTacticalGame] = useState<TacticalGame | null>(null);
   const [formData, setFormData] = useState<UpdateTacticalGameDto | null>(null);
+  const [isValid, setIsValid] = useState(false);
+
+  const validateForm = (formData: UpdateTacticalGameDto) => {
+    if (!formData.name) return false;
+    return true;
+  };
+
+  useEffect(() => {
+    if (formData) {
+      setIsValid(validateForm(formData));
+    }
+  }, [formData]);
 
   useEffect(() => {
     if (tacticalGame) {
@@ -38,7 +50,7 @@ const TacticalGameEdit: FC = () => {
 
   return (
     <>
-      <TacticalGameEditActions tacticalGame={tacticalGame} formData={formData} />
+      <TacticalGameEditActions tacticalGame={tacticalGame} formData={formData} isValid={isValid} />
       <Grid container spacing={2}>
         <Grid size={2}>
           <GenericAvatar imageUrl="/static/images/generic/tactical.png" size={300} />

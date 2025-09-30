@@ -1,19 +1,21 @@
-import React, { FC, useState } from 'react';
+import React, { Dispatch, FC, SetStateAction, useState } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { Box, Breadcrumbs, Link, Stack } from '@mui/material';
 import { t } from 'i18next';
 import { useError } from '../../../ErrorContext';
-import { deleteTacticalGame, startRound } from '../../api/tactical-games';
+import { deleteTacticalGame, fetchTacticalGame, startRound } from '../../api/tactical-games';
 import type { TacticalGame } from '../../api/tactical-games';
 import CloseButton from '../../shared/buttons/CloseButton';
 import DeleteButton from '../../shared/buttons/DeleteButton';
 import EditButton from '../../shared/buttons/EditButton';
 import PlayButton from '../../shared/buttons/PlayButton';
+import RefreshButton from '../../shared/buttons/RefreshButton';
 import DeleteDialog from '../../shared/dialogs/DeleteDialog';
 
 const TacticalGameViewActions: FC<{
   tacticalGame: TacticalGame;
-}> = ({ tacticalGame }) => {
+  setTacticalGame: Dispatch<SetStateAction<TacticalGame | null>>;
+}> = ({ tacticalGame, setTacticalGame }) => {
   const navigate = useNavigate();
   const { showError } = useError();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -41,6 +43,12 @@ const TacticalGameViewActions: FC<{
     }
   };
 
+  const onRefresh = () => {
+    fetchTacticalGame(tacticalGame.id)
+      .then((response) => setTacticalGame(response))
+      .catch((err) => showError(err.message));
+  };
+
   return (
     <>
       <Stack spacing={2} direction="row" justifyContent="space-between" alignItems="center" sx={{ minHeight: 80 }}>
@@ -60,8 +68,9 @@ const TacticalGameViewActions: FC<{
         </Box>
         <Stack direction="row" spacing={1}>
           <CloseButton onClick={() => {}} />
-          <PlayButton onClick={onPlay} />
-          <EditButton onClick={onEdit} />
+          <PlayButton onClick={() => onPlay()} />
+          <RefreshButton onClick={() => onRefresh()} />
+          <EditButton onClick={() => onEdit()} />
           <DeleteButton onClick={() => setDeleteDialogOpen(true)} />
         </Stack>
       </Stack>
