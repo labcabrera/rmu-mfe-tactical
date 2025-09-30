@@ -22,7 +22,7 @@ module.exports = (_, argv) => ({
   devServer: {
     allowedHosts: 'all',
     host: '0.0.0.0',
-    port: 8083,
+    port: process.env.PORT,
     historyApiFallback: true,
     headers: {
       'Access-Control-Allow-Origin': '*',

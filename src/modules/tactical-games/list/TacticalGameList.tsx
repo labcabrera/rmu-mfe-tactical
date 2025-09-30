@@ -1,16 +1,17 @@
 import React, { FC, useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { Box, Grid, IconButton, Typography } from '@mui/material';
+import { t } from 'i18next';
 import { useError } from '../../../ErrorContext';
 import { fetchTacticalGames } from '../../api/tactical-games';
 import type { TacticalGame } from '../../api/tactical-games';
+import AddButton from '../../shared/buttons/AddButton';
 import TacticalGameCard from '../../shared/cards/TacticalGameCard';
 import TacticalGameListActions from './TacticalGameListActions';
+import TacticalGameResume from './TacticalGameResume';
 
 const TacticalGameList: FC = () => {
-  const { t } = useTranslation();
   const navigate = useNavigate();
   const { showError } = useError();
   const [games, setGames] = useState<TacticalGame[]>([]);
@@ -35,26 +36,20 @@ const TacticalGameList: FC = () => {
   };
 
   useEffect(() => {
-    fetchGames();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    fetchTacticalGames('', 0, 20)
+      .then((response) => setGames(response))
+      .catch((err) => showError(err.message));
+  }, [showError]);
 
   return (
     <>
       <TacticalGameListActions />
-      <Grid container spacing={2} mb={2} alignItems="center">
-        <Grid size={12}>
-          <Box display="flex" alignItems="center">
-            <Typography variant="h6" color="primary" display="inline">
-              {t('tactical-games')}
-            </Typography>
-            <IconButton onClick={handleNewGame} sx={{ ml: 1 }}>
-              <AddCircleIcon />
-            </IconButton>
-          </Box>
+      <Grid container spacing={2}>
+        <Grid size={2}>
+          <TacticalGameResume />
         </Grid>
-        <Grid size={12}>
-          <Box mb={2} display="flex" flexDirection="row" flexWrap="wrap" gap={2}>
+        <Grid size={10}>
+          <Box display="flex" flexDirection="row" flexWrap="wrap" gap={2}>
             {games.map((game) => (
               <TacticalGameCard key={game.id} tacticalGame={game} onClick={() => onTacticalGameClick(game)} />
             ))}

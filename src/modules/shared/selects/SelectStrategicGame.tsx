@@ -1,6 +1,6 @@
 import React, { ChangeEvent, FC } from 'react';
-import { useTranslation } from 'react-i18next';
 import { MenuItem, TextField } from '@mui/material';
+import { t } from 'i18next';
 import { StrategicGame } from '../../api/strategic-games';
 
 const SelectStrategicGame: FC<{
@@ -8,8 +8,6 @@ const SelectStrategicGame: FC<{
   onChange: (value: string) => void;
   strategicGames: StrategicGame[];
 }> = ({ value, onChange, strategicGames }) => {
-  const { t } = useTranslation();
-
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     const selectedValue = event.target.value;
     onChange(selectedValue);
