@@ -27,7 +27,7 @@ const CombatActorRoundListItem: FC<{
 
   return (
     <Grid container spacing={2} columns={12} sx={{ mt: 1, mb: 1 }}>
-      <Grid size={2}>
+      <Grid size={3}>
         <CombatActorRoundListItemCharacter actorRound={actorRound} />
       </Grid>
       <Grid size={1}>
@@ -54,7 +54,7 @@ const CombatActorRoundListItem: FC<{
       <PhaseOptions actorRound={actorRound} character={character} game={game} roundActions={roundActions} phase={3} />
       <PhaseOptions actorRound={actorRound} character={character} game={game} roundActions={roundActions} phase={4} />
       <Grid size={1}></Grid>
-      <Grid size={3}>
+      <Grid size={2}>
         <ActorRoundEffects actorRound={actorRound} />
       </Grid>
     </Grid>

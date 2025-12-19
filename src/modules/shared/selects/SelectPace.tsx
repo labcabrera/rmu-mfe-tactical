@@ -2,7 +2,7 @@ import React, { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MenuItem, TextField } from '@mui/material';
 
-type Pace = {
+export type Pace = {
   id: string;
   multiplier: number;
 };
@@ -30,7 +30,16 @@ const SelectPace: FC<{
   };
 
   return (
-    <TextField select label={t('pace')} name={name} value={value} fullWidth onChange={handleChange} variant="standard">
+    <TextField
+      select
+      label={t('pace')}
+      name={name}
+      value={value}
+      fullWidth
+      onChange={handleChange}
+      variant="standard"
+      error={!value}
+    >
       {codes.map((option, index) => (
         <MenuItem key={index} value={option.id}>
           {t(option.id)}

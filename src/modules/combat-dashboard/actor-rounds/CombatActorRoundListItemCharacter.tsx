@@ -59,13 +59,13 @@ const CombatActorRoundListItemCharacter: FC<{
             <CharacterAvatar character={character} dead={idDead()} variant="square" />
           </IconButton>
           <Stack>
-            <Typography variant="body1" component="div">
+            <Typography variant="body1" color="primary" component="div">
               {character.name}
             </Typography>
-            <Typography variant="subtitle2" component="div">
+            <Typography variant="subtitle2" color="secondary" component="div">
               {character.info.raceName} - {t(character.info.professionId)} - lvl {character.experience.level}
             </Typography>
-            <Typography variant="subtitle2" component="div">
+            <Typography variant="subtitle2" color="secondary" component="div">
               {faction?.name}
             </Typography>
           </Stack>
@@ -73,7 +73,7 @@ const CombatActorRoundListItemCharacter: FC<{
         <GenericBar
           current={actorRound.hp.current}
           max={actorRound.hp.max}
-          title="HP"
+          title=""
           width={barSize}
           colorOk={colorHpOk}
         />
@@ -90,7 +90,7 @@ const CombatActorRoundListItemCharacter: FC<{
         <GenericBar
           current={Math.round(actorRound.fatigue.accumulator)}
           max={100}
-          title="FA"
+          title=""
           width={barSize}
           colorOk={colorKo}
           colorKo={colorEnduranceOk}

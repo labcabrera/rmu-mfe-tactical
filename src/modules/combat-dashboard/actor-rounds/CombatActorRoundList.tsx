@@ -1,6 +1,6 @@
 import React, { FC, useContext } from 'react';
 import NextPlanIcon from '@mui/icons-material/NextPlan';
-import { IconButton } from '@mui/material';
+import { IconButton, Paper } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import { CombatContext } from '../../../CombatContext';
 import { useError } from '../../../ErrorContext';
@@ -11,6 +11,13 @@ import CombatActorRoundListItem from './CombatActorRoundListItem';
 const CombatActorRoundList: FC = () => {
   const { game, actorRounds, refreshActorRounds } = useContext(CombatContext)!;
   const { showError } = useError();
+
+  const headerPaperSx = {
+    height: 40,
+    display: 'flex',
+    alignItems: 'center',
+    padding: '2px 8px',
+  } as const;
 
   if (!actorRounds || actorRounds.length === 0) {
     return <p>Loading...</p>;
@@ -25,20 +32,54 @@ const CombatActorRoundList: FC = () => {
   return (
     <>
       <Grid container spacing={2} columns={12} sx={{ mt: 1, mb: 1 }}>
-        <Grid size={2}>Actors</Grid>
-        <Grid size={1}>
-          <span>Initiative</span>
-          <IconButton size="small" onClick={() => onRandomizeInitiatives()}>
-            <NextPlanIcon fontSize="small" />
-          </IconButton>
+        <Grid size={3}>
+          <Paper elevation={0} square sx={headerPaperSx}>
+            Actors
+          </Paper>
         </Grid>
-        <Grid size={1}>Free actions</Grid>
-        <Grid size={1}>Phase 1</Grid>
-        <Grid size={1}>Phase 2</Grid>
-        <Grid size={1}>Phase 3</Grid>
-        <Grid size={1}>Phase 4</Grid>
-        <Grid size={1}>Alerts</Grid>
-        <Grid size={3}>Effects</Grid>
+        <Grid size={1}>
+          <Paper elevation={0} square sx={headerPaperSx}>
+            <span style={{ marginRight: 6 }}>Initiative</span>
+            <IconButton size="small" color="primary" onClick={() => onRandomizeInitiatives()}>
+              <NextPlanIcon fontSize="small" />
+            </IconButton>
+          </Paper>
+        </Grid>
+        <Grid size={1}>
+          <Paper elevation={0} square sx={headerPaperSx}>
+            Free actions
+          </Paper>
+        </Grid>
+        <Grid size={1}>
+          <Paper elevation={0} square sx={headerPaperSx}>
+            Phase 1
+          </Paper>
+        </Grid>
+        <Grid size={1}>
+          <Paper elevation={0} square sx={headerPaperSx}>
+            Phase 2
+          </Paper>
+        </Grid>
+        <Grid size={1}>
+          <Paper elevation={0} square sx={headerPaperSx}>
+            Phase 3
+          </Paper>
+        </Grid>
+        <Grid size={1}>
+          <Paper elevation={0} square sx={headerPaperSx}>
+            Phase 4
+          </Paper>
+        </Grid>
+        <Grid size={1}>
+          <Paper elevation={0} square sx={headerPaperSx}>
+            Alerts
+          </Paper>
+        </Grid>
+        <Grid size={2}>
+          <Paper elevation={0} square sx={headerPaperSx}>
+            Effects
+          </Paper>
+        </Grid>
       </Grid>
       {actorRounds.map((item: ActorRound, index: number) => (
         <CombatActorRoundListItem key={index} actorRound={item} />

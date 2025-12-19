@@ -11,7 +11,15 @@ type GenericBarProps = {
   backgroundColor?: string;
 };
 
-const GenericBar: FC<GenericBarProps> = ({ title, width, max, current, colorOk = '#4caf50', colorKo = '#ffeb3b', backgroundColor = '#1e231dff' }) => {
+const GenericBar: FC<GenericBarProps> = ({
+  title,
+  width,
+  max,
+  current,
+  colorOk = '#4caf50',
+  colorKo = '#ffeb3b',
+  backgroundColor = '#1e231dff',
+}) => {
   const healthPercentage = (current / max) * 100;
 
   return (
@@ -31,8 +39,8 @@ const GenericBar: FC<GenericBarProps> = ({ title, width, max, current, colorOk =
         />
       </Box>
       <Box minWidth={35}>
-        <Typography variant="body2" color="textSecondary">
-          {title} {current}/{max}
+        <Typography variant="body2" color="primary">
+          {title} {current} / {max}
         </Typography>
       </Box>
     </Box>

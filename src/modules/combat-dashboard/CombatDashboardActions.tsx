@@ -66,10 +66,10 @@ const CombatDashboardActions: FC = () => {
             <Link component={RouterLink} color="primary" underline="hover" to={`/tactical/games/view/${game.id}`}>
               {game.name}
             </Link>
-            <Typography sx={{ color: 'text.primary' }}>
+            <Typography color="secondary">
               Round {displayRound} of {game.round}
             </Typography>
-            <Typography sx={{ color: 'text.primary' }}>{t(game.phase)}</Typography>
+            <Typography color="secondary">{t(game.phase)}</Typography>
           </Breadcrumbs>
         </Box>
         <Stack direction="row" spacing={2}>

@@ -1,7 +1,7 @@
 import React, { FC } from 'react';
-import { useTranslation } from 'react-i18next';
 import { Box, Button, Step, StepLabel, Stepper } from '@mui/material';
-import type { Action, ResolveMovementDto } from '../../../api/action';
+import { t } from 'i18next';
+import { Action, ResolveMovementDto } from '../../../api/action.dto';
 import type { Character } from '../../../api/characters';
 import type { StrategicGame } from '../../../api/strategic-games';
 import type { TacticalGame } from '../../../api/tactical-games';
@@ -22,9 +22,19 @@ const ResolveMovementStepper: FC<{
   character: Character;
   game: TacticalGame;
   strategicGame: StrategicGame;
-}> = ({ formData, setFormData, activeStep, setActiveStep, onClose, onResolve, isValidForm, action, character, game, strategicGame }) => {
-  const { t } = useTranslation();
-
+}> = ({
+  formData,
+  setFormData,
+  activeStep,
+  setActiveStep,
+  onClose,
+  onResolve,
+  isValidForm,
+  action,
+  character,
+  game,
+  strategicGame,
+}) => {
   const handleNext = () => {
     setActiveStep(activeStep + 1);
   };
@@ -54,7 +64,6 @@ const ResolveMovementStepper: FC<{
           strategicGame={strategicGame}
           action={action}
           game={game}
-          isValidForm={isValidForm}
         />
       )}
       {activeStep === 1 && <ResolveMovementResults action={action} />}
