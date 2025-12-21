@@ -71,6 +71,7 @@ const DeclareActionDialog: FC<{
     createAction(actionForm)
       .then((action) => {
         setRoundActions([...roundActions, action]);
+        setOpen(false);
       })
       .catch((err) => showError(err.message));
   };
