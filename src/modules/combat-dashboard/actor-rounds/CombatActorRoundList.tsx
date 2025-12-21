@@ -47,11 +47,6 @@ const CombatActorRoundList: FC = () => {
         </Grid>
         <Grid size={1}>
           <Paper elevation={0} square sx={headerPaperSx}>
-            Free actions
-          </Paper>
-        </Grid>
-        <Grid size={1}>
-          <Paper elevation={0} square sx={headerPaperSx}>
             Phase 1
           </Paper>
         </Grid>
@@ -70,7 +65,7 @@ const CombatActorRoundList: FC = () => {
             Phase 4
           </Paper>
         </Grid>
-        <Grid size={1}>
+        <Grid size={2}>
           <Paper elevation={0} square sx={headerPaperSx}>
             Alerts
           </Paper>

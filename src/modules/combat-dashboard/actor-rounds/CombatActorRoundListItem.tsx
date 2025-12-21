@@ -5,7 +5,6 @@ import { Action } from '../../api/action.dto';
 import { ActorRound } from '../../api/actor-rounds.dto';
 import type { Character } from '../../api/characters';
 import type { TacticalGame } from '../../api/tactical-games';
-import CombatFreeActionButtons from '../CombatFreeActionButtons';
 import ActorRoundEffects from './ActorRoundEffects';
 import CombatActorRoundListItemCharacter from './CombatActorRoundListItemCharacter';
 import CombatActorRoundPhaseOptions from './CombatActorRoundPhaseOptions';
@@ -44,16 +43,11 @@ const CombatActorRoundListItem: FC<{
           <CombatCharacterRoundInitiative actorRound={actorRound} />
         </Paper>
       </Grid>
-      <Grid size={1}>
-        <Paper elevation={game.phase.startsWith('phase_') ? 2 : 0} style={{ height: '100%', padding: '16px' }}>
-          <CombatFreeActionButtons tacticalGame={game} character={character} />
-        </Paper>
-      </Grid>
       <PhaseOptions actorRound={actorRound} character={character} game={game} roundActions={roundActions} phase={1} />
       <PhaseOptions actorRound={actorRound} character={character} game={game} roundActions={roundActions} phase={2} />
       <PhaseOptions actorRound={actorRound} character={character} game={game} roundActions={roundActions} phase={3} />
       <PhaseOptions actorRound={actorRound} character={character} game={game} roundActions={roundActions} phase={4} />
-      <Grid size={1}></Grid>
+      <Grid size={2}></Grid>
       <Grid size={2}>
         <ActorRoundEffects actorRound={actorRound} />
       </Grid>
