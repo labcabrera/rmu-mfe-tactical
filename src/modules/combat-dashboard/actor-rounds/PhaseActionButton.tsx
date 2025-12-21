@@ -1,10 +1,12 @@
-import React, { FC, useContext } from 'react';
+import React, { FC, useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Button } from '@mui/material';
 import { CombatContext } from '../../../CombatContext';
 import { useError } from '../../../ErrorContext';
 import { createAction } from '../../api/action';
 import { ActorRound } from '../../api/actor-rounds.dto';
 import CircleButtonGroup from '../../shared/generic/CircleButtonGroup';
+import DeclareActionDialog from './DeclareActionDialog';
 
 const PhaseActionButton: FC<{
   actorRound: ActorRound;
@@ -12,6 +14,7 @@ const PhaseActionButton: FC<{
 }> = ({ actorRound, phaseNumber }) => {
   const navigate = useNavigate();
   const { showError } = useError();
+  const [declareActionDialogOpen, setDeclareActionDialogOpen] = useState(false);
   const { game, roundActions, setRoundActions } = useContext(CombatContext)!;
 
   const declareAttack = () => {
@@ -94,15 +97,24 @@ const PhaseActionButton: FC<{
   }
 
   return (
-    <CircleButtonGroup
-      options={options}
-      initialRotation={3.46}
-      size={60}
-      radius={40}
-      xOffset={-70}
-      yOffset={-110}
-      backgroundColor="#13260bff"
-    />
+    <>
+      <Button onClick={() => setDeclareActionDialogOpen(true)}>Declare Action</Button>
+      <DeclareActionDialog
+        actorRound={actorRound}
+        phaseNumber={phaseNumber}
+        open={declareActionDialogOpen}
+        setOpen={setDeclareActionDialogOpen}
+      />
+      <CircleButtonGroup
+        options={options}
+        initialRotation={3.46}
+        size={60}
+        radius={40}
+        xOffset={-70}
+        yOffset={-110}
+        backgroundColor="#13260bff"
+      />
+    </>
   );
 };
 
