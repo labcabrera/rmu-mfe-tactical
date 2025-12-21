@@ -45,34 +45,19 @@ const CombatActorRoundList: FC = () => {
             </IconButton>
           </Paper>
         </Grid>
-        <Grid size={1}>
+        <Grid size={5}>
           <Paper elevation={0} square sx={headerPaperSx}>
-            Phase 1
-          </Paper>
-        </Grid>
-        <Grid size={1}>
-          <Paper elevation={0} square sx={headerPaperSx}>
-            Phase 2
-          </Paper>
-        </Grid>
-        <Grid size={1}>
-          <Paper elevation={0} square sx={headerPaperSx}>
-            Phase 3
-          </Paper>
-        </Grid>
-        <Grid size={1}>
-          <Paper elevation={0} square sx={headerPaperSx}>
-            Phase 4
-          </Paper>
-        </Grid>
-        <Grid size={2}>
-          <Paper elevation={0} square sx={headerPaperSx}>
-            Alerts
+            Actions
           </Paper>
         </Grid>
         <Grid size={2}>
           <Paper elevation={0} square sx={headerPaperSx}>
             Effects
+          </Paper>
+        </Grid>
+        <Grid size={1}>
+          <Paper elevation={0} square sx={headerPaperSx}>
+            Alerts
           </Paper>
         </Grid>
       </Grid>

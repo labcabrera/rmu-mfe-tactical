@@ -92,6 +92,7 @@ const DeclareActionDialog: FC<{
             { key: 'draw-and-load', label: 'Draw and load ammo', freeAction: false },
             { key: 'partial-dodge', label: 'Partial dodge', freeAction: false },
             { key: 'full-dodge', label: 'Full dodge', freeAction: false },
+            { key: 'perception', label: 'Perception', freeAction: true },
             { key: 'stand-up', label: 'Stand up', freeAction: false },
             { key: 'drop-item', label: 'Drop item', freeAction: true },
             { key: 'static_maneuver', label: 'Static maneuver', freeAction: true },
