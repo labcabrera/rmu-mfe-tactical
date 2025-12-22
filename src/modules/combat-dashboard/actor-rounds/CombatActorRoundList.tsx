@@ -1,6 +1,6 @@
 import React, { FC, useContext } from 'react';
 import NextPlanIcon from '@mui/icons-material/NextPlan';
-import { IconButton, Paper } from '@mui/material';
+import { IconButton, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import { CombatContext } from '../../../CombatContext';
 import { useError } from '../../../ErrorContext';
@@ -11,13 +11,6 @@ import CombatActorRoundListItem from './CombatActorRoundListItem';
 const CombatActorRoundList: FC = () => {
   const { game, actorRounds, refreshActorRounds } = useContext(CombatContext)!;
   const { showError } = useError();
-
-  const headerPaperSx = {
-    height: 40,
-    display: 'flex',
-    alignItems: 'center',
-    padding: '2px 8px',
-  } as const;
 
   if (!actorRounds || actorRounds.length === 0) {
     return <p>Loading...</p>;
@@ -32,33 +25,51 @@ const CombatActorRoundList: FC = () => {
   return (
     <>
       <Grid container spacing={2} columns={12} sx={{ mt: 1, mb: 1 }}>
-        <Grid size={3}>
-          <Paper elevation={0} square sx={headerPaperSx}>
-            Actors
-          </Paper>
-        </Grid>
+        <Grid size={3}></Grid>
         <Grid size={1}>
-          <Paper elevation={0} square sx={headerPaperSx}>
-            <span style={{ marginRight: 6 }}>Initiative</span>
-            <IconButton size="small" color="primary" onClick={() => onRandomizeInitiatives()}>
-              <NextPlanIcon fontSize="small" />
-            </IconButton>
-          </Paper>
+          <Typography variant="h6" align="left" color={game.phase === 'declare_initiative' ? 'success' : 'secondary'}>
+            Initiative
+            {game.phase === 'declare_initiative' && (
+              <IconButton size="small" color="success" onClick={() => onRandomizeInitiatives()}>
+                <NextPlanIcon fontSize="small" />
+              </IconButton>
+            )}
+          </Typography>
         </Grid>
         <Grid size={5}>
-          <Paper elevation={0} square sx={headerPaperSx}>
-            Actions
-          </Paper>
+          {/* <Paper elevation={0} square sx={headerPaperSx}> */}
+          <Grid container spacing={0}>
+            <Grid size={3}>
+              <Typography variant="h6" align="left" color={game.phase === 'phase_1' ? 'success' : 'secondary'}>
+                Phase 1
+              </Typography>
+            </Grid>
+            <Grid size={3}>
+              <Typography variant="h6" align="left" color={game.phase === 'phase_2' ? 'success' : 'secondary'}>
+                Phase 2
+              </Typography>
+            </Grid>
+            <Grid size={3}>
+              <Typography variant="h6" align="left" color={game.phase === 'phase_3' ? 'success' : 'secondary'}>
+                Phase 3
+              </Typography>
+            </Grid>
+            <Grid size={3}>
+              <Typography variant="h6" align="left" color={game.phase === 'phase_4' ? 'success' : 'secondary'}>
+                Phase 4
+              </Typography>
+            </Grid>
+          </Grid>
         </Grid>
         <Grid size={2}>
-          <Paper elevation={0} square sx={headerPaperSx}>
+          <Typography variant="h6" align="left" color="primary">
             Effects
-          </Paper>
+          </Typography>
         </Grid>
         <Grid size={1}>
-          <Paper elevation={0} square sx={headerPaperSx}>
+          <Typography variant="h6" align="left" color="primary">
             Alerts
-          </Paper>
+          </Typography>
         </Grid>
       </Grid>
       {actorRounds.map((item: ActorRound, index: number) => (

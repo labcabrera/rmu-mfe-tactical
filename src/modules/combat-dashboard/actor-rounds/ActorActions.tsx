@@ -2,6 +2,7 @@ import React, { FC, useContext } from 'react';
 import { useState } from 'react';
 import AddIcon from '@mui/icons-material/Add';
 import { Box, Button } from '@mui/material';
+import { t } from 'i18next';
 import { CombatContext } from '../../../CombatContext';
 import type { Action } from '../../api/action.dto';
 import type { ActorRound } from '../../api/actor-rounds.dto';
@@ -71,8 +72,6 @@ const ActorActions: FC<ActorActionsProps> = ({ actorId, phases = 4, currentPhase
   return (
     <>
       <Box sx={{ width: '100%' }}>
-        {/* Phase header removed - actions are shown directly */}
-
         <Box
           sx={{
             position: 'relative',
@@ -123,7 +122,7 @@ const ActorActions: FC<ActorActionsProps> = ({ actorId, phases = 4, currentPhase
                     },
                   }}
                 >
-                  {p.action.actionType}
+                  {t(p.action.actionType)}
                 </Button>
               </Box>
             );
