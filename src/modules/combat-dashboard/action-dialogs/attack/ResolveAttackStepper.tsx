@@ -94,7 +94,6 @@ const ResolveAttackStepper: FC<{
         <Button onClick={handleNext} disabled={isDisabledNext()}>
           {t('next')}
         </Button>
-        <Button onClick={onClose}>{t('close')}</Button>
       </Box>
     </Box>
   );

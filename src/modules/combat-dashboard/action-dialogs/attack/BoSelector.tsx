@@ -54,7 +54,6 @@ const BoSelector: FC<Props> = ({ value, onChange, min = 0, max, integer = true, 
           sx={{
             display: 'flex',
             flexDirection: 'row',
-            gap: 0.5,
             width: 72,
             alignItems: 'center',
             justifyContent: 'center',
@@ -70,6 +69,7 @@ const BoSelector: FC<Props> = ({ value, onChange, min = 0, max, integer = true, 
             }}
             disabled={disabled || current <= min}
             aria-label="decrement-bo"
+            sx={{ mt: -3 }}
           >
             <RemoveCircleIcon fontSize="small" />
           </IconButton>
@@ -82,6 +82,7 @@ const BoSelector: FC<Props> = ({ value, onChange, min = 0, max, integer = true, 
             }}
             disabled={disabled || current >= safeMax}
             aria-label="increment-bo"
+            sx={{ mt: -3 }}
           >
             <AddCircleIcon fontSize="small" />
           </IconButton>

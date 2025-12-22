@@ -103,6 +103,7 @@ const AttackList: FC<{
                 <TargetSelector
                   value={modifiers.targetId || ''}
                   onChange={(actorId) => handleTargetChange(attack.attackName, actorId)}
+                  sourceId={(actorRound as any).actorId}
                 />
               </Grid>
             </Grid>

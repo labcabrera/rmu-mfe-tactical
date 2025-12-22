@@ -1,31 +1,46 @@
 import React, { FC, useContext, useMemo, useState } from 'react';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { Box, IconButton, Collapse, Stack, Typography, Select, MenuItem, Button, Tooltip } from '@mui/material';
+import {
+  Box,
+  IconButton,
+  Collapse,
+  Stack,
+  Typography,
+  Radio,
+  RadioGroup,
+  FormControlLabel,
+  Button,
+  Tooltip,
+} from '@mui/material';
 import { CombatContext } from '../../../../CombatContext';
 import CharacterAvatar from '../../../shared/avatars/CharacterAvatar';
 
 type Props = {
   value?: string | null;
   onChange: (actorId: string | null) => void;
-  includeSelf?: boolean;
+  sourceId?: string | null;
 };
 
-const TargetSelector: FC<Props> = ({ value = null, onChange, includeSelf = true }) => {
-  const { actorRounds, characters, factions } = useContext(CombatContext)!;
+const TargetSelector: FC<Props> = ({ value = null, onChange, sourceId = null }) => {
+  const { actorRounds, characters } = useContext(CombatContext)!;
   const [open, setOpen] = useState(false);
-  const [selectedFaction, setSelectedFaction] = useState<string | 'all'>('all');
+  const [filter, setFilter] = useState<'distinct' | 'all'>('distinct');
 
   const items = useMemo(() => {
     if (!actorRounds) return [] as any[];
     let list = actorRounds;
-    if (selectedFaction !== 'all' && characters) {
-      list = list.filter((ar) => {
-        const ch = (characters || []).find((c) => c.id === ar.actorId);
-        return ch && ch.factionId === selectedFaction;
-      });
+    if (filter === 'distinct' && characters && sourceId) {
+      const sourceChar = (characters || []).find((c) => c.id === (sourceId as string)) as any;
+      const sourceFaction = sourceChar?.factionId;
+      if (sourceFaction) {
+        list = list.filter((ar) => {
+          const ch = (characters || []).find((c) => c.id === ar.actorId) as any;
+          return ch && ch.factionId !== sourceFaction;
+        });
+      }
     }
     return list;
-  }, [actorRounds, characters, selectedFaction]);
+  }, [actorRounds, characters, filter, sourceId]);
 
   const selectedCharacter = useMemo(() => {
     if (!value || !characters) return null;
@@ -59,34 +74,45 @@ const TargetSelector: FC<Props> = ({ value = null, onChange, includeSelf = true 
       </Stack>
 
       <Collapse in={open} timeout="auto" unmountOnExit>
-        <Box sx={{ mt: 1, p: 1, border: '1px solid rgba(0,0,0,0.06)', borderRadius: 1 }}>
-          <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
-            <Typography variant="caption">Faction:</Typography>
-            <Select
-              size="small"
-              value={selectedFaction}
-              onChange={(e) => setSelectedFaction(e.target.value as any)}
-              sx={{ minWidth: 140 }}
-            >
-              <MenuItem value="all">All</MenuItem>
-              {(factions || []).map((f) => (
-                <MenuItem key={f.id} value={f.id}>
-                  {f.name}
-                </MenuItem>
-              ))}
-            </Select>
-            <Button size="small" onClick={() => setSelectedFaction('all')}>
-              Clear
-            </Button>
+        <Box
+          sx={{
+            mt: 1,
+            p: 0.5,
+            border: '1px solid primary.main',
+            borderRadius: 1,
+            backgroundColor: '#484c4d',
+          }}
+        >
+          <Stack direction="row" spacing={0.5} alignItems="center" sx={{ mb: 0.5 }}>
+            <RadioGroup row value={filter} onChange={(e) => setFilter(e.target.value as any)}>
+              <FormControlLabel
+                value="distinct"
+                control={<Radio disabled={!actorRounds} />}
+                label={
+                  <Typography variant="caption" sx={{ fontSize: '0.65rem' }}>
+                    Distinct faction
+                  </Typography>
+                }
+              />
+              <FormControlLabel
+                value="all"
+                control={<Radio size="small" disabled={!actorRounds} />}
+                label={
+                  <Typography variant="caption" sx={{ fontSize: '0.65rem' }}>
+                    All
+                  </Typography>
+                }
+              />
+            </RadioGroup>
           </Stack>
 
-          <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
+          <Stack direction="row" spacing={0.5} sx={{ flexWrap: 'wrap' }}>
             {(items || []).map((ar) => {
               const ch = (characters || []).find((c) => c.id === ar.actorId);
               if (!ch) return null;
               const isSelected = value === ch.id;
               return (
-                <Box key={ar.id} sx={{ textAlign: 'center', width: 88, mb: 1 }}>
+                <Box key={ar.id} sx={{ textAlign: 'center', width: 64, mb: 0.5 }}>
                   <Button
                     onClick={() => {
                       onChange(ch.id);
@@ -94,15 +120,15 @@ const TargetSelector: FC<Props> = ({ value = null, onChange, includeSelf = true 
                     }}
                     variant={isSelected ? 'contained' : 'outlined'}
                     size="small"
-                    sx={{ display: 'flex', flexDirection: 'column', gap: 0.5, alignItems: 'center', p: 1 }}
+                    sx={{ display: 'flex', flexDirection: 'column', gap: 0.25, alignItems: 'center', p: 0.5 }}
                   >
                     <CharacterAvatar
                       character={ch as any}
-                      size={40}
+                      size={32}
                       variant="square"
                       dead={ar.effects?.some((e: any) => e.status === 'dead')}
                     />
-                    <Typography variant="caption" noWrap sx={{ maxWidth: 72 }}>
+                    <Typography variant="caption" noWrap sx={{ maxWidth: 60, fontSize: '0.65rem' }}>
                       {ch.name}
                     </Typography>
                   </Button>
