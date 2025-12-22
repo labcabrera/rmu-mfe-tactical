@@ -2,38 +2,42 @@ import React, { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Stack, Button, Typography } from '@mui/material';
 
-const SelectMovementSkill: FC<{
-  value: string;
-  onChange: (value: string) => void;
+const SelectBoolean: FC<{
+  name?: string;
+  value?: boolean | null;
+  onChange: (value: boolean) => void;
   readOnly?: boolean;
-}> = ({ value, onChange, readOnly = false }) => {
+}> = ({ name, value = null, onChange, readOnly = false }) => {
   const { t } = useTranslation();
 
-  const codes: string[] = ['running', 'swimming', 'climbing', 'flying'];
+  const options: { id: boolean; label: string }[] = [
+    { id: true, label: t('yes') },
+    { id: false, label: t('no') },
+  ];
 
-  const handleClick = (option: string) => {
+  const handleClick = (val: boolean) => {
     if (readOnly) return;
-    onChange(option);
+    onChange(val);
   };
 
   return (
     <div>
       <Typography variant="caption" sx={{ display: 'block', mb: 0.5 }}>
-        {t('skill')}
+        {t(name || '')}
       </Typography>
       <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
-        {codes.map((option) => {
-          const selected = option === value;
+        {options.map((opt) => {
+          const selected = value === opt.id;
           return (
             <Button
-              key={option}
+              key={String(opt.id)}
               size="small"
               variant={selected ? 'contained' : 'outlined'}
               color={selected ? 'primary' : 'inherit'}
-              onClick={() => handleClick(option)}
+              onClick={() => handleClick(opt.id)}
               disabled={readOnly}
             >
-              {t(option)}
+              {opt.label}
             </Button>
           );
         })}
@@ -42,4 +46,4 @@ const SelectMovementSkill: FC<{
   );
 };
 
-export default SelectMovementSkill;
+export default SelectBoolean;

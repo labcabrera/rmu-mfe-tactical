@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState } from 'react';
+import React, { FC, use, useEffect, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import { Grid } from '@mui/material';
 import { useError } from '../../../ErrorContext';
@@ -25,80 +25,40 @@ const TacticalGameView: FC = () => {
   const [characters, setCharacters] = useState<Character[]>([]);
   const [factions, setFactions] = useState<Faction[]>([]);
 
-  const bindTacticalGame = async (gameId?: string) => {
-    if (!gameId) return;
-    fetchTacticalGame(gameId)
-      .then((response) => {
-        setTacticalGame(response);
-      })
-      .catch((err: unknown) => {
-        if (err instanceof Error) showError(err.message);
-        else showError(String(err));
-      });
-  };
-
-  const bindStrategicGame = (strategicGameId: string) => {
-    fetchStrategicGame(strategicGameId)
-      .then((response) => {
-        setStrategicGame(response);
-      })
-      .catch((err: unknown) => {
-        if (err instanceof Error) showError(err.message);
-        else showError(String(err));
-      });
-  };
-
-  const bindCharacters = (factions: number[]) => {
-    if (factions.length > 0) {
-      fetchCharacters(`factionId=in=(${factions.join(',')})`, 0, 100)
-        .then((response) => {
-          setCharacters(response);
-        })
-        .catch((err: unknown) => {
-          if (err instanceof Error) showError(err.message);
-          else showError(String(err));
-        });
-    } else {
-      setCharacters([]);
+  useEffect(() => {
+    if (factions && factions.length > 0) {
+      fetchCharacters(`factionId=in=(${factions.map((faction) => faction.id).join(',')})`, 0, 100)
+        .then((response) => setCharacters(response))
+        .catch((err) => showError(err.message));
     }
-  };
-
-  const bindFactions = (strategicGameId: string) => {
-    fetchFactions(`gameId==${strategicGameId}`, 0, 100)
-      .then((response) => {
-        setFactions(response);
-      })
-      .catch((err: unknown) => {
-        if (err instanceof Error) showError(err.message);
-        else showError(String(err));
-      });
-  };
+  }, [factions, showError]);
 
   useEffect(() => {
-    if (location.state && location.state.tacticalGame) {
+    if (tacticalGame) {
+      fetchStrategicGame(tacticalGame.strategicGameId)
+        .then((data) => setStrategicGame(data))
+        .catch((err) => showError(err.message));
+      fetchFactions(`gameId==${tacticalGame.strategicGameId}`, 0, 100)
+        .then((response) => setFactions(response))
+        .catch((err) => showError(err.message));
+    }
+  }, [tacticalGame, showError]);
+
+  useEffect(() => {
+    if (location.state && location.state.realm) {
       setTacticalGame(location.state.tacticalGame);
-    } else {
-      bindTacticalGame(gameId);
+    } else if (gameId) {
+      fetchTacticalGame(gameId)
+        .then((response) => setTacticalGame(response))
+        .catch((err) => showError(err.message));
     }
-  }, [location.state, gameId]);
+  }, [location.state, gameId, showError]);
 
-  useEffect(() => {
-    if (tacticalGame && tacticalGame.strategicGameId) {
-      bindStrategicGame(tacticalGame.strategicGameId);
-      bindFactions(tacticalGame.strategicGameId);
-    }
-    if (tacticalGame && tacticalGame.factions) {
-      bindCharacters(tacticalGame.factions);
-    }
-  }, [tacticalGame]);
-
-  if (!tacticalGame) {
-    return <p>Loading...</p>;
-  }
+  if (!tacticalGame) return <p>Loading...</p>;
 
   return (
     <>
-      <TacticalGameViewActions tacticalGame={tacticalGame} />
+      <TacticalGameViewActions tacticalGame={tacticalGame} setTacticalGame={setTacticalGame} />
       <Grid container spacing={5}>
         <Grid size={3}>
           <TacticalGameAvatar tacticalGame={tacticalGame} size={300} />
@@ -106,7 +66,12 @@ const TacticalGameView: FC = () => {
           <TacticalGameViewFactions tacticalGame={tacticalGame} setTacticalGame={setTacticalGame} factions={factions} />
         </Grid>
         <Grid size={9}>
-          <TacticalGameViewActors tacticalGame={tacticalGame} setTacticalGame={setTacticalGame} factions={factions} characters={characters} />
+          <TacticalGameViewActors
+            tacticalGame={tacticalGame}
+            setTacticalGame={setTacticalGame}
+            factions={factions}
+            characters={characters}
+          />
         </Grid>
       </Grid>
     </>

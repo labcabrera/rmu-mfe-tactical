@@ -21,19 +21,54 @@ export type ParryDeclaration = {
   parries: ParryDeclarationItem[];
 };
 
+export type ActionMovementModifiers = {
+  pace: string;
+  requiredManeuver: boolean;
+  skillId?: string;
+  difficulty?: string;
+  customModifier?: number;
+};
+
+export type ActionMovementCalculated = {
+  bmr: number;
+  paceMultiplier: number;
+  percent: number;
+  distance: number;
+  distanceAdjusted: number;
+  description: string;
+};
+
+export type RollModifier = {
+  key: string;
+  value: number;
+};
+
+export type ActionRoll = {
+  modifiers?: RollModifier[];
+  roll: number | null;
+  totalRoll?: number;
+};
+
+export type ActionMovement = {
+  modifiers: ActionMovementModifiers;
+  roll: ActionRoll;
+  calculated?: ActionMovementCalculated;
+};
+
 export type Action = {
   id: string;
   gameId: string;
   actorId: string;
   round: number;
-  actionType: 'movement' | 'attack' | 'skill' | 'free';
+  actionType: 'movement' | 'melee-attack' | 'ranged-attack' | 'skill' | 'free';
   phaseStart: number;
   phaseEnd: number | undefined;
   status: ActionStatus;
   actionPoints: number | undefined;
-  movement: any | undefined;
+  movement: ActionMovement | undefined;
   attacks: ActionAttack[] | undefined;
   parries: ActionParry[] | undefined;
+  fatigue: number | undefined;
 };
 
 export type ResolveMovementDto = {

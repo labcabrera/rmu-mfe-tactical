@@ -1,15 +1,14 @@
 import React, { FC, MouseEvent } from 'react';
-import AddCircleIcon from '@mui/icons-material/AddCircle';
+import ClearIcon from '@mui/icons-material/Clear';
 import IconButton from '@mui/material/IconButton';
 
-const AddButton: FC<{
-  // eslint-disable-next-line no-unused-vars
+const ClearButton: FC<{
   onClick: (event: MouseEvent<HTMLButtonElement>) => void;
   disabled?: boolean;
 }> = ({ onClick, disabled = false }) => (
   <IconButton onClick={onClick} aria-label="add" disabled={disabled} size="large" color="primary">
-    <AddCircleIcon fontSize="inherit" />
+    <ClearIcon fontSize="inherit" />
   </IconButton>
 );
 
-export default AddButton;
+export default ClearButton;

@@ -1,7 +1,7 @@
 import React, { FC, useContext } from 'react';
-import { useTranslation } from 'react-i18next';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import { Box, Breadcrumbs, Button, Link, Stack, Typography } from '@mui/material';
+import { t } from 'i18next';
 import { CombatContext } from '../../CombatContext';
 import { useError } from '../../ErrorContext';
 import { startRound, startPhase } from '../api/tactical-games';
@@ -13,42 +13,33 @@ import NextButton from '../shared/buttons/NextButton';
 
 const CombatDashboardActions: FC = () => {
   const navigate = useNavigate();
-  const { t } = useTranslation();
-  const { displayRound, setDisplayRound, game, setGame } = useContext(CombatContext)!;
   const { showError } = useError();
+  const { displayRound, setDisplayRound, game, setGame } = useContext(CombatContext)!;
 
-  const handleDisplayPreviousRoundClick = () => {
+  const onDisplayPrevRound = () => {
     setDisplayRound(displayRound > 1 ? displayRound - 1 : 1);
   };
 
-  const handleDisplayNextRoundClick = () => {
+  const onDisplayNextRound = () => {
     setDisplayRound(displayRound + 1);
   };
 
-  const handleNextRoundClick = async () => {
+  const onNextRound = async () => {
     startRound(game.id)
       .then((game: TacticalGame) => {
         setGame(game);
         setDisplayRound(game.round);
       })
-      .catch((err: unknown) => {
-        if (err instanceof Error) showError(err.message);
-        else showError(String(err));
-      });
+      .catch((err) => showError(err.message));
   };
 
-  const handleNextPhaseClick = async () => {
+  const onNextPhase = async () => {
     startPhase(game.id)
-      .then((game: TacticalGame) => {
-        setGame(game);
-      })
-      .catch((err: unknown) => {
-        if (err instanceof Error) showError(err.message);
-        else showError(String(err));
-      });
+      .then((game) => setGame(game))
+      .catch((err) => showError(err.message));
   };
 
-  const handleCloseDashboardClick = () => {
+  const onClose = () => {
     navigate(`/tactical/view/${game.id}`, { state: { game } });
   };
 
@@ -56,42 +47,40 @@ const CombatDashboardActions: FC = () => {
     return game.phase !== 'upkeep';
   };
 
-  if (!displayRound || !game) {
-    return <p>Loading...</p>;
-  }
+  if (!displayRound || !game) return <p>Loading...</p>;
 
   return (
     <>
       <Stack spacing={2} direction="row" justifyContent="space-between" alignItems="center" sx={{ minHeight: 80 }}>
         <Box>
           <Breadcrumbs aria-label="breadcrumb">
-            <Link color="inherit" href="/">
+            <Link color="primary" underline="hover" href="/">
               {t('home')}
             </Link>
-            <Link component={RouterLink} color="inherit" to="/tactical/games">
+            <Link component={RouterLink} color="primary" underline="hover" to="/tactical/games">
               {t('tactical')}
             </Link>
-            <Link component={RouterLink} color="inherit" to="/tactical/games">
+            <Link component={RouterLink} color="primary" underline="hover" to="/tactical/games">
               {t('games')}
             </Link>
-            <Link component={RouterLink} color="inherit" to={`/tactical/games/view/${game.id}`}>
+            <Link component={RouterLink} color="primary" underline="hover" to={`/tactical/games/view/${game.id}`}>
               {game.name}
             </Link>
-            <Typography sx={{ color: 'text.primary' }}>
+            <Typography color="secondary">
               Round {displayRound} of {game.round}
             </Typography>
-            <Typography sx={{ color: 'text.primary' }}>{t(game.phase)}</Typography>
+            <Typography color="secondary">{t(game.phase)}</Typography>
           </Breadcrumbs>
         </Box>
         <Stack direction="row" spacing={2}>
-          <BackButton onClick={handleDisplayPreviousRoundClick} disabled={displayRound === 1} size={80} />
-          <NextButton onClick={handleDisplayNextRoundClick} disabled={displayRound === game.round} size={80} />
-          <AddButton onClick={handleNextRoundClick} size={80} />
-          <CloseButton onClick={handleCloseDashboardClick} size={80} />
+          <BackButton onClick={onDisplayPrevRound} disabled={displayRound === 1} size={80} />
+          <NextButton onClick={onDisplayNextRound} disabled={displayRound === game.round} size={80} />
+          <AddButton onClick={onNextRound} />
+          <CloseButton onClick={onClose} />
           {nextPhaseAvailable() ? (
-            <Button onClick={handleNextPhaseClick}>Next phase</Button>
+            <Button onClick={onNextPhase}>Next phase</Button>
           ) : (
-            <Button onClick={handleNextRoundClick}>Next round</Button>
+            <Button onClick={onNextRound}>Next round</Button>
           )}
         </Stack>
       </Stack>

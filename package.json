@@ -1,12 +1,12 @@
 {
   "name": "rmu-mfe-tactical",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "scripts": {
     "build": "webpack --mode production",
     "build:dev": "webpack --mode development",
-    "build:start": "cd dist && PORT=8081 npx serve",
+    "build:start": "cd dist && PORT=8083 npx serve",
     "start": "webpack serve --mode development",
-    "start:live": "webpack serve --mode development --live-reload --hot",
+    "start:live": "PORT=8083 webpack serve --mode development --live-reload --hot",
     "lint": "npx eslint src",
     "tailwind": "npx tailwindcss -i ./src/source.css -o ./src/index.css",
     "postinstall": "echo '{\"type\":\"module\",\"sideEffects\":false,\"version\":\"7.3.1\"}' > node_modules/@mui/material/esm/package.json && echo '{\"type\":\"module\",\"sideEffects\":false,\"version\":\"7.3.1\"}' > node_modules/@mui/icons-material/esm/package.json"

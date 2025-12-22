@@ -1,14 +1,13 @@
 import React from 'react';
-import { useTranslation } from 'react-i18next';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
-import AddCircleIcon from '@mui/icons-material/AddCircle';
-import { Box, Breadcrumbs, IconButton, Link, Stack } from '@mui/material';
+import { Box, Breadcrumbs, Link, Stack } from '@mui/material';
+import { t } from 'i18next';
+import AddButton from '../../shared/buttons/AddButton';
 
 const TacticalGameListActions: React.FC = () => {
   const navigate = useNavigate();
-  const { t } = useTranslation();
 
-  const handleNewGame = async () => {
+  const onNewTacticalGame = async () => {
     navigate('/tactical/games/create');
   };
 
@@ -16,19 +15,17 @@ const TacticalGameListActions: React.FC = () => {
     <Stack spacing={2} direction="row" justifyContent="space-between" alignItems="center" sx={{ minHeight: 80 }}>
       <Box>
         <Breadcrumbs aria-label="breadcrumb">
-          <Link color="inherit" href="/">
+          <Link color="primary" underline="hover" href="/">
             {t('home')}
           </Link>
-          <Link component={RouterLink} color="inherit" to="/tactical">
+          <Link component={RouterLink} color="primary" underline="hover" to="/tactical">
             {t('tactical')}
           </Link>
           <span>{t('games')}</span>
         </Breadcrumbs>
       </Box>
       <Stack spacing={2} direction="row" sx={{ justifyContent: 'flex-end', alignItems: 'flex-start' }}>
-        <IconButton onClick={handleNewGame}>
-          <AddCircleIcon />
-        </IconButton>
+        <AddButton onClick={onNewTacticalGame} />
       </Stack>
     </Stack>
   );

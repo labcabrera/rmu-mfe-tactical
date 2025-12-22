@@ -1,4 +1,4 @@
-import React, { createContext, useEffect, useState, ReactNode, Dispatch, SetStateAction } from 'react';
+import React, { createContext, useEffect, useState, ReactNode, Dispatch, SetStateAction, FC } from 'react';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { Box, Typography, Accordion, AccordionDetails, AccordionSummary } from '@mui/material';
 import { useError } from './ErrorContext';
@@ -35,11 +35,9 @@ type CombatContextType = {
 
 export const CombatContext = createContext<CombatContextType | undefined>(undefined);
 
-type CombatProviderProps = {
+export const CombatProvider: FC<{
   children: ReactNode;
-};
-
-export const CombatProvider: React.FC<CombatProviderProps> = ({ children }) => {
+}> = ({ children }) => {
   const { showError } = useError();
 
   const [gameId, setGameId] = useState<string | null>(null);
@@ -57,63 +55,43 @@ export const CombatProvider: React.FC<CombatProviderProps> = ({ children }) => {
         setGame(data);
         setDisplayRound(data.round);
       })
-      .catch((err: any) => {
-        showError(err.message);
-      });
+      .catch((err) => showError(err.message));
   };
 
   const bindStrategicGame = (strategicGameId: string) => {
     fetchStrategicGame(strategicGameId)
-      .then((data: StrategicGame) => {
-        setStrategicGame(data);
-      })
-      .catch((err: any) => {
-        showError(err.message);
-      });
+      .then((data: StrategicGame) => setStrategicGame(data))
+      .catch((err) => showError(err.message));
   };
 
   const bindActorRounds = (gameId: string, displayRound: number) => {
     fetchActorRounds(gameId, displayRound)
-      .then((data: ActorRound[]) => {
+      .then((data) => {
         data.sort((a, b) => a.actorName.localeCompare(b.actorName));
         setActorRounds(data);
       })
-      .catch((err: any) => {
-        showError(err.message);
-      });
+      .catch((err) => showError(err.message));
   };
 
   const bindActions = (gameId: string, displayRound: number) => {
     fetchActionsByGameAndRound(gameId, displayRound)
-      .then((data: Action[]) => {
-        setRoundActions(data);
-      })
-      .catch((err: any) => {
-        showError(err.message);
-      });
+      .then((data) => setRoundActions(data))
+      .catch((err) => showError(err.message));
   };
 
   const bindCharacters = (game: TacticalGame) => {
     const characterIds = game.actors.map((e) => e.id);
     const rsql = `id=in=(${characterIds.join(',')})`;
     fetchCharacters(rsql, 0, 100)
-      .then((data: Character[]) => {
-        setCharacters(data);
-      })
-      .catch((err: any) => {
-        showError(err.message);
-      });
+      .then((data) => setCharacters(data))
+      .catch((err) => showError(err.message));
   };
 
   const bindFactions = (game: TacticalGame) => {
     const rsql = `id=in=(${game.factions.join(',')})`;
     fetchFactions(rsql, 0, 100)
-      .then((data: Faction[]) => {
-        setFactions(data);
-      })
-      .catch((err: any) => {
-        showError(err.message);
-      });
+      .then((data) => setFactions(data))
+      .catch((err) => showError(err.message));
   };
 
   const refreshActorRounds = () => {
@@ -130,7 +108,9 @@ export const CombatProvider: React.FC<CombatProviderProps> = ({ children }) => {
 
   const updateActorRound = (updatedActorRound: ActorRound) => {
     setActorRounds((prevRounds) =>
-      prevRounds ? prevRounds.map((round) => (round.id === updatedActorRound.id ? updatedActorRound : round)) : prevRounds
+      prevRounds
+        ? prevRounds.map((round) => (round.id === updatedActorRound.id ? updatedActorRound : round))
+        : prevRounds
     );
   };
 

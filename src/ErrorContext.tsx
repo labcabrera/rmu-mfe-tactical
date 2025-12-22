@@ -7,11 +7,9 @@ type ErrorContextType = {
 
 const ErrorContext = createContext<ErrorContextType | undefined>(undefined);
 
-type ErrorProviderProps = {
+export const ErrorProvider: FC<{
   children: ReactNode;
-};
-
-export const ErrorProvider: FC<ErrorProviderProps> = ({ children }) => {
+}> = ({ children }) => {
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState('');
 
@@ -28,7 +26,12 @@ export const ErrorProvider: FC<ErrorProviderProps> = ({ children }) => {
   return (
     <ErrorContext.Provider value={{ showError }}>
       {children}
-      <Snackbar open={open} autoHideDuration={10000} onClose={handleClose} anchorOrigin={{ vertical: 'top', horizontal: 'right' }}>
+      <Snackbar
+        open={open}
+        autoHideDuration={10000}
+        onClose={handleClose}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+      >
         <Alert severity="error" onClose={handleClose} variant="filled">
           {message}
         </Alert>

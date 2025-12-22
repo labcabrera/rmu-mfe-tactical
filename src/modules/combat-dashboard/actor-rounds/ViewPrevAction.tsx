@@ -5,7 +5,7 @@ import Stack from '@mui/material/Stack';
 import { Action } from '../../api/action.dto';
 import { ActorRound } from '../../api/actor-rounds.dto';
 import type { Character } from '../../api/characters';
-import ResolveActionDialog from '../resolve-action-dialog/ResolveActionDialog';
+import ActionDialog from '../action-dialogs/ActionDialog';
 
 const ViewPrevAction: FC<{
   activeAction: Action;
@@ -20,7 +20,7 @@ const ViewPrevAction: FC<{
   if (activeAction.phaseEnd === phase) {
     return (
       <>
-        <ResolveActionDialog
+        <ActionDialog
           action={activeAction}
           actorRound={actorRound}
           character={character}
