@@ -1,4 +1,4 @@
-import React, { useContext, FC, useEffect, useState } from 'react';
+import React, { useContext, FC, useState } from 'react';
 import {
   Button,
   Dialog,
@@ -56,13 +56,15 @@ const DeclareActionDialog: FC<{
     if (opt.key === 'movement') {
       base.pace = (actorRound as any).movementMode ?? 'walk';
     }
-    // Include melee type when attack
-    if (opt.key === 'attack') {
+    // Include melee type when melee-attack
+    if (opt.key === 'melee-attack') {
       base.meleeType = meleeType;
-    }
-    // Include details when other
-    if (opt.key === 'other') {
-      base.details = otherDetails;
+      // initialize attacks array: if actor has attacks, preselect them
+      if (actorRound.attacks && actorRound.attacks.length > 0) {
+        base.attacks = actorRound.attacks.map((a: any) => ({ modifiers: { attackName: a.attackName } }));
+      } else {
+        base.attacks = [];
+      }
     }
     setActionForm(base);
   };
@@ -75,8 +77,6 @@ const DeclareActionDialog: FC<{
       })
       .catch((err) => showError(err.message));
   };
-
-  useEffect(() => {}, [actorRound]);
 
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="xl" fullWidth>
@@ -128,36 +128,37 @@ const DeclareActionDialog: FC<{
         )}
 
         <div style={{ marginTop: 16 }}>
-          {actionForm.actionType === 'movement' && (
-            <Grid container spacing={2} alignItems="center">
-              <Grid>
-                <FormControl>
-                  <FormLabel>Pace</FormLabel>
-                  <Grid container spacing={1} sx={{ mt: 1 }}>
-                    {['creep', 'walk', 'jog', 'run', 'spring', 'dash'].map((p) => (
-                      <Grid key={p}>
-                        <Button
-                          variant={actionForm.pace === p ? 'contained' : 'outlined'}
-                          onClick={() => setActionForm({ ...actionForm, pace: p })}
-                        >
-                          {p.charAt(0).toUpperCase() + p.slice(1)}
-                        </Button>
-                      </Grid>
-                    ))}
-                  </Grid>
-                </FormControl>
-              </Grid>
-            </Grid>
-          )}
-
-          {actionForm.actionType === 'attack' && (
-            <FormControl>
-              <FormLabel>Melee type</FormLabel>
-              <RadioGroup row value={meleeType} onChange={(e) => setMeleeType(e.target.value as 'one' | 'two')}>
-                <FormControlLabel value="one" control={<Radio />} label="One-handed" />
-                <FormControlLabel value="two" control={<Radio />} label="Two-handed" />
-              </RadioGroup>
-            </FormControl>
+          {actionForm.actionType === 'melee-attack' && (
+            <>
+              {/* Show available attacks from actorRound and allow selecting one */}
+              {actorRound.attacks && actorRound.attacks.length > 0 && (
+                <Grid container spacing={1} sx={{ mt: 1 }}>
+                  {actorRound.attacks.map((atk: any) => (
+                    <Grid key={atk.attackName}>
+                      <Button
+                        size="small"
+                        variant={
+                          actionForm.attacks &&
+                          actionForm.attacks[0] &&
+                          ((actionForm.attacks[0].modifiers && actionForm.attacks[0].modifiers.attackName) ||
+                            actionForm.attacks[0].attackName) === atk.attackName
+                            ? 'contained'
+                            : 'outlined'
+                        }
+                        onClick={() =>
+                          setActionForm({
+                            ...actionForm,
+                            attacks: [{ modifiers: { attackName: atk.attackName } }],
+                          })
+                        }
+                      >
+                        {atk.attackName}
+                      </Button>
+                    </Grid>
+                  ))}
+                </Grid>
+              )}
+            </>
           )}
 
           {actionForm.actionType === 'other' && (
