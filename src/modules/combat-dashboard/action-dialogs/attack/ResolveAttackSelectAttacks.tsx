@@ -5,7 +5,6 @@ import { CombatContext } from '../../../../CombatContext';
 import { ActionAttack, ActionAttackModifiers, AttackDeclaration } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
 import type { Character } from '../../../api/characters';
-import { NumericInput } from '../../../shared/inputs/NumericInput';
 import BoSelector from './BoSelector';
 import TargetSelector from './TargetSelector';
 
@@ -87,43 +86,27 @@ const AttackList: FC<{
           } as ActionAttackModifiers);
 
         return (
-          <Grid container key={index} spacing={2} alignItems="center" style={{ marginBottom: 8 }}>
-            <Grid size={2}>
-              <Typography variant="body2">{t(attack.attackName)}</Typography>
+          <>
+            <Typography variant="h6">{t(attack.attackName)}</Typography>
+            <Grid container key={index} spacing={1} alignItems="center">
+              <Grid size={2}>
+                {t(attack.attackTable)} +{attack.currentBo}
+              </Grid>
+              <Grid size={4}>
+                <BoSelector
+                  value={modifiers.bo}
+                  max={attack.currentBo}
+                  onChange={(bo: number) => handleBoChange(attack.attackName, bo)}
+                />
+              </Grid>
+              <Grid size={6}>
+                <TargetSelector
+                  value={modifiers.targetId || ''}
+                  onChange={(actorId) => handleTargetChange(attack.attackName, actorId)}
+                />
+              </Grid>
             </Grid>
-            <Grid size={2}>
-              <Typography variant="body2">
-                {t(attack.attackTable)}: {attack.currentBo}
-              </Typography>
-            </Grid>
-            <Grid size={2}>
-              <NumericInput
-                label={t('attack-used-bo')}
-                name={`${attack.attackName}.bo`}
-                value={modifiers.bo}
-                min={1}
-                max={attack.currentBo}
-                onChange={(bo) => {
-                  handleBoChange(attack.attackName, bo);
-                }}
-                integer
-                allowNegatives={false}
-              />
-            </Grid>
-            <Grid size={2}>
-              <BoSelector
-                value={modifiers.bo}
-                max={attack.currentBo}
-                onChange={(bo: number) => handleBoChange(attack.attackName, bo)}
-              />
-            </Grid>
-            <Grid size={4}>
-              <TargetSelector
-                value={modifiers.targetId || ''}
-                onChange={(actorId) => handleTargetChange(attack.attackName, actorId)}
-              />
-            </Grid>
-          </Grid>
+          </>
         );
       })}
     </>

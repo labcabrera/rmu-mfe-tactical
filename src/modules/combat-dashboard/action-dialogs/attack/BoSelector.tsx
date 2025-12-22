@@ -1,6 +1,7 @@
 import React, { FC } from 'react';
-import { Box, Slider, Stack } from '@mui/material';
-import { NumericInput } from '../../../shared/inputs/NumericInput';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
+import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
+import { Box, IconButton, Slider, Stack, Typography } from '@mui/material';
 
 type Props = {
   value: number | null;
@@ -27,8 +28,11 @@ const BoSelector: FC<Props> = ({ value, onChange, min = 0, max, integer = true, 
 
   return (
     <>
-      <Stack direction="row" spacing={2} alignItems="center">
-        <Box sx={{ width: 160 }}>
+      <Typography variant="subtitle2" gutterBottom>
+        Used BO
+      </Typography>
+      <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 1 }}>
+        <Box sx={{ flex: 1, minWidth: 0, alignSelf: 'center' }}>
           <Slider
             value={current}
             min={min}
@@ -41,21 +45,46 @@ const BoSelector: FC<Props> = ({ value, onChange, min = 0, max, integer = true, 
             }}
             disabled={disabled}
             aria-label="bo-slider"
+            getAriaValueText={(value: number) => `${value}`}
+            valueLabelDisplay="on"
+            sx={{ width: '100%' }}
           />
         </Box>
-        <Box sx={{ width: 100 }}>
-          <NumericInput
-            value={current}
-            onChange={(v) => {
-              const n = v === null ? min : v;
-              const clipped = Math.max(min, Math.min(n, safeMax));
-              onChange(integer ? Math.round(clipped) : clipped);
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'row',
+            gap: 0.5,
+            width: 72,
+            alignItems: 'center',
+            justifyContent: 'center',
+            alignSelf: 'center',
+          }}
+        >
+          <IconButton
+            size="small"
+            color="primary"
+            onClick={() => {
+              const next = Math.max(min, current - 1);
+              onChange(integer ? Math.round(next) : next);
             }}
-            integer={integer}
-            min={min}
-            max={safeMax}
-            disabled={disabled}
-          />
+            disabled={disabled || current <= min}
+            aria-label="decrement-bo"
+          >
+            <RemoveCircleIcon fontSize="small" />
+          </IconButton>
+          <IconButton
+            size="small"
+            color="primary"
+            onClick={() => {
+              const next = Math.min(safeMax, current + 1);
+              onChange(integer ? Math.round(next) : next);
+            }}
+            disabled={disabled || current >= safeMax}
+            aria-label="increment-bo"
+          >
+            <AddCircleIcon fontSize="small" />
+          </IconButton>
         </Box>
       </Stack>
     </>
