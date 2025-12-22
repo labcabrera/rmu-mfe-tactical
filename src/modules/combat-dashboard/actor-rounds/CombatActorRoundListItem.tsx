@@ -28,7 +28,7 @@ const CombatActorRoundListItem: FC<{
 
   return (
     <>
-      <Grid container spacing={2} columns={12} sx={{ mt: 1, mb: 1 }}>
+      <Grid container spacing={1} mt={1}>
         <Grid size={3}>
           <CombatActorRoundListItemCharacter actorRound={actorRound} />
         </Grid>

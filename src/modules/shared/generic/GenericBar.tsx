@@ -18,7 +18,7 @@ const GenericBar: FC<GenericBarProps> = ({
   current,
   colorOk = '#4caf50',
   colorKo = '#ffeb3b',
-  backgroundColor = '#1e231dff',
+  backgroundColor = '#656d64ff',
 }) => {
   const healthPercentage = (current / max) * 100;
 

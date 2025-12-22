@@ -54,7 +54,7 @@ const CombatActorRoundListItemCharacter: FC<{
   return (
     <Card>
       <CardContent>
-        <Stack direction="row" spacing={2}>
+        <Stack direction="row" spacing={1}>
           <IconButton onClick={handleCharacterClick}>
             <CharacterAvatar character={character} dead={idDead()} variant="square" />
           </IconButton>

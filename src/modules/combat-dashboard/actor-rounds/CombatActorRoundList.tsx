@@ -24,7 +24,7 @@ const CombatActorRoundList: FC = () => {
 
   return (
     <>
-      <Grid container spacing={2} columns={12} sx={{ mt: 1, mb: 1 }}>
+      <Grid container spacing={1}>
         <Grid size={3}></Grid>
         <Grid size={1}>
           <Typography variant="h6" align="left" color={game.phase === 'declare_initiative' ? 'success' : 'secondary'}>
