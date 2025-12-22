@@ -1,5 +1,5 @@
-import React, { FC, useContext, useState } from 'react';
-import { Button, FormControlLabel, Grid, Switch, TextField } from '@mui/material';
+import React, { FC, useContext, useEffect, useState } from 'react';
+import { Button, Chip, Grid, Stack, TextField, Typography } from '@mui/material';
 import { CombatContext } from '../../../../CombatContext';
 import { useError } from '../../../../ErrorContext';
 import { resolveMovement } from '../../../api/action';
@@ -7,8 +7,9 @@ import { Action, ActionMovement } from '../../../api/action.dto';
 import type { Character } from '../../../api/characters';
 import type { StrategicGame } from '../../../api/strategic-games';
 import type { TacticalGame } from '../../../api/tactical-games';
+import RollModifiersView from '../../../shared/generic/RollModifiersView';
 import { NumericInput } from '../../../shared/inputs/NumericInput';
-import NumericReadonlyInput from '../../../shared/inputs/NumericReadonlyInput';
+import SelectBoolean from '../../../shared/selects/SelectBoolean';
 import SelectDifficulty from '../../../shared/selects/SelectDifficulty';
 import SelectMovementSkill from '../../../shared/selects/SelectMovementSkill';
 import SelectPace, { Pace } from '../../../shared/selects/SelectPace';
@@ -24,6 +25,7 @@ const ResolveMovementForm: FC<{
   const [paceMultiplier, setPaceMultiplier] = useState<number | null>(null);
   const [movement, setMovement] = useState<number | null>(null);
   const [adjustedMovement, setAdjustedMovement] = useState<number | null>(null);
+  const [skillBonus, setSkillBonus] = useState<number | null>(null);
   const { updateAction } = useContext(CombatContext)!;
   const { showError } = useError();
 
@@ -50,6 +52,8 @@ const ResolveMovementForm: FC<{
 
   const handleMovementSkillChange = (value: string) => {
     setFormData({ ...formData, modifiers: { ...formData.modifiers, skillId: value } });
+    const skill = character.skills.find((s) => s.skillId === value);
+    setSkillBonus(skill ? skill.totalBonus : 0);
   };
 
   const onResolve = () => {
@@ -60,98 +64,113 @@ const ResolveMovementForm: FC<{
       .catch((err: Error) => showError(err.message));
   };
 
+  useEffect(() => {
+    const skill = character.skills.find((s) => s.skillId === 'running');
+    setSkillBonus(skill ? skill.totalBonus : 0);
+  }, [character]);
+
   return (
     <Grid container spacing={2}>
-      <Grid size={2}>
-        <SelectPace value={formData.modifiers.pace} name="pace" onChange={(v, p) => handlePaceChange(v, p)} />
-      </Grid>
-      <Grid size={2}>
-        <NumericReadonlyInput label="Action points" name="actionPoints" value={getActionPoints()} />
-      </Grid>
-      <Grid size={2}>
-        <TextField
-          label="BMR"
-          name="bmr"
-          value={`${character.movement.baseMovementRate}'`}
-          variant="standard"
-          fullWidth
-          sx={{
-            '& input': {
-              textAlign: 'right',
-            },
-          }}
+      <Grid size={12}>
+        <SelectPace
+          value={formData.modifiers.pace}
+          onChange={(v, p) => handlePaceChange(v, p)}
+          readOnly={action.status === 'completed'}
         />
       </Grid>
-      <Grid size={2}>
-        <NumericReadonlyInput label="Pace multiplier" name="paceMultiplier" value={paceMultiplier} />
-      </Grid>
-      <Grid size={2}>
-        <TextField
-          label="Movement"
-          name="movement"
-          value={movement !== null ? `${movement}'` : ''}
-          variant="standard"
-          fullWidth
-          sx={{
-            '& input': {
-              textAlign: 'right',
-            },
-          }}
+      <Grid size={12}>
+        <SelectMovementSkill
+          value={formData.modifiers.skillId}
+          onChange={handleMovementSkillChange}
+          readOnly={action.status === 'completed'}
         />
       </Grid>
-      <Grid size={2}>
-        <NumericReadonlyInput label="Adjusted movement" name="adjustedMovement" value={adjustedMovement} />
-      </Grid>
-      <Grid size={2}>
-        <TextField
-          label="Maneuver penalty"
-          name="maneuverPenalty"
-          value={character.equipment.maneuverPenalty}
-          variant="standard"
-          fullWidth
+      <Grid size={12}>
+        <SelectBoolean
+          name="Required maneuver"
+          value={formData.modifiers.requiredManeuver}
+          onChange={(val) => setFormData({ ...formData, modifiers: { ...formData.modifiers, requiredManeuver: val } })}
+          readOnly={action.status === 'completed'}
         />
       </Grid>
+      {!action.movement?.calculated && (
+        <Grid size={12}>
+          <Typography variant="h6">Estimated</Typography>
+          <Stack direction="row" spacing={1}>
+            <Chip label={`Action points: ${getActionPoints()}`} />
+            <Chip label={`Maneuver penalty: ${character.equipment.maneuverPenalty}`} />
+            <Chip label={`Skill bonus: ${skillBonus !== null ? `${skillBonus > 0 ? '+' : ''}${skillBonus}` : ''}`} />
+          </Stack>
+          <Stack direction="row" spacing={1} mt={1}>
+            <Chip label={`BMR: ${character.movement.baseMovementRate}'`} />
+            {formData?.modifiers?.pace && (
+              <>
+                <Chip label={`Pace x${paceMultiplier}`} />
+                <Chip label={`Distance: ${movement !== null ? `${movement}'` : ''}`} />
+                <Chip label={`Adjusted: ${adjustedMovement !== null ? `${adjustedMovement}` : ''}`} />
+              </>
+            )}
+          </Stack>
+        </Grid>
+      )}
+      <Grid size={12}></Grid>
       <Grid size={2}>
         <SelectDifficulty value={formData.modifiers.difficulty} onChange={handleDifficultyChange} />
       </Grid>
       <Grid size={12}></Grid>
-      <Grid size={2}>
-        <FormControlLabel
-          control={
-            <Switch
-              checked={formData.modifiers.requiredManeuver}
-              onChange={(e) =>
-                setFormData({ ...formData, modifiers: { ...formData.modifiers, requiredManeuver: e.target.checked } })
-              }
+      {formData.modifiers.requiredManeuver && (
+        <>
+          <Grid size={2}>
+            <NumericInput
+              label="Roll"
+              value={formData.roll.roll}
+              onChange={(val: number | null) => setFormData({ ...formData, roll: { roll: val } })}
+              integer
             />
-          }
-          label="Required maneuver"
-        />
-      </Grid>
-      <Grid size={12}>
-        {formData.modifiers.requiredManeuver && (
-          <>
-            <Grid size={2}>
-              <SelectMovementSkill value={formData.modifiers.skillId} onChange={handleMovementSkillChange} />
-            </Grid>
-            <Grid size={2}>
-              <NumericInput
-                label="Roll"
-                value={formData.roll.roll}
-                onChange={(val: number | null) => setFormData({ ...formData, roll: { roll: val } })}
-                integer
-              />
-            </Grid>
-          </>
-        )}
+          </Grid>
+        </>
+      )}
+      {action.status !== 'completed' && (
         <Button
           onClick={onResolve}
           disabled={!formData.modifiers.pace || (formData.modifiers.requiredManeuver && !formData.roll)}
+          variant="contained"
         >
           Resolve
         </Button>
-      </Grid>
-      {action.movement && action.movement.calculated && <Grid size={12}>calculated</Grid>}
+      )}
+      {action.movement && action.movement.calculated && (
+        <>
+          <Grid size={12}>
+            <Typography variant="h6">Result</Typography>
+            <Typography variant="body1">{action.movement.calculated.description}</Typography>
+            <Stack direction="row" spacing={1} mt={1}>
+              <Chip label={`Percent: ${action.movement.calculated.percent}%`} />
+            </Stack>
+            <Stack direction="row" spacing={1} mt={1}>
+              <Chip label={`Action points: ${action.actionPoints}`} />
+            </Stack>
+            <Stack direction="row" spacing={1} mt={1}>
+              <Chip label={`BMR: ${action.movement.calculated.bmr}'`} />
+              <Chip label={`Pace x${action.movement.calculated.paceMultiplier}`} />
+              <Chip label={`Distance: ${action.movement.calculated.distance}'`} />
+              <Chip label={`Adjusted: ${action.movement.calculated.distanceAdjusted}`} />
+            </Stack>
+            <Stack direction="row" spacing={1} mt={1}>
+              <Chip label={`Fatigue: ${action.fatigue}`} />
+            </Stack>
+          </Grid>
+
+          {action.movement.roll && action.movement.roll.modifiers && (
+            <>
+              <Grid size={12}>
+                <Typography variant="h6">Modifiers</Typography>
+                <RollModifiersView modifiers={formData.roll.modifiers || []} />
+              </Grid>
+            </>
+          )}
+        </>
+      )}
 
       <Grid size={12}>
         <pre>{JSON.stringify(formData, null, 2)}</pre>

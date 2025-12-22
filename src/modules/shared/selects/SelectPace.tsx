@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { MenuItem, TextField } from '@mui/material';
+import { Stack, Button, Typography } from '@mui/material';
 
 export type Pace = {
   id: string;
@@ -8,10 +8,10 @@ export type Pace = {
 };
 
 const SelectPace: FC<{
-  name?: string;
   value: string;
   onChange: (value: string, pace?: Pace) => void;
-}> = ({ name, value, onChange }) => {
+  readOnly?: boolean;
+}> = ({ value, onChange, readOnly = false }) => {
   const { t } = useTranslation();
 
   const codes: Pace[] = [
@@ -23,29 +23,34 @@ const SelectPace: FC<{
     { id: 'dash', multiplier: 1.25 },
   ];
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value;
-    const pace = codes.find((e) => e.id === value);
-    onChange(value, pace);
+  const handleClick = (option: Pace) => {
+    if (readOnly) return;
+    onChange(option.id, option);
   };
 
   return (
-    <TextField
-      select
-      label={t('pace')}
-      name={name}
-      value={value}
-      fullWidth
-      onChange={handleChange}
-      variant="standard"
-      error={!value}
-    >
-      {codes.map((option, index) => (
-        <MenuItem key={index} value={option.id}>
-          {t(option.id)}
-        </MenuItem>
-      ))}
-    </TextField>
+    <div>
+      <Typography variant="caption" sx={{ display: 'block', mb: 0.5 }}>
+        {t('pace')}
+      </Typography>
+      <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
+        {codes.map((option) => {
+          const selected = option.id === value;
+          return (
+            <Button
+              key={option.id}
+              size="small"
+              variant={selected ? 'contained' : 'outlined'}
+              color={selected ? 'primary' : 'inherit'}
+              onClick={() => handleClick(option)}
+              disabled={readOnly}
+            >
+              {t(option.id)}
+            </Button>
+          );
+        })}
+      </Stack>
+    </div>
   );
 };
 

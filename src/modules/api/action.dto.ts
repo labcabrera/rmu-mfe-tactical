@@ -45,6 +45,7 @@ export type RollModifier = {
 export type ActionRoll = {
   modifiers?: RollModifier[];
   roll: number | null;
+  totalRoll?: number;
 };
 
 export type ActionMovement = {
@@ -66,6 +67,7 @@ export type Action = {
   movement: ActionMovement | undefined;
   attacks: ActionAttack[] | undefined;
   parries: ActionParry[] | undefined;
+  fatigue: number | undefined;
 };
 
 export type ResolveMovementDto = {
