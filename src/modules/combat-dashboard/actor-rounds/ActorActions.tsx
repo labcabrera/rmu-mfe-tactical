@@ -6,13 +6,13 @@ import { t } from 'i18next';
 import { CombatContext } from '../../../CombatContext';
 import type { Action } from '../../api/action.dto';
 import type { ActorRound } from '../../api/actor-rounds.dto';
-import ResolveActionDialog from '../resolve-action-dialog/ResolveActionDialog';
+import ActionDialog from '../action-dialogs/ActionDialog';
 import DeclareActionDialog from './DeclareActionDialog';
 
 type ActorActionsProps = {
   actorId: string;
-  phases?: number; // default 4
-  currentPhase?: number; // current phase to visualize
+  phases?: number;
+  currentPhase?: number;
   onActionClick: (action: Action) => void;
 };
 
@@ -165,6 +165,7 @@ const ActorActions: FC<ActorActionsProps> = ({ actorId, phases = 4, currentPhase
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
+                      bgcolor: 'background.paper',
                     }}
                     aria-label="declare-action"
                   >
@@ -185,7 +186,7 @@ const ActorActions: FC<ActorActionsProps> = ({ actorId, phases = 4, currentPhase
         />
       )}
       {selectedAction && actorRound && character && (
-        <ResolveActionDialog
+        <ActionDialog
           action={selectedAction}
           actorRound={actorRound}
           character={character}

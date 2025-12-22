@@ -5,16 +5,15 @@ import { resolveMovement } from '../../../api/action';
 import { Action, ResolveMovementDto } from '../../../api/action.dto';
 import type { Character } from '../../../api/characters';
 import type { TacticalGame } from '../../../api/tactical-games';
-import ResolveMovementStepper from './ResolveMovementStepper';
+import ResolveMovementForm from './ResolveMovementForm';
 
-const ResolveMovement: FC<{
+const ActionMovement: FC<{
   action: Action;
   character: Character;
   onClose: () => void;
 }> = ({ action, character, onClose }) => {
   const { showError } = useError();
   const { game, strategicGame, updateAction } = useContext(CombatContext)!;
-  const [activeStep, setActiveStep] = useState<number>(action.status === 'declared' ? 0 : 1);
   const [isValidForm, setIsValidForm] = useState<boolean>(false);
   const [formData, setFormData] = useState<ResolveMovementDto>({
     phase: parseInt((game as TacticalGame).phase.replace('phase_', '')),
@@ -55,20 +54,15 @@ const ResolveMovement: FC<{
   }, [formData]);
 
   return (
-    <ResolveMovementStepper
+    <ResolveMovementForm
       formData={formData}
       setFormData={setFormData}
-      activeStep={activeStep}
-      setActiveStep={setActiveStep}
-      strategicGame={strategicGame}
-      game={game}
       character={character}
+      strategicGame={strategicGame}
       action={action}
-      isValidForm={isValidForm}
-      onClose={onClose}
-      onResolve={onResolve}
+      game={game}
     />
   );
 };
 
-export default ResolveMovement;
+export default ActionMovement;

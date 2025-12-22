@@ -87,8 +87,8 @@ const DeclareActionDialog: FC<{
         <Grid container spacing={1} sx={{ mt: 1 }}>
           {[
             { key: 'movement', label: 'Movement', freeAction: false },
-            { key: 'attack', label: 'Melee attack', freeAction: false },
-            { key: 'ranged', label: 'Ranged attack', freeAction: false },
+            { key: 'melee-attack', label: 'Melee attack', freeAction: false },
+            { key: 'ranged-attack', label: 'Ranged attack', freeAction: false },
             { key: 'draw-and-load', label: 'Draw and load ammo', freeAction: false },
             { key: 'partial-dodge', label: 'Partial dodge', freeAction: false },
             { key: 'full-dodge', label: 'Full dodge', freeAction: false },

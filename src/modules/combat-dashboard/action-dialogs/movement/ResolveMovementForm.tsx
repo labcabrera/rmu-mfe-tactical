@@ -1,5 +1,8 @@
-import React, { FC, useState } from 'react';
-import { FormControlLabel, Grid, Switch, TextField } from '@mui/material';
+import React, { FC, useContext, useState } from 'react';
+import { Button, FormControlLabel, Grid, Switch, TextField } from '@mui/material';
+import { CombatContext } from '../../../../CombatContext';
+import { useError } from '../../../../ErrorContext';
+import { resolveMovement } from '../../../api/action';
 import { ResolveMovementDto, Action } from '../../../api/action.dto';
 import type { Character } from '../../../api/characters';
 import type { StrategicGame } from '../../../api/strategic-games';
@@ -21,6 +24,8 @@ const ResolveMovementForm: FC<{
   const [paceMultiplier, setPaceMultiplier] = useState<number | null>(null);
   const [movement, setMovement] = useState<number | null>(null);
   const [adjustedMovement, setAdjustedMovement] = useState<number | null>(null);
+  const { updateAction } = useContext(CombatContext)!;
+  const { showError } = useError();
 
   const getActionPoints = () => {
     const startPhase = action.phaseStart;
@@ -45,6 +50,23 @@ const ResolveMovementForm: FC<{
 
   const handleMovementSkillChange = (value: string) => {
     setFormData({ ...formData, skillId: value });
+  };
+
+  const processInteger = (value: unknown): number | undefined => {
+    if (!value || value === '') {
+      return undefined;
+    }
+    const check = Number(value);
+    return Number.isInteger(check) ? check : undefined;
+  };
+
+  const onResolve = () => {
+    const dataToSend = { ...formData, roll: processInteger(formData.roll) };
+    resolveMovement(action.id, dataToSend)
+      .then((result: Action) => {
+        updateAction(result);
+      })
+      .catch((err: Error) => showError(err.message));
   };
 
   return (
@@ -113,7 +135,11 @@ const ResolveMovementForm: FC<{
           label="Required maneuver"
         />
       </Grid>
-      <Grid size={12}></Grid>
+      <Grid size={12}>
+        <Button onClick={onResolve} disabled={!formData.pace || (formData.requiredManeuver && !formData.roll)}>
+          Resolve
+        </Button>
+      </Grid>
       {formData.requiredManeuver && (
         <>
           <Grid size={2}>

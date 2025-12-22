@@ -26,7 +26,7 @@ export type Action = {
   gameId: string;
   actorId: string;
   round: number;
-  actionType: 'movement' | 'attack' | 'skill' | 'free';
+  actionType: 'movement' | 'melee-attack' | 'ranged-attack' | 'skill' | 'free';
   phaseStart: number;
   phaseEnd: number | undefined;
   status: ActionStatus;

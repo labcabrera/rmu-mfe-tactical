@@ -4,7 +4,7 @@ import { CombatContext } from '../../../CombatContext';
 import { Action } from '../../api/action.dto';
 import { ActorRound } from '../../api/actor-rounds.dto';
 import type { Character } from '../../api/characters';
-import ResolveActionDialog from '../resolve-action-dialog/ResolveActionDialog';
+import ActionDialog from '../action-dialogs/ActionDialog';
 import ActorActions from './ActorActions';
 import ActorRoundEffects from './ActorRoundEffects';
 import CombatActorRoundListItemCharacter from './CombatActorRoundListItemCharacter';
@@ -63,7 +63,7 @@ const CombatActorRoundListItem: FC<{
       </Grid>
 
       {selectedAction && (
-        <ResolveActionDialog
+        <ActionDialog
           action={selectedAction}
           actorRound={actorRound}
           character={character}

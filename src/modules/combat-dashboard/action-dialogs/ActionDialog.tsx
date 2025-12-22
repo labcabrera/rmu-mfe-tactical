@@ -11,9 +11,9 @@ import { Action } from '../../api/action.dto';
 import { ActorRound } from '../../api/actor-rounds.dto';
 import { Character } from '../../api/characters';
 import ResolveAttack from './attack/ResolveAttack';
-import ResolveMovement from './movement/ResolveMovement';
+import ActionMovement from './movement/ActionMovement';
 
-const ResolveActionDialog: FC<{
+const ActionDialog: FC<{
   action: Action;
   actorRound: ActorRound;
   character: Character;
@@ -51,9 +51,9 @@ const ResolveActionDialog: FC<{
       {!deleting ? (
         <DialogContent>
           {action.actionType === 'movement' && (
-            <ResolveMovement action={action} character={character} onClose={onClose} />
+            <ActionMovement action={action} character={character} onClose={onClose} />
           )}
-          {action.actionType === 'attack' && (
+          {action.actionType === 'melee-attack' && (
             <ResolveAttack action={action} actorRound={actorRound} character={character} onClose={onClose} />
           )}
         </DialogContent>
@@ -87,4 +87,4 @@ const ResolveActionDialog: FC<{
   );
 };
 
-export default ResolveActionDialog;
+export default ActionDialog;
