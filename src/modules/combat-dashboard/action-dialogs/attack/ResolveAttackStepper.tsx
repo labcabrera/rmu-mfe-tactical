@@ -9,7 +9,7 @@ import ResolveAttackParry from './ResolveAttackParry';
 import ResolveAttackTabRoll from './ResolveAttackRoll';
 import ResolveAttackSelectAttacks from './ResolveAttackSelectAttacks';
 
-const steps = ['Declare attacks and targets', 'Choose attack options', 'Parry', 'Resolve attacks', 'Results'];
+const steps = ['Select targets', 'Choose attack options', 'Declare parry', 'Resolve attacks', 'Results'];
 
 const ResolveAttackStepper: FC<{
   formData: AttackDeclaration;
@@ -70,7 +70,12 @@ const ResolveAttackStepper: FC<{
       </Stepper>
       {activeStep === 0 && (
         <Box sx={{ mt: 5 }}>
-          <ResolveAttackSelectAttacks formData={formData} setFormData={setFormData} actorRound={actorRound} character={character} />
+          <ResolveAttackSelectAttacks
+            formData={formData}
+            setFormData={setFormData}
+            actorRound={actorRound}
+            character={character}
+          />
         </Box>
       )}
       {activeStep === 1 && <ResolveAttackDeclaration formData={formData} setFormData={setFormData} />}
@@ -81,7 +86,9 @@ const ResolveAttackStepper: FC<{
           {t('back')}
         </Button>
         <Box sx={{ flex: '1 1 auto' }} />
-        {activeStep === 1 && (action.status === 'declared' || action.status === 'in_progress') && <Button onClick={onDeclare}>{t('prepare')}</Button>}
+        {activeStep === 1 && (action.status === 'declared' || action.status === 'in_progress') && (
+          <Button onClick={onDeclare}>{t('prepare')}</Button>
+        )}
         {activeStep === 2 && <Button onClick={onParry}>{t('parry')}</Button>}
         {activeStep === 3 && action.status !== 'completed' && <Button onClick={onApply}>{t('apply')}</Button>}
         <Button onClick={handleNext} disabled={isDisabledNext()}>

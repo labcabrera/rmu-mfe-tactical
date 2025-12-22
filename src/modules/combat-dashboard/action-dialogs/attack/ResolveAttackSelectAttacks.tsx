@@ -1,12 +1,12 @@
 import React, { Dispatch, FC, SetStateAction, useContext } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Checkbox, Grid, Typography } from '@mui/material';
+import { Grid, Typography } from '@mui/material';
+import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { ActionAttack, ActionAttackModifiers, AttackDeclaration } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
 import type { Character } from '../../../api/characters';
 import { NumericInput } from '../../../shared/inputs/NumericInput';
-import SelectAttackTarget from '../../../shared/selects/SelectAttackTarget';
+import TargetSelector from './TargetSelector';
 
 const ResolveAttackSelectAttacks: React.FC<{
   formData: AttackDeclaration;
@@ -16,7 +16,15 @@ const ResolveAttackSelectAttacks: React.FC<{
 }> = ({ formData, setFormData, actorRound, character }) => {
   const { characters } = useContext(CombatContext) as { characters: Character[] };
 
-  return <AttackList actorRound={actorRound} character={character} characters={characters} formData={formData} setFormData={setFormData} />;
+  return (
+    <AttackList
+      actorRound={actorRound}
+      character={character}
+      characters={characters}
+      formData={formData}
+      setFormData={setFormData}
+    />
+  );
 };
 
 export default ResolveAttackSelectAttacks;
@@ -27,47 +35,37 @@ const AttackList: FC<{
   actorRound: ActorRound;
   character: Character;
   characters: Character[];
-}> = ({ formData, setFormData, actorRound, character, characters }) => {
-  const { t } = useTranslation();
+}> = ({ formData, setFormData, actorRound }) => {
   const selected = formData.attacks || [];
 
   const findAttack = (attackName: string) => selected.find((a) => a.modifiers.attackName === attackName);
 
-  const handleToggle = (attackName: string) => {
+  const handleTargetChange = (attackName: string, targetId: string | null) => {
     const exists = findAttack(attackName);
     let newSelected: ActionAttack[];
     if (exists) {
-      newSelected = selected.filter((a) => a.modifiers.attackName !== attackName);
+      newSelected = selected.map((a) =>
+        a.modifiers.attackName === attackName ? { ...a, modifiers: { ...a.modifiers, targetId } } : a
+      );
     } else {
-      const modifiers = {
-        attackName,
-        targetId: null,
-        bo: actorRound.attacks.find((a) => a.attackName === attackName)?.currentBo || 0,
-        calledShot: 'none',
-        calledShotPenalty: undefined,
-        cover: 'none',
-        restrictedQuarters: 'none',
-        positionalSource: 'none',
-        positionalTarget: 'none',
-        dodge: 'none',
-        range: null,
-        disabledDB: false,
-        disabledShield: false,
-        disabledParry: false,
-        customBonus: undefined,
-      } as ActionAttackModifiers;
+      const baseBo = actorRound.attacks.find((a) => a.attackName === attackName)?.currentBo || 0;
+      const modifiers = { attackName, targetId, bo: baseBo } as ActionAttackModifiers;
       newSelected = [...selected, { modifiers, calculated: undefined, roll: undefined, results: undefined }];
     }
     setFormData({ ...formData, attacks: newSelected });
   };
 
-  const handleTargetChange = (attackName: string, targetId: string) => {
-    const newSelected = selected.map((a) => (a.modifiers.attackName === attackName ? { ...a, modifiers: { ...a.modifiers, targetId } } : a));
-    setFormData({ ...formData, attacks: newSelected });
-  };
-
-  const handleBoChange = (attackName, bo: number) => {
-    const newSelected = selected.map((a) => (a.modifiers.attackName === attackName ? { ...a, modifiers: { ...a.modifiers, bo } } : a));
+  const handleBoChange = (attackName: string, bo: number) => {
+    const exists = findAttack(attackName);
+    let newSelected: ActionAttack[];
+    if (exists) {
+      newSelected = selected.map((a) =>
+        a.modifiers.attackName === attackName ? { ...a, modifiers: { ...a.modifiers, bo } } : a
+      );
+    } else {
+      const modifiers = { attackName, targetId: null, bo } as ActionAttackModifiers;
+      newSelected = [...selected, { modifiers, calculated: undefined, roll: undefined, results: undefined }];
+    }
     setFormData({ ...formData, attacks: newSelected });
   };
 
@@ -77,49 +75,49 @@ const AttackList: FC<{
 
   return (
     <>
-      {actorRound.attacks.map((attack, index) => (
-        <Grid container key={index} spacing={2} alignItems="center" style={{ marginBottom: 8 }}>
-          <Grid size={1}>
-            <Checkbox checked={!!findAttack(attack.attackName)} onChange={() => handleToggle(attack.attackName)} />
+      {actorRound.attacks.map((attack, index) => {
+        const existing = findAttack(attack.attackName);
+        const modifiers =
+          existing?.modifiers ??
+          ({
+            attackName: attack.attackName,
+            targetId: null,
+            bo: attack.currentBo || 0,
+          } as ActionAttackModifiers);
+
+        return (
+          <Grid container key={index} spacing={2} alignItems="center" style={{ marginBottom: 8 }}>
+            <Grid size={2}>
+              <Typography variant="body2">{t(attack.attackName)}</Typography>
+            </Grid>
+            <Grid size={2}>
+              <Typography variant="body2">
+                {t(attack.attackTable)}: {attack.currentBo}
+              </Typography>
+            </Grid>
+            <Grid size={2}>
+              <NumericInput
+                label={t('attack-used-bo')}
+                name={`${attack.attackName}.bo`}
+                value={modifiers.bo}
+                min={1}
+                max={attack.currentBo}
+                onChange={(bo) => {
+                  handleBoChange(attack.attackName, bo);
+                }}
+                integer
+                allowNegatives={false}
+              />
+            </Grid>
+            <Grid size={6}>
+              <TargetSelector
+                value={modifiers.targetId || ''}
+                onChange={(actorId) => handleTargetChange(attack.attackName, actorId)}
+              />
+            </Grid>
           </Grid>
-          <Grid size={2}>
-            <Typography variant="body2">{t(attack.attackName)}</Typography>
-          </Grid>
-          <Grid size={2}>
-            <Typography variant="body2">
-              {t(attack.attackTable)}: {attack.currentBo}
-            </Typography>
-          </Grid>
-          {!!findAttack(attack.attackName) && attack.currentBo > 0 && (
-            <>
-              <Grid size={2}>
-                <SelectAttackTarget
-                  value={findAttack(attack.attackName)?.modifiers.targetId || ''}
-                  onChange={(value: string) => handleTargetChange(attack.attackName, value)}
-                  includeSource={true}
-                  sourceId={character.id}
-                  targets={characters}
-                  i18nLabel="target-attack"
-                />
-              </Grid>
-              <Grid size={2}>
-                <NumericInput
-                  label={t('attack-used-bo')}
-                  name={`${attack.attackName}.bo`}
-                  value={attack.currentBo}
-                  min={1}
-                  max={attack.currentBo}
-                  onChange={(bo) => {
-                    handleBoChange(attack.attackName, bo);
-                  }}
-                  integer
-                  allowNegatives={false}
-                />
-              </Grid>
-            </>
-          )}
-        </Grid>
-      ))}
+        );
+      })}
     </>
   );
 };
