@@ -10,7 +10,7 @@ import { deleteAction } from '../../api/action';
 import { Action } from '../../api/action.dto';
 import { ActorRound } from '../../api/actor-rounds.dto';
 import { Character } from '../../api/characters';
-import ResolveAttack from './attack/ResolveAttack';
+import ActionAttack from './attack/ActionAttack';
 import ActionMovement from './movement/ActionMovement';
 
 const ActionDialog: FC<{
@@ -54,7 +54,7 @@ const ActionDialog: FC<{
             <ActionMovement action={action} character={character} onClose={onClose} />
           )}
           {action.actionType === 'melee-attack' && (
-            <ResolveAttack action={action} actorRound={actorRound} character={character} onClose={onClose} />
+            <ActionAttack action={action} actorRound={actorRound} character={character} onClose={onClose} />
           )}
         </DialogContent>
       ) : (

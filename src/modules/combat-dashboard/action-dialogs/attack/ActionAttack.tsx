@@ -7,7 +7,7 @@ import { ActorRound } from '../../../api/actor-rounds.dto';
 import type { Character } from '../../../api/characters';
 import ResolveActionDialogMovementStepper from './ResolveAttackStepper';
 
-const ResolveAttack: FC<{
+const ActionAttack: FC<{
   action: Action;
   actorRound: ActorRound;
   character: Character;
@@ -113,10 +113,10 @@ const ResolveAttack: FC<{
         onApply={onApply}
         isValidDeclaration={isValidDeclaration}
       />
-      {/* <pre>FormData: {JSON.stringify(formData, null, 2)}</pre> */}
-      {/* <pre>Action: {JSON.stringify(action, null, 2)}</pre> */}
+      <pre>FormData: {JSON.stringify(formData, null, 2)}</pre>
+      <pre>Action: {JSON.stringify(action, null, 2)}</pre>
     </>
   );
 };
 
-export default ResolveAttack;
+export default ActionAttack;
