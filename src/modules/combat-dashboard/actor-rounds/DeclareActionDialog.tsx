@@ -8,11 +8,8 @@ import {
   DialogTitle,
   Grid,
   TextField,
-  Radio,
-  RadioGroup,
   FormControlLabel,
   FormControl,
-  FormLabel,
   Switch,
 } from '@mui/material';
 import { CombatContext } from '../../../CombatContext';
@@ -35,8 +32,7 @@ const DeclareActionDialog: FC<{
     pace: (actorRound as any).movementMode ?? null,
     phaseStart: phaseNumber,
   });
-  //   const [movementSpeed, setMovementSpeed] = useState<number | ''>('');
-  const [meleeType, setMeleeType] = useState<'one' | 'two'>('one');
+  //const [meleeType, setMeleeType] = useState<'one' | 'two'>('one');
   const [otherDetails, setOtherDetails] = useState<string>('');
   const { roundActions, setRoundActions } = useContext(CombatContext)!;
 
@@ -52,14 +48,8 @@ const DeclareActionDialog: FC<{
       freeAction: !!opt.freeAction,
       phaseStart: phaseNumber,
     } as any;
-    // Only include pace when movement
-    if (opt.key === 'movement') {
-      base.pace = (actorRound as any).movementMode ?? 'walk';
-    }
-    // Include melee type when melee-attack
+    // Include selected attacks when melee-attack
     if (opt.key === 'melee-attack') {
-      base.meleeType = meleeType;
-      // initialize attacks array: if actor has attacks, preselect them
       if (actorRound.attacks && actorRound.attacks.length > 0) {
         base.attacks = actorRound.attacks.map((a: any) => ({ modifiers: { attackName: a.attackName } }));
       } else {
@@ -133,29 +123,43 @@ const DeclareActionDialog: FC<{
               {/* Show available attacks from actorRound and allow selecting one */}
               {actorRound.attacks && actorRound.attacks.length > 0 && (
                 <Grid container spacing={1} sx={{ mt: 1 }}>
-                  {actorRound.attacks.map((atk: any) => (
-                    <Grid key={atk.attackName}>
-                      <Button
-                        size="small"
-                        variant={
-                          actionForm.attacks &&
-                          actionForm.attacks[0] &&
-                          ((actionForm.attacks[0].modifiers && actionForm.attacks[0].modifiers.attackName) ||
-                            actionForm.attacks[0].attackName) === atk.attackName
-                            ? 'contained'
-                            : 'outlined'
-                        }
-                        onClick={() =>
-                          setActionForm({
-                            ...actionForm,
-                            attacks: [{ modifiers: { attackName: atk.attackName } }],
-                          })
-                        }
-                      >
-                        {atk.attackName}
-                      </Button>
-                    </Grid>
-                  ))}
+                  {actorRound.attacks.map((atk: any) => {
+                    const selected =
+                      actionForm.attacks &&
+                      actionForm.attacks.some(
+                        (a: any) =>
+                          (a.modifiers && a.modifiers.attackName) === atk.attackName || a.attackName === atk.attackName
+                      );
+
+                    const toggleAttack = (attackName: string) => {
+                      const current = actionForm.attacks || [];
+                      const exists = current.some(
+                        (a: any) =>
+                          (a.modifiers && a.modifiers.attackName) === attackName || a.attackName === attackName
+                      );
+                      let next: any[];
+                      if (exists) {
+                        next = current.filter(
+                          (a: any) =>
+                            !((a.modifiers && a.modifiers.attackName) === attackName || a.attackName === attackName)
+                        );
+                      } else {
+                        next = [...current, { modifiers: { attackName } }];
+                      }
+                      setActionForm({ ...actionForm, attacks: next });
+                    };
+
+                    return (
+                      <Grid key={atk.attackName}>
+                        <Button
+                          variant={selected ? 'contained' : 'outlined'}
+                          onClick={() => toggleAttack(atk.attackName)}
+                        >
+                          {atk.attackName}
+                        </Button>
+                      </Grid>
+                    );
+                  })}
                 </Grid>
               )}
             </>
