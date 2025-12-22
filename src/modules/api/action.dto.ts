@@ -21,6 +21,38 @@ export type ParryDeclaration = {
   parries: ParryDeclarationItem[];
 };
 
+export type ActionMovementModifiers = {
+  pace: string;
+  requiredManeuver: boolean;
+  skillId?: string;
+  difficulty?: string;
+};
+
+export type ActionMovementCalculated = {
+  bmr: number;
+  paceMultiplier: number;
+  percent: number;
+  distance: number;
+  distanceAdjusted: number;
+  description: string;
+};
+
+export type RollModifier = {
+  key: string;
+  value: number;
+};
+
+export type ActionRoll = {
+  modifiers?: RollModifier[];
+  roll: number | null;
+};
+
+export type ActionMovement = {
+  modifiers: ActionMovementModifiers;
+  roll: ActionRoll;
+  calculated?: ActionMovementCalculated;
+};
+
 export type Action = {
   id: string;
   gameId: string;
@@ -31,7 +63,7 @@ export type Action = {
   phaseEnd: number | undefined;
   status: ActionStatus;
   actionPoints: number | undefined;
-  movement: any | undefined;
+  movement: ActionMovement | undefined;
   attacks: ActionAttack[] | undefined;
   parries: ActionParry[] | undefined;
 };

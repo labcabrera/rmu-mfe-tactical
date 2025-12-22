@@ -14,9 +14,9 @@ const CombatActorRoundListItem: FC<{
   actorRound: ActorRound;
 }> = ({ actorRound }) => {
   const [character, setCharacter] = useState<Character | undefined>();
-  const { characters, game } = useContext(CombatContext)!;
+  const { characters, game, roundActions } = useContext(CombatContext)!;
   const [resolveDialogOpen, setResolveDialogOpen] = useState(false);
-  const [selectedAction, setSelectedAction] = useState<Action | null>(null);
+  const [selectedActionId, setSelectedActionId] = useState<string | null>(null);
 
   useEffect(() => {
     if (actorRound && characters) {
@@ -51,7 +51,7 @@ const CombatActorRoundListItem: FC<{
             actorId={actorRound.actorId}
             currentPhase={game.phase.startsWith('phase_') ? parseInt(game.phase.replace('phase_', '')) : 5}
             onActionClick={(action) => {
-              setSelectedAction(action);
+              setSelectedActionId(action.id);
               setResolveDialogOpen(true);
             }}
           />
@@ -62,15 +62,15 @@ const CombatActorRoundListItem: FC<{
         <Grid size={1}></Grid>
       </Grid>
 
-      {selectedAction && (
+      {selectedActionId && (
         <ActionDialog
-          action={selectedAction}
+          action={(roundActions || []).find((a: Action) => a.id === selectedActionId) || (null as any)}
           actorRound={actorRound}
           character={character}
           open={resolveDialogOpen}
           onClose={() => {
             setResolveDialogOpen(false);
-            setSelectedAction(null);
+            setSelectedActionId(null);
           }}
         />
       )}

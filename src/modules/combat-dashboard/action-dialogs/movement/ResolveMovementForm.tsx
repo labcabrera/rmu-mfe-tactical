@@ -3,7 +3,7 @@ import { Button, FormControlLabel, Grid, Switch, TextField } from '@mui/material
 import { CombatContext } from '../../../../CombatContext';
 import { useError } from '../../../../ErrorContext';
 import { resolveMovement } from '../../../api/action';
-import { ResolveMovementDto, Action } from '../../../api/action.dto';
+import { Action, ActionMovement } from '../../../api/action.dto';
 import type { Character } from '../../../api/characters';
 import type { StrategicGame } from '../../../api/strategic-games';
 import type { TacticalGame } from '../../../api/tactical-games';
@@ -14,8 +14,8 @@ import SelectMovementSkill from '../../../shared/selects/SelectMovementSkill';
 import SelectPace, { Pace } from '../../../shared/selects/SelectPace';
 
 const ResolveMovementForm: FC<{
-  formData: ResolveMovementDto;
-  setFormData: (data: ResolveMovementDto) => void;
+  formData: ActionMovement;
+  setFormData: (data: ActionMovement) => void;
   character: Character;
   game: TacticalGame;
   strategicGame: StrategicGame;
@@ -34,7 +34,7 @@ const ResolveMovementForm: FC<{
   };
 
   const handlePaceChange = (value: string, pace: Pace) => {
-    setFormData({ ...formData, pace: value });
+    setFormData({ ...formData, modifiers: { ...formData.modifiers, pace: value } });
     setPaceMultiplier(pace.multiplier);
     const actionPoints = getActionPoints();
     const movementValue = character.movement.baseMovementRate * pace.multiplier * actionPoints;
@@ -45,24 +45,15 @@ const ResolveMovementForm: FC<{
   };
 
   const handleDifficultyChange = (value: string) => {
-    setFormData({ ...formData, difficulty: value });
+    setFormData({ ...formData, modifiers: { ...formData.modifiers, difficulty: value } });
   };
 
   const handleMovementSkillChange = (value: string) => {
-    setFormData({ ...formData, skillId: value });
-  };
-
-  const processInteger = (value: unknown): number | undefined => {
-    if (!value || value === '') {
-      return undefined;
-    }
-    const check = Number(value);
-    return Number.isInteger(check) ? check : undefined;
+    setFormData({ ...formData, modifiers: { ...formData.modifiers, skillId: value } });
   };
 
   const onResolve = () => {
-    const dataToSend = { ...formData, roll: processInteger(formData.roll) };
-    resolveMovement(action.id, dataToSend)
+    resolveMovement(action.id, formData)
       .then((result: Action) => {
         updateAction(result);
       })
@@ -72,7 +63,7 @@ const ResolveMovementForm: FC<{
   return (
     <Grid container spacing={2}>
       <Grid size={2}>
-        <SelectPace value={formData.pace} name="pace" onChange={(v, p) => handlePaceChange(v, p)} />
+        <SelectPace value={formData.modifiers.pace} name="pace" onChange={(v, p) => handlePaceChange(v, p)} />
       </Grid>
       <Grid size={2}>
         <NumericReadonlyInput label="Action points" name="actionPoints" value={getActionPoints()} />
@@ -121,40 +112,53 @@ const ResolveMovementForm: FC<{
         />
       </Grid>
       <Grid size={2}>
-        <SelectDifficulty value={formData.difficulty} onChange={handleDifficultyChange} />
+        <SelectDifficulty value={formData.modifiers.difficulty} onChange={handleDifficultyChange} />
       </Grid>
       <Grid size={12}></Grid>
       <Grid size={2}>
         <FormControlLabel
           control={
             <Switch
-              checked={formData.requiredManeuver}
-              onChange={(e) => setFormData({ ...formData, requiredManeuver: e.target.checked })}
+              checked={formData.modifiers.requiredManeuver}
+              onChange={(e) =>
+                setFormData({ ...formData, modifiers: { ...formData.modifiers, requiredManeuver: e.target.checked } })
+              }
             />
           }
           label="Required maneuver"
         />
       </Grid>
       <Grid size={12}>
-        <Button onClick={onResolve} disabled={!formData.pace || (formData.requiredManeuver && !formData.roll)}>
+        {formData.modifiers.requiredManeuver && (
+          <>
+            <Grid size={2}>
+              <SelectMovementSkill value={formData.modifiers.skillId} onChange={handleMovementSkillChange} />
+            </Grid>
+            <Grid size={2}>
+              <NumericInput
+                label="Roll"
+                value={formData.roll.roll}
+                onChange={(val: number | null) => setFormData({ ...formData, roll: { roll: val } })}
+                integer
+              />
+            </Grid>
+          </>
+        )}
+        <Button
+          onClick={onResolve}
+          disabled={!formData.modifiers.pace || (formData.modifiers.requiredManeuver && !formData.roll)}
+        >
           Resolve
         </Button>
       </Grid>
-      {formData.requiredManeuver && (
-        <>
-          <Grid size={2}>
-            <SelectMovementSkill value={formData.skillId} onChange={handleMovementSkillChange} />
-          </Grid>
-          <Grid size={2}>
-            <NumericInput
-              label="Roll"
-              value={formData.roll}
-              onChange={(val: number | null) => setFormData({ ...formData, roll: val })}
-              integer
-            />
-          </Grid>
-        </>
-      )}
+      {action.movement && action.movement.calculated && <Grid size={12}>calculated</Grid>}
+
+      <Grid size={12}>
+        <pre>{JSON.stringify(formData, null, 2)}</pre>
+      </Grid>
+      <Grid size={12}>
+        <pre>{JSON.stringify(action, null, 2)}</pre>
+      </Grid>
     </Grid>
   );
 };
