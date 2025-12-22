@@ -93,6 +93,26 @@ const ResolveMovementForm: FC<{
           readOnly={action.status === 'completed'}
         />
       </Grid>
+
+      <Grid size={12}></Grid>
+      <Grid size={12}></Grid>
+      {formData.modifiers.requiredManeuver && (
+        <>
+          <Grid size={12}></Grid>
+          <Grid size={2}>
+            <SelectDifficulty value={formData.modifiers.difficulty} onChange={handleDifficultyChange} />
+          </Grid>
+          <Grid size={12}></Grid>
+          <Grid size={2}>
+            <NumericInput
+              label="Roll"
+              value={formData.roll.roll}
+              onChange={(val: number | null) => setFormData({ ...formData, roll: { roll: val } })}
+              integer
+            />
+          </Grid>
+        </>
+      )}
       {!action.movement?.calculated && (
         <Grid size={12}>
           <Typography variant="h6">Estimated</Typography>
@@ -112,23 +132,6 @@ const ResolveMovementForm: FC<{
             )}
           </Stack>
         </Grid>
-      )}
-      <Grid size={12}></Grid>
-      <Grid size={2}>
-        <SelectDifficulty value={formData.modifiers.difficulty} onChange={handleDifficultyChange} />
-      </Grid>
-      <Grid size={12}></Grid>
-      {formData.modifiers.requiredManeuver && (
-        <>
-          <Grid size={2}>
-            <NumericInput
-              label="Roll"
-              value={formData.roll.roll}
-              onChange={(val: number | null) => setFormData({ ...formData, roll: { roll: val } })}
-              integer
-            />
-          </Grid>
-        </>
       )}
       {action.status !== 'completed' && (
         <Button
