@@ -6,6 +6,7 @@ import { ActionAttack, ActionAttackModifiers, AttackDeclaration } from '../../..
 import { ActorRound } from '../../../api/actor-rounds.dto';
 import type { Character } from '../../../api/characters';
 import { NumericInput } from '../../../shared/inputs/NumericInput';
+import BoSelector from './BoSelector';
 import TargetSelector from './TargetSelector';
 
 const ResolveAttackSelectAttacks: React.FC<{
@@ -109,7 +110,14 @@ const AttackList: FC<{
                 allowNegatives={false}
               />
             </Grid>
-            <Grid size={6}>
+            <Grid size={2}>
+              <BoSelector
+                value={modifiers.bo}
+                max={attack.currentBo}
+                onChange={(bo: number) => handleBoChange(attack.attackName, bo)}
+              />
+            </Grid>
+            <Grid size={4}>
               <TargetSelector
                 value={modifiers.targetId || ''}
                 onChange={(actorId) => handleTargetChange(attack.attackName, actorId)}

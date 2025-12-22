@@ -22,6 +22,21 @@ const ActionAttack: FC<{
     parries: [],
   });
 
+  const applyCurrentBoToAttacks = (attacks?: AttackDeclaration['attacks']) => {
+    if (!attacks || !actorRound || !(actorRound as any).attacks) return attacks || [];
+    return attacks.map((a) => {
+      try {
+        const attackName = a?.modifiers?.attackName;
+        const baseBo = (actorRound as any).attacks.find((at: any) => at.attackName === attackName)?.currentBo ?? 0;
+        const bo = a?.modifiers?.bo ?? baseBo;
+        return { ...a, modifiers: { ...a.modifiers, bo } };
+      } catch (e) {
+        console.error('Error applying current BO to attack', e);
+        return a;
+      }
+    });
+  };
+
   const onDeclare = () => {
     if (!formData || !formData.attacks || formData.attacks.length < 1) {
       showError('You must declare at least one attack');
@@ -69,7 +84,7 @@ const ActionAttack: FC<{
 
   const loadActionFromResponse = (updatedAction: Action) => {
     updateAction(updatedAction);
-    setFormData({ attacks: updatedAction.attacks, parries: updatedAction.parries });
+    setFormData({ attacks: applyCurrentBoToAttacks(updatedAction.attacks), parries: updatedAction.parries });
   };
 
   const checkValidForm = (): boolean => {
@@ -80,7 +95,7 @@ const ActionAttack: FC<{
 
   useEffect(() => {
     if (action && action.attacks) {
-      setFormData({ attacks: action.attacks, parries: action.parries });
+      setFormData({ attacks: applyCurrentBoToAttacks(action.attacks), parries: action.parries });
     }
     if (action && action.status) {
       switch (action.status) {
