@@ -1,7 +1,6 @@
 import React, { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import MenuItem from '@mui/material/MenuItem';
-import TextField from '@mui/material/TextField';
+import { Stack, Button, Typography } from '@mui/material';
 
 type DifficultyCode = {
   id: string;
@@ -11,7 +10,8 @@ type DifficultyCode = {
 const SelectDifficulty: FC<{
   value: string;
   onChange: (value: string, code?: DifficultyCode) => void;
-}> = ({ value, onChange }) => {
+  readOnly?: boolean;
+}> = ({ value, onChange, readOnly = false }) => {
   const { t } = useTranslation();
 
   const codes: DifficultyCode[] = [
@@ -29,21 +29,34 @@ const SelectDifficulty: FC<{
     { id: 'ni', modifier: -100 },
   ];
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value;
-    const code = codes.find((e) => e.id === value);
-    onChange(value, code);
+  const handleClick = (option: DifficultyCode) => {
+    if (readOnly) return;
+    onChange(option.id, option);
   };
 
   return (
-    <TextField select label={t('difficulty')} value={value} fullWidth onChange={handleChange} variant="standard">
-      {codes.map((option, index) => (
-        <MenuItem key={index} value={option.id}>
-          {t(`difficulty-${option.id}`)} ({option.modifier >= 0 ? '+' : ''}
-          {option.modifier})
-        </MenuItem>
-      ))}
-    </TextField>
+    <div>
+      <Typography variant="caption" sx={{ display: 'block', mb: 0.5 }}>
+        {t('difficulty')}
+      </Typography>
+      <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
+        {codes.map((option) => {
+          const selected = option.id === value;
+          return (
+            <Button
+              key={option.id}
+              size="small"
+              variant={selected ? 'contained' : 'outlined'}
+              color={selected ? 'primary' : 'inherit'}
+              onClick={() => handleClick(option)}
+              disabled={readOnly}
+            >
+              {`${option.id}`} {`(${option.modifier >= 0 ? '+' : ''}${option.modifier})`}
+            </Button>
+          );
+        })}
+      </Stack>
+    </div>
   );
 };
 

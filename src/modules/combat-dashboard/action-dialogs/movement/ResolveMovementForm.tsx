@@ -1,5 +1,5 @@
 import React, { FC, useContext, useEffect, useState } from 'react';
-import { Button, Chip, Grid, Stack, TextField, Typography } from '@mui/material';
+import { Button, Chip, Grid, Stack, Typography } from '@mui/material';
 import { CombatContext } from '../../../../CombatContext';
 import { useError } from '../../../../ErrorContext';
 import { resolveMovement } from '../../../api/action';
@@ -72,13 +72,6 @@ const ResolveMovementForm: FC<{
   return (
     <Grid container spacing={2}>
       <Grid size={12}>
-        <SelectPace
-          value={formData.modifiers.pace}
-          onChange={(v, p) => handlePaceChange(v, p)}
-          readOnly={action.status === 'completed'}
-        />
-      </Grid>
-      <Grid size={12}>
         <SelectMovementSkill
           value={formData.modifiers.skillId}
           onChange={handleMovementSkillChange}
@@ -86,34 +79,62 @@ const ResolveMovementForm: FC<{
         />
       </Grid>
       <Grid size={12}>
-        <SelectBoolean
-          name="Required maneuver"
-          value={formData.modifiers.requiredManeuver}
-          onChange={(val) => setFormData({ ...formData, modifiers: { ...formData.modifiers, requiredManeuver: val } })}
+        <SelectPace
+          value={formData.modifiers.pace}
+          onChange={(v, p) => handlePaceChange(v, p)}
           readOnly={action.status === 'completed'}
         />
       </Grid>
-
-      <Grid size={12}></Grid>
-      <Grid size={12}></Grid>
-      {formData.modifiers.requiredManeuver && (
+      {formData.modifiers.pace && (
         <>
-          <Grid size={12}></Grid>
-          <Grid size={2}>
-            <SelectDifficulty value={formData.modifiers.difficulty} onChange={handleDifficultyChange} />
-          </Grid>
-          <Grid size={12}></Grid>
-          <Grid size={2}>
-            <NumericInput
-              label="Roll"
-              value={formData.roll.roll}
-              onChange={(val: number | null) => setFormData({ ...formData, roll: { roll: val } })}
-              integer
+          <Grid size={12}>
+            <SelectBoolean
+              name="Required maneuver"
+              value={formData.modifiers.requiredManeuver}
+              onChange={(val) =>
+                setFormData({ ...formData, modifiers: { ...formData.modifiers, requiredManeuver: val } })
+              }
+              readOnly={action.status === 'completed'}
             />
           </Grid>
         </>
       )}
-      {!action.movement?.calculated && (
+      {formData.modifiers.requiredManeuver && (
+        <>
+          <Grid size={12}>
+            <SelectDifficulty
+              value={formData.modifiers.difficulty}
+              onChange={handleDifficultyChange}
+              readOnly={action.status === 'completed'}
+            />
+          </Grid>
+          {action.status !== 'completed' && (
+            <>
+              <Grid size={12}></Grid>
+              <Grid size={2}>
+                <NumericInput
+                  label="Custom modifier"
+                  value={formData.modifiers.customModifier}
+                  onChange={(val: number | null) =>
+                    setFormData({ ...formData, modifiers: { ...formData.modifiers, customModifier: val } })
+                  }
+                  integer
+                />
+              </Grid>
+              <Grid size={2}>
+                <NumericInput
+                  label="Roll"
+                  value={formData.roll.roll}
+                  onChange={(val: number | null) => setFormData({ ...formData, roll: { roll: val } })}
+                  integer
+                />
+              </Grid>
+              <Grid size={12}></Grid>
+            </>
+          )}
+        </>
+      )}
+      {formData.modifiers.pace && !action.movement?.calculated && (
         <Grid size={12}>
           <Typography variant="h6">Estimated</Typography>
           <Stack direction="row" spacing={1}>
@@ -146,9 +167,11 @@ const ResolveMovementForm: FC<{
         <>
           <Grid size={12}>
             <Typography variant="h6">Result</Typography>
-            <Typography variant="body1">{action.movement.calculated.description}</Typography>
             <Stack direction="row" spacing={1} mt={1}>
-              <Chip label={`Percent: ${action.movement.calculated.percent}%`} />
+              <Chip
+                label={`Percent: ${action.movement.calculated.percent}%`}
+                color={action.movement.calculated.percent < 100 ? 'error' : 'success'}
+              />
             </Stack>
             <Stack direction="row" spacing={1} mt={1}>
               <Chip label={`Action points: ${action.actionPoints}`} />
@@ -160,7 +183,7 @@ const ResolveMovementForm: FC<{
               <Chip label={`Adjusted: ${action.movement.calculated.distanceAdjusted}`} />
             </Stack>
             <Stack direction="row" spacing={1} mt={1}>
-              <Chip label={`Fatigue: ${action.fatigue}`} />
+              <Chip label={`Fatigue: ${action.fatigue || '0'}`} />
             </Stack>
           </Grid>
 
@@ -168,19 +191,21 @@ const ResolveMovementForm: FC<{
             <>
               <Grid size={12}>
                 <Typography variant="h6">Modifiers</Typography>
+                <Stack direction="row" spacing={1} mt={1} mb={1}>
+                  <Chip label={`Total: ${action.movement.roll.totalRoll}`} />
+                </Stack>
                 <RollModifiersView modifiers={formData.roll.modifiers || []} />
               </Grid>
             </>
           )}
         </>
       )}
-
-      <Grid size={12}>
+      {/* <Grid size={12}>
         <pre>{JSON.stringify(formData, null, 2)}</pre>
       </Grid>
       <Grid size={12}>
         <pre>{JSON.stringify(action, null, 2)}</pre>
-      </Grid>
+      </Grid> */}
     </Grid>
   );
 };

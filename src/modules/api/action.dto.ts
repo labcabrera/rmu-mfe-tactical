@@ -26,6 +26,7 @@ export type ActionMovementModifiers = {
   requiredManeuver: boolean;
   skillId?: string;
   difficulty?: string;
+  customModifier?: number;
 };
 
 export type ActionMovementCalculated = {

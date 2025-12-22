@@ -25,6 +25,7 @@ const ActionMovement: FC<{
           requiredManeuver: false,
           skillId: 'running',
           difficulty: character.equipment.movementBaseDifficulty || '',
+          customModifier: null,
         },
         roll: {
           roll: null,
