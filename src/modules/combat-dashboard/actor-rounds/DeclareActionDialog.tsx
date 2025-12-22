@@ -31,6 +31,7 @@ const DeclareActionDialog: FC<{
     freeAction: false,
     pace: (actorRound as any).movementMode ?? null,
     phaseStart: phaseNumber,
+    attackNames: null as string[] | null,
   });
   //const [meleeType, setMeleeType] = useState<'one' | 'two'>('one');
   const [otherDetails, setOtherDetails] = useState<string>('');
@@ -48,12 +49,12 @@ const DeclareActionDialog: FC<{
       freeAction: !!opt.freeAction,
       phaseStart: phaseNumber,
     } as any;
-    // Include selected attacks when melee-attack
+    // Include selected attacks when melee-attack (store names)
     if (opt.key === 'melee-attack') {
       if (actorRound.attacks && actorRound.attacks.length > 0) {
-        base.attacks = actorRound.attacks.map((a: any) => ({ modifiers: { attackName: a.attackName } }));
+        base.attackNames = actorRound.attacks.map((a: any) => a.attackName);
       } else {
-        base.attacks = [];
+        base.attackNames = [];
       }
     }
     setActionForm(base);
@@ -124,29 +125,18 @@ const DeclareActionDialog: FC<{
               {actorRound.attacks && actorRound.attacks.length > 0 && (
                 <Grid container spacing={1} sx={{ mt: 1 }}>
                   {actorRound.attacks.map((atk: any) => {
-                    const selected =
-                      actionForm.attacks &&
-                      actionForm.attacks.some(
-                        (a: any) =>
-                          (a.modifiers && a.modifiers.attackName) === atk.attackName || a.attackName === atk.attackName
-                      );
+                    const selected = actionForm.attackNames && actionForm.attackNames.includes(atk.attackName);
 
                     const toggleAttack = (attackName: string) => {
-                      const current = actionForm.attacks || [];
-                      const exists = current.some(
-                        (a: any) =>
-                          (a.modifiers && a.modifiers.attackName) === attackName || a.attackName === attackName
-                      );
-                      let next: any[];
+                      const current: string[] = actionForm.attackNames || [];
+                      const exists = current.includes(attackName);
+                      let next: string[];
                       if (exists) {
-                        next = current.filter(
-                          (a: any) =>
-                            !((a.modifiers && a.modifiers.attackName) === attackName || a.attackName === attackName)
-                        );
+                        next = current.filter((n) => n !== attackName);
                       } else {
-                        next = [...current, { modifiers: { attackName } }];
+                        next = [...current, attackName];
                       }
-                      setActionForm({ ...actionForm, attacks: next });
+                      setActionForm({ ...actionForm, attackNames: next });
                     };
 
                     return (
