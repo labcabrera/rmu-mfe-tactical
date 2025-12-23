@@ -9,14 +9,13 @@ import ResolveAttackParry from './ResolveAttackParry';
 import ResolveAttackTabRoll from './ResolveAttackRoll';
 import ResolveAttackSelectAttacks from './ResolveAttackSelectAttacks';
 
-const steps = ['Select targets', 'Choose attack options', 'Declare parry', 'Resolve attacks', 'Results'];
+const steps = ['Select targets', 'Choose attack options', 'Declare parry', 'Resolve attacks'];
 
 const ResolveAttackStepper: FC<{
   formData: AttackDeclaration;
   setFormData: Dispatch<SetStateAction<AttackDeclaration>>;
   activeStep: number;
   setActiveStep: Dispatch<SetStateAction<number>>;
-  onClose: () => void;
   onDeclare: () => void;
   onParry: () => void;
   onApply: () => void;
@@ -29,7 +28,6 @@ const ResolveAttackStepper: FC<{
   setFormData,
   activeStep,
   setActiveStep,
-  onClose,
   onDeclare,
   onParry,
   onApply,
@@ -50,6 +48,7 @@ const ResolveAttackStepper: FC<{
 
   const isDisabledNext = () => {
     if (activeStep === 0 && !isValidDeclaration) return true;
+    if (activeStep === 1 && action.status === 'declared') return true;
     return false;
   };
 
