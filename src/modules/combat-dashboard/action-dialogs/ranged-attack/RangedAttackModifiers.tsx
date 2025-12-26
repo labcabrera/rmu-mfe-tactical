@@ -10,9 +10,9 @@ import SelectDodge from '../../../shared/selects/SelectDodge';
 import SelectPositionalSource from '../../../shared/selects/SelectPositionalSource';
 import SelectPositionalTarget from '../../../shared/selects/SelectPositionalTarget';
 import SelectRestrictedQuarters from '../../../shared/selects/SelectRestrictedQuarters';
-import AttackTitle from './AttackTitle';
+import AttackTitle from '../attack/AttackTitle';
 
-const ResolveAttackFormModifiers: FC<{
+const RangedAttackModifiers: FC<{
   formData: AttackDeclaration;
   setFormData: Dispatch<SetStateAction<AttackDeclaration>>;
   index: number;
@@ -154,4 +154,4 @@ const ResolveAttackFormModifiers: FC<{
   );
 };
 
-export default ResolveAttackFormModifiers;
+export default RangedAttackModifiers;

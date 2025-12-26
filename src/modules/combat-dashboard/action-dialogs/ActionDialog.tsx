@@ -12,6 +12,7 @@ import { ActorRound } from '../../api/actor-rounds.dto';
 import { Character } from '../../api/characters';
 import ActionAttack from './attack/ActionAttack';
 import ActionMovement from './movement/ActionMovement';
+import RangedAttack from './ranged-attack/RangedAttack';
 
 const ActionDialog: FC<{
   action: Action;
@@ -54,7 +55,10 @@ const ActionDialog: FC<{
             <ActionMovement action={action} character={character} onClose={onClose} />
           )}
           {action.actionType === 'melee-attack' && (
-            <ActionAttack action={action} actorRound={actorRound} character={character} onClose={onClose} />
+            <ActionAttack action={action} actorRound={actorRound} character={character} />
+          )}
+          {action.actionType === 'ranged-attack' && (
+            <RangedAttack action={action} actorRound={actorRound} character={character} />
           )}
         </DialogContent>
       ) : (

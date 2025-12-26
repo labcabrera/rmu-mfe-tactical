@@ -4,12 +4,12 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
-  DialogContentText,
   DialogTitle,
   Grid,
   TextField,
   FormControlLabel,
   FormControl,
+  FormLabel,
   Switch,
 } from '@mui/material';
 import { CombatContext } from '../../../CombatContext';
@@ -73,33 +73,75 @@ const DeclareActionDialog: FC<{
     <Dialog open={open} onClose={handleClose} maxWidth="xl" fullWidth>
       <DialogTitle>{actorRound.actorName} action declaration</DialogTitle>
       <DialogContent>
-        <DialogContentText>Action type</DialogContentText>
-
-        <Grid container spacing={1} sx={{ mt: 1 }}>
-          {[
-            { key: 'movement', label: 'Movement', freeAction: false },
-            { key: 'melee-attack', label: 'Melee attack', freeAction: false },
-            { key: 'ranged-attack', label: 'Ranged attack', freeAction: false },
-            { key: 'draw-and-load', label: 'Draw and load ammo', freeAction: false },
-            { key: 'partial-dodge', label: 'Partial dodge', freeAction: false },
-            { key: 'full-dodge', label: 'Full dodge', freeAction: false },
-            { key: 'perception', label: 'Perception', freeAction: true },
-            { key: 'stand-up', label: 'Stand up', freeAction: false },
-            { key: 'drop-item', label: 'Drop item', freeAction: true },
-            { key: 'static_maneuver', label: 'Static maneuver', freeAction: true },
-            { key: 'movement_maneuver', label: 'Movement maneuver', freeAction: false },
-            { key: 'cast-spell', label: 'Cast spell', freeAction: true },
-            { key: 'cast-instant', label: 'Cast instant', freeAction: true },
-            { key: 'other', label: 'Other', freeAction: false },
-          ].map((opt) => (
-            <Grid key={opt.key}>
-              <Button
-                variant={actionForm.actionType === opt.key ? 'contained' : 'outlined'}
-                onClick={() => handleSelectAction(opt)}
-              >
-                {opt.label}
-              </Button>
-            </Grid>
+        <Grid container spacing={1} sx={{ mt: 1 }} direction="column">
+          {(
+            [
+              {
+                key: 'movement',
+                title: 'Movement',
+                options: [
+                  { key: 'movement', label: 'Movement', freeAction: false },
+                  { key: 'stand-up', label: 'Stand up', freeAction: false },
+                ],
+              },
+              {
+                key: 'combat',
+                title: 'Combat',
+                options: [
+                  { key: 'melee-attack', label: 'Melee attack', freeAction: false },
+                  { key: 'ranged-attack', label: 'Ranged attack', freeAction: false },
+                  { key: 'draw-and-load', label: 'Draw and load ammo', freeAction: false },
+                  { key: 'partial-dodge', label: 'Partial dodge', freeAction: false },
+                  { key: 'full-dodge', label: 'Full dodge', freeAction: false },
+                ],
+              },
+              {
+                key: 'maneuvers',
+                title: 'Maneuvers',
+                options: [
+                  { key: 'movement_maneuver', label: 'Movement maneuver', freeAction: false },
+                  { key: 'static_maneuver', label: 'Static maneuver', freeAction: true },
+                ],
+              },
+              {
+                key: 'spells',
+                title: 'Spells',
+                options: [
+                  { key: 'cast-spell', label: 'Cast spell', freeAction: true },
+                  { key: 'cast-instant', label: 'Cast instant', freeAction: true },
+                ],
+              },
+              {
+                key: 'other',
+                title: 'Other',
+                options: [
+                  { key: 'perception', label: 'Perception', freeAction: true },
+                  { key: 'drop-item', label: 'Drop item', freeAction: true },
+                  { key: 'other', label: 'Other', freeAction: false },
+                ],
+              },
+            ] as Array<{
+              key: string;
+              title: string;
+              options: { key: string; label: string; freeAction?: boolean }[];
+            }>
+          ).map((group) => (
+            <FormControl key={group.key} sx={{ mb: 2, width: '100%' }}>
+              <FormLabel>{group.title}</FormLabel>
+              <Grid container spacing={1} sx={{ mt: 1 }} wrap="wrap" alignItems="stretch">
+                {group.options.map((opt) => (
+                  <Grid key={opt.key}>
+                    <Button
+                      fullWidth
+                      variant={actionForm.actionType === opt.key ? 'contained' : 'outlined'}
+                      onClick={() => handleSelectAction(opt)}
+                    >
+                      {opt.label}
+                    </Button>
+                  </Grid>
+                ))}
+              </Grid>
+            </FormControl>
           ))}
         </Grid>
 
@@ -167,7 +209,7 @@ const DeclareActionDialog: FC<{
             />
           )}
         </div>
-        <pre>{JSON.stringify(actionForm, null, 2)}</pre>
+        {/* <pre>{JSON.stringify(actionForm, null, 2)}</pre> */}
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose}>Cancel</Button>

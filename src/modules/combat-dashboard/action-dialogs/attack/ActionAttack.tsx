@@ -11,8 +11,7 @@ const ActionAttack: FC<{
   action: Action;
   actorRound: ActorRound;
   character: Character;
-  onClose: () => void;
-}> = ({ action, actorRound, character, onClose }) => {
+}> = ({ action, actorRound, character }) => {
   const { refreshActorRounds, updateAction } = useContext(CombatContext);
   const [activeStep, setActiveStep] = useState<number>(action.status === 'declared' ? 0 : 1);
   const { showError } = useError();
@@ -122,7 +121,6 @@ const ActionAttack: FC<{
         actorRound={actorRound}
         character={character}
         action={action}
-        onClose={onClose}
         onDeclare={onDeclare}
         onParry={onParry}
         onApply={onApply}
