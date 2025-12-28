@@ -66,9 +66,15 @@ export type ActionManeuverModifiers = {
   customModifier: number | null;
 };
 
+export type ActionManeuverResult = {
+  result: string;
+  message: string;
+};
+
 export type ActionManeuver = {
   modifiers: ActionManeuverModifiers;
-  roll: ActionRoll;
+  roll: ActionRoll | undefined;
+  result: ActionManeuverResult | undefined;
 };
 
 export type Action = {

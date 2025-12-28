@@ -32,6 +32,7 @@ const SelectLightType: FC<{
   };
 
   const getModifier = (option: LightOption) => {
+    if (readOnly) return 0;
     if (lightModifier === 'required') {
       return option.requiredBonus;
     } else if (lightModifier === 'helpful') {

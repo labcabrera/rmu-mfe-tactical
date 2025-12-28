@@ -1,4 +1,6 @@
 {
+  "absolute": "Absolute",
+  "absolute-failure": "Absolute failure",
   "action-points-penalty": "Action points penalty",
   "action-percent": "Action percent",
   "action-points": "Action points",
@@ -70,6 +72,7 @@
   "extremely_dark": "Extremely dark",
   "faction": "Faction",
   "factions": "Factions",
+  "failure": "Failure",
   "fatigue": "Fatigue",
   "fumble": "Fumble",
   "games": "Games",
@@ -113,6 +116,7 @@
   "pace-multiplier": "Pace multiplier",
   "parry": "Parry",
   "parries": "Parries",
+  "partial-success": "Partial success",
   "penalty": "Penalty",
   "phase": "Phase",
   "pitch_black": "Pitch black",

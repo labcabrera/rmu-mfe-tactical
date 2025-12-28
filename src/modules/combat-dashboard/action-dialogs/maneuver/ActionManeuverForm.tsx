@@ -1,7 +1,6 @@
-import React, { FC, useContext, useEffect, useState } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 import { Chip, Grid, Stack, Typography } from '@mui/material';
-import { CombatContext } from '../../../../CombatContext';
-import { useError } from '../../../../ErrorContext';
+import { t } from 'i18next';
 import { Action, ActionManeuver } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
 import type { Character } from '../../../api/characters';
@@ -12,10 +11,7 @@ const ActionManeuverForm: FC<{
   action: Action;
   actorRound: ActorRound;
   character: Character;
-}> = ({ action, actorRound, character }) => {
-  const { refreshActorRounds, updateAction } = useContext(CombatContext);
-  const { showError } = useError();
-  const [isValidDeclaration, setIsValidDeclaration] = useState(false);
+}> = ({ action }) => {
   const [formData, setFormData] = useState<ActionManeuver>(null);
 
   useEffect(() => {
@@ -24,18 +20,20 @@ const ActionManeuverForm: FC<{
     }
   }, [action]);
 
+  const isSuccess = (): boolean => {
+    return !action.maneuver.result.result.includes('failure');
+  };
+
   if (!formData) return <div>Loading...</div>;
 
   return (
     <>
       <Grid container spacing={2} sx={{ mt: 1 }}>
         <Grid size={12}>
-          <Typography variant="h6" gutterBottom>
-            {action.maneuver?.modifiers?.maneuverType}
-          </Typography>
-          <Typography variant="h6" gutterBottom>
-            {action.maneuver?.modifiers?.skillId}
-          </Typography>
+          <Stack direction="row" spacing={1} mb={2}>
+            <Chip label={t(action.maneuver?.modifiers?.skillId)} color="info" />
+            <Chip label={t(action.maneuver?.modifiers?.maneuverType)} color="info" />
+          </Stack>
         </Grid>
         <Grid size={12}>
           <ActionManeuverModifiersForm action={action} formData={formData} setFormData={setFormData} />
@@ -44,6 +42,14 @@ const ActionManeuverForm: FC<{
           <Grid size={12}>
             <Typography variant="h6" gutterBottom>
               Results
+            </Typography>
+            <Chip label={t(action.maneuver.result.result)} color={isSuccess() ? 'success' : 'error'} />
+            <Typography variant="body2" gutterBottom mt={1}>
+              {action.maneuver.result.message}
+            </Typography>
+            <Chip label={`Action Points: ${action.actionPoints}`} />
+            <Typography variant="h6" gutterBottom>
+              Modifiers
             </Typography>
             <Stack direction="row" spacing={1} mt={1} mb={1}>
               <Chip label={`Total: ${action.maneuver.roll.totalRoll}`} />
