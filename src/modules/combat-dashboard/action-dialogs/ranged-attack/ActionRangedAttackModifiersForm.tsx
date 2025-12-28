@@ -1,5 +1,5 @@
 import React, { ChangeEvent, Dispatch, FC, SetStateAction, useContext } from 'react';
-import { FormControlLabel, Grid, Switch } from '@mui/material';
+import { Grid } from '@mui/material';
 import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { AttackDeclaration } from '../../../api/action.dto';
@@ -31,15 +31,10 @@ const ActionRangedAttackModifiersForm: FC<{
   const positionalTarget = modifiers?.positionalTarget || '';
   const dodge = modifiers?.dodge || '';
   const range = modifiers?.range || null;
-  const disabledDB = modifiers?.disabledDB || false;
-  const disabledShield = modifiers?.disabledShield || false;
-  const disabledParry = modifiers?.disabledParry || false;
   const target = actorRounds.find((actorRound) => actorRound.actorId === modifiers?.targetId);
 
   const handleChangeEvent = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
     handleChange(e.target.name, e.target.value);
-
-  const handleSwitchChangeEvent = (e: ChangeEvent<HTMLInputElement>) => handleChange(e.target.name, e.target.checked);
 
   const handleChange = (name: string, value: string | boolean) => {
     const newAttacks = formData.attacks.map((a, i) =>
@@ -93,9 +88,6 @@ const ActionRangedAttackModifiersForm: FC<{
         <SelectPositionalSource value={positionalSource} onChange={handleChangeEvent} />
       </Grid>
       <Grid size={2}>
-        <SelectRestrictedQuarters value={restrictedQuarters} onChange={handleChangeEvent} />
-      </Grid>
-      <Grid size={2}>
         <SelectCalledShot value={modifiers.calledShot || ''} onChange={onCalledShotChange} />
       </Grid>
       <Grid size={2}>
@@ -132,23 +124,8 @@ const ActionRangedAttackModifiersForm: FC<{
           />
         )}
       </Grid>
-      <Grid size={2}>
-        <FormControlLabel
-          control={<Switch checked={!!disabledDB} name="disabledDB" onChange={handleSwitchChangeEvent} />}
-          label="Disabled DB"
-        />
-      </Grid>
-      <Grid size={2}>
-        <FormControlLabel
-          control={<Switch checked={!!disabledShield} name="disabledShield" onChange={handleSwitchChangeEvent} />}
-          label="Disabled Shield"
-        />
-      </Grid>
-      <Grid size={2}>
-        <FormControlLabel
-          control={<Switch checked={!!disabledParry} name="disabledParry" onChange={handleSwitchChangeEvent} />}
-          label="Disabled Parry"
-        />
+      <Grid size={12}>
+        <SelectRestrictedQuarters value={restrictedQuarters} onChange={handleChangeEvent} />
       </Grid>
       <Grid size={12}>
         <RangedAttackCoverSelector

@@ -12,7 +12,6 @@ const RangedAttackModifiersSelector: FC<{
   const modifiers = attack?.modifiers;
   const disabledDB = modifiers?.disabledDB || false;
   const disabledShield = modifiers?.disabledShield || false;
-  const disabledParry = modifiers?.disabledParry || false;
   const higherGround = modifiers?.higherGround || false;
   const stunnedFoe = modifiers?.stunnedFoe || false;
   const surprisedFoe = modifiers?.surprisedFoe || false;
