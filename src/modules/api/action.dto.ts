@@ -83,6 +83,7 @@ export type Action = {
   actorId: string;
   round: number;
   actionType: ActionType;
+  freeAction: boolean;
   phaseStart: number;
   phaseEnd: number | undefined;
   status: ActionStatus;

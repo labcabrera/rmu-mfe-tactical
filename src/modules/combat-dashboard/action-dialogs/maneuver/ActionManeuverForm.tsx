@@ -33,6 +33,7 @@ const ActionManeuverForm: FC<{
           <Stack direction="row" spacing={1} mb={2}>
             <Chip label={t(action.maneuver?.modifiers?.skillId)} color="info" />
             <Chip label={t(action.maneuver?.modifiers?.maneuverType)} color="info" />
+            {action.freeAction && <Chip label={t('free-action')} color="info" />}
           </Stack>
         </Grid>
         <Grid size={12}>
@@ -44,7 +45,7 @@ const ActionManeuverForm: FC<{
               Results
             </Typography>
             <Chip label={t(action.maneuver.result.result)} color={isSuccess() ? 'success' : 'error'} />
-            <Typography variant="body2" gutterBottom mt={1}>
+            <Typography variant="body1" gutterBottom mt={1}>
               {action.maneuver.result.message}
             </Typography>
             <Chip label={`Action Points: ${action.actionPoints}`} />

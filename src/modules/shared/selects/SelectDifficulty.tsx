@@ -43,7 +43,7 @@ const SelectDifficulty: FC<{
       <Typography variant="caption" sx={{ display: 'block', mb: 0.5 }}>
         {t('difficulty')}
       </Typography>
-      <Stack direction="row" spacing={3} sx={{ flexWrap: 'wrap' }}>
+      <Stack direction="row" spacing={readOnly ? 1 : 3} sx={{ flexWrap: 'wrap' }}>
         {codes.map((option) => {
           const selected = option.id === value;
           return (

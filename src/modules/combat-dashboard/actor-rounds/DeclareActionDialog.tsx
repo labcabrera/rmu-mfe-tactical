@@ -93,7 +93,7 @@ const DeclareActionDialog: FC<{
                 key: 'movement',
                 title: 'Movement',
                 options: [
-                  { key: 'movement', label: 'Movement', freeAction: false },
+                  { key: 'movement', label: 'Movement', freeAction: true },
                   { key: 'stand-up', label: 'Stand up', freeAction: false },
                 ],
               },
