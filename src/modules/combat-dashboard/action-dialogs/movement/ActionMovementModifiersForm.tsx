@@ -1,4 +1,4 @@
-import React, { FC, useContext, useEffect, useState } from 'react';
+import React, { Dispatch, FC, SetStateAction, useContext, useEffect, useState } from 'react';
 import { Button, Chip, Grid, Stack, Typography } from '@mui/material';
 import { CombatContext } from '../../../../CombatContext';
 import { useError } from '../../../../ErrorContext';
@@ -14,9 +14,9 @@ import SelectDifficulty from '../../../shared/selects/SelectDifficulty';
 import SelectMovementSkill from '../../../shared/selects/SelectMovementSkill';
 import SelectPace, { Pace } from '../../../shared/selects/SelectPace';
 
-const ResolveMovementForm: FC<{
+const ActionMovementModifiersForm: FC<{
   formData: ActionMovement;
-  setFormData: (data: ActionMovement) => void;
+  setFormData: Dispatch<SetStateAction<ActionMovement>>;
   character: Character;
   game: TacticalGame;
   strategicGame: StrategicGame;
@@ -210,4 +210,4 @@ const ResolveMovementForm: FC<{
   );
 };
 
-export default ResolveMovementForm;
+export default ActionMovementModifiersForm;

@@ -2,9 +2,9 @@ import React, { FC, useContext, useEffect, useState } from 'react';
 import { CombatContext } from '../../../../CombatContext';
 import { Action } from '../../../api/action.dto';
 import type { Character } from '../../../api/characters';
-import ResolveMovementForm from './ResolveMovementForm';
+import ActionMovementModifiersForm from './ActionMovementModifiersForm';
 
-const ActionMovement: FC<{
+const ActionMovementForm: FC<{
   action: Action;
   character: Character;
   onClose: () => void;
@@ -37,7 +37,7 @@ const ActionMovement: FC<{
   if (!formData) return <div>Loading...</div>;
 
   return (
-    <ResolveMovementForm
+    <ActionMovementModifiersForm
       formData={formData}
       setFormData={setFormData}
       character={character}
@@ -48,4 +48,4 @@ const ActionMovement: FC<{
   );
 };
 
-export default ActionMovement;
+export default ActionMovementForm;

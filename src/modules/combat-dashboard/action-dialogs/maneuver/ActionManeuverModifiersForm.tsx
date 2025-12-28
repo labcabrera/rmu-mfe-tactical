@@ -43,7 +43,9 @@ const ActionManeuverModifiersForm: FC<{
         <NumericInput label={t('maneuver-roll')} value={formData.roll?.roll || 0} onChange={(e) => updateRoll(e)} />
       </Grid>
       <Grid size={12}>
-        <Button variant="outlined">Prepare</Button>
+        <Button variant="contained" color="primary">
+          Resolve
+        </Button>
       </Grid>
     </Grid>
   );
