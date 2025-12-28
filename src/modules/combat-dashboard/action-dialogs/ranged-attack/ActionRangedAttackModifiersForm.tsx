@@ -125,7 +125,7 @@ const ActionRangedAttackModifiersForm: FC<{
         )}
       </Grid>
       <Grid size={12}>
-        <SelectRestrictedQuarters value={restrictedQuarters} onChange={handleChangeEvent} />
+        <SelectRestrictedQuarters value={restrictedQuarters} onChange={(e) => handleChange('restrictedQuarters', e)} />
       </Grid>
       <Grid size={12}>
         <RangedAttackCoverSelector

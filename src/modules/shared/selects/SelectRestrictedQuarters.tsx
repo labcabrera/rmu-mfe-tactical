@@ -1,5 +1,5 @@
 import React, { FC } from 'react';
-import { Stack, Button, Typography, Badge } from '@mui/material';
+import { Stack, Button, FormControl, FormLabel, Badge } from '@mui/material';
 import { t } from 'i18next';
 
 const SelectRestrictedQuarters: FC<{
@@ -7,6 +7,8 @@ const SelectRestrictedQuarters: FC<{
   onChange: (event: string) => void;
   readOnly?: boolean;
 }> = ({ value, onChange, readOnly = false }) => {
+  const labelId = 'select-restricted-quarters-label';
+
   const options: { id: string; bonus: number }[] = [
     { id: 'none', bonus: 0 },
     { id: 'close', bonus: -25 },
@@ -26,11 +28,11 @@ const SelectRestrictedQuarters: FC<{
   };
 
   return (
-    <div>
-      <Typography variant="caption" sx={{ display: 'block', mb: 0.5 }}>
+    <FormControl component="fieldset" variant="standard" sx={{ width: '100%' }}>
+      <FormLabel id="select-restricted-quarters-label" component="legend" sx={{ mb: 2, typography: 'body1' }}>
         {t('restricted-quarters')}
-      </Typography>
-      <Stack direction="row" spacing={3} sx={{ flexWrap: 'wrap' }}>
+      </FormLabel>
+      <Stack role="group" aria-labelledby={labelId} direction="row" spacing={3} sx={{ flexWrap: 'wrap' }}>
         {options.map((option) => {
           const selected = option.id === value;
           return (
@@ -49,7 +51,7 @@ const SelectRestrictedQuarters: FC<{
           );
         })}
       </Stack>
-    </div>
+    </FormControl>
   );
 };
 
