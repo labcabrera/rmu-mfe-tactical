@@ -7,7 +7,7 @@ import { Action, ActionMovement } from '../../../api/action.dto';
 import type { Character } from '../../../api/characters';
 import type { StrategicGame } from '../../../api/strategic-games';
 import type { TacticalGame } from '../../../api/tactical-games';
-import RollModifiersView from '../../../shared/generic/RollModifiersView';
+import KeyValueModifiersView from '../../../shared/generic/KeyValueModifiersView';
 import { NumericInput } from '../../../shared/inputs/NumericInput';
 import SelectBoolean from '../../../shared/selects/SelectBoolean';
 import SelectDifficulty from '../../../shared/selects/SelectDifficulty';
@@ -194,7 +194,7 @@ const ActionMovementModifiersForm: FC<{
                 <Stack direction="row" spacing={1} mt={1} mb={1}>
                   <Chip label={`Total: ${action.movement.roll.totalRoll}`} />
                 </Stack>
-                <RollModifiersView modifiers={formData.roll.modifiers || []} />
+                <KeyValueModifiersView modifiers={formData.roll.modifiers || []} />
               </Grid>
             </>
           )}

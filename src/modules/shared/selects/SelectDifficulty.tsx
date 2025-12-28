@@ -33,6 +33,11 @@ const SelectDifficulty: FC<{
     onChange(option.id, option);
   };
 
+  const badgeContent = (modifier: number) => {
+    if (readOnly) return null;
+    return modifier > 0 ? `+${modifier}` : modifier;
+  };
+
   return (
     <div>
       <Typography variant="caption" sx={{ display: 'block', mb: 0.5 }}>
@@ -43,7 +48,7 @@ const SelectDifficulty: FC<{
           const selected = option.id === value;
           return (
             <Badge
-              badgeContent={option.modifier > 0 ? `+${option.modifier}` : option.modifier}
+              badgeContent={badgeContent(option.modifier)}
               color={option.modifier >= 0 ? 'success' : 'error'}
               key={option.id}
             >

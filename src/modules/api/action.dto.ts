@@ -40,13 +40,13 @@ export type ActionMovementCalculated = {
   description: string;
 };
 
-export type RollModifier = {
+export type KeyValueModifier = {
   key: string;
   value: number;
 };
 
 export type ActionRoll = {
-  modifiers?: RollModifier[];
+  modifiers?: KeyValueModifier[];
   roll: number | null;
   totalRoll?: number;
 };

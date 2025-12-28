@@ -1,10 +1,11 @@
 import React, { FC, useContext, useEffect, useState } from 'react';
-import { Grid, Typography } from '@mui/material';
+import { Chip, Grid, Stack, Typography } from '@mui/material';
 import { CombatContext } from '../../../../CombatContext';
 import { useError } from '../../../../ErrorContext';
 import { Action, ActionManeuver } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
 import type { Character } from '../../../api/characters';
+import KeyValueModifiersView from '../../../shared/generic/KeyValueModifiersView';
 import ActionManeuverModifiersForm from './ActionManeuverModifiersForm';
 
 const ActionManeuverForm: FC<{
@@ -37,8 +38,19 @@ const ActionManeuverForm: FC<{
           </Typography>
         </Grid>
         <Grid size={12}>
-          <ActionManeuverModifiersForm formData={formData} setFormData={setFormData} />
+          <ActionManeuverModifiersForm action={action} formData={formData} setFormData={setFormData} />
         </Grid>
+        {action.status === 'completed' && (
+          <Grid size={12}>
+            <Typography variant="h6" gutterBottom>
+              Results
+            </Typography>
+            <Stack direction="row" spacing={1} mt={1} mb={1}>
+              <Chip label={`Total: ${action.maneuver.roll.totalRoll}`} />
+            </Stack>
+            <KeyValueModifiersView modifiers={action.maneuver?.roll?.modifiers} />
+          </Grid>
+        )}
       </Grid>
       <pre>formData: {JSON.stringify(formData, null, 2)}</pre>
       <pre>action: {JSON.stringify(action, null, 2)}</pre>
