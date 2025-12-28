@@ -7,6 +7,8 @@ export type ActionStatus =
   | 'pending_apply'
   | 'completed';
 
+export type ActionType = 'movement' | 'melee_attack' | 'ranged_attack' | 'maneuver' | 'skill' | 'free';
+
 export type AttackDeclaration = {
   attacks: ActionAttack[];
   parries: ActionParry[] | undefined;
@@ -55,17 +57,30 @@ export type ActionMovement = {
   calculated?: ActionMovementCalculated;
 };
 
+export type ActionManeuverModifiers = {
+  skillId: string | null;
+  maneuverType: string | null;
+  difficulty: string | null;
+  customModifier: number | null;
+};
+
+export type ActionManeuver = {
+  modifiers: ActionManeuverModifiers;
+  roll: ActionRoll;
+};
+
 export type Action = {
   id: string;
   gameId: string;
   actorId: string;
   round: number;
-  actionType: 'movement' | 'melee_attack' | 'ranged_attack' | 'static_maneuver' | 'skill' | 'free';
+  actionType: ActionType;
   phaseStart: number;
   phaseEnd: number | undefined;
   status: ActionStatus;
   actionPoints: number | undefined;
   movement: ActionMovement | undefined;
+  maneuver: ActionManeuver | undefined;
   attacks: ActionAttack[] | undefined;
   parries: ActionParry[] | undefined;
   fatigue: number | undefined;

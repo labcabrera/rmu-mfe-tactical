@@ -90,7 +90,7 @@
   "legs": "Legs",
   "main-hand": "Main hand",
   "main-hand-target": "Main hand target",
-  "melee-attack": "Melee attack",
+  "melee_attack": "Melee attack",
   "multiplier": "Multiplier",
   "name": "Name",
   "next": "Next",

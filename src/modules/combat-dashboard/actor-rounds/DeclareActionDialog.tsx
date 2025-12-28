@@ -16,6 +16,7 @@ import { CombatContext } from '../../../CombatContext';
 import { useError } from '../../../ErrorContext';
 import { createAction } from '../../api/action';
 import { ActorRound } from '../../api/actor-rounds.dto';
+import SelectManeuverType from '../../shared/selects/SelectManeuverType';
 import SelectSkillByCategory from '../../shared/selects/SelectSkillByCategory';
 
 const DeclareActionDialog: FC<{
@@ -210,18 +211,32 @@ const DeclareActionDialog: FC<{
           )}
 
           {actionForm.actionType === 'maneuver' && (
-            <SelectSkillByCategory
-              value={actionForm.maneuver.skillId || ''}
-              onChange={(skillId: string): void => {
-                setActionForm({
-                  ...actionForm,
-                  maneuver: {
-                    ...actionForm.maneuver,
-                    skillId,
-                  },
-                });
-              }}
-            />
+            <>
+              <SelectManeuverType
+                value={actionForm.maneuver.maneuverType || ''}
+                onChange={(maneuverType: string): void => {
+                  setActionForm({
+                    ...actionForm,
+                    maneuver: {
+                      ...actionForm.maneuver,
+                      maneuverType,
+                    },
+                  });
+                }}
+              />
+              <SelectSkillByCategory
+                value={actionForm.maneuver.skillId || ''}
+                onChange={(skillId: string): void => {
+                  setActionForm({
+                    ...actionForm,
+                    maneuver: {
+                      ...actionForm.maneuver,
+                      skillId,
+                    },
+                  });
+                }}
+              />
+            </>
           )}
 
           {actionForm.actionType === 'other' && (

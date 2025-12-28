@@ -11,6 +11,7 @@ import { Action } from '../../api/action.dto';
 import { ActorRound } from '../../api/actor-rounds.dto';
 import { Character } from '../../api/characters';
 import ActionAttack from './attack/ActionAttack';
+import ActionManeuverForm from './maneuver/ActionManeuverForm';
 import ActionMovement from './movement/ActionMovement';
 import RangedAttack from './ranged-attack/RangedAttack';
 
@@ -60,7 +61,9 @@ const ActionDialog: FC<{
           {action.actionType === 'ranged_attack' && (
             <RangedAttack action={action} actorRound={actorRound} character={character} />
           )}
-          {action.actionType === 'static_maneuver' && <p>Static maneuver</p>}
+          {action.actionType === 'maneuver' && (
+            <ActionManeuverForm action={action} actorRound={actorRound} character={character} />
+          )}
         </DialogContent>
       ) : (
         <DialogContent>
