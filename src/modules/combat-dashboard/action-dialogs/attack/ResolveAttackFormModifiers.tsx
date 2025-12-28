@@ -1,12 +1,14 @@
 import React, { ChangeEvent, Dispatch, FC, SetStateAction, useContext } from 'react';
-import { FormControlLabel, Grid, Switch } from '@mui/material';
+import { Grid, Stack, Typography } from '@mui/material';
 import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { AttackDeclaration } from '../../../api/action.dto';
+import ToggleButton from '../../../shared/buttons/ToggleButton';
 import { NumericInput } from '../../../shared/inputs/NumericInput';
 import SelectCalledShot from '../../../shared/selects/SelectCalledShot';
 import SelectCover from '../../../shared/selects/SelectCover';
 import SelectDodge from '../../../shared/selects/SelectDodge';
+import SelectPace from '../../../shared/selects/SelectPace';
 import SelectPositionalSource from '../../../shared/selects/SelectPositionalSource';
 import SelectPositionalTarget from '../../../shared/selects/SelectPositionalTarget';
 import SelectRestrictedQuarters from '../../../shared/selects/SelectRestrictedQuarters';
@@ -27,16 +29,18 @@ const ResolveAttackFormModifiers: FC<{
   const positionalSource = modifiers?.positionalSource || '';
   const positionalTarget = modifiers?.positionalTarget || '';
   const dodge = modifiers?.dodge || '';
-  const range = modifiers?.range || null;
+  const pace = modifiers?.pace || '';
   const disabledDB = modifiers?.disabledDB || false;
   const disabledShield = modifiers?.disabledShield || false;
   const disabledParry = modifiers?.disabledParry || false;
+  const higherGround = modifiers?.higherGround || false;
+  const stunnedFoe = modifiers?.stunnedFoe || false;
+  const surprisedFoe = modifiers?.surprisedFoe || false;
+  const ambush = modifiers?.ambush || false;
   const target = actorRounds.find((actorRound) => actorRound.actorId === modifiers?.targetId);
 
   const handleChangeEvent = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
     handleChange(e.target.name, e.target.value);
-
-  const handleSwitchChangeEvent = (e: ChangeEvent<HTMLInputElement>) => handleChange(e.target.name, e.target.checked);
 
   const handleChange = (name: string, value: string | boolean) => {
     const newAttacks = formData.attacks.map((a, i) =>
@@ -48,13 +52,6 @@ const ResolveAttackFormModifiers: FC<{
   const onCustomBonusChange = (value: number | null) => {
     const newAttacks = formData.attacks.map((a, i) =>
       i === index ? { ...a, modifiers: { ...a.modifiers, customBonus: value } } : a
-    );
-    setFormData({ ...formData, attacks: newAttacks });
-  };
-
-  const onRangeChange = (value: number | null) => {
-    const newAttacks = formData.attacks.map((a, i) =>
-      i === index ? { ...a, modifiers: { ...a.modifiers, range: value } } : a
     );
     setFormData({ ...formData, attacks: newAttacks });
   };
@@ -101,16 +98,6 @@ const ResolveAttackFormModifiers: FC<{
       <Grid size={2}>
         <SelectDodge value={dodge} onChange={handleChangeEvent} />
       </Grid>
-      <Grid size={2}>
-        <NumericInput
-          label={t('range')}
-          value={range}
-          name="range"
-          onChange={onRangeChange}
-          maxFractionDigits={1}
-          allowNegatives={false}
-        />
-      </Grid>
       <Grid size={12}></Grid>
       <Grid size={2}>
         <NumericInput
@@ -132,23 +119,97 @@ const ResolveAttackFormModifiers: FC<{
           />
         )}
       </Grid>
-      <Grid size={2}>
-        <FormControlLabel
-          control={<Switch checked={!!disabledDB} name="disabledDB" onChange={handleSwitchChangeEvent} />}
-          label="Disabled DB"
+      <Grid size={12}>
+        <Stack direction="row" spacing={1}>
+          <ToggleButton
+            label={'DB'}
+            value={!disabledDB}
+            onChange={(newValue) => {
+              const newAttacks = formData.attacks.map((a, i) =>
+                i === index ? { ...a, modifiers: { ...a.modifiers, disabledDB: !newValue } } : a
+              );
+              setFormData({ ...formData, attacks: newAttacks });
+            }}
+          />
+          <ToggleButton
+            label={'Shield'}
+            value={!disabledShield}
+            onChange={(newValue) => {
+              const newAttacks = formData.attacks.map((a, i) =>
+                i === index ? { ...a, modifiers: { ...a.modifiers, disabledShield: !newValue } } : a
+              );
+              setFormData({ ...formData, attacks: newAttacks });
+            }}
+          />
+          <ToggleButton
+            label={'Parry'}
+            value={!disabledParry}
+            onChange={(newValue) => {
+              const newAttacks = formData.attacks.map((a, i) =>
+                i === index ? { ...a, modifiers: { ...a.modifiers, disabledParry: !newValue } } : a
+              );
+              setFormData({ ...formData, attacks: newAttacks });
+            }}
+          />
+        </Stack>
+      </Grid>
+      <Grid size={12}>
+        <SelectPace
+          value={pace}
+          onChange={(v, p) => {
+            const newAttacks = formData.attacks.map((a, i) =>
+              i === index ? { ...a, modifiers: { ...a.modifiers, pace: p?.id || '' } } : a
+            );
+            setFormData({ ...formData, attacks: newAttacks });
+          }}
         />
       </Grid>
-      <Grid size={2}>
-        <FormControlLabel
-          control={<Switch checked={!!disabledShield} name="disabledShield" onChange={handleSwitchChangeEvent} />}
-          label="Disabled Shield"
-        />
-      </Grid>
-      <Grid size={2}>
-        <FormControlLabel
-          control={<Switch checked={!!disabledParry} name="disabledParry" onChange={handleSwitchChangeEvent} />}
-          label="Disabled Parry"
-        />
+      <Grid size={12}>
+        <Typography variant="caption" sx={{ display: 'block', mb: 0.5 }}>
+          Attack modifiers
+        </Typography>
+        <Stack direction="row" spacing={1}>
+          <ToggleButton
+            label={'Higher ground'}
+            value={higherGround}
+            onChange={(newValue) => {
+              const newAttacks = formData.attacks.map((a, i) =>
+                i === index ? { ...a, modifiers: { ...a.modifiers, higherGround: newValue } } : a
+              );
+              setFormData({ ...formData, attacks: newAttacks });
+            }}
+          />
+          <ToggleButton
+            label={'Stunned foe'}
+            value={stunnedFoe}
+            onChange={(newValue) => {
+              const newAttacks = formData.attacks.map((a, i) =>
+                i === index ? { ...a, modifiers: { ...a.modifiers, stunnedFoe: newValue } } : a
+              );
+              setFormData({ ...formData, attacks: newAttacks });
+            }}
+          />
+          <ToggleButton
+            label={'Surprised foe'}
+            value={surprisedFoe}
+            onChange={(newValue) => {
+              const newAttacks = formData.attacks.map((a, i) =>
+                i === index ? { ...a, modifiers: { ...a.modifiers, surprisedFoe: newValue } } : a
+              );
+              setFormData({ ...formData, attacks: newAttacks });
+            }}
+          />
+          <ToggleButton
+            label={'Ambush'}
+            value={ambush}
+            onChange={(newValue) => {
+              const newAttacks = formData.attacks.map((a, i) =>
+                i === index ? { ...a, modifiers: { ...a.modifiers, ambush: newValue } } : a
+              );
+              setFormData({ ...formData, attacks: newAttacks });
+            }}
+          />
+        </Stack>
       </Grid>
     </Grid>
   );

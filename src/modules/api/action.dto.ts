@@ -101,6 +101,11 @@ export type ActionAttackModifiers = {
   restrictedQuarters?: string;
   positionalSource?: string;
   positionalTarget?: string;
+  pace?: string;
+  higherGround?: boolean;
+  stunnedFoe?: boolean;
+  surprisedFoe?: boolean;
+  ambush?: boolean;
   dodge?: string;
   range?: number | null;
   disabledDB: boolean | null;
