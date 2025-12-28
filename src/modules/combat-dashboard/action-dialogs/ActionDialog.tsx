@@ -54,12 +54,13 @@ const ActionDialog: FC<{
           {action.actionType === 'movement' && (
             <ActionMovement action={action} character={character} onClose={onClose} />
           )}
-          {action.actionType === 'melee-attack' && (
+          {action.actionType === 'melee_attack' && (
             <ActionAttack action={action} actorRound={actorRound} character={character} />
           )}
-          {action.actionType === 'ranged-attack' && (
+          {action.actionType === 'ranged_attack' && (
             <RangedAttack action={action} actorRound={actorRound} character={character} />
           )}
+          {action.actionType === 'static_maneuver' && <p>Static maneuver</p>}
         </DialogContent>
       ) : (
         <DialogContent>

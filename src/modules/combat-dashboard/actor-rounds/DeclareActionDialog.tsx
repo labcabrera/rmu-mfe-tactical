@@ -16,6 +16,7 @@ import { CombatContext } from '../../../CombatContext';
 import { useError } from '../../../ErrorContext';
 import { createAction } from '../../api/action';
 import { ActorRound } from '../../api/actor-rounds.dto';
+import SelectSkillByCategory from '../../shared/selects/SelectSkillByCategory';
 
 const DeclareActionDialog: FC<{
   actorRound: ActorRound;
@@ -32,8 +33,11 @@ const DeclareActionDialog: FC<{
     pace: (actorRound as any).movementMode ?? null,
     phaseStart: phaseNumber,
     attackNames: null as string[] | null,
+    maneuver: {
+      skillId: null as string | null,
+      maneuverType: null as string | null,
+    },
   });
-  //const [meleeType, setMeleeType] = useState<'one' | 'two'>('one');
   const [otherDetails, setOtherDetails] = useState<string>('');
   const { roundActions, setRoundActions } = useContext(CombatContext)!;
 
@@ -49,14 +53,22 @@ const DeclareActionDialog: FC<{
       freeAction: !!opt.freeAction,
       phaseStart: phaseNumber,
     } as any;
-    // Include selected attacks when melee-attack (store names)
-    if (opt.key === 'melee-attack') {
+
+    if (opt.key === 'melee_attack') {
       if (actorRound.attacks && actorRound.attacks.length > 0) {
         base.attackNames = actorRound.attacks.map((a: any) => a.attackName);
       } else {
         base.attackNames = [];
       }
     }
+
+    if (opt.key === 'maneuver') {
+      base.maneuver = {
+        skillId: null,
+        maneuverType: 'absolute',
+      };
+    }
+
     setActionForm(base);
   };
 
@@ -88,8 +100,8 @@ const DeclareActionDialog: FC<{
                 key: 'combat',
                 title: 'Combat',
                 options: [
-                  { key: 'melee-attack', label: 'Melee attack', freeAction: false },
-                  { key: 'ranged-attack', label: 'Ranged attack', freeAction: false },
+                  { key: 'melee_attack', label: 'Melee attack', freeAction: false },
+                  { key: 'ranged_attack', label: 'Ranged attack', freeAction: false },
                   { key: 'draw-and-load', label: 'Draw and load ammo', freeAction: false },
                   { key: 'partial-dodge', label: 'Partial dodge', freeAction: false },
                   { key: 'full-dodge', label: 'Full dodge', freeAction: false },
@@ -100,7 +112,7 @@ const DeclareActionDialog: FC<{
                 title: 'Maneuvers',
                 options: [
                   { key: 'movement_maneuver', label: 'Movement maneuver', freeAction: false },
-                  { key: 'static_maneuver', label: 'Static maneuver', freeAction: true },
+                  { key: 'maneuver', label: 'Maneuver', freeAction: true },
                 ],
               },
               {
@@ -161,7 +173,7 @@ const DeclareActionDialog: FC<{
         )}
 
         <div style={{ marginTop: 16 }}>
-          {actionForm.actionType === 'melee-attack' && (
+          {actionForm.actionType === 'melee_attack' && (
             <>
               {/* Show available attacks from actorRound and allow selecting one */}
               {actorRound.attacks && actorRound.attacks.length > 0 && (
@@ -197,6 +209,21 @@ const DeclareActionDialog: FC<{
             </>
           )}
 
+          {actionForm.actionType === 'maneuver' && (
+            <SelectSkillByCategory
+              value={actionForm.maneuver.skillId || ''}
+              onChange={(skillId: string): void => {
+                setActionForm({
+                  ...actionForm,
+                  maneuver: {
+                    ...actionForm.maneuver,
+                    skillId,
+                  },
+                });
+              }}
+            />
+          )}
+
           {actionForm.actionType === 'other' && (
             <TextField
               label="Details"
@@ -209,7 +236,7 @@ const DeclareActionDialog: FC<{
             />
           )}
         </div>
-        {/* <pre>{JSON.stringify(actionForm, null, 2)}</pre> */}
+        <pre>{JSON.stringify(actionForm, null, 2)}</pre>
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose}>Cancel</Button>
