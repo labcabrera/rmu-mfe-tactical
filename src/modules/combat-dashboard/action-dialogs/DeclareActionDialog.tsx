@@ -46,6 +46,16 @@ const DeclareActionDialog: FC<{
     setOpen(false);
   };
 
+  const isDisabled = (option: string) => {
+    if (option === 'cast_spell' || option === 'cast_instant') {
+      return true;
+    }
+    if (option === 'ranged_attack') {
+      return actorRound.attacks.some((attack) => attack.type === 'ranged') ? false : true;
+    }
+    return false;
+  };
+
   const handleSelectAction = (opt: { key: string; freeAction?: boolean }) => {
     const base = {
       gameId: actorRound.gameId,
@@ -120,8 +130,8 @@ const DeclareActionDialog: FC<{
                 key: 'spells',
                 title: 'Spells',
                 options: [
-                  { key: 'cast-spell', label: 'Cast spell', freeAction: true },
-                  { key: 'cast-instant', label: 'Cast instant', freeAction: true },
+                  { key: 'cast_spell', label: 'Cast spell', freeAction: true },
+                  { key: 'cast_instant', label: 'Cast instant', freeAction: true },
                 ],
               },
               {
@@ -148,6 +158,7 @@ const DeclareActionDialog: FC<{
                       fullWidth
                       variant={actionForm.actionType === opt.key ? 'contained' : 'outlined'}
                       onClick={() => handleSelectAction(opt)}
+                      disabled={isDisabled(opt.key)}
                     >
                       {opt.label}
                     </Button>

@@ -129,7 +129,7 @@
   "race": "Race",
   "resolve": "Resolve",
   "range": "Range",
-  "ranged-attack": "Ranged attack",
+  "ranged_attack": "Ranged attack",
   "roll": "Roll",
   "attack-table-result": "Attack table result",
   "round": "Round",

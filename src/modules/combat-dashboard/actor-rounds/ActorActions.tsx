@@ -7,7 +7,7 @@ import { CombatContext } from '../../../CombatContext';
 import type { Action } from '../../api/action.dto';
 import type { ActorRound } from '../../api/actor-rounds.dto';
 import ActionDialog from '../action-dialogs/ActionDialog';
-import DeclareActionDialog from './DeclareActionDialog';
+import DeclareActionDialog from '../action-dialogs/DeclareActionDialog';
 
 type ActorActionsProps = {
   actorId: string;
