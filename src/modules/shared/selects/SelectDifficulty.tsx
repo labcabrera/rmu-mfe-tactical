@@ -1,9 +1,10 @@
 import React, { FC } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Stack, Button, Typography } from '@mui/material';
+import { Stack, Button, Typography, Badge } from '@mui/material';
+import { t } from 'i18next';
 
 type DifficultyCode = {
   id: string;
+  code: string;
   modifier: number;
 };
 
@@ -12,21 +13,19 @@ const SelectDifficulty: FC<{
   onChange: (value: string, code?: DifficultyCode) => void;
   readOnly?: boolean;
 }> = ({ value, onChange, readOnly = false }) => {
-  const { t } = useTranslation();
-
   const codes: DifficultyCode[] = [
-    { id: 'c', modifier: 70 },
-    { id: 's', modifier: 50 },
-    { id: 'r', modifier: 30 },
-    { id: 'e', modifier: 20 },
-    { id: 'l', modifier: 10 },
-    { id: 'm', modifier: 0 },
-    { id: 'h', modifier: -10 },
-    { id: 'vh', modifier: -20 },
-    { id: 'xh', modifier: -30 },
-    { id: 'sf', modifier: -50 },
-    { id: 'a', modifier: -70 },
-    { id: 'ni', modifier: -100 },
+    { id: 'casual', code: 'c', modifier: 70 },
+    { id: 'simple', code: 's', modifier: 50 },
+    { id: 'routine', code: 'r', modifier: 30 },
+    { id: 'easy', code: 'e', modifier: 20 },
+    { id: 'light', code: 'l', modifier: 10 },
+    { id: 'medium', code: 'm', modifier: 0 },
+    { id: 'hard', code: 'h', modifier: -10 },
+    { id: 'very_hard', code: 'vh', modifier: -20 },
+    { id: 'extremely_hard', code: 'xh', modifier: -30 },
+    { id: 'sheer_folly', code: 'sf', modifier: -50 },
+    { id: 'absurd', code: 'a', modifier: -70 },
+    { id: 'nigh_impossible', code: 'ni', modifier: -100 },
   ];
 
   const handleClick = (option: DifficultyCode) => {
@@ -39,20 +38,26 @@ const SelectDifficulty: FC<{
       <Typography variant="caption" sx={{ display: 'block', mb: 0.5 }}>
         {t('difficulty')}
       </Typography>
-      <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
+      <Stack direction="row" spacing={3} sx={{ flexWrap: 'wrap' }}>
         {codes.map((option) => {
           const selected = option.id === value;
           return (
-            <Button
+            <Badge
+              badgeContent={option.modifier > 0 ? `+${option.modifier}` : option.modifier}
+              color={option.modifier >= 0 ? 'success' : 'error'}
               key={option.id}
-              size="small"
-              variant={selected ? 'contained' : 'outlined'}
-              color={selected ? 'primary' : 'inherit'}
-              onClick={() => handleClick(option)}
-              disabled={readOnly}
             >
-              {`${option.id}`} {`(${option.modifier >= 0 ? '+' : ''}${option.modifier})`}
-            </Button>
+              <Button
+                key={option.id}
+                size="small"
+                variant={selected ? 'contained' : 'outlined'}
+                color={selected ? 'primary' : 'inherit'}
+                onClick={() => handleClick(option)}
+                disabled={readOnly}
+              >
+                {t(option.id)}
+              </Button>
+            </Badge>
           );
         })}
       </Stack>

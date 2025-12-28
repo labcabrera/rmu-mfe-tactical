@@ -61,6 +61,8 @@ export type ActionManeuverModifiers = {
   skillId: string | null;
   maneuverType: string | null;
   difficulty: string | null;
+  lightModifier: string | null;
+  light: string | null;
   customModifier: number | null;
 };
 

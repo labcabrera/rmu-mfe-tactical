@@ -200,12 +200,12 @@ const ResolveMovementForm: FC<{
           )}
         </>
       )}
-      {/* <Grid size={12}>
+      <Grid size={12}>
         <pre>{JSON.stringify(formData, null, 2)}</pre>
       </Grid>
       <Grid size={12}>
         <pre>{JSON.stringify(action, null, 2)}</pre>
-      </Grid> */}
+      </Grid>
     </Grid>
   );
 };
