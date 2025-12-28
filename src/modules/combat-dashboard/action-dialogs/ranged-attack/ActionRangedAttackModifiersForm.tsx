@@ -6,13 +6,14 @@ import { AttackDeclaration } from '../../../api/action.dto';
 import { ActorRoundAttack } from '../../../api/actor-rounds.dto';
 import { NumericInput } from '../../../shared/inputs/NumericInput';
 import SelectCalledShot from '../../../shared/selects/SelectCalledShot';
-import SelectCover from '../../../shared/selects/SelectCover';
 import SelectDodge from '../../../shared/selects/SelectDodge';
 import SelectPositionalSource from '../../../shared/selects/SelectPositionalSource';
 import SelectPositionalTarget from '../../../shared/selects/SelectPositionalTarget';
 import SelectRestrictedQuarters from '../../../shared/selects/SelectRestrictedQuarters';
 import AttackTitle from '../attack/AttackTitle';
 import ActionRangeSelector from './ActionRangeSelector';
+import RangedAttackCoverSelector from './RangedAttackCoverSelector';
+import RangedAttackModifiersSelector from './RangedAttackModifiersSelector';
 
 const ActionRangedAttackModifiersForm: FC<{
   attack: ActorRoundAttack;
@@ -25,7 +26,6 @@ const ActionRangedAttackModifiersForm: FC<{
   const formDataAttack = formData.attacks?.[index];
   const modifiers = formDataAttack?.modifiers;
   const customBonus = modifiers?.customBonus || null;
-  const cover = modifiers?.cover || '';
   const restrictedQuarters = modifiers?.restrictedQuarters || '';
   const positionalSource = modifiers?.positionalSource || '';
   const positionalTarget = modifiers?.positionalTarget || '';
@@ -93,9 +93,6 @@ const ActionRangedAttackModifiersForm: FC<{
         <SelectPositionalSource value={positionalSource} onChange={handleChangeEvent} />
       </Grid>
       <Grid size={2}>
-        <SelectCover value={cover} onChange={handleChangeEvent} />
-      </Grid>
-      <Grid size={2}>
         <SelectRestrictedQuarters value={restrictedQuarters} onChange={handleChangeEvent} />
       </Grid>
       <Grid size={2}>
@@ -154,12 +151,21 @@ const ActionRangedAttackModifiersForm: FC<{
         />
       </Grid>
       <Grid size={12}>
+        <RangedAttackCoverSelector
+          value={formDataAttack?.modifiers?.cover || ''}
+          onChange={(e) => handleChange('cover', e)}
+        />
+      </Grid>
+      <Grid size={12}>
         <ActionRangeSelector
           attack={attack}
           value={modifiers.range || null}
           onChange={onRangeChange}
           readOnly={false}
         />
+      </Grid>
+      <Grid size={12}>
+        <RangedAttackModifiersSelector formData={formData} setFormData={setFormData} index={0} />
       </Grid>
     </Grid>
   );

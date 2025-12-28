@@ -129,6 +129,8 @@ export type ActionAttackModifiers = {
   higherGround?: boolean;
   stunnedFoe?: boolean;
   surprisedFoe?: boolean;
+  proneSource?: boolean;
+  proneTarget?: boolean;
   ambush?: boolean;
   dodge?: string;
   range?: number | null;

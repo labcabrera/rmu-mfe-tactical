@@ -24,9 +24,9 @@ const ActionRangeSelector: FC<{
           const selected = value && option.from <= value && option.to >= value;
           return (
             <Badge
+              key={`${option.from}-${option.to}`}
               badgeContent={option.bonus}
               color={option.bonus >= 0 ? 'success' : 'error'}
-              key={`${option.from}-${option.to}`}
             >
               <Button
                 size="small"
