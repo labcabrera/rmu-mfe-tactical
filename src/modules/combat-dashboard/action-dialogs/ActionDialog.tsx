@@ -13,7 +13,7 @@ import { Character } from '../../api/characters';
 import ActionAttack from './attack/ActionAttack';
 import ActionManeuverForm from './maneuver/ActionManeuverForm';
 import ActionMovementForm from './movement/ActionMovementForm';
-import RangedAttack from './ranged-attack/RangedAttack';
+import ActionRangedAttackForm from './ranged-attack/ActionRangedAttackForm';
 
 const ActionDialog: FC<{
   action: Action;
@@ -59,7 +59,7 @@ const ActionDialog: FC<{
             <ActionAttack action={action} actorRound={actorRound} character={character} />
           )}
           {action.actionType === 'ranged_attack' && (
-            <RangedAttack action={action} actorRound={actorRound} character={character} />
+            <ActionRangedAttackForm action={action} actorRound={actorRound} character={character} />
           )}
           {action.actionType === 'maneuver' && (
             <ActionManeuverForm action={action} actorRound={actorRound} character={character} />

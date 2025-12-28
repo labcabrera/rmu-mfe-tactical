@@ -7,9 +7,9 @@ import { ActorRound } from '../../../api/actor-rounds.dto';
 import type { Character } from '../../../api/characters';
 import BoSelector from '../attack/BoSelector';
 import TargetSelector from '../attack/TargetSelector';
-import RangedAttackModifiers from './RangedAttackModifiers';
+import ActionRangedAttackModifiersForm from './ActionRangedAttackModifiersForm';
 
-const RangedAttack: FC<{
+const ActionRangedAttackForm: FC<{
   actorRound: ActorRound;
   character: Character;
   action: Action;
@@ -85,10 +85,10 @@ const RangedAttack: FC<{
               </Grid>
             </Grid>
 
-            {/* Si este ataque está seleccionado, mostrar modificadores aplicables */}
             {findAttack(attack.attackName) && (
               <div style={{ marginTop: 8 }}>
-                <RangedAttackModifiers
+                <ActionRangedAttackModifiersForm
+                  attack={attack}
                   formData={formData}
                   setFormData={setFormData}
                   index={selected.findIndex((a) => a.modifiers.attackName === attack.attackName)}
@@ -103,4 +103,4 @@ const RangedAttack: FC<{
   );
 };
 
-export default RangedAttack;
+export default ActionRangedAttackForm;

@@ -3,6 +3,7 @@ import { FormControlLabel, Grid, Switch } from '@mui/material';
 import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { AttackDeclaration } from '../../../api/action.dto';
+import { ActorRoundAttack } from '../../../api/actor-rounds.dto';
 import { NumericInput } from '../../../shared/inputs/NumericInput';
 import SelectCalledShot from '../../../shared/selects/SelectCalledShot';
 import SelectCover from '../../../shared/selects/SelectCover';
@@ -11,16 +12,18 @@ import SelectPositionalSource from '../../../shared/selects/SelectPositionalSour
 import SelectPositionalTarget from '../../../shared/selects/SelectPositionalTarget';
 import SelectRestrictedQuarters from '../../../shared/selects/SelectRestrictedQuarters';
 import AttackTitle from '../attack/AttackTitle';
+import ActionRangeSelector from './ActionRangeSelector';
 
-const RangedAttackModifiers: FC<{
+const ActionRangedAttackModifiersForm: FC<{
+  attack: ActorRoundAttack;
   formData: AttackDeclaration;
   setFormData: Dispatch<SetStateAction<AttackDeclaration>>;
   index: number;
-}> = ({ formData, setFormData, index }) => {
+}> = ({ attack, formData, setFormData, index }) => {
   const { actorRounds } = useContext(CombatContext);
 
-  const attack = formData.attacks?.[index];
-  const modifiers = attack?.modifiers;
+  const formDataAttack = formData.attacks?.[index];
+  const modifiers = formDataAttack?.modifiers;
   const customBonus = modifiers?.customBonus || null;
   const cover = modifiers?.cover || '';
   const restrictedQuarters = modifiers?.restrictedQuarters || '';
@@ -81,7 +84,7 @@ const RangedAttackModifiers: FC<{
   return (
     <Grid container spacing={2} sx={{ marginTop: 1, marginBottom: 1 }}>
       <Grid size={12}>
-        <AttackTitle attack={attack} target={target} />
+        <AttackTitle attack={formDataAttack} target={target} />
       </Grid>
       <Grid size={2}>
         <SelectPositionalTarget value={positionalTarget} onChange={handleChangeEvent} />
@@ -150,8 +153,16 @@ const RangedAttackModifiers: FC<{
           label="Disabled Parry"
         />
       </Grid>
+      <Grid size={12}>
+        <ActionRangeSelector
+          attack={attack}
+          value={modifiers.range || null}
+          onChange={onRangeChange}
+          readOnly={false}
+        />
+      </Grid>
     </Grid>
   );
 };
 
-export default RangedAttackModifiers;
+export default ActionRangedAttackModifiersForm;
