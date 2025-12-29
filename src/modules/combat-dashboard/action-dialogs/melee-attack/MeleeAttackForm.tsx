@@ -4,14 +4,12 @@ import { useError } from '../../../../ErrorContext';
 import { prepareAttack, declareParry, applyAttack } from '../../../api/action';
 import { Action, AttackDeclaration, ParryDeclaration } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
-import type { Character } from '../../../api/characters';
 import ResolveActionDialogMovementStepper from './MeleeAttackStepper';
 
 const MeleeAttackForm: FC<{
   action: Action;
   actorRound: ActorRound;
-  character: Character;
-}> = ({ action, actorRound, character }) => {
+}> = ({ action, actorRound }) => {
   const { refreshActorRounds, updateAction } = useContext(CombatContext);
   const [activeStep, setActiveStep] = useState<number>(action.status === 'declared' ? 0 : 1);
   const { showError } = useError();
@@ -22,7 +20,7 @@ const MeleeAttackForm: FC<{
     if (!attacks || !actorRound || !(actorRound as any).attacks) return attacks || [];
     return attacks.map((a) => {
       try {
-        const attackName = a?.modifiers?.attackName;
+        const attackName = a?.attackName;
         const baseBo = (actorRound as any).attacks.find((at: any) => at.attackName === attackName)?.currentBo ?? 0;
         const bo = a?.modifiers?.bo ?? baseBo;
         return { ...a, modifiers: { ...a.modifiers, bo } };
@@ -118,7 +116,6 @@ const MeleeAttackForm: FC<{
         activeStep={activeStep}
         setActiveStep={setActiveStep}
         actorRound={actorRound}
-        character={character}
         action={action}
         onDeclare={onDeclare}
         onParry={onParry}

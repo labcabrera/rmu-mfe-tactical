@@ -26,7 +26,7 @@ const ResolveAttackFormRoll: FC<{
   const location = attack.roll?.location || null;
 
   const handleRollClick = () => {
-    const attackName = attack.modifiers.attackName;
+    const attackName = attack.attackName;
     updateAttackRoll(action.id, attackName, roll, location)
       .then((updatedAction) => {
         const newFormData = { attacks: updatedAction.attacks, parries: updatedAction.parries } as AttackDeclaration;

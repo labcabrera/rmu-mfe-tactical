@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { Box, Button, Step, StepLabel, Stepper } from '@mui/material';
 import { Action, AttackDeclaration } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
-import { Character } from '../../../api/characters';
 import MeleeAttackDeclaration from './MeleeAttackDeclaration';
 import MeleeAttackSelectAttacks from './MeleeAttackSelectAttacks';
 import ResolveAttackParry from './ResolveAttackParry';
@@ -21,7 +20,6 @@ const MeleeAttackStepper: FC<{
   onApply: () => void;
   action: Action;
   actorRound: ActorRound;
-  character: Character;
   isValidDeclaration: boolean;
 }> = ({
   formData,
@@ -33,7 +31,6 @@ const MeleeAttackStepper: FC<{
   onApply,
   action,
   actorRound,
-  character,
   isValidDeclaration,
 }) => {
   const { t } = useTranslation();
@@ -70,12 +67,7 @@ const MeleeAttackStepper: FC<{
 
       {activeStep === 0 && (
         <Box sx={{ mt: 5 }}>
-          <MeleeAttackSelectAttacks
-            formData={formData}
-            setFormData={setFormData}
-            actorRound={actorRound}
-            character={character}
-          />
+          <MeleeAttackSelectAttacks formData={formData} setFormData={setFormData} actorRound={actorRound} />
         </Box>
       )}
 

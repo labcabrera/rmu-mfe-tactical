@@ -35,7 +35,7 @@ const ResolveAttackFormCriticals: FC<{
   };
 
   const onUpdateCriticalRollClick = (criticalKey: string) => {
-    updateCriticalRoll(action.id, attack.modifiers.attackName, criticalKey, getCriticalRoll(criticalKey)!)
+    updateCriticalRoll(action.id, attack.attackName, criticalKey, getCriticalRoll(criticalKey)!)
       .then((updatedAction) => {
         const newFormData = { attacks: updatedAction.attacks, parries: undefined };
         updateAction(updatedAction);
@@ -69,7 +69,11 @@ const ResolveAttackFormCriticals: FC<{
       {attack.results.criticals.map((critical: any, index: number) => (
         <Fragment key={index}>
           <Grid size={2}>
-            <NumericInput label={t('roll')} value={getCriticalRoll(critical.key)} onChange={(e) => onUpdateCriticalRoll(critical.key, e)} />
+            <NumericInput
+              label={t('roll')}
+              value={getCriticalRoll(critical.key)}
+              onChange={(e) => onUpdateCriticalRoll(critical.key, e)}
+            />
           </Grid>
           <Grid size={1}>
             <TextField label={t('type')} value={critical.criticalType} variant="standard" fullWidth />
@@ -91,7 +95,9 @@ const ResolveAttackFormCriticals: FC<{
           <Grid size={5}></Grid>
           <Grid size={7}>
             <Stack direction="row" spacing={1}>
-              {critical.result && critical.result.damage && critical.result.damage > 0 && <Effect effect={'dmg'} value={critical.result.damage} />}
+              {critical.result && critical.result.damage && critical.result.damage > 0 && (
+                <Effect effect={'dmg'} value={critical.result.damage} />
+              )}
               {critical.result &&
                 critical.result.effects &&
                 critical.result.effects.length > 0 &&

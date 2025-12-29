@@ -4,7 +4,6 @@ import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { ActionAttack, ActionAttackModifiers, AttackDeclaration } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
-import type { Character } from '../../../api/characters.dto';
 import OffensiveBonusSelector from './OffensiveBonusSelector';
 import TargetSelector from './TargetSelector';
 
@@ -12,9 +11,8 @@ const MeleeAttackSelectAttacks: FC<{
   formData: AttackDeclaration;
   setFormData: Dispatch<SetStateAction<AttackDeclaration>>;
   actorRound: ActorRound;
-  character: Character;
-}> = ({ formData, setFormData, actorRound, character }) => {
-  return <AttackList actorRound={actorRound} character={character} formData={formData} setFormData={setFormData} />;
+}> = ({ formData, setFormData, actorRound }) => {
+  return <AttackList actorRound={actorRound} formData={formData} setFormData={setFormData} />;
 };
 
 export default MeleeAttackSelectAttacks;
@@ -23,14 +21,13 @@ const AttackList: FC<{
   formData: AttackDeclaration;
   setFormData: Dispatch<SetStateAction<AttackDeclaration>>;
   actorRound: ActorRound;
-  character: Character;
 }> = ({ formData, setFormData, actorRound }) => {
   const { actorRounds, roundActions } = useContext(CombatContext);
   const selected = formData.attacks || [];
 
   const paceOrder = ['creep', 'walk', 'jog', 'run', 'sprint', 'dash'];
 
-  const findAttack = (attackName: string) => selected.find((a) => a.modifiers.attackName === attackName);
+  const findAttack = (attackName: string) => selected.find((a) => a.attackName === attackName);
 
   const findActorRound = (actorId: string): ActorRound => actorRounds.find((ar) => ar.actorId === actorId)!;
 
@@ -70,7 +67,7 @@ const AttackList: FC<{
       const isOffHand = attackName === 'offHand';
       const pace = maxTargetPace;
       newSelected = selected.map((a) =>
-        a.modifiers.attackName === attackName
+        a.attackName === attackName
           ? {
               ...a,
               modifiers: {
@@ -88,8 +85,18 @@ const AttackList: FC<{
       );
     } else {
       const baseBo = actorRound.attacks.find((a) => a.attackName === attackName)?.currentBo || 0;
-      const modifiers = { attackName, targetId: normalizedTargetId, bo: baseBo } as ActionAttackModifiers;
-      newSelected = [...selected, { modifiers, calculated: undefined, roll: undefined, results: undefined }];
+      const modifiers = { targetId: normalizedTargetId, bo: baseBo } as ActionAttackModifiers;
+      newSelected = [
+        ...selected,
+        {
+          attackName: attackName,
+          type: 'melee',
+          modifiers,
+          calculated: undefined,
+          roll: undefined,
+          results: undefined,
+        },
+      ];
     }
     setFormData((prev) => ({ ...prev, attacks: newSelected }));
   };
@@ -99,11 +106,21 @@ const AttackList: FC<{
     let newSelected: ActionAttack[];
     if (exists) {
       newSelected = selected.map((a) =>
-        a.modifiers.attackName === attackName ? { ...a, modifiers: { ...a.modifiers, bo } } : a
+        a.attackName === attackName ? { ...a, modifiers: { ...a.modifiers, bo } } : a
       );
     } else {
-      const modifiers = { attackName, targetId: null, bo } as ActionAttackModifiers;
-      newSelected = [...selected, { modifiers, calculated: undefined, roll: undefined, results: undefined }];
+      const modifiers = { targetId: null, bo } as ActionAttackModifiers;
+      newSelected = [
+        ...selected,
+        {
+          attackName: '',
+          type: 'melee',
+          modifiers,
+          calculated: undefined,
+          roll: undefined,
+          results: undefined,
+        },
+      ];
     }
     setFormData({ ...formData, attacks: newSelected });
   };
@@ -119,7 +136,6 @@ const AttackList: FC<{
         const modifiers =
           existing?.modifiers ??
           ({
-            attackName: attack.attackName,
             targetId: null,
             bo: attack.currentBo || 0,
           } as ActionAttackModifiers);
