@@ -1,13 +1,14 @@
 import React, { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Stack, Button, Typography } from '@mui/material';
+import { Stack, Button, FormControl, FormLabel } from '@mui/material';
 
 const SelectBoolean: FC<{
-  name?: string;
+  id: string;
+  name: string;
   value?: boolean | null;
   onChange: (value: boolean) => void;
   readOnly?: boolean;
-}> = ({ name, value = null, onChange, readOnly = false }) => {
+}> = ({ id = 'select-boolean', name, value = null, onChange, readOnly = false }) => {
   const { t } = useTranslation();
 
   const options: { id: boolean; label: string }[] = [
@@ -21,17 +22,17 @@ const SelectBoolean: FC<{
   };
 
   return (
-    <div>
-      <Typography variant="caption" sx={{ display: 'block', mb: 0.5 }}>
-        {t(name || '')}
-      </Typography>
+    <FormControl component="fieldset" variant="standard" sx={{ width: '100%' }}>
+      <FormLabel id={id} component="legend" sx={{ mb: 1, typography: 'body1' }}>
+        {name}
+      </FormLabel>
       <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
         {options.map((opt) => {
           const selected = value === opt.id;
           return (
             <Button
               key={String(opt.id)}
-              size="small"
+              size="large"
               variant={selected ? 'contained' : 'outlined'}
               color={selected ? 'primary' : 'inherit'}
               onClick={() => handleClick(opt.id)}
@@ -42,7 +43,7 @@ const SelectBoolean: FC<{
           );
         })}
       </Stack>
-    </div>
+    </FormControl>
   );
 };
 

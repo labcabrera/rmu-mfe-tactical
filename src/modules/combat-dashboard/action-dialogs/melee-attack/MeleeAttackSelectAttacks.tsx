@@ -5,10 +5,10 @@ import { CombatContext } from '../../../../CombatContext';
 import { ActionAttack, ActionAttackModifiers, AttackDeclaration } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
 import type { Character } from '../../../api/characters';
-import BoSelector from './BoSelector';
+import OffensiveBonusSelector from './OffensiveBonusSelector';
 import TargetSelector from './TargetSelector';
 
-const ResolveAttackSelectAttacks: React.FC<{
+const MeleeAttackSelectAttacks: React.FC<{
   formData: AttackDeclaration;
   setFormData: Dispatch<SetStateAction<AttackDeclaration>>;
   actorRound: ActorRound;
@@ -27,7 +27,7 @@ const ResolveAttackSelectAttacks: React.FC<{
   );
 };
 
-export default ResolveAttackSelectAttacks;
+export default MeleeAttackSelectAttacks;
 
 const AttackList: FC<{
   formData: AttackDeclaration;
@@ -93,7 +93,7 @@ const AttackList: FC<{
                 {t(attack.attackTable)} +{attack.currentBo}
               </Grid>
               <Grid size={4}>
-                <BoSelector
+                <OffensiveBonusSelector
                   value={modifiers.bo}
                   max={attack.currentBo}
                   onChange={(bo: number) => handleBoChange(attack.attackName, bo)}

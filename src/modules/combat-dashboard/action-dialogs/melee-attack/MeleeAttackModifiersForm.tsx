@@ -1,9 +1,8 @@
 import React, { ChangeEvent, Dispatch, FC, SetStateAction, useContext } from 'react';
-import { Grid, Stack, Typography } from '@mui/material';
+import { Grid } from '@mui/material';
 import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { AttackDeclaration } from '../../../api/action.dto';
-import ToggleButton from '../../../shared/buttons/ToggleButton';
 import { NumericInput } from '../../../shared/inputs/NumericInput';
 import SelectCalledShot from '../../../shared/selects/SelectCalledShot';
 import SelectDodge from '../../../shared/selects/SelectDodge';
@@ -13,8 +12,10 @@ import SelectPositionalSource from '../../../shared/selects/SelectPositionalSour
 import SelectPositionalTarget from '../../../shared/selects/SelectPositionalTarget';
 import SelectRestrictedQuarters from '../../../shared/selects/SelectRestrictedQuarters';
 import AttackTitle from './AttackTitle';
+import MeleeAttackDefensiveOptions from './MeleeAttackDefensiveOptions';
+import MeleeAttackOptions from './MeleeAttackOptions';
 
-const ResolveAttackFormModifiers: FC<{
+const MeleeAttackModifiersForm: FC<{
   formData: AttackDeclaration;
   setFormData: Dispatch<SetStateAction<AttackDeclaration>>;
   index: number;
@@ -30,13 +31,6 @@ const ResolveAttackFormModifiers: FC<{
   const positionalTarget = modifiers?.positionalTarget || '';
   const dodge = modifiers?.dodge || '';
   const pace = modifiers?.pace || '';
-  const disabledDB = modifiers?.disabledDB || false;
-  const disabledShield = modifiers?.disabledShield || false;
-  const disabledParry = modifiers?.disabledParry || false;
-  const higherGround = modifiers?.higherGround || false;
-  const stunnedFoe = modifiers?.stunnedFoe || false;
-  const surprisedFoe = modifiers?.surprisedFoe || false;
-  const ambush = modifiers?.ambush || false;
   const target = actorRounds.find((actorRound) => actorRound.actorId === modifiers?.targetId);
 
   const handleChange = (name: string, value: string | boolean) => {
@@ -77,10 +71,10 @@ const ResolveAttackFormModifiers: FC<{
       <Grid size={12}>
         <AttackTitle attack={attack} target={target} />
       </Grid>
-      <Grid size={6}>
+      <Grid size={12}>
         <SelectPositionalTarget value={positionalTarget} onChange={(e) => handleChange('positionalTarget', e)} />
       </Grid>
-      <Grid size={6}>
+      <Grid size={12}>
         <SelectPositionalSource value={positionalSource} onChange={(e) => handleChange('positionalSource', e)} />
       </Grid>
       <Grid size={12}>
@@ -93,45 +87,15 @@ const ResolveAttackFormModifiers: FC<{
         <SelectCalledShot value={modifiers.calledShot || ''} onChange={onCalledShotChange} />
       </Grid>
       <Grid size={12}>
-        <Stack direction="row" spacing={1}>
-          <ToggleButton
-            label={'DB'}
-            value={!disabledDB}
-            onChange={(newValue) => {
-              const newAttacks = formData.attacks.map((a, i) =>
-                i === index ? { ...a, modifiers: { ...a.modifiers, disabledDB: !newValue } } : a
-              );
-              setFormData({ ...formData, attacks: newAttacks });
-            }}
-          />
-          <ToggleButton
-            label={'Shield'}
-            value={!disabledShield}
-            onChange={(newValue) => {
-              const newAttacks = formData.attacks.map((a, i) =>
-                i === index ? { ...a, modifiers: { ...a.modifiers, disabledShield: !newValue } } : a
-              );
-              setFormData({ ...formData, attacks: newAttacks });
-            }}
-          />
-          <ToggleButton
-            label={'Parry'}
-            value={!disabledParry}
-            onChange={(newValue) => {
-              const newAttacks = formData.attacks.map((a, i) =>
-                i === index ? { ...a, modifiers: { ...a.modifiers, disabledParry: !newValue } } : a
-              );
-              setFormData({ ...formData, attacks: newAttacks });
-            }}
-          />
-        </Stack>
+        <SelectDodge value={dodge} onChange={(e) => handleChange('dodge', e)} />
       </Grid>
       <Grid size={12}>
-        <SelectDodge value={dodge} onChange={(e) => handleChange('dodge', e)} />
+        <MeleeAttackDefensiveOptions index={index} formData={formData} setFormData={setFormData} />
       </Grid>
       <Grid size={12}>
         <SelectPace
           value={pace}
+          combatOptions={true}
           onChange={(v, p) => {
             const newAttacks = formData.attacks.map((a, i) =>
               i === index ? { ...a, modifiers: { ...a.modifiers, pace: p?.id || '' } } : a
@@ -141,51 +105,7 @@ const ResolveAttackFormModifiers: FC<{
         />
       </Grid>
       <Grid size={12}>
-        <Typography variant="caption" sx={{ display: 'block', mb: 0.5 }}>
-          Attack modifiers
-        </Typography>
-        <Stack direction="row" spacing={1}>
-          <ToggleButton
-            label={'Higher ground'}
-            value={higherGround}
-            onChange={(newValue) => {
-              const newAttacks = formData.attacks.map((a, i) =>
-                i === index ? { ...a, modifiers: { ...a.modifiers, higherGround: newValue } } : a
-              );
-              setFormData({ ...formData, attacks: newAttacks });
-            }}
-          />
-          <ToggleButton
-            label={'Stunned foe'}
-            value={stunnedFoe}
-            onChange={(newValue) => {
-              const newAttacks = formData.attacks.map((a, i) =>
-                i === index ? { ...a, modifiers: { ...a.modifiers, stunnedFoe: newValue } } : a
-              );
-              setFormData({ ...formData, attacks: newAttacks });
-            }}
-          />
-          <ToggleButton
-            label={'Surprised foe'}
-            value={surprisedFoe}
-            onChange={(newValue) => {
-              const newAttacks = formData.attacks.map((a, i) =>
-                i === index ? { ...a, modifiers: { ...a.modifiers, surprisedFoe: newValue } } : a
-              );
-              setFormData({ ...formData, attacks: newAttacks });
-            }}
-          />
-          <ToggleButton
-            label={'Ambush'}
-            value={ambush}
-            onChange={(newValue) => {
-              const newAttacks = formData.attacks.map((a, i) =>
-                i === index ? { ...a, modifiers: { ...a.modifiers, ambush: newValue } } : a
-              );
-              setFormData({ ...formData, attacks: newAttacks });
-            }}
-          />
-        </Stack>
+        <MeleeAttackOptions index={index} formData={formData} setFormData={setFormData} />
       </Grid>
       <Grid size={2}>
         <NumericInput
@@ -211,4 +131,4 @@ const ResolveAttackFormModifiers: FC<{
   );
 };
 
-export default ResolveAttackFormModifiers;
+export default MeleeAttackModifiersForm;

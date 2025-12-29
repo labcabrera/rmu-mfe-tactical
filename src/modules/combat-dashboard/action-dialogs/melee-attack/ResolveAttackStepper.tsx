@@ -4,10 +4,10 @@ import { Box, Button, Step, StepLabel, Stepper } from '@mui/material';
 import { Action, AttackDeclaration } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
 import { Character } from '../../../api/characters';
-import ResolveAttackDeclaration from './ResolveAttackDeclaration';
+import MeleeAttackDeclaration from './MeleeAttackDeclaration';
+import MeleeAttackSelectAttacks from './MeleeAttackSelectAttacks';
 import ResolveAttackParry from './ResolveAttackParry';
 import ResolveAttackTabRoll from './ResolveAttackRoll';
-import ResolveAttackSelectAttacks from './ResolveAttackSelectAttacks';
 
 const steps = ['Select targets', 'Choose attack options', 'Declare parry', 'Resolve attacks'];
 
@@ -69,7 +69,7 @@ const ResolveAttackStepper: FC<{
       </Stepper>
       {activeStep === 0 && (
         <Box sx={{ mt: 5 }}>
-          <ResolveAttackSelectAttacks
+          <MeleeAttackSelectAttacks
             formData={formData}
             setFormData={setFormData}
             actorRound={actorRound}
@@ -77,7 +77,7 @@ const ResolveAttackStepper: FC<{
           />
         </Box>
       )}
-      {activeStep === 1 && <ResolveAttackDeclaration formData={formData} setFormData={setFormData} />}
+      {activeStep === 1 && <MeleeAttackDeclaration formData={formData} setFormData={setFormData} />}
       {activeStep === 2 && <ResolveAttackParry formData={formData} setFormData={setFormData} />}
       {activeStep === 3 && <ResolveAttackTabRoll formData={formData} action={action} setFormData={setFormData} />}
       <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2, mt: 'auto' }}>

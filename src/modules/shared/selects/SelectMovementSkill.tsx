@@ -1,13 +1,13 @@
 import React, { FC } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Stack, Button, Typography } from '@mui/material';
+import { Stack, Button, FormControl, FormLabel } from '@mui/material';
+import { t } from 'i18next';
 
 const SelectMovementSkill: FC<{
   value: string;
   onChange: (value: string) => void;
   readOnly?: boolean;
 }> = ({ value, onChange, readOnly = false }) => {
-  const { t } = useTranslation();
+  const labelId = 'select-movement-skill-label';
 
   const codes: string[] = ['running', 'swimming', 'climbing', 'flying'];
 
@@ -17,10 +17,10 @@ const SelectMovementSkill: FC<{
   };
 
   return (
-    <div>
-      <Typography variant="caption" sx={{ display: 'block', mb: 0.5 }}>
+    <FormControl component="fieldset" variant="standard" sx={{ width: '100%' }}>
+      <FormLabel id={labelId} component="legend" sx={{ mb: 1, typography: 'body1' }}>
         {t('skill')}
-      </Typography>
+      </FormLabel>
       <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
         {codes.map((option) => {
           const selected = option === value;
@@ -38,7 +38,7 @@ const SelectMovementSkill: FC<{
           );
         })}
       </Stack>
-    </div>
+    </FormControl>
   );
 };
 

@@ -8,14 +8,14 @@ import { Action, ActionMovement } from '../../../api/action.dto';
 import type { Character } from '../../../api/characters';
 import type { StrategicGame } from '../../../api/strategic-games';
 import type { TacticalGame } from '../../../api/tactical-games';
-import KeyValueModifiersView from '../../../shared/generic/KeyValueModifiersView';
 import { NumericInput } from '../../../shared/inputs/NumericInput';
 import SelectBoolean from '../../../shared/selects/SelectBoolean';
 import SelectDifficulty from '../../../shared/selects/SelectDifficulty';
 import SelectMovementSkill from '../../../shared/selects/SelectMovementSkill';
 import SelectPace, { Pace } from '../../../shared/selects/SelectPace';
+import MovementResult from './MovementResult';
 
-const ActionMovementModifiersForm: FC<{
+const MovementModifiersForm: FC<{
   formData: ActionMovement;
   setFormData: Dispatch<SetStateAction<ActionMovement>>;
   character: Character;
@@ -90,6 +90,7 @@ const ActionMovementModifiersForm: FC<{
         <>
           <Grid size={12}>
             <SelectBoolean
+              id="required-maneuver"
               name="Required maneuver"
               value={formData.modifiers.requiredManeuver}
               onChange={(val) =>
@@ -158,58 +159,23 @@ const ActionMovementModifiersForm: FC<{
       {action.status !== 'completed' && (
         <Button
           onClick={onResolve}
-          disabled={!formData.modifiers.pace || (formData.modifiers.requiredManeuver && !formData.roll)}
+          size="large"
+          disabled={!formData.modifiers.pace || (formData.modifiers.requiredManeuver && !formData.roll?.roll)}
           variant="contained"
           color="success"
         >
           {t('resolve')}
         </Button>
       )}
-      {action.movement && action.movement.calculated && (
-        <>
-          <Grid size={12}>
-            <Typography variant="h6">Result</Typography>
-            <Stack direction="row" spacing={1} mt={1}>
-              <Chip
-                label={`Percent: ${action.movement.calculated.percent}%`}
-                color={action.movement.calculated.percent < 100 ? 'error' : 'success'}
-              />
-            </Stack>
-            <Stack direction="row" spacing={1} mt={1}>
-              <Chip label={`Action points: ${action.actionPoints}`} />
-            </Stack>
-            <Stack direction="row" spacing={1} mt={1}>
-              <Chip label={`BMR: ${action.movement.calculated.bmr}'`} />
-              <Chip label={`Pace x${action.movement.calculated.paceMultiplier}`} />
-              <Chip label={`Distance: ${action.movement.calculated.distance}'`} />
-              <Chip label={`Adjusted: ${action.movement.calculated.distanceAdjusted}`} />
-            </Stack>
-            <Stack direction="row" spacing={1} mt={1}>
-              <Chip label={`Fatigue: ${action.fatigue || '0'}`} />
-            </Stack>
-          </Grid>
-
-          {action.movement.roll && action.movement.roll.modifiers && (
-            <>
-              <Grid size={12}>
-                <Typography variant="h6">Modifiers</Typography>
-                <Stack direction="row" spacing={1} mt={1} mb={1}>
-                  <Chip label={`Total: ${action.movement.roll.totalRoll}`} />
-                </Stack>
-                <KeyValueModifiersView modifiers={formData.roll.modifiers || []} />
-              </Grid>
-            </>
-          )}
-        </>
-      )}
-      <Grid size={12}>
+      {action.movement && action.movement.calculated && <MovementResult action={action} />}
+      {/* <Grid size={12}>
         <pre>{JSON.stringify(formData, null, 2)}</pre>
       </Grid>
       <Grid size={12}>
         <pre>{JSON.stringify(action, null, 2)}</pre>
-      </Grid>
+      </Grid> */}
     </Grid>
   );
 };
 
-export default ActionMovementModifiersForm;
+export default MovementModifiersForm;

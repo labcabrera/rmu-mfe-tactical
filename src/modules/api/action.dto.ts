@@ -130,6 +130,7 @@ export type ActionAttackModifiers = {
   stunnedFoe?: boolean;
   surprisedFoe?: boolean;
   proneSource?: boolean;
+  offHand?: boolean;
   proneTarget?: boolean;
   attackerInMelee?: boolean;
   ambush?: boolean;
@@ -138,6 +139,7 @@ export type ActionAttackModifiers = {
   disabledDB: boolean | null;
   disabledShield: boolean | null;
   disabledParry: boolean | null;
+  restrictedParry: boolean | null;
   customBonus: number | null;
 };
 

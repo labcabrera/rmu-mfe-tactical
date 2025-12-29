@@ -4,8 +4,8 @@ import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { AttackDeclaration } from '../../../api/action.dto';
 import { ActorRoundAttack } from '../../../api/actor-rounds.dto';
-import AttackRangeSelector from '../../../shared/generic/AttackRangeSelector';
 import { NumericInput } from '../../../shared/inputs/NumericInput';
+import SelectAttackRange from '../../../shared/selects/SelectAttackRange';
 import SelectCalledShot from '../../../shared/selects/SelectCalledShot';
 import SelectDodge from '../../../shared/selects/SelectDodge';
 import SelectRangedCover from '../../../shared/selects/SelectRangedCover';
@@ -76,12 +76,7 @@ const RangedAttackModifiersForm: FC<{
         <AttackTitle attack={formDataAttack} target={target} />
       </Grid>
       <Grid size={12}>
-        <AttackRangeSelector
-          attack={attack}
-          value={modifiers.range || null}
-          onChange={onRangeChange}
-          readOnly={false}
-        />
+        <SelectAttackRange attack={attack} value={modifiers.range || null} onChange={onRangeChange} readOnly={false} />
       </Grid>
       <Grid size={12}>
         <SelectRestrictedQuarters value={restrictedQuarters} onChange={(e) => handleChange('restrictedQuarters', e)} />

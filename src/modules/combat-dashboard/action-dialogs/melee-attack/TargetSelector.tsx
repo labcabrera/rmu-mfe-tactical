@@ -88,20 +88,12 @@ const TargetSelector: FC<Props> = ({ value = null, onChange, sourceId = null }) 
               <FormControlLabel
                 value="distinct"
                 control={<Radio disabled={!actorRounds} />}
-                label={
-                  <Typography variant="caption" sx={{ fontSize: '0.65rem' }}>
-                    Distinct faction
-                  </Typography>
-                }
+                label={<Typography variant="caption">Distinct faction</Typography>}
               />
               <FormControlLabel
                 value="all"
-                control={<Radio size="small" disabled={!actorRounds} />}
-                label={
-                  <Typography variant="caption" sx={{ fontSize: '0.65rem' }}>
-                    All
-                  </Typography>
-                }
+                control={<Radio disabled={!actorRounds} />}
+                label={<Typography variant="caption">All</Typography>}
               />
             </RadioGroup>
           </Stack>
@@ -124,11 +116,11 @@ const TargetSelector: FC<Props> = ({ value = null, onChange, sourceId = null }) 
                   >
                     <CharacterAvatar
                       character={ch as any}
-                      size={32}
+                      size={40}
                       variant="square"
                       dead={ar.effects?.some((e: any) => e.status === 'dead')}
                     />
-                    <Typography variant="caption" noWrap sx={{ maxWidth: 60, fontSize: '0.65rem' }}>
+                    <Typography variant="caption" noWrap sx={{ maxWidth: 60 }}>
                       {ch.name}
                     </Typography>
                   </Button>

@@ -4,7 +4,7 @@ import { t } from 'i18next';
 import { CombatContext } from '../../../CombatContext';
 import { ActorRoundAttack, ActorRoundAttackRange } from '../../api/actor-rounds.dto';
 
-const AttackRangeSelector: FC<{
+const SelectAttackRange: FC<{
   attack: ActorRoundAttack;
   value: number | null;
   onChange: (value: number | null) => void;
@@ -62,4 +62,4 @@ const AttackRangeSelector: FC<{
   );
 };
 
-export default AttackRangeSelector;
+export default SelectAttackRange;

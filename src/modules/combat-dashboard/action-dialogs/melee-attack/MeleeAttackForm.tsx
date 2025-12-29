@@ -7,7 +7,7 @@ import { ActorRound } from '../../../api/actor-rounds.dto';
 import type { Character } from '../../../api/characters';
 import ResolveActionDialogMovementStepper from './ResolveAttackStepper';
 
-const ActionMeleeAttackForm: FC<{
+const MeleeAttackForm: FC<{
   action: Action;
   actorRound: ActorRound;
   character: Character;
@@ -16,10 +16,7 @@ const ActionMeleeAttackForm: FC<{
   const [activeStep, setActiveStep] = useState<number>(action.status === 'declared' ? 0 : 1);
   const { showError } = useError();
   const [isValidDeclaration, setIsValidDeclaration] = useState(false);
-  const [formData, setFormData] = useState<AttackDeclaration>({
-    attacks: [],
-    parries: [],
-  });
+  const [formData, setFormData] = useState<AttackDeclaration>(null);
 
   const applyCurrentBoToAttacks = (attacks?: AttackDeclaration['attacks']) => {
     if (!attacks || !actorRound || !(actorRound as any).attacks) return attacks || [];
@@ -111,6 +108,8 @@ const ActionMeleeAttackForm: FC<{
     }
   }, [formData]);
 
+  if (!formData) return <div>Loading...</div>;
+
   return (
     <>
       <ResolveActionDialogMovementStepper
@@ -132,4 +131,4 @@ const ActionMeleeAttackForm: FC<{
   );
 };
 
-export default ActionMeleeAttackForm;
+export default MeleeAttackForm;

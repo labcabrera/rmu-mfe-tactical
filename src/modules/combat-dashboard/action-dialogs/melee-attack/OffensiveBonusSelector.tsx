@@ -12,7 +12,7 @@ type Props = {
   disabled?: boolean;
 };
 
-const BoSelector: FC<Props> = ({ value, onChange, min = 0, max, integer = true, disabled = false }) => {
+const OffensiveBonusSelector: FC<Props> = ({ value, onChange, min = 0, max, integer = true, disabled = false }) => {
   const safeMax = Math.max(min, max ?? min);
   const current = value === null || value === undefined ? min : Math.max(min, Math.min(value, safeMax));
 
@@ -92,4 +92,4 @@ const BoSelector: FC<Props> = ({ value, onChange, min = 0, max, integer = true, 
   );
 };
 
-export default BoSelector;
+export default OffensiveBonusSelector;
