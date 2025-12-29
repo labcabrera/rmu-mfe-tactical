@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Stack, Button, Typography, Badge } from '@mui/material';
+import { Stack, Button, Typography, Badge, FormControl, FormLabel } from '@mui/material';
 
 type LightOption = {
   id: string;
@@ -42,10 +42,10 @@ const SelectLightType: FC<{
   };
 
   return (
-    <div>
-      <Typography variant="caption" sx={{ display: 'block', mb: 0.5 }}>
+    <FormControl component="fieldset" variant="standard" sx={{ width: '100%' }}>
+      <FormLabel id={'light'} component="legend" sx={{ mb: 1.5, typography: 'body1' }}>
         {t('light')}
-      </Typography>
+      </FormLabel>
       <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
         {codes.map((option) => {
           const selected = option.id === value;
@@ -53,7 +53,7 @@ const SelectLightType: FC<{
             <Badge badgeContent={getModifier(option)} color="error" key={option.id}>
               <Button
                 key={option.id}
-                size="small"
+                size="large"
                 variant={selected ? 'contained' : 'outlined'}
                 color={selected ? 'primary' : 'inherit'}
                 onClick={() => handleClick(option.id)}
@@ -65,7 +65,7 @@ const SelectLightType: FC<{
           );
         })}
       </Stack>
-    </div>
+    </FormControl>
   );
 };
 

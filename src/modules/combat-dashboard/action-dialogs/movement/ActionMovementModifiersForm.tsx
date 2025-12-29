@@ -1,5 +1,6 @@
 import React, { Dispatch, FC, SetStateAction, useContext, useEffect, useState } from 'react';
 import { Button, Chip, Grid, Stack, Typography } from '@mui/material';
+import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { useError } from '../../../../ErrorContext';
 import { resolveMovement } from '../../../api/action';
@@ -159,8 +160,9 @@ const ActionMovementModifiersForm: FC<{
           onClick={onResolve}
           disabled={!formData.modifiers.pace || (formData.modifiers.requiredManeuver && !formData.roll)}
           variant="contained"
+          color="success"
         >
-          Resolve
+          {t('resolve')}
         </Button>
       )}
       {action.movement && action.movement.calculated && (

@@ -1,5 +1,5 @@
 import React, { FC } from 'react';
-import { Stack, Button, Typography, Badge } from '@mui/material';
+import { Stack, Button, Badge, FormControl, FormLabel } from '@mui/material';
 import { t } from 'i18next';
 
 type DifficultyCode = {
@@ -35,23 +35,34 @@ const SelectDifficulty: FC<{
 
   const badgeContent = (modifier: number) => {
     if (readOnly) return null;
+    if (modifier === 0) return '+0';
     return modifier > 0 ? `+${modifier}` : modifier;
   };
 
+  const badgeColor = (modifier: number): 'success' | 'error' | 'secondary' => {
+    if (modifier === 0) return 'secondary';
+    return modifier > 0 ? 'success' : 'error';
+  };
+
   return (
-    <div>
-      <Typography variant="caption" sx={{ display: 'block', mb: 0.5 }}>
+    <FormControl component="fieldset" variant="standard" sx={{ width: '100%' }}>
+      <FormLabel id={'difficulty'} component="legend" sx={{ mb: 1.5, typography: 'body1' }}>
         {t('difficulty')}
-      </Typography>
-      <Stack direction="row" spacing={readOnly ? 1 : 3} sx={{ flexWrap: 'wrap' }}>
+      </FormLabel>
+      <Stack
+        direction="row"
+        spacing={readOnly ? 1 : 2}
+        sx={{
+          flexWrap: 'wrap',
+          alignContent: 'flex-start',
+          rowGap: 1,
+          columnGap: readOnly ? 1 : 2,
+        }}
+      >
         {codes.map((option) => {
           const selected = option.id === value;
           return (
-            <Badge
-              badgeContent={badgeContent(option.modifier)}
-              color={option.modifier >= 0 ? 'success' : 'error'}
-              key={option.id}
-            >
+            <Badge badgeContent={badgeContent(option.modifier)} color={badgeColor(option.modifier)} key={option.id}>
               <Button
                 key={option.id}
                 size="large"
@@ -60,13 +71,13 @@ const SelectDifficulty: FC<{
                 onClick={() => handleClick(option)}
                 disabled={readOnly}
               >
-                {t(option.id)}
+                {t(option.code)}
               </Button>
             </Badge>
           );
         })}
       </Stack>
-    </div>
+    </FormControl>
   );
 };
 
