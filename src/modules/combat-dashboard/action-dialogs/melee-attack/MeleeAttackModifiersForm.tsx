@@ -126,7 +126,7 @@ const MeleeAttackModifiersForm: FC<{
         <SelectPace value={pace} combatOptions={true} onChange={(v, p) => handlePaceChange(p?.id || v)} />
       </Grid>
       <Grid size={12}>
-        <SelectCalledShot value={modifiers.calledShot || ''} onChange={onCalledShotChange} />
+        <SelectCalledShot value={modifiers.calledShot || ''} onChange={onCalledShotChange} target={target} />
       </Grid>
       <Grid size={12}>
         <SelectDodge value={dodge} onChange={(e) => handleDodgeChange(e)} />
