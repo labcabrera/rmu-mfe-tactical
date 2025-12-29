@@ -7,12 +7,12 @@ import ToggleButton from '../../../shared/buttons/ToggleButton';
 import { NumericInput } from '../../../shared/inputs/NumericInput';
 import SelectCalledShot from '../../../shared/selects/SelectCalledShot';
 import SelectDodge from '../../../shared/selects/SelectDodge';
+import SelectMeleeCover from '../../../shared/selects/SelectMeleeCover';
 import SelectPace from '../../../shared/selects/SelectPace';
 import SelectPositionalSource from '../../../shared/selects/SelectPositionalSource';
 import SelectPositionalTarget from '../../../shared/selects/SelectPositionalTarget';
 import SelectRestrictedQuarters from '../../../shared/selects/SelectRestrictedQuarters';
 import AttackTitle from './AttackTitle';
-import MeleeAttackCoverSelector from './MeleeAttackCoverSelector';
 
 const ResolveAttackFormModifiers: FC<{
   formData: AttackDeclaration;
@@ -87,7 +87,7 @@ const ResolveAttackFormModifiers: FC<{
         <SelectPositionalSource value={positionalSource} onChange={(e) => handleChange('positionalSource', e)} />
       </Grid>
       <Grid size={12}>
-        <MeleeAttackCoverSelector value={cover} onChange={(e) => handleChange('cover', e)} />
+        <SelectMeleeCover value={cover} onChange={(e) => handleChange('cover', e)} />
       </Grid>
       <Grid size={12}>
         <SelectRestrictedQuarters value={restrictedQuarters} onChange={(e) => handleChange('restrictedQuarters', e)} />
@@ -128,6 +128,9 @@ const ResolveAttackFormModifiers: FC<{
             }}
           />
         </Stack>
+      </Grid>
+      <Grid size={12}>
+        <SelectDodge value={dodge} onChange={(e) => handleChange('dodge', e)} />
       </Grid>
       <Grid size={12}>
         <SelectPace
@@ -206,9 +209,6 @@ const ResolveAttackFormModifiers: FC<{
             integer
           />
         )}
-      </Grid>
-      <Grid size={2}>
-        <SelectDodge value={dodge} onChange={handleChangeEvent} />
       </Grid>
     </Grid>
   );

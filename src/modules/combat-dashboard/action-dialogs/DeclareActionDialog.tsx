@@ -155,6 +155,7 @@ const DeclareActionDialog: FC<{
                 {group.options.map((opt) => (
                   <Grid key={opt.key}>
                     <Button
+                      size="large"
                       fullWidth
                       variant={actionForm.actionType === opt.key ? 'contained' : 'outlined'}
                       onClick={() => handleSelectAction(opt)}

@@ -49,7 +49,7 @@ const SelectPositionalSource: FC<{
             <Badge key={option.id} badgeContent={badgeContent(option)} color={badgeColor(option)}>
               <Button
                 key={option.id}
-                size="small"
+                size="large"
                 variant={selected ? 'contained' : 'outlined'}
                 color={selected ? 'primary' : 'inherit'}
                 onClick={() => handleClick(option.id)}

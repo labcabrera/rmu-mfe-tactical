@@ -54,7 +54,7 @@ const SelectDifficulty: FC<{
             >
               <Button
                 key={option.id}
-                size="small"
+                size="large"
                 variant={selected ? 'contained' : 'outlined'}
                 color={selected ? 'primary' : 'inherit'}
                 onClick={() => handleClick(option)}

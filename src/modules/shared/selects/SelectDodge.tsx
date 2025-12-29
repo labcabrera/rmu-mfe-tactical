@@ -1,31 +1,45 @@
-import React, { ChangeEvent, FC } from 'react';
-import { useTranslation } from 'react-i18next';
-import { MenuItem, TextField } from '@mui/material';
+import React, { FC } from 'react';
+import { Stack, Button, FormControl, FormLabel } from '@mui/material';
+import { t } from 'i18next';
 
 const SelectDodge: FC<{
   value: string;
-  onChange: (event: ChangeEvent<HTMLInputElement>) => void;
+  onChange: (value: string) => void;
   name?: string;
-}> = ({ value, onChange, name = 'dodge' }) => {
-  const { t } = useTranslation();
+  readOnly?: boolean;
+}> = ({ value, onChange, name = 'dodge', readOnly = false }) => {
+  const labelId = `select-dodge-${name}-label`;
+
   const options = ['none', 'passive', 'partial', 'full'];
 
+  const handleClick = (optionId: string) => {
+    if (readOnly) return;
+    onChange(optionId);
+  };
+
   return (
-    <TextField
-      select
-      label={t('dodge')}
-      name={name}
-      value={value === undefined || value === null || options.length === 0 ? '' : value}
-      variant="standard"
-      fullWidth
-      onChange={onChange}
-    >
-      {options.map((option, index) => (
-        <MenuItem key={index} value={option}>
-          {t(`dodge-${option}`)}
-        </MenuItem>
-      ))}
-    </TextField>
+    <FormControl component="fieldset" variant="standard" sx={{ width: '100%' }}>
+      <FormLabel id={labelId} component="legend" sx={{ mb: 1, typography: 'body1' }}>
+        {t('dodge')}
+      </FormLabel>
+      <Stack role="group" aria-labelledby={labelId} direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
+        {options.map((option) => {
+          const selected = option === value || (!value && option === 'none');
+          return (
+            <Button
+              key={option}
+              size="large"
+              variant={selected ? 'contained' : 'outlined'}
+              color={selected ? 'primary' : 'inherit'}
+              onClick={() => handleClick(option)}
+              disabled={readOnly}
+            >
+              {t(`dodge-${option}`)}
+            </Button>
+          );
+        })}
+      </Stack>
+    </FormControl>
   );
 };
 

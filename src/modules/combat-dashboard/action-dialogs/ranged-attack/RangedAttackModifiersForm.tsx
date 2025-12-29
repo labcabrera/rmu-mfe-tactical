@@ -4,13 +4,13 @@ import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { AttackDeclaration } from '../../../api/action.dto';
 import { ActorRoundAttack } from '../../../api/actor-rounds.dto';
+import AttackRangeSelector from '../../../shared/generic/AttackRangeSelector';
 import { NumericInput } from '../../../shared/inputs/NumericInput';
 import SelectCalledShot from '../../../shared/selects/SelectCalledShot';
 import SelectDodge from '../../../shared/selects/SelectDodge';
+import SelectRangedCover from '../../../shared/selects/SelectRangedCover';
 import SelectRestrictedQuarters from '../../../shared/selects/SelectRestrictedQuarters';
 import AttackTitle from '../melee-attack/AttackTitle';
-import AttackRangeSelector from './AttackRangeSelector';
-import RangedAttackCoverSelector from './RangedAttackCoverSelector';
 import RangedAttackOptionsForm from './RangedAttackOptionsForm';
 
 const RangedAttackModifiersForm: FC<{
@@ -26,11 +26,9 @@ const RangedAttackModifiersForm: FC<{
   const customBonus = modifiers?.customBonus || null;
   const restrictedQuarters = modifiers?.restrictedQuarters || '';
   const dodge = modifiers?.dodge || '';
-  const range = modifiers?.range || null;
   const target = actorRounds.find((actorRound) => actorRound.actorId === modifiers?.targetId);
 
-  const handleChangeEvent = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
-    handleChange(e.target.name, e.target.value);
+  const isValidForm = !!modifiers?.range;
 
   const handleChange = (name: string, value: string | boolean) => {
     const newAttacks = formData.attacks.map((a, i) =>
@@ -89,13 +87,13 @@ const RangedAttackModifiersForm: FC<{
         <SelectRestrictedQuarters value={restrictedQuarters} onChange={(e) => handleChange('restrictedQuarters', e)} />
       </Grid>
       <Grid size={12}>
-        <RangedAttackCoverSelector
-          value={formDataAttack?.modifiers?.cover || ''}
-          onChange={(e) => handleChange('cover', e)}
-        />
+        <SelectRangedCover value={formDataAttack?.modifiers?.cover || ''} onChange={(e) => handleChange('cover', e)} />
       </Grid>
       <Grid size={12}>
         <SelectCalledShot value={modifiers.calledShot || ''} onChange={onCalledShotChange} />
+      </Grid>
+      <Grid size={12}>
+        <SelectDodge value={dodge} onChange={(e) => handleChange('dodge', e)} />
       </Grid>
       <Grid size={12}>
         <RangedAttackOptionsForm formData={formData} setFormData={setFormData} index={0} />
@@ -109,18 +107,8 @@ const RangedAttackModifiersForm: FC<{
           integer
         />
       </Grid>
-      <Grid size={2}>
+      {modifiers.calledShot && modifiers.calledShot !== 'none' && (
         <Grid size={2}>
-          <NumericInput
-            label={t('range')}
-            value={range}
-            name="range"
-            onChange={onRangeChange}
-            maxFractionDigits={1}
-            allowNegatives={false}
-          />
-        </Grid>
-        {modifiers.calledShot && modifiers.calledShot !== 'none' && (
           <NumericInput
             label={t('called-shot-penalty')}
             value={modifiers.calledShotPenalty || null}
@@ -128,14 +116,16 @@ const RangedAttackModifiersForm: FC<{
             onChange={onCalledShotPenaltyChange}
             integer
           />
-        )}
-      </Grid>
-      <Grid size={2}>
-        <SelectDodge value={dodge} onChange={handleChangeEvent} />
-      </Grid>
+        </Grid>
+      )}
       <Grid size={12}>
-        <Button variant="outlined" color="secondary" onClick={() => setFormData({ ...formData, attacks: [] })}>
-          Prepare
+        <Button
+          variant="contained"
+          color="success"
+          disabled={!isValidForm}
+          onClick={() => setFormData({ ...formData, attacks: [] })}
+        >
+          {t('prepare')}
         </Button>
       </Grid>
     </Grid>

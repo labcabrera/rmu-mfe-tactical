@@ -33,7 +33,7 @@ const SelectPositionalTarget: FC<{
 
   return (
     <FormControl component="fieldset" variant="standard" sx={{ width: '100%' }}>
-      <FormLabel id={labelId} component="legend" sx={{ mb: 2, typography: 'body1' }}>
+      <FormLabel id={labelId} component="legend" sx={{ mb: 1, typography: 'body1' }}>
         {t('positional-target')}
       </FormLabel>
       <Stack
@@ -49,7 +49,7 @@ const SelectPositionalTarget: FC<{
             <Badge key={option.id} badgeContent={badgeContent(option)} color={badgeColor(option)}>
               <Button
                 key={option.id}
-                size="small"
+                size="large"
                 variant={selected ? 'contained' : 'outlined'}
                 color={selected ? 'primary' : 'inherit'}
                 onClick={() => handleClick(option.id)}

@@ -1,8 +1,8 @@
 import React, { FC, useContext } from 'react';
 import { Stack, Button, Badge, FormControl, FormLabel } from '@mui/material';
 import { t } from 'i18next';
-import { CombatContext } from '../../../../CombatContext';
-import { ActorRoundAttack, ActorRoundAttackRange } from '../../../api/actor-rounds.dto';
+import { CombatContext } from '../../../CombatContext';
+import { ActorRoundAttack, ActorRoundAttackRange } from '../../api/actor-rounds.dto';
 
 const AttackRangeSelector: FC<{
   attack: ActorRoundAttack;

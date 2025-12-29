@@ -4,7 +4,6 @@ import { t } from 'i18next';
 import { Action, ActionAttack, ActionAttackModifiers, AttackDeclaration } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
 import type { Character } from '../../../api/characters';
-import BoSelector from '../melee-attack/BoSelector';
 import TargetSelector from '../melee-attack/TargetSelector';
 import RangedAttackModifiersForm from './RangedAttackModifiersForm';
 
@@ -34,20 +33,6 @@ const RangedAttackForm: FC<{
     setFormData({ ...formData, attacks: newSelected });
   };
 
-  const handleBoChange = (attackName: string, bo: number) => {
-    const exists = findAttack(attackName);
-    let newSelected: ActionAttack[];
-    if (exists) {
-      newSelected = selected.map((a) =>
-        a.modifiers.attackName === attackName ? { ...a, modifiers: { ...a.modifiers, bo } } : a
-      );
-    } else {
-      const modifiers = { attackName, targetId: null, bo } as ActionAttackModifiers;
-      newSelected = [...selected, { modifiers, calculated: undefined, roll: undefined, results: undefined }];
-    }
-    setFormData({ ...formData, attacks: newSelected });
-  };
-
   if (!actorRound || !actorRound.attacks) {
     return <Typography>No ranged attacks available</Typography>;
   }
@@ -67,14 +52,7 @@ const RangedAttackForm: FC<{
               <Grid size={2}>
                 {t(attack.attackTable)} +{attack.currentBo}
               </Grid>
-              <Grid size={4}>
-                <BoSelector
-                  value={modifiers.bo}
-                  max={attack.currentBo}
-                  onChange={(bo: number) => handleBoChange(attack.attackName, bo)}
-                />
-              </Grid>
-              <Grid size={6}>
+              <Grid size={10}>
                 <TargetSelector
                   value={modifiers.targetId || ''}
                   onChange={(actorId) => handleTargetChange(attack.attackName, actorId)}

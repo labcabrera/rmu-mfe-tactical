@@ -27,7 +27,7 @@ const SelectMovementSkill: FC<{
           return (
             <Button
               key={option}
-              size="small"
+              size="large"
               variant={selected ? 'contained' : 'outlined'}
               color={selected ? 'primary' : 'inherit'}
               onClick={() => handleClick(option)}
