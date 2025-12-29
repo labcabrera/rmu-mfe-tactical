@@ -12,7 +12,7 @@ import SelectPositionalSource from '../../../shared/selects/SelectPositionalSour
 import SelectPositionalTarget from '../../../shared/selects/SelectPositionalTarget';
 import SelectRestrictedQuarters from '../../../shared/selects/SelectRestrictedQuarters';
 import AttackTitle from './AttackTitle';
-import MeleeAttackDefensiveOptions from './MeleeAttackDefensiveOptions';
+import MeleeAttackDefenseOptions from './MeleeAttackDefenseOptions';
 import MeleeAttackOptions from './MeleeAttackOptions';
 
 const MeleeAttackModifiersForm: FC<{
@@ -132,7 +132,7 @@ const MeleeAttackModifiersForm: FC<{
         <SelectDodge value={dodge} onChange={(e) => handleDodgeChange(e)} />
       </Grid>
       <Grid size={12}>
-        <MeleeAttackDefensiveOptions index={index} formData={formData} setFormData={setFormData} />
+        <MeleeAttackDefenseOptions index={index} formData={formData} setFormData={setFormData} />
       </Grid>
       <Grid size={12}>
         <MeleeAttackOptions index={index} formData={formData} setFormData={setFormData} />

@@ -3,14 +3,12 @@ import { FormControl, FormLabel, Stack, ToggleButtonGroup, ToggleButton } from '
 import { t } from 'i18next';
 import { AttackDeclaration } from '../../../api/action.dto';
 
-// Using MUI ToggleButtonGroup for grouped/multiple selection
-
-const MeleeAttackDefensiveOptions: FC<{
+const MeleeAttackDefenseOptions: FC<{
   index: number;
   formData: AttackDeclaration;
   setFormData: Dispatch<SetStateAction<AttackDeclaration>>;
 }> = ({ formData, setFormData, index }) => {
-  const labelId = `melee-attack-defensive-options-${index}-label`;
+  const labelId = `melee-attack-defense-options-${index}-label`;
   const attack = formData.attacks?.[index];
   const modifiers = attack?.modifiers;
   const disabledDB = modifiers?.disabledDB || false;
@@ -71,4 +69,4 @@ const MeleeAttackDefensiveOptions: FC<{
   );
 };
 
-export default MeleeAttackDefensiveOptions;
+export default MeleeAttackDefenseOptions;
