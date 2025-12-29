@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Stack, Button, Typography, Badge, FormControl, FormLabel } from '@mui/material';
+import { Stack, Button, Badge, FormControl, FormLabel } from '@mui/material';
 
 type LightOption = {
   id: string;

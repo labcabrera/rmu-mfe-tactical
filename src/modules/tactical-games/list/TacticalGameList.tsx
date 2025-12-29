@@ -1,12 +1,9 @@
 import React, { FC, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import AddCircleIcon from '@mui/icons-material/AddCircle';
-import { Box, Grid, IconButton, Typography } from '@mui/material';
-import { t } from 'i18next';
+import { Box, Grid } from '@mui/material';
 import { useError } from '../../../ErrorContext';
 import { fetchTacticalGames } from '../../api/tactical-games';
 import type { TacticalGame } from '../../api/tactical-games';
-import AddButton from '../../shared/buttons/AddButton';
 import TacticalGameCard from '../../shared/cards/TacticalGameCard';
 import TacticalGameListActions from './TacticalGameListActions';
 import TacticalGameResume from './TacticalGameResume';
@@ -15,21 +12,6 @@ const TacticalGameList: FC = () => {
   const navigate = useNavigate();
   const { showError } = useError();
   const [games, setGames] = useState<TacticalGame[]>([]);
-
-  const fetchGames = () => {
-    fetchTacticalGames('', 0, 20)
-      .then((response) => {
-        setGames(response);
-      })
-      .catch((err: unknown) => {
-        if (err instanceof Error) showError(err.message);
-        else showError('An unknown error occurred');
-      });
-  };
-
-  const handleNewGame = () => {
-    navigate('/tactical/games/create');
-  };
 
   const onTacticalGameClick = (tacticalGame: TacticalGame) => {
     navigate(`/tactical/games/view/${tacticalGame.id}`, { state: { tacticalGame: tacticalGame } });

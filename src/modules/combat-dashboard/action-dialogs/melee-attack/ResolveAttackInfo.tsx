@@ -4,7 +4,6 @@ import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { ActionAttack } from '../../../api/action.dto';
 import NumericReadonlyInput from '../../../shared/inputs/NumericReadonlyInput';
-import ActorRoundArmor from './ActorRoundArmor';
 import AttackTitle from './AttackTitle';
 
 const ResolveAttackFormModifiers: FC<{
@@ -32,7 +31,13 @@ const ResolveAttackFormModifiers: FC<{
       {showDetail && (
         <>
           <Grid size={2}>
-            <TextField label={t('cover')} value={t(`cover-${attack.modifiers.cover}`)} name="cover" fullWidth variant="standard" />
+            <TextField
+              label={t('cover')}
+              value={t(`cover-${attack.modifiers.cover}`)}
+              name="cover"
+              fullWidth
+              variant="standard"
+            />
           </Grid>
           <Grid size={2}>
             <TextField
@@ -62,20 +67,35 @@ const ResolveAttackFormModifiers: FC<{
             />
           </Grid>
           <Grid size={2}>
-            <TextField label={t('attack-dodge')} value={t(`dodge-${attack.modifiers.dodge}`)} name="dodge" fullWidth variant="standard" />
+            <TextField
+              label={t('attack-dodge')}
+              value={t(`dodge-${attack.modifiers.dodge}`)}
+              name="dodge"
+              fullWidth
+              variant="standard"
+            />
           </Grid>
           <Grid size={2}>
             <NumericReadonlyInput label={t('range')} value={attack.modifiers.range} name="range" />
           </Grid>
           <Grid size={12}></Grid>
           <Grid size={2}>
-            <FormControlLabel control={<Switch checked={attack.modifiers.disabledDB} name="disabledDB" />} label="Disabled DB" />
+            <FormControlLabel
+              control={<Switch checked={attack.modifiers.disabledDB} name="disabledDB" />}
+              label="Disabled DB"
+            />
           </Grid>
           <Grid size={2}>
-            <FormControlLabel control={<Switch checked={attack.modifiers.disabledShield} name="disabledShield" />} label="Disabled Shield" />
+            <FormControlLabel
+              control={<Switch checked={attack.modifiers.disabledShield} name="disabledShield" />}
+              label="Disabled Shield"
+            />
           </Grid>
           <Grid size={2}>
-            <FormControlLabel control={<Switch checked={attack.modifiers.disabledParry} name="disabledParry" />} label="Disabled Parry" />
+            <FormControlLabel
+              control={<Switch checked={attack.modifiers.disabledParry} name="disabledParry" />}
+              label="Disabled Parry"
+            />
           </Grid>
           <Grid size={12}></Grid>
         </>

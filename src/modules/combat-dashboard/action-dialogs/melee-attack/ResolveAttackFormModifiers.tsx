@@ -39,9 +39,6 @@ const ResolveAttackFormModifiers: FC<{
   const ambush = modifiers?.ambush || false;
   const target = actorRounds.find((actorRound) => actorRound.actorId === modifiers?.targetId);
 
-  const handleChangeEvent = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
-    handleChange(e.target.name, e.target.value);
-
   const handleChange = (name: string, value: string | boolean) => {
     const newAttacks = formData.attacks.map((a, i) =>
       i === index ? { ...a, modifiers: { ...a.modifiers, [name]: value } } : a

@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Stack, Button, Typography, FormControl, FormLabel } from '@mui/material';
+import { Stack, Button, FormControl, FormLabel } from '@mui/material';
 
 const SelectLightModifier: FC<{
   value: string;
