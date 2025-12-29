@@ -90,7 +90,6 @@ const AttackList: FC<{
         ...selected,
         {
           attackName: attackName,
-          type: 'melee',
           modifiers,
           calculated: undefined,
           roll: undefined,
@@ -114,7 +113,6 @@ const AttackList: FC<{
         ...selected,
         {
           attackName: '',
-          type: 'melee',
           modifiers,
           calculated: undefined,
           roll: undefined,

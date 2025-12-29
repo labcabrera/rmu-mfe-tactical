@@ -54,9 +54,7 @@ const ActionDialog: FC<{
         <DialogContent sx={{ minHeight: '800px' }}>
           {action.actionType === 'movement' && <MovementForm action={action} character={character} onClose={onClose} />}
           {action.actionType === 'melee_attack' && <MeleeAttackForm action={action} actorRound={actorRound} />}
-          {action.actionType === 'ranged_attack' && (
-            <RangedAttackForm action={action} actorRound={actorRound} character={character} />
-          )}
+          {action.actionType === 'ranged_attack' && <RangedAttackForm action={action} actorRound={actorRound} />}
           {action.actionType === 'maneuver' && <ActionManeuverForm action={action} actorRound={actorRound} />}
         </DialogContent>
       ) : (

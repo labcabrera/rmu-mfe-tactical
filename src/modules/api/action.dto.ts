@@ -106,7 +106,6 @@ export type ResolveMovementDto = {
 
 export type ActionAttack = {
   attackName: string;
-  type: 'melee' | 'ranged';
   modifiers: ActionAttackModifiers;
   roll: {
     roll: number | null;

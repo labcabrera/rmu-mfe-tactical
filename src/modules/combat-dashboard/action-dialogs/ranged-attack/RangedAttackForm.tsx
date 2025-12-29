@@ -3,32 +3,39 @@ import { Grid, Typography } from '@mui/material';
 import { t } from 'i18next';
 import { Action, ActionAttack, ActionAttackModifiers, AttackDeclaration } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
-import type { Character } from '../../../api/characters.dto';
 import TargetSelector from '../melee-attack/TargetSelector';
 import RangedAttackModifiersForm from './RangedAttackModifiersForm';
 
 const RangedAttackForm: FC<{
   actorRound: ActorRound;
-  character: Character;
   action: Action;
-}> = ({ actorRound, character, action }) => {
+}> = ({ actorRound, action }) => {
   const [formData, setFormData] = React.useState<AttackDeclaration>({ attacks: [], parries: [] });
 
   const selected = formData.attacks || [];
 
-  const findAttack = (attackName: string) => selected.find((a) => a.modifiers.attackName === attackName);
+  const findAttack = (attackName: string) => selected.find((a) => a.attackName === attackName);
 
   const handleTargetChange = (attackName: string, targetId: string | null) => {
     const exists = findAttack(attackName);
     let newSelected: ActionAttack[];
     if (exists) {
       newSelected = selected.map((a) =>
-        a.modifiers.attackName === attackName ? { ...a, modifiers: { ...a.modifiers, targetId } } : a
+        a.attackName === attackName ? { ...a, modifiers: { ...a.modifiers, targetId } } : a
       );
     } else {
       const baseBo = (actorRound.attacks || []).find((a: any) => a.attackName === attackName)?.currentBo || 0;
-      const modifiers = { attackName, targetId, bo: baseBo } as ActionAttackModifiers;
-      newSelected = [...selected, { modifiers, calculated: undefined, roll: undefined, results: undefined }];
+      const modifiers = { targetId, bo: baseBo } as ActionAttackModifiers;
+      newSelected = [
+        ...selected,
+        {
+          attackName: attackName,
+          modifiers,
+          calculated: undefined,
+          roll: undefined,
+          results: undefined,
+        },
+      ];
     }
     setFormData({ ...formData, attacks: newSelected });
   };
@@ -42,8 +49,7 @@ const RangedAttackForm: FC<{
       {actorRound.attacks.map((attack, index) => {
         const existing = findAttack(attack.attackName);
         const modifiers =
-          existing?.modifiers ??
-          ({ attackName: attack.attackName, targetId: null, bo: attack.currentBo || 0 } as ActionAttackModifiers);
+          existing?.modifiers ?? ({ targetId: null, bo: attack.currentBo || 0 } as ActionAttackModifiers);
 
         return (
           <div key={index}>
@@ -67,7 +73,7 @@ const RangedAttackForm: FC<{
                   attack={attack}
                   formData={formData}
                   setFormData={setFormData}
-                  index={selected.findIndex((a) => a.modifiers.attackName === attack.attackName)}
+                  index={selected.findIndex((a) => a.attackName === attack.attackName)}
                 />
               </div>
             )}
