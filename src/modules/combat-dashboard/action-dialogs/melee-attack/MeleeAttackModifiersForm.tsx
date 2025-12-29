@@ -34,10 +34,12 @@ const MeleeAttackModifiersForm: FC<{
   const target = actorRounds.find((actorRound) => actorRound.actorId === modifiers?.targetId);
 
   const handleChange = (name: string, value: string | boolean) => {
-    const newAttacks = formData.attacks.map((a, i) =>
-      i === index ? { ...a, modifiers: { ...a.modifiers, [name]: value } } : a
-    );
-    setFormData({ ...formData, attacks: newAttacks });
+    setFormData((prev) => {
+      const newAttacks = prev.attacks.map((a, i) =>
+        i === index ? { ...a, modifiers: { ...a.modifiers, [name]: value } } : a
+      );
+      return { ...prev, attacks: newAttacks } as AttackDeclaration;
+    });
   };
 
   const onCustomBonusChange = (value: number | null) => {
@@ -66,33 +68,30 @@ const MeleeAttackModifiersForm: FC<{
     setFormData({ ...formData, attacks: newAttacks });
   };
 
-  const handlePositionalTarget = (value: string) => {
+  /**
+   * In the event of multiple attacks with the same target, propagate the changes to all attacks.
+   * @param fieldName
+   * @returns
+   */
+  const createPropagatingHandler = (fieldName: string) => (value: string | boolean) => {
     const currentTargetId = modifiers?.targetId;
     if (!currentTargetId) {
-      handleChange('positionalTarget', value);
+      handleChange(fieldName, value);
       return;
     }
     setFormData((prev) => {
       const newAttacks = prev.attacks?.map((a) =>
-        a.modifiers?.targetId === currentTargetId ? { ...a, modifiers: { ...a.modifiers, positionalTarget: value } } : a
+        a.modifiers?.targetId === currentTargetId ? { ...a, modifiers: { ...a.modifiers, [fieldName]: value } } : a
       );
-      return { ...prev, attacks: newAttacks };
+      return { ...prev, attacks: newAttacks } as AttackDeclaration;
     });
   };
 
-  const handlePositionalSource = (value: string) => {
-    const currentTargetId = modifiers?.targetId;
-    if (!currentTargetId) {
-      handleChange('positionalSource', value);
-      return;
-    }
-    setFormData((prev) => {
-      const newAttacks = prev.attacks?.map((a) =>
-        a.modifiers?.targetId === currentTargetId ? { ...a, modifiers: { ...a.modifiers, positionalSource: value } } : a
-      );
-      return { ...prev, attacks: newAttacks };
-    });
-  };
+  const handlePositionalTarget = createPropagatingHandler('positionalTarget');
+  const handlePositionalSource = createPropagatingHandler('positionalSource');
+  const handleCoverChange = createPropagatingHandler('cover');
+  const handleRestrictedQuartersChange = createPropagatingHandler('restrictedQuarters');
+  const handleDodgeChange = createPropagatingHandler('dodge');
 
   return (
     <Grid container spacing={2} sx={{ marginTop: 1, marginBottom: 1 }}>
@@ -106,16 +105,16 @@ const MeleeAttackModifiersForm: FC<{
         <SelectPositionalSource value={positionalSource} onChange={(e) => handlePositionalSource(e)} />
       </Grid>
       <Grid size={12}>
-        <SelectMeleeCover value={cover} onChange={(e) => handleChange('cover', e)} />
+        <SelectMeleeCover value={cover} onChange={(e) => handleCoverChange(e)} />
       </Grid>
       <Grid size={12}>
-        <SelectRestrictedQuarters value={restrictedQuarters} onChange={(e) => handleChange('restrictedQuarters', e)} />
+        <SelectRestrictedQuarters value={restrictedQuarters} onChange={(e) => handleRestrictedQuartersChange(e)} />
       </Grid>
       <Grid size={12}>
         <SelectCalledShot value={modifiers.calledShot || ''} onChange={onCalledShotChange} />
       </Grid>
       <Grid size={12}>
-        <SelectDodge value={dodge} onChange={(e) => handleChange('dodge', e)} />
+        <SelectDodge value={dodge} onChange={(e) => handleDodgeChange(e)} />
       </Grid>
       <Grid size={12}>
         <MeleeAttackDefensiveOptions index={index} formData={formData} setFormData={setFormData} />

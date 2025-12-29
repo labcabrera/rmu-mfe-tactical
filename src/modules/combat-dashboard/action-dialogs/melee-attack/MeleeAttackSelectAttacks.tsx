@@ -25,21 +25,42 @@ const AttackList: FC<{
   actorRound: ActorRound;
   character: Character;
 }> = ({ formData, setFormData, actorRound }) => {
+  const { actorRounds, roundActions } = useContext(CombatContext);
   const selected = formData.attacks || [];
-  const { actorRounds } = useContext(CombatContext);
+
+  const paceOrder = ['creep', 'walk', 'jog', 'run', 'sprint', 'dash'];
 
   const findAttack = (attackName: string) => selected.find((a) => a.modifiers.attackName === attackName);
 
-  const findActorRound = (actorId: string) => actorRounds.find((ar) => ar.actorId === actorId);
+  const findActorRound = (actorId: string): ActorRound => actorRounds.find((ar) => ar.actorId === actorId)!;
 
   const hasStatus = (actorRound: ActorRound, status: string): boolean => {
     return actorRound.effects?.some((se: any) => se.status === status);
+  };
+
+  const findSourceMaxPace = (): string => {
+    const actions = (roundActions || []).filter(
+      (ra) => ra.actorId === actorRound.actorId && ra.actionType === 'movement'
+    );
+    if (!actions || actions.length === 0) return 'none';
+    // collect pace values from movement actions
+    const paces = actions
+      .map((a) => a.movement?.modifiers?.pace)
+      .filter((p): p is string => typeof p === 'string' && p !== '');
+    if (paces.length === 0) return 'none';
+    // keep only known paces and order by paceOrder (higher index = faster)
+    const valid = Array.from(new Set(paces)).filter((p) => paceOrder.includes(p));
+    if (valid.length === 0) return paces[0];
+
+    valid.sort((a, b) => paceOrder.indexOf(b) - paceOrder.indexOf(a));
+    return valid[0];
   };
 
   const handleTargetChange = (attackName: string, targetId: string | null) => {
     const normalizedTargetId = targetId === '' ? null : targetId;
     const target = findActorRound(normalizedTargetId);
     const exists = findAttack(attackName);
+    const maxTargetPace = findSourceMaxPace();
     let newSelected: ActionAttack[];
     if (exists && target) {
       const hasShield = false; // derive from target when available (placeholder)
@@ -47,6 +68,7 @@ const AttackList: FC<{
       const isStunned = hasStatus(target, 'stunned');
       const isSurprised = hasStatus(target, 'surprised');
       const isOffHand = attackName === 'offHand';
+      const pace = maxTargetPace;
       newSelected = selected.map((a) =>
         a.modifiers.attackName === attackName
           ? {
@@ -59,6 +81,7 @@ const AttackList: FC<{
                 surprisedFoe: isSurprised,
                 proneTarget: isProne,
                 offHand: isOffHand,
+                pace: pace,
               },
             }
           : a

@@ -6,6 +6,7 @@ export type Pace = {
   id: string;
   multiplier: number;
   bonus: number | undefined;
+  label: string;
 };
 
 const SelectPace: FC<{
@@ -17,12 +18,12 @@ const SelectPace: FC<{
   const labelId = 'select-pace-label';
 
   const codes: Pace[] = [
-    { id: 'creep', multiplier: 1 / 8, bonus: 0 },
-    { id: 'walk', multiplier: 1 / 4, bonus: -25 },
-    { id: 'jog', multiplier: 1 / 2, bonus: -50 },
-    { id: 'run', multiplier: 3 / 4, bonus: -75 },
-    { id: 'sprint', multiplier: 1, bonus: undefined },
-    { id: 'dash', multiplier: 1.25, bonus: undefined },
+    { id: 'creep', multiplier: 1 / 8, bonus: 0, label: 'x1/2' },
+    { id: 'walk', multiplier: 1 / 4, bonus: -25, label: 'x1' },
+    { id: 'jog', multiplier: 1 / 2, bonus: -50, label: 'x2' },
+    { id: 'run', multiplier: 3 / 4, bonus: -75, label: 'x3' },
+    { id: 'sprint', multiplier: 1, bonus: undefined, label: 'x4' },
+    { id: 'dash', multiplier: 1.25, bonus: undefined, label: 'x5' },
   ];
 
   const optionsToShow = combatOptions ? codes.slice(0, 4) : codes;
@@ -33,13 +34,14 @@ const SelectPace: FC<{
   };
 
   const badgeContent = (option: Pace): string | undefined => {
-    if (option.bonus === undefined) return undefined;
+    if (!combatOptions) return option.label;
+    if (!combatOptions || option.bonus === undefined) return undefined;
     if (option.bonus === 0) return '+0';
     return `${option.bonus}`;
   };
 
   const badgeColor = (option: Pace): 'error' | 'secondary' => {
-    if (option.bonus === undefined) return 'secondary';
+    if (!combatOptions || option.bonus === undefined) return 'secondary';
     return option.bonus < 0 ? 'error' : 'secondary';
   };
 
@@ -48,7 +50,7 @@ const SelectPace: FC<{
       <FormLabel id={labelId} component="legend" sx={{ mb: 1, typography: 'body1' }}>
         {t('pace')}
       </FormLabel>
-      <Stack direction="row" spacing={combatOptions ? 3 : 1} sx={{ flexWrap: 'wrap' }}>
+      <Stack direction="row" spacing={3} sx={{ flexWrap: 'wrap' }}>
         {optionsToShow.map((option) => {
           const selected = option.id === value;
           return (
