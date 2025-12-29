@@ -7,6 +7,8 @@ export type ActionStatus =
   | 'pending_apply'
   | 'completed';
 
+export type ActionType = 'movement' | 'melee_attack' | 'ranged_attack' | 'maneuver' | 'skill' | 'free';
+
 export type AttackDeclaration = {
   attacks: ActionAttack[];
   parries: ActionParry[] | undefined;
@@ -38,13 +40,13 @@ export type ActionMovementCalculated = {
   description: string;
 };
 
-export type RollModifier = {
+export type KeyValueModifier = {
   key: string;
   value: number;
 };
 
 export type ActionRoll = {
-  modifiers?: RollModifier[];
+  modifiers?: KeyValueModifier[];
   roll: number | null;
   totalRoll?: number;
 };
@@ -55,17 +57,39 @@ export type ActionMovement = {
   calculated?: ActionMovementCalculated;
 };
 
+export type ActionManeuverModifiers = {
+  skillId: string | null;
+  maneuverType: string | null;
+  difficulty: string | null;
+  lightModifier: string | null;
+  light: string | null;
+  customModifier: number | null;
+};
+
+export type ActionManeuverResult = {
+  result: string;
+  message: string;
+};
+
+export type ActionManeuver = {
+  modifiers: ActionManeuverModifiers;
+  roll: ActionRoll | undefined;
+  result: ActionManeuverResult | undefined;
+};
+
 export type Action = {
   id: string;
   gameId: string;
   actorId: string;
   round: number;
-  actionType: 'movement' | 'melee-attack' | 'ranged-attack' | 'skill' | 'free';
+  actionType: ActionType;
+  freeAction: boolean;
   phaseStart: number;
   phaseEnd: number | undefined;
   status: ActionStatus;
   actionPoints: number | undefined;
   movement: ActionMovement | undefined;
+  maneuver: ActionManeuver | undefined;
   attacks: ActionAttack[] | undefined;
   parries: ActionParry[] | undefined;
   fatigue: number | undefined;
@@ -101,6 +125,14 @@ export type ActionAttackModifiers = {
   restrictedQuarters?: string;
   positionalSource?: string;
   positionalTarget?: string;
+  pace?: string;
+  higherGround?: boolean;
+  stunnedFoe?: boolean;
+  surprisedFoe?: boolean;
+  proneSource?: boolean;
+  proneTarget?: boolean;
+  attackerInMelee?: boolean;
+  ambush?: boolean;
   dodge?: string;
   range?: number | null;
   disabledDB: boolean | null;

@@ -30,13 +30,15 @@ const ResolveAttackFormModifiers: FC<{
                 </Typography>
               </Grid>
               <Grid size={2}>
-                <TextField label={t('defending-with')} value={t(getActorName(parry.actorId))} name="actorId" variant="standard" />
+                <TextField
+                  label={t('defending-with')}
+                  value={t(getActorName(parry.actorId))}
+                  name="actorId"
+                  variant="standard"
+                />
               </Grid>
               <Grid size={2}>
                 <TextField label={t('parry-type')} value={t(parry.parryType)} name="parryType" variant="standard" />
-              </Grid>
-              <Grid size={2}>
-                <TextField label={t('attack-name')} value={t(parry.targetAttackName)} name="targetAttackName" variant="standard" />
               </Grid>
               <Grid size={2}>
                 <NumericReadonlyInput label={t('available-parry')} value={parry.parryAvailable} name="availableParry" />

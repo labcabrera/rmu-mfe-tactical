@@ -7,7 +7,7 @@ import { CombatContext } from '../../../CombatContext';
 import type { Action } from '../../api/action.dto';
 import type { ActorRound } from '../../api/actor-rounds.dto';
 import ActionDialog from '../action-dialogs/ActionDialog';
-import DeclareActionDialog from './DeclareActionDialog';
+import DeclareActionDialog from '../action-dialogs/DeclareActionDialog';
 
 type ActorActionsProps = {
   actorId: string;
@@ -69,6 +69,13 @@ const ActorActions: FC<ActorActionsProps> = ({ actorId, phases = 4, currentPhase
   const gap = 8;
   const declareHeight = 36; // px for declare button row
 
+  const getActionName = (action: Action) => {
+    if (action.maneuver) {
+      return t(action.maneuver?.modifiers?.skillId || 'maneuver');
+    }
+    return t(action.actionType);
+  };
+
   return (
     <>
       <Box sx={{ width: '100%' }}>
@@ -122,7 +129,7 @@ const ActorActions: FC<ActorActionsProps> = ({ actorId, phases = 4, currentPhase
                     },
                   }}
                 >
-                  {t(p.action.actionType)}
+                  {getActionName(p.action)}
                 </Button>
               </Box>
             );

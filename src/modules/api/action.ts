@@ -45,8 +45,23 @@ export async function deleteAction(actionId: string): Promise<boolean> {
   return true;
 }
 
-export async function resolveMovement(actionId: string, data: any): Promise<any> {
+export async function resolveMovement(actionId: string, data: any): Promise<Action> {
   const url = `${process.env.RMU_API_TACTICAL_URL}/actions/${actionId}/movement/resolve`;
+  const response = await fetch(url, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+  if (response.status !== 200) {
+    throw await buildErrorFromResponse(response, url);
+  }
+  return await response.json();
+}
+
+export async function resolveManeuver(actionId: string, data: any): Promise<Action> {
+  const url = `${process.env.RMU_API_TACTICAL_URL}/actions/${actionId}/maneuver/resolve`;
   const response = await fetch(url, {
     method: 'PATCH',
     headers: {
@@ -93,7 +108,12 @@ export async function declareParry(actionId: string, data: ParryDeclaration): Pr
   return await response.json();
 }
 
-export async function updateAttackRoll(actionId: string, attackName: string, roll: number, location: string | undefined): Promise<Action> {
+export async function updateAttackRoll(
+  actionId: string,
+  attackName: string,
+  roll: number,
+  location: string | undefined
+): Promise<Action> {
   const url = `${process.env.RMU_API_TACTICAL_URL}/actions/${actionId}/attack/roll`;
   const response = await fetch(url, {
     method: 'PATCH',
@@ -108,7 +128,12 @@ export async function updateAttackRoll(actionId: string, attackName: string, rol
   return await response.json();
 }
 
-export async function updateCriticalRoll(actionId: string, attackName: string, criticalKey: string, roll: number): Promise<Action> {
+export async function updateCriticalRoll(
+  actionId: string,
+  attackName: string,
+  criticalKey: string,
+  roll: number
+): Promise<Action> {
   const url = `${process.env.RMU_API_TACTICAL_URL}/actions/${actionId}/attack/critical-roll`;
   const response = await fetch(url, {
     method: 'PATCH',

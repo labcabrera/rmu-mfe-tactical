@@ -7,12 +7,11 @@ import { ActorRound } from '../../../api/actor-rounds.dto';
 import type { Character } from '../../../api/characters';
 import ResolveActionDialogMovementStepper from './ResolveAttackStepper';
 
-const ActionAttack: FC<{
+const ActionMeleeAttackForm: FC<{
   action: Action;
   actorRound: ActorRound;
   character: Character;
-  onClose: () => void;
-}> = ({ action, actorRound, character, onClose }) => {
+}> = ({ action, actorRound, character }) => {
   const { refreshActorRounds, updateAction } = useContext(CombatContext);
   const [activeStep, setActiveStep] = useState<number>(action.status === 'declared' ? 0 : 1);
   const { showError } = useError();
@@ -21,6 +20,21 @@ const ActionAttack: FC<{
     attacks: [],
     parries: [],
   });
+
+  const applyCurrentBoToAttacks = (attacks?: AttackDeclaration['attacks']) => {
+    if (!attacks || !actorRound || !(actorRound as any).attacks) return attacks || [];
+    return attacks.map((a) => {
+      try {
+        const attackName = a?.modifiers?.attackName;
+        const baseBo = (actorRound as any).attacks.find((at: any) => at.attackName === attackName)?.currentBo ?? 0;
+        const bo = a?.modifiers?.bo ?? baseBo;
+        return { ...a, modifiers: { ...a.modifiers, bo } };
+      } catch (e) {
+        console.error('Error applying current BO to attack', e);
+        return a;
+      }
+    });
+  };
 
   const onDeclare = () => {
     if (!formData || !formData.attacks || formData.attacks.length < 1) {
@@ -69,7 +83,7 @@ const ActionAttack: FC<{
 
   const loadActionFromResponse = (updatedAction: Action) => {
     updateAction(updatedAction);
-    setFormData({ attacks: updatedAction.attacks, parries: updatedAction.parries });
+    setFormData({ attacks: applyCurrentBoToAttacks(updatedAction.attacks), parries: updatedAction.parries });
   };
 
   const checkValidForm = (): boolean => {
@@ -80,7 +94,7 @@ const ActionAttack: FC<{
 
   useEffect(() => {
     if (action && action.attacks) {
-      setFormData({ attacks: action.attacks, parries: action.parries });
+      setFormData({ attacks: applyCurrentBoToAttacks(action.attacks), parries: action.parries });
     }
     if (action && action.status) {
       switch (action.status) {
@@ -107,7 +121,6 @@ const ActionAttack: FC<{
         actorRound={actorRound}
         character={character}
         action={action}
-        onClose={onClose}
         onDeclare={onDeclare}
         onParry={onParry}
         onApply={onApply}
@@ -119,4 +132,4 @@ const ActionAttack: FC<{
   );
 };
 
-export default ActionAttack;
+export default ActionMeleeAttackForm;

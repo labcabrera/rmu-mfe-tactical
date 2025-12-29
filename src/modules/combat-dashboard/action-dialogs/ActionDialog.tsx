@@ -10,8 +10,10 @@ import { deleteAction } from '../../api/action';
 import { Action } from '../../api/action.dto';
 import { ActorRound } from '../../api/actor-rounds.dto';
 import { Character } from '../../api/characters';
-import ActionAttack from './attack/ActionAttack';
-import ActionMovement from './movement/ActionMovement';
+import ActionManeuverForm from './maneuver/ActionManeuverForm';
+import ActionMeleeAttackForm from './melee-attack/ActionMeleeAttackForm';
+import ActionMovementForm from './movement/ActionMovementForm';
+import RangedAttackForm from './ranged-attack/RangedAttackForm';
 
 const ActionDialog: FC<{
   action: Action;
@@ -51,10 +53,16 @@ const ActionDialog: FC<{
       {!deleting ? (
         <DialogContent>
           {action.actionType === 'movement' && (
-            <ActionMovement action={action} character={character} onClose={onClose} />
+            <ActionMovementForm action={action} character={character} onClose={onClose} />
           )}
-          {action.actionType === 'melee-attack' && (
-            <ActionAttack action={action} actorRound={actorRound} character={character} onClose={onClose} />
+          {action.actionType === 'melee_attack' && (
+            <ActionMeleeAttackForm action={action} actorRound={actorRound} character={character} />
+          )}
+          {action.actionType === 'ranged_attack' && (
+            <RangedAttackForm action={action} actorRound={actorRound} character={character} />
+          )}
+          {action.actionType === 'maneuver' && (
+            <ActionManeuverForm action={action} actorRound={actorRound} character={character} />
           )}
         </DialogContent>
       ) : (

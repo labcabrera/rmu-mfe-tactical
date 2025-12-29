@@ -1,5 +1,6 @@
-import React, { FC, useContext, useEffect, useState } from 'react';
+import React, { Dispatch, FC, SetStateAction, useContext, useEffect, useState } from 'react';
 import { Button, Chip, Grid, Stack, Typography } from '@mui/material';
+import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { useError } from '../../../../ErrorContext';
 import { resolveMovement } from '../../../api/action';
@@ -7,16 +8,16 @@ import { Action, ActionMovement } from '../../../api/action.dto';
 import type { Character } from '../../../api/characters';
 import type { StrategicGame } from '../../../api/strategic-games';
 import type { TacticalGame } from '../../../api/tactical-games';
-import RollModifiersView from '../../../shared/generic/RollModifiersView';
+import KeyValueModifiersView from '../../../shared/generic/KeyValueModifiersView';
 import { NumericInput } from '../../../shared/inputs/NumericInput';
 import SelectBoolean from '../../../shared/selects/SelectBoolean';
 import SelectDifficulty from '../../../shared/selects/SelectDifficulty';
 import SelectMovementSkill from '../../../shared/selects/SelectMovementSkill';
 import SelectPace, { Pace } from '../../../shared/selects/SelectPace';
 
-const ResolveMovementForm: FC<{
+const ActionMovementModifiersForm: FC<{
   formData: ActionMovement;
-  setFormData: (data: ActionMovement) => void;
+  setFormData: Dispatch<SetStateAction<ActionMovement>>;
   character: Character;
   game: TacticalGame;
   strategicGame: StrategicGame;
@@ -159,8 +160,9 @@ const ResolveMovementForm: FC<{
           onClick={onResolve}
           disabled={!formData.modifiers.pace || (formData.modifiers.requiredManeuver && !formData.roll)}
           variant="contained"
+          color="success"
         >
-          Resolve
+          {t('resolve')}
         </Button>
       )}
       {action.movement && action.movement.calculated && (
@@ -194,20 +196,20 @@ const ResolveMovementForm: FC<{
                 <Stack direction="row" spacing={1} mt={1} mb={1}>
                   <Chip label={`Total: ${action.movement.roll.totalRoll}`} />
                 </Stack>
-                <RollModifiersView modifiers={formData.roll.modifiers || []} />
+                <KeyValueModifiersView modifiers={formData.roll.modifiers || []} />
               </Grid>
             </>
           )}
         </>
       )}
-      {/* <Grid size={12}>
+      <Grid size={12}>
         <pre>{JSON.stringify(formData, null, 2)}</pre>
       </Grid>
       <Grid size={12}>
         <pre>{JSON.stringify(action, null, 2)}</pre>
-      </Grid> */}
+      </Grid>
     </Grid>
   );
 };
 
-export default ResolveMovementForm;
+export default ActionMovementModifiersForm;

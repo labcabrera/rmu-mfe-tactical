@@ -4,18 +4,20 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
-  DialogContentText,
   DialogTitle,
   Grid,
   TextField,
   FormControlLabel,
   FormControl,
+  FormLabel,
   Switch,
 } from '@mui/material';
 import { CombatContext } from '../../../CombatContext';
 import { useError } from '../../../ErrorContext';
 import { createAction } from '../../api/action';
 import { ActorRound } from '../../api/actor-rounds.dto';
+import SelectManeuverType from '../../shared/selects/SelectManeuverType';
+import SelectSkillByCategory from '../../shared/selects/SelectSkillByCategory';
 
 const DeclareActionDialog: FC<{
   actorRound: ActorRound;
@@ -32,13 +34,26 @@ const DeclareActionDialog: FC<{
     pace: (actorRound as any).movementMode ?? null,
     phaseStart: phaseNumber,
     attackNames: null as string[] | null,
+    maneuver: {
+      skillId: null as string | null,
+      maneuverType: null as string | null,
+    },
   });
-  //const [meleeType, setMeleeType] = useState<'one' | 'two'>('one');
   const [otherDetails, setOtherDetails] = useState<string>('');
   const { roundActions, setRoundActions } = useContext(CombatContext)!;
 
   const handleClose = () => {
     setOpen(false);
+  };
+
+  const isDisabled = (option: string) => {
+    if (option === 'cast_spell' || option === 'cast_instant') {
+      return true;
+    }
+    if (option === 'ranged_attack') {
+      return actorRound.attacks.some((attack) => attack.type === 'ranged') ? false : true;
+    }
+    return false;
   };
 
   const handleSelectAction = (opt: { key: string; freeAction?: boolean }) => {
@@ -49,14 +64,22 @@ const DeclareActionDialog: FC<{
       freeAction: !!opt.freeAction,
       phaseStart: phaseNumber,
     } as any;
-    // Include selected attacks when melee-attack (store names)
-    if (opt.key === 'melee-attack') {
+
+    if (opt.key === 'melee_attack') {
       if (actorRound.attacks && actorRound.attacks.length > 0) {
         base.attackNames = actorRound.attacks.map((a: any) => a.attackName);
       } else {
         base.attackNames = [];
       }
     }
+
+    if (opt.key === 'maneuver') {
+      base.maneuver = {
+        skillId: null,
+        maneuverType: 'absolute',
+      };
+    }
+
     setActionForm(base);
   };
 
@@ -73,33 +96,77 @@ const DeclareActionDialog: FC<{
     <Dialog open={open} onClose={handleClose} maxWidth="xl" fullWidth>
       <DialogTitle>{actorRound.actorName} action declaration</DialogTitle>
       <DialogContent>
-        <DialogContentText>Action type</DialogContentText>
-
-        <Grid container spacing={1} sx={{ mt: 1 }}>
-          {[
-            { key: 'movement', label: 'Movement', freeAction: false },
-            { key: 'melee-attack', label: 'Melee attack', freeAction: false },
-            { key: 'ranged-attack', label: 'Ranged attack', freeAction: false },
-            { key: 'draw-and-load', label: 'Draw and load ammo', freeAction: false },
-            { key: 'partial-dodge', label: 'Partial dodge', freeAction: false },
-            { key: 'full-dodge', label: 'Full dodge', freeAction: false },
-            { key: 'perception', label: 'Perception', freeAction: true },
-            { key: 'stand-up', label: 'Stand up', freeAction: false },
-            { key: 'drop-item', label: 'Drop item', freeAction: true },
-            { key: 'static_maneuver', label: 'Static maneuver', freeAction: true },
-            { key: 'movement_maneuver', label: 'Movement maneuver', freeAction: false },
-            { key: 'cast-spell', label: 'Cast spell', freeAction: true },
-            { key: 'cast-instant', label: 'Cast instant', freeAction: true },
-            { key: 'other', label: 'Other', freeAction: false },
-          ].map((opt) => (
-            <Grid key={opt.key}>
-              <Button
-                variant={actionForm.actionType === opt.key ? 'contained' : 'outlined'}
-                onClick={() => handleSelectAction(opt)}
-              >
-                {opt.label}
-              </Button>
-            </Grid>
+        <Grid container spacing={1} sx={{ mt: 1 }} direction="column">
+          {(
+            [
+              {
+                key: 'movement',
+                title: 'Movement',
+                options: [
+                  { key: 'movement', label: 'Movement', freeAction: true },
+                  { key: 'stand-up', label: 'Stand up', freeAction: false },
+                ],
+              },
+              {
+                key: 'combat',
+                title: 'Combat',
+                options: [
+                  { key: 'melee_attack', label: 'Melee attack', freeAction: false },
+                  { key: 'ranged_attack', label: 'Ranged attack', freeAction: false },
+                  { key: 'draw-and-load', label: 'Draw and load ammo', freeAction: false },
+                  { key: 'partial-dodge', label: 'Partial dodge', freeAction: false },
+                  { key: 'full-dodge', label: 'Full dodge', freeAction: false },
+                ],
+              },
+              {
+                key: 'maneuvers',
+                title: 'Maneuvers',
+                options: [
+                  { key: 'movement_maneuver', label: 'Movement maneuver', freeAction: false },
+                  { key: 'maneuver', label: 'Maneuver', freeAction: true },
+                ],
+              },
+              {
+                key: 'spells',
+                title: 'Spells',
+                options: [
+                  { key: 'cast_spell', label: 'Cast spell', freeAction: true },
+                  { key: 'cast_instant', label: 'Cast instant', freeAction: true },
+                ],
+              },
+              {
+                key: 'other',
+                title: 'Other',
+                options: [
+                  { key: 'perception', label: 'Perception', freeAction: true },
+                  { key: 'drop-item', label: 'Drop item', freeAction: true },
+                  { key: 'other', label: 'Other', freeAction: false },
+                ],
+              },
+            ] as Array<{
+              key: string;
+              title: string;
+              options: { key: string; label: string; freeAction?: boolean }[];
+            }>
+          ).map((group) => (
+            <FormControl key={group.key} sx={{ mb: 2, width: '100%' }}>
+              <FormLabel>{group.title}</FormLabel>
+              <Grid container spacing={1} sx={{ mt: 1 }} wrap="wrap" alignItems="stretch">
+                {group.options.map((opt) => (
+                  <Grid key={opt.key}>
+                    <Button
+                      size="large"
+                      fullWidth
+                      variant={actionForm.actionType === opt.key ? 'contained' : 'outlined'}
+                      onClick={() => handleSelectAction(opt)}
+                      disabled={isDisabled(opt.key)}
+                    >
+                      {opt.label}
+                    </Button>
+                  </Grid>
+                ))}
+              </Grid>
+            </FormControl>
           ))}
         </Grid>
 
@@ -119,7 +186,7 @@ const DeclareActionDialog: FC<{
         )}
 
         <div style={{ marginTop: 16 }}>
-          {actionForm.actionType === 'melee-attack' && (
+          {actionForm.actionType === 'melee_attack' && (
             <>
               {/* Show available attacks from actorRound and allow selecting one */}
               {actorRound.attacks && actorRound.attacks.length > 0 && (
@@ -152,6 +219,35 @@ const DeclareActionDialog: FC<{
                   })}
                 </Grid>
               )}
+            </>
+          )}
+
+          {actionForm.actionType === 'maneuver' && (
+            <>
+              <SelectManeuverType
+                value={actionForm.maneuver.maneuverType || ''}
+                onChange={(maneuverType: string): void => {
+                  setActionForm({
+                    ...actionForm,
+                    maneuver: {
+                      ...actionForm.maneuver,
+                      maneuverType,
+                    },
+                  });
+                }}
+              />
+              <SelectSkillByCategory
+                value={actionForm.maneuver.skillId || ''}
+                onChange={(skillId: string): void => {
+                  setActionForm({
+                    ...actionForm,
+                    maneuver: {
+                      ...actionForm.maneuver,
+                      skillId,
+                    },
+                  });
+                }}
+              />
             </>
           )}
 

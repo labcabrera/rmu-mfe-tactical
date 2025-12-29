@@ -2,14 +2,14 @@ import React, { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Stack, Button, Typography } from '@mui/material';
 
-const SelectMovementSkill: FC<{
+const SelectManeuverType: FC<{
   value: string;
   onChange: (value: string) => void;
   readOnly?: boolean;
 }> = ({ value, onChange, readOnly = false }) => {
   const { t } = useTranslation();
 
-  const codes: string[] = ['running', 'swimming', 'climbing', 'flying'];
+  const options: string[] = ['absolute', 'percent'];
 
   const handleClick = (option: string) => {
     if (readOnly) return;
@@ -19,10 +19,10 @@ const SelectMovementSkill: FC<{
   return (
     <div>
       <Typography variant="caption" sx={{ display: 'block', mb: 0.5 }}>
-        {t('skill')}
+        {t('distance')}
       </Typography>
       <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
-        {codes.map((option) => {
+        {options.map((option) => {
           const selected = option === value;
           return (
             <Button
@@ -42,4 +42,4 @@ const SelectMovementSkill: FC<{
   );
 };
 
-export default SelectMovementSkill;
+export default SelectManeuverType;
