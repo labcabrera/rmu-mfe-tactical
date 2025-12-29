@@ -1,10 +1,10 @@
 import React, { Dispatch, FC, SetStateAction } from 'react';
-import { Badge, FormControl, FormLabel, Grid, Stack, Typography } from '@mui/material';
+import { Badge, FormControl, FormLabel, Grid, Stack } from '@mui/material';
 import { t } from 'i18next';
 import { AttackDeclaration } from '../../../api/action.dto';
 import ToggleButton from '../../../shared/buttons/ToggleButton';
 
-const RangedAttackModifiersSelector: FC<{
+const RangedAttackOptionsForm: FC<{
   formData: AttackDeclaration;
   setFormData: Dispatch<SetStateAction<AttackDeclaration>>;
   index: number;
@@ -21,6 +21,7 @@ const RangedAttackModifiersSelector: FC<{
   const surprisedFoe = modifiers?.surprisedFoe || false;
   const proneSource = modifiers?.proneSource || false;
   const proneTarget = modifiers?.proneTarget || false;
+  const attackerInMelee = modifiers?.attackerInMelee || false;
   const ambush = modifiers?.ambush || false;
 
   return (
@@ -120,6 +121,18 @@ const RangedAttackModifiersSelector: FC<{
                 }}
               />
             </Badge>
+            <Badge badgeContent={'-20'} color={'error'}>
+              <ToggleButton
+                label={'Attacker in melee'}
+                value={attackerInMelee}
+                onChange={(newValue) => {
+                  const newAttacks = formData.attacks.map((a, i) =>
+                    i === index ? { ...a, modifiers: { ...a.modifiers, attackerInMelee: newValue } } : a
+                  );
+                  setFormData({ ...formData, attacks: newAttacks });
+                }}
+              />
+            </Badge>
             <ToggleButton
               label={'Ambush'}
               value={ambush}
@@ -137,4 +150,4 @@ const RangedAttackModifiersSelector: FC<{
   );
 };
 
-export default RangedAttackModifiersSelector;
+export default RangedAttackOptionsForm;

@@ -29,7 +29,7 @@ const SelectRestrictedQuarters: FC<{
 
   return (
     <FormControl component="fieldset" variant="standard" sx={{ width: '100%' }}>
-      <FormLabel id={labelId} component="legend" sx={{ mb: 2, typography: 'body1' }}>
+      <FormLabel id={labelId} component="legend" sx={{ mb: 1, typography: 'body1' }}>
         {t('restricted-quarters')}
       </FormLabel>
       <Stack role="group" aria-labelledby={labelId} direction="row" spacing={3} sx={{ flexWrap: 'wrap' }}>
@@ -43,7 +43,7 @@ const SelectRestrictedQuarters: FC<{
             >
               <Button
                 key={option.id}
-                size="small"
+                size="large"
                 variant={selected ? 'contained' : 'outlined'}
                 color={selected ? 'primary' : 'inherit'}
                 onClick={() => handleClick(option.id)}

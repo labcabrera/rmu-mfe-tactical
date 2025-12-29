@@ -6,9 +6,9 @@ import { ActorRound } from '../../../api/actor-rounds.dto';
 import type { Character } from '../../../api/characters';
 import BoSelector from '../melee-attack/BoSelector';
 import TargetSelector from '../melee-attack/TargetSelector';
-import ActionRangedAttackModifiersForm from './ActionRangedAttackModifiersForm';
+import RangedAttackModifiersForm from './RangedAttackModifiersForm';
 
-const ActionRangedAttackForm: FC<{
+const RangedAttackForm: FC<{
   actorRound: ActorRound;
   character: Character;
   action: Action;
@@ -85,7 +85,7 @@ const ActionRangedAttackForm: FC<{
 
             {findAttack(attack.attackName) && (
               <div style={{ marginTop: 8 }}>
-                <ActionRangedAttackModifiersForm
+                <RangedAttackModifiersForm
                   attack={attack}
                   formData={formData}
                   setFormData={setFormData}
@@ -101,4 +101,4 @@ const ActionRangedAttackForm: FC<{
   );
 };
 
-export default ActionRangedAttackForm;
+export default RangedAttackForm;

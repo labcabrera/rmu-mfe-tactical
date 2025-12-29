@@ -9,10 +9,10 @@ type ToggleButtonProps = {
   size?: 'small' | 'medium' | 'large';
 };
 
-const ToggleButton: FC<ToggleButtonProps> = ({ label, value, onChange, readOnly = false, size = 'small' }) => {
+const ToggleButton: FC<ToggleButtonProps> = ({ label, value, onChange, readOnly = false, size = 'large' }) => {
   const handleClick = () => {
-    if (readOnly) return;
-    onChange && onChange(!value);
+    if (readOnly || !onChange) return;
+    onChange(!value);
   };
 
   return (

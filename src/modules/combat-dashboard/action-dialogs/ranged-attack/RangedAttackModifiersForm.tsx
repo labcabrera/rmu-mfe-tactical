@@ -9,11 +9,11 @@ import SelectCalledShot from '../../../shared/selects/SelectCalledShot';
 import SelectDodge from '../../../shared/selects/SelectDodge';
 import SelectRestrictedQuarters from '../../../shared/selects/SelectRestrictedQuarters';
 import AttackTitle from '../melee-attack/AttackTitle';
-import ActionRangeSelector from './ActionRangeSelector';
+import AttackRangeSelector from './AttackRangeSelector';
 import RangedAttackCoverSelector from './RangedAttackCoverSelector';
-import RangedAttackModifiersSelector from './RangedAttackModifiersSelector';
+import RangedAttackOptionsForm from './RangedAttackOptionsForm';
 
-const ActionRangedAttackModifiersForm: FC<{
+const RangedAttackModifiersForm: FC<{
   attack: ActorRoundAttack;
   formData: AttackDeclaration;
   setFormData: Dispatch<SetStateAction<AttackDeclaration>>;
@@ -78,7 +78,7 @@ const ActionRangedAttackModifiersForm: FC<{
         <AttackTitle attack={formDataAttack} target={target} />
       </Grid>
       <Grid size={12}>
-        <ActionRangeSelector
+        <AttackRangeSelector
           attack={attack}
           value={modifiers.range || null}
           onChange={onRangeChange}
@@ -98,7 +98,7 @@ const ActionRangedAttackModifiersForm: FC<{
         <SelectCalledShot value={modifiers.calledShot || ''} onChange={onCalledShotChange} />
       </Grid>
       <Grid size={12}>
-        <RangedAttackModifiersSelector formData={formData} setFormData={setFormData} index={0} />
+        <RangedAttackOptionsForm formData={formData} setFormData={setFormData} index={0} />
       </Grid>
       <Grid size={2}>
         <NumericInput
@@ -142,4 +142,4 @@ const ActionRangedAttackModifiersForm: FC<{
   );
 };
 
-export default ActionRangedAttackModifiersForm;
+export default RangedAttackModifiersForm;

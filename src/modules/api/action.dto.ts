@@ -131,6 +131,7 @@ export type ActionAttackModifiers = {
   surprisedFoe?: boolean;
   proneSource?: boolean;
   proneTarget?: boolean;
+  attackerInMelee?: boolean;
   ambush?: boolean;
   dodge?: string;
   range?: number | null;

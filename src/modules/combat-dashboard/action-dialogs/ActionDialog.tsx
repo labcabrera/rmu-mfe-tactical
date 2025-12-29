@@ -13,7 +13,7 @@ import { Character } from '../../api/characters';
 import ActionManeuverForm from './maneuver/ActionManeuverForm';
 import ActionMeleeAttackForm from './melee-attack/ActionMeleeAttackForm';
 import ActionMovementForm from './movement/ActionMovementForm';
-import ActionRangedAttackForm from './ranged-attack/ActionRangedAttackForm';
+import RangedAttackForm from './ranged-attack/RangedAttackForm';
 
 const ActionDialog: FC<{
   action: Action;
@@ -59,7 +59,7 @@ const ActionDialog: FC<{
             <ActionMeleeAttackForm action={action} actorRound={actorRound} character={character} />
           )}
           {action.actionType === 'ranged_attack' && (
-            <ActionRangedAttackForm action={action} actorRound={actorRound} character={character} />
+            <RangedAttackForm action={action} actorRound={actorRound} character={character} />
           )}
           {action.actionType === 'maneuver' && (
             <ActionManeuverForm action={action} actorRound={actorRound} character={character} />

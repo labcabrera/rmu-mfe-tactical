@@ -1,5 +1,4 @@
 import React, { ChangeEvent, FC } from 'react';
-import { useTranslation } from 'react-i18next';
 import { Stack, Button, FormControl, FormLabel } from '@mui/material';
 import { t } from 'i18next';
 
@@ -39,7 +38,7 @@ const SelectCalledShot: FC<SelectCalledShotProps> = ({
           return (
             <Button
               key={option}
-              size="small"
+              size="large"
               variant={selected ? 'contained' : 'outlined'}
               color={selected ? 'primary' : 'inherit'}
               onClick={() => handleClick(option)}

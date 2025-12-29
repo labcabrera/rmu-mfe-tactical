@@ -1,5 +1,5 @@
 import React, { FC } from 'react';
-import { Stack, Button, Typography, Badge, FormLabel, FormControl } from '@mui/material';
+import { Stack, Button, Badge, FormLabel, FormControl } from '@mui/material';
 import { t } from 'i18next';
 
 type CoverOption = {
@@ -41,7 +41,7 @@ const RangedAttackCoverSelector: FC<{
 
   return (
     <FormControl component="fieldset" variant="standard" sx={{ width: '100%' }}>
-      <FormLabel id={labelId} component="legend" sx={{ mb: 2, typography: 'body1' }}>
+      <FormLabel id={labelId} component="legend" sx={{ mb: 1, typography: 'body1' }}>
         {t('cover')}
       </FormLabel>
       <Stack direction="row" aria-labelledby={labelId} spacing={readOnly ? 1 : 3} sx={{ flexWrap: 'wrap' }}>
@@ -50,7 +50,7 @@ const RangedAttackCoverSelector: FC<{
           return (
             <Badge key={option.value} badgeContent={badgeContent(option)} color={badgeColor(option)}>
               <Button
-                size="small"
+                size="large"
                 variant={selected ? 'contained' : 'outlined'}
                 color={selected ? 'primary' : 'inherit'}
                 onClick={() => handleClick(option)}
