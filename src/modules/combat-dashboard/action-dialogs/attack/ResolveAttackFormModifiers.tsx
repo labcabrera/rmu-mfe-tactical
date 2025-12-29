@@ -80,6 +80,12 @@ const ResolveAttackFormModifiers: FC<{
       <Grid size={12}>
         <AttackTitle attack={attack} target={target} />
       </Grid>
+      <Grid size={12}>
+        <SelectRestrictedQuarters value={restrictedQuarters} onChange={(e) => handleChange('restrictedQuarters', e)} />
+      </Grid>
+      <Grid size={12}>
+        <SelectCalledShot value={modifiers.calledShot || ''} onChange={onCalledShotChange} />
+      </Grid>
       <Grid size={2}>
         <SelectPositionalTarget value={positionalTarget} onChange={handleChangeEvent} />
       </Grid>
@@ -88,12 +94,6 @@ const ResolveAttackFormModifiers: FC<{
       </Grid>
       <Grid size={2}>
         <SelectCover value={cover} onChange={handleChangeEvent} />
-      </Grid>
-      <Grid size={2}>
-        <SelectRestrictedQuarters value={restrictedQuarters} onChange={handleChangeEvent} />
-      </Grid>
-      <Grid size={2}>
-        <SelectCalledShot value={modifiers.calledShot || ''} onChange={onCalledShotChange} />
       </Grid>
       <Grid size={2}>
         <SelectDodge value={dodge} onChange={handleChangeEvent} />

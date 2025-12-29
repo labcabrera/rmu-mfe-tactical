@@ -1,7 +1,6 @@
-import React, { FC, useContext } from 'react';
+import React, { FC } from 'react';
 import { Grid, Typography } from '@mui/material';
 import { t } from 'i18next';
-import { CombatContext } from '../../../../CombatContext';
 import { Action, ActionAttack, ActionAttackModifiers, AttackDeclaration } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
 import type { Character } from '../../../api/characters';
@@ -14,7 +13,6 @@ const ActionRangedAttackForm: FC<{
   character: Character;
   action: Action;
 }> = ({ actorRound, character, action }) => {
-  const { characters } = useContext(CombatContext) as { characters: Character[] };
   const [formData, setFormData] = React.useState<AttackDeclaration>({ attacks: [], parries: [] });
 
   const selected = formData.attacks || [];

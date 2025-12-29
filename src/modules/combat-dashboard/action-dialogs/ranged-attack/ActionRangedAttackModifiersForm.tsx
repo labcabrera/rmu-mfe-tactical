@@ -1,5 +1,5 @@
 import React, { ChangeEvent, Dispatch, FC, SetStateAction, useContext } from 'react';
-import { Grid } from '@mui/material';
+import { Button, Grid } from '@mui/material';
 import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { AttackDeclaration } from '../../../api/action.dto';
@@ -88,42 +88,9 @@ const ActionRangedAttackModifiersForm: FC<{
         <SelectPositionalSource value={positionalSource} onChange={handleChangeEvent} />
       </Grid>
       <Grid size={2}>
-        <SelectCalledShot value={modifiers.calledShot || ''} onChange={onCalledShotChange} />
-      </Grid>
-      <Grid size={2}>
         <SelectDodge value={dodge} onChange={handleChangeEvent} />
       </Grid>
-      <Grid size={2}>
-        <NumericInput
-          label={t('range')}
-          value={range}
-          name="range"
-          onChange={onRangeChange}
-          maxFractionDigits={1}
-          allowNegatives={false}
-        />
-      </Grid>
-      <Grid size={12}></Grid>
-      <Grid size={2}>
-        <NumericInput
-          label={t('custom-bonus')}
-          value={customBonus}
-          name="customBonus"
-          onChange={onCustomBonusChange}
-          integer
-        />
-      </Grid>
-      <Grid size={2}>
-        {modifiers.calledShot && modifiers.calledShot !== 'none' && (
-          <NumericInput
-            label={t('called-shot-penalty')}
-            value={modifiers.calledShotPenalty || null}
-            name="calledShotPenalty"
-            onChange={onCalledShotPenaltyChange}
-            integer
-          />
-        )}
-      </Grid>
+
       <Grid size={12}>
         <SelectRestrictedQuarters value={restrictedQuarters} onChange={(e) => handleChange('restrictedQuarters', e)} />
       </Grid>
@@ -142,7 +109,45 @@ const ActionRangedAttackModifiersForm: FC<{
         />
       </Grid>
       <Grid size={12}>
+        <SelectCalledShot value={modifiers.calledShot || ''} onChange={onCalledShotChange} />
+      </Grid>
+      <Grid size={12}>
         <RangedAttackModifiersSelector formData={formData} setFormData={setFormData} index={0} />
+      </Grid>
+      <Grid size={2}>
+        <NumericInput
+          label={t('custom-bonus')}
+          value={customBonus}
+          name="customBonus"
+          onChange={onCustomBonusChange}
+          integer
+        />
+      </Grid>
+      <Grid size={2}>
+        <Grid size={2}>
+          <NumericInput
+            label={t('range')}
+            value={range}
+            name="range"
+            onChange={onRangeChange}
+            maxFractionDigits={1}
+            allowNegatives={false}
+          />
+        </Grid>
+        {modifiers.calledShot && modifiers.calledShot !== 'none' && (
+          <NumericInput
+            label={t('called-shot-penalty')}
+            value={modifiers.calledShotPenalty || null}
+            name="calledShotPenalty"
+            onChange={onCalledShotPenaltyChange}
+            integer
+          />
+        )}
+      </Grid>
+      <Grid size={12}>
+        <Button variant="outlined" color="secondary" onClick={() => setFormData({ ...formData, attacks: [] })}>
+          Prepare
+        </Button>
       </Grid>
     </Grid>
   );

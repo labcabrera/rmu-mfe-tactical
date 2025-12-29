@@ -1,5 +1,5 @@
 import React, { FC } from 'react';
-import { Stack, Button, Typography, Badge } from '@mui/material';
+import { Stack, Button, Badge, FormControl, FormLabel } from '@mui/material';
 import { t } from 'i18next';
 import { ActorRoundAttack, ActorRoundAttackRange } from '../../../api/actor-rounds.dto';
 
@@ -9,16 +9,18 @@ const ActionRangeSelector: FC<{
   onChange: (value: number | null) => void;
   readOnly?: boolean;
 }> = ({ attack, value, onChange, readOnly = false }) => {
+  const labelId = 'action-range-selector-label';
+
   const handleClick = (opt: ActorRoundAttackRange) => {
     if (readOnly) return;
     onChange(opt.from + (opt.to - opt.from) / 2);
   };
 
   return (
-    <div>
-      <Typography variant="caption" sx={{ display: 'block', mb: 0.5 }}>
+    <FormControl component="fieldset" variant="standard" sx={{ width: '100%' }}>
+      <FormLabel id={labelId} component="legend" sx={{ mb: 1, typography: 'body1' }}>
         {t('range')}
-      </Typography>
+      </FormLabel>
       <Stack direction="row" spacing={readOnly ? 1 : 2} sx={{ flexWrap: 'wrap' }}>
         {attack.ranges!.map((option) => {
           const selected = value && option.from <= value && option.to >= value;
@@ -41,7 +43,7 @@ const ActionRangeSelector: FC<{
           );
         })}
       </Stack>
-    </div>
+    </FormControl>
   );
 };
 

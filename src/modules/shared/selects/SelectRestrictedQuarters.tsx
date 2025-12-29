@@ -29,7 +29,7 @@ const SelectRestrictedQuarters: FC<{
 
   return (
     <FormControl component="fieldset" variant="standard" sx={{ width: '100%' }}>
-      <FormLabel id="select-restricted-quarters-label" component="legend" sx={{ mb: 2, typography: 'body1' }}>
+      <FormLabel id={labelId} component="legend" sx={{ mb: 2, typography: 'body1' }}>
         {t('restricted-quarters')}
       </FormLabel>
       <Stack role="group" aria-labelledby={labelId} direction="row" spacing={3} sx={{ flexWrap: 'wrap' }}>

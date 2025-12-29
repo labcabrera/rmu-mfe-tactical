@@ -1,5 +1,5 @@
 import React, { FC } from 'react';
-import { Stack, Button, Typography, Badge } from '@mui/material';
+import { Stack, Button, Typography, Badge, FormLabel, FormControl } from '@mui/material';
 import { t } from 'i18next';
 
 type CoverOption = {
@@ -7,21 +7,23 @@ type CoverOption = {
   value: number;
 };
 
-const COVER_OPTIONS: CoverOption[] = [
-  { id: 'none', value: 0 },
-  { id: 'soft_partial', value: -20 },
-  { id: 'soft_half', value: -40 },
-  { id: 'soft_full', value: -100 },
-  { id: 'hard_partial', value: -40 },
-  { id: 'hard_half', value: -80 },
-  { id: 'hard_full', value: -200 },
-];
-
 const RangedAttackCoverSelector: FC<{
   value: string;
   onChange: (value: string) => void;
   readOnly?: boolean;
 }> = ({ value, onChange, readOnly = false }) => {
+  const labelId = 'select-restricted-quarters-label';
+
+  const options: CoverOption[] = [
+    { id: 'none', value: 0 },
+    { id: 'soft_partial', value: -20 },
+    { id: 'soft_half', value: -40 },
+    { id: 'soft_full', value: -100 },
+    { id: 'hard_partial', value: -40 },
+    { id: 'hard_half', value: -80 },
+    { id: 'hard_full', value: -200 },
+  ];
+
   const handleClick = (opt: CoverOption) => {
     if (readOnly) return;
     onChange(opt.id);
@@ -38,12 +40,12 @@ const RangedAttackCoverSelector: FC<{
   };
 
   return (
-    <div>
-      <Typography variant="caption" sx={{ display: 'block', mb: 0.5 }}>
+    <FormControl component="fieldset" variant="standard" sx={{ width: '100%' }}>
+      <FormLabel id={labelId} component="legend" sx={{ mb: 2, typography: 'body1' }}>
         {t('cover')}
-      </Typography>
-      <Stack direction="row" spacing={readOnly ? 1 : 3} sx={{ flexWrap: 'wrap' }}>
-        {COVER_OPTIONS.map((option) => {
+      </FormLabel>
+      <Stack direction="row" aria-labelledby={labelId} spacing={readOnly ? 1 : 3} sx={{ flexWrap: 'wrap' }}>
+        {options.map((option) => {
           const selected = option.id === value;
           return (
             <Badge key={option.value} badgeContent={badgeContent(option)} color={badgeColor(option)}>
@@ -60,7 +62,7 @@ const RangedAttackCoverSelector: FC<{
           );
         })}
       </Stack>
-    </div>
+    </FormControl>
   );
 };
 
