@@ -3,7 +3,7 @@ import { FormControl, FormLabel, ToggleButtonGroup, ToggleButton } from '@mui/ma
 import { t } from 'i18next';
 
 type SelectCalledShotProps = {
-  value: string;
+  value?: string;
   onChange: (event: ChangeEvent<HTMLInputElement>) => void;
   name?: string;
   label?: string;
@@ -11,7 +11,7 @@ type SelectCalledShotProps = {
 };
 
 const SelectCalledShot: FC<SelectCalledShotProps> = ({
-  value,
+  value = 'none',
   onChange,
   name = 'calledShot',
   label = 'Called Shot',

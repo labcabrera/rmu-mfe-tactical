@@ -1,5 +1,5 @@
 import React, { FC } from 'react';
-import { Stack, Button, Badge, FormLabel, FormControl, ToggleButtonGroup, ToggleButton } from '@mui/material';
+import { Badge, FormLabel, FormControl, ToggleButtonGroup, ToggleButton } from '@mui/material';
 import { t } from 'i18next';
 
 const SelectRangedCover: FC<{
@@ -46,7 +46,7 @@ const SelectRangedCover: FC<{
               value={option.id}
               onClick={() => handleClick(option)}
               disabled={readOnly}
-              sx={{ minWidth: 120 }}
+              sx={{ minWidth: 140 }}
             >
               {t(`cover-${option.id}`)}
             </ToggleButton>

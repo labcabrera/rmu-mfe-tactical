@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Button, FormControl, FormLabel, ButtonGroup, ToggleButtonGroup, ToggleButton } from '@mui/material';
+import { FormControl, FormLabel, ToggleButtonGroup, ToggleButton } from '@mui/material';
 
 const SelectBoolean: FC<{
   id: string;
