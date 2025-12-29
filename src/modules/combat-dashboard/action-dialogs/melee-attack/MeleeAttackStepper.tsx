@@ -11,7 +11,7 @@ import ResolveAttackTabRoll from './ResolveAttackRoll';
 
 const steps = ['Select targets', 'Choose attack options', 'Declare parry', 'Resolve attacks'];
 
-const ResolveAttackStepper: FC<{
+const MeleeAttackStepper: FC<{
   formData: AttackDeclaration;
   setFormData: Dispatch<SetStateAction<AttackDeclaration>>;
   activeStep: number;
@@ -67,6 +67,7 @@ const ResolveAttackStepper: FC<{
           );
         })}
       </Stepper>
+
       {activeStep === 0 && (
         <Box sx={{ mt: 5 }}>
           <MeleeAttackSelectAttacks
@@ -77,9 +78,13 @@ const ResolveAttackStepper: FC<{
           />
         </Box>
       )}
+
       {activeStep === 1 && <MeleeAttackDeclaration formData={formData} setFormData={setFormData} />}
+
       {activeStep === 2 && <ResolveAttackParry formData={formData} setFormData={setFormData} />}
+
       {activeStep === 3 && <ResolveAttackTabRoll formData={formData} action={action} setFormData={setFormData} />}
+
       <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2, mt: 'auto' }}>
         <Button color="inherit" disabled={activeStep === 0} onClick={handleBack} sx={{ mr: 1 }}>
           {t('back')}
@@ -98,4 +103,4 @@ const ResolveAttackStepper: FC<{
   );
 };
 
-export default ResolveAttackStepper;
+export default MeleeAttackStepper;

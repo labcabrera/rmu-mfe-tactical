@@ -1,5 +1,5 @@
 import React, { FC } from 'react';
-import { Stack, Button, Badge, FormControl, FormLabel } from '@mui/material';
+import { Badge, FormControl, FormLabel, ToggleButtonGroup, ToggleButton } from '@mui/material';
 import { t } from 'i18next';
 
 type DifficultyCode = {
@@ -45,38 +45,27 @@ const SelectDifficulty: FC<{
   };
 
   return (
-    <FormControl component="fieldset" variant="standard" sx={{ width: '100%' }}>
-      <FormLabel id={'difficulty'} component="legend" sx={{ mb: 1.5, typography: 'body1' }}>
+    <FormControl component="fieldset">
+      <FormLabel id={'difficulty'} component="legend" sx={{ mb: 2, typography: 'body1' }}>
         {t('difficulty')}
       </FormLabel>
-      <Stack
-        direction="row"
-        spacing={readOnly ? 1 : 2}
-        sx={{
-          flexWrap: 'wrap',
-          alignContent: 'flex-start',
-          rowGap: 1,
-          columnGap: readOnly ? 1 : 2,
-        }}
-      >
+      <ToggleButtonGroup color="primary" value={value} exclusive>
         {codes.map((option) => {
-          const selected = option.id === value;
           return (
             <Badge badgeContent={badgeContent(option.modifier)} color={badgeColor(option.modifier)} key={option.id}>
-              <Button
-                key={option.id}
+              <ToggleButton
+                value={option.id}
                 size="large"
-                variant={selected ? 'contained' : 'outlined'}
-                color={selected ? 'primary' : 'inherit'}
                 onClick={() => handleClick(option)}
                 disabled={readOnly}
+                sx={{ minWidth: 80 }}
               >
                 {t(option.code)}
-              </Button>
+              </ToggleButton>
             </Badge>
           );
         })}
-      </Stack>
+      </ToggleButtonGroup>
     </FormControl>
   );
 };

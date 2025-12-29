@@ -1,5 +1,5 @@
 import React, { FC } from 'react';
-import { Stack, Button, FormControl, FormLabel } from '@mui/material';
+import { FormControl, FormLabel, ToggleButtonGroup, ToggleButton } from '@mui/material';
 import { t } from 'i18next';
 
 const SelectMovementSkill: FC<{
@@ -17,27 +17,17 @@ const SelectMovementSkill: FC<{
   };
 
   return (
-    <FormControl component="fieldset" variant="standard" sx={{ width: '100%' }}>
+    <FormControl component="fieldset">
       <FormLabel id={labelId} component="legend" sx={{ mb: 1, typography: 'body1' }}>
         {t('skill')}
       </FormLabel>
-      <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
-        {codes.map((option) => {
-          const selected = option === value;
-          return (
-            <Button
-              key={option}
-              size="large"
-              variant={selected ? 'contained' : 'outlined'}
-              color={selected ? 'primary' : 'inherit'}
-              onClick={() => handleClick(option)}
-              disabled={readOnly}
-            >
-              {t(option)}
-            </Button>
-          );
-        })}
-      </Stack>
+      <ToggleButtonGroup aria-label="movement skill" value={value} exclusive>
+        {codes.map((option) => (
+          <ToggleButton value={option} onClick={() => handleClick(option)} disabled={readOnly}>
+            {t(option)}
+          </ToggleButton>
+        ))}
+      </ToggleButtonGroup>
     </FormControl>
   );
 };

@@ -1,5 +1,5 @@
-import React, { FC, useContext } from 'react';
-import { Stack, Button, Badge, FormControl, FormLabel } from '@mui/material';
+import React, { FC, useContext, useEffect, useState } from 'react';
+import { Badge, FormControl, FormLabel, ToggleButtonGroup, ToggleButton } from '@mui/material';
 import { t } from 'i18next';
 import { CombatContext } from '../../../CombatContext';
 import { ActorRoundAttack, ActorRoundAttackRange } from '../../api/actor-rounds.dto';
@@ -12,11 +12,13 @@ const SelectAttackRange: FC<{
 }> = ({ attack, value, onChange, readOnly = false }) => {
   const labelId = 'action-range-selector-label';
 
+  const [index, setIndex] = useState<number | null>(null);
   const { strategicGame } = useContext(CombatContext)!;
 
   const handleClick = (opt: ActorRoundAttackRange) => {
     if (readOnly) return;
-    onChange(opt.from + (opt.to - opt.from) / 2);
+    const mid = opt.from + (opt.to - opt.from) / 2;
+    onChange(mid);
   };
 
   const buttonText = (option: ActorRoundAttackRange): string => {
@@ -35,29 +37,37 @@ const SelectAttackRange: FC<{
     return option.bonus > 0 ? 'success' : 'error';
   };
 
+  useEffect(() => {
+    if (value === null) {
+      setIndex(null);
+      return;
+    }
+    const idx = attack.ranges?.findIndex((r) => r.from <= value && r.to >= value) || null;
+    setIndex(idx);
+  }, [value, attack.ranges]);
+
   return (
-    <FormControl component="fieldset" variant="standard" sx={{ width: '100%' }}>
+    <FormControl component="fieldset">
       <FormLabel id={labelId} component="legend" sx={{ mb: 1, typography: 'body1' }}>
         {t('range')}
       </FormLabel>
-      <Stack direction="row" spacing={readOnly ? 1 : 2} sx={{ flexWrap: 'wrap' }}>
+      <ToggleButtonGroup value={index} exclusive>
         {attack.ranges!.map((option) => {
-          const selected = value && option.from <= value && option.to >= value;
           return (
             <Badge key={`${option.from}-${option.to}`} badgeContent={badgeContent(option)} color={badgeColor(option)}>
-              <Button
-                size="large"
-                variant={selected ? 'contained' : 'outlined'}
-                color={selected ? 'primary' : 'inherit'}
+              <ToggleButton
+                value={index}
                 onClick={() => handleClick(option)}
                 disabled={readOnly}
+                sx={{ minWidth: 140 }}
               >
                 {buttonText(option)}
-              </Button>
+              </ToggleButton>
             </Badge>
           );
         })}
-      </Stack>
+      </ToggleButtonGroup>
+      index: {index}. range: {value}
     </FormControl>
   );
 };

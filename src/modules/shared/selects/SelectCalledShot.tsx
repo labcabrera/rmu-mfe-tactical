@@ -1,5 +1,5 @@
 import React, { ChangeEvent, FC } from 'react';
-import { Stack, Button, FormControl, FormLabel } from '@mui/material';
+import { FormControl, FormLabel, ToggleButtonGroup, ToggleButton } from '@mui/material';
 import { t } from 'i18next';
 
 type SelectCalledShotProps = {
@@ -28,27 +28,17 @@ const SelectCalledShot: FC<SelectCalledShotProps> = ({
   const labelId = `select-called-shot-${name}-label`;
 
   return (
-    <FormControl component="fieldset" variant="standard" sx={{ width: '100%' }}>
+    <FormControl component="fieldset">
       <FormLabel id={labelId} component="legend" sx={{ mb: 1, typography: 'body1' }}>
         {t(label)}
       </FormLabel>
-      <Stack role="group" aria-labelledby={labelId} direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
-        {options.map((option) => {
-          const selected = option === value || (!value && option === 'none');
-          return (
-            <Button
-              key={option}
-              size="large"
-              variant={selected ? 'contained' : 'outlined'}
-              color={selected ? 'primary' : 'inherit'}
-              onClick={() => handleClick(option)}
-              disabled={readOnly}
-            >
-              {t(option)}
-            </Button>
-          );
-        })}
-      </Stack>
+      <ToggleButtonGroup value={value} exclusive>
+        {options.map((option) => (
+          <ToggleButton value={option} onClick={() => handleClick(option)} disabled={readOnly} sx={{ minWidth: 120 }}>
+            {t(option)}
+          </ToggleButton>
+        ))}
+      </ToggleButtonGroup>
     </FormControl>
   );
 };

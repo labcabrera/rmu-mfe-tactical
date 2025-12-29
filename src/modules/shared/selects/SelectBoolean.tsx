@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Stack, Button, FormControl, FormLabel } from '@mui/material';
+import { Button, FormControl, FormLabel, ButtonGroup, ToggleButtonGroup, ToggleButton } from '@mui/material';
 
 const SelectBoolean: FC<{
   id: string;
@@ -12,8 +12,8 @@ const SelectBoolean: FC<{
   const { t } = useTranslation();
 
   const options: { id: boolean; label: string }[] = [
-    { id: true, label: t('yes') },
-    { id: false, label: t('no') },
+    { id: true, label: t('Required maneuver') },
+    { id: false, label: t('Automatic') },
   ];
 
   const handleClick = (val: boolean) => {
@@ -22,27 +22,19 @@ const SelectBoolean: FC<{
   };
 
   return (
-    <FormControl component="fieldset" variant="standard" sx={{ width: '100%' }}>
+    <FormControl component="fieldset">
       <FormLabel id={id} component="legend" sx={{ mb: 1, typography: 'body1' }}>
         {name}
       </FormLabel>
-      <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
+      <ToggleButtonGroup color="standard" value={value} exclusive>
         {options.map((opt) => {
-          const selected = value === opt.id;
           return (
-            <Button
-              key={String(opt.id)}
-              size="large"
-              variant={selected ? 'contained' : 'outlined'}
-              color={selected ? 'primary' : 'inherit'}
-              onClick={() => handleClick(opt.id)}
-              disabled={readOnly}
-            >
+            <ToggleButton value={opt.id} key={String(opt.id)} onClick={() => handleClick(opt.id)} disabled={readOnly}>
               {opt.label}
-            </Button>
+            </ToggleButton>
           );
         })}
-      </Stack>
+      </ToggleButtonGroup>
     </FormControl>
   );
 };

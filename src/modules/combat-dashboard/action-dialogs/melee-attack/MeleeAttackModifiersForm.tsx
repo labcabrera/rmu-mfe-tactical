@@ -73,7 +73,7 @@ const MeleeAttackModifiersForm: FC<{
    * @param fieldName
    * @returns
    */
-  const createPropagatingHandler = (fieldName: string) => (value: string | boolean) => {
+  const handleTargetChange = (fieldName: string) => (value: string | boolean) => {
     const currentTargetId = modifiers?.targetId;
     if (!currentTargetId) {
       handleChange(fieldName, value);
@@ -87,11 +87,23 @@ const MeleeAttackModifiersForm: FC<{
     });
   };
 
-  const handlePositionalTarget = createPropagatingHandler('positionalTarget');
-  const handlePositionalSource = createPropagatingHandler('positionalSource');
-  const handleCoverChange = createPropagatingHandler('cover');
-  const handleRestrictedQuartersChange = createPropagatingHandler('restrictedQuarters');
-  const handleDodgeChange = createPropagatingHandler('dodge');
+  /**
+   * Create a handler that applies the change to ALL attacks regardless of targetId
+   */
+  const handleSharedChange = (fieldName: string) => (value: string | boolean) => {
+    setFormData((prev) => {
+      const newAttacks = prev.attacks?.map((a) => ({ ...a, modifiers: { ...a.modifiers, [fieldName]: value } }));
+      return { ...prev, attacks: newAttacks } as AttackDeclaration;
+    });
+  };
+
+  const handlePositionalTarget = handleTargetChange('positionalTarget');
+  const handlePositionalSource = handleTargetChange('positionalSource');
+  const handleCoverChange = handleTargetChange('cover');
+  const handleDodgeChange = handleTargetChange('dodge');
+
+  const handleRestrictedQuartersChange = handleSharedChange('restrictedQuarters');
+  const handlePaceChange = handleSharedChange('pace');
 
   return (
     <Grid container spacing={2} sx={{ marginTop: 1, marginBottom: 1 }}>
@@ -117,19 +129,10 @@ const MeleeAttackModifiersForm: FC<{
         <SelectDodge value={dodge} onChange={(e) => handleDodgeChange(e)} />
       </Grid>
       <Grid size={12}>
-        <MeleeAttackDefensiveOptions index={index} formData={formData} setFormData={setFormData} />
+        <SelectPace value={pace} combatOptions={true} onChange={(v, p) => handlePaceChange(p?.id || v)} />
       </Grid>
       <Grid size={12}>
-        <SelectPace
-          value={pace}
-          combatOptions={true}
-          onChange={(v, p) => {
-            const newAttacks = formData.attacks.map((a, i) =>
-              i === index ? { ...a, modifiers: { ...a.modifiers, pace: p?.id || '' } } : a
-            );
-            setFormData({ ...formData, attacks: newAttacks });
-          }}
-        />
+        <MeleeAttackDefensiveOptions index={index} formData={formData} setFormData={setFormData} />
       </Grid>
       <Grid size={12}>
         <MeleeAttackOptions index={index} formData={formData} setFormData={setFormData} />

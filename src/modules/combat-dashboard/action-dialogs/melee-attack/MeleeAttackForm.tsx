@@ -5,7 +5,7 @@ import { prepareAttack, declareParry, applyAttack } from '../../../api/action';
 import { Action, AttackDeclaration, ParryDeclaration } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
 import type { Character } from '../../../api/characters';
-import ResolveActionDialogMovementStepper from './ResolveAttackStepper';
+import ResolveActionDialogMovementStepper from './MeleeAttackStepper';
 
 const MeleeAttackForm: FC<{
   action: Action;

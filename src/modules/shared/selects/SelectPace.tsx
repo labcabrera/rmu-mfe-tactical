@@ -1,5 +1,5 @@
 import React, { FC } from 'react';
-import { Stack, Button, FormControl, FormLabel, Badge } from '@mui/material';
+import { Button, FormControl, FormLabel, Badge, ButtonGroup, ToggleButtonGroup, ToggleButton } from '@mui/material';
 import { t } from 'i18next';
 
 export type Pace = {
@@ -46,29 +46,27 @@ const SelectPace: FC<{
   };
 
   return (
-    <FormControl component="fieldset" variant="standard" sx={{ width: '100%' }}>
+    <FormControl component="fieldset">
       <FormLabel id={labelId} component="legend" sx={{ mb: 1, typography: 'body1' }}>
         {t('pace')}
       </FormLabel>
-      <Stack direction="row" spacing={3} sx={{ flexWrap: 'wrap' }}>
+      <ToggleButtonGroup value={value} exclusive>
         {optionsToShow.map((option) => {
-          const selected = option.id === value;
           return (
             <Badge key={option.id} badgeContent={badgeContent(option)} color={badgeColor(option)}>
-              <Button
-                key={option.id}
+              <ToggleButton
+                value={option.id}
                 size="large"
-                variant={selected ? 'contained' : 'outlined'}
-                color={selected ? 'primary' : 'inherit'}
                 onClick={() => handleClick(option)}
                 disabled={readOnly}
+                sx={{ minWidth: 120 }}
               >
                 {t(option.id)}
-              </Button>
+              </ToggleButton>
             </Badge>
           );
         })}
-      </Stack>
+      </ToggleButtonGroup>
     </FormControl>
   );
 };

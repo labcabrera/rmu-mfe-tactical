@@ -65,6 +65,12 @@ const MovementModifiersForm: FC<{
       .catch((err: Error) => showError(err.message));
   };
 
+  const resolveButtonDisabled = () => {
+    if (!formData.modifiers.pace) return true;
+    if (formData.modifiers.requiredManeuver && !formData.roll?.roll) return true;
+    return false;
+  };
+
   useEffect(() => {
     const skill = character.skills.find((s) => s.skillId === 'running');
     setSkillBonus(skill ? skill.totalBonus : 0);
@@ -86,21 +92,15 @@ const MovementModifiersForm: FC<{
           readOnly={action.status === 'completed'}
         />
       </Grid>
-      {formData.modifiers.pace && (
-        <>
-          <Grid size={12}>
-            <SelectBoolean
-              id="required-maneuver"
-              name="Required maneuver"
-              value={formData.modifiers.requiredManeuver}
-              onChange={(val) =>
-                setFormData({ ...formData, modifiers: { ...formData.modifiers, requiredManeuver: val } })
-              }
-              readOnly={action.status === 'completed'}
-            />
-          </Grid>
-        </>
-      )}
+      <Grid size={12}>
+        <SelectBoolean
+          id="required-maneuver"
+          name="Required maneuver"
+          value={formData.modifiers.requiredManeuver}
+          onChange={(val) => setFormData({ ...formData, modifiers: { ...formData.modifiers, requiredManeuver: val } })}
+          readOnly={action.status === 'completed'}
+        />
+      </Grid>
       {formData.modifiers.requiredManeuver && (
         <>
           <Grid size={12}>
@@ -157,13 +157,7 @@ const MovementModifiersForm: FC<{
         </Grid>
       )}
       {action.status !== 'completed' && (
-        <Button
-          onClick={onResolve}
-          size="large"
-          disabled={!formData.modifiers.pace || (formData.modifiers.requiredManeuver && !formData.roll?.roll)}
-          variant="contained"
-          color="success"
-        >
+        <Button onClick={onResolve} size="large" disabled={resolveButtonDisabled()} variant="contained" color="success">
           {t('resolve')}
         </Button>
       )}

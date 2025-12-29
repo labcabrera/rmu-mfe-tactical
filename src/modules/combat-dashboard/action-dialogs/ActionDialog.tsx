@@ -51,7 +51,7 @@ const ActionDialog: FC<{
         {actorRound.actorName} {t(action.actionType)}
       </DialogTitle>
       {!deleting ? (
-        <DialogContent>
+        <DialogContent sx={{ minHeight: '800px' }}>
           {action.actionType === 'movement' && <MovementForm action={action} character={character} onClose={onClose} />}
           {action.actionType === 'melee_attack' && (
             <MeleeAttackForm action={action} actorRound={actorRound} character={character} />

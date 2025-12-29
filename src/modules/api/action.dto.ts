@@ -144,7 +144,7 @@ export type ActionAttackModifiers = {
 };
 
 export type AttackCalculationsDto = {
-  rollModifiers: { key: string; value: number }[];
+  rollModifiers: KeyValueModifier[];
   rollTotal: number;
 };
 

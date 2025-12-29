@@ -42,12 +42,12 @@ const AttackList: FC<{
     const actions = (roundActions || []).filter(
       (ra) => ra.actorId === actorRound.actorId && ra.actionType === 'movement'
     );
-    if (!actions || actions.length === 0) return 'none';
+    if (!actions || actions.length === 0) return 'creep';
     // collect pace values from movement actions
     const paces = actions
       .map((a) => a.movement?.modifiers?.pace)
       .filter((p): p is string => typeof p === 'string' && p !== '');
-    if (paces.length === 0) return 'none';
+    if (paces.length === 0) return 'creep';
     // keep only known paces and order by paceOrder (higher index = faster)
     const valid = Array.from(new Set(paces)).filter((p) => paceOrder.includes(p));
     if (valid.length === 0) return paces[0];
