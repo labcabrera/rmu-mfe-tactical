@@ -16,6 +16,10 @@ const ActionRangeSelector: FC<{
     onChange(opt.from + (opt.to - opt.from) / 2);
   };
 
+  const buttonText = (option: ActorRoundAttackRange): string => {
+    return `${Math.round(option.from)} - ${Math.round(option.to)}`;
+  };
+
   return (
     <FormControl component="fieldset" variant="standard" sx={{ width: '100%' }}>
       <FormLabel id={labelId} component="legend" sx={{ mb: 1, typography: 'body1' }}>
@@ -37,7 +41,7 @@ const ActionRangeSelector: FC<{
                 onClick={() => handleClick(option)}
                 disabled={readOnly}
               >
-                {option.from}-{option.to}
+                {buttonText(option)}
               </Button>
             </Badge>
           );

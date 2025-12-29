@@ -34,9 +34,13 @@ const SelectRestrictedQuarters: FC<{
       </FormLabel>
       <Stack role="group" aria-labelledby={labelId} direction="row" spacing={3} sx={{ flexWrap: 'wrap' }}>
         {options.map((option) => {
-          const selected = option.id === value;
+          const selected = option.id === value || (!value && option.id === 'none');
           return (
-            <Badge key={option.id} badgeContent={badgeContent(option)} color={option.bonus >= 0 ? 'primary' : 'error'}>
+            <Badge
+              key={option.id}
+              badgeContent={badgeContent(option)}
+              color={option.bonus >= 0 ? 'secondary' : 'error'}
+            >
               <Button
                 key={option.id}
                 size="small"

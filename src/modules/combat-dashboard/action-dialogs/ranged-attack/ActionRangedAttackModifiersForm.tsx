@@ -7,8 +7,6 @@ import { ActorRoundAttack } from '../../../api/actor-rounds.dto';
 import { NumericInput } from '../../../shared/inputs/NumericInput';
 import SelectCalledShot from '../../../shared/selects/SelectCalledShot';
 import SelectDodge from '../../../shared/selects/SelectDodge';
-import SelectPositionalSource from '../../../shared/selects/SelectPositionalSource';
-import SelectPositionalTarget from '../../../shared/selects/SelectPositionalTarget';
 import SelectRestrictedQuarters from '../../../shared/selects/SelectRestrictedQuarters';
 import AttackTitle from '../melee-attack/AttackTitle';
 import ActionRangeSelector from './ActionRangeSelector';
@@ -27,8 +25,6 @@ const ActionRangedAttackModifiersForm: FC<{
   const modifiers = formDataAttack?.modifiers;
   const customBonus = modifiers?.customBonus || null;
   const restrictedQuarters = modifiers?.restrictedQuarters || '';
-  const positionalSource = modifiers?.positionalSource || '';
-  const positionalTarget = modifiers?.positionalTarget || '';
   const dodge = modifiers?.dodge || '';
   const range = modifiers?.range || null;
   const target = actorRounds.find((actorRound) => actorRound.actorId === modifiers?.targetId);
@@ -81,16 +77,14 @@ const ActionRangedAttackModifiersForm: FC<{
       <Grid size={12}>
         <AttackTitle attack={formDataAttack} target={target} />
       </Grid>
-      <Grid size={2}>
-        <SelectPositionalTarget value={positionalTarget} onChange={handleChangeEvent} />
+      <Grid size={12}>
+        <ActionRangeSelector
+          attack={attack}
+          value={modifiers.range || null}
+          onChange={onRangeChange}
+          readOnly={false}
+        />
       </Grid>
-      <Grid size={2}>
-        <SelectPositionalSource value={positionalSource} onChange={handleChangeEvent} />
-      </Grid>
-      <Grid size={2}>
-        <SelectDodge value={dodge} onChange={handleChangeEvent} />
-      </Grid>
-
       <Grid size={12}>
         <SelectRestrictedQuarters value={restrictedQuarters} onChange={(e) => handleChange('restrictedQuarters', e)} />
       </Grid>
@@ -98,14 +92,6 @@ const ActionRangedAttackModifiersForm: FC<{
         <RangedAttackCoverSelector
           value={formDataAttack?.modifiers?.cover || ''}
           onChange={(e) => handleChange('cover', e)}
-        />
-      </Grid>
-      <Grid size={12}>
-        <ActionRangeSelector
-          attack={attack}
-          value={modifiers.range || null}
-          onChange={onRangeChange}
-          readOnly={false}
         />
       </Grid>
       <Grid size={12}>
@@ -143,6 +129,9 @@ const ActionRangedAttackModifiersForm: FC<{
             integer
           />
         )}
+      </Grid>
+      <Grid size={2}>
+        <SelectDodge value={dodge} onChange={handleChangeEvent} />
       </Grid>
       <Grid size={12}>
         <Button variant="outlined" color="secondary" onClick={() => setFormData({ ...formData, attacks: [] })}>

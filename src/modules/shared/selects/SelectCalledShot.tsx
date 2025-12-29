@@ -1,6 +1,7 @@
 import React, { ChangeEvent, FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Stack, Button, FormControl, FormLabel } from '@mui/material';
+import { t } from 'i18next';
 
 type SelectCalledShotProps = {
   value: string;
@@ -17,7 +18,6 @@ const SelectCalledShot: FC<SelectCalledShotProps> = ({
   label = 'Called Shot',
   readOnly = false,
 }) => {
-  const { t } = useTranslation();
   const options = ['none', 'head', 'body', 'arms', 'legs'];
 
   const handleClick = (option: string) => {
@@ -35,7 +35,7 @@ const SelectCalledShot: FC<SelectCalledShotProps> = ({
       </FormLabel>
       <Stack role="group" aria-labelledby={labelId} direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
         {options.map((option) => {
-          const selected = option === value;
+          const selected = option === value || (!value && option === 'none');
           return (
             <Button
               key={option}

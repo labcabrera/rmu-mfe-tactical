@@ -1,6 +1,7 @@
 import React, { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Stack, Button, Typography } from '@mui/material';
+import { Stack, Button, Typography, FormControl, FormLabel } from '@mui/material';
+import { t } from 'i18next';
 
 export type Pace = {
   id: string;
@@ -12,7 +13,7 @@ const SelectPace: FC<{
   onChange: (value: string, pace?: Pace) => void;
   readOnly?: boolean;
 }> = ({ value, onChange, readOnly = false }) => {
-  const { t } = useTranslation();
+  const labelId = 'select-pace-label';
 
   const codes: Pace[] = [
     { id: 'creep', multiplier: 1 / 8 },
@@ -29,10 +30,10 @@ const SelectPace: FC<{
   };
 
   return (
-    <div>
-      <Typography variant="caption" sx={{ display: 'block', mb: 0.5 }}>
+    <FormControl component="fieldset" variant="standard" sx={{ width: '100%' }}>
+      <FormLabel id={labelId} component="legend" sx={{ mb: 2, typography: 'body1' }}>
         {t('pace')}
-      </Typography>
+      </FormLabel>
       <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
         {codes.map((option) => {
           const selected = option.id === value;
@@ -50,7 +51,7 @@ const SelectPace: FC<{
           );
         })}
       </Stack>
-    </div>
+    </FormControl>
   );
 };
 

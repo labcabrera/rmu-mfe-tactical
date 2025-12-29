@@ -6,13 +6,13 @@ import { AttackDeclaration } from '../../../api/action.dto';
 import ToggleButton from '../../../shared/buttons/ToggleButton';
 import { NumericInput } from '../../../shared/inputs/NumericInput';
 import SelectCalledShot from '../../../shared/selects/SelectCalledShot';
-import SelectCover from '../../../shared/selects/SelectCover';
 import SelectDodge from '../../../shared/selects/SelectDodge';
 import SelectPace from '../../../shared/selects/SelectPace';
 import SelectPositionalSource from '../../../shared/selects/SelectPositionalSource';
 import SelectPositionalTarget from '../../../shared/selects/SelectPositionalTarget';
 import SelectRestrictedQuarters from '../../../shared/selects/SelectRestrictedQuarters';
 import AttackTitle from './AttackTitle';
+import MeleeAttackCoverSelector from './MeleeAttackCoverSelector';
 
 const ResolveAttackFormModifiers: FC<{
   formData: AttackDeclaration;
@@ -80,44 +80,20 @@ const ResolveAttackFormModifiers: FC<{
       <Grid size={12}>
         <AttackTitle attack={attack} target={target} />
       </Grid>
+      <Grid size={6}>
+        <SelectPositionalTarget value={positionalTarget} onChange={(e) => handleChange('positionalTarget', e)} />
+      </Grid>
+      <Grid size={6}>
+        <SelectPositionalSource value={positionalSource} onChange={(e) => handleChange('positionalSource', e)} />
+      </Grid>
+      <Grid size={12}>
+        <MeleeAttackCoverSelector value={cover} onChange={(e) => handleChange('cover', e)} />
+      </Grid>
       <Grid size={12}>
         <SelectRestrictedQuarters value={restrictedQuarters} onChange={(e) => handleChange('restrictedQuarters', e)} />
       </Grid>
       <Grid size={12}>
         <SelectCalledShot value={modifiers.calledShot || ''} onChange={onCalledShotChange} />
-      </Grid>
-      <Grid size={2}>
-        <SelectPositionalTarget value={positionalTarget} onChange={handleChangeEvent} />
-      </Grid>
-      <Grid size={2}>
-        <SelectPositionalSource value={positionalSource} onChange={handleChangeEvent} />
-      </Grid>
-      <Grid size={2}>
-        <SelectCover value={cover} onChange={handleChangeEvent} />
-      </Grid>
-      <Grid size={2}>
-        <SelectDodge value={dodge} onChange={handleChangeEvent} />
-      </Grid>
-      <Grid size={12}></Grid>
-      <Grid size={2}>
-        <NumericInput
-          label={t('custom-bonus')}
-          value={customBonus}
-          name="customBonus"
-          onChange={onCustomBonusChange}
-          integer
-        />
-      </Grid>
-      <Grid size={2}>
-        {modifiers.calledShot && modifiers.calledShot !== 'none' && (
-          <NumericInput
-            label={t('called-shot-penalty')}
-            value={modifiers.calledShotPenalty || null}
-            name="calledShotPenalty"
-            onChange={onCalledShotPenaltyChange}
-            integer
-          />
-        )}
       </Grid>
       <Grid size={12}>
         <Stack direction="row" spacing={1}>
@@ -210,6 +186,29 @@ const ResolveAttackFormModifiers: FC<{
             }}
           />
         </Stack>
+      </Grid>
+      <Grid size={2}>
+        <NumericInput
+          label={t('custom-bonus')}
+          value={customBonus}
+          name="customBonus"
+          onChange={onCustomBonusChange}
+          integer
+        />
+      </Grid>
+      <Grid size={2}>
+        {modifiers.calledShot && modifiers.calledShot !== 'none' && (
+          <NumericInput
+            label={t('called-shot-penalty')}
+            value={modifiers.calledShotPenalty || null}
+            name="calledShotPenalty"
+            onChange={onCalledShotPenaltyChange}
+            integer
+          />
+        )}
+      </Grid>
+      <Grid size={2}>
+        <SelectDodge value={dodge} onChange={handleChangeEvent} />
       </Grid>
     </Grid>
   );
