@@ -1,20 +1,5 @@
 import { buildErrorFromResponse } from './api-errors';
-
-export type Character = {
-  id: string;
-  name: string;
-  attacks: CharacterAttack[];
-  [key: string]: any;
-};
-
-export type CharacterAttack = {
-  attackName: string;
-  attackTable: string;
-  sizeAdjustment: number;
-  fumbleTable: string;
-  fumble: number;
-  bo: number;
-};
+import { Character } from './characters.dto';
 
 export async function fetchCharacter(characterId: string): Promise<Character> {
   const url = `${process.env.RMU_API_STRATEGIC_URL}/characters/${characterId}`;

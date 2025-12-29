@@ -10,7 +10,7 @@ type DifficultyCode = {
 
 const SelectDifficulty: FC<{
   value: string;
-  onChange: (value: string, code?: DifficultyCode) => void;
+  onChange: (value: string) => void;
   readOnly?: boolean;
 }> = ({ value, onChange, readOnly = false }) => {
   const codes: DifficultyCode[] = [
@@ -30,7 +30,7 @@ const SelectDifficulty: FC<{
 
   const handleClick = (option: DifficultyCode) => {
     if (readOnly) return;
-    onChange(option.id, option);
+    onChange(option.id);
   };
 
   const badgeContent = (modifier: number) => {
@@ -50,21 +50,18 @@ const SelectDifficulty: FC<{
         {t('difficulty')}
       </FormLabel>
       <ToggleButtonGroup color="primary" value={value} exclusive>
-        {codes.map((option) => {
-          return (
-            <Badge badgeContent={badgeContent(option.modifier)} color={badgeColor(option.modifier)} key={option.id}>
-              <ToggleButton
-                value={option.id}
-                size="large"
-                onClick={() => handleClick(option)}
-                disabled={readOnly}
-                sx={{ minWidth: 80 }}
-              >
-                {t(option.code)}
-              </ToggleButton>
-            </Badge>
-          );
-        })}
+        {codes.map((option) => (
+          <Badge badgeContent={badgeContent(option.modifier)} color={badgeColor(option.modifier)} key={option.id}>
+            <ToggleButton
+              value={option.id}
+              onClick={() => handleClick(option)}
+              disabled={readOnly}
+              sx={{ minWidth: 80 }}
+            >
+              {t(option.code)}
+            </ToggleButton>
+          </Badge>
+        ))}
       </ToggleButtonGroup>
     </FormControl>
   );

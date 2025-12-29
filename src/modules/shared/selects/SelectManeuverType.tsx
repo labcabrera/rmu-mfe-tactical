@@ -1,14 +1,12 @@
 import React, { FC } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Stack, Button, Typography } from '@mui/material';
+import { FormControl, FormLabel, ToggleButtonGroup, ToggleButton } from '@mui/material';
+import { t } from 'i18next';
 
 const SelectManeuverType: FC<{
   value: string;
   onChange: (value: string) => void;
   readOnly?: boolean;
 }> = ({ value, onChange, readOnly = false }) => {
-  const { t } = useTranslation();
-
   const options: string[] = ['absolute', 'percent'];
 
   const handleClick = (option: string) => {
@@ -17,28 +15,18 @@ const SelectManeuverType: FC<{
   };
 
   return (
-    <div>
-      <Typography variant="caption" sx={{ display: 'block', mb: 0.5 }}>
-        {t('distance')}
-      </Typography>
-      <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
-        {options.map((option) => {
-          const selected = option === value;
-          return (
-            <Button
-              key={option}
-              size="large"
-              variant={selected ? 'contained' : 'outlined'}
-              color={selected ? 'primary' : 'inherit'}
-              onClick={() => handleClick(option)}
-              disabled={readOnly}
-            >
-              {t(option)}
-            </Button>
-          );
-        })}
-      </Stack>
-    </div>
+    <FormControl component="fieldset">
+      <FormLabel id={'maneuver-type'} component="legend" sx={{ mb: 1.5, typography: 'body1' }}>
+        {t('maneuver-type')}
+      </FormLabel>
+      <ToggleButtonGroup color="primary" value={value} exclusive>
+        {options.map((option) => (
+          <ToggleButton value={option} onClick={() => handleClick(option)} disabled={readOnly}>
+            {t(option)}
+          </ToggleButton>
+        ))}
+      </ToggleButtonGroup>
+    </FormControl>
   );
 };
 

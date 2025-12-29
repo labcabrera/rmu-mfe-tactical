@@ -4,7 +4,7 @@ import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { ActionAttack, ActionAttackModifiers, AttackDeclaration } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
-import type { Character } from '../../../api/characters';
+import type { Character } from '../../../api/characters.dto';
 import OffensiveBonusSelector from './OffensiveBonusSelector';
 import TargetSelector from './TargetSelector';
 

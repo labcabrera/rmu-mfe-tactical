@@ -3,26 +3,34 @@ import { Chip, Grid, Stack, Typography } from '@mui/material';
 import { t } from 'i18next';
 import { Action, ActionManeuver } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
-import type { Character } from '../../../api/characters';
+import useSkillService from '../../../services/skillService';
 import KeyValueModifiersView from '../../../shared/generic/KeyValueModifiersView';
 import ActionManeuverModifiersForm from './ActionManeuverModifiersForm';
 
 const ActionManeuverForm: FC<{
   action: Action;
   actorRound: ActorRound;
-  character: Character;
-}> = ({ action }) => {
+}> = ({ action, actorRound }) => {
   const [formData, setFormData] = useState<ActionManeuver>(null);
+
+  const isSuccess = (): boolean => {
+    return !action.maneuver.result.result.includes('failure');
+  };
+
+  const { getSkillBonus } = useSkillService();
+  const skillId = action.maneuver?.modifiers?.skillId;
+  const skillBonusNumber = skillId ? getSkillBonus(skillId, actorRound) : undefined;
+
+  const getSkillBonusLabel = () => {
+    if (skillBonusNumber === undefined) return ' +0';
+    return skillBonusNumber >= 0 ? ` +${skillBonusNumber}` : ` ${skillBonusNumber}`;
+  };
 
   useEffect(() => {
     if (action.maneuver) {
       setFormData(action.maneuver);
     }
   }, [action]);
-
-  const isSuccess = (): boolean => {
-    return !action.maneuver.result.result.includes('failure');
-  };
 
   if (!formData) return <div>Loading...</div>;
 
@@ -31,7 +39,7 @@ const ActionManeuverForm: FC<{
       <Grid container spacing={2} sx={{ mt: 1 }}>
         <Grid size={12}>
           <Stack direction="row" spacing={1} mb={2}>
-            <Chip label={t(action.maneuver?.modifiers?.skillId)} color="info" />
+            <Chip label={`${t(action.maneuver?.modifiers?.skillId)}${getSkillBonusLabel()}`} color="info" />
             <Chip label={t(action.maneuver?.modifiers?.maneuverType)} color="info" />
             {action.freeAction && <Chip label={t('free-action')} color="info" />}
           </Stack>
