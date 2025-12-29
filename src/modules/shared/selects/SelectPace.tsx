@@ -25,16 +25,23 @@ const SelectPace: FC<{
     { id: 'dash', multiplier: 1.25, bonus: undefined },
   ];
 
+  const optionsToShow = combatOptions ? codes.slice(0, 4) : codes;
+
   const handleClick = (option: Pace) => {
     if (readOnly) return;
     onChange(option.id, option);
   };
 
   const badgeContent = (option: Pace): string | undefined => {
-    return combatOptions && option.bonus !== undefined ? `${option.bonus}` : undefined;
+    if (option.bonus === undefined) return undefined;
+    if (option.bonus === 0) return '+0';
+    return `${option.bonus}`;
   };
 
-  const optionsToShow = combatOptions ? codes.slice(0, 4) : codes;
+  const badgeColor = (option: Pace): 'error' | 'secondary' => {
+    if (option.bonus === undefined) return 'secondary';
+    return option.bonus < 0 ? 'error' : 'secondary';
+  };
 
   return (
     <FormControl component="fieldset" variant="standard" sx={{ width: '100%' }}>
@@ -45,7 +52,7 @@ const SelectPace: FC<{
         {optionsToShow.map((option) => {
           const selected = option.id === value;
           return (
-            <Badge key={option.id} badgeContent={badgeContent(option)} color={'error'}>
+            <Badge key={option.id} badgeContent={badgeContent(option)} color={badgeColor(option)}>
               <Button
                 key={option.id}
                 size="large"

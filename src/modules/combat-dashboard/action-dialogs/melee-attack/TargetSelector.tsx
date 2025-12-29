@@ -111,7 +111,7 @@ const TargetSelector: FC<Props> = ({ value = null, onChange, sourceId = null }) 
                       setOpen(false);
                     }}
                     variant={isSelected ? 'contained' : 'outlined'}
-                    size="small"
+                    size="medium"
                     sx={{ display: 'flex', flexDirection: 'column', gap: 0.25, alignItems: 'center', p: 0.5 }}
                   >
                     <CharacterAvatar

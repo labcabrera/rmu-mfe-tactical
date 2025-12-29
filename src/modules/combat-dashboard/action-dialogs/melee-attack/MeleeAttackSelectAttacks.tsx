@@ -8,7 +8,7 @@ import type { Character } from '../../../api/characters';
 import OffensiveBonusSelector from './OffensiveBonusSelector';
 import TargetSelector from './TargetSelector';
 
-const MeleeAttackSelectAttacks: React.FC<{
+const MeleeAttackSelectAttacks: FC<{
   formData: AttackDeclaration;
   setFormData: Dispatch<SetStateAction<AttackDeclaration>>;
   actorRound: ActorRound;
