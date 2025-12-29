@@ -43,7 +43,7 @@ const SelectPositionalSource: FC<{
               value={option.id}
               onClick={() => handleClick(option.id)}
               disabled={readOnly}
-              sx={{ minWidth: 120 }}
+              sx={{ minWidth: 140 }}
             >
               {t(`positional-${option.id}`)}
             </ToggleButton>

@@ -12,7 +12,7 @@ const SelectBoolean: FC<{
   const { t } = useTranslation();
 
   const options: { id: boolean; label: string }[] = [
-    { id: true, label: t('Required maneuver') },
+    { id: true, label: t('Required') },
     { id: false, label: t('Automatic') },
   ];
 
@@ -29,7 +29,13 @@ const SelectBoolean: FC<{
       <ToggleButtonGroup color="standard" value={value} exclusive>
         {options.map((opt) => {
           return (
-            <ToggleButton value={opt.id} key={String(opt.id)} onClick={() => handleClick(opt.id)} disabled={readOnly}>
+            <ToggleButton
+              value={opt.id}
+              key={String(opt.id)}
+              onClick={() => handleClick(opt.id)}
+              disabled={readOnly}
+              sx={{ minWidth: 140 }}
+            >
               {opt.label}
             </ToggleButton>
           );

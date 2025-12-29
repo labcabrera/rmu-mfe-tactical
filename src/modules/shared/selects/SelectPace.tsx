@@ -56,10 +56,9 @@ const SelectPace: FC<{
             <Badge key={option.id} badgeContent={badgeContent(option)} color={badgeColor(option)}>
               <ToggleButton
                 value={option.id}
-                size="large"
                 onClick={() => handleClick(option)}
                 disabled={readOnly}
-                sx={{ minWidth: 120 }}
+                sx={{ minWidth: 140 }}
               >
                 {t(option.id)}
               </ToggleButton>

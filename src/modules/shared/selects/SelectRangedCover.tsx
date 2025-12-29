@@ -1,5 +1,5 @@
 import React, { FC } from 'react';
-import { Stack, Button, Badge, FormLabel, FormControl } from '@mui/material';
+import { Stack, Button, Badge, FormLabel, FormControl, ToggleButtonGroup, ToggleButton } from '@mui/material';
 import { t } from 'i18next';
 
 const SelectRangedCover: FC<{
@@ -35,28 +35,24 @@ const SelectRangedCover: FC<{
   };
 
   return (
-    <FormControl component="fieldset" variant="standard" sx={{ width: '100%' }}>
+    <FormControl component="fieldset">
       <FormLabel id={labelId} component="legend" sx={{ mb: 1, typography: 'body1' }}>
         {t('cover')}
       </FormLabel>
-      <Stack direction="row" aria-labelledby={labelId} spacing={readOnly ? 1 : 3} sx={{ flexWrap: 'wrap' }}>
-        {options.map((option) => {
-          const selected = option.id === value || (!value && option.id === 'none');
-          return (
-            <Badge key={option.value} badgeContent={badgeContent(option)} color={badgeColor(option)}>
-              <Button
-                size="large"
-                variant={selected ? 'contained' : 'outlined'}
-                color={selected ? 'primary' : 'inherit'}
-                onClick={() => handleClick(option)}
-                disabled={readOnly}
-              >
-                {t(`cover-${option.id}`)}
-              </Button>
-            </Badge>
-          );
-        })}
-      </Stack>
+      <ToggleButtonGroup value={value} exclusive>
+        {options.map((option) => (
+          <Badge key={option.value} badgeContent={badgeContent(option)} color={badgeColor(option)}>
+            <ToggleButton
+              value={option.id}
+              onClick={() => handleClick(option)}
+              disabled={readOnly}
+              sx={{ minWidth: 120 }}
+            >
+              {t(`cover-${option.id}`)}
+            </ToggleButton>
+          </Badge>
+        ))}
+      </ToggleButtonGroup>
     </FormControl>
   );
 };

@@ -1,5 +1,5 @@
 import React, { FC } from 'react';
-import { Button, FormControl, FormLabel, Badge, ButtonGroup, ToggleButtonGroup, ToggleButton } from '@mui/material';
+import { FormControl, FormLabel, Badge, ToggleButtonGroup, ToggleButton } from '@mui/material';
 import { t } from 'i18next';
 
 const SelectRestrictedQuarters: FC<{
@@ -39,7 +39,7 @@ const SelectRestrictedQuarters: FC<{
               value={option.id}
               onClick={() => handleClick(option.id)}
               disabled={readOnly}
-              sx={{ minWidth: 120 }}
+              sx={{ minWidth: 140 }}
             >
               {t(`restricted-quarter-${option.id}`)}
             </ToggleButton>

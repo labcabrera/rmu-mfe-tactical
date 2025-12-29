@@ -15,9 +15,10 @@ const SelectAttackRange: FC<{
   const [index, setIndex] = useState<number | null>(null);
   const { strategicGame } = useContext(CombatContext)!;
 
-  const handleClick = (opt: ActorRoundAttackRange) => {
+  const handleClick = (opt: ActorRoundAttackRange, idx: number) => {
     if (readOnly) return;
     const mid = opt.from + (opt.to - opt.from) / 2;
+    setIndex(idx);
     onChange(mid);
   };
 
@@ -42,8 +43,8 @@ const SelectAttackRange: FC<{
       setIndex(null);
       return;
     }
-    const idx = attack.ranges?.findIndex((r) => r.from <= value && r.to >= value) || null;
-    setIndex(idx);
+    const idx = attack.ranges?.findIndex((r) => r.from <= value && r.to >= value);
+    setIndex(typeof idx === 'number' && idx >= 0 ? idx : null);
   }, [value, attack.ranges]);
 
   return (
@@ -51,23 +52,30 @@ const SelectAttackRange: FC<{
       <FormLabel id={labelId} component="legend" sx={{ mb: 1, typography: 'body1' }}>
         {t('range')}
       </FormLabel>
-      <ToggleButtonGroup value={index} exclusive>
-        {attack.ranges!.map((option) => {
-          return (
-            <Badge key={`${option.from}-${option.to}`} badgeContent={badgeContent(option)} color={badgeColor(option)}>
-              <ToggleButton
-                value={index}
-                onClick={() => handleClick(option)}
-                disabled={readOnly}
-                sx={{ minWidth: 140 }}
-              >
-                {buttonText(option)}
-              </ToggleButton>
-            </Badge>
-          );
-        })}
+      <ToggleButtonGroup
+        value={index}
+        exclusive
+        onChange={(_, newIndex: number | null) => {
+          if (readOnly) return;
+          if (newIndex === null) {
+            setIndex(null);
+            onChange(null);
+            return;
+          }
+          const opt = attack.ranges![newIndex];
+          const mid = opt.from + (opt.to - opt.from) / 2;
+          setIndex(newIndex);
+          onChange(mid);
+        }}
+      >
+        {attack.ranges!.map((option, i) => (
+          <Badge key={`${option.from}-${option.to}`} badgeContent={badgeContent(option)} color={badgeColor(option)}>
+            <ToggleButton value={i} disabled={readOnly} sx={{ minWidth: 140 }} onClick={() => handleClick(option, i)}>
+              {buttonText(option)}
+            </ToggleButton>
+          </Badge>
+        ))}
       </ToggleButtonGroup>
-      index: {index}. range: {value}
     </FormControl>
   );
 };

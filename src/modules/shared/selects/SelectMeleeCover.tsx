@@ -46,7 +46,7 @@ const SelectMeleeCover: FC<{
               value={option.id}
               onClick={() => handleClick(option)}
               disabled={readOnly}
-              sx={{ minWidth: 120 }}
+              sx={{ minWidth: 140 }}
             >
               {t(`cover-${option.id}`)}
             </ToggleButton>

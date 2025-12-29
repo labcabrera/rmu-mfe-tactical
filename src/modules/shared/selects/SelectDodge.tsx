@@ -24,7 +24,7 @@ const SelectDodge: FC<{
       </FormLabel>
       <ToggleButtonGroup value={value} exclusive>
         {options.map((option) => (
-          <ToggleButton value={option} onClick={() => handleClick(option)} disabled={readOnly} sx={{ minWidth: 120 }}>
+          <ToggleButton value={option} onClick={() => handleClick(option)} disabled={readOnly} sx={{ minWidth: 140 }}>
             {t(`dodge-${option}`)}
           </ToggleButton>
         ))}

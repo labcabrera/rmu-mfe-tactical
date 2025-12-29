@@ -23,7 +23,7 @@ const SelectMovementSkill: FC<{
       </FormLabel>
       <ToggleButtonGroup aria-label="movement skill" value={value} exclusive>
         {codes.map((option) => (
-          <ToggleButton value={option} onClick={() => handleClick(option)} disabled={readOnly}>
+          <ToggleButton value={option} onClick={() => handleClick(option)} disabled={readOnly} sx={{ minWidth: 140 }}>
             {t(option)}
           </ToggleButton>
         ))}
