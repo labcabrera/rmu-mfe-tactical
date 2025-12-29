@@ -123,13 +123,13 @@ const MeleeAttackModifiersForm: FC<{
         <SelectRestrictedQuarters value={restrictedQuarters} onChange={(e) => handleRestrictedQuartersChange(e)} />
       </Grid>
       <Grid size={12}>
+        <SelectPace value={pace} combatOptions={true} onChange={(v, p) => handlePaceChange(p?.id || v)} />
+      </Grid>
+      <Grid size={12}>
         <SelectCalledShot value={modifiers.calledShot || ''} onChange={onCalledShotChange} />
       </Grid>
       <Grid size={12}>
         <SelectDodge value={dodge} onChange={(e) => handleDodgeChange(e)} />
-      </Grid>
-      <Grid size={12}>
-        <SelectPace value={pace} combatOptions={true} onChange={(v, p) => handlePaceChange(p?.id || v)} />
       </Grid>
       <Grid size={12}>
         <MeleeAttackDefensiveOptions index={index} formData={formData} setFormData={setFormData} />
