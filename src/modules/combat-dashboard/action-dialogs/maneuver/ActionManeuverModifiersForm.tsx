@@ -18,8 +18,19 @@ const ActionManeuverModifiersForm: FC<{
   const { updateAction } = useContext(CombatContext)!;
   const { showError } = useError();
 
+  const readOnly = action.status === 'completed';
+
+  type ModifierKey = keyof ActionManeuver['modifiers'];
+
+  function setModifier<K extends ModifierKey>(key: K, value: ActionManeuver['modifiers'][K]) {
+    setFormData((prev) => ({
+      ...prev,
+      modifiers: { ...(prev.modifiers as ActionManeuver['modifiers']), [key]: value },
+    }));
+  }
+
   function updateRoll(e: number): void {
-    setFormData({ ...formData, roll: { ...formData.roll, roll: e } });
+    setFormData((prev) => ({ ...prev, roll: { ...(prev.roll || {}), roll: e } }));
   }
 
   function onResolve(): void {
@@ -35,15 +46,15 @@ const ActionManeuverModifiersForm: FC<{
       <Grid size={12}>
         <SelectDifficulty
           value={formData.modifiers.difficulty}
-          onChange={(value) => setFormData({ ...formData, modifiers: { ...formData.modifiers, difficulty: value } })}
-          readOnly={action.status === 'completed'}
+          onChange={(value) => setModifier('difficulty', value)}
+          readOnly={readOnly}
         />
       </Grid>
       <Grid size={12}>
         <SelectLightModifier
           value={formData.modifiers.lightModifier}
-          onChange={(value) => setFormData({ ...formData, modifiers: { ...formData.modifiers, lightModifier: value } })}
-          readOnly={action.status === 'completed'}
+          onChange={(value) => setModifier('lightModifier', value)}
+          readOnly={readOnly}
         />
       </Grid>
       {formData.modifiers?.lightModifier !== 'none' && (
@@ -51,8 +62,8 @@ const ActionManeuverModifiersForm: FC<{
           <SelectLightType
             value={formData.modifiers.light}
             lightModifier={formData.modifiers.lightModifier}
-            onChange={(value) => setFormData({ ...formData, modifiers: { ...formData.modifiers, light: value } })}
-            readOnly={action.status === 'completed'}
+            onChange={(value) => setModifier('light', value)}
+            readOnly={readOnly}
           />
         </Grid>
       )}
