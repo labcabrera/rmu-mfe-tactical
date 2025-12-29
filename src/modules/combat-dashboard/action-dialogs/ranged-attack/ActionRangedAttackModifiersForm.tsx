@@ -10,7 +10,7 @@ import SelectDodge from '../../../shared/selects/SelectDodge';
 import SelectPositionalSource from '../../../shared/selects/SelectPositionalSource';
 import SelectPositionalTarget from '../../../shared/selects/SelectPositionalTarget';
 import SelectRestrictedQuarters from '../../../shared/selects/SelectRestrictedQuarters';
-import AttackTitle from '../attack/AttackTitle';
+import AttackTitle from '../melee-attack/AttackTitle';
 import ActionRangeSelector from './ActionRangeSelector';
 import RangedAttackCoverSelector from './RangedAttackCoverSelector';
 import RangedAttackModifiersSelector from './RangedAttackModifiersSelector';

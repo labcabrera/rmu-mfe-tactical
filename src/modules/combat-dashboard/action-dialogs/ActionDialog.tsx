@@ -10,8 +10,8 @@ import { deleteAction } from '../../api/action';
 import { Action } from '../../api/action.dto';
 import { ActorRound } from '../../api/actor-rounds.dto';
 import { Character } from '../../api/characters';
-import ActionAttack from './attack/ActionAttack';
 import ActionManeuverForm from './maneuver/ActionManeuverForm';
+import ActionMeleeAttackForm from './melee-attack/ActionMeleeAttackForm';
 import ActionMovementForm from './movement/ActionMovementForm';
 import ActionRangedAttackForm from './ranged-attack/ActionRangedAttackForm';
 
@@ -56,7 +56,7 @@ const ActionDialog: FC<{
             <ActionMovementForm action={action} character={character} onClose={onClose} />
           )}
           {action.actionType === 'melee_attack' && (
-            <ActionAttack action={action} actorRound={actorRound} character={character} />
+            <ActionMeleeAttackForm action={action} actorRound={actorRound} character={character} />
           )}
           {action.actionType === 'ranged_attack' && (
             <ActionRangedAttackForm action={action} actorRound={actorRound} character={character} />

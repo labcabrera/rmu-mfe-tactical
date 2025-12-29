@@ -7,7 +7,7 @@ import { ActorRound } from '../../../api/actor-rounds.dto';
 import type { Character } from '../../../api/characters';
 import ResolveActionDialogMovementStepper from './ResolveAttackStepper';
 
-const ActionAttack: FC<{
+const ActionMeleeAttackForm: FC<{
   action: Action;
   actorRound: ActorRound;
   character: Character;
@@ -132,4 +132,4 @@ const ActionAttack: FC<{
   );
 };
 
-export default ActionAttack;
+export default ActionMeleeAttackForm;

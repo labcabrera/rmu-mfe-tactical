@@ -4,8 +4,8 @@ import { t } from 'i18next';
 import { Action, ActionAttack, ActionAttackModifiers, AttackDeclaration } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
 import type { Character } from '../../../api/characters';
-import BoSelector from '../attack/BoSelector';
-import TargetSelector from '../attack/TargetSelector';
+import BoSelector from '../melee-attack/BoSelector';
+import TargetSelector from '../melee-attack/TargetSelector';
 import ActionRangedAttackModifiersForm from './ActionRangedAttackModifiersForm';
 
 const ActionRangedAttackForm: FC<{
