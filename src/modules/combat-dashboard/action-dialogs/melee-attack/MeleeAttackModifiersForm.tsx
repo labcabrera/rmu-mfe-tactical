@@ -66,16 +66,44 @@ const MeleeAttackModifiersForm: FC<{
     setFormData({ ...formData, attacks: newAttacks });
   };
 
+  const handlePositionalTarget = (value: string) => {
+    const currentTargetId = modifiers?.targetId;
+    if (!currentTargetId) {
+      handleChange('positionalTarget', value);
+      return;
+    }
+    setFormData((prev) => {
+      const newAttacks = prev.attacks?.map((a) =>
+        a.modifiers?.targetId === currentTargetId ? { ...a, modifiers: { ...a.modifiers, positionalTarget: value } } : a
+      );
+      return { ...prev, attacks: newAttacks };
+    });
+  };
+
+  const handlePositionalSource = (value: string) => {
+    const currentTargetId = modifiers?.targetId;
+    if (!currentTargetId) {
+      handleChange('positionalSource', value);
+      return;
+    }
+    setFormData((prev) => {
+      const newAttacks = prev.attacks?.map((a) =>
+        a.modifiers?.targetId === currentTargetId ? { ...a, modifiers: { ...a.modifiers, positionalSource: value } } : a
+      );
+      return { ...prev, attacks: newAttacks };
+    });
+  };
+
   return (
     <Grid container spacing={2} sx={{ marginTop: 1, marginBottom: 1 }}>
       <Grid size={12}>
         <AttackTitle attack={attack} target={target} />
       </Grid>
       <Grid size={12}>
-        <SelectPositionalTarget value={positionalTarget} onChange={(e) => handleChange('positionalTarget', e)} />
+        <SelectPositionalTarget value={positionalTarget} onChange={(e) => handlePositionalTarget(e)} />
       </Grid>
       <Grid size={12}>
-        <SelectPositionalSource value={positionalSource} onChange={(e) => handleChange('positionalSource', e)} />
+        <SelectPositionalSource value={positionalSource} onChange={(e) => handlePositionalSource(e)} />
       </Grid>
       <Grid size={12}>
         <SelectMeleeCover value={cover} onChange={(e) => handleChange('cover', e)} />
