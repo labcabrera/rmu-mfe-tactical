@@ -1,9 +1,9 @@
-import React, { FC, useEffect } from 'react';
-import { Chip, Grid, Typography } from '@mui/material';
+import React, { FC, useEffect, useState } from 'react';
+import { Grid, Typography } from '@mui/material';
 import { t } from 'i18next';
 import { Action, ActionAttack, ActionAttackModifiers, AttackDeclaration } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
-import KeyValueModifiersView from '../../../shared/generic/KeyValueModifiersView';
+import ResolveAttackFormRoll from '../melee-attack/ResolveAttackFormRoll';
 import TargetSelector from '../melee-attack/TargetSelector';
 import RangedAttackModifiersForm from './RangedAttackModifiersForm';
 
@@ -11,7 +11,7 @@ const RangedAttackForm: FC<{
   actorRound: ActorRound;
   action: Action;
 }> = ({ actorRound, action }) => {
-  const [formData, setFormData] = React.useState<AttackDeclaration>({ attacks: [], parries: [] });
+  const [formData, setFormData] = useState<AttackDeclaration>({ attacks: [], parries: [] });
 
   const selected = formData.attacks || [];
 
@@ -78,22 +78,21 @@ const RangedAttackForm: FC<{
 
         return (
           <div key={index}>
-            <Typography variant="h6">{t(actionAttack.attackName)}</Typography>
-            <Grid container spacing={1} alignItems="center">
-              <Grid size={2}>
-                {t(displayTable)} +{displayBo}
-              </Grid>
-              <Grid size={10}>
-                <TargetSelector
-                  value={modifiers.targetId || ''}
-                  onChange={(actorId) => handleTargetChange(actionAttack.attackName, actorId)}
-                  sourceId={(actorRound as any).actorId}
-                />
-              </Grid>
-            </Grid>
-
-            {existing && actorAttack && (
+            {existing && actorAttack && !existing.calculated && (
               <>
+                <Typography variant="h6">{t(actionAttack.attackName)}</Typography>
+                <Grid container spacing={1} alignItems="center">
+                  <Grid size={2}>
+                    {t(displayTable)} +{displayBo}
+                  </Grid>
+                  <Grid size={10}>
+                    <TargetSelector
+                      value={modifiers.targetId || ''}
+                      onChange={(actorId) => handleTargetChange(actionAttack.attackName, actorId)}
+                      sourceId={actorRound.actorId}
+                    />
+                  </Grid>
+                </Grid>
                 <RangedAttackModifiersForm
                   action={action}
                   attack={actorAttack}
@@ -101,20 +100,16 @@ const RangedAttackForm: FC<{
                   setFormData={setFormData}
                   index={selected.findIndex((a) => a.attackName === actionAttack.attackName)}
                 />
-                {actionAttack.calculated && (
-                  <>
-                    <Typography>Calculated</Typography>
-                    <Grid container spacing={1}>
-                      <Grid size={3}>
-                        <Chip label={`Total: ${actionAttack.calculated.rollTotal}`} />
-                      </Grid>
-                      <Grid size={9}>
-                        <KeyValueModifiersView modifiers={actionAttack.calculated.rollModifiers} />
-                      </Grid>
-                    </Grid>
-                  </>
-                )}
               </>
+            )}
+            {existing && actorAttack && existing.calculated && (
+              <ResolveAttackFormRoll
+                formData={formData}
+                setFormData={setFormData}
+                action={action}
+                attack={existing}
+                index={index}
+              />
             )}
           </div>
         );
