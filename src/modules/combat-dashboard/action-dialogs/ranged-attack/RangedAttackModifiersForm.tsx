@@ -11,6 +11,7 @@ import SelectDodge from '../../../shared/selects/SelectDodge';
 import SelectRangedCover from '../../../shared/selects/SelectRangedCover';
 import SelectRestrictedQuarters from '../../../shared/selects/SelectRestrictedQuarters';
 import AttackTitle from '../melee-attack/AttackTitle';
+import RangedAttackDefenseOptions from './RangedAttackDefenseOptions';
 import RangedAttackOptionsForm from './RangedAttackOptionsForm';
 
 const RangedAttackModifiersForm: FC<{
@@ -28,7 +29,12 @@ const RangedAttackModifiersForm: FC<{
   const dodge = modifiers?.dodge || '';
   const target = actorRounds.find((actorRound) => actorRound.actorId === modifiers?.targetId);
 
-  const isValidForm = !!modifiers?.range;
+  const isValidForm = () => {
+    if (target === undefined) return false;
+    if (!modifiers) return false;
+    if (modifiers.range === null || modifiers.range === undefined) return false;
+    return true;
+  };
 
   const handleChange = (name: string, value: string | boolean) => {
     const newAttacks = formData.attacks.map((a, i) =>
@@ -85,10 +91,13 @@ const RangedAttackModifiersForm: FC<{
         <SelectRangedCover value={formDataAttack?.modifiers?.cover || ''} onChange={(e) => handleChange('cover', e)} />
       </Grid>
       <Grid size={12}>
-        <SelectCalledShot value={modifiers.calledShot || ''} onChange={onCalledShotChange} />
+        <SelectCalledShot value={modifiers.calledShot || ''} onChange={onCalledShotChange} target={target} />
       </Grid>
       <Grid size={12}>
         <SelectDodge value={dodge} onChange={(e) => handleChange('dodge', e)} />
+      </Grid>
+      <Grid size={12}>
+        <RangedAttackDefenseOptions formData={formData} setFormData={setFormData} index={0} />
       </Grid>
       <Grid size={12}>
         <RangedAttackOptionsForm formData={formData} setFormData={setFormData} index={0} />
@@ -117,7 +126,7 @@ const RangedAttackModifiersForm: FC<{
         <Button
           variant="contained"
           color="success"
-          disabled={!isValidForm}
+          disabled={!isValidForm()}
           onClick={() => setFormData({ ...formData, attacks: [] })}
         >
           {t('prepare')}

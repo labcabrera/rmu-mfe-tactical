@@ -1,8 +1,7 @@
 import React, { Dispatch, FC, SetStateAction } from 'react';
-import { Badge, FormControl, FormLabel, Grid, Stack } from '@mui/material';
+import { FormControl, FormLabel, Grid, ToggleButtonGroup, ToggleButton } from '@mui/material';
 import { t } from 'i18next';
 import { AttackDeclaration } from '../../../api/action.dto';
-import ToggleButton from '../../../shared/buttons/ToggleButton';
 
 const RangedAttackDefenseOptions: FC<{
   formData: AttackDeclaration;
@@ -10,19 +9,13 @@ const RangedAttackDefenseOptions: FC<{
   index: number;
 }> = ({ formData, setFormData, index }) => {
   const labelId = 'ranged-attack-modifiers-selector-label';
-  const labelAttackOptionsId = 'ranged-attack-attack-options-selector-label';
 
   const attack = formData.attacks?.[index];
   const modifiers = attack?.modifiers;
   const disabledDB = modifiers?.disabledDB || false;
   const disabledShield = modifiers?.disabledShield || false;
-  const higherGround = modifiers?.higherGround || false;
-  const stunnedFoe = modifiers?.stunnedFoe || false;
-  const surprisedFoe = modifiers?.surprisedFoe || false;
-  const proneSource = modifiers?.proneSource || false;
-  const proneTarget = modifiers?.proneTarget || false;
-  const attackerInMelee = modifiers?.attackerInMelee || false;
-  const ambush = modifiers?.ambush || false;
+
+  const minWidth = 140;
 
   return (
     <Grid container spacing={2} sx={{ marginTop: 1, marginBottom: 1 }}>
@@ -31,119 +24,27 @@ const RangedAttackDefenseOptions: FC<{
           <FormLabel id={labelId} component="legend" sx={{ mb: 1, typography: 'body1' }}>
             {t('Defensive options')}
           </FormLabel>
-          <Stack direction="row" spacing={1}>
-            <ToggleButton
-              label={'DB'}
-              value={!disabledDB}
-              onChange={(newValue) => {
-                const newAttacks = formData.attacks.map((a, i) =>
-                  i === index ? { ...a, modifiers: { ...a.modifiers, disabledDB: !newValue } } : a
-                );
-                setFormData({ ...formData, attacks: newAttacks });
-              }}
-            />
-            <ToggleButton
-              label={'Shield'}
-              value={!disabledShield}
-              onChange={(newValue) => {
-                const newAttacks = formData.attacks.map((a, i) =>
-                  i === index ? { ...a, modifiers: { ...a.modifiers, disabledShield: !newValue } } : a
-                );
-                setFormData({ ...formData, attacks: newAttacks });
-              }}
-            />
-          </Stack>
-        </FormControl>
-      </Grid>
-      <Grid size={12}>
-        <FormControl component="fieldset" variant="standard" sx={{ width: '100%' }}>
-          <FormLabel id={labelAttackOptionsId} component="legend" sx={{ mb: 1, typography: 'body1' }}>
-            {t('Attack options')}
-          </FormLabel>
-          <Stack direction="row" spacing={3}>
-            <Badge badgeContent={'+10'} color={'success'}>
-              <ToggleButton
-                label={'Higher ground'}
-                value={higherGround}
-                onChange={(newValue) => {
-                  const newAttacks = formData.attacks.map((a, i) =>
-                    i === index ? { ...a, modifiers: { ...a.modifiers, higherGround: newValue } } : a
-                  );
-                  setFormData({ ...formData, attacks: newAttacks });
-                }}
-              />
-            </Badge>
-            <Badge badgeContent={'+20'} color={'success'}>
-              <ToggleButton
-                label={'Stunned foe'}
-                value={stunnedFoe}
-                onChange={(newValue) => {
-                  const newAttacks = formData.attacks.map((a, i) =>
-                    i === index ? { ...a, modifiers: { ...a.modifiers, stunnedFoe: newValue } } : a
-                  );
-                  setFormData({ ...formData, attacks: newAttacks });
-                }}
-              />
-            </Badge>
-            <Badge badgeContent={'+25'} color={'success'}>
-              <ToggleButton
-                label={'Surprised foe'}
-                value={surprisedFoe}
-                onChange={(newValue) => {
-                  const newAttacks = formData.attacks.map((a, i) =>
-                    i === index ? { ...a, modifiers: { ...a.modifiers, surprisedFoe: newValue } } : a
-                  );
-                  setFormData({ ...formData, attacks: newAttacks });
-                }}
-              />
-            </Badge>
-            <Badge badgeContent={'-30'} color={'error'}>
-              <ToggleButton
-                label={'Prone target'}
-                value={proneTarget}
-                onChange={(newValue) => {
-                  const newAttacks = formData.attacks.map((a, i) =>
-                    i === index ? { ...a, modifiers: { ...a.modifiers, proneTarget: newValue } } : a
-                  );
-                  setFormData({ ...formData, attacks: newAttacks });
-                }}
-              />
-            </Badge>
-            <Badge badgeContent={'-50'} color={'error'}>
-              <ToggleButton
-                label={'Prone attacker'}
-                value={proneSource}
-                onChange={(newValue) => {
-                  const newAttacks = formData.attacks.map((a, i) =>
-                    i === index ? { ...a, modifiers: { ...a.modifiers, proneSource: newValue } } : a
-                  );
-                  setFormData({ ...formData, attacks: newAttacks });
-                }}
-              />
-            </Badge>
-            <Badge badgeContent={'-20'} color={'error'}>
-              <ToggleButton
-                label={'Attacker in melee'}
-                value={attackerInMelee}
-                onChange={(newValue) => {
-                  const newAttacks = formData.attacks.map((a, i) =>
-                    i === index ? { ...a, modifiers: { ...a.modifiers, attackerInMelee: newValue } } : a
-                  );
-                  setFormData({ ...formData, attacks: newAttacks });
-                }}
-              />
-            </Badge>
-            <ToggleButton
-              label={'Ambush'}
-              value={ambush}
-              onChange={(newValue) => {
-                const newAttacks = formData.attacks.map((a, i) =>
-                  i === index ? { ...a, modifiers: { ...a.modifiers, ambush: newValue } } : a
-                );
-                setFormData({ ...formData, attacks: newAttacks });
-              }}
-            />
-          </Stack>
+          <ToggleButtonGroup
+            value={[!disabledDB ? 'DB' : null, !disabledShield ? 'Shield' : null].filter(Boolean)}
+            onChange={(_e, newValues: string[]) => {
+              const hasDB = newValues.includes('DB');
+              const hasShield = newValues.includes('Shield');
+              const newAttacks = formData.attacks.map((a, i) =>
+                i === index
+                  ? { ...a, modifiers: { ...a.modifiers, disabledDB: !hasDB, disabledShield: !hasShield } }
+                  : a
+              );
+              setFormData({ ...formData, attacks: newAttacks });
+            }}
+            aria-label="defensive-options"
+          >
+            <ToggleButton value="DB" sx={{ minWidth }}>
+              {t('DB')}
+            </ToggleButton>
+            <ToggleButton value="Shield" sx={{ minWidth }}>
+              {t('Shield')}
+            </ToggleButton>
+          </ToggleButtonGroup>
         </FormControl>
       </Grid>
     </Grid>

@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { FC, useEffect } from 'react';
 import { Grid, Typography } from '@mui/material';
 import { t } from 'i18next';
 import { Action, ActionAttack, ActionAttackModifiers, AttackDeclaration } from '../../../api/action.dto';
@@ -39,6 +39,12 @@ const RangedAttackForm: FC<{
     }
     setFormData({ ...formData, attacks: newSelected });
   };
+
+  useEffect(() => {
+    if (action.attacks) {
+      setFormData(action as AttackDeclaration);
+    }
+  }, [action]);
 
   if (!actorRound || !actorRound.attacks) {
     return <Typography>No ranged attacks available</Typography>;

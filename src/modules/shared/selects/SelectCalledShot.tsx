@@ -46,8 +46,14 @@ const SelectCalledShot: FC<{
       </FormLabel>
       <ToggleButtonGroup value={value} exclusive>
         {options.map((option) => (
-          <Badge badgeContent={badgeContent(option)} color="secondary">
-            <ToggleButton value={option} onClick={() => handleClick(option)} disabled={readOnly} sx={{ minWidth: 140 }}>
+          <Badge key={option} badgeContent={badgeContent(option)} color="secondary">
+            <ToggleButton
+              key={`${option}-btn`}
+              value={option}
+              onClick={() => handleClick(option)}
+              disabled={readOnly}
+              sx={{ minWidth: 140 }}
+            >
               {t(option)}
             </ToggleButton>
           </Badge>

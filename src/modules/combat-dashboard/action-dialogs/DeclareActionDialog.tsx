@@ -46,6 +46,10 @@ const DeclareActionDialog: FC<{
     setOpen(false);
   };
 
+  const isActionAttack = (actionType: string) => {
+    return actionType === 'melee_attack' || actionType === 'ranged_attack';
+  };
+
   const isDisabled = (option: string) => {
     if (option === 'cast_spell' || option === 'cast_instant') {
       return true;
@@ -65,7 +69,7 @@ const DeclareActionDialog: FC<{
       phaseStart: phaseNumber,
     } as any;
 
-    if (opt.key === 'melee_attack') {
+    if (isActionAttack(opt.key)) {
       if (actorRound.attacks && actorRound.attacks.length > 0) {
         base.attackNames = actorRound.attacks.map((a: any) => a.attackName);
       } else {
@@ -90,6 +94,16 @@ const DeclareActionDialog: FC<{
         setOpen(false);
       })
       .catch((err) => showError(err.message));
+  };
+
+  const filterAttacks = (attacks: any[], actionType: string) => {
+    if (actionType === 'melee_attack') {
+      return attacks.filter((attack) => attack.type === 'melee');
+    }
+    if (actionType === 'ranged_attack') {
+      return attacks.filter((attack) => attack.type === 'ranged');
+    }
+    return [];
   };
 
   return (
@@ -170,7 +184,6 @@ const DeclareActionDialog: FC<{
           ))}
         </Grid>
 
-        {/* Free action toggle (configurable per action type) */}
         {actionForm.actionType && (
           <FormControl sx={{ mt: 1 }}>
             <FormControlLabel
@@ -186,14 +199,12 @@ const DeclareActionDialog: FC<{
         )}
 
         <div style={{ marginTop: 16 }}>
-          {actionForm.actionType === 'melee_attack' && (
+          {isActionAttack(actionForm.actionType) && (
             <>
-              {/* Show available attacks from actorRound and allow selecting one */}
               {actorRound.attacks && actorRound.attacks.length > 0 && (
                 <Grid container spacing={1} sx={{ mt: 1 }}>
-                  {actorRound.attacks.map((atk: any) => {
+                  {filterAttacks(actorRound.attacks, actionForm.actionType).map((atk: any) => {
                     const selected = actionForm.attackNames && actionForm.attackNames.includes(atk.attackName);
-
                     const toggleAttack = (attackName: string) => {
                       const current: string[] = actionForm.attackNames || [];
                       const exists = current.includes(attackName);
@@ -221,7 +232,6 @@ const DeclareActionDialog: FC<{
               )}
             </>
           )}
-
           {actionForm.actionType === 'maneuver' && (
             <>
               <SelectManeuverType
