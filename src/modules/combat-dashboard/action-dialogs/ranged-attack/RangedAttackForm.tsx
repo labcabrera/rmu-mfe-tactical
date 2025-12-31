@@ -3,6 +3,7 @@ import { Grid, Typography } from '@mui/material';
 import { t } from 'i18next';
 import { Action, ActionAttack, ActionAttackModifiers, AttackDeclaration } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
+import KeyValueModifiersView from '../../../shared/generic/KeyValueModifiersView';
 import TargetSelector from '../melee-attack/TargetSelector';
 import RangedAttackModifiersForm from './RangedAttackModifiersForm';
 
@@ -46,42 +47,65 @@ const RangedAttackForm: FC<{
     }
   }, [action]);
 
-  if (!actorRound || !actorRound.attacks) {
+  useEffect(() => {
+    if (actorRound && formData) {
+      formData.attacks?.forEach((attack) => {
+        const matchingAttack = actorRound.attacks?.find((a) => a.attackName === attack.attackName);
+        if (!matchingAttack) {
+          const newAttacks = formData.attacks?.filter((a) => a.attackName !== attack.attackName) || [];
+          setFormData({ ...formData, attacks: newAttacks });
+        }
+      });
+    }
+  }, [actorRound, formData]);
+
+  if (!actorRound || (!actorRound.attacks && !action.attacks)) {
     return <Typography>No ranged attacks available</Typography>;
   }
 
   return (
     <>
-      {actorRound.attacks.map((attack, index) => {
-        const existing = findAttack(attack.attackName);
+      {(action.attacks || []).map((actionAttack, index) => {
+        const actorAttack = actorRound.attacks?.find((a) => a.attackName === actionAttack.attackName);
+        const existing = findAttack(actionAttack.attackName);
         const modifiers =
-          existing?.modifiers ?? ({ targetId: null, bo: attack.currentBo || 0 } as ActionAttackModifiers);
+          existing?.modifiers ?? actionAttack.modifiers ?? ({ targetId: null, bo: actorAttack?.currentBo || 0 } as ActionAttackModifiers);
+
+        const displayTable = actorAttack?.attackTable || '';
+        const displayBo = actorAttack?.currentBo ?? actionAttack.modifiers?.bo ?? 0;
 
         return (
           <div key={index}>
-            <Typography variant="h6">{t(attack.attackName)}</Typography>
+            <Typography variant="h6">{t(actionAttack.attackName)}</Typography>
             <Grid container spacing={1} alignItems="center">
               <Grid size={2}>
-                {t(attack.attackTable)} +{attack.currentBo}
+                {t(displayTable)} +{displayBo}
               </Grid>
               <Grid size={10}>
                 <TargetSelector
                   value={modifiers.targetId || ''}
-                  onChange={(actorId) => handleTargetChange(attack.attackName, actorId)}
+                  onChange={(actorId) => handleTargetChange(actionAttack.attackName, actorId)}
                   sourceId={(actorRound as any).actorId}
                 />
               </Grid>
             </Grid>
 
-            {findAttack(attack.attackName) && (
-              <div style={{ marginTop: 8 }}>
+            {existing && actorAttack && (
+              <>
                 <RangedAttackModifiersForm
-                  attack={attack}
+                  action={action}
+                  attack={actorAttack}
                   formData={formData}
                   setFormData={setFormData}
-                  index={selected.findIndex((a) => a.attackName === attack.attackName)}
+                  index={selected.findIndex((a) => a.attackName === actionAttack.attackName)}
                 />
-              </div>
+                {actionAttack.calculated && (
+                  <>
+                    <Typography>Calculated</Typography>
+                    <KeyValueModifiersView modifiers={actionAttack.calculated.rollModifiers} />
+                  </>
+                )}
+              </>
             )}
           </div>
         );

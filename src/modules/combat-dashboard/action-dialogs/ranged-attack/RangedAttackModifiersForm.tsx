@@ -2,7 +2,8 @@ import React, { ChangeEvent, Dispatch, FC, SetStateAction, useContext } from 're
 import { Button, Grid } from '@mui/material';
 import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
-import { AttackDeclaration } from '../../../api/action.dto';
+import { prepareAttack } from '../../../api/action';
+import { Action, AttackDeclaration } from '../../../api/action.dto';
 import { ActorRoundAttack } from '../../../api/actor-rounds.dto';
 import { NumericInput } from '../../../shared/inputs/NumericInput';
 import SelectAttackRange from '../../../shared/selects/SelectAttackRange';
@@ -15,11 +16,12 @@ import RangedAttackDefenseOptions from './RangedAttackDefenseOptions';
 import RangedAttackOptionsForm from './RangedAttackOptionsForm';
 
 const RangedAttackModifiersForm: FC<{
+  action: Action;
   attack: ActorRoundAttack;
   formData: AttackDeclaration;
   setFormData: Dispatch<SetStateAction<AttackDeclaration>>;
   index: number;
-}> = ({ attack, formData, setFormData, index }) => {
+}> = ({ action, attack, formData, setFormData, index }) => {
   const { actorRounds } = useContext(CombatContext);
 
   const formDataAttack = formData.attacks?.[index];
@@ -76,6 +78,16 @@ const RangedAttackModifiersForm: FC<{
     setFormData({ ...formData, attacks: newAttacks });
   };
 
+  const prepare = () => {
+    prepareAttack(action.id, formData)
+      .then((data) => {
+        setFormData(data);
+      })
+      .catch((error) => {
+        console.error('Error preparing attack:', error);
+      });
+  };
+
   return (
     <Grid container spacing={2} sx={{ marginTop: 1, marginBottom: 1 }}>
       <Grid size={12}>
@@ -123,12 +135,7 @@ const RangedAttackModifiersForm: FC<{
         </Grid>
       )}
       <Grid size={12}>
-        <Button
-          variant="contained"
-          color="success"
-          disabled={!isValidForm()}
-          onClick={() => setFormData({ ...formData, attacks: [] })}
-        >
+        <Button variant="contained" color="success" disabled={!isValidForm()} onClick={prepare}>
           {t('prepare')}
         </Button>
       </Grid>
