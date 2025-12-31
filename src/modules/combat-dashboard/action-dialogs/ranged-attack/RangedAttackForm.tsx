@@ -1,5 +1,5 @@
 import React, { FC, useEffect } from 'react';
-import { Grid, Typography } from '@mui/material';
+import { Chip, Grid, Typography } from '@mui/material';
 import { t } from 'i18next';
 import { Action, ActionAttack, ActionAttackModifiers, AttackDeclaration } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
@@ -69,7 +69,9 @@ const RangedAttackForm: FC<{
         const actorAttack = actorRound.attacks?.find((a) => a.attackName === actionAttack.attackName);
         const existing = findAttack(actionAttack.attackName);
         const modifiers =
-          existing?.modifiers ?? actionAttack.modifiers ?? ({ targetId: null, bo: actorAttack?.currentBo || 0 } as ActionAttackModifiers);
+          existing?.modifiers ??
+          actionAttack.modifiers ??
+          ({ targetId: null, bo: actorAttack?.currentBo || 0 } as ActionAttackModifiers);
 
         const displayTable = actorAttack?.attackTable || '';
         const displayBo = actorAttack?.currentBo ?? actionAttack.modifiers?.bo ?? 0;
@@ -102,7 +104,14 @@ const RangedAttackForm: FC<{
                 {actionAttack.calculated && (
                   <>
                     <Typography>Calculated</Typography>
-                    <KeyValueModifiersView modifiers={actionAttack.calculated.rollModifiers} />
+                    <Grid container spacing={1}>
+                      <Grid size={3}>
+                        <Chip label={`Total: ${actionAttack.calculated.rollTotal}`} />
+                      </Grid>
+                      <Grid size={9}>
+                        <KeyValueModifiersView modifiers={actionAttack.calculated.rollModifiers} />
+                      </Grid>
+                    </Grid>
                   </>
                 )}
               </>

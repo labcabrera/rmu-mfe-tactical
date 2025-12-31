@@ -22,7 +22,7 @@ const RangedAttackModifiersForm: FC<{
   setFormData: Dispatch<SetStateAction<AttackDeclaration>>;
   index: number;
 }> = ({ action, attack, formData, setFormData, index }) => {
-  const { actorRounds } = useContext(CombatContext);
+  const { actorRounds, updateAction } = useContext(CombatContext);
 
   const formDataAttack = formData.attacks?.[index];
   const modifiers = formDataAttack?.modifiers;
@@ -81,6 +81,7 @@ const RangedAttackModifiersForm: FC<{
   const prepare = () => {
     prepareAttack(action.id, formData)
       .then((data) => {
+        updateAction(data);
         setFormData(data);
       })
       .catch((error) => {

@@ -15,13 +15,11 @@ import {
 import { CombatContext } from '../../../../CombatContext';
 import CharacterAvatar from '../../../shared/avatars/CharacterAvatar';
 
-type Props = {
+const TargetSelector: FC<{
   value?: string | null;
   onChange: (actorId: string | null) => void;
   sourceId?: string | null;
-};
-
-const TargetSelector: FC<Props> = ({ value = null, onChange, sourceId = null }) => {
+}> = ({ value = null, onChange, sourceId = null }) => {
   const { actorRounds, characters } = useContext(CombatContext)!;
   const [open, setOpen] = useState(false);
   const [filter, setFilter] = useState<'distinct' | 'all'>('distinct');
