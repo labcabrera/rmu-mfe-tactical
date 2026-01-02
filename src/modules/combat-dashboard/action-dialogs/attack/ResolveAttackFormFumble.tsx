@@ -39,15 +39,17 @@ const ResolveAttackFormFumble: FC<{
   return (
     <>
       <Grid size={2}>
-        <Button
-          variant="contained"
-          size="small"
-          color="success"
-          disabled={!fumbleRoll}
-          onClick={() => onUpdateFumbleRollClick()}
-        >
-          {t('roll-fumble')}
-        </Button>
+        {action.status !== 'completed' && (
+          <Button
+            variant="contained"
+            size="small"
+            color="success"
+            disabled={!fumbleRoll}
+            onClick={() => onUpdateFumbleRollClick()}
+          >
+            {t('roll-fumble')}
+          </Button>
+        )}
       </Grid>
       <Grid size={1}>
         <NumericInput label={t('fumble-roll')} value={fumbleRoll} onChange={(e) => setFumbleRoll(e)} />

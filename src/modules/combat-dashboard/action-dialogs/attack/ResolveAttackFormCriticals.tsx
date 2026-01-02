@@ -66,15 +66,17 @@ const ResolveAttackFormCriticals: FC<{
       {attack.results.criticals.map((critical: any, index: number) => (
         <Fragment key={index}>
           <Grid size={2}>
-            <Button
-              variant="contained"
-              size="small"
-              color="success"
-              disabled={!getCriticalRoll(critical.key)}
-              onClick={() => onUpdateCriticalRollClick(critical.key)}
-            >
-              {t('roll-critical')}
-            </Button>
+            {action.status !== 'completed' && (
+              <Button
+                variant="contained"
+                size="small"
+                color="success"
+                disabled={!getCriticalRoll(critical.key)}
+                onClick={() => onUpdateCriticalRollClick(critical.key)}
+              >
+                {t('roll-critical')}
+              </Button>
+            )}
           </Grid>
           <Grid size={1}>
             <NumericInput
@@ -102,8 +104,8 @@ const ResolveAttackFormCriticals: FC<{
                 ))}
             </Stack>
           </Grid>
-          <Grid size={5}>{critical.result?.text || ''}</Grid>
           <Grid size={5}></Grid>
+          <Grid size={5}>{critical.result?.text || ''}</Grid>
           <Grid size={12}></Grid>
         </Fragment>
       ))}

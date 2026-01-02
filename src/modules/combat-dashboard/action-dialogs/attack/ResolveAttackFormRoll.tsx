@@ -69,7 +69,7 @@ const ResolveAttackFormRoll: FC<{
   };
 
   const getLocation = () => {
-    if (attack.modifiers.calledShot) {
+    if (attack.modifiers.calledShot && attack.modifiers.calledShot !== 'none') {
       return attack.modifiers.calledShot;
     } else {
       return attack.roll?.location || null;
@@ -99,15 +99,17 @@ const ResolveAttackFormRoll: FC<{
         <ResolveAttackInfo action={action} attack={formData.attacks[index]} />
       </Grid>
       <Grid size={2}>
-        <Button
-          onClick={() => handleRollClick()}
-          disabled={!attack.roll?.roll}
-          variant="contained"
-          size="small"
-          color="success"
-        >
-          {t('Roll attack')}
-        </Button>
+        {action.status !== 'completed' && (
+          <Button
+            onClick={() => handleRollClick()}
+            disabled={!attack.roll?.roll}
+            variant="contained"
+            size="small"
+            color="success"
+          >
+            {t('Roll attack')}
+          </Button>
+        )}
       </Grid>
       <Grid size={1}>
         <NumericInput label={t('attack-roll')} value={attack.roll?.roll || 0} onChange={(e) => updateRoll(e)} />
