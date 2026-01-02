@@ -1,10 +1,11 @@
 import React, { Dispatch, FC, SetStateAction, useContext, useState } from 'react';
-import { Button, Grid } from '@mui/material';
+import { Button, Grid, Stack } from '@mui/material';
 import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { useError } from '../../../../ErrorContext';
 import { updateFumbleRoll } from '../../../api/action';
 import { Action, ActionAttack, AttackDeclaration } from '../../../api/action.dto';
+import Effect from '../../../shared/generic/Effect';
 import { NumericInput } from '../../../shared/inputs/NumericInput';
 
 const ResolveAttackFormFumble: FC<{
@@ -17,6 +18,7 @@ const ResolveAttackFormFumble: FC<{
   const { updateAction } = useContext(CombatContext);
   const [fumbleRoll, setFumbleRoll] = useState<number | null>(attack.roll?.fumbleRoll || null);
   const { showError } = useError();
+  const fumble = attack.results?.fumble;
 
   if (!formData || !formData.attacks || formData.attacks.length <= index) return <div>Loading...</div>;
 
@@ -50,27 +52,22 @@ const ResolveAttackFormFumble: FC<{
       <Grid size={1}>
         <NumericInput label={t('fumble-roll')} value={fumbleRoll} onChange={(e) => setFumbleRoll(e)} />
       </Grid>
-      {/* <Grid size={1}>
-        <TextField label={t('type')} value={critical.criticalType} variant="standard" fullWidth />
-      </Grid>
-      <Grid size={1}>
-        <TextField label={t('severity')} value={critical.criticalSeverity} variant="standard" fullWidth />
-      </Grid>
-      <Grid size={5}>{critical.result?.text || ''}</Grid>
-      <Grid size={5}></Grid>
-      <Grid size={7}>
+      <Grid size={2}></Grid>
+      <Grid size={5}>
         <Stack direction="row" spacing={1}>
-          {critical.result && critical.result.damage && critical.result.damage > 0 && (
-            <Effect effect={'dmg'} value={critical.result.damage} />
+          {fumble.result && fumble.result.damage && fumble.result.damage > 0 && (
+            <Effect effect={'dmg'} value={fumble.result.damage} />
           )}
-          {critical.result &&
-            critical.result.effects &&
-            critical.result.effects.length > 0 &&
-            critical.result.effects.map((effect, effectIndex) => (
+          {fumble.effects &&
+            fumble.effects.length > 0 &&
+            fumble.effects.map((effect, effectIndex) => (
               <Effect key={effectIndex} effect={effect.status} rounds={effect.rounds} value={effect.value} />
             ))}
         </Stack>
-      </Grid> */}
+      </Grid>
+      <Grid size={12}></Grid>
+      <Grid size={5}></Grid>
+      <Grid size={4}>{fumble?.text || ''}</Grid>
       <Grid size={12}></Grid>
     </>
   );
