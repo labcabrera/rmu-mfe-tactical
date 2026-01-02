@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import React, { FC } from 'react';
 import { Chip, Stack } from '@mui/material';
 import { t } from 'i18next';
 import { ActionAttack } from '../../../api/action.dto';
