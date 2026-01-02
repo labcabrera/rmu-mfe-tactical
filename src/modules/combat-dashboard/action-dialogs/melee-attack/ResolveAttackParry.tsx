@@ -1,8 +1,8 @@
 import React, { Dispatch, FC, SetStateAction } from 'react';
 import { Grid } from '@mui/material';
 import { AttackDeclaration } from '../../../api/action.dto';
+import ResolveAttackInfo from '../attack/ResolveAttackInfo';
 import ResolveAttackFormParry from './ResolveAttackFormParry';
-import ResolveAttackInfo from './ResolveAttackInfo';
 
 const ResolveAttackParry: FC<{
   formData: AttackDeclaration;

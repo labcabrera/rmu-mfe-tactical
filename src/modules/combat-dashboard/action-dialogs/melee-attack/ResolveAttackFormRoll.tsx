@@ -8,8 +8,8 @@ import { updateAttackRoll } from '../../../api/action';
 import { Action, ActionAttack, AttackDeclaration } from '../../../api/action.dto';
 import { NumericInput } from '../../../shared/inputs/NumericInput';
 import SelectLocation from '../../../shared/selects/SelectLocation';
+import ResolveAttackInfo from '../attack/ResolveAttackInfo';
 import ResolveAttackFormCriticals from './ResolveAttackFormCriticals';
-import ResolveAttackInfo from './ResolveAttackInfo';
 
 const ResolveAttackFormRoll: FC<{
   formData: AttackDeclaration;
