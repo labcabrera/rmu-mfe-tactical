@@ -48,7 +48,7 @@ const SelectMeleeCover: FC<{
               disabled={readOnly}
               sx={{ minWidth: 140 }}
             >
-              {t(`cover-${option.id}`)}
+              {t(`${option.id}`)}
             </ToggleButton>
           </Badge>
         ))}
