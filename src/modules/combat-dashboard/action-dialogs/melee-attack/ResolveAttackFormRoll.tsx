@@ -78,7 +78,7 @@ const ResolveAttackFormRoll: FC<{
   return (
     <Grid container spacing={1}>
       <Grid size={12}>
-        <ResolveAttackInfo attack={formData.attacks[index]} />
+        <ResolveAttackInfo action={action} attack={formData.attacks[index]} />
       </Grid>
       <Grid size={2}>
         <NumericInput label={t('attack-roll')} value={attack.roll?.roll || 0} onChange={(e) => updateRoll(e)} />

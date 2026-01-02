@@ -73,7 +73,7 @@ const MeleeAttackStepper: FC<{
 
       {activeStep === 1 && <MeleeAttackDeclaration formData={formData} setFormData={setFormData} />}
 
-      {activeStep === 2 && <ResolveAttackParry formData={formData} setFormData={setFormData} />}
+      {activeStep === 2 && <ResolveAttackParry action={action} formData={formData} setFormData={setFormData} />}
 
       {activeStep === 3 && <ResolveAttackTabRoll formData={formData} action={action} setFormData={setFormData} />}
 

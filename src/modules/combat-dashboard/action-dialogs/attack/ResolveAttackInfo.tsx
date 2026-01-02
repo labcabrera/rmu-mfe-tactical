@@ -2,14 +2,15 @@ import React, { FC, useContext } from 'react';
 import { Chip, Grid } from '@mui/material';
 import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
-import { ActionAttack } from '../../../api/action.dto';
+import { Action, ActionAttack } from '../../../api/action.dto';
 import KeyValueModifiersView from '../../../shared/generic/KeyValueModifiersView';
 import AttackTitle from '../melee-attack/AttackTitle';
 import AttackModifiersInfo from './AttackModifiersInfo';
 
 const ResolveAttackFormModifiers: FC<{
+  action: Action;
   attack: ActionAttack;
-}> = ({ attack }) => {
+}> = ({ action, attack }) => {
   const { actorRounds } = useContext(CombatContext);
 
   if (!attack || !attack.calculated) return <div>Loading...</div>;
@@ -29,7 +30,7 @@ const ResolveAttackFormModifiers: FC<{
       </Grid>
       <Grid size={2}></Grid>
       <Grid size={10}>
-        <AttackModifiersInfo attack={attack} />
+        <AttackModifiersInfo attack={attack} action={action} />
       </Grid>
       <Grid size={2}>
         <Chip

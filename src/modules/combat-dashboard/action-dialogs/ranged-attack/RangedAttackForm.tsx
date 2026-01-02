@@ -1,5 +1,5 @@
 import React, { FC, useEffect, useState } from 'react';
-import { Button, Grid, Typography } from '@mui/material';
+import { Grid, Typography } from '@mui/material';
 import { t } from 'i18next';
 import { Action, ActionAttack, ActionAttackModifiers, AttackDeclaration } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
@@ -101,17 +101,6 @@ const RangedAttackForm: FC<{
                   index={selected.findIndex((a) => a.attackName === actionAttack.attackName)}
                 />
               </>
-            )}
-            {existing && actorAttack && existing.calculated && (
-              <Button
-                variant="outlined"
-                onClick={() => {
-                  const newAttacks = formData.attacks?.filter((a) => a.attackName !== actionAttack.attackName) || [];
-                  setFormData({ ...formData, attacks: newAttacks });
-                }}
-              >
-                {t('edit-attack')}
-              </Button>
             )}
             {existing && actorAttack && existing.calculated && (
               <ResolveAttackFormRoll

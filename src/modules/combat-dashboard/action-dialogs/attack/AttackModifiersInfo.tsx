@@ -1,11 +1,12 @@
 import React, { FC } from 'react';
 import { Chip, Stack } from '@mui/material';
 import { t } from 'i18next';
-import { ActionAttack } from '../../../api/action.dto';
+import { Action, ActionAttack } from '../../../api/action.dto';
 
 export const AttackModifiersInfo: FC<{
+  action: Action;
   attack: ActionAttack;
-}> = ({ attack }) => {
+}> = ({ action, attack }) => {
   const modifiers = attack.modifiers;
 
   if (!modifiers) return <p>Loading ...</p>;
@@ -22,6 +23,7 @@ export const AttackModifiersInfo: FC<{
         alignItems: 'flex-start',
       }}
     >
+      <AttackModifierBoolean value={action.freeAction || false} title="free-action" ignoreValue={false} />
       <AttackModifier value={modifiers.calledShot} title="called-shot" ignoreValue="none" />
       <AttackModifier value={modifiers.cover} title="cover" ignoreValue="none" />
       <AttackModifier value={modifiers.positionalSource} title="positional-source" ignoreValue="none" />
