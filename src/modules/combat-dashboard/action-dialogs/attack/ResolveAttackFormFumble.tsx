@@ -8,7 +8,7 @@ import { Action, ActionAttack, AttackDeclaration } from '../../../api/action.dto
 import Effect from '../../../shared/generic/Effect';
 import { NumericInput } from '../../../shared/inputs/NumericInput';
 
-const ResolveAttackFormCriticals: FC<{
+const ResolveAttackFormFumble: FC<{
   formData: AttackDeclaration;
   setFormData: Dispatch<SetStateAction<AttackDeclaration>>;
   action: Action;
@@ -75,12 +75,12 @@ const ResolveAttackFormCriticals: FC<{
               disabled={!getCriticalRoll(critical.key)}
               onClick={() => onUpdateCriticalRollClick(critical.key)}
             >
-              {t('Roll critical')}
+              {t('roll-fumble')}
             </Button>
           </Grid>
           <Grid size={1}>
             <NumericInput
-              label={t('roll-critical')}
+              label={t('fumble-roll')}
               value={getCriticalRoll(critical.key)}
               onChange={(e) => onUpdateCriticalRoll(critical.key, e)}
             />
@@ -113,4 +113,4 @@ const ResolveAttackFormCriticals: FC<{
   );
 };
 
-export default ResolveAttackFormCriticals;
+export default ResolveAttackFormFumble;

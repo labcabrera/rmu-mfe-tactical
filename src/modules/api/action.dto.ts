@@ -113,7 +113,22 @@ export type ActionAttack = {
     criticalRolls?: Map<string, number | undefined>;
   };
   calculated: AttackCalculationsDto | undefined;
-  results: any;
+  results: ActionAttackResults | undefined;
+};
+
+export type ActionAttackResults = {
+  attackTableEntry: any;
+  criticals: any[];
+  fumble: any;
+  attackTableResult: string;
+};
+
+export type ActionAttackFumbleResult = {
+  status: string;
+  text: string | null;
+  additionalDamageText: string | null;
+  damage: number | null;
+  effects: any[] | undefined;
 };
 
 export type ActionAttackModifiers = {

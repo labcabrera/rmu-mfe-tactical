@@ -7,7 +7,8 @@ import { updateAttackRoll } from '../../../api/action';
 import { Action, ActionAttack, AttackDeclaration } from '../../../api/action.dto';
 import { NumericInput } from '../../../shared/inputs/NumericInput';
 import SelectLocation from '../../../shared/selects/SelectLocation';
-import ResolveAttackFormCriticals from '../melee-attack/ResolveAttackFormCriticals';
+import ResolveAttackFormCriticals from './ResolveAttackFormCriticals';
+import ResolveAttackFormFumble from './ResolveAttackFormFumble';
 import ResolveAttackInfo from './ResolveAttackInfo';
 
 const ResolveAttackFormRoll: FC<{
@@ -78,10 +79,14 @@ const ResolveAttackFormRoll: FC<{
   /**
    * If the attack is a called shot, no location selection is required. Also not required if the defender uses the same armor type in all locations.
    */
-  const requiresLocation = () => {
+  const requiresLocation = (): boolean => {
     if (attack.modifiers.calledShot !== undefined && attack.modifiers.calledShot !== 'none') return false;
     if (target.defense.at) return false;
     return true;
+  };
+
+  const isFumbleAttack = (): boolean => {
+    return attack.results?.fumble !== undefined;
   };
 
   return (
@@ -125,7 +130,19 @@ const ResolveAttackFormRoll: FC<{
           />
         </>
       )}
+      {isFumbleAttack() && (
+        <>
+          <ResolveAttackFormFumble
+            attack={attack}
+            formData={formData}
+            setFormData={setFormData}
+            action={action}
+            index={index}
+          />
+        </>
+      )}
       <Grid size={12}></Grid>
+      <pre>{JSON.stringify(attack.results, null, 2)}</pre>
     </Grid>
   );
 };
