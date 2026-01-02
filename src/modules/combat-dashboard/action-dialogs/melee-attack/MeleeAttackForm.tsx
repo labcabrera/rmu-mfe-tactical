@@ -91,8 +91,10 @@ const MeleeAttackForm: FC<{
     if (action && action.attacks) {
       setFormData({ attacks: applyCurrentBoToAttacks(action.attacks), parries: action.parries });
       if (action.status === 'declared') {
+        setActiveStep(0);
+      } else if (action.status === 'parry') {
         setActiveStep(2);
-      } else if (action.status === 'pending_apply' || action.status === 'completed') {
+      } else {
         setActiveStep(3);
       }
     }

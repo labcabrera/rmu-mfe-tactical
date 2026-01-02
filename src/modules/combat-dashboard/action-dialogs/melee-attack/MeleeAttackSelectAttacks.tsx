@@ -24,7 +24,6 @@ const AttackList: FC<{
 }> = ({ formData, setFormData, actorRound }) => {
   const { actorRounds, roundActions } = useContext(CombatContext);
   const selected = formData.attacks || [];
-
   const paceOrder = ['creep', 'walk', 'jog', 'run', 'sprint', 'dash'];
 
   const findAttack = (attackName: string) => selected.find((a) => a.attackName === attackName);

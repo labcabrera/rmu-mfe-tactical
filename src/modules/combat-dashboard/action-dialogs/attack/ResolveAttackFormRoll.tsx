@@ -90,7 +90,7 @@ const ResolveAttackFormRoll: FC<{
   };
 
   const isFumbleAttack = (): boolean => {
-    return attack.results?.fumble !== null;
+    return attack.results && attack.results.fumble;
   };
 
   return (
@@ -119,7 +119,7 @@ const ResolveAttackFormRoll: FC<{
       </Grid>
       {attack.results && attack.results.attackTableEntry && (
         <Grid size={1}>
-          <Chip label={attack.results.attackTableEntry.text} />
+          <Chip size="medium" color="info" label={attack.results.attackTableEntry.text} />
         </Grid>
       )}
       <Grid size={12}></Grid>

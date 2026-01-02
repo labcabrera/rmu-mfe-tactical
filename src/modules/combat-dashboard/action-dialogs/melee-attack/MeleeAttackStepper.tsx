@@ -1,6 +1,6 @@
 import React, { Dispatch, FC, SetStateAction } from 'react';
-import { useTranslation } from 'react-i18next';
 import { Box, Button, Step, StepLabel, Stepper } from '@mui/material';
+import { t } from 'i18next';
 import { Action, AttackDeclaration } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
 import MeleeAttackDeclaration from './MeleeAttackDeclaration';
@@ -33,8 +33,6 @@ const MeleeAttackStepper: FC<{
   actorRound,
   isValidDeclaration,
 }) => {
-  const { t } = useTranslation();
-
   const handleNext = () => {
     setActiveStep(activeStep + 1);
   };
@@ -50,7 +48,7 @@ const MeleeAttackStepper: FC<{
     return false;
   };
 
-  if (!actorRound) return <p>Loading...</p>;
+  if (!actorRound) return <p>Loading... (melee attack stepper)</p>;
 
   return (
     <Box sx={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', minHeight: 300 }}>
@@ -65,19 +63,13 @@ const MeleeAttackStepper: FC<{
           );
         })}
       </Stepper>
-
       {activeStep === 0 && (
-        <Box sx={{ mt: 5 }}>
-          <MeleeAttackSelectAttacks formData={formData} setFormData={setFormData} actorRound={actorRound} />
-        </Box>
+        <MeleeAttackSelectAttacks formData={formData} setFormData={setFormData} actorRound={actorRound} />
       )}
-
       {activeStep === 1 && <MeleeAttackDeclaration formData={formData} setFormData={setFormData} />}
-
       {activeStep === 2 && <ResolveAttackParry action={action} formData={formData} setFormData={setFormData} />}
-
       {activeStep === 3 && <ResolveAttackTabRoll formData={formData} action={action} setFormData={setFormData} />}
-
+      Step: {activeStep}
       <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2, mt: 'auto' }}>
         <Button color="inherit" disabled={activeStep === 0} onClick={handleBack} sx={{ mr: 1 }}>
           {t('back')}

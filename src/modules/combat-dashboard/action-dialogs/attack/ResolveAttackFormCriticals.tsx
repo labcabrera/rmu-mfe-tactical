@@ -89,9 +89,7 @@ const ResolveAttackFormCriticals: FC<{
           <Grid size={1}>
             <TextField label={t('severity')} value={critical.criticalSeverity} variant="standard" fullWidth />
           </Grid>
-          <Grid size={5}>{critical.result?.text || ''}</Grid>
-          <Grid size={5}></Grid>
-          <Grid size={7}>
+          <Grid size={5}>
             <Stack direction="row" spacing={1}>
               {critical.result && critical.result.damage && critical.result.damage > 0 && (
                 <Effect effect={'dmg'} value={critical.result.damage} />
@@ -104,6 +102,8 @@ const ResolveAttackFormCriticals: FC<{
                 ))}
             </Stack>
           </Grid>
+          <Grid size={5}>{critical.result?.text || ''}</Grid>
+          <Grid size={5}></Grid>
           <Grid size={12}></Grid>
         </Fragment>
       ))}
