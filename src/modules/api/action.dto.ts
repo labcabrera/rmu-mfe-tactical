@@ -111,6 +111,7 @@ export type ActionAttack = {
     roll: number | null;
     location: string | null;
     criticalRolls?: Map<string, number | undefined>;
+    fumbleRoll?: number | null;
   };
   calculated: AttackCalculationsDto | undefined;
   results: ActionAttackResults | undefined;

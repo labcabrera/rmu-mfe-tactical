@@ -145,6 +145,21 @@ export async function updateCriticalRoll(
   return await response.json();
 }
 
+export async function updateFumbleRoll(actionId: string, attackName: string, roll: number | null): Promise<Action> {
+  const url = `${process.env.RMU_API_TACTICAL_URL}/actions/${actionId}/attack/fumble-roll`;
+  const response = await fetch(url, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ attackName, fumbleRoll: roll }),
+  });
+  if (response.status !== 200) {
+    throw await buildErrorFromResponse(response, url);
+  }
+  return await response.json();
+}
+
 export async function applyAttack(actionId: string): Promise<Action> {
   const url = `${process.env.RMU_API_TACTICAL_URL}/actions/${actionId}/attack/apply`;
   const response = await fetch(url, {

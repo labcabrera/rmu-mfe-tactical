@@ -85,8 +85,12 @@ const ResolveAttackFormRoll: FC<{
     return true;
   };
 
+  const isCriticalAttack = (): boolean => {
+    return attack.results?.criticals !== undefined && attack.results.criticals.length > 0;
+  };
+
   const isFumbleAttack = (): boolean => {
-    return attack.results?.fumble !== undefined;
+    return attack.results?.fumble !== null;
   };
 
   return (
@@ -119,30 +123,25 @@ const ResolveAttackFormRoll: FC<{
         </Grid>
       )}
       <Grid size={12}></Grid>
-      {attack.results && attack.results.attackTableEntry && (
-        <>
-          <ResolveAttackFormCriticals
-            attack={attack}
-            formData={formData}
-            setFormData={setFormData}
-            action={action}
-            index={index}
-          />
-        </>
+      {isCriticalAttack() && (
+        <ResolveAttackFormCriticals
+          attack={attack}
+          formData={formData}
+          setFormData={setFormData}
+          action={action}
+          index={index}
+        />
       )}
       {isFumbleAttack() && (
-        <>
-          <ResolveAttackFormFumble
-            attack={attack}
-            formData={formData}
-            setFormData={setFormData}
-            action={action}
-            index={index}
-          />
-        </>
+        <ResolveAttackFormFumble
+          attack={attack}
+          formData={formData}
+          setFormData={setFormData}
+          action={action}
+          index={index}
+        />
       )}
       <Grid size={12}></Grid>
-      <pre>{JSON.stringify(attack.results, null, 2)}</pre>
     </Grid>
   );
 };
