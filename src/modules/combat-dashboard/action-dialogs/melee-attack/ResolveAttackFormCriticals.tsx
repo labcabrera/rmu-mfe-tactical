@@ -1,6 +1,5 @@
 import React, { Dispatch, FC, Fragment, SetStateAction, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 import { Button, Stack, TextField, Grid } from '@mui/material';
 import { CombatContext } from '../../../../CombatContext';
 import { useError } from '../../../../ErrorContext';
@@ -69,8 +68,19 @@ const ResolveAttackFormCriticals: FC<{
       {attack.results.criticals.map((critical: any, index: number) => (
         <Fragment key={index}>
           <Grid size={2}>
+            <Button
+              variant="contained"
+              size="small"
+              color="success"
+              disabled={!getCriticalRoll(critical.key)}
+              onClick={() => onUpdateCriticalRollClick(critical.key)}
+            >
+              {t('Roll critical')}
+            </Button>
+          </Grid>
+          <Grid size={1}>
             <NumericInput
-              label={t('roll')}
+              label={t('roll-critical')}
               value={getCriticalRoll(critical.key)}
               onChange={(e) => onUpdateCriticalRoll(critical.key, e)}
             />
@@ -80,16 +90,6 @@ const ResolveAttackFormCriticals: FC<{
           </Grid>
           <Grid size={1}>
             <TextField label={t('severity')} value={critical.criticalSeverity} variant="standard" fullWidth />
-          </Grid>
-          <Grid size={1}>
-            <Button
-              variant="outlined"
-              disabled={!getCriticalRoll(critical.key)}
-              onClick={() => onUpdateCriticalRollClick(critical.key)}
-              endIcon={<PlayCircleOutlineIcon />}
-            >
-              {t('roll')}
-            </Button>
           </Grid>
           <Grid size={5}>{critical.result?.text || ''}</Grid>
           <Grid size={5}></Grid>

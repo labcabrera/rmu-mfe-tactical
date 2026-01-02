@@ -91,20 +91,22 @@ const RangedAttackModifiersForm: FC<{
 
   return (
     <Grid container spacing={2} sx={{ marginTop: 1, marginBottom: 1 }}>
-      <Grid size={12}>
-        <AttackTitle attack={formDataAttack} target={target} />
-      </Grid>
+      {target && (
+        <Grid size={12}>
+          <AttackTitle attack={formDataAttack} target={target} />
+        </Grid>
+      )}
       <Grid size={12}>
         <SelectAttackRange attack={attack} value={modifiers.range || null} onChange={onRangeChange} readOnly={false} />
-      </Grid>
-      <Grid size={12}>
-        <SelectRestrictedQuarters value={restrictedQuarters} onChange={(e) => handleChange('restrictedQuarters', e)} />
       </Grid>
       <Grid size={12}>
         <SelectRangedCover value={formDataAttack?.modifiers?.cover || ''} onChange={(e) => handleChange('cover', e)} />
       </Grid>
       <Grid size={12}>
         <SelectCalledShot value={modifiers.calledShot || ''} onChange={onCalledShotChange} target={target} />
+      </Grid>
+      <Grid size={12}>
+        <SelectRestrictedQuarters value={restrictedQuarters} onChange={(e) => handleChange('restrictedQuarters', e)} />
       </Grid>
       <Grid size={12}>
         <SelectDodge value={dodge} onChange={(e) => handleChange('dodge', e)} />

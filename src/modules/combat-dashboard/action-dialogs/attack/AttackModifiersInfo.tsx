@@ -23,7 +23,11 @@ export const AttackModifiersInfo: FC<{
         alignItems: 'flex-start',
       }}
     >
-      <AttackModifierBoolean value={action.freeAction || false} title="free-action" ignoreValue={false} />
+      {action.freeAction ? (
+        <Chip label={`${t('free-action')}`} color="info" />
+      ) : (
+        <Chip label={`${t('action-points')}: ${action.actionPoints}`} color="info" />
+      )}
       <AttackModifier value={modifiers.calledShot} title="called-shot" ignoreValue="none" />
       <AttackModifier value={modifiers.cover} title="cover" ignoreValue="none" />
       <AttackModifier value={modifiers.positionalSource} title="positional-source" ignoreValue="none" />

@@ -1,6 +1,5 @@
 import React, { Dispatch, FC, SetStateAction, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 import { Button, Grid, Chip } from '@mui/material';
 import { CombatContext } from '../../../../CombatContext';
 import { useError } from '../../../../ErrorContext';
@@ -91,22 +90,23 @@ const ResolveAttackFormRoll: FC<{
         <ResolveAttackInfo action={action} attack={formData.attacks[index]} />
       </Grid>
       <Grid size={2}>
+        <Button
+          onClick={() => handleRollClick()}
+          disabled={!attack.roll?.roll}
+          variant="contained"
+          size="small"
+          color="success"
+        >
+          {t('Roll attack')}
+        </Button>
+      </Grid>
+      <Grid size={1}>
         <NumericInput label={t('attack-roll')} value={attack.roll?.roll || 0} onChange={(e) => updateRoll(e)} />
       </Grid>
       <Grid size={2}>
         {requiresLocation() && (
           <SelectLocation value={getLocation()} onChange={(e) => updateLocation(e.target.value)} />
         )}
-      </Grid>
-      <Grid size={1}>
-        <Button
-          onClick={() => handleRollClick()}
-          disabled={!attack.roll?.roll}
-          variant="outlined"
-          endIcon={<PlayCircleOutlineIcon />}
-        >
-          {t('roll')}
-        </Button>
       </Grid>
       {attack.results && attack.results.attackTableEntry && (
         <Grid size={1}>
