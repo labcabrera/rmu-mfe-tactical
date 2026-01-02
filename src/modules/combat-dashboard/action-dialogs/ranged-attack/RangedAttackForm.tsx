@@ -3,7 +3,7 @@ import { Grid, Typography } from '@mui/material';
 import { t } from 'i18next';
 import { Action, ActionAttack, ActionAttackModifiers, AttackDeclaration } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
-import ResolveAttackFormRoll from '../melee-attack/ResolveAttackFormRoll';
+import ResolveAttackFormRoll from '../attack/ResolveAttackFormRoll';
 import TargetSelector from '../melee-attack/TargetSelector';
 import RangedAttackModifiersForm from './RangedAttackModifiersForm';
 

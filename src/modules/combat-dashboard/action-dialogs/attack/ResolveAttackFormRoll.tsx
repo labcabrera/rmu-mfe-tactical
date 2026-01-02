@@ -8,8 +8,8 @@ import { updateAttackRoll } from '../../../api/action';
 import { Action, ActionAttack, AttackDeclaration } from '../../../api/action.dto';
 import { NumericInput } from '../../../shared/inputs/NumericInput';
 import SelectLocation from '../../../shared/selects/SelectLocation';
-import ResolveAttackInfo from '../attack/ResolveAttackInfo';
-import ResolveAttackFormCriticals from './ResolveAttackFormCriticals';
+import ResolveAttackFormCriticals from '../melee-attack/ResolveAttackFormCriticals';
+import ResolveAttackInfo from './ResolveAttackInfo';
 
 const ResolveAttackFormRoll: FC<{
   formData: AttackDeclaration;
@@ -18,10 +18,11 @@ const ResolveAttackFormRoll: FC<{
   attack: ActionAttack;
   index: number;
 }> = ({ formData, setFormData, action, attack, index }) => {
-  const { updateAction } = useContext(CombatContext);
+  const { actorRounds, updateAction } = useContext(CombatContext);
   const { showError } = useError();
   const { t } = useTranslation();
 
+  const target = actorRounds.find((a) => a.actorId === attack.modifiers?.targetId);
   const roll = attack.roll?.roll || undefined;
   const location = attack.roll?.location || null;
 
@@ -75,6 +76,15 @@ const ResolveAttackFormRoll: FC<{
     }
   };
 
+  /**
+   * If the attack is a called shot, no location selection is required. Also not required if the defender uses the same armor type in all locations.
+   */
+  const requiresLocation = () => {
+    if (attack.modifiers.calledShot !== undefined && attack.modifiers.calledShot !== 'none') return false;
+    if (target.defense.at) return false;
+    return true;
+  };
+
   return (
     <Grid container spacing={1}>
       <Grid size={12}>
@@ -84,7 +94,9 @@ const ResolveAttackFormRoll: FC<{
         <NumericInput label={t('attack-roll')} value={attack.roll?.roll || 0} onChange={(e) => updateRoll(e)} />
       </Grid>
       <Grid size={2}>
-        <SelectLocation value={getLocation()} onChange={(e) => updateLocation(e.target.value)} />
+        {requiresLocation() && (
+          <SelectLocation value={getLocation()} onChange={(e) => updateLocation(e.target.value)} />
+        )}
       </Grid>
       <Grid size={1}>
         <Button

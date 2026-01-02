@@ -1,7 +1,7 @@
 import React, { Dispatch, FC, SetStateAction } from 'react';
 import { Grid } from '@mui/material';
 import { Action, AttackDeclaration } from '../../../api/action.dto';
-import ResolveAttackFormRoll from './ResolveAttackFormRoll';
+import ResolveAttackFormRoll from '../attack/ResolveAttackFormRoll';
 
 const ResolveAttackTabRoll: FC<{
   formData: AttackDeclaration;
@@ -12,7 +12,13 @@ const ResolveAttackTabRoll: FC<{
     <Grid container spacing={1}>
       {formData.attacks.map((attack, index) => (
         <Grid size={12} key={index}>
-          <ResolveAttackFormRoll formData={formData} setFormData={setFormData} action={action} attack={attack} index={index} />
+          <ResolveAttackFormRoll
+            formData={formData}
+            setFormData={setFormData}
+            action={action}
+            attack={attack}
+            index={index}
+          />
         </Grid>
       ))}
     </Grid>

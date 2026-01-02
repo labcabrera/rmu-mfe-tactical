@@ -90,6 +90,11 @@ const MeleeAttackForm: FC<{
   useEffect(() => {
     if (action && action.attacks) {
       setFormData({ attacks: applyCurrentBoToAttacks(action.attacks), parries: action.parries });
+      if (action.status === 'declared') {
+        setActiveStep(2);
+      } else if (action.status === 'pending_apply' || action.status === 'completed') {
+        setActiveStep(3);
+      }
     }
     if (action && action.status) {
       switch (action.status) {

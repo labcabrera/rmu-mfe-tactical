@@ -46,6 +46,7 @@ const MeleeAttackStepper: FC<{
   const isDisabledNext = () => {
     if (activeStep === 0 && !isValidDeclaration) return true;
     if (activeStep === 1 && action.status === 'declared') return true;
+    if (activeStep === 3) return true;
     return false;
   };
 
