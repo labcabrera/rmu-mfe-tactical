@@ -28,8 +28,8 @@ export const AttackModifiersInfo: FC<{
       <AttackModifier value={modifiers.positionalTarget} title="positional-target" ignoreValue="none" />
       <AttackModifier value={modifiers.restrictedQuarters} title="restricted-quarters" ignoreValue="none" />
       <AttackModifier value={modifiers.pace} title="pace" ignoreValue="creep" />
-      <AttackModifierBoolean value={modifiers.disabledDB} title="disabled-db" ignoreValue={true} />
-      <AttackModifierBoolean value={modifiers.disabledShield} title="disabled-shield" ignoreValue={true} />
+      <AttackModifierBoolean value={modifiers.disabledDB} title="disabled-db" ignoreValue={false} />
+      <AttackModifierBoolean value={modifiers.disabledShield} title="disabled-shield" ignoreValue={false} />
       <AttackModifierBoolean value={modifiers.higherGround} title="higher-ground" ignoreValue={false} />
       <AttackModifierBoolean value={modifiers.stunnedFoe} title="stunned-foe" ignoreValue={false} />
       <AttackModifierBoolean value={modifiers.surprisedFoe} title="surprised-foe" ignoreValue={false} />
