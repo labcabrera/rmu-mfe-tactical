@@ -76,7 +76,7 @@ const MeleeAttackOptions: FC<{
               Surprised foe
             </ToggleButton>
           </Badge>
-          <Badge badgeContent={'-50'} color="error">
+          <Badge badgeContent={'+30'} color="success">
             <ToggleButton value="proneTarget" sx={{ minWidth: minWidth }}>
               Prone target
             </ToggleButton>
