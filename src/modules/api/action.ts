@@ -76,16 +76,13 @@ export async function resolveManeuver(actionId: string, data: any): Promise<Acti
 }
 
 export async function prepareAttack(actionId: string, data: AttackDeclaration): Promise<Action> {
-  const body = {
-    attacks: data.attacks.map((a) => a.modifiers),
-  };
   const url = `${process.env.RMU_API_TACTICAL_URL}/actions/${actionId}/attack/prepare`;
   const response = await fetch(url, {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(body),
+    body: JSON.stringify(data),
   });
   if (response.status !== 200) {
     throw await buildErrorFromResponse(response, url);
@@ -141,6 +138,21 @@ export async function updateCriticalRoll(
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({ attackName, criticalKey, roll }),
+  });
+  if (response.status !== 200) {
+    throw await buildErrorFromResponse(response, url);
+  }
+  return await response.json();
+}
+
+export async function updateFumbleRoll(actionId: string, attackName: string, roll: number | null): Promise<Action> {
+  const url = `${process.env.RMU_API_TACTICAL_URL}/actions/${actionId}/attack/fumble-roll`;
+  const response = await fetch(url, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ attackName, fumbleRoll: roll }),
   });
   if (response.status !== 200) {
     throw await buildErrorFromResponse(response, url);

@@ -15,13 +15,11 @@ import {
 import { CombatContext } from '../../../../CombatContext';
 import CharacterAvatar from '../../../shared/avatars/CharacterAvatar';
 
-type Props = {
+const TargetSelector: FC<{
   value?: string | null;
   onChange: (actorId: string | null) => void;
   sourceId?: string | null;
-};
-
-const TargetSelector: FC<Props> = ({ value = null, onChange, sourceId = null }) => {
+}> = ({ value = null, onChange, sourceId = null }) => {
   const { actorRounds, characters } = useContext(CombatContext)!;
   const [open, setOpen] = useState(false);
   const [filter, setFilter] = useState<'distinct' | 'all'>('distinct');
@@ -88,20 +86,12 @@ const TargetSelector: FC<Props> = ({ value = null, onChange, sourceId = null }) 
               <FormControlLabel
                 value="distinct"
                 control={<Radio disabled={!actorRounds} />}
-                label={
-                  <Typography variant="caption" sx={{ fontSize: '0.65rem' }}>
-                    Distinct faction
-                  </Typography>
-                }
+                label={<Typography variant="caption">Distinct faction</Typography>}
               />
               <FormControlLabel
                 value="all"
-                control={<Radio size="small" disabled={!actorRounds} />}
-                label={
-                  <Typography variant="caption" sx={{ fontSize: '0.65rem' }}>
-                    All
-                  </Typography>
-                }
+                control={<Radio disabled={!actorRounds} />}
+                label={<Typography variant="caption">All</Typography>}
               />
             </RadioGroup>
           </Stack>
@@ -119,16 +109,16 @@ const TargetSelector: FC<Props> = ({ value = null, onChange, sourceId = null }) 
                       setOpen(false);
                     }}
                     variant={isSelected ? 'contained' : 'outlined'}
-                    size="small"
+                    size="medium"
                     sx={{ display: 'flex', flexDirection: 'column', gap: 0.25, alignItems: 'center', p: 0.5 }}
                   >
                     <CharacterAvatar
                       character={ch as any}
-                      size={32}
+                      size={40}
                       variant="square"
                       dead={ar.effects?.some((e: any) => e.status === 'dead')}
                     />
-                    <Typography variant="caption" noWrap sx={{ maxWidth: 60, fontSize: '0.65rem' }}>
+                    <Typography variant="caption" noWrap sx={{ maxWidth: 60 }}>
                       {ch.name}
                     </Typography>
                   </Button>

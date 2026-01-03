@@ -11,7 +11,7 @@ type SelectEffectProps = {
 
 const SelectEffect: FC<SelectEffectProps> = ({ value, name = 'effect', onChange }) => {
   const { t } = useTranslation();
-  const options = ['death', 'bleeding', 'stunned', 'blinded', 'prone'];
+  const options = ['death', 'bleeding', 'stunned', 'blinded', 'prone', 'surprised'];
 
   return (
     <TextField

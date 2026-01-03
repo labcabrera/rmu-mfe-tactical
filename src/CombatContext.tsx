@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable no-unused-vars */
 import React, { createContext, useEffect, useState, ReactNode, Dispatch, SetStateAction, FC } from 'react';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { Box, Typography, Accordion, AccordionDetails, AccordionSummary } from '@mui/material';
@@ -6,7 +8,8 @@ import { fetchActionsByGameAndRound } from './modules/api/action';
 import { Action } from './modules/api/action.dto';
 import { fetchActorRounds } from './modules/api/actor-rounds';
 import { ActorRound } from './modules/api/actor-rounds.dto';
-import { Character, fetchCharacters } from './modules/api/characters';
+import { fetchCharacters } from './modules/api/characters';
+import { Character } from './modules/api/characters.dto';
 import { Faction, fetchFactions } from './modules/api/factions';
 import { StrategicGame, fetchStrategicGame } from './modules/api/strategic-games';
 import { TacticalGame, fetchTacticalGame } from './modules/api/tactical-games';

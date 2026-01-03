@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { createContext, useContext, useState, ReactNode, FC } from 'react';
 import { Snackbar, Alert } from '@mui/material';
 

@@ -1,6 +1,5 @@
 import React, { Dispatch, FC, SetStateAction, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 import { Button, Grid, Chip } from '@mui/material';
 import { CombatContext } from '../../../../CombatContext';
 import { useError } from '../../../../ErrorContext';
@@ -9,6 +8,7 @@ import { Action, ActionAttack, AttackDeclaration } from '../../../api/action.dto
 import { NumericInput } from '../../../shared/inputs/NumericInput';
 import SelectLocation from '../../../shared/selects/SelectLocation';
 import ResolveAttackFormCriticals from './ResolveAttackFormCriticals';
+import ResolveAttackFormFumble from './ResolveAttackFormFumble';
 import ResolveAttackInfo from './ResolveAttackInfo';
 
 const ResolveAttackFormRoll: FC<{
@@ -18,15 +18,16 @@ const ResolveAttackFormRoll: FC<{
   attack: ActionAttack;
   index: number;
 }> = ({ formData, setFormData, action, attack, index }) => {
-  const { updateAction } = useContext(CombatContext);
+  const { actorRounds, updateAction } = useContext(CombatContext);
   const { showError } = useError();
   const { t } = useTranslation();
 
+  const target = actorRounds.find((a) => a.actorId === attack.modifiers?.targetId);
   const roll = attack.roll?.roll || undefined;
   const location = attack.roll?.location || null;
 
   const handleRollClick = () => {
-    const attackName = attack.modifiers.attackName;
+    const attackName = attack.attackName;
     updateAttackRoll(action.id, attackName, roll, location)
       .then((updatedAction) => {
         const newFormData = { attacks: updatedAction.attacks, parries: updatedAction.parries } as AttackDeclaration;
@@ -68,50 +69,86 @@ const ResolveAttackFormRoll: FC<{
   };
 
   const getLocation = () => {
-    if (attack.modifiers.calledShot) {
+    if (attack.modifiers.calledShot && attack.modifiers.calledShot !== 'none') {
       return attack.modifiers.calledShot;
     } else {
       return attack.roll?.location || null;
     }
   };
 
+  /**
+   * If the attack is a called shot, no location selection is required. Also not required if the defender uses the same armor type in all locations.
+   */
+  const requiresLocation = (): boolean => {
+    if (attack.modifiers.calledShot !== undefined && attack.modifiers.calledShot !== 'none') return false;
+    if (target.defense.at) return false;
+    return true;
+  };
+
+  const isRollDisabled = (): boolean => {
+    if (action.status === 'completed') return true;
+    if (!attack.roll?.roll || attack.roll?.roll === null) return true;
+    if (requiresLocation() && (!attack.roll?.location || attack.roll.location === null)) return true;
+    return false;
+  };
+
+  const isCriticalAttack = (): boolean => {
+    return attack.results?.criticals !== undefined && attack.results.criticals.length > 0;
+  };
+
+  const isFumbleAttack = (): boolean => {
+    return attack.results && attack.results.fumble;
+  };
+
   return (
     <Grid container spacing={1}>
       <Grid size={12}>
-        <ResolveAttackInfo attack={formData.attacks[index]} />
+        <ResolveAttackInfo action={action} attack={formData.attacks[index]} />
       </Grid>
       <Grid size={2}>
-        <NumericInput label={t('attack-roll')} value={attack.roll?.roll || 0} onChange={(e) => updateRoll(e)} />
-      </Grid>
-      <Grid size={2}>
-        <SelectLocation value={getLocation()} onChange={(e) => updateLocation(e.target.value)} />
+        {action.status !== 'completed' && (
+          <Button
+            onClick={() => handleRollClick()}
+            disabled={isRollDisabled()}
+            variant="contained"
+            size="small"
+            color="success"
+          >
+            {t('Roll attack')}
+          </Button>
+        )}
       </Grid>
       <Grid size={1}>
-        <Button
-          onClick={() => handleRollClick()}
-          disabled={!attack.roll?.roll}
-          variant="outlined"
-          endIcon={<PlayCircleOutlineIcon />}
-        >
-          {t('roll')}
-        </Button>
+        <NumericInput label={t('attack-roll')} value={attack.roll?.roll || null} onChange={(e) => updateRoll(e)} />
+      </Grid>
+      <Grid size={2}>
+        {requiresLocation() && (
+          <SelectLocation value={getLocation()} onChange={(e) => updateLocation(e.target.value)} />
+        )}
       </Grid>
       {attack.results && attack.results.attackTableEntry && (
         <Grid size={1}>
-          <Chip label={attack.results.attackTableEntry.text} />
+          <Chip size="medium" color="info" label={attack.results.attackTableEntry.text} />
         </Grid>
       )}
       <Grid size={12}></Grid>
-      {attack.results && attack.results.attackTableEntry && (
-        <>
-          <ResolveAttackFormCriticals
-            attack={attack}
-            formData={formData}
-            setFormData={setFormData}
-            action={action}
-            index={index}
-          />
-        </>
+      {isCriticalAttack() && (
+        <ResolveAttackFormCriticals
+          attack={attack}
+          formData={formData}
+          setFormData={setFormData}
+          action={action}
+          index={index}
+        />
+      )}
+      {isFumbleAttack() && (
+        <ResolveAttackFormFumble
+          attack={attack}
+          formData={formData}
+          setFormData={setFormData}
+          action={action}
+          index={index}
+        />
       )}
       <Grid size={12}></Grid>
     </Grid>

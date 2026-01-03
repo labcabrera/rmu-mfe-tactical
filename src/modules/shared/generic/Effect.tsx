@@ -1,10 +1,13 @@
 import React, { FC } from 'react';
-import { useTranslation } from 'react-i18next';
 import { Avatar, Chip } from '@mui/material';
+import { t } from 'i18next';
 
-const Effect: FC<{ effect: string; rounds?: number | undefined; value?: number | undefined }> = ({ effect: status, rounds, value }) => {
-  const { t } = useTranslation();
-
+const Effect: FC<{
+  effect: string;
+  rounds?: number | undefined;
+  value?: number | undefined;
+  color?: 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning';
+}> = ({ effect: status, rounds, value, color = 'info' }) => {
   const getLabel = () => {
     let label = '';
     switch (status) {
@@ -23,7 +26,13 @@ const Effect: FC<{ effect: string; rounds?: number | undefined; value?: number |
     return label;
   };
 
-  return <Chip avatar={<Avatar alt={getLabel()} src={`/static/images/icons/${status}.png`} />} label={getLabel()} />;
+  return (
+    <Chip
+      avatar={<Avatar alt={getLabel()} src={`/static/images/icons/${status}.png`} />}
+      label={getLabel()}
+      color={color}
+    />
+  );
 };
 
 export default Effect;

@@ -9,10 +9,10 @@ import { useError } from '../../../ErrorContext';
 import { deleteAction } from '../../api/action';
 import { Action } from '../../api/action.dto';
 import { ActorRound } from '../../api/actor-rounds.dto';
-import { Character } from '../../api/characters';
+import { Character } from '../../api/characters.dto';
 import ActionManeuverForm from './maneuver/ActionManeuverForm';
-import ActionMeleeAttackForm from './melee-attack/ActionMeleeAttackForm';
-import ActionMovementForm from './movement/ActionMovementForm';
+import MeleeAttackForm from './melee-attack/MeleeAttackForm';
+import MovementForm from './movement/MovementForm';
 import RangedAttackForm from './ranged-attack/RangedAttackForm';
 
 const ActionDialog: FC<{
@@ -51,19 +51,11 @@ const ActionDialog: FC<{
         {actorRound.actorName} {t(action.actionType)}
       </DialogTitle>
       {!deleting ? (
-        <DialogContent>
-          {action.actionType === 'movement' && (
-            <ActionMovementForm action={action} character={character} onClose={onClose} />
-          )}
-          {action.actionType === 'melee_attack' && (
-            <ActionMeleeAttackForm action={action} actorRound={actorRound} character={character} />
-          )}
-          {action.actionType === 'ranged_attack' && (
-            <RangedAttackForm action={action} actorRound={actorRound} character={character} />
-          )}
-          {action.actionType === 'maneuver' && (
-            <ActionManeuverForm action={action} actorRound={actorRound} character={character} />
-          )}
+        <DialogContent sx={{ minHeight: '800px' }}>
+          {action.actionType === 'movement' && <MovementForm action={action} character={character} onClose={onClose} />}
+          {action.actionType === 'melee_attack' && <MeleeAttackForm action={action} actorRound={actorRound} />}
+          {action.actionType === 'ranged_attack' && <RangedAttackForm action={action} actorRound={actorRound} />}
+          {action.actionType === 'maneuver' && <ActionManeuverForm action={action} actorRound={actorRound} />}
         </DialogContent>
       ) : (
         <DialogContent>

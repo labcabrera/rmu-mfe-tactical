@@ -1,22 +1,17 @@
 import React, { ChangeEvent, FC } from 'react';
-import { Stack, Button, FormControl, FormLabel } from '@mui/material';
+import { FormControl, FormLabel, ToggleButtonGroup, ToggleButton, Badge } from '@mui/material';
 import { t } from 'i18next';
+import { ActorRound } from '../../api/actor-rounds.dto';
 
-type SelectCalledShotProps = {
-  value: string;
+const SelectCalledShot: FC<{
+  value?: string;
+  target?: ActorRound;
   onChange: (event: ChangeEvent<HTMLInputElement>) => void;
   name?: string;
   label?: string;
   readOnly?: boolean;
-};
-
-const SelectCalledShot: FC<SelectCalledShotProps> = ({
-  value,
-  onChange,
-  name = 'calledShot',
-  label = 'Called Shot',
-  readOnly = false,
-}) => {
+}> = ({ value = 'none', target, onChange, name = 'calledShot', label = 'Called Shot', readOnly = false }) => {
+  const labelId = `select-called-shot-${name}-label`;
   const options = ['none', 'head', 'body', 'arms', 'legs'];
 
   const handleClick = (option: string) => {
@@ -25,30 +20,45 @@ const SelectCalledShot: FC<SelectCalledShotProps> = ({
     onChange(evt);
   };
 
-  const labelId = `select-called-shot-${name}-label`;
+  const badgeContent = (option: string): string | null => {
+    if (readOnly) return null;
+    if (!target) return null;
+    switch (option) {
+      case 'none':
+        return target.defense.at ? target.defense.at.toString() : 'N/A';
+      case 'head':
+        return target.defense.at ? target.defense.at.toString() : target.defense.headAt!.toString();
+      case 'body':
+        return target.defense.at ? target.defense.at.toString() : target.defense.bodyAt!.toString();
+      case 'arms':
+        return target.defense.at ? target.defense.at.toString() : target.defense.armsAt!.toString();
+      case 'legs':
+        return target.defense.at ? target.defense.at.toString() : target.defense.legsAt!.toString();
+      default:
+        return null;
+    }
+  };
 
   return (
-    <FormControl component="fieldset" variant="standard" sx={{ width: '100%' }}>
+    <FormControl component="fieldset">
       <FormLabel id={labelId} component="legend" sx={{ mb: 1, typography: 'body1' }}>
         {t(label)}
       </FormLabel>
-      <Stack role="group" aria-labelledby={labelId} direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
-        {options.map((option) => {
-          const selected = option === value || (!value && option === 'none');
-          return (
-            <Button
-              key={option}
-              size="large"
-              variant={selected ? 'contained' : 'outlined'}
-              color={selected ? 'primary' : 'inherit'}
+      <ToggleButtonGroup value={value} exclusive>
+        {options.map((option) => (
+          <Badge key={option} badgeContent={badgeContent(option)} color="secondary">
+            <ToggleButton
+              key={`${option}-btn`}
+              value={option}
               onClick={() => handleClick(option)}
               disabled={readOnly}
+              sx={{ minWidth: 140 }}
             >
               {t(option)}
-            </Button>
-          );
-        })}
-      </Stack>
+            </ToggleButton>
+          </Badge>
+        ))}
+      </ToggleButtonGroup>
     </FormControl>
   );
 };

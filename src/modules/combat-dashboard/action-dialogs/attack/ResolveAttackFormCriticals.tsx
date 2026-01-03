@@ -1,6 +1,5 @@
 import React, { Dispatch, FC, Fragment, SetStateAction, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
 import { Button, Stack, TextField, Grid } from '@mui/material';
 import { CombatContext } from '../../../../CombatContext';
 import { useError } from '../../../../ErrorContext';
@@ -22,8 +21,6 @@ const ResolveAttackFormCriticals: FC<{
 
   if (!formData || !formData.attacks || formData.attacks.length <= index) return <div>Loading...</div>;
 
-  if (!attack.results || !attack.results.criticals || attack.results.criticals.length === 0) return;
-
   const getCriticalRoll = (criticalKey: string): number | undefined => {
     let roll: number | undefined;
     try {
@@ -35,7 +32,7 @@ const ResolveAttackFormCriticals: FC<{
   };
 
   const onUpdateCriticalRollClick = (criticalKey: string) => {
-    updateCriticalRoll(action.id, attack.modifiers.attackName, criticalKey, getCriticalRoll(criticalKey)!)
+    updateCriticalRoll(action.id, attack.attackName, criticalKey, getCriticalRoll(criticalKey)!)
       .then((updatedAction) => {
         const newFormData = { attacks: updatedAction.attacks, parries: undefined };
         updateAction(updatedAction);
@@ -69,7 +66,24 @@ const ResolveAttackFormCriticals: FC<{
       {attack.results.criticals.map((critical: any, index: number) => (
         <Fragment key={index}>
           <Grid size={2}>
-            <NumericInput label={t('roll')} value={getCriticalRoll(critical.key)} onChange={(e) => onUpdateCriticalRoll(critical.key, e)} />
+            {action.status !== 'completed' && (
+              <Button
+                variant="contained"
+                size="small"
+                color="success"
+                disabled={!getCriticalRoll(critical.key)}
+                onClick={() => onUpdateCriticalRollClick(critical.key)}
+              >
+                {t('roll-critical')}
+              </Button>
+            )}
+          </Grid>
+          <Grid size={1}>
+            <NumericInput
+              label={t('critical-roll')}
+              value={getCriticalRoll(critical.key)}
+              onChange={(e) => onUpdateCriticalRoll(critical.key, e)}
+            />
           </Grid>
           <Grid size={1}>
             <TextField label={t('type')} value={critical.criticalType} variant="standard" fullWidth />
@@ -77,21 +91,11 @@ const ResolveAttackFormCriticals: FC<{
           <Grid size={1}>
             <TextField label={t('severity')} value={critical.criticalSeverity} variant="standard" fullWidth />
           </Grid>
-          <Grid size={1}>
-            <Button
-              variant="outlined"
-              disabled={!getCriticalRoll(critical.key)}
-              onClick={() => onUpdateCriticalRollClick(critical.key)}
-              endIcon={<PlayCircleOutlineIcon />}
-            >
-              {t('roll')}
-            </Button>
-          </Grid>
-          <Grid size={5}>{critical.result?.text || ''}</Grid>
-          <Grid size={5}></Grid>
-          <Grid size={7}>
+          <Grid size={5}>
             <Stack direction="row" spacing={1}>
-              {critical.result && critical.result.damage && critical.result.damage > 0 && <Effect effect={'dmg'} value={critical.result.damage} />}
+              {critical.result && critical.result.damage && critical.result.damage > 0 && (
+                <Effect effect={'dmg'} value={critical.result.damage} />
+              )}
               {critical.result &&
                 critical.result.effects &&
                 critical.result.effects.length > 0 &&
@@ -99,6 +103,11 @@ const ResolveAttackFormCriticals: FC<{
                   <Effect key={effectIndex} effect={effect.status} rounds={effect.rounds} value={effect.value} />
                 ))}
             </Stack>
+          </Grid>
+          <Grid size={5}></Grid>
+          <Grid size={5}>
+            {critical.result?.text || ''}
+            {critical.result?.location && <span>&nbsp;[{t(critical.result?.location)}]</span>}
           </Grid>
           <Grid size={12}></Grid>
         </Fragment>

@@ -1,6 +1,7 @@
 export type ActionStatus =
   | 'declared'
-  | 'in_progress'
+  | 'prepared'
+  | 'parry'
   | 'parry_declaration'
   | 'roll_declaration'
   | 'critical_and_fumble_roll_declaration'
@@ -105,18 +106,34 @@ export type ResolveMovementDto = {
 };
 
 export type ActionAttack = {
+  attackName: string;
   modifiers: ActionAttackModifiers;
   roll: {
     roll: number | null;
     location: string | null;
     criticalRolls?: Map<string, number | undefined>;
+    fumbleRoll?: number | null;
   };
   calculated: AttackCalculationsDto | undefined;
-  results: any;
+  results: ActionAttackResults | undefined;
+};
+
+export type ActionAttackResults = {
+  attackTableEntry: any;
+  criticals: any[];
+  fumble: any;
+  attackTableResult: string;
+};
+
+export type ActionAttackFumbleResult = {
+  status: string;
+  text: string | null;
+  additionalDamageText: string | null;
+  damage: number | null;
+  effects: any[] | undefined;
 };
 
 export type ActionAttackModifiers = {
-  attackName: string;
   targetId: string;
   bo: number | null;
   calledShot: string | null;
@@ -130,6 +147,7 @@ export type ActionAttackModifiers = {
   stunnedFoe?: boolean;
   surprisedFoe?: boolean;
   proneSource?: boolean;
+  offHand?: boolean;
   proneTarget?: boolean;
   attackerInMelee?: boolean;
   ambush?: boolean;
@@ -138,11 +156,12 @@ export type ActionAttackModifiers = {
   disabledDB: boolean | null;
   disabledShield: boolean | null;
   disabledParry: boolean | null;
+  restrictedParry: boolean | null;
   customBonus: number | null;
 };
 
 export type AttackCalculationsDto = {
-  rollModifiers: { key: string; value: number }[];
+  rollModifiers: KeyValueModifier[];
   rollTotal: number;
 };
 

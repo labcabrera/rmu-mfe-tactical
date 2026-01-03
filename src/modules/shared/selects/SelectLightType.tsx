@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Stack, Button, Badge, FormControl, FormLabel } from '@mui/material';
+import { Badge, FormControl, FormLabel, ToggleButtonGroup, ToggleButton } from '@mui/material';
 
 type LightOption = {
   id: string;
@@ -46,25 +46,20 @@ const SelectLightType: FC<{
       <FormLabel id={'light'} component="legend" sx={{ mb: 1.5, typography: 'body1' }}>
         {t('light')}
       </FormLabel>
-      <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
-        {codes.map((option) => {
-          const selected = option.id === value;
-          return (
-            <Badge badgeContent={getModifier(option)} color="error" key={option.id}>
-              <Button
-                key={option.id}
-                size="large"
-                variant={selected ? 'contained' : 'outlined'}
-                color={selected ? 'primary' : 'inherit'}
-                onClick={() => handleClick(option.id)}
-                disabled={readOnly}
-              >
-                {t(option.id)}
-              </Button>
-            </Badge>
-          );
-        })}
-      </Stack>
+      <ToggleButtonGroup value={value} exclusive>
+        {codes.map((option) => (
+          <Badge badgeContent={getModifier(option)} color="error" key={option.id}>
+            <ToggleButton
+              value={option.id}
+              onClick={() => handleClick(option.id)}
+              disabled={readOnly}
+              sx={{ minWidth: 160 }}
+            >
+              {t(option.id)}
+            </ToggleButton>
+          </Badge>
+        ))}
+      </ToggleButtonGroup>
     </FormControl>
   );
 };

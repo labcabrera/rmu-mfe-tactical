@@ -23,7 +23,7 @@ const AttackTitle: FC<{
   return (
     <>
       <Typography variant="h6" color="primary">
-        {`${t(attack.modifiers.attackName)} → ${target?.actorName}`}
+        {`${t(attack.attackName)} → ${target?.actorName}`}
       </Typography>
       <Typography variant="body2" color="primary">
         {getAttackDetail()}

@@ -1,17 +1,16 @@
 import React, { Dispatch, FC, SetStateAction } from 'react';
-import { useTranslation } from 'react-i18next';
 import { Box, Button, Step, StepLabel, Stepper } from '@mui/material';
+import { t } from 'i18next';
 import { Action, AttackDeclaration } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
-import { Character } from '../../../api/characters';
-import ResolveAttackDeclaration from './ResolveAttackDeclaration';
+import MeleeAttackDeclaration from './MeleeAttackDeclaration';
+import MeleeAttackSelectAttacks from './MeleeAttackSelectAttacks';
 import ResolveAttackParry from './ResolveAttackParry';
 import ResolveAttackTabRoll from './ResolveAttackRoll';
-import ResolveAttackSelectAttacks from './ResolveAttackSelectAttacks';
 
 const steps = ['Select targets', 'Choose attack options', 'Declare parry', 'Resolve attacks'];
 
-const ResolveAttackStepper: FC<{
+const MeleeAttackStepper: FC<{
   formData: AttackDeclaration;
   setFormData: Dispatch<SetStateAction<AttackDeclaration>>;
   activeStep: number;
@@ -21,7 +20,6 @@ const ResolveAttackStepper: FC<{
   onApply: () => void;
   action: Action;
   actorRound: ActorRound;
-  character: Character;
   isValidDeclaration: boolean;
 }> = ({
   formData,
@@ -33,11 +31,8 @@ const ResolveAttackStepper: FC<{
   onApply,
   action,
   actorRound,
-  character,
   isValidDeclaration,
 }) => {
-  const { t } = useTranslation();
-
   const handleNext = () => {
     setActiveStep(activeStep + 1);
   };
@@ -49,10 +44,11 @@ const ResolveAttackStepper: FC<{
   const isDisabledNext = () => {
     if (activeStep === 0 && !isValidDeclaration) return true;
     if (activeStep === 1 && action.status === 'declared') return true;
+    if (activeStep === 3) return true;
     return false;
   };
 
-  if (!actorRound) return <p>Loading...</p>;
+  if (!actorRound) return <p>Loading... (melee attack stepper)</p>;
 
   return (
     <Box sx={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', minHeight: 300 }}>
@@ -68,26 +64,18 @@ const ResolveAttackStepper: FC<{
         })}
       </Stepper>
       {activeStep === 0 && (
-        <Box sx={{ mt: 5 }}>
-          <ResolveAttackSelectAttacks
-            formData={formData}
-            setFormData={setFormData}
-            actorRound={actorRound}
-            character={character}
-          />
-        </Box>
+        <MeleeAttackSelectAttacks formData={formData} setFormData={setFormData} actorRound={actorRound} />
       )}
-      {activeStep === 1 && <ResolveAttackDeclaration formData={formData} setFormData={setFormData} />}
-      {activeStep === 2 && <ResolveAttackParry formData={formData} setFormData={setFormData} />}
+      {activeStep === 1 && <MeleeAttackDeclaration formData={formData} setFormData={setFormData} />}
+      {activeStep === 2 && <ResolveAttackParry action={action} formData={formData} setFormData={setFormData} />}
       {activeStep === 3 && <ResolveAttackTabRoll formData={formData} action={action} setFormData={setFormData} />}
+
       <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2, mt: 'auto' }}>
         <Button color="inherit" disabled={activeStep === 0} onClick={handleBack} sx={{ mr: 1 }}>
           {t('back')}
         </Button>
         <Box sx={{ flex: '1 1 auto' }} />
-        {activeStep === 1 && (action.status === 'declared' || action.status === 'in_progress') && (
-          <Button onClick={onDeclare}>{t('prepare')}</Button>
-        )}
+        {activeStep === 1 && action.status === 'declared' && <Button onClick={onDeclare}>{t('prepare')}</Button>}
         {activeStep === 2 && <Button onClick={onParry}>{t('parry')}</Button>}
         {activeStep === 3 && action.status !== 'completed' && <Button onClick={onApply}>{t('apply')}</Button>}
         <Button onClick={handleNext} disabled={isDisabledNext()}>
@@ -98,4 +86,4 @@ const ResolveAttackStepper: FC<{
   );
 };
 
-export default ResolveAttackStepper;
+export default MeleeAttackStepper;

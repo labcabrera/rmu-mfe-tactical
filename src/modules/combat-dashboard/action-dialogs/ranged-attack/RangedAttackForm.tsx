@@ -1,80 +1,140 @@
-import React, { FC } from 'react';
-import { Grid, Typography } from '@mui/material';
+import React, { FC, useContext, useEffect, useState } from 'react';
+import { Button, Grid, Typography } from '@mui/material';
 import { t } from 'i18next';
+import { CombatContext } from '../../../../CombatContext';
+import { useError } from '../../../../ErrorContext';
+import { applyAttack } from '../../../api/action';
 import { Action, ActionAttack, ActionAttackModifiers, AttackDeclaration } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
-import type { Character } from '../../../api/characters';
+import ResolveAttackFormRoll from '../attack/ResolveAttackFormRoll';
 import TargetSelector from '../melee-attack/TargetSelector';
 import RangedAttackModifiersForm from './RangedAttackModifiersForm';
 
 const RangedAttackForm: FC<{
   actorRound: ActorRound;
-  character: Character;
   action: Action;
-}> = ({ actorRound, character, action }) => {
-  const [formData, setFormData] = React.useState<AttackDeclaration>({ attacks: [], parries: [] });
+}> = ({ actorRound, action }) => {
+  const { refreshActorRounds, updateAction } = useContext(CombatContext);
+  const { showError } = useError();
+
+  const [formData, setFormData] = useState<AttackDeclaration>({ attacks: [], parries: [] });
 
   const selected = formData.attacks || [];
 
-  const findAttack = (attackName: string) => selected.find((a) => a.modifiers.attackName === attackName);
+  const findAttack = (attackName: string) => selected.find((a) => a.attackName === attackName);
 
   const handleTargetChange = (attackName: string, targetId: string | null) => {
     const exists = findAttack(attackName);
     let newSelected: ActionAttack[];
     if (exists) {
       newSelected = selected.map((a) =>
-        a.modifiers.attackName === attackName ? { ...a, modifiers: { ...a.modifiers, targetId } } : a
+        a.attackName === attackName ? { ...a, modifiers: { ...a.modifiers, targetId } } : a
       );
     } else {
       const baseBo = (actorRound.attacks || []).find((a: any) => a.attackName === attackName)?.currentBo || 0;
-      const modifiers = { attackName, targetId, bo: baseBo } as ActionAttackModifiers;
-      newSelected = [...selected, { modifiers, calculated: undefined, roll: undefined, results: undefined }];
+      const modifiers = { targetId, bo: baseBo } as ActionAttackModifiers;
+      newSelected = [
+        ...selected,
+        {
+          attackName: attackName,
+          modifiers,
+          calculated: undefined,
+          roll: undefined,
+          results: undefined,
+        },
+      ];
     }
     setFormData({ ...formData, attacks: newSelected });
   };
 
-  if (!actorRound || !actorRound.attacks) {
+  const onApply = () => {
+    applyAttack(action.id)
+      .then((updatedAction) => {
+        updateAction(updatedAction);
+        refreshActorRounds();
+      })
+      .catch((err: Error) => showError(err.message));
+  };
+
+  useEffect(() => {
+    if (action.attacks) {
+      setFormData(action as AttackDeclaration);
+    }
+  }, [action]);
+
+  useEffect(() => {
+    if (actorRound && formData) {
+      formData.attacks?.forEach((attack) => {
+        const matchingAttack = actorRound.attacks?.find((a) => a.attackName === attack.attackName);
+        if (!matchingAttack) {
+          const newAttacks = formData.attacks?.filter((a) => a.attackName !== attack.attackName) || [];
+          setFormData({ ...formData, attacks: newAttacks });
+        }
+      });
+    }
+  }, [actorRound, formData]);
+
+  if (!actorRound || (!actorRound.attacks && !action.attacks)) {
     return <Typography>No ranged attacks available</Typography>;
   }
 
   return (
     <>
-      {actorRound.attacks.map((attack, index) => {
-        const existing = findAttack(attack.attackName);
+      {(action.attacks || []).map((actionAttack, index) => {
+        const actorAttack = actorRound.attacks?.find((a) => a.attackName === actionAttack.attackName);
+        const existing = findAttack(actionAttack.attackName);
         const modifiers =
           existing?.modifiers ??
-          ({ attackName: attack.attackName, targetId: null, bo: attack.currentBo || 0 } as ActionAttackModifiers);
+          actionAttack.modifiers ??
+          ({ targetId: null, bo: actorAttack?.currentBo || 0 } as ActionAttackModifiers);
+
+        const displayTable = actorAttack?.attackTable || '';
+        const displayBo = actorAttack?.currentBo ?? actionAttack.modifiers?.bo ?? 0;
 
         return (
           <div key={index}>
-            <Typography variant="h6">{t(attack.attackName)}</Typography>
-            <Grid container spacing={1} alignItems="center">
-              <Grid size={2}>
-                {t(attack.attackTable)} +{attack.currentBo}
-              </Grid>
-              <Grid size={10}>
-                <TargetSelector
-                  value={modifiers.targetId || ''}
-                  onChange={(actorId) => handleTargetChange(attack.attackName, actorId)}
-                  sourceId={(actorRound as any).actorId}
-                />
-              </Grid>
-            </Grid>
-
-            {findAttack(attack.attackName) && (
-              <div style={{ marginTop: 8 }}>
+            {existing && actorAttack && !existing.calculated && (
+              <>
+                <Typography variant="h6">{t(actionAttack.attackName)}</Typography>
+                <Grid container spacing={1} alignItems="center">
+                  <Grid size={2}>
+                    {t(displayTable)} +{displayBo}
+                  </Grid>
+                  <Grid size={10}>
+                    <TargetSelector
+                      value={modifiers.targetId || ''}
+                      onChange={(actorId) => handleTargetChange(actionAttack.attackName, actorId)}
+                      sourceId={actorRound.actorId}
+                    />
+                  </Grid>
+                </Grid>
                 <RangedAttackModifiersForm
-                  attack={attack}
+                  action={action}
+                  attack={actorAttack}
                   formData={formData}
                   setFormData={setFormData}
-                  index={selected.findIndex((a) => a.modifiers.attackName === attack.attackName)}
+                  index={selected.findIndex((a) => a.attackName === actionAttack.attackName)}
                 />
-              </div>
+              </>
+            )}
+            {existing && actorAttack && existing.calculated && (
+              <ResolveAttackFormRoll
+                formData={formData}
+                setFormData={setFormData}
+                action={action}
+                attack={existing}
+                index={index}
+              />
             )}
           </div>
         );
       })}
-      <pre>Ranged FormData: {JSON.stringify(formData, null, 2)}</pre>
+      {action.status !== 'completed' && (
+        <Button variant="contained" color="success" onClick={onApply}>
+          {t('apply')}
+        </Button>
+      )}
+      {/* <pre>Ranged FormData: {JSON.stringify(formData, null, 2)}</pre> */}
     </>
   );
 };

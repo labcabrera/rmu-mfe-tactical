@@ -1,4 +1,4 @@
-import React, { Dispatch, FC, SetStateAction, useContext } from 'react';
+import React, { Dispatch, FC, Fragment, SetStateAction, useContext } from 'react';
 import { Grid, TextField, Typography } from '@mui/material';
 import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
@@ -23,7 +23,7 @@ const ResolveAttackFormModifiers: FC<{
       {formData.parries && (
         <>
           {formData.parries.map((parry, index) => (
-            <React.Fragment key={index}>
+            <Fragment key={index}>
               <Grid size={12}>
                 <Typography variant="h6" color="primary">
                   {t('parries')}
@@ -59,7 +59,7 @@ const ResolveAttackFormModifiers: FC<{
                 />
               </Grid>
               <Grid size={12}></Grid>
-            </React.Fragment>
+            </Fragment>
           ))}
         </>
       )}

@@ -18,7 +18,7 @@ const ToggleButton: FC<ToggleButtonProps> = ({ label, value, onChange, readOnly 
   return (
     <Button
       size={size}
-      variant={value ? 'contained' : 'outlined'}
+      variant="contained"
       color={value ? 'primary' : 'inherit'}
       onClick={handleClick}
       disabled={readOnly}

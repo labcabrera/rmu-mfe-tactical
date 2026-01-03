@@ -1,18 +1,19 @@
 import React, { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Stack, Button, Typography } from '@mui/material';
+import { FormControl, FormLabel, ToggleButtonGroup, ToggleButton } from '@mui/material';
 
 const SelectBoolean: FC<{
-  name?: string;
+  id: string;
+  name: string;
   value?: boolean | null;
   onChange: (value: boolean) => void;
   readOnly?: boolean;
-}> = ({ name, value = null, onChange, readOnly = false }) => {
+}> = ({ id = 'select-boolean', name, value = null, onChange, readOnly = false }) => {
   const { t } = useTranslation();
 
   const options: { id: boolean; label: string }[] = [
-    { id: true, label: t('yes') },
-    { id: false, label: t('no') },
+    { id: true, label: t('Yes') },
+    { id: false, label: t('No') },
   ];
 
   const handleClick = (val: boolean) => {
@@ -21,28 +22,20 @@ const SelectBoolean: FC<{
   };
 
   return (
-    <div>
-      <Typography variant="caption" sx={{ display: 'block', mb: 0.5 }}>
-        {t(name || '')}
-      </Typography>
-      <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
+    <FormControl component="fieldset">
+      <FormLabel id={id} component="legend" sx={{ mb: 1, typography: 'body1' }}>
+        {name}
+      </FormLabel>
+      <ToggleButtonGroup color="standard" value={value} exclusive>
         {options.map((opt) => {
-          const selected = value === opt.id;
           return (
-            <Button
-              key={String(opt.id)}
-              size="small"
-              variant={selected ? 'contained' : 'outlined'}
-              color={selected ? 'primary' : 'inherit'}
-              onClick={() => handleClick(opt.id)}
-              disabled={readOnly}
-            >
+            <ToggleButton value={opt.id} onClick={() => handleClick(opt.id)} disabled={readOnly} sx={{ minWidth: 140 }}>
               {opt.label}
-            </Button>
+            </ToggleButton>
           );
         })}
-      </Stack>
-    </div>
+      </ToggleButtonGroup>
+    </FormControl>
   );
 };
 

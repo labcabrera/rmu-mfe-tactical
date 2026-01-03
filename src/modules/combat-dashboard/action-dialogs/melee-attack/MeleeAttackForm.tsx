@@ -4,28 +4,23 @@ import { useError } from '../../../../ErrorContext';
 import { prepareAttack, declareParry, applyAttack } from '../../../api/action';
 import { Action, AttackDeclaration, ParryDeclaration } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
-import type { Character } from '../../../api/characters';
-import ResolveActionDialogMovementStepper from './ResolveAttackStepper';
+import ResolveActionDialogMovementStepper from './MeleeAttackStepper';
 
-const ActionMeleeAttackForm: FC<{
+const MeleeAttackForm: FC<{
   action: Action;
   actorRound: ActorRound;
-  character: Character;
-}> = ({ action, actorRound, character }) => {
+}> = ({ action, actorRound }) => {
   const { refreshActorRounds, updateAction } = useContext(CombatContext);
   const [activeStep, setActiveStep] = useState<number>(action.status === 'declared' ? 0 : 1);
   const { showError } = useError();
   const [isValidDeclaration, setIsValidDeclaration] = useState(false);
-  const [formData, setFormData] = useState<AttackDeclaration>({
-    attacks: [],
-    parries: [],
-  });
+  const [formData, setFormData] = useState<AttackDeclaration>(null);
 
   const applyCurrentBoToAttacks = (attacks?: AttackDeclaration['attacks']) => {
     if (!attacks || !actorRound || !(actorRound as any).attacks) return attacks || [];
     return attacks.map((a) => {
       try {
-        const attackName = a?.modifiers?.attackName;
+        const attackName = a?.attackName;
         const baseBo = (actorRound as any).attacks.find((at: any) => at.attackName === attackName)?.currentBo ?? 0;
         const bo = a?.modifiers?.bo ?? baseBo;
         return { ...a, modifiers: { ...a.modifiers, bo } };
@@ -95,6 +90,13 @@ const ActionMeleeAttackForm: FC<{
   useEffect(() => {
     if (action && action.attacks) {
       setFormData({ attacks: applyCurrentBoToAttacks(action.attacks), parries: action.parries });
+      if (action.status === 'declared') {
+        setActiveStep(0);
+      } else if (action.status === 'parry') {
+        setActiveStep(2);
+      } else {
+        setActiveStep(3);
+      }
     }
     if (action && action.status) {
       switch (action.status) {
@@ -111,6 +113,8 @@ const ActionMeleeAttackForm: FC<{
     }
   }, [formData]);
 
+  if (!formData) return <div>Loading...</div>;
+
   return (
     <>
       <ResolveActionDialogMovementStepper
@@ -119,17 +123,16 @@ const ActionMeleeAttackForm: FC<{
         activeStep={activeStep}
         setActiveStep={setActiveStep}
         actorRound={actorRound}
-        character={character}
         action={action}
         onDeclare={onDeclare}
         onParry={onParry}
         onApply={onApply}
         isValidDeclaration={isValidDeclaration}
       />
-      <pre>FormData: {JSON.stringify(formData, null, 2)}</pre>
-      <pre>Action: {JSON.stringify(action, null, 2)}</pre>
+      {/* <pre>FormData: {JSON.stringify(formData, null, 2)}</pre>
+      <pre>Action: {JSON.stringify(action, null, 2)}</pre> */}
     </>
   );
 };
 
-export default ActionMeleeAttackForm;
+export default MeleeAttackForm;

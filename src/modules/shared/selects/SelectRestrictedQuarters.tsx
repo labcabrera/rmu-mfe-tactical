@@ -1,5 +1,5 @@
 import React, { FC } from 'react';
-import { Stack, Button, FormControl, FormLabel, Badge } from '@mui/material';
+import { FormControl, FormLabel, Badge, ToggleButtonGroup, ToggleButton } from '@mui/material';
 import { t } from 'i18next';
 
 const SelectRestrictedQuarters: FC<{
@@ -28,33 +28,24 @@ const SelectRestrictedQuarters: FC<{
   };
 
   return (
-    <FormControl component="fieldset" variant="standard" sx={{ width: '100%' }}>
+    <FormControl component="fieldset">
       <FormLabel id={labelId} component="legend" sx={{ mb: 1, typography: 'body1' }}>
         {t('restricted-quarters')}
       </FormLabel>
-      <Stack role="group" aria-labelledby={labelId} direction="row" spacing={3} sx={{ flexWrap: 'wrap' }}>
-        {options.map((option) => {
-          const selected = option.id === value || (!value && option.id === 'none');
-          return (
-            <Badge
-              key={option.id}
-              badgeContent={badgeContent(option)}
-              color={option.bonus >= 0 ? 'secondary' : 'error'}
+      <ToggleButtonGroup value={value} exclusive>
+        {options.map((option) => (
+          <Badge key={option.id} badgeContent={badgeContent(option)} color={option.bonus >= 0 ? 'secondary' : 'error'}>
+            <ToggleButton
+              value={option.id}
+              onClick={() => handleClick(option.id)}
+              disabled={readOnly}
+              sx={{ minWidth: 140 }}
             >
-              <Button
-                key={option.id}
-                size="large"
-                variant={selected ? 'contained' : 'outlined'}
-                color={selected ? 'primary' : 'inherit'}
-                onClick={() => handleClick(option.id)}
-                disabled={readOnly}
-              >
-                {t(`restricted-quarter-${option.id}`)}
-              </Button>
-            </Badge>
-          );
-        })}
-      </Stack>
+              {t(`restricted-quarter-${option.id}`)}
+            </ToggleButton>
+          </Badge>
+        ))}
+      </ToggleButtonGroup>
     </FormControl>
   );
 };

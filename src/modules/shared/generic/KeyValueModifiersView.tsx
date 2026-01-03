@@ -6,21 +6,26 @@ import { KeyValueModifier } from '../../api/action.dto';
 const KeyValueModifiersView: FC<{ modifiers?: KeyValueModifier[] | null }> = ({ modifiers }) => {
   if (!modifiers || modifiers.length === 0) return <div />;
 
-  const getChipColor = (value: number) => {
+  const getModifierColor = (value: number) => {
     if (value > 0) return 'success';
     if (value < 0) return 'error';
-    return 'primary';
+    return undefined;
   };
 
   return (
-    <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', alignItems: 'center' }}>
-      {modifiers.map((m, idx) => (
-        <Chip
-          key={idx}
-          label={`${t(m.key)}: ${m.value > 0 ? '+' : ''}${m.value}`}
-          color={getChipColor(m.value) as any}
-          variant={'filled'}
-        />
+    <Stack
+      direction="row"
+      spacing={1}
+      flexWrap="wrap"
+      useFlexGap
+      alignContent="flex-start"
+      sx={{
+        justifyContent: 'flex-start',
+        alignItems: 'flex-start',
+      }}
+    >
+      {modifiers.map((item, index) => (
+        <Chip key={index} label={`${t(item.key)}: ${item.value}`} color={getModifierColor(item.value)} sx={{ m: 0 }} />
       ))}
     </Stack>
   );
