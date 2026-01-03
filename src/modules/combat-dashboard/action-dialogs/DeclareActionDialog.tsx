@@ -273,7 +273,7 @@ const DeclareActionDialog: FC<{
             />
           )}
         </div>
-        <pre>{JSON.stringify(actionForm, null, 2)}</pre>
+        {/* <pre>{JSON.stringify(actionForm, null, 2)}</pre> */}
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose}>Cancel</Button>

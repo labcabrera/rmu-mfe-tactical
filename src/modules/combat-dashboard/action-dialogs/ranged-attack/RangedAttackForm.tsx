@@ -1,6 +1,9 @@
-import React, { FC, useEffect, useState } from 'react';
-import { Grid, Typography } from '@mui/material';
+import React, { FC, useContext, useEffect, useState } from 'react';
+import { Button, Grid, Typography } from '@mui/material';
 import { t } from 'i18next';
+import { CombatContext } from '../../../../CombatContext';
+import { useError } from '../../../../ErrorContext';
+import { applyAttack } from '../../../api/action';
 import { Action, ActionAttack, ActionAttackModifiers, AttackDeclaration } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
 import ResolveAttackFormRoll from '../attack/ResolveAttackFormRoll';
@@ -11,6 +14,9 @@ const RangedAttackForm: FC<{
   actorRound: ActorRound;
   action: Action;
 }> = ({ actorRound, action }) => {
+  const { refreshActorRounds, updateAction } = useContext(CombatContext);
+  const { showError } = useError();
+
   const [formData, setFormData] = useState<AttackDeclaration>({ attacks: [], parries: [] });
 
   const selected = formData.attacks || [];
@@ -39,6 +45,15 @@ const RangedAttackForm: FC<{
       ];
     }
     setFormData({ ...formData, attacks: newSelected });
+  };
+
+  const onApply = () => {
+    applyAttack(action.id)
+      .then((updatedAction) => {
+        updateAction(updatedAction);
+        refreshActorRounds();
+      })
+      .catch((err: Error) => showError(err.message));
   };
 
   useEffect(() => {
@@ -114,7 +129,12 @@ const RangedAttackForm: FC<{
           </div>
         );
       })}
-      <pre>Ranged FormData: {JSON.stringify(formData, null, 2)}</pre>
+      {action.status !== 'completed' && (
+        <Button variant="contained" color="success" onClick={onApply}>
+          {t('apply')}
+        </Button>
+      )}
+      {/* <pre>Ranged FormData: {JSON.stringify(formData, null, 2)}</pre> */}
     </>
   );
 };

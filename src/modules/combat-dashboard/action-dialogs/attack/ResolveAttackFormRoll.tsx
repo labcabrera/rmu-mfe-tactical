@@ -85,6 +85,13 @@ const ResolveAttackFormRoll: FC<{
     return true;
   };
 
+  const isRollDisabled = (): boolean => {
+    if (action.status === 'completed') return true;
+    if (!attack.roll?.roll || attack.roll?.roll === null) return true;
+    if (requiresLocation() && (!attack.roll?.location || attack.roll.location === null)) return true;
+    return false;
+  };
+
   const isCriticalAttack = (): boolean => {
     return attack.results?.criticals !== undefined && attack.results.criticals.length > 0;
   };
@@ -102,7 +109,7 @@ const ResolveAttackFormRoll: FC<{
         {action.status !== 'completed' && (
           <Button
             onClick={() => handleRollClick()}
-            disabled={!attack.roll?.roll}
+            disabled={isRollDisabled()}
             variant="contained"
             size="small"
             color="success"
@@ -112,7 +119,7 @@ const ResolveAttackFormRoll: FC<{
         )}
       </Grid>
       <Grid size={1}>
-        <NumericInput label={t('attack-roll')} value={attack.roll?.roll || 0} onChange={(e) => updateRoll(e)} />
+        <NumericInput label={t('attack-roll')} value={attack.roll?.roll || null} onChange={(e) => updateRoll(e)} />
       </Grid>
       <Grid size={2}>
         {requiresLocation() && (

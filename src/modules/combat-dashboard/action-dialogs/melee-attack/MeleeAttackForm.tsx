@@ -129,8 +129,8 @@ const MeleeAttackForm: FC<{
         onApply={onApply}
         isValidDeclaration={isValidDeclaration}
       />
-      <pre>FormData: {JSON.stringify(formData, null, 2)}</pre>
-      <pre>Action: {JSON.stringify(action, null, 2)}</pre>
+      {/* <pre>FormData: {JSON.stringify(formData, null, 2)}</pre>
+      <pre>Action: {JSON.stringify(action, null, 2)}</pre> */}
     </>
   );
 };
