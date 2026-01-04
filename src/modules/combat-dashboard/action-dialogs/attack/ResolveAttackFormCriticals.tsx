@@ -75,10 +75,7 @@ const ResolveAttackFormCriticals: FC<{
             </Stack>
           </Grid>
           <Grid size={4}></Grid>
-          <Grid size={8}>
-            {critical.result?.text || ''}
-            {critical.result?.location && <span>&nbsp;[{t(critical.result?.location)}]</span>}
-          </Grid>
+          <Grid size={8}>{critical.result?.text || ''}</Grid>
         </Fragment>
       ))}
     </>

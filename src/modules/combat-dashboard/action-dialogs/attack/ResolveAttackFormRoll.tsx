@@ -1,5 +1,5 @@
 import React, { Dispatch, FC, SetStateAction, useContext, useState } from 'react';
-import { Grid, Chip, Stack } from '@mui/material';
+import { Grid, Chip, Stack, Typography } from '@mui/material';
 import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { useError } from '../../../../ErrorContext';
@@ -59,6 +59,11 @@ const ResolveAttackFormRoll: FC<{
     return attack.results && attack.results.fumble;
   };
 
+  const getCriticalText = (): string => {
+    if (!attack.results || !attack.results.criticals || attack.results.criticals.length === 0) return '';
+    return `Critical ${attack.results.attackTableEntry.criticalSeverity}${attack.results.attackTableEntry.criticalType}`;
+  };
+
   return (
     <Grid container spacing={1}>
       <Grid size={12}>
@@ -98,8 +103,12 @@ const ResolveAttackFormRoll: FC<{
       {attack.results && attack.results.attackTableEntry && (
         <Grid size={8}>
           <Stack direction="row" spacing={1}>
-            <Effect effect={'dmg'} value={attack.results.attackTableEntry.damage} color="error" />
-            <Chip size="medium" color="error" label={attack.results.attackTableEntry.text} />
+            {attack.results.attackTableEntry.damage > 0 ? (
+              <Effect effect={'dmg'} value={attack.results.attackTableEntry.damage} color="error" />
+            ) : (
+              <Typography>{t('no-damage')}</Typography>
+            )}
+            {attack.results.attackTableEntry.criticalType && <Chip label={getCriticalText()} color="error" />}
           </Stack>
         </Grid>
       )}
