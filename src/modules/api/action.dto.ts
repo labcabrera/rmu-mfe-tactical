@@ -164,6 +164,7 @@ export type ActionAttackModifiers = {
 export type AttackCalculationsDto = {
   rollModifiers: KeyValueModifier[];
   rollTotal: number;
+  location: string | null;
 };
 
 export type ActionParry = {

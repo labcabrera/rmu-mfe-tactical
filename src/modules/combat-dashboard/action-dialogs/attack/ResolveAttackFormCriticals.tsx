@@ -47,8 +47,7 @@ const ResolveAttackFormCriticals: FC<{
     <>
       {attack.results.criticals.map((critical: any, index: number) => (
         <Fragment key={index}>
-          <Grid size={2}></Grid>
-          <Grid size={2}>
+          <Grid size={2} offset={2}>
             <NumericInput
               label={t('critical-roll')}
               value={getCriticalRoll(critical.key)}
@@ -56,26 +55,30 @@ const ResolveAttackFormCriticals: FC<{
               disabled={action.status === 'completed'}
             />
           </Grid>
-          <Grid size={1}></Grid>
-          <Grid size={5}>
+          <Grid size={8}>
             <Stack direction="row" spacing={1}>
               {critical.result && critical.result.damage && critical.result.damage > 0 && (
-                <Effect effect={'dmg'} value={critical.result.damage} />
+                <Effect effect={'dmg'} value={critical.result.damage} color="error" />
               )}
               {critical.result &&
                 critical.result.effects &&
                 critical.result.effects.length > 0 &&
                 critical.result.effects.map((effect, effectIndex) => (
-                  <Effect key={effectIndex} effect={effect.status} rounds={effect.rounds} value={effect.value} />
+                  <Effect
+                    key={effectIndex}
+                    effect={effect.status}
+                    rounds={effect.rounds}
+                    value={effect.value}
+                    color="error"
+                  />
                 ))}
             </Stack>
           </Grid>
-          <Grid size={5}></Grid>
-          <Grid size={5}>
+          <Grid size={4}></Grid>
+          <Grid size={8}>
             {critical.result?.text || ''}
             {critical.result?.location && <span>&nbsp;[{t(critical.result?.location)}]</span>}
           </Grid>
-          <Grid size={12}></Grid>
         </Fragment>
       ))}
     </>

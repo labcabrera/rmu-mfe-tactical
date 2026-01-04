@@ -37,32 +37,35 @@ const ResolveAttackFormFumble: FC<{
 
   return (
     <>
-      <Grid size={2}></Grid>
-      <Grid size={1}>
+      <Grid size={2} offset={2}>
         <NumericInput
           label={t('fumble-roll')}
-          value={attack.roll.fumbleRoll}
+          value={attack.roll.fumbleRoll || null}
           onChange={(e) => onUpdateFumbleRoll(e)}
           disabled={action.status === 'completed'}
         />
       </Grid>
-      <Grid size={2}></Grid>
-      <Grid size={5}>
+      <Grid size={8}>
         <Stack direction="row" spacing={1}>
           {fumble.result && fumble.result.damage && fumble.result.damage > 0 && (
-            <Effect effect={'dmg'} value={fumble.result.damage} />
+            <Effect effect={'dmg'} value={fumble.result.damage} color="error" />
           )}
           {fumble.effects &&
             fumble.effects.length > 0 &&
             fumble.effects.map((effect, effectIndex) => (
-              <Effect key={effectIndex} effect={effect.status} rounds={effect.rounds} value={effect.value} />
+              <Effect
+                key={effectIndex}
+                effect={effect.status}
+                rounds={effect.rounds}
+                value={effect.value}
+                color="error"
+              />
             ))}
         </Stack>
       </Grid>
-      <Grid size={12}></Grid>
-      <Grid size={5}></Grid>
-      <Grid size={4}>{fumble?.text || ''}</Grid>
-      <Grid size={12}></Grid>
+      <Grid size={8} offset={4}>
+        {fumble?.text || ''}
+      </Grid>
     </>
   );
 };
