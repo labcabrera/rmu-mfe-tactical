@@ -67,8 +67,8 @@ const ActionManeuverForm: FC<{
           </Grid>
         )}
       </Grid>
-      <pre>formData: {JSON.stringify(formData, null, 2)}</pre>
-      <pre>action: {JSON.stringify(action, null, 2)}</pre>
+      {/* <pre>formData: {JSON.stringify(formData, null, 2)}</pre>
+      <pre>action: {JSON.stringify(action, null, 2)}</pre> */}
     </>
   );
 };

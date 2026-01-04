@@ -70,7 +70,13 @@ const SelectAttackRange: FC<{
       >
         {attack.ranges!.map((option, i) => (
           <Badge key={`${option.from}-${option.to}`} badgeContent={badgeContent(option)} color={badgeColor(option)}>
-            <ToggleButton value={i} disabled={readOnly} sx={{ minWidth: 140 }} onClick={() => handleClick(option, i)}>
+            <ToggleButton
+              value={i}
+              disabled={readOnly}
+              sx={{ minWidth: 140 }}
+              onClick={() => handleClick(option, i)}
+              size="small"
+            >
               {buttonText(option)}
             </ToggleButton>
           </Badge>

@@ -110,12 +110,13 @@ export type ActionAttack = {
   modifiers: ActionAttackModifiers;
   roll: {
     roll: number | null;
-    location: string | null;
+    locationRoll: number | null;
     criticalRolls?: Map<string, number | undefined>;
     fumbleRoll?: number | null;
   };
   calculated: AttackCalculationsDto | undefined;
   results: ActionAttackResults | undefined;
+  status: string;
 };
 
 export type ActionAttackResults = {

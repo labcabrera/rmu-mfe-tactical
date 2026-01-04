@@ -18,6 +18,7 @@ export type NumericInputProps = {
   autoFocus?: boolean;
   className?: string;
   inputMode?: React.HTMLAttributes<HTMLInputElement>['inputMode'];
+  error?: boolean;
   onBlur?: React.FocusEventHandler<HTMLInputElement>;
   onFocus?: React.FocusEventHandler<HTMLInputElement>;
 };
@@ -39,6 +40,7 @@ export function NumericInput({
   autoFocus,
   className,
   inputMode,
+  error = false,
   onBlur,
   onFocus,
 }: NumericInputProps) {
@@ -116,6 +118,7 @@ export function NumericInput({
       type="text"
       inputMode={inputMode ?? (integer ? 'numeric' : 'decimal')}
       name={name}
+      size="small"
       id={id}
       value={text}
       onChange={handleChange}
@@ -127,7 +130,8 @@ export function NumericInput({
       autoFocus={autoFocus}
       className={className}
       fullWidth
-      variant="standard"
+      variant="outlined"
+      error={error}
       sx={{
         '& input': {
           textAlign: 'right',

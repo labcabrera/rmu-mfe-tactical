@@ -134,7 +134,8 @@ const RangedAttackForm: FC<{
           {t('apply')}
         </Button>
       )}
-      {/* <pre>Ranged FormData: {JSON.stringify(formData, null, 2)}</pre> */}
+      <pre>FormData: {JSON.stringify(formData, null, 2)}</pre>
+      <pre>Action: {JSON.stringify(action, null, 2)}</pre>
     </>
   );
 };
