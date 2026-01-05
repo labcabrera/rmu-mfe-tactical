@@ -23,7 +23,7 @@ const ActorRoundResume: FC<{
   actorRound: ActorRound;
 }> = ({ actorRound }) => {
   const navigate = useNavigate();
-  const { characters, actorRounds, factions } = useContext(CombatContext)!;
+  const { characters, actorRounds, factions, roundActions } = useContext(CombatContext)!;
   const [character, setCharacter] = useState<Character | null>(null);
   const [faction, setFaction] = useState<Faction | null>(null);
   const isDead = actorRound.effects.some((e) => e.status === 'dead');
@@ -34,16 +34,24 @@ const ActorRoundResume: FC<{
     }
   };
 
-  const hasInitiative = (): boolean => {
+  const checkInitiative = (): boolean => {
     if (!actorRound.initiative || !actorRound.initiative.total) return false;
-    const topInitiative = actorRounds.reduce((prev, current) => {
-      if (!current.initiative || !current.initiative.total) return prev;
-      return prev.initiative!.total > current.initiative.total ? prev : current;
-    });
-    if (!topInitiative.initiative || !topInitiative.initiative.total) return false;
+    // Exclude actorRounds that already have declared actions for this round
+    const declaredActorIds = (roundActions || []).filter((a) => a && a.status === 'declared').map((a) => a.actorId);
+    if (declaredActorIds.includes(actorRound.actorId)) return false;
+    const eligible = actorRounds.filter(
+      (r) => r.initiative && r.initiative.total && !declaredActorIds.includes(r.actorId)
+    );
+    if (!eligible || eligible.length === 0) return false;
+    const topInitiative = eligible.reduce((prev, current) =>
+      prev.initiative!.total > current.initiative!.total ? prev : current
+    );
+    if (!topInitiative || !topInitiative.initiative || !topInitiative.initiative.total) return false;
     if (topInitiative.id !== actorRound.id) return false;
-    return actorRound.initiative !== undefined && actorRound.initiative !== null;
+    return true;
   };
+
+  const hasInitiative = checkInitiative();
 
   useEffect(() => {
     if (actorRound && characters && factions) {
@@ -60,9 +68,10 @@ const ActorRoundResume: FC<{
       image={actorRound.imageUrl || '/static/images/races/unknown.png'}
       imageSize={140}
       height={140}
-      onClick={handleCharacterClick}
+      minWidth={hasInitiative ? 440 : 420}
+      highlight={hasInitiative}
       disabled={isDead}
-      minWidth={hasInitiative() ? 440 : 420}
+      onClick={handleCharacterClick}
     >
       <Box sx={{ pl: 1 }}>
         <Typography variant="body2" color="primary" noWrap>

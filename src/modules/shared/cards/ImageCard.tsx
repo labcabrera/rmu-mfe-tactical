@@ -8,6 +8,7 @@ const ImageCard: FC<{
   height?: number;
   imageSize?: number;
   disabled?: boolean;
+  highlight?: boolean;
   onClick?: () => void;
   children?: React.ReactNode;
 }> = ({
@@ -19,6 +20,7 @@ const ImageCard: FC<{
   height = 100,
   imageSize = 100,
   disabled = false,
+  highlight = false,
 }) => {
   return (
     <Card
@@ -30,6 +32,9 @@ const ImageCard: FC<{
         minWidth: { minWidth },
         height: { height },
         cursor: onClick ? 'pointer' : 'default',
+        backgroundColor: highlight
+          ? (theme) => (theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.16)' : 'rgba(0,0,0,0.03)')
+          : undefined,
         transition: 'box-shadow 0.2s, background 0.2s',
         '&:hover': {
           boxShadow: 6,
