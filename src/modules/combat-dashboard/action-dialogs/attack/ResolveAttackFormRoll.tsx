@@ -18,10 +18,8 @@ const ResolveAttackFormRoll: FC<{
   attack: ActionAttack;
   index: number;
 }> = ({ formData, setFormData, action, attack, index }) => {
-  const { actorRounds, updateAction } = useContext(CombatContext);
+  const { updateAction } = useContext(CombatContext);
   const { showError } = useError();
-  const target = actorRounds.find((a) => a.actorId === attack.modifiers?.targetId);
-  const requiredLocation = !target.defense.at && attack.modifiers.calledShot && attack.modifiers.calledShot === 'none';
   const [attackRoll, setAttackRoll] = useState<number | undefined>(attack.roll?.roll);
   const [locationRoll, setLocationRoll] = useState<number | undefined>(attack.roll?.locationRoll);
 
@@ -41,7 +39,7 @@ const ResolveAttackFormRoll: FC<{
     const roll = newAttackRoll !== undefined ? newAttackRoll : attackRoll;
     const loc = newLocationRoll !== undefined ? newLocationRoll : locationRoll;
     if (roll === undefined || roll === null) return;
-    if (requiredLocation && (loc === undefined || loc === null)) return;
+    if (attack.calculated.requiredLocationRoll && (loc === undefined || loc === null)) return;
     updateAttackRoll(action.id, attack.attackName, roll, loc)
       .then((updatedAction) => {
         const newFormData = { attacks: updatedAction.attacks, parries: updatedAction.parries } as AttackDeclaration;
@@ -69,7 +67,7 @@ const ResolveAttackFormRoll: FC<{
       <Grid size={12}>
         <ResolveAttackInfo action={action} attack={formData.attacks[index]} />
       </Grid>
-      {requiredLocation && (
+      {attack.calculated.requiredLocationRoll && (
         <Grid size={2} offset={2}>
           <NumericInput
             label={t('location-roll')}

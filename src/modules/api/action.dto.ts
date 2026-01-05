@@ -10,6 +10,8 @@ export type ActionStatus =
 
 export type ActionType = 'movement' | 'melee_attack' | 'ranged_attack' | 'maneuver' | 'skill' | 'free';
 
+export type CalledShot = 'none' | 'head' | 'chest' | 'abdomen' | 'arms' | 'legs';
+
 export type AttackDeclaration = {
   attacks: ActionAttack[];
   parries: ActionParry[] | undefined;
@@ -164,6 +166,7 @@ export type ActionAttackModifiers = {
 export type AttackCalculationsDto = {
   rollModifiers: KeyValueModifier[];
   rollTotal: number;
+  requiredLocationRoll: boolean;
   location: string | null;
 };
 

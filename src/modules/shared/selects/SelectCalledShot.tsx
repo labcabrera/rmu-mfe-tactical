@@ -1,6 +1,7 @@
 import React, { ChangeEvent, FC } from 'react';
 import { FormControl, FormLabel, ToggleButtonGroup, ToggleButton, Badge } from '@mui/material';
 import { t } from 'i18next';
+import { CalledShot } from '../../api/action.dto';
 import { ActorRound } from '../../api/actor-rounds.dto';
 
 const SelectCalledShot: FC<{
@@ -12,7 +13,6 @@ const SelectCalledShot: FC<{
   readOnly?: boolean;
 }> = ({ value = 'none', target, onChange, name = 'calledShot', label = 'Called Shot', readOnly = false }) => {
   const labelId = `select-called-shot-${name}-label`;
-  const options = ['none', 'head', 'body', 'arms', 'legs'];
 
   const handleClick = (option: string) => {
     if (readOnly) return;
@@ -28,7 +28,8 @@ const SelectCalledShot: FC<{
         return target.defense.at ? target.defense.at.toString() : 'N/A';
       case 'head':
         return target.defense.at ? target.defense.at.toString() : target.defense.headAt!.toString();
-      case 'body':
+      case 'chest':
+      case 'abdomen':
         return target.defense.at ? target.defense.at.toString() : target.defense.bodyAt!.toString();
       case 'arms':
         return target.defense.at ? target.defense.at.toString() : target.defense.armsAt!.toString();
@@ -45,7 +46,7 @@ const SelectCalledShot: FC<{
         {t(label)}
       </FormLabel>
       <ToggleButtonGroup value={value} exclusive>
-        {options.map((option) => (
+        {(['none', 'head', 'chest', 'abdomen', 'arms', 'legs'] as CalledShot[]).map((option) => (
           <Badge key={option} badgeContent={badgeContent(option)} color="secondary">
             <ToggleButton
               key={`${option}-btn`}
