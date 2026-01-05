@@ -20,6 +20,19 @@ export type UpdateTacticalGameDto = {
   description: string | undefined;
 };
 
+export function getPhaseAsNumber(game: TacticalGame): number | undefined {
+  if (!game) return undefined;
+  const phase = game?.phase;
+  if (!phase || typeof phase !== 'string') return undefined;
+  const prefix = 'phase_';
+  if (!phase.startsWith(prefix)) return undefined;
+  const numStr = phase.slice(prefix.length);
+  if (!numStr) return undefined;
+  const num = Number(numStr);
+  if (!Number.isFinite(num) || !Number.isInteger(num)) return undefined;
+  return num;
+}
+
 export async function fetchTacticalGames(rsql: string, page: number, size: number): Promise<TacticalGame[]> {
   const url = `${process.env.RMU_API_TACTICAL_URL}/tactical-games?q=${rsql}&page=${page}&size=${size}`;
   const response = await fetch(url, { method: 'GET' });

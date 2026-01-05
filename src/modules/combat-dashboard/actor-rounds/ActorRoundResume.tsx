@@ -6,6 +6,7 @@ import { CombatContext } from '../../../CombatContext';
 import { ActorRound } from '../../api/actor-rounds.dto';
 import { Character } from '../../api/characters.dto';
 import type { Faction } from '../../api/factions';
+import { getPhaseAsNumber } from '../../api/tactical-games';
 import ImageCard from '../../shared/cards/ImageCard';
 import GenericBar from '../../shared/generic/GenericBar';
 
@@ -23,7 +24,7 @@ const ActorRoundResume: FC<{
   actorRound: ActorRound;
 }> = ({ actorRound }) => {
   const navigate = useNavigate();
-  const { characters, actorRounds, factions, roundActions } = useContext(CombatContext)!;
+  const { characters, actorRounds, factions, roundActions, game } = useContext(CombatContext)!;
   const [character, setCharacter] = useState<Character | null>(null);
   const [faction, setFaction] = useState<Faction | null>(null);
   const isDead = actorRound.effects.some((e) => e.status === 'dead');
@@ -37,7 +38,10 @@ const ActorRoundResume: FC<{
   const checkInitiative = (): boolean => {
     if (!actorRound.initiative || !actorRound.initiative.total) return false;
     // Exclude actorRounds that already have declared actions for this round
-    const declaredActorIds = (roundActions || []).filter((a) => a && a.status === 'declared').map((a) => a.actorId);
+    const currentPhase = getPhaseAsNumber(game);
+    const declaredActorIds = (roundActions || [])
+      .filter((a) => a && a.status === 'declared' && (!currentPhase || a.phaseStart === currentPhase))
+      .map((a) => a.actorId);
     if (declaredActorIds.includes(actorRound.actorId)) return false;
     const eligible = actorRounds.filter(
       (r) => r.initiative && r.initiative.total && !declaredActorIds.includes(r.actorId)
