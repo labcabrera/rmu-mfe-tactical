@@ -7,7 +7,7 @@ import { Character } from '../../api/characters.dto';
 import ActionDialog from '../action-dialogs/ActionDialog';
 import ActorActions from './ActorActions';
 import ActorRoundEffects from './ActorRoundEffects';
-import CombatActorRoundListItemCharacter from './CombatActorRoundListItemCharacter';
+import ActorRoundResume from './ActorRoundResume';
 import CombatCharacterRoundInitiative from './CombatCharacterRoundInitiative';
 
 const CombatActorRoundListItem: FC<{
@@ -30,7 +30,7 @@ const CombatActorRoundListItem: FC<{
     <>
       <Grid container spacing={1} mt={1}>
         <Grid size={3}>
-          <CombatActorRoundListItemCharacter actorRound={actorRound} />
+          <ActorRoundResume actorRound={actorRound} />
         </Grid>
         <Grid size={1}>
           <Paper

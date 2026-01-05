@@ -19,7 +19,7 @@ const colorKo = '#2e140aff';
 /**
  * Component that displays general information about the actor, such as their name, health bar, etc.
  */
-const CombatActorRoundListItemCharacter: FC<{
+const ActorRoundResume: FC<{
   actorRound: ActorRound;
 }> = ({ actorRound }) => {
   const navigate = useNavigate();
@@ -95,4 +95,4 @@ const CombatActorRoundListItemCharacter: FC<{
   );
 };
 
-export default CombatActorRoundListItemCharacter;
+export default ActorRoundResume;

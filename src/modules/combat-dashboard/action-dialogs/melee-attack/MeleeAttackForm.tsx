@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { FC, useContext, useEffect, useState } from 'react';
 import { CombatContext } from '../../../../CombatContext';
 import { useError } from '../../../../ErrorContext';
@@ -17,11 +18,11 @@ const MeleeAttackForm: FC<{
   const [formData, setFormData] = useState<AttackDeclaration>(null);
 
   const applyCurrentBoToAttacks = (attacks?: AttackDeclaration['attacks']) => {
-    if (!attacks || !actorRound || !(actorRound as any).attacks) return attacks || [];
+    if (!attacks || !actorRound || !actorRound.attacks) return attacks || [];
     return attacks.map((a) => {
       try {
         const attackName = a?.attackName;
-        const baseBo = (actorRound as any).attacks.find((at: any) => at.attackName === attackName)?.currentBo ?? 0;
+        const baseBo = actorRound.attacks.find((at) => at.attackName === attackName)?.currentBo ?? 0;
         const bo = a?.modifiers?.bo ?? baseBo;
         return { ...a, modifiers: { ...a.modifiers, bo } };
       } catch (e) {
