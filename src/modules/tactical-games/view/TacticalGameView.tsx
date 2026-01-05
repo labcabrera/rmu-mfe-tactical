@@ -3,7 +3,7 @@ import { useLocation, useParams } from 'react-router-dom';
 import { Grid } from '@mui/material';
 import { useError } from '../../../ErrorContext';
 import { fetchCharacters } from '../../api/characters';
-import type { Character } from '../../api/characters';
+import { Character } from '../../api/characters.dto';
 import { fetchFactions } from '../../api/factions';
 import type { Faction } from '../../api/factions';
 import { fetchStrategicGame } from '../../api/strategic-games';

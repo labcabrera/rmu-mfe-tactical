@@ -11,6 +11,7 @@ export type ActorRound = {
 
   effects: ActorRoundEffect[];
   defense: ActorRoundDefense;
+  imageUrl: string | undefined;
   [key: string]: any;
 };
 

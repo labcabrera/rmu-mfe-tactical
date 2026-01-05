@@ -1,3 +1,5 @@
+import { Character } from '../api/characters.dto';
+
 const raceImageMap: Record<string, string> = {
   noldor: '/static/images/races/generic-high-elf-01.png',
   sindar: '/static/images/races/generic-grey-elf-01.png',
@@ -23,6 +25,14 @@ const raceImageMap: Record<string, string> = {
 };
 
 const defaultImage = '/static/images/races/unknown.png';
+
+export const resolveCharacterImage = (character: Character): string => {
+  if (character && character.imageUrl) return character.imageUrl;
+  if (character.info && character.info.raceName) {
+    return resolveRaceImage(character.info.raceName);
+  }
+  return defaultImage;
+};
 
 export const resolveRaceImage = (raceName: string): string => {
   if (!raceName) {

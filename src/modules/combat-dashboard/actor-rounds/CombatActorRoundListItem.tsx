@@ -3,7 +3,7 @@ import { Grid, Paper } from '@mui/material';
 import { CombatContext } from '../../../CombatContext';
 import { Action } from '../../api/action.dto';
 import { ActorRound } from '../../api/actor-rounds.dto';
-import type { Character } from '../../api/characters';
+import { Character } from '../../api/characters.dto';
 import ActionDialog from '../action-dialogs/ActionDialog';
 import ActorActions from './ActorActions';
 import ActorRoundEffects from './ActorRoundEffects';

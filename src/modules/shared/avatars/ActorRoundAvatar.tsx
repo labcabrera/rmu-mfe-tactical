@@ -1,24 +1,22 @@
 import React, { FC } from 'react';
 import Avatar from '@mui/material/Avatar';
-import { Character } from '../../api/characters.dto';
+import { ActorRound } from '../../api/actor-rounds.dto';
 import { resolveRaceImage } from '../../services/race-avatar-service';
 
-type CharacterAvatarProps = {
-  character: Character;
+const ActorRoundAvatar: FC<{
+  actorRound: ActorRound;
   size?: number;
   dead?: boolean;
   variant?: 'circular' | 'rounded' | 'square';
-};
-
-const CharacterAvatar: FC<CharacterAvatarProps> = ({ character, dead = false, variant = 'circular', size = 70 }) => {
+}> = ({ actorRound, dead = false, variant = 'circular', size = 70 }) => {
   const defaultImage = '/static/images/races/unknown.png';
 
   const resolveImage = (): string => {
-    if (character && character.imageUrl) return character.imageUrl;
-    if (!character || !character.info || !character.info.raceName) {
+    if (actorRound.imageUrl) return actorRound.imageUrl;
+    if (!actorRound || !actorRound.info || !actorRound.info.raceName) {
       return defaultImage;
     }
-    return resolveRaceImage(character.info.raceName);
+    return resolveRaceImage(actorRound.info.raceName);
   };
 
   return (
@@ -34,4 +32,4 @@ const CharacterAvatar: FC<CharacterAvatarProps> = ({ character, dead = false, va
   );
 };
 
-export default CharacterAvatar;
+export default ActorRoundAvatar;

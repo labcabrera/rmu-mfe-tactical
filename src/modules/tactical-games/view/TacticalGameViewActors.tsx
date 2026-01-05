@@ -1,7 +1,7 @@
 import React, { Dispatch, FC, SetStateAction, useEffect, useState } from 'react';
 import { Box, Typography } from '@mui/material';
 import { useError } from '../../../ErrorContext';
-import type { Character } from '../../api/characters';
+import { Character } from '../../api/characters.dto';
 import type { Faction } from '../../api/factions';
 import { addActor, deleteActor } from '../../api/tactical-games';
 import type { TacticalGame } from '../../api/tactical-games';
@@ -91,7 +91,9 @@ const TacticalGameViewActorsFactionItem: FC<{
   };
 
   const handleToggle = (character) => {
-    const func = isSelected() ? deleteActor(tacticalGame.id, character.id) : addActor(tacticalGame.id, character.id, 'character');
+    const func = isSelected()
+      ? deleteActor(tacticalGame.id, character.id)
+      : addActor(tacticalGame.id, character.id, 'character');
     func
       .then((response) => {
         setTacticalGame(response);

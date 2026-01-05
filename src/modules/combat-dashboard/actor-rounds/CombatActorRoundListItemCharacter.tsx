@@ -4,9 +4,9 @@ import { Paper, Box, IconButton, Typography } from '@mui/material';
 import { t } from 'i18next';
 import { CombatContext } from '../../../CombatContext';
 import { ActorRound } from '../../api/actor-rounds.dto';
-import type { Character } from '../../api/characters';
+import { Character } from '../../api/characters.dto';
 import type { Faction } from '../../api/factions';
-import CharacterAvatar from '../../shared/avatars/CharacterAvatar';
+import ActorRoundAvatar from '../../shared/avatars/ActorRoundAvatar';
 import GenericBar from '../../shared/generic/GenericBar';
 
 const barSize = 120;
@@ -51,7 +51,7 @@ const CombatActorRoundListItemCharacter: FC<{
     <Paper sx={{ p: 1, boxShadow: 'none' }}>
       <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
         <IconButton onClick={handleCharacterClick} size="small" sx={{ p: 0.5 }}>
-          <CharacterAvatar character={character} dead={idDead()} variant="square" size={40} />
+          <ActorRoundAvatar actorRound={actorRound} dead={idDead()} variant="square" size={40} />
         </IconButton>
         <Box sx={{ minWidth: 0 }}>
           <Typography variant="body2" color="primary" noWrap>

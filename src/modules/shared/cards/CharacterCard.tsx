@@ -1,7 +1,7 @@
 import React, { FC } from 'react';
 import { t } from 'i18next';
-import { Character } from '../../api/characters';
-import { resolveRaceImage } from '../../services/race-avatar-service';
+import { Character } from '../../api/characters.dto';
+import { resolveCharacterImage } from '../../services/race-avatar-service';
 import CardListItem from './CardListItem';
 
 const CharacterCard: FC<{
@@ -15,7 +15,7 @@ const CharacterCard: FC<{
     <CardListItem
       title={character.name}
       subtitle={`${character.info.raceName} - ${t(character.info.professionId)} - ${character.experience.availableLevel}`}
-      image={resolveRaceImage(character.info.raceName)}
+      image={resolveCharacterImage(character)}
       onClick={onClick}
       disabled={disabled}
     />

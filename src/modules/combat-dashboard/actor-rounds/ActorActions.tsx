@@ -64,6 +64,7 @@ const ActorActions: FC<ActorActionsProps> = ({ actorId, phases = 4, currentPhase
   const actorRound: ActorRound | undefined = (actorRounds || []).find((r) => r.actorId === actorId);
   const character = (characters || []).find((c) => c.id === actorId);
   const { placement, rowsCount } = assignRows(actions, phases, currentPhase);
+  const isDead = actorRound.effects.some((e) => e.status === 'dead');
 
   const rowHeight = 40; // px
   const gap = 8;
@@ -75,6 +76,10 @@ const ActorActions: FC<ActorActionsProps> = ({ actorId, phases = 4, currentPhase
     }
     return t(action.actionType);
   };
+
+  if (isDead) {
+    return <></>;
+  }
 
   return (
     <>
