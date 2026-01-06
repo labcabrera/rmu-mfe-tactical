@@ -7,8 +7,8 @@ import { Character } from '../../api/characters.dto';
 import ActionDialog from '../action-dialogs/ActionDialog';
 import ActorActions from './ActorActions';
 import ActorRoundEffects from './ActorRoundEffects';
+import ActorRoundInitiative from './ActorRoundInitiative';
 import ActorRoundResume from './ActorRoundResume';
-import CombatCharacterRoundInitiative from './CombatCharacterRoundInitiative';
 
 const CombatActorRoundListItem: FC<{
   actorRound: ActorRound;
@@ -33,18 +33,7 @@ const CombatActorRoundListItem: FC<{
           <ActorRoundResume actorRound={actorRound} />
         </Grid>
         <Grid size={1}>
-          <Paper
-            elevation={game.phase === 'declare_initiative' ? 2 : 0}
-            style={{
-              height: '100%',
-              padding: '16px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <CombatCharacterRoundInitiative actorRound={actorRound} />
-          </Paper>
+          <ActorRoundInitiative actorRound={actorRound} />
         </Grid>
         <Grid size={5}>
           <ActorActions

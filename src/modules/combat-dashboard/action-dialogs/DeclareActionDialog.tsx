@@ -11,11 +11,15 @@ import {
   FormControl,
   FormLabel,
   Switch,
+  Stack,
+  Typography,
 } from '@mui/material';
+import { t } from 'i18next';
 import { CombatContext } from '../../../CombatContext';
 import { useError } from '../../../ErrorContext';
 import { createAction } from '../../api/action';
 import { ActorRound } from '../../api/actor-rounds.dto';
+import ActorRoundAvatar from '../../shared/avatars/ActorRoundAvatar';
 import SelectManeuverType from '../../shared/selects/SelectManeuverType';
 import SelectSkillByCategory from '../../shared/selects/SelectSkillByCategory';
 
@@ -107,8 +111,17 @@ const DeclareActionDialog: FC<{
   };
 
   return (
-    <Dialog open={open} onClose={handleClose} maxWidth="xl" fullWidth>
-      <DialogTitle>{actorRound.actorName} action declaration</DialogTitle>
+    <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
+      <DialogTitle>
+        <Stack direction="row" spacing={2} alignItems="center">
+          <ActorRoundAvatar actorRound={actorRound} size={100} variant="square" />
+          <Stack direction="column">
+            <Typography variant="h6">{actorRound.actorName}</Typography>
+            <Typography variant="subtitle1">Action Declaration</Typography>
+            <Typography variant="subtitle1">Additional information here</Typography>
+          </Stack>
+        </Stack>
+      </DialogTitle>
       <DialogContent>
         <Grid container spacing={1} sx={{ mt: 1 }} direction="column">
           {(
@@ -163,7 +176,7 @@ const DeclareActionDialog: FC<{
               options: { key: string; label: string; freeAction?: boolean }[];
             }>
           ).map((group) => (
-            <FormControl key={group.key} sx={{ mb: 2, width: '100%' }}>
+            <FormControl key={group.key} sx={{ mb: 0.5, width: '100%' }}>
               <FormLabel>{group.title}</FormLabel>
               <Grid container spacing={1} sx={{ mt: 1 }} wrap="wrap" alignItems="stretch">
                 {group.options.map((opt) => (
@@ -171,8 +184,11 @@ const DeclareActionDialog: FC<{
                     <Button
                       fullWidth
                       variant={actionForm.actionType === opt.key ? 'contained' : 'outlined'}
+                      color={actionForm.actionType === opt.key ? 'warning' : 'secondary'}
                       onClick={() => handleSelectAction(opt)}
                       disabled={isDisabled(opt.key)}
+                      size="small"
+                      disableElevation
                     >
                       {opt.label}
                     </Button>
@@ -219,7 +235,9 @@ const DeclareActionDialog: FC<{
                     return (
                       <Grid key={atk.attackName}>
                         <Button
+                          size="small"
                           variant={selected ? 'contained' : 'outlined'}
+                          color={selected ? 'warning' : 'secondary'}
                           onClick={() => toggleAttack(atk.attackName)}
                         >
                           {atk.attackName}
@@ -275,7 +293,7 @@ const DeclareActionDialog: FC<{
         {/* <pre>{JSON.stringify(actionForm, null, 2)}</pre> */}
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleClose}>Cancel</Button>
+        <Button onClick={handleClose}>{t('close')}</Button>
         <Button disabled={!actionForm.actionType} onClick={handleDeclare}>
           Declare
         </Button>

@@ -38,7 +38,6 @@ const ImageCard: FC<{
         cursor: onClick ? 'pointer' : 'default',
         transition: 'box-shadow 0.2s, background 0.2s',
         backgroundColor: highlight ? palette.background.paper : palette.background.default,
-        //boxShadow: highlight ? 6 : 1,
         '&:hover': {
           boxShadow: 6,
           backgroundColor: 'action.hover',
