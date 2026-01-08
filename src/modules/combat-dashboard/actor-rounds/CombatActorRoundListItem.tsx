@@ -1,5 +1,5 @@
 import React, { FC, useContext, useEffect, useState } from 'react';
-import { Grid, Paper } from '@mui/material';
+import { Grid } from '@mui/material';
 import { CombatContext } from '../../../CombatContext';
 import { Action } from '../../api/action.dto';
 import { ActorRound } from '../../api/actor-rounds.dto';

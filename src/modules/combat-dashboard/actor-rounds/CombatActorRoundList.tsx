@@ -1,5 +1,5 @@
 import React, { FC, useContext } from 'react';
-import NextPlanIcon from '@mui/icons-material/NextPlan';
+import CasinoIcon from '@mui/icons-material/Casino';
 import { IconButton, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import { CombatContext } from '../../../CombatContext';
@@ -27,47 +27,50 @@ const CombatActorRoundList: FC = () => {
       <Grid container spacing={1}>
         <Grid size={3}></Grid>
         <Grid size={1}>
-          <Typography variant="h6" align="left" color={game.phase === 'declare_initiative' ? 'success' : 'secondary'}>
+          <Typography
+            variant="caption"
+            align="left"
+            color={game.phase === 'declare_initiative' ? 'primary' : 'secondary'}
+          >
             Initiative
             {game.phase === 'declare_initiative' && (
-              <IconButton size="small" color="success" onClick={() => onRandomizeInitiatives()}>
-                <NextPlanIcon fontSize="small" />
+              <IconButton size="small" color="primary" onClick={() => onRandomizeInitiatives()}>
+                <CasinoIcon fontSize="small" />
               </IconButton>
             )}
           </Typography>
         </Grid>
         <Grid size={5}>
-          {/* <Paper elevation={0} square sx={headerPaperSx}> */}
           <Grid container spacing={0}>
             <Grid size={3}>
-              <Typography variant="h6" align="left" color={game.phase === 'phase_1' ? 'success' : 'secondary'}>
+              <Typography variant="caption" align="left" color={game.phase === 'phase_1' ? 'primary' : 'secondary'}>
                 Phase 1
               </Typography>
             </Grid>
             <Grid size={3}>
-              <Typography variant="h6" align="left" color={game.phase === 'phase_2' ? 'success' : 'secondary'}>
+              <Typography variant="caption" align="left" color={game.phase === 'phase_2' ? 'primary' : 'secondary'}>
                 Phase 2
               </Typography>
             </Grid>
             <Grid size={3}>
-              <Typography variant="h6" align="left" color={game.phase === 'phase_3' ? 'success' : 'secondary'}>
+              <Typography variant="caption" align="left" color={game.phase === 'phase_3' ? 'primary' : 'secondary'}>
                 Phase 3
               </Typography>
             </Grid>
             <Grid size={3}>
-              <Typography variant="h6" align="left" color={game.phase === 'phase_4' ? 'success' : 'secondary'}>
+              <Typography variant="caption" align="left" color={game.phase === 'phase_4' ? 'primary' : 'secondary'}>
                 Phase 4
               </Typography>
             </Grid>
           </Grid>
         </Grid>
         <Grid size={2}>
-          <Typography variant="h6" align="left" color="primary">
+          <Typography variant="caption" align="left" color="secondary">
             Effects
           </Typography>
         </Grid>
         <Grid size={1}>
-          <Typography variant="h6" align="left" color="primary">
+          <Typography variant="caption" align="left" color="secondary">
             Alerts
           </Typography>
         </Grid>

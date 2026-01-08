@@ -1,7 +1,8 @@
 import React, { FC, useState } from 'react';
-import { IconButton, Paper } from '@mui/material';
-import Avatar from '@mui/material/Avatar';
+import ElectricBoltIcon from '@mui/icons-material/ElectricBolt';
+import { IconButton, Paper, Stack, Typography } from '@mui/material';
 import { ActorRound } from '../../api/actor-rounds.dto';
+import InitiativeBar from '../../shared/generic/InitiativeBar';
 import DeclareInitiativeDialog from './DeclareInitiativeDialog';
 
 const ActorRoundInitiative: FC<{
@@ -12,20 +13,31 @@ const ActorRoundInitiative: FC<{
   return (
     <Paper
       sx={{
-        display: 'flex',
-        alignItems: 'center',
-        p: 0.5,
+        // display: 'flex',
+        // alignItems: 'left',
         width: '100%',
         height: '100%',
-        flex: 1,
+        padding: 2,
+        // flex: 1,
       }}
       elevation={0}
     >
-      <IconButton onClick={() => setDialogOpen(true)}>
-        <Avatar src={`/static/images/generic/initiative.png`} sx={{ width: 50, height: 50 }} />
-      </IconButton>
-      <DeclareInitiativeDialog open={dialogOpen} setOpen={setDialogOpen} actorRound={actorRound} />
-      {actorRound.initiative?.roll && <div>{actorRound.initiative.total}</div>}
+      <Stack direction="column" alignItems="center" spacing={1}>
+        <Stack direction="row" alignItems="center" spacing={1}>
+          <Typography variant="body1" color="text.primary">
+            {actorRound.initiative.total}
+          </Typography>
+          <IconButton onClick={() => setDialogOpen(true)} size="small" color="primary">
+            <ElectricBoltIcon />
+          </IconButton>
+        </Stack>
+        <Typography variant="caption" color="text.secondary">
+          {actorRound.initiative.base} + {actorRound.initiative.penalty}
+          {actorRound.initiative.roll && <> {' + ' + actorRound.initiative.roll} </>}
+        </Typography>
+        <DeclareInitiativeDialog open={dialogOpen} setOpen={setDialogOpen} actorRound={actorRound} />
+        {actorRound.initiative?.roll && <InitiativeBar current={actorRound.initiative.total} max={30} width={100} />}
+      </Stack>
     </Paper>
   );
 };
