@@ -1,6 +1,6 @@
 import React, { useContext, useState, useEffect, FC } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Box, Typography } from '@mui/material';
+import { Box, Stack, Typography } from '@mui/material';
 import { t } from 'i18next';
 import { CombatContext } from '../../../CombatContext';
 import { ActorRound } from '../../api/actor-rounds.dto';
@@ -11,7 +11,7 @@ import ImageCard from '../../shared/cards/ImageCard';
 import GenericBar from '../../shared/generic/GenericBar';
 
 const barSize = 96;
-const colorHpOk = '#144214ff';
+const colorHpOk = '#253a4bff';
 const colorPowerOk = '#4180d3';
 const colorEnduranceOk = '#433a21ff';
 const colorEnduranceAccumulator = '#686868';
@@ -77,7 +77,7 @@ const ActorRoundResume: FC<{
       disabled={isDead}
       onClick={handleCharacterClick}
     >
-      <Box sx={{ pl: 1 }}>
+      <Box>
         <Typography variant="body2" color="primary" noWrap>
           {character.name}
         </Typography>
@@ -86,7 +86,7 @@ const ActorRoundResume: FC<{
           {faction?.name}
         </Typography>
 
-        <Box sx={{ mt: 0.5, display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+        <Stack direction="column" spacing={1} alignItems="flex-start">
           <GenericBar
             current={actorRound.hp.current}
             max={actorRound.hp.max}
@@ -112,7 +112,7 @@ const ActorRoundResume: FC<{
             colorOk={colorKo}
             colorKo={colorEnduranceOk}
           />
-        </Box>
+        </Stack>
       </Box>
     </ImageCard>
   );
