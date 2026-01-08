@@ -21,7 +21,13 @@ const SelectManeuverType: FC<{
       </FormLabel>
       <ToggleButtonGroup color="primary" value={value} exclusive>
         {options.map((option) => (
-          <ToggleButton value={option} onClick={() => handleClick(option)} disabled={readOnly}>
+          <ToggleButton
+            value={option}
+            onClick={() => handleClick(option)}
+            disabled={readOnly}
+            size="small"
+            sx={{ minWidth: 100 }}
+          >
             {t(option)}
           </ToggleButton>
         ))}
