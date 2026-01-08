@@ -32,40 +32,40 @@ const actionOptions = [
     key: 'movement',
     title: 'Movement',
     options: [
-      { key: 'movement', label: 'Movement', freeAction: true },
-      { key: 'stand-up', label: 'Stand up', freeAction: false },
+      { key: 'movement', label: 'Movement' },
+      { key: 'stand-up', label: 'Stand up' },
     ],
   },
   {
     key: 'combat',
     title: 'Combat',
     options: [
-      { key: 'melee_attack', label: 'Melee', freeAction: false },
-      { key: 'ranged_attack', label: 'Ranged', freeAction: false },
-      { key: 'draw-and-load', label: 'Load', freeAction: false },
-      { key: 'dodge', label: 'Dodge', freeAction: false },
+      { key: 'melee_attack', label: 'Melee' },
+      { key: 'ranged_attack', label: 'Ranged' },
+      { key: 'draw-and-load', label: 'Load' },
+      { key: 'dodge', label: 'Dodge' },
     ],
   },
   {
     key: 'maneuvers',
     title: 'Maneuvers',
-    options: [{ key: 'maneuver', label: 'Maneuver', freeAction: true }],
+    options: [{ key: 'maneuver', label: 'Maneuver' }],
   },
   {
     key: 'spells',
     title: 'Spells',
     options: [
-      { key: 'cast_spell', label: 'Spell', freeAction: true },
-      { key: 'cast_instant', label: 'Instant', freeAction: true },
+      { key: 'cast_spell', label: 'Spell' },
+      { key: 'cast_instant', label: 'Instant' },
     ],
   },
   {
     key: 'other',
     title: 'Other',
     options: [
-      { key: 'perception', label: 'Perception', freeAction: true },
-      { key: 'medical', label: 'Medical', freeAction: true },
-      { key: 'other', label: 'Other', freeAction: false },
+      { key: 'perception', label: 'Perception' },
+      { key: 'medical', label: 'Medical' },
+      { key: 'other', label: 'Other' },
     ],
   },
 ];
@@ -111,12 +111,12 @@ const DeclareActionDialog: FC<{
     return false;
   };
 
-  const handleSelectAction = (opt: { key: string; freeAction?: boolean }) => {
+  const handleSelectAction = (opt: { key: string }) => {
     const base = {
       gameId: actorRound.gameId,
       actorId: actorRound.actorId,
       actionType: opt.key,
-      freeAction: !!opt.freeAction,
+      freeAction: false,
       phaseStart: phaseNumber,
     } as any;
 
@@ -158,7 +158,7 @@ const DeclareActionDialog: FC<{
   };
 
   return (
-    <Dialog open={open} onClose={handleClose} maxWidth="lg" fullWidth slots={{ transition: Transition }}>
+    <Dialog open={open} onClose={handleClose} maxWidth="xl" fullWidth slots={{ transition: Transition }}>
       <DialogTitle>
         <Stack direction="row" spacing={2} alignItems="center">
           <ActorRoundAvatar actorRound={actorRound} size={100} variant="square" />
@@ -243,7 +243,7 @@ const DeclareActionDialog: FC<{
                             <Button
                               size="small"
                               variant={selected ? 'contained' : 'outlined'}
-                              color={selected ? 'warning' : 'secondary'}
+                              color={selected ? 'primary' : 'secondary'}
                               onClick={() => toggleAttack(atk.attackName)}
                             >
                               {atk.attackName}
