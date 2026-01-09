@@ -1,6 +1,16 @@
 import { ActorRound, ActorRoundEffect } from './actor-rounds.dto';
 import { buildErrorFromResponse } from './api-errors';
 
+export async function fetchActorRound(actorRoundId: string): Promise<ActorRound> {
+  const url = `${process.env.RMU_API_TACTICAL_URL}/actor-rounds/${actorRoundId}`;
+  const response = await fetch(url, { method: 'GET' });
+  if (response.status !== 200) {
+    throw await buildErrorFromResponse(response, url);
+  }
+  const json = await response.json();
+  return json.content;
+}
+
 export async function fetchActorRounds(gameId: string, round: number): Promise<ActorRound[]> {
   const rsql = `gameId==${gameId};round==${round}`;
   const url = `${process.env.RMU_API_TACTICAL_URL}/actor-rounds?q=${rsql}&page=0&size=100`;
@@ -28,7 +38,7 @@ export async function declareActorRoundInitiative(actorRoundId: string, roll: nu
 }
 
 export async function addActorRoundHp(actorRoundId: string, hp: number): Promise<ActorRound> {
-  const url = `${process.env.RMU_API_TACTICAL_URL}/actor-rounds/${actorRoundId}/hp/`;
+  const url = `${process.env.RMU_API_TACTICAL_URL}/actor-rounds/${actorRoundId}/hp/${hp}`;
   const response = await fetch(url, {
     method: 'PATCH',
     headers: {
