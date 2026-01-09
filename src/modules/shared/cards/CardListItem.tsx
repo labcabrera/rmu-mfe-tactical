@@ -11,7 +11,17 @@ const CardListItem: FC<{
   imageSize?: number;
   disabled?: boolean;
   onClick?: () => void;
-}> = ({ title, subtitle, image, onClick, maxWidth = 400, minWidth = 400, height = 100, imageSize = 100, disabled = false }) => {
+}> = ({
+  title,
+  subtitle,
+  image,
+  onClick,
+  maxWidth = 400,
+  minWidth = 400,
+  height = 100,
+  imageSize = 100,
+  disabled = false,
+}) => {
   return (
     <Card
       onClick={onClick}
@@ -23,6 +33,8 @@ const CardListItem: FC<{
         height: { height },
         cursor: onClick ? 'pointer' : 'default',
         transition: 'box-shadow 0.2s, background 0.2s',
+        border: disabled ? 'none' : '1px solid #282e2f',
+        boxSizing: 'border-box',
         '&:hover': {
           boxShadow: 6,
           backgroundColor: 'action.hover',

@@ -1,6 +1,6 @@
 import React, { FC, useContext } from 'react';
-import CasinoIcon from '@mui/icons-material/Casino';
-import { IconButton, Typography } from '@mui/material';
+import ElectricBoltIcon from '@mui/icons-material/ElectricBolt';
+import { IconButton, Tooltip, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import { CombatContext } from '../../../CombatContext';
 import { useError } from '../../../ErrorContext';
@@ -25,7 +25,7 @@ const CombatActorRoundList: FC = () => {
   return (
     <>
       <Grid container spacing={1}>
-        <Grid size={3}></Grid>
+        <Grid size={2}></Grid>
         <Grid size={1}>
           <Typography
             variant="caption"
@@ -34,9 +34,11 @@ const CombatActorRoundList: FC = () => {
           >
             Initiative
             {game.phase === 'declare_initiative' && (
-              <IconButton size="small" color="primary" onClick={() => onRandomizeInitiatives()}>
-                <CasinoIcon fontSize="small" />
-              </IconButton>
+              <Tooltip title="Randomize Initiatives">
+                <IconButton size="small" color="primary" onClick={() => onRandomizeInitiatives()}>
+                  <ElectricBoltIcon fontSize="small" />
+                </IconButton>
+              </Tooltip>
             )}
           </Typography>
         </Grid>

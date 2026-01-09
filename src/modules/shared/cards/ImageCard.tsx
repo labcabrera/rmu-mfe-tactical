@@ -9,8 +9,6 @@ const ImageCard: FC<{
   imageSize?: number;
   disabled?: boolean;
   highlight?: boolean;
-  /** Mask amount between -1 (darken) and 1 (lighten) */
-  mask?: number;
   onClick?: () => void;
   children?: React.ReactNode;
 }> = ({
@@ -22,7 +20,6 @@ const ImageCard: FC<{
   height = 100,
   imageSize = 100,
   disabled = false,
-  highlight = false,
 }) => {
   return (
     <Card
@@ -32,12 +29,12 @@ const ImageCard: FC<{
         alignItems: 'stretch',
         position: 'relative',
         overflow: 'hidden',
-        maxWidth: { maxWidth },
-        minWidth: { minWidth },
-        height: { height },
+        maxWidth: maxWidth,
+        minWidth: minWidth,
+        height: height,
         cursor: onClick ? 'pointer' : 'default',
         transition: 'box-shadow 0.2s, background 0.2s',
-        backgroundColor: highlight ? palette.background.paper : palette.background.default,
+        backgroundColor: disabled ? palette.background.default : palette.action.disabledBackground,
         '&:hover': {
           boxShadow: 6,
           backgroundColor: 'action.hover',

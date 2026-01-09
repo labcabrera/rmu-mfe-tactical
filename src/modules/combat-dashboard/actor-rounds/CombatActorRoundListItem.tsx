@@ -29,7 +29,7 @@ const CombatActorRoundListItem: FC<{
   return (
     <>
       <Grid container spacing={1} mt={1}>
-        <Grid size={3}>
+        <Grid size={2}>
           <ActorRoundResume actorRound={actorRound} />
         </Grid>
         <Grid size={1}>

@@ -6,7 +6,6 @@ import { CombatContext } from '../../../CombatContext';
 import { ActorRound } from '../../api/actor-rounds.dto';
 import { Character } from '../../api/characters.dto';
 import type { Faction } from '../../api/factions';
-import { getPhaseAsNumber } from '../../api/tactical-games';
 import ImageCard from '../../shared/cards/ImageCard';
 import GenericBar from '../../shared/generic/GenericBar';
 
@@ -24,7 +23,7 @@ const ActorRoundResume: FC<{
   actorRound: ActorRound;
 }> = ({ actorRound }) => {
   const navigate = useNavigate();
-  const { characters, actorRounds, factions, roundActions, game } = useContext(CombatContext)!;
+  const { characters, factions } = useContext(CombatContext)!;
   const [character, setCharacter] = useState<Character | null>(null);
   const [faction, setFaction] = useState<Faction | null>(null);
   const isDead = actorRound.effects.some((e) => e.status === 'dead');
@@ -34,28 +33,6 @@ const ActorRoundResume: FC<{
       navigate(`/strategic/characters/view/${character.id}`);
     }
   };
-
-  const checkInitiative = (): boolean => {
-    if (!actorRound.initiative || !actorRound.initiative.total) return false;
-    // Exclude actorRounds that already have declared actions for this round
-    const currentPhase = getPhaseAsNumber(game);
-    const declaredActorIds = (roundActions || [])
-      .filter((a) => a && a.status === 'declared' && (!currentPhase || a.phaseStart === currentPhase))
-      .map((a) => a.actorId);
-    if (declaredActorIds.includes(actorRound.actorId)) return false;
-    const eligible = actorRounds.filter(
-      (r) => r.initiative && r.initiative.total && !declaredActorIds.includes(r.actorId)
-    );
-    if (!eligible || eligible.length === 0) return false;
-    const topInitiative = eligible.reduce((prev, current) =>
-      prev.initiative!.total > current.initiative!.total ? prev : current
-    );
-    if (!topInitiative || !topInitiative.initiative || !topInitiative.initiative.total) return false;
-    if (topInitiative.id !== actorRound.id) return false;
-    return true;
-  };
-
-  const hasInitiative = checkInitiative();
 
   useEffect(() => {
     if (actorRound && characters && factions) {
@@ -72,8 +49,6 @@ const ActorRoundResume: FC<{
       image={actorRound.imageUrl || '/static/images/races/unknown.png'}
       imageSize={140}
       height={140}
-      minWidth={hasInitiative ? 440 : 420}
-      highlight={hasInitiative}
       disabled={isDead}
       onClick={handleCharacterClick}
     >

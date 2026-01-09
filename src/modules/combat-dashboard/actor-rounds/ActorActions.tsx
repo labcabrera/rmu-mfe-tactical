@@ -119,7 +119,7 @@ const ActorActions: FC<ActorActionsProps> = ({ actorId, phases = 4, currentPhase
                 <Button
                   fullWidth
                   variant={completed ? 'contained' : 'contained'}
-                  color={completed ? 'secondary' : undefined}
+                  color={completed ? 'secondary' : 'primary'}
                   onClick={() => onActionClick(p.action)}
                   sx={{
                     height: '100%',
@@ -127,14 +127,16 @@ const ActorActions: FC<ActorActionsProps> = ({ actorId, phases = 4, currentPhase
                     overflow: 'hidden',
                     whiteSpace: 'nowrap',
                     textOverflow: 'ellipsis',
-                    bgcolor: completed ? undefined : 'success.dark',
-                    color: completed ? undefined : 'common.white',
-                    '&:hover': {
-                      bgcolor: completed ? undefined : 'success.dark',
-                    },
+                    color: completed ? 'secondary.contrastText' : 'primary.contrastText',
+                    // bgcolor: completed ? undefined : 'success.dark',
+                    // color: completed ? undefined : 'common.white',
+                    // '&:hover': {
+                    //   bgcolor: completed ? undefined : 'success.dark',
+                    // },
                   }}
                 >
                   {getActionName(p.action)}
+                  {completed ? undefined : '...'}
                 </Button>
               </Box>
             );
