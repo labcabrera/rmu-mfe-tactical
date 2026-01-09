@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { Dispatch, FC, SetStateAction } from 'react';
 import { Stack, Typography } from '@mui/material';
 import { useError } from '../../ErrorContext';
 import { addActorRoundHp } from '../api/actor-rounds';
@@ -10,13 +10,13 @@ const barSize = 160;
 
 const ActorRoundBars: FC<{
   actorRound: ActorRound;
-  setActorRound: React.Dispatch<React.SetStateAction<ActorRound>>;
+  setActorRound: Dispatch<SetStateAction<ActorRound>>;
 }> = ({ actorRound, setActorRound }) => {
   const { showError } = useError();
 
   const updateActorRoundHP = (newHp: number) => {
-    const diff = newHp - (actorRound.hp?.current ?? 0);
-    console.log('Updating HP by diff:', diff);
+    const diff = (actorRound.hp?.current ?? 0) - newHp;
+    console.log('Updating actor round HP by diff:', diff);
     addActorRoundHp(actorRound.id, diff)
       .then((updated) => setActorRound(updated))
       .catch((err) => showError(err));
@@ -31,19 +31,19 @@ const ActorRoundBars: FC<{
         )}
         <GenericBar current={Math.round(actorRound.fatigue?.accumulator ?? 0)} max={100} title="FA" width={barSize} />
       </Stack>
-
-      <Stack direction="row" spacing={2} alignItems="center" sx={{ width: '100%' }}>
+      <Stack spacing={1} sx={{ width: '120px' }}>
         <NumericInput
           label="New hit points"
           value={actorRound.hp?.current ?? null}
           integer
           min={0}
           max={actorRound.hp?.max}
-          onChange={(e) => {
-            updateActorRoundHP(e);
-          }}
+          onChange={(e) => updateActorRoundHP(e)}
         />
       </Stack>
+
+      {/* <Stack direction="row" spacing={2} alignItems="center" sx={{ width: '100%' }}> */}
+      {/* </Stack> */}
 
       <Typography variant="subtitle2">Initiative: {actorRound.initiative?.total ?? 0}</Typography>
     </Stack>
