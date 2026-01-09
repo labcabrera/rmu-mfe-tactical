@@ -28,10 +28,11 @@ const AttackList: FC<{
 
   const findAttack = (attackName: string) => selected.find((a) => a.attackName === attackName);
 
-  const findActorRound = (actorId: string): ActorRound => actorRounds.find((ar) => ar.actorId === actorId)!;
+  const findActorRound = (actorRoundId: string | null | undefined): ActorRound | undefined =>
+    (actorRounds || []).find((ar) => ar.id === actorRoundId);
 
   const hasStatus = (actorRound: ActorRound, status: string): boolean => {
-    return actorRound.effects?.some((se: any) => se.status === status);
+    return actorRound.effects?.some((se) => se.status === status);
   };
 
   const findSourceMaxPace = (): string => {
@@ -39,12 +40,10 @@ const AttackList: FC<{
       (ra) => ra.actorId === actorRound.actorId && ra.actionType === 'movement'
     );
     if (!actions || actions.length === 0) return 'creep';
-    // collect pace values from movement actions
     const paces = actions
       .map((a) => a.movement?.modifiers?.pace)
       .filter((p): p is string => typeof p === 'string' && p !== '');
     if (paces.length === 0) return 'creep';
-    // keep only known paces and order by paceOrder (higher index = faster)
     const valid = Array.from(new Set(paces)).filter((p) => paceOrder.includes(p));
     if (valid.length === 0) return paces[0];
 
@@ -54,35 +53,35 @@ const AttackList: FC<{
 
   const handleTargetChange = (attackName: string, targetId: string | null) => {
     const normalizedTargetId = targetId === '' ? null : targetId;
-    const target = findActorRound(normalizedTargetId);
+    const target = normalizedTargetId ? findActorRound(normalizedTargetId) : undefined;
     const exists = findAttack(attackName);
     const maxTargetPace = findSourceMaxPace();
-    let newSelected: ActionAttack[];
-    if (exists && target) {
-      const hasShield = false; // derive from target when available (placeholder)
-      const isProne = hasStatus(target, 'prone');
-      const isStunned = hasStatus(target, 'stunned');
-      const isSurprised = hasStatus(target, 'surprised');
-      const isOffHand = attackName === 'offHand';
-      const pace = maxTargetPace;
-      newSelected = selected.map((a) =>
-        a.attackName === attackName
-          ? {
-              ...a,
-              modifiers: {
-                ...a.modifiers,
-                targetId: normalizedTargetId,
-                disabledShield: !hasShield,
-                stunnedFoe: isStunned && !isSurprised,
-                surprisedFoe: isSurprised,
-                proneTarget: isProne,
-                offHand: isOffHand,
-                pace: pace,
-              },
-            }
-          : a
-      );
-    }
+    if (!exists) return;
+    const hasShield = target && false;
+    const isProne = target && hasStatus(target as ActorRound, 'prone');
+    const isStunned = target && hasStatus(target as ActorRound, 'stunned');
+    const isSurprised = target && hasStatus(target as ActorRound, 'surprised');
+    const isOffHand = attackName === 'offHand';
+    const pace = maxTargetPace;
+
+    const newSelected = selected.map((a) =>
+      a.attackName === attackName
+        ? {
+            ...a,
+            modifiers: {
+              ...a.modifiers,
+              targetId: normalizedTargetId,
+              disabledShield: target ? !hasShield : a.modifiers?.disabledShield,
+              stunnedFoe: target ? isStunned && !isSurprised : a.modifiers?.stunnedFoe,
+              surprisedFoe: target ? isSurprised : a.modifiers?.surprisedFoe,
+              proneTarget: target ? isProne : a.modifiers?.proneTarget,
+              offHand: isOffHand,
+              pace: target ? pace : a.modifiers?.pace,
+            },
+          }
+        : a
+    );
+
     setFormData((prev) => ({ ...prev, attacks: newSelected }));
   };
 
@@ -101,42 +100,49 @@ const AttackList: FC<{
     return <Typography>No attacks available</Typography>;
   }
 
+  const displayed = formData.attacks && formData.attacks.length > 0 ? formData.attacks : [];
+
   return (
     <>
-      {actorRound.attacks.map((attack, index) => {
-        const existing = findAttack(attack.attackName);
-        const modifiers =
-          existing?.modifiers ??
-          ({
-            targetId: null,
-            bo: attack.currentBo || 0,
-          } as ActionAttackModifiers);
+      {displayed.length === 0 ? (
+        <Typography variant="body2">No attacks selected</Typography>
+      ) : (
+        displayed.map((attack, index) => {
+          const def = (actorRound.attacks || []).find((a) => a.attackName === attack.attackName);
+          const existing = findAttack(attack.attackName);
+          const modifiers =
+            existing?.modifiers ??
+            ({
+              targetId: null,
+              bo: def?.currentBo || 0,
+            } as ActionAttackModifiers);
 
-        return (
-          <Fragment key={attack.attackName || index}>
-            <Typography variant="h6">{t(attack.attackName)}</Typography>
-            <Grid container spacing={1} alignItems="center">
-              <Grid size={2}>
-                {t(attack.attackTable)} +{attack.currentBo}
+          return (
+            <Fragment key={attack.attackName || index}>
+              <Typography variant="h6">{t(def?.attackName || attack.attackName)}</Typography>
+              <Grid container spacing={1} alignItems="center">
+                <Grid size={2}>
+                  {t(def?.attackTable || '')} {def ? `+${def.currentBo}` : ''}
+                </Grid>
+                <Grid size={4}>
+                  <OffensiveBonusSelector
+                    value={modifiers.bo}
+                    max={def?.currentBo || 0}
+                    onChange={(bo: number) => handleBoChange(attack.attackName, bo)}
+                  />
+                </Grid>
+                <Grid size={6}>
+                  <TargetSelector
+                    value={modifiers.targetId || ''}
+                    onChange={(actorId) => handleTargetChange(attack.attackName, actorId)}
+                    sourceId={(actorRound as any).actorId}
+                  />
+                </Grid>
               </Grid>
-              <Grid size={4}>
-                <OffensiveBonusSelector
-                  value={modifiers.bo}
-                  max={attack.currentBo}
-                  onChange={(bo: number) => handleBoChange(attack.attackName, bo)}
-                />
-              </Grid>
-              <Grid size={6}>
-                <TargetSelector
-                  value={modifiers.targetId || ''}
-                  onChange={(actorId) => handleTargetChange(attack.attackName, actorId)}
-                  sourceId={(actorRound as any).actorId}
-                />
-              </Grid>
-            </Grid>
-          </Fragment>
-        );
-      })}
+            </Fragment>
+          );
+        })
+      )}
     </>
   );
 };

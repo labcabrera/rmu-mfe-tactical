@@ -8,14 +8,11 @@ const ActorRoundAvatar: FC<{
   dead?: boolean;
   variant?: 'circular' | 'rounded' | 'square';
 }> = ({ actorRound, dead = false, variant = 'circular', size = 70 }) => {
-  const resolveImage = (): string => {
-    if (actorRound?.imageUrl) return actorRound.imageUrl;
-    return '/static/images/races/unknown.png';
-  };
+  const imageUrl = actorRound?.imageUrl ? actorRound.imageUrl : '/static/images/races/unknown.png';
 
   return (
     <Avatar
-      src={resolveImage()}
+      src={imageUrl}
       variant={variant}
       sx={{
         width: size,

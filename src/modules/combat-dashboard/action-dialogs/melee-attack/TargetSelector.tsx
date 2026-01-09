@@ -45,7 +45,7 @@ const TargetSelector: FC<{
 
   const selectedActorRound = useMemo(() => {
     if (!value || !actorRounds) return null;
-    return (actorRounds || []).find((ar) => ar.id === value) || null;
+    return (actorRounds || []).find((ar) => ar.actorId === value) || null;
   }, [value, actorRounds]);
 
   return (
@@ -98,27 +98,22 @@ const TargetSelector: FC<{
 
           <Stack direction="row" spacing={0.5} sx={{ flexWrap: 'wrap' }}>
             {(items || []).map((ar) => {
-              const ch = (actorRounds || []).find((c) => c.id === ar.actorId) || null;
-              const isSelected = value === ar.id;
+              const actorRound = (actorRounds || []).find((c) => c.actorId === ar.actorId) || null;
+              const isSelected = value === ar.actorId;
               return (
                 <Box key={ar.id} sx={{ textAlign: 'center', mb: 0.5 }}>
                   <Button
                     onClick={() => {
-                      onChange(ar.id);
+                      onChange(ar.actorId);
                       setOpen(false);
                     }}
                     variant={isSelected ? 'contained' : 'outlined'}
                     size="medium"
                     sx={{ display: 'flex', flexDirection: 'column', gap: 0.25, alignItems: 'center', p: 0.5 }}
                   >
-                    <ActorRoundAvatar
-                      actorRound={ar}
-                      size={avatarSize}
-                      variant="square"
-                      dead={ar.effects?.some((e: any) => e.status === 'dead')}
-                    />
+                    <ActorRoundAvatar actorRound={actorRound || undefined} size={avatarSize} variant="square" />
                     <Typography variant="caption" noWrap sx={{ maxWidth: 60 }}>
-                      {ch ? ch.actorName : ar.actorName}
+                      {actorRound ? actorRound.actorName : ar.actorName}
                     </Typography>
                   </Button>
                 </Box>
