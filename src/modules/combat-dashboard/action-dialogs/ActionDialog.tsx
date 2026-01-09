@@ -1,5 +1,5 @@
 import React, { FC, useContext, useState } from 'react';
-import { Button, DialogActions } from '@mui/material';
+import { Button, DialogActions, Stack, Typography } from '@mui/material';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
@@ -10,6 +10,7 @@ import { deleteAction } from '../../api/action';
 import { Action } from '../../api/action.dto';
 import { ActorRound } from '../../api/actor-rounds.dto';
 import { Character } from '../../api/characters.dto';
+import ActorRoundAvatar from '../../shared/avatars/ActorRoundAvatar';
 import ActionManeuverForm from './maneuver/ActionManeuverForm';
 import MeleeAttackForm from './melee-attack/MeleeAttackForm';
 import MovementForm from './movement/MovementForm';
@@ -48,7 +49,13 @@ const ActionDialog: FC<{
       fullWidth
     >
       <DialogTitle id="alert-dialog-title">
-        {actorRound.actorName} {t(action.actionType)}
+        <Stack direction="row" spacing={2} alignItems="center">
+          <ActorRoundAvatar actorRound={actorRound} size={100} variant="square" />
+          <Stack direction="column">
+            <Typography variant="h6">{actorRound.actorName}</Typography>
+            <Typography variant="subtitle1">{t(action.actionType)}</Typography>
+          </Stack>
+        </Stack>
       </DialogTitle>
       {!deleting ? (
         <DialogContent sx={{ minHeight: '800px' }}>

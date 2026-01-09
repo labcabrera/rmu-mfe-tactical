@@ -1,6 +1,6 @@
 import React, { Dispatch, FC, Fragment, SetStateAction, useContext } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Button, Stack, TextField, Grid } from '@mui/material';
+import { Stack, Grid } from '@mui/material';
+import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { useError } from '../../../../ErrorContext';
 import { updateCriticalRoll } from '../../../api/action';
@@ -17,7 +17,6 @@ const ResolveAttackFormCriticals: FC<{
 }> = ({ formData, setFormData, action, index, attack }) => {
   const { updateAction } = useContext(CombatContext);
   const { showError } = useError();
-  const { t } = useTranslation();
 
   if (!formData || !formData.attacks || formData.attacks.length <= index) return <div>Loading...</div>;
 
@@ -31,85 +30,59 @@ const ResolveAttackFormCriticals: FC<{
     return roll;
   };
 
-  const onUpdateCriticalRollClick = (criticalKey: string) => {
-    updateCriticalRoll(action.id, attack.attackName, criticalKey, getCriticalRoll(criticalKey)!)
+  const onUpdateCriticalRoll = (criticalKey: string, roll: number) => {
+    updateCriticalRoll(action.id, attack.attackName, criticalKey, roll)
       .then((updatedAction) => {
         const newFormData = { attacks: updatedAction.attacks, parries: undefined };
         updateAction(updatedAction);
-        //TODO fix types when model is updated
-        setFormData(newFormData as any);
+        setFormData(newFormData);
       })
-      .catch((err: unknown) => {
-        if (err instanceof Error) showError(err.message);
-        else showError('An unknown error occurred');
-      });
-  };
-
-  const onUpdateCriticalRoll = (criticalKey: string, roll: number) => {
-    const updated = { ...formData };
-    if (updated.attacks && updated.attacks[index]) {
-      if (!updated.attacks[index].roll) {
-        updated.attacks[index].roll = { roll: null, location: null };
-      } else {
-        updated.attacks[index].roll = { ...updated.attacks[index].roll };
-      }
-      updated.attacks[index].roll.criticalRolls = {
-        ...updated.attacks[index].roll.criticalRolls,
-        [criticalKey]: roll,
-      };
-      setFormData(updated);
-    }
+      .catch((err: Error) => showError(err.message));
   };
 
   return (
     <>
       {attack.results.criticals.map((critical: any, index: number) => (
         <Fragment key={index}>
-          <Grid size={2}>
-            {action.status !== 'completed' && (
-              <Button
-                variant="contained"
-                size="small"
-                color="success"
-                disabled={!getCriticalRoll(critical.key)}
-                onClick={() => onUpdateCriticalRollClick(critical.key)}
-              >
-                {t('roll-critical')}
-              </Button>
-            )}
-          </Grid>
-          <Grid size={1}>
+          <Grid size={2} offset={2}>
             <NumericInput
               label={t('critical-roll')}
               value={getCriticalRoll(critical.key)}
               onChange={(e) => onUpdateCriticalRoll(critical.key, e)}
+              disabled={action.status === 'completed'}
             />
           </Grid>
-          <Grid size={1}>
-            <TextField label={t('type')} value={critical.criticalType} variant="standard" fullWidth />
-          </Grid>
-          <Grid size={1}>
-            <TextField label={t('severity')} value={critical.criticalSeverity} variant="standard" fullWidth />
-          </Grid>
-          <Grid size={5}>
-            <Stack direction="row" spacing={1}>
+          <Grid size={8}>
+            <Stack
+              direction="row"
+              spacing={1}
+              flexWrap="wrap"
+              useFlexGap
+              alignContent="flex-start"
+              sx={{
+                justifyContent: 'flex-start',
+                alignItems: 'flex-start',
+              }}
+            >
               {critical.result && critical.result.damage && critical.result.damage > 0 && (
-                <Effect effect={'dmg'} value={critical.result.damage} />
+                <Effect effect={'dmg'} value={critical.result.damage} color="error" />
               )}
               {critical.result &&
                 critical.result.effects &&
                 critical.result.effects.length > 0 &&
                 critical.result.effects.map((effect, effectIndex) => (
-                  <Effect key={effectIndex} effect={effect.status} rounds={effect.rounds} value={effect.value} />
+                  <Effect
+                    key={effectIndex}
+                    effect={effect.status}
+                    rounds={effect.rounds}
+                    value={effect.value}
+                    color="error"
+                  />
                 ))}
             </Stack>
           </Grid>
-          <Grid size={5}></Grid>
-          <Grid size={5}>
-            {critical.result?.text || ''}
-            {critical.result?.location && <span>&nbsp;[{t(critical.result?.location)}]</span>}
-          </Grid>
-          <Grid size={12}></Grid>
+          <Grid size={4}></Grid>
+          <Grid size={8}>{critical.result?.text || ''}</Grid>
         </Fragment>
       ))}
     </>

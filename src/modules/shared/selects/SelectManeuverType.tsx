@@ -1,5 +1,5 @@
 import React, { FC } from 'react';
-import { FormControl, FormLabel, ToggleButtonGroup, ToggleButton } from '@mui/material';
+import { FormControl, ToggleButtonGroup, ToggleButton } from '@mui/material';
 import { t } from 'i18next';
 
 const SelectManeuverType: FC<{
@@ -16,12 +16,15 @@ const SelectManeuverType: FC<{
 
   return (
     <FormControl component="fieldset">
-      <FormLabel id={'maneuver-type'} component="legend" sx={{ mb: 1.5, typography: 'body1' }}>
-        {t('maneuver-type')}
-      </FormLabel>
       <ToggleButtonGroup color="primary" value={value} exclusive>
         {options.map((option) => (
-          <ToggleButton value={option} onClick={() => handleClick(option)} disabled={readOnly}>
+          <ToggleButton
+            value={option}
+            onClick={() => handleClick(option)}
+            disabled={readOnly}
+            size="small"
+            sx={{ minWidth: 100 }}
+          >
             {t(option)}
           </ToggleButton>
         ))}

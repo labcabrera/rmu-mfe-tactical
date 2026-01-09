@@ -34,10 +34,10 @@ const RangedAttackDefenseOptions: FC<{
         }}
         aria-label="defensive-options"
       >
-        <ToggleButton value="DB" sx={{ minWidth }}>
+        <ToggleButton value="DB" size="small" sx={{ minWidth }}>
           {t('DB')}
         </ToggleButton>
-        <ToggleButton value="Shield" sx={{ minWidth }}>
+        <ToggleButton value="Shield" size="small" sx={{ minWidth }}>
           {t('Shield')}
         </ToggleButton>
       </ToggleButtonGroup>

@@ -16,7 +16,7 @@ const MeleeAttackDefenseOptions: FC<{
   const disabledParry = modifiers?.disabledParry || false;
   const restrictedParry = modifiers?.restrictedParry || false;
 
-  const minWidth = 180;
+  const minWidth = 140;
 
   return (
     <FormControl component="fieldset" variant="standard" sx={{ width: '100%' }}>
@@ -51,16 +51,16 @@ const MeleeAttackDefenseOptions: FC<{
           }}
           aria-label="defensive options"
         >
-          <ToggleButton value="db" sx={{ minWidth: minWidth }}>
+          <ToggleButton value="db" size="small" sx={{ minWidth: minWidth }}>
             DB
           </ToggleButton>
-          <ToggleButton value="shield" sx={{ minWidth: minWidth }}>
+          <ToggleButton value="shield" size="small" sx={{ minWidth: minWidth }}>
             Shield
           </ToggleButton>
-          <ToggleButton value="parry" sx={{ minWidth: minWidth }}>
+          <ToggleButton value="parry" size="small" sx={{ minWidth: minWidth }}>
             Parry
           </ToggleButton>
-          <ToggleButton value="restrictedParry" sx={{ minWidth: minWidth }}>
+          <ToggleButton value="restrictedParry" size="small" sx={{ minWidth: minWidth }}>
             Restricted
           </ToggleButton>
         </ToggleButtonGroup>

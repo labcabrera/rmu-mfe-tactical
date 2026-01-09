@@ -8,10 +8,10 @@ export type ActorRound = {
   actionPoints: number;
   hp: ActorRoundHp;
   fatigue: ActorRoundFatigue;
-
+  attacks: ActorRoundAttack[];
   effects: ActorRoundEffect[];
   defense: ActorRoundDefense;
-  [key: string]: any;
+  imageUrl: string | undefined;
 };
 
 export type ActorRoundInitiative = {
@@ -42,6 +42,7 @@ export type ActorRoundDefense = {
 };
 
 export type ActorRoundEffect = {
+  id: string;
   status: string;
   value: number | undefined;
   rounds: number | undefined;

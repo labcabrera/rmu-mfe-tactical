@@ -109,7 +109,7 @@ export async function updateAttackRoll(
   actionId: string,
   attackName: string,
   roll: number,
-  location: string | undefined
+  locationRoll: number | undefined
 ): Promise<Action> {
   const url = `${process.env.RMU_API_TACTICAL_URL}/actions/${actionId}/attack/roll`;
   const response = await fetch(url, {
@@ -117,7 +117,7 @@ export async function updateAttackRoll(
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ attackName, roll, location }),
+    body: JSON.stringify({ attackName, roll, locationRoll }),
   });
   if (response.status !== 200) {
     throw await buildErrorFromResponse(response, url);

@@ -1,24 +1,22 @@
 import React, { FC } from 'react';
-import { Badge, FormLabel, FormControl, ToggleButtonGroup, ToggleButton } from '@mui/material';
+import { Badge, FormControl, ToggleButtonGroup, ToggleButton } from '@mui/material';
 import { t } from 'i18next';
+
+const options: { id: string; value: number }[] = [
+  { id: 'none', value: 0 },
+  { id: 'soft_partial', value: -20 },
+  { id: 'soft_half', value: -40 },
+  { id: 'soft_full', value: -100 },
+  { id: 'hard_partial', value: -40 },
+  { id: 'hard_half', value: -80 },
+  { id: 'hard_full', value: -200 },
+];
 
 const SelectRangedCover: FC<{
   value: string;
   onChange: (value: string) => void;
   readOnly?: boolean;
 }> = ({ value, onChange, readOnly = false }) => {
-  const labelId = 'select-restricted-quarters-label';
-
-  const options: { id: string; value: number }[] = [
-    { id: 'none', value: 0 },
-    { id: 'soft_partial', value: -20 },
-    { id: 'soft_half', value: -40 },
-    { id: 'soft_full', value: -100 },
-    { id: 'hard_partial', value: -40 },
-    { id: 'hard_half', value: -80 },
-    { id: 'hard_full', value: -200 },
-  ];
-
   const handleClick = (opt: { id: string; value: number }) => {
     if (readOnly) return;
     onChange(opt.id);
@@ -36,9 +34,6 @@ const SelectRangedCover: FC<{
 
   return (
     <FormControl component="fieldset">
-      <FormLabel id={labelId} component="legend" sx={{ mb: 1, typography: 'body1' }}>
-        {t('cover')}
-      </FormLabel>
       <ToggleButtonGroup value={value} exclusive>
         {options.map((option) => (
           <Badge key={option.value} badgeContent={badgeContent(option)} color={badgeColor(option)}>
@@ -46,6 +41,7 @@ const SelectRangedCover: FC<{
               value={option.id}
               onClick={() => handleClick(option)}
               disabled={readOnly}
+              size="small"
               sx={{ minWidth: 140 }}
             >
               {t(`${option.id}`)}

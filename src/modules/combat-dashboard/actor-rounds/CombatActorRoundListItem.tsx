@@ -1,14 +1,14 @@
 import React, { FC, useContext, useEffect, useState } from 'react';
-import { Grid, Paper } from '@mui/material';
+import { Grid } from '@mui/material';
 import { CombatContext } from '../../../CombatContext';
 import { Action } from '../../api/action.dto';
 import { ActorRound } from '../../api/actor-rounds.dto';
-import type { Character } from '../../api/characters';
+import { Character } from '../../api/characters.dto';
 import ActionDialog from '../action-dialogs/ActionDialog';
 import ActorActions from './ActorActions';
 import ActorRoundEffects from './ActorRoundEffects';
-import CombatActorRoundListItemCharacter from './CombatActorRoundListItemCharacter';
-import CombatCharacterRoundInitiative from './CombatCharacterRoundInitiative';
+import ActorRoundInitiative from './ActorRoundInitiative';
+import ActorRoundResume from './ActorRoundResume';
 
 const CombatActorRoundListItem: FC<{
   actorRound: ActorRound;
@@ -28,23 +28,12 @@ const CombatActorRoundListItem: FC<{
 
   return (
     <>
-      <Grid container spacing={1} mt={1}>
-        <Grid size={3}>
-          <CombatActorRoundListItemCharacter actorRound={actorRound} />
+      <Grid container spacing={1} mt={1} sx={{ borderBottom: '1px solid #282e2f', pb: 1 }}>
+        <Grid size={2}>
+          <ActorRoundResume actorRound={actorRound} />
         </Grid>
         <Grid size={1}>
-          <Paper
-            elevation={game.phase === 'declare_initiative' ? 2 : 0}
-            style={{
-              height: '100%',
-              padding: '16px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <CombatCharacterRoundInitiative actorRound={actorRound} />
-          </Paper>
+          <ActorRoundInitiative actorRound={actorRound} />
         </Grid>
         <Grid size={5}>
           <ActorActions

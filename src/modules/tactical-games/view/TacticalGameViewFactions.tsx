@@ -5,7 +5,8 @@ import { useError } from '../../../ErrorContext';
 import type { Faction } from '../../api/factions';
 import { addFaction, deleteFaction } from '../../api/tactical-games';
 import type { TacticalGame } from '../../api/tactical-games';
-import FactionCard from '../../shared/cards/FactionCard';
+import { defaultFactionImage } from '../../services/image-service';
+import ImageCard from '../../shared/cards/ImageCard';
 
 const TacticalGameViewFactions: FC<{
   tacticalGame: TacticalGame;
@@ -42,7 +43,19 @@ const TacticalGameViewFactions: FC<{
       </Typography>
       <Box mb={2} display="flex" flexDirection="row" flexWrap="wrap" gap={2}>
         {factions.map((faction) => (
-          <FactionCard key={faction.id} disabled={!isSelected(faction.id)} faction={faction} onClick={() => handleFactionChange(faction.id)} />
+          <ImageCard
+            key={faction.id}
+            image={faction.imageUrl ? faction.imageUrl : defaultFactionImage}
+            disabled={!isSelected(faction.id)}
+            onClick={() => handleFactionChange(faction.id)}
+          >
+            <Typography component="div" variant="subtitle1">
+              {faction.name}
+            </Typography>
+            <Typography component="div" variant="caption" color="text.secondary">
+              {faction.shortDescription}
+            </Typography>
+          </ImageCard>
         ))}
       </Box>
     </>

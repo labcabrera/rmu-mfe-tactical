@@ -1,5 +1,5 @@
-import React, { Dispatch, FC, SetStateAction, useContext, useState } from 'react';
-import { Button, Grid, Stack } from '@mui/material';
+import React, { Dispatch, FC, SetStateAction, useContext } from 'react';
+import { Grid, Stack } from '@mui/material';
 import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { useError } from '../../../../ErrorContext';
@@ -16,14 +16,13 @@ const ResolveAttackFormFumble: FC<{
   attack: ActionAttack;
 }> = ({ formData, setFormData, action, index, attack }) => {
   const { updateAction } = useContext(CombatContext);
-  const [fumbleRoll, setFumbleRoll] = useState<number | null>(attack.roll?.fumbleRoll || null);
   const { showError } = useError();
   const fumble = attack.results?.fumble;
 
   if (!formData || !formData.attacks || formData.attacks.length <= index) return <div>Loading...</div>;
 
-  const onUpdateFumbleRollClick = () => {
-    updateFumbleRoll(action.id, attack.attackName, fumbleRoll)
+  const onUpdateFumbleRoll = (roll: number) => {
+    updateFumbleRoll(action.id, attack.attackName, roll)
       .then((updatedAction) => {
         const newFormData = { attacks: updatedAction.attacks, parries: undefined };
         updateAction(updatedAction);
@@ -38,39 +37,35 @@ const ResolveAttackFormFumble: FC<{
 
   return (
     <>
-      <Grid size={2}>
-        {action.status !== 'completed' && (
-          <Button
-            variant="contained"
-            size="small"
-            color="success"
-            disabled={!fumbleRoll}
-            onClick={() => onUpdateFumbleRollClick()}
-          >
-            {t('roll-fumble')}
-          </Button>
-        )}
+      <Grid size={2} offset={2}>
+        <NumericInput
+          label={t('fumble-roll')}
+          value={attack.roll.fumbleRoll || null}
+          onChange={(e) => onUpdateFumbleRoll(e)}
+          disabled={action.status === 'completed'}
+        />
       </Grid>
-      <Grid size={1}>
-        <NumericInput label={t('fumble-roll')} value={fumbleRoll} onChange={(e) => setFumbleRoll(e)} />
-      </Grid>
-      <Grid size={2}></Grid>
-      <Grid size={5}>
+      <Grid size={8}>
         <Stack direction="row" spacing={1}>
           {fumble.result && fumble.result.damage && fumble.result.damage > 0 && (
-            <Effect effect={'dmg'} value={fumble.result.damage} />
+            <Effect effect={'dmg'} value={fumble.result.damage} color="error" />
           )}
           {fumble.effects &&
             fumble.effects.length > 0 &&
             fumble.effects.map((effect, effectIndex) => (
-              <Effect key={effectIndex} effect={effect.status} rounds={effect.rounds} value={effect.value} />
+              <Effect
+                key={effectIndex}
+                effect={effect.status}
+                rounds={effect.rounds}
+                value={effect.value}
+                color="error"
+              />
             ))}
         </Stack>
       </Grid>
-      <Grid size={12}></Grid>
-      <Grid size={5}></Grid>
-      <Grid size={4}>{fumble?.text || ''}</Grid>
-      <Grid size={12}></Grid>
+      <Grid size={8} offset={4}>
+        {fumble?.text || ''}
+      </Grid>
     </>
   );
 };

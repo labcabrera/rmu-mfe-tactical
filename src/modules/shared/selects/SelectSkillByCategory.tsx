@@ -1,6 +1,6 @@
 import React, { FC, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Stack, Button, Grid, FormControl, FormLabel } from '@mui/material';
+import { Stack, Button, Grid, FormControl, Divider } from '@mui/material';
 import { fetchSkills } from '../../api/skill';
 import { fetchSkillCategories } from '../../api/skill-category';
 import { SkillCategory } from '../../api/skill-category.dto';
@@ -89,19 +89,16 @@ const SelectSkillByCategory: FC<{
   };
 
   return (
-    <Grid container spacing={1}>
+    <Grid container spacing={2} mt={2}>
       <Grid size={12}>
         <FormControl component="fieldset" variant="standard" sx={{ width: '100%' }}>
-          <FormLabel id={'category'} component="legend" sx={{ mb: 1, typography: 'body1' }}>
-            {t('category')}
-          </FormLabel>
           <Stack direction="row" sx={{ flexWrap: 'wrap', gap: 1 }}>
             {cats.map((cat) => {
               const selected = cat.id === selectedCategory;
               return (
                 <Button
                   key={cat.id}
-                  size="large"
+                  size="small"
                   variant={selected ? 'contained' : 'outlined'}
                   color={selected ? 'primary' : 'inherit'}
                   onClick={() => handleCategoryClick(cat.id)}
@@ -114,18 +111,18 @@ const SelectSkillByCategory: FC<{
           </Stack>
         </FormControl>
       </Grid>
+      <Grid size={12} mt={2}>
+        <Divider sx={{ width: '100%', my: 1 }} />
+      </Grid>
       <Grid size={12}>
         <FormControl component="fieldset" variant="standard" sx={{ width: '100%' }}>
-          <FormLabel id={'category'} component="legend" sx={{ mb: 1, typography: 'body1' }}>
-            {t('skill')}
-          </FormLabel>
           <Stack direction="row" sx={{ flexWrap: 'wrap', gap: 1 }}>
             {skillsForCategory.map((sk) => {
               const selected = sk.id === value;
               return (
                 <Button
                   key={sk.id}
-                  size="large"
+                  size="small"
                   variant={selected ? 'contained' : 'outlined'}
                   color={selected ? 'primary' : 'inherit'}
                   onClick={() => handleSkillClick(sk.id)}

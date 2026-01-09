@@ -1,12 +1,12 @@
-import React, { Dispatch, FC, SetStateAction, useContext } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Button, Grid, Chip } from '@mui/material';
+import React, { Dispatch, FC, SetStateAction, useContext, useState } from 'react';
+import { Grid, Chip, Stack, Typography } from '@mui/material';
+import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { useError } from '../../../../ErrorContext';
 import { updateAttackRoll } from '../../../api/action';
 import { Action, ActionAttack, AttackDeclaration } from '../../../api/action.dto';
+import Effect from '../../../shared/generic/Effect';
 import { NumericInput } from '../../../shared/inputs/NumericInput';
-import SelectLocation from '../../../shared/selects/SelectLocation';
 import ResolveAttackFormCriticals from './ResolveAttackFormCriticals';
 import ResolveAttackFormFumble from './ResolveAttackFormFumble';
 import ResolveAttackInfo from './ResolveAttackInfo';
@@ -18,78 +18,35 @@ const ResolveAttackFormRoll: FC<{
   attack: ActionAttack;
   index: number;
 }> = ({ formData, setFormData, action, attack, index }) => {
-  const { actorRounds, updateAction } = useContext(CombatContext);
+  const { updateAction } = useContext(CombatContext);
   const { showError } = useError();
-  const { t } = useTranslation();
+  const [attackRoll, setAttackRoll] = useState<number | undefined>(attack.roll?.roll);
+  const [locationRoll, setLocationRoll] = useState<number | undefined>(attack.roll?.locationRoll);
 
-  const target = actorRounds.find((a) => a.actorId === attack.modifiers?.targetId);
-  const roll = attack.roll?.roll || undefined;
-  const location = attack.roll?.location || null;
+  if (!formData || !formData.attacks || formData.attacks.length <= index) return <div>Loading...</div>;
 
-  const handleRollClick = () => {
-    const attackName = attack.attackName;
-    updateAttackRoll(action.id, attackName, roll, location)
+  const onRollChange = (value: number | undefined) => {
+    setAttackRoll(value);
+    handleRollChange(value, locationRoll);
+  };
+
+  const onLocationRollChange = (value: number | undefined) => {
+    setLocationRoll(value);
+    handleRollChange(attackRoll, value);
+  };
+
+  const handleRollChange = (newAttackRoll?: number | undefined, newLocationRoll?: number | undefined) => {
+    const roll = newAttackRoll !== undefined ? newAttackRoll : attackRoll;
+    const loc = newLocationRoll !== undefined ? newLocationRoll : locationRoll;
+    if (roll === undefined || roll === null) return;
+    if (attack.calculated.requiredLocationRoll && (loc === undefined || loc === null)) return;
+    updateAttackRoll(action.id, attack.attackName, roll, loc)
       .then((updatedAction) => {
         const newFormData = { attacks: updatedAction.attacks, parries: updatedAction.parries } as AttackDeclaration;
         updateAction(updatedAction);
         setFormData(newFormData);
       })
-      .catch((err: unknown) => {
-        if (err instanceof Error) showError(err.message);
-        else showError('An unknown error occurred');
-      });
-  };
-
-  if (!formData || !formData.attacks || formData.attacks.length <= index) return <div>Loading...</div>;
-
-  const updateRoll = (value: number | undefined) => {
-    const updated = { ...formData };
-    if (updated.attacks && updated.attacks[index]) {
-      if (!updated.attacks[index].roll) {
-        updated.attacks[index].roll = { roll: null, location: null };
-      } else {
-        updated.attacks[index].roll = { ...updated.attacks[index].roll };
-      }
-      updated.attacks[index].roll.roll = value;
-      setFormData(updated);
-    }
-  };
-
-  const updateLocation = (value: string | null) => {
-    const updated = { ...formData };
-    if (updated.attacks && updated.attacks[index]) {
-      if (!updated.attacks[index].roll) {
-        updated.attacks[index].roll = { roll: null, location: null };
-      } else {
-        updated.attacks[index].roll = { ...updated.attacks[index].roll };
-      }
-      updated.attacks[index].roll.location = value;
-      setFormData(updated);
-    }
-  };
-
-  const getLocation = () => {
-    if (attack.modifiers.calledShot && attack.modifiers.calledShot !== 'none') {
-      return attack.modifiers.calledShot;
-    } else {
-      return attack.roll?.location || null;
-    }
-  };
-
-  /**
-   * If the attack is a called shot, no location selection is required. Also not required if the defender uses the same armor type in all locations.
-   */
-  const requiresLocation = (): boolean => {
-    if (attack.modifiers.calledShot !== undefined && attack.modifiers.calledShot !== 'none') return false;
-    if (target.defense.at) return false;
-    return true;
-  };
-
-  const isRollDisabled = (): boolean => {
-    if (action.status === 'completed') return true;
-    if (!attack.roll?.roll || attack.roll?.roll === null) return true;
-    if (requiresLocation() && (!attack.roll?.location || attack.roll.location === null)) return true;
-    return false;
+      .catch((err: Error) => showError(err.message));
   };
 
   const isCriticalAttack = (): boolean => {
@@ -100,35 +57,57 @@ const ResolveAttackFormRoll: FC<{
     return attack.results && attack.results.fumble;
   };
 
+  const getCriticalText = (): string => {
+    if (!attack.results || !attack.results.criticals || attack.results.criticals.length === 0) return '';
+    return `Critical ${attack.results.attackTableEntry.criticalSeverity}${attack.results.attackTableEntry.criticalType}`;
+  };
+
   return (
     <Grid container spacing={1}>
       <Grid size={12}>
         <ResolveAttackInfo action={action} attack={formData.attacks[index]} />
       </Grid>
+      {attack.calculated.requiredLocationRoll && (
+        <Grid size={2} offset={2}>
+          <NumericInput
+            label={t('location-roll')}
+            value={attack.roll?.locationRoll || null}
+            min={1}
+            max={100}
+            onChange={(e) => onLocationRollChange(e)}
+            disabled={action.status === 'completed'}
+            error={!locationRoll}
+          />
+        </Grid>
+      )}
       <Grid size={2}>
-        {action.status !== 'completed' && (
-          <Button
-            onClick={() => handleRollClick()}
-            disabled={isRollDisabled()}
-            variant="contained"
-            size="small"
-            color="success"
-          >
-            {t('Roll attack')}
-          </Button>
+        {attack.calculated.location && (
+          <Grid size={8}>
+            <Chip size="medium" color="error" label={t(attack.calculated.location)} />
+          </Grid>
         )}
       </Grid>
-      <Grid size={1}>
-        <NumericInput label={t('attack-roll')} value={attack.roll?.roll || null} onChange={(e) => updateRoll(e)} />
+      <Grid size={12}></Grid>
+      <Grid size={2} offset={2}>
+        <NumericInput
+          label={t('attack-roll')}
+          value={attack.roll?.roll || null}
+          onChange={(e) => onRollChange(e)}
+          disabled={action.status === 'completed'}
+          error={!attackRoll}
+        />
       </Grid>
-      <Grid size={2}>
-        {requiresLocation() && (
-          <SelectLocation value={getLocation()} onChange={(e) => updateLocation(e.target.value)} />
-        )}
-      </Grid>
+
       {attack.results && attack.results.attackTableEntry && (
-        <Grid size={1}>
-          <Chip size="medium" color="info" label={attack.results.attackTableEntry.text} />
+        <Grid size={8}>
+          <Stack direction="row" spacing={1}>
+            {attack.results.attackTableEntry.damage > 0 ? (
+              <Effect effect={'dmg'} value={attack.results.attackTableEntry.damage} color="error" />
+            ) : (
+              <Typography>{t('no-damage')}</Typography>
+            )}
+            {attack.results.attackTableEntry.criticalType && <Chip label={getCriticalText()} color="error" />}
+          </Stack>
         </Grid>
       )}
       <Grid size={12}></Grid>

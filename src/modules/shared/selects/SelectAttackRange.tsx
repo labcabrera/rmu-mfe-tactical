@@ -1,6 +1,5 @@
 import React, { FC, useContext, useEffect, useState } from 'react';
-import { Badge, FormControl, FormLabel, ToggleButtonGroup, ToggleButton } from '@mui/material';
-import { t } from 'i18next';
+import { Badge, FormControl, ToggleButtonGroup, ToggleButton } from '@mui/material';
 import { CombatContext } from '../../../CombatContext';
 import { ActorRoundAttack, ActorRoundAttackRange } from '../../api/actor-rounds.dto';
 
@@ -10,8 +9,6 @@ const SelectAttackRange: FC<{
   onChange: (value: number | null) => void;
   readOnly?: boolean;
 }> = ({ attack, value, onChange, readOnly = false }) => {
-  const labelId = 'action-range-selector-label';
-
   const [index, setIndex] = useState<number | null>(null);
   const { strategicGame } = useContext(CombatContext)!;
 
@@ -49,9 +46,6 @@ const SelectAttackRange: FC<{
 
   return (
     <FormControl component="fieldset">
-      <FormLabel id={labelId} component="legend" sx={{ mb: 1, typography: 'body1' }}>
-        {t('range')}
-      </FormLabel>
       <ToggleButtonGroup
         value={index}
         exclusive
@@ -70,7 +64,13 @@ const SelectAttackRange: FC<{
       >
         {attack.ranges!.map((option, i) => (
           <Badge key={`${option.from}-${option.to}`} badgeContent={badgeContent(option)} color={badgeColor(option)}>
-            <ToggleButton value={i} disabled={readOnly} sx={{ minWidth: 140 }} onClick={() => handleClick(option, i)}>
+            <ToggleButton
+              value={i}
+              disabled={readOnly}
+              sx={{ minWidth: 140 }}
+              onClick={() => handleClick(option, i)}
+              size="small"
+            >
               {buttonText(option)}
             </ToggleButton>
           </Badge>

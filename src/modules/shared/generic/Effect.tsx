@@ -7,7 +7,7 @@ const Effect: FC<{
   rounds?: number | undefined;
   value?: number | undefined;
   color?: 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning';
-}> = ({ effect: status, rounds, value, color = 'info' }) => {
+}> = ({ effect: status, rounds, value, color = 'default' }) => {
   const getLabel = () => {
     let label = '';
     switch (status) {

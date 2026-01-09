@@ -1,10 +1,11 @@
 import React, { FC, useContext, useEffect, useState } from 'react';
-import { Button, Grid, Typography } from '@mui/material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { Accordion, AccordionDetails, AccordionSummary, Button, Grid, Typography } from '@mui/material';
 import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { useError } from '../../../../ErrorContext';
 import { applyAttack } from '../../../api/action';
-import { Action, ActionAttack, ActionAttackModifiers, AttackDeclaration } from '../../../api/action.dto';
+import { Action, ActionAttackModifiers, AttackDeclaration } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
 import ResolveAttackFormRoll from '../attack/ResolveAttackFormRoll';
 import TargetSelector from '../melee-attack/TargetSelector';
@@ -25,25 +26,13 @@ const RangedAttackForm: FC<{
 
   const handleTargetChange = (attackName: string, targetId: string | null) => {
     const exists = findAttack(attackName);
-    let newSelected: ActionAttack[];
-    if (exists) {
-      newSelected = selected.map((a) =>
-        a.attackName === attackName ? { ...a, modifiers: { ...a.modifiers, targetId } } : a
-      );
-    } else {
-      const baseBo = (actorRound.attacks || []).find((a: any) => a.attackName === attackName)?.currentBo || 0;
-      const modifiers = { targetId, bo: baseBo } as ActionAttackModifiers;
-      newSelected = [
-        ...selected,
-        {
-          attackName: attackName,
-          modifiers,
-          calculated: undefined,
-          roll: undefined,
-          results: undefined,
-        },
-      ];
+    if (!exists) {
+      showError(t('attack-not-found'));
+      return;
     }
+    const newSelected = selected.map((a) =>
+      a.attackName === attackName ? { ...a, modifiers: { ...a.modifiers, targetId } } : a
+    );
     setFormData({ ...formData, attacks: newSelected });
   };
 
@@ -100,7 +89,7 @@ const RangedAttackForm: FC<{
                   <Grid size={2}>
                     {t(displayTable)} +{displayBo}
                   </Grid>
-                  <Grid size={10}>
+                  <Grid size={10} mb={5}>
                     <TargetSelector
                       value={modifiers.targetId || ''}
                       onChange={(actorId) => handleTargetChange(actionAttack.attackName, actorId)}
@@ -134,7 +123,15 @@ const RangedAttackForm: FC<{
           {t('apply')}
         </Button>
       )}
-      {/* <pre>Ranged FormData: {JSON.stringify(formData, null, 2)}</pre> */}
+      <Accordion sx={{ mt: 2 }}>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1-content" id="panel1-header">
+          <Typography component="span">Details</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <pre>FormData: {JSON.stringify(formData, null, 2)}</pre>
+          <pre>Action: {JSON.stringify(action, null, 2)}</pre>
+        </AccordionDetails>
+      </Accordion>
     </>
   );
 };

@@ -1,4 +1,5 @@
 import React, { useContext, FC, useState } from 'react';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
   Button,
   Dialog,
@@ -7,17 +8,71 @@ import {
   DialogTitle,
   Grid,
   TextField,
-  FormControlLabel,
   FormControl,
-  FormLabel,
-  Switch,
+  Stack,
+  Typography,
+  ToggleButtonGroup,
+  ToggleButton,
+  Slide,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
 } from '@mui/material';
+import { t } from 'i18next';
 import { CombatContext } from '../../../CombatContext';
 import { useError } from '../../../ErrorContext';
 import { createAction } from '../../api/action';
 import { ActorRound } from '../../api/actor-rounds.dto';
+import ActorRoundAvatar from '../../shared/avatars/ActorRoundAvatar';
 import SelectManeuverType from '../../shared/selects/SelectManeuverType';
 import SelectSkillByCategory from '../../shared/selects/SelectSkillByCategory';
+
+const Transition = React.forwardRef(function Transition(props, ref) {
+  return <Slide children={undefined} direction="up" ref={ref} {...props} />;
+});
+
+const actionOptions = [
+  {
+    key: 'movement',
+    title: 'Movement',
+    options: [
+      { key: 'movement', label: 'Movement' },
+      { key: 'stand-up', label: 'Stand up' },
+    ],
+  },
+  {
+    key: 'combat',
+    title: 'Combat',
+    options: [
+      { key: 'melee_attack', label: 'Melee' },
+      { key: 'ranged_attack', label: 'Ranged' },
+      { key: 'draw-and-load', label: 'Load' },
+      { key: 'dodge', label: 'Dodge' },
+    ],
+  },
+  {
+    key: 'maneuvers',
+    title: 'Maneuvers',
+    options: [{ key: 'maneuver', label: 'Maneuver' }],
+  },
+  {
+    key: 'spells',
+    title: 'Spells',
+    options: [
+      { key: 'cast_spell', label: 'Spell' },
+      { key: 'cast_instant', label: 'Instant' },
+    ],
+  },
+  {
+    key: 'other',
+    title: 'Other',
+    options: [
+      { key: 'perception', label: 'Perception' },
+      { key: 'medical', label: 'Medical' },
+      { key: 'other', label: 'Other' },
+    ],
+  },
+];
 
 const DeclareActionDialog: FC<{
   actorRound: ActorRound;
@@ -60,12 +115,12 @@ const DeclareActionDialog: FC<{
     return false;
   };
 
-  const handleSelectAction = (opt: { key: string; freeAction?: boolean }) => {
+  const handleSelectAction = (opt: { key: string }) => {
     const base = {
       gameId: actorRound.gameId,
       actorId: actorRound.actorId,
       actionType: opt.key,
-      freeAction: !!opt.freeAction,
+      freeAction: false,
       phaseStart: phaseNumber,
     } as any;
 
@@ -107,176 +162,159 @@ const DeclareActionDialog: FC<{
   };
 
   return (
-    <Dialog open={open} onClose={handleClose} maxWidth="xl" fullWidth>
-      <DialogTitle>{actorRound.actorName} action declaration</DialogTitle>
-      <DialogContent>
-        <Grid container spacing={1} sx={{ mt: 1 }} direction="column">
-          {(
-            [
-              {
-                key: 'movement',
-                title: 'Movement',
-                options: [
-                  { key: 'movement', label: 'Movement', freeAction: true },
-                  { key: 'stand-up', label: 'Stand up', freeAction: false },
-                ],
-              },
-              {
-                key: 'combat',
-                title: 'Combat',
-                options: [
-                  { key: 'melee_attack', label: 'Melee attack', freeAction: false },
-                  { key: 'ranged_attack', label: 'Ranged attack', freeAction: false },
-                  { key: 'draw-and-load', label: 'Draw and load ammo', freeAction: false },
-                  { key: 'partial-dodge', label: 'Partial dodge', freeAction: false },
-                  { key: 'full-dodge', label: 'Full dodge', freeAction: false },
-                ],
-              },
-              {
-                key: 'maneuvers',
-                title: 'Maneuvers',
-                options: [
-                  { key: 'movement_maneuver', label: 'Movement maneuver', freeAction: false },
-                  { key: 'maneuver', label: 'Maneuver', freeAction: true },
-                ],
-              },
-              {
-                key: 'spells',
-                title: 'Spells',
-                options: [
-                  { key: 'cast_spell', label: 'Cast spell', freeAction: true },
-                  { key: 'cast_instant', label: 'Cast instant', freeAction: true },
-                ],
-              },
-              {
-                key: 'other',
-                title: 'Other',
-                options: [
-                  { key: 'perception', label: 'Perception', freeAction: true },
-                  { key: 'drop-item', label: 'Drop item', freeAction: true },
-                  { key: 'other', label: 'Other', freeAction: false },
-                ],
-              },
-            ] as Array<{
-              key: string;
-              title: string;
-              options: { key: string; label: string; freeAction?: boolean }[];
-            }>
-          ).map((group) => (
-            <FormControl key={group.key} sx={{ mb: 2, width: '100%' }}>
-              <FormLabel>{group.title}</FormLabel>
-              <Grid container spacing={1} sx={{ mt: 1 }} wrap="wrap" alignItems="stretch">
-                {group.options.map((opt) => (
-                  <Grid key={opt.key}>
-                    <Button
-                      size="large"
-                      fullWidth
-                      variant={actionForm.actionType === opt.key ? 'contained' : 'outlined'}
-                      onClick={() => handleSelectAction(opt)}
-                      disabled={isDisabled(opt.key)}
-                    >
-                      {opt.label}
-                    </Button>
-                  </Grid>
-                ))}
-              </Grid>
-            </FormControl>
-          ))}
-        </Grid>
-
-        {actionForm.actionType && (
-          <FormControl sx={{ mt: 1 }}>
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={!!actionForm.freeAction}
-                  onChange={(e) => setActionForm({ ...actionForm, freeAction: e.target.checked })}
-                />
-              }
-              label="Free action"
-            />
-          </FormControl>
-        )}
-
-        <div style={{ marginTop: 16 }}>
-          {isActionAttack(actionForm.actionType) && (
-            <>
-              {actorRound.attacks && actorRound.attacks.length > 0 && (
-                <Grid container spacing={1} sx={{ mt: 1 }}>
-                  {filterAttacks(actorRound.attacks, actionForm.actionType).map((atk: any) => {
-                    const selected = actionForm.attackNames && actionForm.attackNames.includes(atk.attackName);
-                    const toggleAttack = (attackName: string) => {
-                      const current: string[] = actionForm.attackNames || [];
-                      const exists = current.includes(attackName);
-                      let next: string[];
-                      if (exists) {
-                        next = current.filter((n) => n !== attackName);
-                      } else {
-                        next = [...current, attackName];
-                      }
-                      setActionForm({ ...actionForm, attackNames: next });
-                    };
-
-                    return (
-                      <Grid key={atk.attackName}>
-                        <Button
-                          variant={selected ? 'contained' : 'outlined'}
-                          onClick={() => toggleAttack(atk.attackName)}
-                        >
-                          {atk.attackName}
-                        </Button>
-                      </Grid>
-                    );
-                  })}
+    <Dialog open={open} onClose={handleClose} maxWidth="xl" fullWidth slots={{ transition: Transition }}>
+      <DialogTitle>
+        <Stack direction="row" spacing={2} alignItems="center">
+          <ActorRoundAvatar actorRound={actorRound} size={100} variant="square" />
+          <Stack direction="column">
+            <Typography variant="h6">{actorRound.actorName}</Typography>
+            <Typography variant="subtitle1">Action Declaration</Typography>
+            <Typography variant="subtitle1">Additional information here</Typography>
+          </Stack>
+        </Stack>
+      </DialogTitle>
+      <DialogContent dividers>
+        <Grid container spacing={1}>
+          <Grid size={6}>
+            <Grid container spacing={1}>
+              {actionOptions.map((group) => (
+                <Grid size={12}>
+                  <FormControl key={group.key} sx={{ mt: 1 }}>
+                    <ToggleButtonGroup value={actionForm.actionType} exclusive>
+                      {group.options.map((opt) => (
+                        <Grid key={opt.key}>
+                          <ToggleButton
+                            value={opt.key}
+                            onClick={() => handleSelectAction(opt)}
+                            disabled={isDisabled(opt.key)}
+                            sx={{ minWidth: 100 }}
+                            size="small"
+                          >
+                            {opt.label}
+                          </ToggleButton>
+                        </Grid>
+                      ))}
+                    </ToggleButtonGroup>
+                  </FormControl>
                 </Grid>
-              )}
-            </>
-          )}
-          {actionForm.actionType === 'maneuver' && (
-            <>
-              <SelectManeuverType
-                value={actionForm.maneuver.maneuverType || ''}
-                onChange={(maneuverType: string): void => {
-                  setActionForm({
-                    ...actionForm,
-                    maneuver: {
-                      ...actionForm.maneuver,
-                      maneuverType,
-                    },
-                  });
-                }}
-              />
-              <SelectSkillByCategory
-                value={actionForm.maneuver.skillId || ''}
-                onChange={(skillId: string): void => {
-                  setActionForm({
-                    ...actionForm,
-                    maneuver: {
-                      ...actionForm.maneuver,
-                      skillId,
-                    },
-                  });
-                }}
-              />
-            </>
-          )}
+              ))}
+            </Grid>
+          </Grid>
 
-          {actionForm.actionType === 'other' && (
-            <TextField
-              label="Details"
-              value={otherDetails}
-              onChange={(e) => setOtherDetails(e.target.value)}
-              fullWidth
-              multiline
-              rows={3}
-              sx={{ mt: 1 }}
-            />
-          )}
-        </div>
-        {/* <pre>{JSON.stringify(actionForm, null, 2)}</pre> */}
+          <Grid size={6}>
+            {actionForm.actionType && (
+              <FormControl sx={{ mt: 1 }}>
+                <ToggleButtonGroup
+                  value={actionForm.freeAction ? 'free' : 'normal'}
+                  exclusive
+                  size="small"
+                  onChange={(_, val) => {
+                    const next = val === 'free';
+                    setActionForm({ ...actionForm, freeAction: next });
+                  }}
+                >
+                  <ToggleButton value="normal" size="small" sx={{ minWidth: 100 }}>
+                    Normal
+                  </ToggleButton>
+                  <ToggleButton value="free" size="small" sx={{ minWidth: 100 }}>
+                    Free
+                  </ToggleButton>
+                </ToggleButtonGroup>
+              </FormControl>
+            )}
+
+            <div style={{ marginTop: 16 }}>
+              {isActionAttack(actionForm.actionType) && (
+                <>
+                  {actorRound.attacks && actorRound.attacks.length > 0 && (
+                    <Grid container spacing={1} sx={{ mt: 1 }}>
+                      {filterAttacks(actorRound.attacks, actionForm.actionType).map((atk: any) => {
+                        const selected = actionForm.attackNames && actionForm.attackNames.includes(atk.attackName);
+                        const toggleAttack = (attackName: string) => {
+                          const current: string[] = actionForm.attackNames || [];
+                          const exists = current.includes(attackName);
+                          let next: string[];
+                          if (exists) {
+                            next = current.filter((n) => n !== attackName);
+                          } else {
+                            next = [...current, attackName];
+                          }
+                          setActionForm({ ...actionForm, attackNames: next });
+                        };
+
+                        return (
+                          <Grid key={atk.attackName}>
+                            <ToggleButton
+                              size="small"
+                              value={selected}
+                              selected={selected}
+                              onClick={() => toggleAttack(atk.attackName)}
+                            >
+                              {atk.attackName}
+                            </ToggleButton>
+                          </Grid>
+                        );
+                      })}
+                    </Grid>
+                  )}
+                </>
+              )}
+              {actionForm.actionType === 'maneuver' && (
+                <>
+                  <SelectManeuverType
+                    value={actionForm.maneuver.maneuverType || ''}
+                    onChange={(maneuverType: string): void => {
+                      setActionForm({
+                        ...actionForm,
+                        maneuver: {
+                          ...actionForm.maneuver,
+                          maneuverType,
+                        },
+                      });
+                    }}
+                  />
+                  <SelectSkillByCategory
+                    value={actionForm.maneuver.skillId || ''}
+                    onChange={(skillId: string): void => {
+                      setActionForm({
+                        ...actionForm,
+                        maneuver: {
+                          ...actionForm.maneuver,
+                          skillId,
+                        },
+                      });
+                    }}
+                  />
+                </>
+              )}
+
+              {actionForm.actionType === 'other' && (
+                <TextField
+                  label="Details"
+                  value={otherDetails}
+                  onChange={(e) => setOtherDetails(e.target.value)}
+                  fullWidth
+                  multiline
+                  rows={3}
+                  sx={{ mt: 1 }}
+                />
+              )}
+            </div>
+          </Grid>
+          <Grid size={12}>
+            <Accordion sx={{ mt: 2 }}>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1-content" id="panel1-header">
+                <Typography component="span">Details</Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <pre>actionForm: {JSON.stringify(actionForm, null, 2)}</pre>
+              </AccordionDetails>
+            </Accordion>
+          </Grid>
+        </Grid>
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleClose}>Cancel</Button>
+        <Button onClick={handleClose}>{t('close')}</Button>
         <Button disabled={!actionForm.actionType} onClick={handleDeclare}>
           Declare
         </Button>

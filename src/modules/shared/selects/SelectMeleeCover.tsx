@@ -1,24 +1,22 @@
 import React, { FC } from 'react';
-import { Badge, FormLabel, FormControl, ToggleButtonGroup, ToggleButton } from '@mui/material';
+import { Badge, FormControl, ToggleButtonGroup, ToggleButton, Tooltip } from '@mui/material';
 import { t } from 'i18next';
+
+const options: { id: string; value: number }[] = [
+  { id: 'none', value: 0 },
+  { id: 'soft_partial', value: -10 },
+  { id: 'soft_half', value: -20 },
+  { id: 'soft_full', value: -50 },
+  { id: 'hard_partial', value: -20 },
+  { id: 'hard_half', value: -40 },
+  { id: 'hard_full', value: -100 },
+];
 
 const SelectMeleeCover: FC<{
   value: string;
   onChange: (value: string) => void;
   readOnly?: boolean;
 }> = ({ value, onChange, readOnly = false }) => {
-  const labelId = 'select-restricted-quarters-label';
-
-  const options: { id: string; value: number }[] = [
-    { id: 'none', value: 0 },
-    { id: 'soft_partial', value: -10 },
-    { id: 'soft_half', value: -20 },
-    { id: 'soft_full', value: -50 },
-    { id: 'hard_partial', value: -20 },
-    { id: 'hard_half', value: -40 },
-    { id: 'hard_full', value: -100 },
-  ];
-
   const handleClick = (opt: { id: string; value: number }) => {
     if (readOnly) return;
     onChange(opt.id);
@@ -35,25 +33,25 @@ const SelectMeleeCover: FC<{
   };
 
   return (
-    <FormControl component="fieldset">
-      <FormLabel id={labelId} component="legend" sx={{ mb: 1, typography: 'body1' }}>
-        {t('cover')}
-      </FormLabel>
-      <ToggleButtonGroup value={value} exclusive>
-        {options.map((option) => (
-          <Badge key={option.value} badgeContent={badgeContent(option)} color={badgeColor(option)}>
-            <ToggleButton
-              value={option.id}
-              onClick={() => handleClick(option)}
-              disabled={readOnly}
-              sx={{ minWidth: 140 }}
-            >
-              {t(`${option.id}`)}
-            </ToggleButton>
-          </Badge>
-        ))}
-      </ToggleButtonGroup>
-    </FormControl>
+    <Tooltip title={t('cover')}>
+      <FormControl component="fieldset">
+        <ToggleButtonGroup value={value} exclusive>
+          {options.map((option) => (
+            <Badge key={option.value} badgeContent={badgeContent(option)} color={badgeColor(option)}>
+              <ToggleButton
+                value={option.id}
+                onClick={() => handleClick(option)}
+                disabled={readOnly}
+                size="small"
+                sx={{ minWidth: 140 }}
+              >
+                {t(`${option.id}`)}
+              </ToggleButton>
+            </Badge>
+          ))}
+        </ToggleButtonGroup>
+      </FormControl>
+    </Tooltip>
   );
 };
 

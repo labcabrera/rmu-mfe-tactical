@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
 import Avatar from '@mui/material/Avatar';
-import type { Character } from '../../api/characters';
+import { Character } from '../../api/characters.dto';
 import { resolveRaceImage } from '../../services/race-avatar-service';
 
 type CharacterAvatarProps = {
@@ -14,6 +14,7 @@ const CharacterAvatar: FC<CharacterAvatarProps> = ({ character, dead = false, va
   const defaultImage = '/static/images/races/unknown.png';
 
   const resolveImage = (): string => {
+    if (character && character.imageUrl) return character.imageUrl;
     if (!character || !character.info || !character.info.raceName) {
       return defaultImage;
     }

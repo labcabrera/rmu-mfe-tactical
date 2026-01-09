@@ -1,15 +1,12 @@
 import React, { FC } from 'react';
-import { FormControl, FormLabel, ToggleButtonGroup, ToggleButton } from '@mui/material';
+import { FormControl, ToggleButtonGroup, ToggleButton, Tooltip } from '@mui/material';
 import { t } from 'i18next';
 
 const SelectDodge: FC<{
   value: string;
   onChange: (value: string) => void;
-  name?: string;
   readOnly?: boolean;
-}> = ({ value, onChange, name = 'dodge', readOnly = false }) => {
-  const labelId = `select-dodge-${name}-label`;
-
+}> = ({ value, onChange, readOnly = false }) => {
   const options = ['none', 'passive', 'partial', 'full'];
 
   const handleClick = (optionId: string) => {
@@ -18,18 +15,24 @@ const SelectDodge: FC<{
   };
 
   return (
-    <FormControl component="fieldset">
-      <FormLabel id={labelId} component="legend" sx={{ mb: 1, typography: 'body1' }}>
-        {t('dodge')}
-      </FormLabel>
-      <ToggleButtonGroup value={value} exclusive>
-        {options.map((option) => (
-          <ToggleButton value={option} onClick={() => handleClick(option)} disabled={readOnly} sx={{ minWidth: 140 }}>
-            {t(`dodge-${option}`)}
-          </ToggleButton>
-        ))}
-      </ToggleButtonGroup>
-    </FormControl>
+    <Tooltip title={t('dodge')}>
+      <FormControl component="fieldset">
+        <ToggleButtonGroup value={value} exclusive>
+          {options.map((option) => (
+            <ToggleButton
+              key={option}
+              value={option}
+              onClick={() => handleClick(option)}
+              disabled={readOnly}
+              size="small"
+              sx={{ minWidth: 140 }}
+            >
+              {t(`dodge-${option}`)}
+            </ToggleButton>
+          ))}
+        </ToggleButtonGroup>
+      </FormControl>
+    </Tooltip>
   );
 };
 

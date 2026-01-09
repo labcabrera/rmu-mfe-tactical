@@ -10,6 +10,8 @@ export type ActionStatus =
 
 export type ActionType = 'movement' | 'melee_attack' | 'ranged_attack' | 'maneuver' | 'skill' | 'free';
 
+export type CalledShot = 'none' | 'head' | 'chest' | 'abdomen' | 'arms' | 'legs';
+
 export type AttackDeclaration = {
   attacks: ActionAttack[];
   parries: ActionParry[] | undefined;
@@ -110,12 +112,13 @@ export type ActionAttack = {
   modifiers: ActionAttackModifiers;
   roll: {
     roll: number | null;
-    location: string | null;
+    locationRoll: number | null;
     criticalRolls?: Map<string, number | undefined>;
     fumbleRoll?: number | null;
   };
   calculated: AttackCalculationsDto | undefined;
   results: ActionAttackResults | undefined;
+  status: string;
 };
 
 export type ActionAttackResults = {
@@ -163,6 +166,8 @@ export type ActionAttackModifiers = {
 export type AttackCalculationsDto = {
   rollModifiers: KeyValueModifier[];
   rollTotal: number;
+  requiredLocationRoll: boolean;
+  location: string | null;
 };
 
 export type ActionParry = {
