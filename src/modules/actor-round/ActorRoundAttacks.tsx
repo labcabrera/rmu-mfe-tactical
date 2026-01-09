@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
 import { Stack, Typography, Chip } from '@mui/material';
-import { ActorRound } from '../api/actor-rounds.dto';
+import { ActorRound, ActorRoundAttack } from '../api/actor-rounds.dto';
 
 const ActorRoundAttacks: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
   return (
@@ -8,7 +8,7 @@ const ActorRoundAttacks: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
       <Typography variant="subtitle2">Attacks</Typography>
       {actorRound.attacks && actorRound.attacks.length > 0 ? (
         <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
-          {actorRound.attacks.map((a: any, i: number) => (
+          {actorRound.attacks.map((a: ActorRoundAttack, i: number) => (
             <Chip key={`${a.attackName}-${i}`} label={a.attackName} />
           ))}
         </Stack>

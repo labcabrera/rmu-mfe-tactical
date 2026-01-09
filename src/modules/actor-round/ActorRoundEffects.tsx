@@ -6,7 +6,7 @@ import { t } from 'i18next';
 import { CombatContext } from '../../CombatContext';
 import { useError } from '../../ErrorContext';
 import { addActorRoundEffect, deleteActorRoundEffect } from '../api/actor-rounds';
-import { ActorRound } from '../api/actor-rounds.dto';
+import { ActorRound, ActorRoundEffect } from '../api/actor-rounds.dto';
 
 const ActorRoundEffects: FC<{
   actorRound: ActorRound;
@@ -17,7 +17,7 @@ const ActorRoundEffects: FC<{
   const { refreshActorRounds } = useContext(CombatContext);
 
   const addState = () => {
-    const effect = { status: newState } as any;
+    const effect: ActorRoundEffect = { id: '', status: newState, value: undefined, rounds: undefined };
     addActorRoundEffect(actorRound.id, effect)
       .then((updatedActorRound) => {
         setActorRound(updatedActorRound);
@@ -35,7 +35,7 @@ const ActorRoundEffects: FC<{
       .catch((err) => showError(err));
   };
 
-  const getLabelForState = (state: any) => {
+  const getLabelForState = (state: ActorRoundEffect) => {
     return `${t(`effect-${state.status}`)}${state.value ? ` ${state.value}` : ''}`;
   };
 
@@ -47,7 +47,7 @@ const ActorRoundEffects: FC<{
         <Typography variant="body2">No states</Typography>
       ) : (
         <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
-          {(actorRound.effects || []).map((s: any, i: number) => (
+          {(actorRound.effects || []).map((s: ActorRoundEffect, i: number) => (
             <Chip
               key={`${s.status}-${i}`}
               label={getLabelForState(s)}

@@ -73,8 +73,8 @@ const CombatDashboardActions: FC = () => {
           </Breadcrumbs>
         </Box>
         <Stack direction="row" spacing={2}>
-          <BackButton onClick={onDisplayPrevRound} disabled={displayRound === 1} size={80} />
-          <NextButton onClick={onDisplayNextRound} disabled={displayRound === game.round} size={80} />
+          <BackButton onClick={onDisplayPrevRound} disabled={displayRound === 1} />
+          <NextButton onClick={onDisplayNextRound} disabled={displayRound === game.round} />
           <AddButton onClick={onNextRound} />
           <CloseButton onClick={onClose} />
           {nextPhaseAvailable() ? (

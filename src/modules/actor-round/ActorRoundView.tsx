@@ -29,7 +29,7 @@ const ActorRoundView: FC = () => {
     fetchActorRound(actorRoundId)
       .then((response) => setActorRound(response))
       .catch((err) => showError(err.message));
-  }, [actorRoundId]);
+  }, [actorRoundId, showError]);
 
   if (!actorRound) return <CircularProgress size={24} />;
 

@@ -13,46 +13,49 @@ import {
   Tooltip,
 } from '@mui/material';
 import { CombatContext } from '../../../../CombatContext';
-import CharacterAvatar from '../../../shared/avatars/CharacterAvatar';
+import { ActorRound } from '../../../api/actor-rounds.dto';
+import ActorRoundAvatar from '../../../shared/avatars/ActorRoundAvatar';
+
+const avatarSize = 100;
 
 const TargetSelector: FC<{
-  value?: string | null;
-  onChange: (actorId: string | null) => void;
-  sourceId?: string | null;
+  value?: string | null; // actorRound id
+  onChange: (actorRoundId: string | null) => void;
+  sourceId?: string | null; // character id of source
 }> = ({ value = null, onChange, sourceId = null }) => {
-  const { actorRounds, characters } = useContext(CombatContext)!;
+  const { actorRounds } = useContext(CombatContext)!;
   const [open, setOpen] = useState(false);
   const [filter, setFilter] = useState<'distinct' | 'all'>('distinct');
 
   const items = useMemo(() => {
-    if (!actorRounds) return [] as any[];
+    if (!actorRounds) return [] as ActorRound[];
     let list = actorRounds;
-    if (filter === 'distinct' && characters && sourceId) {
-      const sourceChar = (characters || []).find((c) => c.id === (sourceId as string)) as any;
+    if (filter === 'distinct' && actorRounds && sourceId) {
+      const sourceChar = (actorRounds || []).find((c) => c.id === (sourceId as string)) as any;
       const sourceFaction = sourceChar?.factionId;
       if (sourceFaction) {
         list = list.filter((ar) => {
-          const ch = (characters || []).find((c) => c.id === ar.actorId) as any;
+          const ch = (actorRounds || []).find((c) => c.id === ar.actorId) as any;
           return ch && ch.factionId !== sourceFaction;
         });
       }
     }
     return list;
-  }, [actorRounds, characters, filter, sourceId]);
+  }, [actorRounds, filter, sourceId]);
 
-  const selectedCharacter = useMemo(() => {
-    if (!value || !characters) return null;
-    return characters.find((c) => c.id === value) || null;
-  }, [value, characters]);
+  const selectedActorRound = useMemo(() => {
+    if (!value || !actorRounds) return null;
+    return (actorRounds || []).find((ar) => ar.id === value) || null;
+  }, [value, actorRounds]);
 
   return (
     <Box>
       <Stack direction="row" spacing={1} alignItems="center">
-        <Tooltip title={selectedCharacter ? selectedCharacter.name : 'No target selected'}>
+        <Tooltip title={selectedActorRound ? selectedActorRound.actorName : 'No target selected'}>
           <IconButton onClick={() => setOpen((s) => !s)} sx={{ p: 0 }}>
-            <CharacterAvatar
-              character={(selectedCharacter as any) || ({ id: '', info: {} } as any)}
-              size={48}
+            <ActorRoundAvatar
+              actorRound={selectedActorRound || undefined}
+              size={avatarSize}
               variant="square"
               dead={false}
             />
@@ -60,10 +63,7 @@ const TargetSelector: FC<{
         </Tooltip>
         <Box sx={{ minWidth: 0 }}>
           <Typography variant="body2" noWrap>
-            {selectedCharacter ? selectedCharacter.name : 'Select target'}
-          </Typography>
-          <Typography variant="caption" color="text.secondary" noWrap>
-            {selectedCharacter ? selectedCharacter.info?.raceName : ''}
+            {selectedActorRound ? selectedActorRound.actorName : 'Select target'}
           </Typography>
         </Box>
         <IconButton onClick={() => setOpen((s) => !s)} aria-label="expand">
@@ -98,28 +98,27 @@ const TargetSelector: FC<{
 
           <Stack direction="row" spacing={0.5} sx={{ flexWrap: 'wrap' }}>
             {(items || []).map((ar) => {
-              const ch = (characters || []).find((c) => c.id === ar.actorId);
-              if (!ch) return null;
-              const isSelected = value === ch.id;
+              const ch = (actorRounds || []).find((c) => c.id === ar.actorId) || null;
+              const isSelected = value === ar.id;
               return (
-                <Box key={ar.id} sx={{ textAlign: 'center', width: 64, mb: 0.5 }}>
+                <Box key={ar.id} sx={{ textAlign: 'center', mb: 0.5 }}>
                   <Button
                     onClick={() => {
-                      onChange(ch.id);
+                      onChange(ar.id);
                       setOpen(false);
                     }}
                     variant={isSelected ? 'contained' : 'outlined'}
                     size="medium"
                     sx={{ display: 'flex', flexDirection: 'column', gap: 0.25, alignItems: 'center', p: 0.5 }}
                   >
-                    <CharacterAvatar
-                      character={ch as any}
-                      size={40}
+                    <ActorRoundAvatar
+                      actorRound={ar}
+                      size={avatarSize}
                       variant="square"
                       dead={ar.effects?.some((e: any) => e.status === 'dead')}
                     />
                     <Typography variant="caption" noWrap sx={{ maxWidth: 60 }}>
-                      {ch.name}
+                      {ch ? ch.actorName : ar.actorName}
                     </Typography>
                   </Button>
                 </Box>

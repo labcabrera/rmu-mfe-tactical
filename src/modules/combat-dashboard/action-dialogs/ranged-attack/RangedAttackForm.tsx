@@ -1,5 +1,6 @@
 import React, { FC, useContext, useEffect, useState } from 'react';
-import { Button, Grid, Typography } from '@mui/material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { Accordion, AccordionDetails, AccordionSummary, Button, Grid, Typography } from '@mui/material';
 import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { useError } from '../../../../ErrorContext';
@@ -122,8 +123,15 @@ const RangedAttackForm: FC<{
           {t('apply')}
         </Button>
       )}
-      <pre>FormData: {JSON.stringify(formData, null, 2)}</pre>
-      <pre>Action: {JSON.stringify(action, null, 2)}</pre>
+      <Accordion sx={{ mt: 2 }}>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1-content" id="panel1-header">
+          <Typography component="span">Details</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <pre>FormData: {JSON.stringify(formData, null, 2)}</pre>
+          <pre>Action: {JSON.stringify(action, null, 2)}</pre>
+        </AccordionDetails>
+      </Accordion>
     </>
   );
 };
