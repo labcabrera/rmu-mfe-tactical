@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
 import { Stack, Typography, Chip } from '@mui/material';
-import { ActorRound } from '../../api/actor-rounds.dto';
+import { ActorRound } from '../api/actor-rounds.dto';
 
 const ActorRoundAttacks: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
   return (

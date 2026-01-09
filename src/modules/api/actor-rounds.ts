@@ -56,3 +56,18 @@ export async function addActorRoundEffect(actorRoundId: string, effect: ActorRou
   }
   return await response.json();
 }
+
+export async function deleteActorRoundEffect(actorRoundId: string, effect: ActorRoundEffect): Promise<ActorRound> {
+  const url = `${process.env.RMU_API_TACTICAL_URL}/actor-rounds/${actorRoundId}/effects`;
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(effect),
+  });
+  if (response.status !== 201) {
+    throw await buildErrorFromResponse(response, url);
+  }
+  return await response.json();
+}

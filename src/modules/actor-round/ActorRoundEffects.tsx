@@ -2,7 +2,7 @@ import React, { FC, useState } from 'react';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Stack, Typography, Chip, Box, TextField, IconButton, Button } from '@mui/material';
-import { ActorRound } from '../../api/actor-rounds.dto';
+import { ActorRound } from '../api/actor-rounds.dto';
 
 const ActorRoundEffects: FC<{
   actorRound: ActorRound;
