@@ -34,7 +34,7 @@ const MeleeAttackForm: FC<{
     });
   };
 
-  const onDeclare = () => {
+  const onDeclareAttack = () => {
     if (!formData || !formData.attacks || formData.attacks.length < 1) {
       showError('You must declare at least one attack');
       return;
@@ -44,13 +44,10 @@ const MeleeAttackForm: FC<{
         loadActionFromResponse(updatedAction);
         setActiveStep(2);
       })
-      .catch((err: unknown) => {
-        if (err instanceof Error) showError(err.message);
-        else showError('An unknown error occurred');
-      });
+      .catch((err: Error) => showError(err.message));
   };
 
-  const onParry = () => {
+  const onParryAttack = () => {
     const parryDeclaration = { parries: [] } as ParryDeclaration;
     formData.parries.forEach((p) => {
       parryDeclaration.parries.push({ parryId: p.id, parry: p.parry });
@@ -60,23 +57,17 @@ const MeleeAttackForm: FC<{
         loadActionFromResponse(updatedAction);
         setActiveStep(3);
       })
-      .catch((err: unknown) => {
-        if (err instanceof Error) showError(err.message);
-        else showError('An unknown error occurred');
-      });
+      .catch((err: Error) => showError(err.message));
   };
 
-  const onApply = () => {
+  const onApplyAttack = () => {
     applyAttack(action.id)
       .then((updatedAction) => {
         loadActionFromResponse(updatedAction);
         setActiveStep(3);
         refreshActorRounds();
       })
-      .catch((err: unknown) => {
-        if (err instanceof Error) showError(err.message);
-        else showError('An unknown error occurred');
-      });
+      .catch((err: Error) => showError(err.message));
   };
 
   const loadActionFromResponse = (updatedAction: Action) => {
@@ -127,9 +118,9 @@ const MeleeAttackForm: FC<{
         setActiveStep={setActiveStep}
         actorRound={actorRound}
         action={action}
-        onDeclare={onDeclare}
-        onParry={onParry}
-        onApply={onApply}
+        onDeclare={onDeclareAttack}
+        onParry={onParryAttack}
+        onApply={onApplyAttack}
         isValidDeclaration={isValidDeclaration}
       />
       <Accordion sx={{ mt: 2 }}>

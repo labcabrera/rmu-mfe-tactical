@@ -26,9 +26,9 @@ const ActorRoundActions: FC<{
               {t('tactical')}
             </Link>
             <Link component={RouterLink} color="primary" underline="hover" to="/tactical/games">
-              {t('actors')}
+              {t('games')}
             </Link>
-            <span>{actorRound.name}</span>
+            <span>{actorRound.actorName}</span>
           </Breadcrumbs>
         </Box>
         <Stack direction="row" spacing={1}>

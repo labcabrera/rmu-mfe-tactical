@@ -16,8 +16,9 @@ const ActorRoundHeader: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
     <Stack direction="row" spacing={2} alignItems="center">
       <Avatar
         src={actorRound.imageUrl || '/static/images/races/unknown.png'}
-        sx={{ width: 72, height: 72 }}
+        sx={{ width: 100, height: 100, cursor: 'pointer' }}
         onClick={handleCharacterClick}
+        variant="square"
       />
       <Box>
         <Typography variant="h6">{actorRound.actorName}</Typography>

@@ -82,19 +82,6 @@ const AttackList: FC<{
             }
           : a
       );
-    } else {
-      const baseBo = actorRound.attacks.find((a) => a.attackName === attackName)?.currentBo || 0;
-      const modifiers = { targetId: normalizedTargetId, bo: baseBo } as ActionAttackModifiers;
-      newSelected = [
-        ...selected,
-        {
-          attackName: attackName,
-          modifiers,
-          calculated: undefined,
-          roll: undefined,
-          results: undefined,
-        },
-      ];
     }
     setFormData((prev) => ({ ...prev, attacks: newSelected }));
   };
@@ -106,18 +93,6 @@ const AttackList: FC<{
       newSelected = selected.map((a) =>
         a.attackName === attackName ? { ...a, modifiers: { ...a.modifiers, bo } } : a
       );
-    } else {
-      const modifiers = { targetId: null, bo } as ActionAttackModifiers;
-      newSelected = [
-        ...selected,
-        {
-          attackName: '',
-          modifiers,
-          calculated: undefined,
-          roll: undefined,
-          results: undefined,
-        },
-      ];
     }
     setFormData({ ...formData, attacks: newSelected });
   };
