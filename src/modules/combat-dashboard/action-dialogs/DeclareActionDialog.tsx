@@ -1,4 +1,5 @@
 import React, { useContext, FC, useState } from 'react';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
   Button,
   Dialog,
@@ -13,6 +14,9 @@ import {
   ToggleButtonGroup,
   ToggleButton,
   Slide,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
 } from '@mui/material';
 import { t } from 'i18next';
 import { CombatContext } from '../../../CombatContext';
@@ -240,14 +244,16 @@ const DeclareActionDialog: FC<{
 
                         return (
                           <Grid key={atk.attackName}>
-                            <Button
+                            <ToggleButton
                               size="small"
-                              variant={selected ? 'contained' : 'outlined'}
-                              color={selected ? 'primary' : 'secondary'}
+                              value={selected}
+                              selected={selected}
+                              // variant={selected ? 'contained' : 'outlined'}
+                              // color={selected ? 'primary' : 'secondary'}
                               onClick={() => toggleAttack(atk.attackName)}
                             >
                               {atk.attackName}
-                            </Button>
+                            </ToggleButton>
                           </Grid>
                         );
                       })}
@@ -296,7 +302,16 @@ const DeclareActionDialog: FC<{
                 />
               )}
             </div>
-            {/* <pre>{JSON.stringify(actionForm, null, 2)}</pre> */}
+          </Grid>
+          <Grid size={12}>
+            <Accordion sx={{ mt: 2 }}>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1-content" id="panel1-header">
+                <Typography component="span">Details</Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <pre>actionForm: {JSON.stringify(actionForm, null, 2)}</pre>
+              </AccordionDetails>
+            </Accordion>
           </Grid>
         </Grid>
       </DialogContent>
