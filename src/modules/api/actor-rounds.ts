@@ -7,8 +7,7 @@ export async function fetchActorRound(actorRoundId: string): Promise<ActorRound>
   if (response.status !== 200) {
     throw await buildErrorFromResponse(response, url);
   }
-  const json = await response.json();
-  return json.content;
+  return await response.json();
 }
 
 export async function fetchActorRounds(gameId: string, round: number): Promise<ActorRound[]> {
@@ -38,7 +37,7 @@ export async function declareActorRoundInitiative(actorRoundId: string, roll: nu
 }
 
 export async function addActorRoundHp(actorRoundId: string, hp: number): Promise<ActorRound> {
-  const url = `${process.env.RMU_API_TACTICAL_URL}/actor-rounds/${actorRoundId}/hp/${hp}`;
+  const url = `${process.env.RMU_API_TACTICAL_URL}/actor-rounds/${actorRoundId}/hp/`;
   const response = await fetch(url, {
     method: 'PATCH',
     headers: {
