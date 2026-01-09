@@ -12,6 +12,7 @@ import {
   AccordionSummary,
 } from '@mui/material';
 import { ActorRound } from '../api/actor-rounds.dto';
+import ActorRoundActions from './ActorRoundActions';
 import ActorRoundAttacks from './ActorRoundAttacks';
 import ActorRoundBars from './ActorRoundBars';
 import ActorRoundEffects from './ActorRoundEffects';
@@ -86,31 +87,34 @@ const ActorRoundView: FC<{
     );
 
   return (
-    <Paper sx={{ p: 2 }} elevation={1}>
-      <ActorRoundHeader actorRound={actorRound} />
-      <Divider sx={{ my: 1 }} />
+    <>
+      <ActorRoundActions actorRound={actorRound} />
+      <Paper sx={{ p: 2 }} elevation={1}>
+        <ActorRoundHeader actorRound={actorRound} />
+        <Divider sx={{ my: 1 }} />
 
-      <ActorRoundBars actorRound={actorRound} />
-      <Divider sx={{ my: 1 }} />
+        <ActorRoundBars actorRound={actorRound} />
+        <Divider sx={{ my: 1 }} />
 
-      <ActorRoundAttacks actorRound={actorRound} />
-      <Divider sx={{ my: 1 }} />
+        <ActorRoundAttacks actorRound={actorRound} />
+        <Divider sx={{ my: 1 }} />
 
-      <ActorRoundEffects actorRound={actorRound} onChange={handleEffectsChange} />
+        <ActorRoundEffects actorRound={actorRound} onChange={handleEffectsChange} />
 
-      <Divider sx={{ my: 1 }} />
+        <Divider sx={{ my: 1 }} />
 
-      <Box sx={{ mt: 1 }}>
-        <Accordion sx={{ mt: 2 }}>
-          <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1-content" id="panel1-header">
-            <Typography component="span">Details</Typography>
-          </AccordionSummary>
-          <AccordionDetails>
-            <pre>{JSON.stringify(actorRound, null, 2)}</pre>
-          </AccordionDetails>
-        </Accordion>
-      </Box>
-    </Paper>
+        <Box sx={{ mt: 1 }}>
+          <Accordion sx={{ mt: 2 }}>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1-content" id="panel1-header">
+              <Typography component="span">Details</Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <pre>{JSON.stringify(actorRound, null, 2)}</pre>
+            </AccordionDetails>
+          </Accordion>
+        </Box>
+      </Paper>
+    </>
   );
 };
 
