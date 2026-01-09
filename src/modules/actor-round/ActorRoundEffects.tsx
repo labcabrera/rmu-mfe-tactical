@@ -3,7 +3,7 @@ import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Stack, Typography, Chip, Box, TextField, IconButton } from '@mui/material';
 import { t } from 'i18next';
-import { addActorRoundEffect } from '../api/actor-rounds';
+import { addActorRoundEffect, deleteActorRoundEffect } from '../api/actor-rounds';
 import { ActorRound } from '../api/actor-rounds.dto';
 
 const ActorRoundEffects: FC<{
@@ -19,8 +19,10 @@ const ActorRoundEffects: FC<{
     });
   };
 
-  const removeState = (index: number) => {
-    //TODO
+  const removeState = (id: string) => {
+    deleteActorRoundEffect(actorRound.id, id).then((updatedActorRound) => {
+      setActorRound(updatedActorRound);
+    });
   };
 
   const getLabelForState = (state: any) => {
@@ -39,7 +41,7 @@ const ActorRoundEffects: FC<{
             <Chip
               key={`${s.status}-${i}`}
               label={getLabelForState(s)}
-              onDelete={() => removeState(i)}
+              onDelete={() => removeState(s.id)}
               deleteIcon={<DeleteIcon />}
               sx={{ m: 0.5 }}
             />
