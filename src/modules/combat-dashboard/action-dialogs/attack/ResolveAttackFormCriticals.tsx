@@ -37,10 +37,7 @@ const ResolveAttackFormCriticals: FC<{
         updateAction(updatedAction);
         setFormData(newFormData);
       })
-      .catch((err: unknown) => {
-        if (err instanceof Error) showError(err.message);
-        else showError('An unknown error occurred');
-      });
+      .catch((err: Error) => showError(err.message));
   };
 
   return (
