@@ -24,9 +24,9 @@ export const AttackModifiersInfo: FC<{
       }}
     >
       {action.freeAction ? (
-        <Chip label={`${t('free-action')}`} color="info" />
+        <InfoChip label={`${t('free-action')}`} />
       ) : (
-        <Chip label={`${t('action-points')}: ${action.actionPoints}`} color="info" />
+        <InfoChip label={`${t('action-points')}: ${action.actionPoints}`} />
       )}
       <AttackModifier value={modifiers.calledShot} title="called-shot" ignoreValue="none" />
       <AttackModifier value={modifiers.cover} title="cover" ignoreValue="none" />
@@ -52,7 +52,7 @@ const AttackModifier: FC<{
   title: string | undefined;
   ignoreValue?: string | null;
 }> = ({ value, title, ignoreValue }) => {
-  return value && value !== ignoreValue ? <Chip label={`${t(title)}: ${t(String(value))}`} color="info" /> : null;
+  return value && value !== ignoreValue ? <InfoChip label={`${t(title)}: ${t(String(value))}`} /> : null;
 };
 
 const AttackModifierBoolean: FC<{
@@ -60,7 +60,13 @@ const AttackModifierBoolean: FC<{
   title: string | undefined;
   ignoreValue?: boolean | null;
 }> = ({ value, title, ignoreValue }) => {
-  return value && value !== ignoreValue ? <Chip label={`${t(title)}`} color="info" /> : null;
+  return value && value !== ignoreValue ? <InfoChip label={`${t(title)}`} /> : null;
+};
+
+const InfoChip: FC<{
+  label: string;
+}> = ({ label }) => {
+  return <Chip label={label} sx={{ backgroundColor: 'primary.main', color: 'primary.contrastText' }} />;
 };
 
 export default AttackModifiersInfo;

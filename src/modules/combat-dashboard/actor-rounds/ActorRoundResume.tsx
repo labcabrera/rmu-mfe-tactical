@@ -53,7 +53,7 @@ const ActorRoundResume: FC<{
       onClick={handleCharacterClick}
     >
       <Box>
-        <Typography variant="body2" color="primary" noWrap>
+        <Typography variant="body2" color="primary" noWrap mt={2}>
           {character.name}
         </Typography>
         <Typography variant="caption" color="text.secondary" noWrap>
@@ -68,6 +68,7 @@ const ActorRoundResume: FC<{
             title=""
             width={barSize}
             colorOk={colorHpOk}
+            colorKo={colorKo}
           />
           {character.power && character.power.max > 0 && (
             <GenericBar

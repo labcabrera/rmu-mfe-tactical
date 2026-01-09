@@ -248,8 +248,6 @@ const DeclareActionDialog: FC<{
                               size="small"
                               value={selected}
                               selected={selected}
-                              // variant={selected ? 'contained' : 'outlined'}
-                              // color={selected ? 'primary' : 'secondary'}
                               onClick={() => toggleAttack(atk.attackName)}
                             >
                               {atk.attackName}

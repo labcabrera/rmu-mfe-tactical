@@ -1,5 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { FC, useContext, useEffect, useState } from 'react';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { Accordion, AccordionSummary, Typography, AccordionDetails } from '@mui/material';
 import { CombatContext } from '../../../../CombatContext';
 import { useError } from '../../../../ErrorContext';
 import { prepareAttack, declareParry, applyAttack } from '../../../api/action';
@@ -130,8 +132,15 @@ const MeleeAttackForm: FC<{
         onApply={onApply}
         isValidDeclaration={isValidDeclaration}
       />
-      <pre>FormData: {JSON.stringify(formData, null, 2)}</pre>
-      <pre>Action: {JSON.stringify(action, null, 2)}</pre>
+      <Accordion sx={{ mt: 2 }}>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1-content" id="panel1-header">
+          <Typography component="span">Details</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <pre>FormData: {JSON.stringify(formData, null, 2)}</pre>
+          <pre>Action: {JSON.stringify(action, null, 2)}</pre>
+        </AccordionDetails>
+      </Accordion>
     </>
   );
 };

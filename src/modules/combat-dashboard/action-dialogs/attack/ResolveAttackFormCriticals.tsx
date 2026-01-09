@@ -56,7 +56,17 @@ const ResolveAttackFormCriticals: FC<{
             />
           </Grid>
           <Grid size={8}>
-            <Stack direction="row" spacing={1}>
+            <Stack
+              direction="row"
+              spacing={1}
+              flexWrap="wrap"
+              useFlexGap
+              alignContent="flex-start"
+              sx={{
+                justifyContent: 'flex-start',
+                alignItems: 'flex-start',
+              }}
+            >
               {critical.result && critical.result.damage && critical.result.damage > 0 && (
                 <Effect effect={'dmg'} value={critical.result.damage} color="error" />
               )}
