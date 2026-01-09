@@ -30,7 +30,7 @@ const ActorRoundResume: FC<{
 
   const handleCharacterClick = () => {
     if (character) {
-      navigate(`/strategic/characters/view/${character.id}`);
+      navigate(`/combat/actor-rounds/view/${actorRound.id}`);
     }
   };
 

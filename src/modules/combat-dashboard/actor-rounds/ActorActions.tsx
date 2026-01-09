@@ -128,11 +128,6 @@ const ActorActions: FC<ActorActionsProps> = ({ actorId, phases = 4, currentPhase
                     whiteSpace: 'nowrap',
                     textOverflow: 'ellipsis',
                     color: completed ? 'secondary.contrastText' : 'primary.contrastText',
-                    // bgcolor: completed ? undefined : 'success.dark',
-                    // color: completed ? undefined : 'common.white',
-                    // '&:hover': {
-                    //   bgcolor: completed ? undefined : 'success.dark',
-                    // },
                   }}
                 >
                   {getActionName(p.action)}
@@ -141,7 +136,6 @@ const ActorActions: FC<ActorActionsProps> = ({ actorId, phases = 4, currentPhase
               </Box>
             );
           })}
-          {/* Declare button row rendered inside the same relative box as actions */}
           {Array.from({ length: phases }, (_, i) => {
             const leftPercent = (i / phases) * 100;
             const widthPercent = 100 / phases;
