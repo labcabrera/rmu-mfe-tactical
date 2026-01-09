@@ -28,6 +28,7 @@ const ActorRoundView: FC<{
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    console.log('ActorRoundView: useEffect triggered');
     if (actorRoundProp) {
       setActorRound(actorRoundProp);
       return;
@@ -65,13 +66,6 @@ const ActorRoundView: FC<{
     };
   }, [actorRoundProp, actorRoundId, onChange]);
 
-  const handleEffectsChange = (nextEffects: any[]) => {
-    if (!actorRound) return;
-    const next = { ...actorRound, effects: nextEffects } as ActorRound;
-    setActorRound(next);
-    if (onChange) onChange(next);
-  };
-
   if (loading) return <CircularProgress size={24} />;
   if (error)
     return (
@@ -99,7 +93,7 @@ const ActorRoundView: FC<{
         <ActorRoundAttacks actorRound={actorRound} />
         <Divider sx={{ my: 1 }} />
 
-        <ActorRoundEffects actorRound={actorRound} onChange={handleEffectsChange} />
+        <ActorRoundEffects actorRound={actorRound} setActorRound={setActorRound} />
 
         <Divider sx={{ my: 1 }} />
 

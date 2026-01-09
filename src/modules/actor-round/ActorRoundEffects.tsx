@@ -2,27 +2,32 @@ import React, { FC, useState } from 'react';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Stack, Typography, Chip, Box, TextField, IconButton, Button } from '@mui/material';
+import { t } from 'i18next';
+import { addActorRoundEffect } from '../api/actor-rounds';
 import { ActorRound } from '../api/actor-rounds.dto';
 
 const ActorRoundEffects: FC<{
   actorRound: ActorRound;
-  onChange?: (nextEffects: any[]) => void;
-}> = ({ actorRound, onChange }) => {
+  setActorRound: React.Dispatch<React.SetStateAction<ActorRound>>;
+}> = ({ actorRound, setActorRound }) => {
   const [localStates, setLocalStates] = useState(actorRound.effects || []);
   const [newState, setNewState] = useState('');
 
   const addState = () => {
-    if (!newState) return;
-    const next = [...localStates, { status: newState } as any];
-    setLocalStates(next);
-    setNewState('');
-    if (onChange) onChange(next);
+    const effect = { status: newState } as any;
+    addActorRoundEffect(actorRound.id, effect).then((updatedActorRound) => {
+      setActorRound(updatedActorRound);
+    });
   };
 
   const removeState = (index: number) => {
-    const next = localStates.filter((_, i) => i !== index);
-    setLocalStates(next);
-    if (onChange) onChange(next);
+    // const next = localStates.filter((_, i) => i !== index);
+    // setLocalStates(next);
+    // if (onChange) onChange(next);
+  };
+
+  const getLabelForState = (state: any) => {
+    return `${t(`effect-${state.status}`)}${state.value ? ` ${state.value}` : ''}`;
   };
 
   return (
@@ -36,7 +41,7 @@ const ActorRoundEffects: FC<{
           {localStates.map((s: any, i: number) => (
             <Chip
               key={`${s.status}-${i}`}
-              label={s.status}
+              label={getLabelForState(s)}
               onDelete={() => removeState(i)}
               deleteIcon={<DeleteIcon />}
               sx={{ m: 0.5 }}
