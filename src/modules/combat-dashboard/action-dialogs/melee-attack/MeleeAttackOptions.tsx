@@ -19,7 +19,7 @@ const MeleeAttackOptions: FC<{
   const offHand = modifiers?.offHand || false;
   const ambush = modifiers?.ambush || false;
 
-  const minWidth = 180;
+  const minWidth = 140;
 
   return (
     <FormControl component="fieldset" variant="standard" sx={{ width: '100%' }}>
@@ -62,36 +62,36 @@ const MeleeAttackOptions: FC<{
           }}
         >
           <Badge badgeContent={'+10'} color="success">
-            <ToggleButton value="higherGround" sx={{ minWidth: minWidth }}>
+            <ToggleButton value="higherGround" size="small" sx={{ minWidth: minWidth }}>
               Higher ground
             </ToggleButton>
           </Badge>
           <Badge badgeContent={'+20'} color="success">
-            <ToggleButton value="stunnedFoe" sx={{ minWidth: minWidth }}>
+            <ToggleButton value="stunnedFoe" size="small" sx={{ minWidth: minWidth }}>
               Stunned foe
             </ToggleButton>
           </Badge>
           <Badge badgeContent={'+25'} color="success">
-            <ToggleButton value="surprisedFoe" sx={{ minWidth: minWidth }}>
+            <ToggleButton value="surprisedFoe" size="small" sx={{ minWidth: minWidth }}>
               Surprised foe
             </ToggleButton>
           </Badge>
           <Badge badgeContent={'+30'} color="success">
-            <ToggleButton value="proneTarget" sx={{ minWidth: minWidth }}>
+            <ToggleButton value="proneTarget" size="small" sx={{ minWidth: minWidth }}>
               Prone target
             </ToggleButton>
           </Badge>
           <Badge badgeContent={'-50'} color="error">
-            <ToggleButton value="proneSource" sx={{ minWidth: minWidth }}>
+            <ToggleButton value="proneSource" size="small" sx={{ minWidth: minWidth }}>
               Prone attacker
             </ToggleButton>
           </Badge>
           <Badge badgeContent={'-20'} color="error">
-            <ToggleButton value="offHand" sx={{ minWidth: minWidth }}>
+            <ToggleButton value="offHand" size="small" sx={{ minWidth: minWidth }}>
               Off-hand
             </ToggleButton>
           </Badge>
-          <ToggleButton value="ambush" sx={{ minWidth: minWidth }}>
+          <ToggleButton value="ambush" size="small" sx={{ minWidth: minWidth }}>
             Ambush
           </ToggleButton>
         </ToggleButtonGroup>

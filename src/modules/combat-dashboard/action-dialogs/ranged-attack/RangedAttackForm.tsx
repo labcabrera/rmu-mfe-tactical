@@ -88,7 +88,7 @@ const RangedAttackForm: FC<{
                   <Grid size={2}>
                     {t(displayTable)} +{displayBo}
                   </Grid>
-                  <Grid size={10}>
+                  <Grid size={10} mb={5}>
                     <TargetSelector
                       value={modifiers.targetId || ''}
                       onChange={(actorId) => handleTargetChange(actionAttack.attackName, actorId)}

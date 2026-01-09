@@ -20,7 +20,7 @@ const RangedAttackOptionsForm: FC<{
   const attackerInMelee = modifiers?.attackerInMelee || false;
   const ambush = modifiers?.ambush || false;
 
-  const minWidth = 180;
+  const minWidth = 140;
 
   return (
     <FormControl component="fieldset" variant="standard" sx={{ width: '100%' }}>
@@ -60,36 +60,36 @@ const RangedAttackOptionsForm: FC<{
         aria-label="attack-options"
       >
         <Badge badgeContent={'+10'} color={'success'}>
-          <ToggleButton value="higherGround" sx={{ minWidth }}>
+          <ToggleButton value="higherGround" size="small" sx={{ minWidth }}>
             {t('Higher ground')}
           </ToggleButton>
         </Badge>
         <Badge badgeContent={'+20'} color={'success'}>
-          <ToggleButton value="stunnedFoe" sx={{ minWidth }}>
-            {t('Stunned foe')}
+          <ToggleButton value="stunnedFoe" size="small" sx={{ minWidth }}>
+            {t('Stunned')}
           </ToggleButton>
         </Badge>
         <Badge badgeContent={'+25'} color={'success'}>
-          <ToggleButton value="surprisedFoe" sx={{ minWidth }}>
-            {t('Surprised foe')}
+          <ToggleButton value="surprisedFoe" size="small" sx={{ minWidth }}>
+            {t('Surprised')}
           </ToggleButton>
         </Badge>
         <Badge badgeContent={'-30'} color={'error'}>
-          <ToggleButton value="proneTarget" sx={{ minWidth }}>
+          <ToggleButton value="proneTarget" size="small" sx={{ minWidth }}>
             {t('Prone target')}
           </ToggleButton>
         </Badge>
         <Badge badgeContent={'-50'} color={'error'}>
-          <ToggleButton value="proneSource" sx={{ minWidth }}>
+          <ToggleButton value="proneSource" size="small" sx={{ minWidth }}>
             {t('Prone attacker')}
           </ToggleButton>
         </Badge>
         <Badge badgeContent={'-20'} color={'error'}>
-          <ToggleButton value="attackerInMelee" sx={{ minWidth }}>
-            {t('Attacker in melee')}
+          <ToggleButton value="attackerInMelee" size="small" sx={{ minWidth }}>
+            {t('In melee')}
           </ToggleButton>
         </Badge>
-        <ToggleButton value="ambush" sx={{ minWidth }}>
+        <ToggleButton value="ambush" size="small" sx={{ minWidth }}>
           {t('Ambush')}
         </ToggleButton>
       </ToggleButtonGroup>

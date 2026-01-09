@@ -1,5 +1,6 @@
-import React, { Dispatch, FC, SetStateAction } from 'react';
+import React, { Dispatch, FC, SetStateAction, useContext } from 'react';
 import { Stack, Typography } from '@mui/material';
+import { CombatContext } from '../../CombatContext';
 import { useError } from '../../ErrorContext';
 import { addActorRoundHp } from '../api/actor-rounds';
 import { ActorRound } from '../api/actor-rounds.dto';
@@ -13,12 +14,15 @@ const ActorRoundBars: FC<{
   setActorRound: Dispatch<SetStateAction<ActorRound>>;
 }> = ({ actorRound, setActorRound }) => {
   const { showError } = useError();
+  const { refreshActorRounds } = useContext(CombatContext);
 
   const updateActorRoundHP = (newHp: number) => {
     const diff = (actorRound.hp?.current ?? 0) - newHp;
-    console.log('Updating actor round HP by diff:', diff);
     addActorRoundHp(actorRound.id, diff)
-      .then((updated) => setActorRound(updated))
+      .then((updated) => {
+        setActorRound(updated);
+        refreshActorRounds();
+      })
       .catch((err) => showError(err));
   };
 

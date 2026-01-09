@@ -1,5 +1,5 @@
 import React, { ChangeEvent, FC } from 'react';
-import { FormControl, FormLabel, ToggleButtonGroup, ToggleButton, Badge } from '@mui/material';
+import { FormControl, ToggleButtonGroup, ToggleButton, Badge, Tooltip } from '@mui/material';
 import { t } from 'i18next';
 import { CalledShot } from '../../api/action.dto';
 import { ActorRound } from '../../api/actor-rounds.dto';
@@ -11,9 +11,7 @@ const SelectCalledShot: FC<{
   name?: string;
   label?: string;
   readOnly?: boolean;
-}> = ({ value = 'none', target, onChange, name = 'calledShot', label = 'Called Shot', readOnly = false }) => {
-  const labelId = `select-called-shot-${name}-label`;
-
+}> = ({ value = 'none', target, onChange, name = 'calledShot', readOnly = false }) => {
   const handleClick = (option: string) => {
     if (readOnly) return;
     const evt = { target: { name, value: option } } as unknown as ChangeEvent<HTMLInputElement>;
@@ -41,26 +39,26 @@ const SelectCalledShot: FC<{
   };
 
   return (
-    <FormControl component="fieldset">
-      <FormLabel id={labelId} component="legend" sx={{ mb: 1, typography: 'body1' }}>
-        {t(label)}
-      </FormLabel>
-      <ToggleButtonGroup value={value} exclusive>
-        {(['none', 'head', 'chest', 'abdomen', 'arms', 'legs'] as CalledShot[]).map((option) => (
-          <Badge key={option} badgeContent={badgeContent(option)} color="secondary">
-            <ToggleButton
-              key={`${option}-btn`}
-              value={option}
-              onClick={() => handleClick(option)}
-              disabled={readOnly}
-              sx={{ minWidth: 140 }}
-            >
-              {t(option)}
-            </ToggleButton>
-          </Badge>
-        ))}
-      </ToggleButtonGroup>
-    </FormControl>
+    <Tooltip title={t('called-shot')}>
+      <FormControl component="fieldset">
+        <ToggleButtonGroup value={value} exclusive>
+          {(['none', 'head', 'chest', 'abdomen', 'arms', 'legs'] as CalledShot[]).map((option) => (
+            <Badge key={option} badgeContent={badgeContent(option)} color="secondary">
+              <ToggleButton
+                key={`${option}-btn`}
+                value={option}
+                onClick={() => handleClick(option)}
+                disabled={readOnly}
+                size="small"
+                sx={{ minWidth: 140 }}
+              >
+                {t(option)}
+              </ToggleButton>
+            </Badge>
+          ))}
+        </ToggleButtonGroup>
+      </FormControl>
+    </Tooltip>
   );
 };
 

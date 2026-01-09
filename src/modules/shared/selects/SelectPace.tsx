@@ -1,5 +1,5 @@
 import React, { FC } from 'react';
-import { FormControl, FormLabel, Badge, ToggleButtonGroup, ToggleButton } from '@mui/material';
+import { FormControl, Badge, ToggleButtonGroup, ToggleButton, Tooltip } from '@mui/material';
 import { t } from 'i18next';
 
 export type Pace = {
@@ -15,8 +15,6 @@ const SelectPace: FC<{
   readOnly?: boolean;
   combatOptions?: boolean;
 }> = ({ value, onChange, readOnly = false, combatOptions = false }) => {
-  const labelId = 'select-pace-label';
-
   const codes: Pace[] = [
     { id: 'creep', multiplier: 1 / 8, bonus: 0, label: 'x1/2' },
     { id: 'walk', multiplier: 1 / 4, bonus: -25, label: 'x1' },
@@ -46,27 +44,27 @@ const SelectPace: FC<{
   };
 
   return (
-    <FormControl component="fieldset">
-      <FormLabel id={labelId} component="legend" sx={{ mb: 1, typography: 'body1' }}>
-        {t('pace')}
-      </FormLabel>
-      <ToggleButtonGroup value={value} exclusive>
-        {optionsToShow.map((option) => {
-          return (
-            <Badge key={option.id} badgeContent={badgeContent(option)} color={badgeColor(option)}>
-              <ToggleButton
-                value={option.id}
-                onClick={() => handleClick(option)}
-                disabled={readOnly}
-                sx={{ minWidth: 140 }}
-              >
-                {t(option.id)}
-              </ToggleButton>
-            </Badge>
-          );
-        })}
-      </ToggleButtonGroup>
-    </FormControl>
+    <Tooltip title={t('pace')}>
+      <FormControl component="fieldset">
+        <ToggleButtonGroup value={value} exclusive>
+          {optionsToShow.map((option) => {
+            return (
+              <Badge key={option.id} badgeContent={badgeContent(option)} color={badgeColor(option)}>
+                <ToggleButton
+                  value={option.id}
+                  onClick={() => handleClick(option)}
+                  disabled={readOnly}
+                  size="small"
+                  sx={{ minWidth: 140 }}
+                >
+                  {t(option.id)}
+                </ToggleButton>
+              </Badge>
+            );
+          })}
+        </ToggleButtonGroup>
+      </FormControl>
+    </Tooltip>
   );
 };
 

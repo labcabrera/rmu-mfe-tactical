@@ -1,5 +1,5 @@
 import React, { FC } from 'react';
-import { FormControl, FormLabel, Badge, ToggleButtonGroup, ToggleButton } from '@mui/material';
+import { FormControl, Badge, ToggleButtonGroup, ToggleButton } from '@mui/material';
 import { t } from 'i18next';
 
 const SelectRestrictedQuarters: FC<{
@@ -7,8 +7,6 @@ const SelectRestrictedQuarters: FC<{
   onChange: (event: string) => void;
   readOnly?: boolean;
 }> = ({ value, onChange, readOnly = false }) => {
-  const labelId = 'select-restricted-quarters-label';
-
   const options: { id: string; bonus: number }[] = [
     { id: 'none', bonus: 0 },
     { id: 'close', bonus: -25 },
@@ -29,9 +27,6 @@ const SelectRestrictedQuarters: FC<{
 
   return (
     <FormControl component="fieldset">
-      <FormLabel id={labelId} component="legend" sx={{ mb: 1, typography: 'body1' }}>
-        {t('restricted-quarters')}
-      </FormLabel>
       <ToggleButtonGroup value={value} exclusive>
         {options.map((option) => (
           <Badge key={option.id} badgeContent={badgeContent(option)} color={option.bonus >= 0 ? 'secondary' : 'error'}>
@@ -39,6 +34,7 @@ const SelectRestrictedQuarters: FC<{
               value={option.id}
               onClick={() => handleClick(option.id)}
               disabled={readOnly}
+              size="small"
               sx={{ minWidth: 140 }}
             >
               {t(`restricted-quarter-${option.id}`)}

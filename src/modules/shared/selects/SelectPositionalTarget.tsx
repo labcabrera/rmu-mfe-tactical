@@ -1,15 +1,12 @@
 import React, { FC } from 'react';
-import { FormControl, FormLabel, Badge, ToggleButtonGroup, ToggleButton } from '@mui/material';
+import { FormControl, Badge, ToggleButtonGroup, ToggleButton, Tooltip } from '@mui/material';
 import { t } from 'i18next';
 
 const SelectPositionalTarget: FC<{
   value: string;
   onChange: (event: string) => void;
-  name?: string;
   readOnly?: boolean;
-}> = ({ value, onChange, name = 'positionalTarget', readOnly = false }) => {
-  const labelId = `select-positional-target-${name}-label`;
-
+}> = ({ value, onChange, readOnly = false }) => {
   const options: { id: string; bonus: number }[] = [
     { id: 'none', bonus: 0 },
     { id: 'flank', bonus: 15 },
@@ -32,25 +29,25 @@ const SelectPositionalTarget: FC<{
   };
 
   return (
-    <FormControl component="fieldset">
-      <FormLabel id={labelId} component="legend" sx={{ mb: 1.5, typography: 'body1' }}>
-        {t('positional-target')}
-      </FormLabel>
-      <ToggleButtonGroup value={value} exclusive>
-        {options.map((option) => (
-          <Badge key={option.id} badgeContent={badgeContent(option)} color={badgeColor(option)}>
-            <ToggleButton
-              value={option.id}
-              onClick={() => handleClick(option.id)}
-              disabled={readOnly}
-              sx={{ minWidth: 140 }}
-            >
-              {t(`positional-${option.id}`)}
-            </ToggleButton>
-          </Badge>
-        ))}
-      </ToggleButtonGroup>
-    </FormControl>
+    <Tooltip title={t('called-shot')}>
+      <FormControl component="fieldset">
+        <ToggleButtonGroup value={value} exclusive>
+          {options.map((option) => (
+            <Badge key={option.id} badgeContent={badgeContent(option)} color={badgeColor(option)}>
+              <ToggleButton
+                value={option.id}
+                onClick={() => handleClick(option.id)}
+                disabled={readOnly}
+                size="small"
+                sx={{ minWidth: 140 }}
+              >
+                {t(`positional-${option.id}`)}
+              </ToggleButton>
+            </Badge>
+          ))}
+        </ToggleButtonGroup>
+      </FormControl>
+    </Tooltip>
   );
 };
 
