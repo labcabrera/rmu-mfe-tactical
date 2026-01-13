@@ -1,5 +1,5 @@
 import React, { FC, useContext, useState } from 'react';
-import { Stack } from '@mui/material';
+import { ButtonGroup } from '@mui/material';
 import { CombatContext } from '../../../CombatContext';
 import { useError } from '../../../ErrorContext';
 import { createAction } from '../../api/action';
@@ -18,29 +18,22 @@ const ActorRoundDeclarationButtons: FC<{ actorRound: ActorRound; currentPhase: n
   if (!actorRound || !game) return <>Loading...</>;
 
   const disabledRangedWeapon = !actorRound.attacks.some((a) => a.type === 'ranged');
+  const disabledMovement = roundActions.some(
+    (a) => a.actorId === actorRound.actorId && a.actionType === 'movement' && !a.freeAction
+  );
+  const disabledMeleeAttack = roundActions.some(
+    (a) => a.actorId === actorRound.actorId && a.actionType === 'melee_attack' && !a.freeAction
+  );
 
-  const onMovementDeclaration = () => {
-    createAction({
+  const onActionDeclaration = (actionType: string, freeAction: boolean) => {
+    const data = {
       gameId: game.id,
       actorId: actorRound.actorId,
-      actionType: 'movement',
+      actionType: actionType,
       phaseStart: currentPhase,
-      freeAction: false,
-    })
-      .then((action) => {
-        setRoundActions([...roundActions, action]);
-      })
-      .catch((err: Error) => showError(err.message));
-  };
-
-  const onMeleeAttackDeclaration = () => {
-    createAction({
-      gameId: game.id,
-      actorId: actorRound.actorId,
-      actionType: 'melee_attack',
-      phaseStart: currentPhase,
-      freeAction: false,
-    })
+      freeAction: freeAction,
+    };
+    createAction(data)
       .then((action) => {
         setRoundActions([...roundActions, action]);
       })
@@ -49,25 +42,29 @@ const ActorRoundDeclarationButtons: FC<{ actorRound: ActorRound; currentPhase: n
 
   return (
     <>
-      <Stack direction="row" alignItems="center" mt={3} mb={{ minHeight: 70 }}>
+      <ButtonGroup variant="text" aria-label="Basic button group" sx={{ mt: 1.5 }}>
         <ActionIconButton
-          imageSrc="/static/images/icons/movement.png"
-          tooltipTitle="Movement"
-          onClick={() => onMovementDeclaration()}
+          actionType="movement"
+          onClick={() => onActionDeclaration('movement', false)}
+          disabled={disabledMovement}
         />
         <ActionIconButton
-          imageSrc="/static/images/icons/attack.png"
-          tooltipTitle="Melee attack"
-          onClick={() => onMeleeAttackDeclaration()}
+          actionType="free_movement"
+          onClick={() => onActionDeclaration('movement', true)}
+          disabled={disabledMovement}
         />
         <ActionIconButton
-          imageSrc="/static/images/icons/ranged-attack.png"
-          tooltipTitle="Ranged attack"
+          actionType="melee_attack"
+          onClick={() => onActionDeclaration('melee_attack', false)}
+          disabled={disabledMeleeAttack}
+        />
+        <ActionIconButton
+          actionType="ranged_attack"
+          onClick={() => onActionDeclaration('ranged_attack', false)}
           disabled={disabledRangedWeapon}
-          onClick={() => setDeclareActionDialogOpen(true)}
         />
-        <ActionIconButton onClick={() => setDeclareActionDialogOpen(true)} imageSrc="/static/images/icons/add.png" />
-      </Stack>
+        <ActionIconButton actionType="other" onClick={() => setDeclareActionDialogOpen(true)} />
+      </ButtonGroup>
       <DeclareActionDialog
         actorRound={actorRound}
         phaseNumber={currentPhase}

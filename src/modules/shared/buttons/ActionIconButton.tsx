@@ -1,36 +1,25 @@
 import React, { FC } from 'react';
-import { IconButton, Tooltip, Box } from '@mui/material';
+import { Button, Tooltip } from '@mui/material';
+import { t } from 'i18next';
+
+const names = {
+  movement: 'M',
+  free_movement: 'FM',
+  melee_attack: 'ME',
+  ranged_attack: 'RA',
+  other: '+',
+};
 
 const ActionIconButton: FC<{
-  tooltipTitle?: string;
+  actionType: 'movement' | 'free_movement' | 'melee_attack' | 'ranged_attack' | 'special' | 'other';
   onClick?: () => void;
   disabled?: boolean;
-  imageSrc: string;
-  size?: number;
-}> = ({ tooltipTitle, onClick, disabled = false, imageSrc, size = 60 }) => {
+}> = ({ actionType, onClick, disabled = false }) => {
   return (
-    <Tooltip title={tooltipTitle}>
-      <IconButton onClick={onClick} disabled={disabled} sx={{ p: 0 }}>
-        <Box sx={{ position: 'relative', width: size, height: size, display: 'inline-block' }}>
-          <Box
-            component="img"
-            src={imageSrc}
-            sx={{ width: '100%', height: '100%', display: 'block', borderRadius: 1 }}
-            alt={tooltipTitle || ''}
-          />
-          {disabled && (
-            <Box
-              sx={{
-                position: 'absolute',
-                inset: 0,
-                borderRadius: 1,
-                pointerEvents: 'none',
-                bgcolor: 'rgba(0,0,0,0.7)',
-              }}
-            />
-          )}
-        </Box>
-      </IconButton>
+    <Tooltip title={t(actionType)}>
+      <Button onClick={onClick} disabled={disabled}>
+        {names[actionType]}
+      </Button>
     </Tooltip>
   );
 };
