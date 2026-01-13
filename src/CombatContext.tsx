@@ -14,6 +14,8 @@ import { Faction, fetchFactions } from './modules/api/factions';
 import { StrategicGame, fetchStrategicGame } from './modules/api/strategic-games';
 import { TacticalGame, fetchTacticalGame } from './modules/api/tactical-games';
 
+type RoundActorSort = 'name' | 'initiative';
+
 type CombatContextType = {
   gameId: string | null;
   setGameId: Dispatch<SetStateAction<string | null>>;
@@ -31,6 +33,8 @@ type CombatContextType = {
   setRoundActions: Dispatch<SetStateAction<Action[] | null>>;
   displayRound: number | null;
   setDisplayRound: Dispatch<SetStateAction<number | null>>;
+  roundActorSort: RoundActorSort;
+  setRoundActorSort: Dispatch<SetStateAction<RoundActorSort>>;
   updateAction: (updatedAction: Action) => void;
   updateActorRound: (updatedActorRound: ActorRound) => void;
   refreshActorRounds: () => void;
@@ -51,6 +55,7 @@ export const CombatProvider: FC<{
   const [factions, setFactions] = useState<Faction[] | null>(null);
   const [roundActions, setRoundActions] = useState<Action[] | null>(null);
   const [displayRound, setDisplayRound] = useState<number | null>(null);
+  const [roundActorSort, setRoundActorSort] = useState<RoundActorSort>('name');
 
   const bindGame = (gameId: string) => {
     fetchTacticalGame(gameId)
@@ -70,7 +75,11 @@ export const CombatProvider: FC<{
   const bindActorRounds = (gameId: string, displayRound: number) => {
     fetchActorRounds(gameId, displayRound)
       .then((data) => {
-        data.sort((a, b) => a.actorName.localeCompare(b.actorName));
+        if (roundActorSort === 'name') {
+          data.sort((a, b) => a.actorName.localeCompare(b.actorName));
+        } else if (roundActorSort === 'initiative') {
+          data.sort((a, b) => (b.initiative.total || 0) - (a.initiative.total || 0));
+        }
         setActorRounds(data);
       })
       .catch((err) => showError(err.message));
@@ -127,13 +136,27 @@ export const CombatProvider: FC<{
       bindFactions(game);
       bindStrategicGame(game.strategicGameId);
     }
-  }, [game, displayRound]);
+  }, [game, displayRound, roundActorSort]);
 
   useEffect(() => {
     if (gameId !== null) {
       bindGame(gameId);
     }
   }, [gameId]);
+
+  useEffect(() => {
+    if (!actorRounds) return;
+    const sorted = [...actorRounds];
+    if (roundActorSort === 'name') {
+      sorted.sort((a, b) => a.actorName.localeCompare(b.actorName));
+    } else {
+      sorted.sort((a, b) => (b.initiative?.total ?? 0) - (a.initiative?.total ?? 0));
+    }
+    const sameOrder = sorted.length === actorRounds.length && sorted.every((r, i) => r.id === actorRounds[i]?.id);
+    if (!sameOrder) {
+      setActorRounds(sorted);
+    }
+  }, [roundActorSort, actorRounds]);
 
   return (
     <>
@@ -155,6 +178,8 @@ export const CombatProvider: FC<{
           setRoundActions,
           displayRound,
           setDisplayRound,
+          roundActorSort,
+          setRoundActorSort,
           updateAction,
           updateActorRound,
           refreshActorRounds,
