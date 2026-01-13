@@ -1,15 +1,12 @@
 import React, { FC, useContext } from 'react';
 import { useState } from 'react';
-import { Box, Button, Stack } from '@mui/material';
+import { Box, Button } from '@mui/material';
 import { t } from 'i18next';
 import { CombatContext } from '../../../CombatContext';
-import { useError } from '../../../ErrorContext';
-import { createAction } from '../../api/action';
 import type { Action } from '../../api/action.dto';
 import type { ActorRound } from '../../api/actor-rounds.dto';
-import ActionIconButton from '../../shared/buttons/ActionIconButton';
 import ActionDialog from '../action-dialogs/ActionDialog';
-import DeclareActionDialog from '../action-dialogs/DeclareActionDialog';
+import ActorRoundDeclarationButtons from './ActorRoundDeclarationButtons';
 
 type ActorActionsProps = {
   actorId: string;
@@ -58,16 +55,17 @@ function assignRows(actions: Action[], phases: number, currentPhase: number) {
 }
 
 const ActorActions: FC<ActorActionsProps> = ({ actorId, phases = 4, currentPhase = phases, onActionClick }) => {
-  const { game, roundActions, actorRounds, characters, setRoundActions } = useContext(CombatContext)!;
-  const [declareActionDialogOpen, setDeclareActionDialogOpen] = useState(false);
+  const { roundActions, actorRounds, characters } = useContext(CombatContext)!;
   const [resolveDialogOpen, setResolveDialogOpen] = useState(false);
   const [selectedAction, setSelectedAction] = useState<Action | null>(null);
   const actions = (roundActions || []).filter((a: Action) => a.actorId === actorId);
   const actorRound: ActorRound | undefined = (actorRounds || []).find((r) => r.actorId === actorId);
   const character = (characters || []).find((c) => c.id === actorId);
+
+  if (!actorRound) return <>Loading...</>;
+
   const { placement, rowsCount } = assignRows(actions, phases, currentPhase);
   const isDead = actorRound.effects.some((e) => e.status === 'dead');
-  const { showError } = useError();
 
   const rowHeight = 40; // px
   const gap = 8;
@@ -80,25 +78,7 @@ const ActorActions: FC<ActorActionsProps> = ({ actorId, phases = 4, currentPhase
     return t(action.actionType);
   };
 
-  const onMovementDeclaration = () => {
-    createAction({ gameId: game.id, actorId, actionType: 'movement', phaseStart: currentPhase, freeAction: true })
-      .then((action) => {
-        setRoundActions([...roundActions, action]);
-      })
-      .catch((err) => showError(err.message));
-  };
-
-  const onMeleeAttackDeclaration = () => {
-    createAction({ gameId: game.id, actorId, actionType: 'melee_attack', phaseStart: currentPhase, freeAction: true })
-      .then((action) => {
-        setRoundActions([...roundActions, action]);
-      })
-      .catch((err) => showError(err.message));
-  };
-
-  if (isDead) {
-    return <></>;
-  }
+  if (isDead) return <></>;
 
   return (
     <>
@@ -175,42 +155,13 @@ const ActorActions: FC<ActorActionsProps> = ({ actorId, phases = 4, currentPhase
                 }}
               >
                 {i + 1 === currentPhase && (
-                  <Stack direction="row" alignItems="center" spacing={0.5}>
-                    <ActionIconButton
-                      imageSrc="/static/images/icons/movement.png"
-                      tooltipTitle="Movement"
-                      onClick={() => onMovementDeclaration()}
-                    />
-                    <ActionIconButton
-                      imageSrc="/static/images/icons/attack.png"
-                      tooltipTitle="Melee attack"
-                      onClick={() => onMeleeAttackDeclaration()}
-                    />
-                    <ActionIconButton
-                      imageSrc="/static/images/icons/ranged-attack.png"
-                      tooltipTitle="Ranged attack"
-                      onClick={() => setDeclareActionDialogOpen(true)}
-                    />
-                    <ActionIconButton
-                      onClick={() => setDeclareActionDialogOpen(true)}
-                      ariaLabel="declare-action-image"
-                      imageSrc="/static/images/icons/add.png"
-                    />
-                  </Stack>
+                  <ActorRoundDeclarationButtons actorRound={actorRound} currentPhase={currentPhase} />
                 )}
               </Box>
             );
           })}
         </Box>
       </Box>
-      {actorRound && (
-        <DeclareActionDialog
-          actorRound={actorRound}
-          phaseNumber={currentPhase}
-          open={declareActionDialogOpen}
-          setOpen={setDeclareActionDialogOpen}
-        />
-      )}
       {selectedAction && actorRound && character && (
         <ActionDialog
           action={selectedAction}
