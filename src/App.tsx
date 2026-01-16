@@ -4,7 +4,6 @@ import { Box } from '@mui/material';
 import { CombatProvider } from './CombatContext';
 import { ErrorProvider } from './ErrorContext';
 import './i18n';
-import ActorRoundView from './modules/actor-round/ActorRoundView';
 import CombatDashboard from './modules/combat-dashboard/CombatDashboard';
 import TacticalGameCreation from './modules/tactical-games/create/TacticalGameCreation';
 import TacticalGameEdit from './modules/tactical-games/edit/TacticalGameEdit';
@@ -23,7 +22,6 @@ const App = () => {
             <Route path="/games/view/:gameId" element={<TacticalGameView />} />
             <Route path="/games/edit/:gameId" element={<TacticalGameEdit />} />
             <Route path="/combat/:gameId" element={<CombatDashboard />} />
-            <Route path="/actor-rounds/view/:actorRoundId" element={<ActorRoundView />} />
           </Routes>
         </Box>
       </CombatProvider>

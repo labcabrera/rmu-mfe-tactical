@@ -1,5 +1,4 @@
 import React, { useContext, useState, useEffect, FC } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Box, Stack, Typography } from '@mui/material';
 import { t } from 'i18next';
 import { CombatContext } from '../../../CombatContext';
@@ -21,18 +20,12 @@ const colorKo = '#2e140aff';
  */
 const ActorRoundResume: FC<{
   actorRound: ActorRound;
-}> = ({ actorRound }) => {
-  const navigate = useNavigate();
+  onActorRoundView?: (actorRound: ActorRound) => void;
+}> = ({ actorRound, onActorRoundView }) => {
   const { characters, factions } = useContext(CombatContext)!;
   const [character, setCharacter] = useState<Character | null>(null);
   const [faction, setFaction] = useState<Faction | null>(null);
   const isDead = actorRound.effects.some((e) => e.status === 'dead');
-
-  const handleCharacterClick = () => {
-    if (character) {
-      navigate(`/tactical/actor-rounds/view/${actorRound.id}`);
-    }
-  };
 
   useEffect(() => {
     if (actorRound && characters && factions) {
@@ -50,7 +43,7 @@ const ActorRoundResume: FC<{
       imageSize={140}
       height={140}
       disabled={isDead}
-      onClick={handleCharacterClick}
+      onClick={() => onActorRoundView && onActorRoundView(actorRound)}
     >
       <Box>
         <Typography variant="body2" color="primary" noWrap mt={2}>

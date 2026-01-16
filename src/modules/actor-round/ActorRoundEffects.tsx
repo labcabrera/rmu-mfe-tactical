@@ -1,4 +1,4 @@
-import React, { Dispatch, FC, SetStateAction, useContext, useState } from 'react';
+import React, { FC, useContext, useState } from 'react';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Stack, Typography, Chip, Box, TextField, IconButton } from '@mui/material';
@@ -10,28 +10,21 @@ import { ActorRound, ActorRoundEffect } from '../api/actor-rounds.dto';
 
 const ActorRoundEffects: FC<{
   actorRound: ActorRound;
-  setActorRound: Dispatch<SetStateAction<ActorRound>>;
-}> = ({ actorRound, setActorRound }) => {
+}> = ({ actorRound }) => {
   const [newState, setNewState] = useState('');
   const { showError } = useError();
-  const { refreshActorRounds } = useContext(CombatContext);
+  const { updateActorRound } = useContext(CombatContext);
 
   const addState = () => {
     const effect: ActorRoundEffect = { id: '', status: newState, value: undefined, rounds: undefined };
     addActorRoundEffect(actorRound.id, effect)
-      .then((updatedActorRound) => {
-        setActorRound(updatedActorRound);
-        refreshActorRounds();
-      })
+      .then((updatedActorRound) => updateActorRound(updatedActorRound))
       .catch((err) => showError(err));
   };
 
   const removeState = (id: string) => {
     deleteActorRoundEffect(actorRound.id, id)
-      .then((updatedActorRound) => {
-        setActorRound(updatedActorRound);
-        refreshActorRounds();
-      })
+      .then((updatedActorRound) => updateActorRound(updatedActorRound))
       .catch((err) => showError(err));
   };
 

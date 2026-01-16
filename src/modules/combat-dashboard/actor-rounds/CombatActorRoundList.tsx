@@ -1,18 +1,22 @@
-import React, { FC, useContext } from 'react';
+import React, { FC, useContext, useState } from 'react';
 import ElectricBoltIcon from '@mui/icons-material/ElectricBolt';
 import SortIcon from '@mui/icons-material/Sort';
 import TextRotateVerticalIcon from '@mui/icons-material/TextRotateVertical';
 import { IconButton, Tooltip, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid';
+import { t } from 'i18next';
 import { CombatContext } from '../../../CombatContext';
 import { useError } from '../../../ErrorContext';
 import { ActorRound } from '../../api/actor-rounds.dto';
 import { randomizeInitiatives } from '../../api/tactical-games';
+import ActorRoundViewDialog from './ActorRoundViewDialog';
 import CombatActorRoundListItem from './CombatActorRoundListItem';
 
 const CombatActorRoundList: FC = () => {
   const { game, actorRounds, roundActorSort, refreshActorRounds, setRoundActorSort } = useContext(CombatContext)!;
   const { showError } = useError();
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [selectedActorRound, setSelectedActorRound] = useState<ActorRound | null>(null);
 
   if (!actorRounds || actorRounds.length === 0) {
     return <p>Loading...</p>;
@@ -38,7 +42,7 @@ const CombatActorRoundList: FC = () => {
             align="left"
             color={game.phase === 'declare_initiative' ? 'primary' : 'secondary'}
           >
-            Initiative
+            {t('initiative')}
             {game.phase === 'declare_initiative' && (
               <Tooltip title="Randomize Initiatives">
                 <IconButton size="small" color="primary" onClick={() => onRandomizeInitiatives()}>
@@ -88,9 +92,18 @@ const CombatActorRoundList: FC = () => {
           </Typography>
         </Grid>
       </Grid>
-      {actorRounds.map((item: ActorRound, index: number) => (
-        <CombatActorRoundListItem key={index} actorRound={item} />
+      {actorRounds.map((actorRound: ActorRound, index: number) => (
+        <CombatActorRoundListItem
+          key={index}
+          actorRound={actorRound}
+          onActorRoundView={(ar) => {
+            setSelectedActorRound(ar);
+            setDialogOpen(true);
+          }}
+        />
       ))}
+
+      <ActorRoundViewDialog open={dialogOpen} actorRound={selectedActorRound} onClose={() => setDialogOpen(false)} />
     </>
   );
 };

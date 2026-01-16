@@ -1,4 +1,4 @@
-import React, { Dispatch, FC, SetStateAction, useContext } from 'react';
+import React, { FC, useContext } from 'react';
 import { Stack, Typography } from '@mui/material';
 import { CombatContext } from '../../CombatContext';
 import { useError } from '../../ErrorContext';
@@ -11,18 +11,14 @@ const barSize = 160;
 
 const ActorRoundBars: FC<{
   actorRound: ActorRound;
-  setActorRound: Dispatch<SetStateAction<ActorRound>>;
-}> = ({ actorRound, setActorRound }) => {
+}> = ({ actorRound }) => {
   const { showError } = useError();
-  const { refreshActorRounds } = useContext(CombatContext);
+  const { updateActorRound } = useContext(CombatContext);
 
   const updateActorRoundHP = (newHp: number) => {
     const diff = (actorRound.hp?.current ?? 0) - newHp;
     addActorRoundHp(actorRound.id, diff)
-      .then((updated) => {
-        setActorRound(updated);
-        refreshActorRounds();
-      })
+      .then((updated) => updateActorRound(updated))
       .catch((err) => showError(err));
   };
 
