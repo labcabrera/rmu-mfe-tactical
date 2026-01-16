@@ -11,7 +11,7 @@ const names = {
 };
 
 const ActionIconButton: FC<{
-  actionType: 'movement' | 'free_movement' | 'melee_attack' | 'ranged_attack' | 'special' | 'other';
+  actionType: 'movement' | 'free_movement' | 'melee_attack' | 'ranged_attack' | 'other';
   onClick?: () => void;
   disabled?: boolean;
 }> = ({ actionType, onClick, disabled = false }) => {

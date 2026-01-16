@@ -42,7 +42,7 @@ const ActorRoundDeclarationButtons: FC<{ actorRound: ActorRound; currentPhase: n
 
   return (
     <>
-      <ButtonGroup variant="text" aria-label="Basic button group" sx={{ mt: 1.5 }}>
+      <ButtonGroup variant="outlined" size="small" aria-label="Actor round declaration buttons" sx={{ mt: 1.5 }}>
         <ActionIconButton
           actionType="movement"
           onClick={() => onActionDeclaration('movement', false)}
