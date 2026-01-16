@@ -22,21 +22,35 @@ const ActorRoundBars: FC<{
       .catch((err) => showError(err));
   };
 
+  const updateActorRoundFatigueAccumulator = (newFatigue: number) => {
+    // Implementation for updating fatigue accumulator can be added here
+  };
+
   return (
     <Stack spacing={1} sx={{ width: '100%' }}>
       <Stack direction="column" spacing={2} alignItems="flex-start">
-        <GenericBar current={actorRound.hp?.current ?? 0} max={actorRound.hp?.max ?? 0} title="HP" width={barSize} />
-        <GenericBar current={Math.round(actorRound.fatigue?.accumulator ?? 0)} max={100} title="FA" width={barSize} />
-      </Stack>
-      <Stack spacing={1} sx={{ width: '120px' }}>
-        <NumericInput
-          label="New hit points"
-          value={actorRound.hp?.current ?? null}
-          integer
-          min={0}
-          max={actorRound.hp?.max}
-          onChange={(e) => updateActorRoundHP(e)}
-        />
+        <Stack direction="row" spacing={2}>
+          <GenericBar current={actorRound.hp?.current ?? 0} max={actorRound.hp?.max ?? 0} title="HP" width={barSize} />
+          <NumericInput
+            label="New hit points"
+            value={actorRound.hp?.current ?? null}
+            integer
+            min={0}
+            max={actorRound.hp?.max}
+            onChange={(e) => updateActorRoundHP(e)}
+          />
+        </Stack>
+        <Stack direction="row" spacing={2}>
+          <GenericBar current={Math.round(actorRound.fatigue?.accumulator ?? 0)} max={100} title="FA" width={barSize} />
+          <NumericInput
+            label="New fatigue accumulator"
+            value={actorRound.fatigue?.accumulator ?? null}
+            integer
+            min={0}
+            max={100}
+            onChange={(e) => updateActorRoundFatigueAccumulator(e)}
+          />
+        </Stack>
       </Stack>
       <Typography variant="subtitle2">Initiative: {actorRound.initiative?.total ?? 0}</Typography>
     </Stack>
