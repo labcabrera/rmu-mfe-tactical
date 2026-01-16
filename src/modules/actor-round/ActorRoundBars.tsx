@@ -23,7 +23,8 @@ const ActorRoundBars: FC<{
   };
 
   const updateActorRoundFatigueAccumulator = (newFatigue: number) => {
-    // Implementation for updating fatigue accumulator can be added here
+    //TODO
+    console.error('TODO: Update fatigue accumulator to:', newFatigue);
   };
 
   return (

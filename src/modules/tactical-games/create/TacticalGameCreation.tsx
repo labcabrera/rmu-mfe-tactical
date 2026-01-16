@@ -46,8 +46,6 @@ const TacticalGameCreation: FC = () => {
           <TacticalGameCreationAttributes formData={formData} setFormData={setFormData} />
         </Grid>
       </Grid>
-      {/* <pre>Form: {JSON.stringify(formData, null, 2)}</pre>
-      <pre>Strategic Games: {JSON.stringify(strategicGames, null, 2)}</pre> */}
     </>
   );
 };

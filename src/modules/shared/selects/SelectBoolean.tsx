@@ -26,7 +26,7 @@ const SelectBoolean: FC<{
       <FormLabel id={id} component="legend" sx={{ mb: 1, typography: 'body1' }}>
         {name}
       </FormLabel>
-      <ToggleButtonGroup color="standard" value={value} exclusive>
+      <ToggleButtonGroup color="standard" size="small" value={value} exclusive>
         {options.map((opt) => {
           return (
             <ToggleButton value={opt.id} onClick={() => handleClick(opt.id)} disabled={readOnly} sx={{ minWidth: 140 }}>

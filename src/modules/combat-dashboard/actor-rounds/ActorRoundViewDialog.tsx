@@ -13,32 +13,36 @@ const ActorRoundViewDialog: FC<{
   const navigate = useNavigate();
 
   const handleCharacterClick = () => {
-    if (actorRound.actorId) {
+    if (actorRound?.actorId) {
       navigate(`/strategic/characters/view/${actorRound.actorId}`);
     }
   };
-
-  if (!actorRound) return <p>Loading...</p>;
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="xl" aria-labelledby="actor-round-view-dialog">
       <DialogTitle id="actor-round-view-dialog">
         <Stack direction="row" spacing={2} alignItems="center">
           <Avatar
-            src={actorRound.imageUrl || '/static/images/races/unknown.png'}
-            sx={{ width: 100, height: 100, cursor: 'pointer' }}
+            src={actorRound?.imageUrl || '/static/images/races/unknown.png'}
+            sx={{ width: 100, height: 100, cursor: actorRound ? 'pointer' : 'default' }}
             onClick={handleCharacterClick}
             variant="square"
           />
           <Box>
-            <Typography variant="h6">{actorRound.actorName}</Typography>
+            <Typography variant="h6">{actorRound?.actorName || 'Actor Round'}</Typography>
           </Box>
         </Stack>
       </DialogTitle>
       <IconButton aria-label="close" onClick={onClose} sx={{ position: 'absolute', right: 8, top: 8 }} size="large">
         <CloseIcon />
       </IconButton>
-      <DialogContent dividers>{actorRound ? <ActorRoundView actorRound={actorRound} /> : null}</DialogContent>
+      <DialogContent dividers>
+        {actorRound ? (
+          <ActorRoundView key={actorRound.id} actorRound={actorRound} />
+        ) : (
+          <Typography>Loading...</Typography>
+        )}
+      </DialogContent>
     </Dialog>
   );
 };

@@ -14,14 +14,17 @@ const ActorRoundDeclarationButtons: FC<{ actorRound: ActorRound; currentPhase: n
   const { showError } = useError();
   const { game, roundActions, setRoundActions } = useContext(CombatContext)!;
   const [declareActionDialogOpen, setDeclareActionDialogOpen] = useState(false);
+  const pendingActions = roundActions.filter((a) => a.status !== 'completed');
 
   if (!actorRound || !game) return <>Loading...</>;
 
   const disabledRangedWeapon = !actorRound.attacks.some((a) => a.type === 'ranged');
-  const disabledMovement = roundActions.some(
+
+  const disabledMovement = pendingActions.some(
     (a) => a.actorId === actorRound.actorId && a.actionType === 'movement' && !a.freeAction
   );
-  const disabledMeleeAttack = roundActions.some(
+
+  const disabledMeleeAttack = pendingActions.some(
     (a) => a.actorId === actorRound.actorId && a.actionType === 'melee_attack' && !a.freeAction
   );
 

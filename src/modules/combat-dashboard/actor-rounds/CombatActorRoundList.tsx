@@ -16,7 +16,7 @@ const CombatActorRoundList: FC = () => {
   const { game, actorRounds, roundActorSort, refreshActorRounds, setRoundActorSort } = useContext(CombatContext)!;
   const { showError } = useError();
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [selectedActorRound, setSelectedActorRound] = useState<ActorRound | null>(null);
+  const [selectedActorRoundId, setSelectedActorRoundId] = useState<string | null>(null);
 
   if (!actorRounds || actorRounds.length === 0) {
     return <p>Loading...</p>;
@@ -97,13 +97,17 @@ const CombatActorRoundList: FC = () => {
           key={index}
           actorRound={actorRound}
           onActorRoundView={(ar) => {
-            setSelectedActorRound(ar);
+            setSelectedActorRoundId(ar.id);
             setDialogOpen(true);
           }}
         />
       ))}
 
-      <ActorRoundViewDialog open={dialogOpen} actorRound={selectedActorRound} onClose={() => setDialogOpen(false)} />
+      <ActorRoundViewDialog
+        open={dialogOpen}
+        actorRound={actorRounds ? actorRounds.find((a) => a.id === selectedActorRoundId) || null : null}
+        onClose={() => setDialogOpen(false)}
+      />
     </>
   );
 };

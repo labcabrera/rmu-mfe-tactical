@@ -16,7 +16,7 @@ const TacticalGameCreationResume: FC<{
         <TextField
           label={t('name')}
           variant="standard"
-          name="name"
+          name="tactical-game-name"
           value={formData.name}
           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
           fullWidth
