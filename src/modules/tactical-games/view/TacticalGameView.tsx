@@ -27,7 +27,7 @@ const TacticalGameView: FC = () => {
 
   useEffect(() => {
     if (factions && factions.length > 0) {
-      fetchCharacters(`factionId=in=(${factions.map((faction) => faction.id).join(',')})`, 0, 100)
+      fetchCharacters(`faction.id=in=(${factions.map((faction) => faction.id).join(',')})`, 0, 100)
         .then((response) => setCharacters(response))
         .catch((err) => showError(err.message));
     }

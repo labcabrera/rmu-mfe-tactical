@@ -2,7 +2,7 @@ import React, { FC, useContext } from 'react';
 import { Stack, Typography } from '@mui/material';
 import { CombatContext } from '../../CombatContext';
 import { useError } from '../../ErrorContext';
-import { addActorRoundHp } from '../api/actor-rounds';
+import { addActorRoundFatigueAccumulator, addActorRoundHp } from '../api/actor-rounds';
 import { ActorRound } from '../api/actor-rounds.dto';
 import GenericBar from '../shared/generic/GenericBar';
 import { NumericInput } from '../shared/inputs/NumericInput';
@@ -23,8 +23,10 @@ const ActorRoundBars: FC<{
   };
 
   const updateActorRoundFatigueAccumulator = (newFatigue: number) => {
-    //TODO
-    console.error('TODO: Update fatigue accumulator to:', newFatigue);
+    const diff = newFatigue - (actorRound.fatigue?.accumulator ?? 0);
+    addActorRoundFatigueAccumulator(actorRound.id, diff)
+      .then((updated) => updateActorRound(updated))
+      .catch((err) => showError(err));
   };
 
   return (
@@ -46,9 +48,9 @@ const ActorRoundBars: FC<{
           <NumericInput
             label="New fatigue accumulator"
             value={actorRound.fatigue?.accumulator ?? null}
-            integer
+            maxFractionDigits={2}
             min={0}
-            max={100}
+            max={1000}
             onChange={(e) => updateActorRoundFatigueAccumulator(e)}
           />
         </Stack>

@@ -66,6 +66,21 @@ export async function addActorRoundEffect(actorRoundId: string, effect: ActorRou
   return await response.json();
 }
 
+export async function addActorRoundFatigueAccumulator(actorRoundId: string, value: number): Promise<ActorRound> {
+  const url = `${process.env.RMU_API_TACTICAL_URL}/actor-rounds/${actorRoundId}/fatigue-accumulator`;
+  const response = await fetch(url, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ fatigueAccumulator: value }),
+  });
+  if (response.status !== 200) {
+    throw await buildErrorFromResponse(response, url);
+  }
+  return await response.json();
+}
+
 export async function deleteActorRoundEffect(actorRoundId: string, effectId: string): Promise<ActorRound> {
   const url = `${process.env.RMU_API_TACTICAL_URL}/actor-rounds/${actorRoundId}/effects/${effectId}`;
   const response = await fetch(url, {

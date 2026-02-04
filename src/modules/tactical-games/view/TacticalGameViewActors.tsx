@@ -51,7 +51,7 @@ const TacticalGameViewActorsFaction: FC<{
 
   useEffect(() => {
     if (faction && characters) {
-      const filteredCharacters = characters.filter((c) => c.factionId === faction.id);
+      const filteredCharacters = characters.filter((c) => c.faction.id === faction.id);
       setFactionCharacters(filteredCharacters);
     }
   }, [faction, characters]);
@@ -90,7 +90,7 @@ const TacticalGameViewActorsFactionItem: FC<{
     return tacticalGame.actors.some((actor: { id: string }) => actor.id === character.id);
   };
 
-  const handleToggle = (character) => {
+  const handleToggle = (character: Character) => {
     const func = isSelected()
       ? deleteActor(tacticalGame.id, character.id)
       : addActor(tacticalGame.id, character.id, 'character');
