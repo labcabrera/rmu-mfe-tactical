@@ -11,6 +11,7 @@ export type ActorRound = {
   attacks: ActorRoundAttack[];
   effects: ActorRoundEffect[];
   defense: ActorRoundDefense;
+  alerts: ActorRoundAlert[];
   imageUrl: string | undefined;
 };
 
@@ -24,6 +25,12 @@ export type ActorRoundInitiative = {
 export type ActorRoundHp = {
   max: number;
   current: number;
+};
+
+export type ActorRoundAlert = {
+  id: string;
+  type: string;
+  value: string;
 };
 
 export type ActorRoundFatigue = {

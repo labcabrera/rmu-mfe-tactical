@@ -6,6 +6,7 @@ import { ActorRound } from '../../api/actor-rounds.dto';
 import { Character } from '../../api/characters.dto';
 import ActionDialog from '../action-dialogs/ActionDialog';
 import ActorActions from './ActorActions';
+import ActorRoundAlerts from './ActorRoundAlerts';
 import ActorRoundEffects from './ActorRoundEffects';
 import ActorRoundInitiative from './ActorRoundInitiative';
 import ActorRoundResume from './ActorRoundResume';
@@ -51,7 +52,9 @@ const CombatActorRoundListItem: FC<{
         <Grid size={2}>
           <ActorRoundEffects actorRound={actorRound} />
         </Grid>
-        <Grid size={1}></Grid>
+        <Grid size={1}>
+          <ActorRoundAlerts actorRound={actorRound} />
+        </Grid>
       </Grid>
 
       {selectedActionId && (
