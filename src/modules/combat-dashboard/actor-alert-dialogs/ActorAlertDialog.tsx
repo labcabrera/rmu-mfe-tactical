@@ -1,0 +1,62 @@
+import React, { FC, useEffect, useState } from 'react';
+import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
+import IconButton from '@mui/material/IconButton';
+import { ActorRound, ActorRoundAlert } from '../../api/actor-rounds.dto';
+import ActorAlertForm from './ActorAlertForm';
+
+type Props = {
+  actorRound: ActorRound;
+  alertId: string;
+  open: boolean;
+  onClose: () => void;
+  onSave?: (updated: ActorRoundAlert) => void;
+};
+
+const ActorAlertDialog: FC<Props> = ({ actorRound, alertId, open, onClose, onSave }) => {
+  const [currentAlert, setCurrentAlert] = useState<ActorRoundAlert | undefined>(
+    actorRound.alerts?.find((a) => a.id === alertId)
+  );
+
+  useEffect(() => {
+    setCurrentAlert(actorRound.alerts?.find((a) => a.id === alertId));
+  }, [actorRound, alertId]);
+
+  const handleChange = (updated: ActorRoundAlert) => {
+    setCurrentAlert(updated);
+  };
+
+  const handleSave = () => {
+    if (currentAlert) onSave?.(currentAlert);
+    onClose();
+  };
+
+  return (
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+      <DialogTitle>
+        Alert
+        <IconButton aria-label="close" onClick={onClose} sx={{ position: 'absolute', right: 8, top: 8 }} size="small">
+          ×
+        </IconButton>
+      </DialogTitle>
+      <DialogContent dividers>
+        {currentAlert ? (
+          <ActorAlertForm actorRound={actorRound} alertId={alertId} onChange={handleChange} />
+        ) : (
+          <div>Alert not found</div>
+        )}
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>Cancelar</Button>
+        <Button onClick={handleSave} variant="contained" color="primary">
+          Guardar
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
+
+export default ActorAlertDialog;
