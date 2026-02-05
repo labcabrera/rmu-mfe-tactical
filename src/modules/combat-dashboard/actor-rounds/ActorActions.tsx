@@ -72,12 +72,15 @@ const ActorActions: FC<ActorActionsProps> = ({ actorId, phases = 4, currentPhase
   const declareHeight = 36; // px for declare button row
 
   const getActionName = (action: Action) => {
+    let name = '';
     if (action.maneuver) {
-      return t(action.maneuver?.modifiers?.skillId || 'maneuver');
+      name = t(action.maneuver?.modifiers?.skillId || 'maneuver');
     } else if (action.movement) {
-      return `${action.freeAction ? 'Free ' : ''}${t('movement')}${action.movement.calculated?.distanceAdjusted ? `: ${action.movement.calculated.distanceAdjusted}` : ''}`;
+      name = `${action.freeAction ? 'Free ' : ''}${t('movement')}${action.movement.calculated?.distanceAdjusted ? `: ${action.movement.calculated.distanceAdjusted}` : ''}`;
+    } else {
+      name = t(action.actionType);
     }
-    return t(action.actionType);
+    return action.freeAction ? `${t('Free ')} ${name}` : name;
   };
 
   if (isDead) return <></>;

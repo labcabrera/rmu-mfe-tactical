@@ -45,9 +45,9 @@ const ActorAlertDialog: FC<Props> = ({ actorRound, alertId, open, onClose, onSav
         )}
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Cancelar</Button>
+        <Button onClick={onClose}>Cancel</Button>
         <Button onClick={handleSave} variant="contained" color="primary">
-          Guardar
+          Apply
         </Button>
       </DialogActions>
     </Dialog>
