@@ -2,7 +2,7 @@ import React, { FC } from 'react';
 import { Grid, Typography } from '@mui/material';
 import { t } from 'i18next';
 import type { StrategicGame } from '../../api/strategic-games';
-import type { TacticalGame } from '../../api/tactical-games';
+import type { TacticalGame } from '../../api/tactical-game';
 
 const TacticalGameViewResume: FC<{
   tacticalGame: TacticalGame;

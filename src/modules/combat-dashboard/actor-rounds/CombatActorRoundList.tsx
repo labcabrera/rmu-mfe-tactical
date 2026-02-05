@@ -8,7 +8,7 @@ import { t } from 'i18next';
 import { CombatContext } from '../../../CombatContext';
 import { useError } from '../../../ErrorContext';
 import { ActorRound } from '../../api/actor-rounds.dto';
-import { randomizeInitiatives } from '../../api/tactical-games';
+import { randomizeInitiatives } from '../../api/tactical-game';
 import ActorRoundViewDialog from './ActorRoundViewDialog';
 import CombatActorRoundListItem from './CombatActorRoundListItem';
 

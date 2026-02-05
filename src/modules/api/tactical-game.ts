@@ -1,24 +1,5 @@
 import { buildErrorFromResponse } from './api-errors';
-
-export type TacticalGame = {
-  id: string;
-  strategicGameId: string;
-  status: string;
-  phase: string;
-  [key: string]: any;
-};
-
-export type CreateTacticalGameDto = {
-  strategicGameId: string;
-  name: string;
-  description?: string;
-  [key: string]: any;
-};
-
-export type UpdateTacticalGameDto = {
-  name: string | undefined;
-  description: string | undefined;
-};
+import { TacticalGame } from './tactical-game.dto';
 
 export function getPhaseAsNumber(game: TacticalGame): number | undefined {
   if (!game) return undefined;

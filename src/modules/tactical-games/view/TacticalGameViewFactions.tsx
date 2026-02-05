@@ -3,8 +3,8 @@ import { Box, Typography } from '@mui/material';
 import { t } from 'i18next';
 import { useError } from '../../../ErrorContext';
 import type { Faction } from '../../api/factions';
-import { addFaction, deleteFaction } from '../../api/tactical-games';
-import type { TacticalGame } from '../../api/tactical-games';
+import { addFaction, deleteFaction } from '../../api/tactical-game';
+import type { TacticalGame } from '../../api/tactical-game';
 import { defaultFactionImage } from '../../services/image-service';
 import ImageCard from '../../shared/cards/ImageCard';
 

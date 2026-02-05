@@ -1,7 +1,7 @@
 import React, { Dispatch, FC, SetStateAction } from 'react';
 import { Typography, Grid, TextField } from '@mui/material';
 import { t } from 'i18next';
-import { UpdateTacticalGameDto } from '../../api/tactical-games';
+import { UpdateTacticalGameDto } from '../../api/tactical-game';
 
 const TacticalGameEditAttributes: FC<{
   formData: UpdateTacticalGameDto;

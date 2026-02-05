@@ -3,7 +3,7 @@ import { Grid } from '@mui/material';
 import { useError } from '../../../ErrorContext';
 import { fetchStrategicGames } from '../../api/strategic-games';
 import type { StrategicGame } from '../../api/strategic-games';
-import { CreateTacticalGameDto } from '../../api/tactical-games';
+import { CreateTacticalGameDto } from '../../api/tactical-game';
 import { createGameTemplate } from '../../data/tactical-game-data';
 import GenericAvatar from '../../shared/avatars/GenericAvatar';
 import TacticalGameCreationActions from './TacticalGameCreationActions';
@@ -42,7 +42,7 @@ const TacticalGameCreation: FC = () => {
           <GenericAvatar imageUrl="/static/images/generic/tactical.png" size={300} />
           <TacticalGameCreationResume formData={formData} setFormData={setFormData} strategicGames={strategicGames} />
         </Grid>
-        <Grid size={10}>
+        <Grid size={6}>
           <TacticalGameCreationAttributes formData={formData} setFormData={setFormData} />
         </Grid>
       </Grid>

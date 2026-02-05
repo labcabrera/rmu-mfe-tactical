@@ -7,7 +7,7 @@ import { resolveMovement } from '../../../api/action';
 import { Action, ActionMovement } from '../../../api/action.dto';
 import { Character } from '../../../api/characters.dto';
 import type { StrategicGame } from '../../../api/strategic-games';
-import type { TacticalGame } from '../../../api/tactical-games';
+import type { TacticalGame } from '../../../api/tactical-game';
 import { NumericInput } from '../../../shared/inputs/NumericInput';
 import SelectBoolean from '../../../shared/selects/SelectBoolean';
 import SelectDifficulty from '../../../shared/selects/SelectDifficulty';

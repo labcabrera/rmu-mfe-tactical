@@ -12,7 +12,8 @@ import { fetchCharacters } from './modules/api/characters';
 import { Character } from './modules/api/characters.dto';
 import { Faction, fetchFactions } from './modules/api/factions';
 import { StrategicGame, fetchStrategicGame } from './modules/api/strategic-games';
-import { TacticalGame, fetchTacticalGame } from './modules/api/tactical-games';
+import { fetchTacticalGame } from './modules/api/tactical-game';
+import { TacticalGame } from './modules/api/tactical-game.dto';
 
 type RoundActorSort = 'name' | 'initiative';
 

@@ -2,7 +2,7 @@ import React, { FC, useEffect, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import { Grid } from '@mui/material';
 import { useError } from '../../../ErrorContext';
-import { fetchTacticalGame, type TacticalGame, type UpdateTacticalGameDto } from '../../api/tactical-games';
+import { fetchTacticalGame, type TacticalGame, type UpdateTacticalGameDto } from '../../api/tactical-game';
 import GenericAvatar from '../../shared/avatars/GenericAvatar';
 import TacticalGameEditActions from './TacticalGameEditActions';
 import TacticalGameEditAttributes from './TacticalGameEditAttributes';

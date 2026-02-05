@@ -3,8 +3,8 @@ import { Box, Typography } from '@mui/material';
 import { useError } from '../../../ErrorContext';
 import { Character } from '../../api/characters.dto';
 import type { Faction } from '../../api/factions';
-import { addActor, deleteActor } from '../../api/tactical-games';
-import type { TacticalGame } from '../../api/tactical-games';
+import { addActor, deleteActor } from '../../api/tactical-game';
+import type { TacticalGame } from '../../api/tactical-game';
 import CharacterCard from '../../shared/cards/CharacterCard';
 
 const TacticalGameViewActors: FC<{

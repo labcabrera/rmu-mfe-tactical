@@ -3,20 +3,18 @@ import { ActorRound, ActorRoundAlert } from '../../api/actor-rounds.dto';
 import BreakageForm from './BreakageForm';
 import EnduranceForm from './EnduranceForm';
 
-type ActorAlertFormProps = {
+const ActorAlertForm: FC<{
   actorRound: ActorRound;
   alertId: string;
   onChange?: (updated: ActorRoundAlert) => void;
-};
-
-const ActorAlertForm: FC<ActorAlertFormProps> = ({ actorRound, alertId, onChange }) => {
+}> = ({ actorRound, alertId, onChange }) => {
   const alert = actorRound.alerts?.find((a) => a.id === alertId);
 
   if (!alert) return <div>Alert not found</div>;
 
   switch (alert.type) {
     case 'endurance':
-      return <EnduranceForm alert={alert} onChange={onChange} />;
+      return <EnduranceForm actorRound={actorRound} alert={alert} onChange={onChange} />;
     case 'breakage':
       return <BreakageForm alert={alert} onChange={onChange} />;
     default:

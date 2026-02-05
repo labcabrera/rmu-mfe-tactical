@@ -1,6 +1,6 @@
 import React from 'react';
 import Avatar from '@mui/material/Avatar';
-import { TacticalGame } from '../../api/tactical-games';
+import { TacticalGame } from '../../api/tactical-game';
 
 const TacticalGameAvatar: React.FC<{
   tacticalGame: TacticalGame;

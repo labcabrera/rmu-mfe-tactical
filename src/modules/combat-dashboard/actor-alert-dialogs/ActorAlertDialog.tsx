@@ -4,7 +4,7 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-import IconButton from '@mui/material/IconButton';
+import { t } from 'i18next';
 import { ActorRound, ActorRoundAlert } from '../../api/actor-rounds.dto';
 import ActorAlertForm from './ActorAlertForm';
 
@@ -36,12 +36,7 @@ const ActorAlertDialog: FC<Props> = ({ actorRound, alertId, open, onClose, onSav
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-      <DialogTitle>
-        Alert
-        <IconButton aria-label="close" onClick={onClose} sx={{ position: 'absolute', right: 8, top: 8 }} size="small">
-          ×
-        </IconButton>
-      </DialogTitle>
+      <DialogTitle>{t(`Alert`)}</DialogTitle>
       <DialogContent dividers>
         {currentAlert ? (
           <ActorAlertForm actorRound={actorRound} alertId={alertId} onChange={handleChange} />
