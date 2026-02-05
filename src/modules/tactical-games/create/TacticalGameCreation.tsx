@@ -3,7 +3,7 @@ import { Grid } from '@mui/material';
 import { useError } from '../../../ErrorContext';
 import { fetchStrategicGames } from '../../api/strategic-games';
 import type { StrategicGame } from '../../api/strategic-games';
-import { CreateTacticalGameDto } from '../../api/tactical-game';
+import { CreateTacticalGameDto } from '../../api/tactical-game.dto';
 import { createGameTemplate } from '../../data/tactical-game-data';
 import GenericAvatar from '../../shared/avatars/GenericAvatar';
 import TacticalGameCreationActions from './TacticalGameCreationActions';

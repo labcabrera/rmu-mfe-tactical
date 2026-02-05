@@ -1,6 +1,7 @@
 export type TacticalGame = {
   id: string;
   strategicGameId: string;
+  name: string;
   status: string;
   round: number;
   phase: string;
@@ -15,8 +16,8 @@ export type ActorRound = {
 };
 
 export type TacticalGameEnvironment = {
-  temperatureFatiguePenalty: number;
-  altitudeFatiguePenalty: number;
+  temperatureFatigueModifier: number;
+  altitudeFatigueModifier: number;
 };
 
 export type CreateTacticalGameDto = {
@@ -27,8 +28,8 @@ export type CreateTacticalGameDto = {
 };
 
 export type CreateTacticalGameEnvironmentDto = {
-  temperatureFatiguePenalty: number | undefined;
-  altitudeFatiguePenalty: number | undefined;
+  temperatureFatigueModifier: number | undefined;
+  altitudeFatigueModifier: number | undefined;
 };
 
 export type UpdateTacticalGameDto = {

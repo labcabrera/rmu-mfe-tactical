@@ -3,7 +3,8 @@ import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import { Box, Breadcrumbs, Stack, Link } from '@mui/material';
 import { t } from 'i18next';
 import { useError } from '../../../ErrorContext';
-import { createTacticalGame, CreateTacticalGameDto } from '../../api/tactical-game';
+import { createTacticalGame } from '../../api/tactical-game';
+import { CreateTacticalGameDto } from '../../api/tactical-game.dto';
 import CancelButton from '../../shared/buttons/CancelButton';
 import SaveButton from '../../shared/buttons/SaveButton';
 

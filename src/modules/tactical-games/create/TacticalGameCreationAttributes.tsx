@@ -1,7 +1,7 @@
 import React, { Dispatch, FC, SetStateAction } from 'react';
 import { Grid, TextField } from '@mui/material';
 import { t } from 'i18next';
-import { CreateTacticalGameDto } from '../../api/tactical-game';
+import { CreateTacticalGameDto } from '../../api/tactical-game.dto';
 import { NumericInput } from '../../shared/inputs/NumericInput';
 
 const TacticalGameCreationAttributes: FC<{
@@ -24,19 +24,19 @@ const TacticalGameCreationAttributes: FC<{
       </Grid>
       <Grid size={2}>
         <NumericInput
-          label="Temperature fatigue penalty"
-          value={formData.environment.temperatureFatiguePenalty}
+          label="Temperature fatigue modifier"
+          value={formData.environment.temperatureFatigueModifier}
           onChange={(value) =>
-            setFormData({ ...formData, environment: { ...formData.environment, temperatureFatiguePenalty: value } })
+            setFormData({ ...formData, environment: { ...formData.environment, temperatureFatigueModifier: value } })
           }
         />
       </Grid>
       <Grid size={2}>
         <NumericInput
-          label="Altitude fatigue penalty"
-          value={formData.environment.altitudeFatiguePenalty}
+          label="Altitude fatigue modifier"
+          value={formData.environment.altitudeFatigueModifier}
           onChange={(value) =>
-            setFormData({ ...formData, environment: { ...formData.environment, altitudeFatiguePenalty: value } })
+            setFormData({ ...formData, environment: { ...formData.environment, altitudeFatigueModifier: value } })
           }
         />
       </Grid>

@@ -9,8 +9,9 @@ import type { Faction } from '../../api/factions';
 import { fetchStrategicGame } from '../../api/strategic-games';
 import type { StrategicGame } from '../../api/strategic-games';
 import { fetchTacticalGame } from '../../api/tactical-game';
-import type { TacticalGame } from '../../api/tactical-game';
+import { TacticalGame } from '../../api/tactical-game.dto';
 import TacticalGameAvatar from '../../shared/avatars/TacticalGameAvatar';
+import TacticalGameViewEnvironment from './TacticalGameEnvironment';
 import TacticalGameViewActions from './TacticalGameViewActions';
 import TacticalGameViewActors from './TacticalGameViewActors';
 import TacticalGameViewFactions from './TacticalGameViewFactions';
@@ -64,6 +65,7 @@ const TacticalGameView: FC = () => {
           <TacticalGameAvatar tacticalGame={tacticalGame} size={300} />
           <TacticalGameViewResume tacticalGame={tacticalGame} strategicGame={strategicGame} />
           <TacticalGameViewFactions tacticalGame={tacticalGame} setTacticalGame={setTacticalGame} factions={factions} />
+          <TacticalGameViewEnvironment tacticalGame={tacticalGame} />
         </Grid>
         <Grid size={9}>
           <TacticalGameViewActors

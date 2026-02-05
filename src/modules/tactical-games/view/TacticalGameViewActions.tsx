@@ -4,7 +4,7 @@ import { Box, Breadcrumbs, Link, Stack } from '@mui/material';
 import { t } from 'i18next';
 import { useError } from '../../../ErrorContext';
 import { deleteTacticalGame, fetchTacticalGame, startRound } from '../../api/tactical-game';
-import type { TacticalGame } from '../../api/tactical-game';
+import { TacticalGame } from '../../api/tactical-game.dto';
 import CloseButton from '../../shared/buttons/CloseButton';
 import DeleteButton from '../../shared/buttons/DeleteButton';
 import EditButton from '../../shared/buttons/EditButton';

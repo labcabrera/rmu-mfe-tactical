@@ -3,8 +3,8 @@ export const createGameTemplate = {
   name: '',
   actors: [],
   environment: {
-    temperatureFatiguePenalty: 0,
-    altitudeFatiguePenalty: 0,
+    temperatureFatigueModifier: 0,
+    altitudeFatigueModifier: 0,
   },
   description: '',
 };
