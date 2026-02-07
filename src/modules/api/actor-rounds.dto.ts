@@ -8,11 +8,22 @@ export type ActorRound = {
   actionPoints: number;
   hp: ActorRoundHp;
   fatigue: ActorRoundFatigue;
+  penalty: ActorRoundPenalty;
   attacks: ActorRoundAttack[];
   effects: ActorRoundEffect[];
   defense: ActorRoundDefense;
   alerts: ActorRoundAlert[];
   imageUrl: string | undefined;
+};
+
+export type ActorRoundPenaltyModifier = {
+  id: string;
+  source: string;
+  value: number;
+};
+
+export type ActorRoundPenalty = {
+  modifiers: ActorRoundPenaltyModifier[] | undefined;
 };
 
 export type ActorRoundInitiative = {

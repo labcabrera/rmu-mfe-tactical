@@ -1,5 +1,5 @@
 import React, { FC, useContext, useState } from 'react';
-import { Button, DialogActions, Stack, Typography } from '@mui/material';
+import { Button, DialogActions, Slide, Stack, Typography } from '@mui/material';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
@@ -15,6 +15,10 @@ import ActionManeuverForm from './maneuver/ActionManeuverForm';
 import MeleeAttackForm from './melee-attack/MeleeAttackForm';
 import MovementForm from './movement/MovementForm';
 import RangedAttackForm from './ranged-attack/RangedAttackForm';
+
+const Transition = React.forwardRef(function Transition(props, ref) {
+  return <Slide children={undefined} direction="up" ref={ref} {...props} />;
+});
 
 const ActionDialog: FC<{
   action: Action;
@@ -47,6 +51,7 @@ const ActionDialog: FC<{
       aria-describedby="alert-dialog-description"
       maxWidth="xl"
       fullWidth
+      slots={{ transition: Transition }}
     >
       <DialogTitle id="alert-dialog-title">
         <Stack direction="row" spacing={2} alignItems="center">

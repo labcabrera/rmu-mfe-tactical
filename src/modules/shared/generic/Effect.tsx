@@ -13,6 +13,9 @@ const Effect: FC<{
     switch (status) {
       case 'dmg':
         break;
+      case 'penalty':
+        label = t('Penalty');
+        break;
       default:
         label = t(`effect-${status}`);
         break;

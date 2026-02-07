@@ -1,4 +1,5 @@
 import React, { FC, useEffect, useState } from 'react';
+import { Slide } from '@mui/material';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -8,15 +9,17 @@ import { t } from 'i18next';
 import { ActorRound, ActorRoundAlert } from '../../api/actor-rounds.dto';
 import ActorAlertForm from './ActorAlertForm';
 
-type Props = {
+const Transition = React.forwardRef(function Transition(props, ref) {
+  return <Slide children={undefined} direction="up" ref={ref} {...props} />;
+});
+
+const ActorAlertDialog: FC<{
   actorRound: ActorRound;
   alertId: string;
   open: boolean;
   onClose: () => void;
   onSave?: (updated: ActorRoundAlert) => void;
-};
-
-const ActorAlertDialog: FC<Props> = ({ actorRound, alertId, open, onClose, onSave }) => {
+}> = ({ actorRound, alertId, open, onClose, onSave }) => {
   const [currentAlert, setCurrentAlert] = useState<ActorRoundAlert | undefined>(
     actorRound.alerts?.find((a) => a.id === alertId)
   );
@@ -35,7 +38,7 @@ const ActorAlertDialog: FC<Props> = ({ actorRound, alertId, open, onClose, onSav
   };
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="xl" slots={{ transition: Transition }}>
       <DialogTitle>{t(`Alert`)}</DialogTitle>
       <DialogContent dividers>
         {currentAlert ? (

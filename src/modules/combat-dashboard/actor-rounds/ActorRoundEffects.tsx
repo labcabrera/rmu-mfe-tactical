@@ -13,6 +13,10 @@ const ActorRoundEffects: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
       {actorRound.effects.map((effect, index) => (
         <Effect key={`effect-${index}`} effect={effect.status} rounds={effect.rounds} value={effect.value} />
       ))}
+      {actorRound.penalty.modifiers &&
+        actorRound.penalty.modifiers.map((modifier, index) => (
+          <Effect key={`penalty-${index}`} effect="penalty" value={modifier.value} />
+        ))}
     </Grid>
   );
 };

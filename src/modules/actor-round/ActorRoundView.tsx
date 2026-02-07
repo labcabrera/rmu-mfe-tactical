@@ -13,6 +13,7 @@ import { ActorRound } from '../api/actor-rounds.dto';
 import ActorRoundAttacks from './ActorRoundAttacks';
 import ActorRoundBars from './ActorRoundBars';
 import ActorRoundEffects from './ActorRoundEffects';
+import ActorRoundPenalty from './ActorRoundPenalty';
 
 const ActorRoundView: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
   if (!actorRound) return <CircularProgress size={24} />;
@@ -25,8 +26,10 @@ const ActorRoundView: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
       <ActorRoundAttacks actorRound={actorRound} />
       <Divider sx={{ my: 1 }} />
 
-      <ActorRoundEffects actorRound={actorRound} />
+      <ActorRoundPenalty actorRound={actorRound} />
+      <Divider sx={{ my: 1 }} />
 
+      <ActorRoundEffects actorRound={actorRound} />
       <Divider sx={{ my: 1 }} />
 
       <Box sx={{ mt: 1 }}>
