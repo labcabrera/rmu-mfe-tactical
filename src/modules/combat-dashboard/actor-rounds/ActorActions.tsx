@@ -76,7 +76,7 @@ const ActorActions: FC<ActorActionsProps> = ({ actorId, phases = 4, currentPhase
     if (action.maneuver) {
       name = t(action.maneuver?.modifiers?.skillId || 'maneuver');
     } else if (action.movement) {
-      name = `${action.freeAction ? 'Free ' : ''}${t('movement')}${action.movement.calculated?.distanceAdjusted ? `: ${action.movement.calculated.distanceAdjusted}` : ''}`;
+      name = `${t('movement')}${action.movement.calculated?.distanceAdjusted ? `: ${action.movement.calculated.distanceAdjusted}` : ''}`;
     } else {
       name = t(action.actionType);
     }

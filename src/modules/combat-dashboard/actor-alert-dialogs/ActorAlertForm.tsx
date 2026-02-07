@@ -14,7 +14,7 @@ const ActorAlertForm: FC<{
 
   switch (alert.type) {
     case 'endurance':
-      return <EnduranceForm actorRound={actorRound} alert={alert} onChange={onChange} />;
+      return <EnduranceForm actorRound={actorRound} alert={alert} />;
     case 'breakage':
       return <BreakageForm alert={alert} onChange={onChange} />;
     default:

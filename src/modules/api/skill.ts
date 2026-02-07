@@ -9,5 +9,6 @@ export async function fetchSkills(categoryId?: string): Promise<Skill[]> {
     throw await buildErrorFromResponse(response, url);
   }
   const json = await response.json();
+  console.log('Fetched skills:', json);
   return json.content as Skill[];
 }
