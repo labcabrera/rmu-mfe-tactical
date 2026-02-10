@@ -1,5 +1,5 @@
 import React, { ChangeEvent, Dispatch, FC, SetStateAction, useContext } from 'react';
-import { Button, Grid } from '@mui/material';
+import { Button, Grid, Typography } from '@mui/material';
 import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { prepareAttack } from '../../../api/action';
@@ -96,26 +96,50 @@ const RangedAttackModifiersForm: FC<{
           <AttackTitle attack={formDataAttack} target={target} />
         </Grid>
       )}
-      <Grid size={12}>
+      <Grid size={2}>
+        <Typography color="secondary">{t('range')}</Typography>
+      </Grid>
+      <Grid size={10}>
         <SelectAttackRange attack={attack} value={modifiers.range || null} onChange={onRangeChange} readOnly={false} />
       </Grid>
-      <Grid size={12}>
+      <Grid size={2}>
+        <Typography color="secondary">{t('cover')}</Typography>
+      </Grid>
+      <Grid size={10}>
         <SelectRangedCover value={formDataAttack?.modifiers?.cover || ''} onChange={(e) => handleChange('cover', e)} />
       </Grid>
-      <Grid size={12}>
+      <Grid size={2}>
+        <Typography color="secondary">{t('called-shot')}</Typography>
+      </Grid>
+      <Grid size={10}>
         <SelectCalledShot value={modifiers.calledShot || ''} onChange={onCalledShotChange} target={target} />
       </Grid>
-      <Grid size={12}>
+      <Grid size={2}>
+        <Typography color="secondary">{t('restricted-quarters')}</Typography>
+      </Grid>
+      <Grid size={10}>
         <SelectRestrictedQuarters value={restrictedQuarters} onChange={(e) => handleChange('restrictedQuarters', e)} />
       </Grid>
-      <Grid size={12}>
+      <Grid size={2}>
+        <Typography color="secondary">{t('dodge')}</Typography>
+      </Grid>
+      <Grid size={10}>
         <SelectDodge value={dodge} onChange={(e) => handleChange('dodge', e)} />
       </Grid>
-      <Grid size={12}>
+      <Grid size={2}>
+        <Typography color="secondary">{t('defense-options')}</Typography>
+      </Grid>
+      <Grid size={10}>
         <RangedAttackDefenseOptions formData={formData} setFormData={setFormData} index={0} />
       </Grid>
-      <Grid size={12}>
+      <Grid size={2}>
+        <Typography color="secondary">{t('attack-options')}</Typography>
+      </Grid>
+      <Grid size={10}>
         <RangedAttackOptionsForm formData={formData} setFormData={setFormData} index={0} />
+      </Grid>
+      <Grid size={2}>
+        <Typography color="secondary">{t('custom-bonus')}</Typography>
       </Grid>
       <Grid size={2}>
         <NumericInput

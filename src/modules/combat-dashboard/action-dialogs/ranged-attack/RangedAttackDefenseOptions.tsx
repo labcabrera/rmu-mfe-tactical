@@ -1,5 +1,5 @@
 import React, { Dispatch, FC, SetStateAction } from 'react';
-import { FormControl, FormLabel, ToggleButtonGroup, ToggleButton } from '@mui/material';
+import { FormControl, ToggleButtonGroup, ToggleButton } from '@mui/material';
 import { t } from 'i18next';
 import { AttackDeclaration } from '../../../api/action.dto';
 
@@ -8,8 +8,6 @@ const RangedAttackDefenseOptions: FC<{
   setFormData: Dispatch<SetStateAction<AttackDeclaration>>;
   index: number;
 }> = ({ formData, setFormData, index }) => {
-  const labelId = 'ranged-attack-modifiers-selector-label';
-
   const attack = formData.attacks?.[index];
   const modifiers = attack?.modifiers;
   const disabledDB = modifiers?.disabledDB || false;
@@ -19,9 +17,6 @@ const RangedAttackDefenseOptions: FC<{
 
   return (
     <FormControl component="fieldset" variant="standard" sx={{ width: '100%' }}>
-      <FormLabel id={labelId} component="legend" sx={{ mb: 1, typography: 'body1' }}>
-        {t('Defensive options')}
-      </FormLabel>
       <ToggleButtonGroup
         value={[!disabledDB ? 'DB' : null, !disabledShield ? 'Shield' : null].filter(Boolean)}
         onChange={(_e, newValues: string[]) => {

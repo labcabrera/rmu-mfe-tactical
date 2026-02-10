@@ -5,7 +5,7 @@ import { t } from 'i18next';
 import { CombatContext } from '../../CombatContext';
 import { useError } from '../../ErrorContext';
 import { startRound, startPhase } from '../api/tactical-game';
-import type { TacticalGame } from '../api/tactical-game';
+import { TacticalGame } from '../api/tactical-game.dto';
 import AddButton from '../shared/buttons/AddButton';
 import BackButton from '../shared/buttons/BackButton';
 import CloseButton from '../shared/buttons/CloseButton';
@@ -35,7 +35,7 @@ const CombatDashboardActions: FC = () => {
 
   const onNextPhase = async () => {
     startPhase(game.id)
-      .then((game) => setGame(game))
+      .then((game: TacticalGame) => setGame(game))
       .catch((err) => showError(err.message));
   };
 
