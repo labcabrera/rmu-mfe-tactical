@@ -1,18 +1,22 @@
-const HtmlWebPackPlugin = require('html-webpack-plugin');
+import CopyWebpackPlugin from 'copy-webpack-plugin';
+import Dotenv from 'dotenv-webpack';
+import HtmlWebPackPlugin from 'html-webpack-plugin';
+import { createRequire } from 'module';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import type { Configuration } from 'webpack';
+
+const require = createRequire(import.meta.url);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const ModuleFederationPlugin = require('webpack/lib/container/ModuleFederationPlugin');
-const path = require('path');
-const Dotenv = require('dotenv-webpack');
-
 const deps = require('./package.json').dependencies;
-
 const printCompilationMessage = require('./compilation.config.js');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
-const { error } = require('console');
 
-module.exports = (_, argv) => ({
+export default (_: unknown, argv: any): Configuration => ({
   output: {
-    //publicPath: process.env.RMU_FE_TACTICAL_PUBLIC_PATH || "http://localhost:8083/"
-    publicPath: 'http://localhost:8083/',
+    // publicPath: 'http://localhost:8083/',
+    publicPath: 'https://tactical.labcabrera.com/',
   },
 
   resolve: {
@@ -22,7 +26,7 @@ module.exports = (_, argv) => ({
   devServer: {
     allowedHosts: 'all',
     host: '0.0.0.0',
-    port: process.env.PORT,
+    port: process.env.PORT as unknown as number,
     historyApiFallback: true,
     headers: {
       'Access-Control-Allow-Origin': '*',
@@ -31,12 +35,12 @@ module.exports = (_, argv) => ({
     },
     historyApiFallback: true,
     watchFiles: [path.resolve(__dirname, 'src')],
-    onListening: function (devServer) {
+    onListening: function (devServer: any) {
       const port = devServer.server.address().port;
 
       printCompilationMessage('compiling', port);
 
-      devServer.compiler.hooks.done.tap('OutputMessagePlugin', (stats) => {
+      devServer.compiler.hooks.done.tap('OutputMessagePlugin', (stats: any) => {
         setImmediate(() => {
           if (stats.hasErrors()) {
             printCompilationMessage('failure', port);
@@ -92,9 +96,7 @@ module.exports = (_, argv) => ({
     new ModuleFederationPlugin({
       name: 'tactical',
       filename: 'tactical-app.js',
-      remotes: {
-        host: 'host@http://localhost:8080/host.js',
-      },
+      remotes: {},
       exposes: {
         './TacticalApp': './src/App.tsx',
       },
@@ -107,7 +109,7 @@ module.exports = (_, argv) => ({
         '@emotion/react': { singleton: true, requiredVersion: deps['@emotion/react'] },
         '@emotion/styled': { singleton: true, requiredVersion: deps['@emotion/styled'] },
       },
-    }),
+    }) as any,
     new HtmlWebPackPlugin({
       template: './src/index.html',
     }),
