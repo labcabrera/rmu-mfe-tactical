@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Box, Grid } from '@mui/material';
 import { useError } from '../../../ErrorContext';
 import { fetchTacticalGames } from '../../api/tactical-game';
-import type { TacticalGame } from '../../api/tactical-game';
+import { TacticalGame } from '../../api/tactical-game.dto';
 import TacticalGameCard from '../../shared/cards/TacticalGameCard';
 import TacticalGameListActions from './TacticalGameListActions';
 import TacticalGameResume from './TacticalGameResume';
