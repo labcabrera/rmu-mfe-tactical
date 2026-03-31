@@ -1,11 +1,11 @@
 import React, { Dispatch, FC, SetStateAction, useContext } from 'react';
 import { Button, Grid } from '@mui/material';
+import { NumericInput } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { useError } from '../../../../ErrorContext';
 import { resolveManeuver } from '../../../api/action';
 import { Action, ActionManeuver } from '../../../api/action.dto';
-import { NumericInput } from '../../../shared/inputs/NumericInput';
 import SelectDifficulty from '../../../shared/selects/SelectDifficulty';
 import SelectLightModifier from '../../../shared/selects/SelectLightModifier';
 import SelectLightType from '../../../shared/selects/SelectLightType';

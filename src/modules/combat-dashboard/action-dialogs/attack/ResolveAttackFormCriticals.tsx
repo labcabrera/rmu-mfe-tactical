@@ -1,12 +1,12 @@
 import React, { Dispatch, FC, Fragment, SetStateAction, useContext } from 'react';
 import { Stack, Grid } from '@mui/material';
+import { NumericInput } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { useError } from '../../../../ErrorContext';
 import { updateCriticalRoll } from '../../../api/action';
 import { Action, ActionAttack, AttackDeclaration } from '../../../api/action.dto';
 import Effect from '../../../shared/generic/Effect';
-import { NumericInput } from '../../../shared/inputs/NumericInput';
 
 const ResolveAttackFormCriticals: FC<{
   formData: AttackDeclaration;

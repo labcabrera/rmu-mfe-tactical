@@ -1,8 +1,8 @@
 import React, { FC, useContext } from 'react';
 import { Chip, Grid, Stack, Typography } from '@mui/material';
+import { NumericInput } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
 import { ActorRound, ActorRoundAlert } from '../../api/actor-rounds.dto';
-import { NumericInput } from '../../shared/inputs/NumericInput';
 
 const EnduranceForm: FC<{
   actorRound: ActorRound;

@@ -1,11 +1,11 @@
 import React, { ChangeEvent, Dispatch, FC, SetStateAction, useContext } from 'react';
 import { Button, Grid, Typography } from '@mui/material';
+import { NumericInput } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { prepareAttack } from '../../../api/action';
 import { Action, AttackDeclaration } from '../../../api/action.dto';
 import { ActorRoundAttack } from '../../../api/actor-rounds.dto';
-import { NumericInput } from '../../../shared/inputs/NumericInput';
 import SelectAttackRange from '../../../shared/selects/SelectAttackRange';
 import SelectCalledShot from '../../../shared/selects/SelectCalledShot';
 import SelectDodge from '../../../shared/selects/SelectDodge';

@@ -1,11 +1,11 @@
 import React, { FC, useContext } from 'react';
 import { Stack, Typography } from '@mui/material';
+import { NumericInput } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../CombatContext';
 import { useError } from '../../ErrorContext';
 import { addActorRoundFatigueAccumulator, addActorRoundHp } from '../api/actor-rounds';
 import { ActorRound } from '../api/actor-rounds.dto';
 import GenericBar from '../shared/generic/GenericBar';
-import { NumericInput } from '../shared/inputs/NumericInput';
 
 const barSize = 160;
 

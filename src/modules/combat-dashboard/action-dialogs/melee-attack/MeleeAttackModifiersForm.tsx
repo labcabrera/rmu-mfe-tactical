@@ -1,9 +1,9 @@
 import React, { ChangeEvent, Dispatch, FC, SetStateAction, useContext } from 'react';
 import { Grid, Typography } from '@mui/material';
+import { NumericInput } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { AttackDeclaration } from '../../../api/action.dto';
-import { NumericInput } from '../../../shared/inputs/NumericInput';
 import SelectCalledShot from '../../../shared/selects/SelectCalledShot';
 import SelectDodge from '../../../shared/selects/SelectDodge';
 import SelectMeleeCover from '../../../shared/selects/SelectMeleeCover';

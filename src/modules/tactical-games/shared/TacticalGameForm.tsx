@@ -1,10 +1,10 @@
 import React, { Dispatch, FC, SetStateAction, useEffect, useState } from 'react';
 import { Grid, TextField } from '@mui/material';
+import { NumericInput } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { t } from 'i18next';
 import { useError } from '../../../ErrorContext';
 import { fetchStrategicGames, StrategicGame } from '../../api/strategic-games';
 import { CreateTacticalGameDto, UpdateTacticalGameDto } from '../../api/tactical-game.dto';
-import { NumericInput } from '../../shared/inputs/NumericInput';
 import SelectStrategicGame from '../../shared/selects/SelectStrategicGame';
 
 const TacticalGameForm: FC<{
