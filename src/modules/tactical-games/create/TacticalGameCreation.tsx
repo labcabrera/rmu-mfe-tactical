@@ -1,13 +1,14 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { FC, useEffect, useState } from 'react';
 import { Grid } from '@mui/material';
+import { EditableAvatar, TechnicalInfo } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { useError } from '../../../ErrorContext';
 import { fetchStrategicGame } from '../../api/strategic-games';
 import type { StrategicGame } from '../../api/strategic-games';
 import { CreateTacticalGameDto } from '../../api/tactical-game.dto';
 import { createGameTemplate } from '../../data/tactical-game-data';
 import { gridSizeResume, gridSizeMain } from '../../services/display';
-import GenericAvatar from '../../shared/avatars/GenericAvatar';
-import TechnicalInfo from '../../shared/display/TechnicalInfo';
+import { defaultImage, getAvatarImages } from '../../services/image-service';
 import TacticalGameForm from '../shared/TacticalGameForm';
 import TacticalGameCreationActions from './TacticalGameCreationActions';
 
@@ -54,7 +55,11 @@ const TacticalGameCreation: FC = () => {
       <TacticalGameCreationActions formData={formData} isValid={isValid} />
       <Grid container spacing={1}>
         <Grid size={gridSizeResume}>
-          <GenericAvatar imageUrl="/static/images/generic/tactical.png" size={300} />
+          <EditableAvatar
+            imageUrl={formData.imageUrl || defaultImage}
+            images={getAvatarImages()}
+            onImageChange={(imageUrl) => setFormData({ ...formData, imageUrl: imageUrl })}
+          />
         </Grid>
         <Grid size={gridSizeMain}>
           <TacticalGameForm formData={formData} setFormData={setFormData} strategicGame={strategicGame} />

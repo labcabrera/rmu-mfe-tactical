@@ -1,12 +1,10 @@
 import React, { FC } from 'react';
-import { useNavigate, Link as RouterLink } from 'react-router-dom';
-import { Box, Breadcrumbs, Stack, Link } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import { CancelButton, RmuBreadcrumbs, SaveButton } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { t } from 'i18next';
 import { useError } from '../../../ErrorContext';
 import { createTacticalGame } from '../../api/tactical-game';
 import { CreateTacticalGameDto } from '../../api/tactical-game.dto';
-import CancelButton from '../../shared/buttons/CancelButton';
-import SaveButton from '../../shared/buttons/SaveButton';
 
 const TacticalGameCreationActions: FC<{
   formData: CreateTacticalGameDto;
@@ -21,31 +19,15 @@ const TacticalGameCreationActions: FC<{
       .catch((err) => showError(err.message));
   };
 
-  const onBack = () => {
+  const onCancel = () => {
     navigate(`/tactical/games`);
   };
 
   return (
-    <Stack spacing={2} direction="row" justifyContent="space-between" alignItems="center" sx={{ minHeight: 80 }}>
-      <Box>
-        <Breadcrumbs aria-label="breadcrumb">
-          <Link color="primary" underline="hover" href="/">
-            {t('home')}
-          </Link>
-          <Link component={RouterLink} to="/tactical/games" color="primary" underline="hover">
-            {t('tactical')}
-          </Link>
-          <Link component={RouterLink} to="/tactical/games" color="primary" underline="hover">
-            {t('games')}
-          </Link>
-          <span>{t('create')}</span>
-        </Breadcrumbs>
-      </Box>
-      <Stack spacing={2} direction="row" sx={{ justifyContent: 'flex-end', alignItems: 'flex-start' }}>
-        <CancelButton onClick={onBack} />
-        <SaveButton onClick={onSave} disabled={!isValid} />
-      </Stack>
-    </Stack>
+    <RmuBreadcrumbs items={[{ name: t('Tactical games'), link: '/tactical' }, { name: t('Create') }]}>
+      <CancelButton onClick={() => onCancel()} />
+      <SaveButton onClick={() => onSave()} disabled={!isValid} />
+    </RmuBreadcrumbs>
   );
 };
 

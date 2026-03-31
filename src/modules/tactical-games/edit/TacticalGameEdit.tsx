@@ -1,12 +1,14 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { FC, useEffect, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import { Grid } from '@mui/material';
+import { EditableAvatar, TechnicalInfo } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { useError } from '../../../ErrorContext';
 import { fetchStrategicGame, StrategicGame } from '../../api/strategic-games';
 import { fetchTacticalGame } from '../../api/tactical-game';
 import { TacticalGame, UpdateTacticalGameDto } from '../../api/tactical-game.dto';
-import GenericAvatar from '../../shared/avatars/GenericAvatar';
-import TechnicalInfo from '../../shared/display/TechnicalInfo';
+import { gridSizeResume, gridSizeMain } from '../../services/display';
+import { defaultImage, getAvatarImages } from '../../services/image-service';
 import TacticalGameForm from '../shared/TacticalGameForm';
 import TacticalGameEditActions from './TacticalGameEditActions';
 
@@ -58,11 +60,15 @@ const TacticalGameEdit: FC = () => {
   return (
     <>
       <TacticalGameEditActions tacticalGame={tacticalGame} formData={formData} isValid={isValid} />
-      <Grid container spacing={2}>
-        <Grid size={2}>
-          <GenericAvatar imageUrl="/static/images/generic/tactical.png" size={300} />
+      <Grid container spacing={1}>
+        <Grid size={gridSizeResume}>
+          <EditableAvatar
+            imageUrl={formData.imageUrl || defaultImage}
+            images={getAvatarImages()}
+            onImageChange={(imageUrl) => setFormData({ ...formData, imageUrl: imageUrl })}
+          />
         </Grid>
-        <Grid size={10}>
+        <Grid size={gridSizeMain}>
           <TacticalGameForm formData={formData} setFormData={setFormData} strategicGame={strategicGame} />
           <TechnicalInfo>
             <pre>FormData: {JSON.stringify(formData, null, 2)}</pre>

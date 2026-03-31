@@ -1,10 +1,12 @@
 import React, { FC, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Box, Grid } from '@mui/material';
+import { Grid } from '@mui/material';
+import { RmuTextCard } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { useError } from '../../../ErrorContext';
 import { fetchTacticalGames } from '../../api/tactical-game';
 import { TacticalGame } from '../../api/tactical-game.dto';
-import TacticalGameCard from '../../shared/cards/TacticalGameCard';
+import { gridSizeResume, gridSizeMain, gridSizeCard } from '../../services/display';
+import { defaultImage } from '../../services/image-service';
 import TacticalGameListActions from './TacticalGameListActions';
 import TacticalGameResume from './TacticalGameResume';
 
@@ -26,16 +28,23 @@ const TacticalGameList: FC = () => {
   return (
     <>
       <TacticalGameListActions />
-      <Grid container spacing={2}>
-        <Grid size={2}>
+      <Grid container spacing={1}>
+        <Grid size={gridSizeResume}>
           <TacticalGameResume />
         </Grid>
-        <Grid size={10}>
-          <Box display="flex" flexDirection="row" flexWrap="wrap" gap={2}>
-            {games.map((game) => (
-              <TacticalGameCard key={game.id} tacticalGame={game} onClick={() => onTacticalGameClick(game)} />
+        <Grid size={gridSizeMain}>
+          <Grid container spacing={1}>
+            {games.map((game, index) => (
+              <Grid size={gridSizeCard} key={index}>
+                <RmuTextCard
+                  value={game.name}
+                  subtitle={game.description}
+                  image={defaultImage}
+                  onClick={() => onTacticalGameClick(game)}
+                />
+              </Grid>
             ))}
-          </Box>
+          </Grid>
           {games.length === 0 && <span>No games found.</span>}
         </Grid>
       </Grid>

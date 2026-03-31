@@ -1,6 +1,6 @@
 import React from 'react';
-import { useNavigate, Link as RouterLink } from 'react-router-dom';
-import { Box, Breadcrumbs, Link, Stack } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import { RefreshButton, RmuBreadcrumbs } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { t } from 'i18next';
 import AddButton from '../../shared/buttons/AddButton';
 
@@ -12,22 +12,10 @@ const TacticalGameListActions: React.FC = () => {
   };
 
   return (
-    <Stack spacing={2} direction="row" justifyContent="space-between" alignItems="center" sx={{ minHeight: 80 }}>
-      <Box>
-        <Breadcrumbs aria-label="breadcrumb">
-          <Link color="primary" underline="hover" href="/">
-            {t('home')}
-          </Link>
-          <Link component={RouterLink} color="primary" underline="hover" to="/tactical">
-            {t('tactical')}
-          </Link>
-          <span>{t('games')}</span>
-        </Breadcrumbs>
-      </Box>
-      <Stack spacing={2} direction="row" sx={{ justifyContent: 'flex-end', alignItems: 'flex-start' }}>
-        <AddButton onClick={onNewTacticalGame} />
-      </Stack>
-    </Stack>
+    <RmuBreadcrumbs items={[{ name: t('Tactical games') }]}>
+      <RefreshButton onClick={() => {}} />
+      <AddButton onClick={() => onNewTacticalGame()} />
+    </RmuBreadcrumbs>
   );
 };
 
