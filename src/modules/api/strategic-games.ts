@@ -1,13 +1,14 @@
 import { getAuthHeaders } from '../services/auth-token-service';
+import { apiStrategicUrl } from '../services/config';
 import { buildErrorFromResponse } from './api-errors';
 
 export type StrategicGame = {
-  id: number;
-  [key: string]: any;
+  id: string;
+  name: string;
 };
 
 export async function fetchStrategicGames(rsql: string, page: number, size: number): Promise<StrategicGame[]> {
-  const url = `${process.env.RMU_API_STRATEGIC_URL}/strategic-games?q=${rsql}&page=${page}&size=${size}`;
+  const url = `${apiStrategicUrl}/strategic-games?q=${rsql}&page=${page}&size=${size}`;
   const response = await fetch(url, { method: 'GET', headers: getAuthHeaders() });
   if (response.status !== 200) {
     throw await buildErrorFromResponse(response, url);
@@ -17,7 +18,7 @@ export async function fetchStrategicGames(rsql: string, page: number, size: numb
 }
 
 export async function fetchStrategicGame(gameId: string): Promise<StrategicGame> {
-  const url = `${process.env.RMU_API_STRATEGIC_URL}/strategic-games/${gameId}`;
+  const url = `${apiStrategicUrl}/strategic-games/${gameId}`;
   const response = await fetch(url, { method: 'GET', headers: getAuthHeaders() });
   if (response.status !== 200) {
     throw await buildErrorFromResponse(response, url);
