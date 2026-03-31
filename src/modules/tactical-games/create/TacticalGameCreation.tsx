@@ -41,10 +41,6 @@ const TacticalGameCreation: FC = () => {
     }
   }, [formData]);
 
-  // useEffect(() => {
-  //   bindStrategicGames();
-  // }, []);
-
   useEffect(() => {
     if (strategicGameId) {
       bindStrategicGame(strategicGameId);
@@ -59,7 +55,6 @@ const TacticalGameCreation: FC = () => {
       <Grid container spacing={1}>
         <Grid size={gridSizeResume}>
           <GenericAvatar imageUrl="/static/images/generic/tactical.png" size={300} />
-          {/* <TacticalGameCreationResume formData={formData} setFormData={setFormData} strategicGames={strategicGames} /> */}
         </Grid>
         <Grid size={gridSizeMain}>
           <TacticalGameForm formData={formData} setFormData={setFormData} strategicGame={strategicGame} />

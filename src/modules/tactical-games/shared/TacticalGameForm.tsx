@@ -3,13 +3,13 @@ import { Grid, TextField } from '@mui/material';
 import { t } from 'i18next';
 import { useError } from '../../../ErrorContext';
 import { fetchStrategicGames, StrategicGame } from '../../api/strategic-games';
-import { CreateTacticalGameDto } from '../../api/tactical-game.dto';
+import { CreateTacticalGameDto, UpdateTacticalGameDto } from '../../api/tactical-game.dto';
 import { NumericInput } from '../../shared/inputs/NumericInput';
 import SelectStrategicGame from '../../shared/selects/SelectStrategicGame';
 
 const TacticalGameForm: FC<{
-  formData: CreateTacticalGameDto;
-  setFormData: Dispatch<SetStateAction<CreateTacticalGameDto | undefined>>;
+  formData: CreateTacticalGameDto | UpdateTacticalGameDto;
+  setFormData: Dispatch<SetStateAction<CreateTacticalGameDto | UpdateTacticalGameDto | undefined>>;
   strategicGame: StrategicGame | undefined;
 }> = ({ formData, setFormData, strategicGame }) => {
   const { showError } = useError();

@@ -10,6 +10,7 @@ import { fetchStrategicGame } from '../../api/strategic-games';
 import type { StrategicGame } from '../../api/strategic-games';
 import { fetchTacticalGame } from '../../api/tactical-game';
 import { TacticalGame } from '../../api/tactical-game.dto';
+import { gridSizeResume, gridSizeMain } from '../../services/display';
 import TacticalGameAvatar from '../../shared/avatars/TacticalGameAvatar';
 import TacticalGameViewEnvironment from './TacticalGameEnvironment';
 import TacticalGameViewActions from './TacticalGameViewActions';
@@ -60,14 +61,14 @@ const TacticalGameView: FC = () => {
   return (
     <>
       <TacticalGameViewActions tacticalGame={tacticalGame} setTacticalGame={setTacticalGame} />
-      <Grid container spacing={5}>
-        <Grid size={3}>
+      <Grid container spacing={1}>
+        <Grid size={gridSizeResume}>
           <TacticalGameAvatar tacticalGame={tacticalGame} size={300} />
           <TacticalGameViewResume tacticalGame={tacticalGame} strategicGame={strategicGame} />
           <TacticalGameViewFactions tacticalGame={tacticalGame} setTacticalGame={setTacticalGame} factions={factions} />
           <TacticalGameViewEnvironment tacticalGame={tacticalGame} />
         </Grid>
-        <Grid size={9}>
+        <Grid size={gridSizeMain}>
           <TacticalGameViewActors
             tacticalGame={tacticalGame}
             setTacticalGame={setTacticalGame}

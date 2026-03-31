@@ -8,6 +8,7 @@ export type TacticalGame = {
   factions: string[];
   actors: ActorRound[];
   environment: TacticalGameEnvironment;
+  description: string;
 };
 
 export type ActorRound = {
@@ -20,19 +21,6 @@ export type TacticalGameEnvironment = {
   altitudeFatigueModifier: number;
 };
 
-export type CreateTacticalGameDto = {
-  strategicGameId: string;
-  name: string;
-  environment: CreateTacticalGameEnvironmentDto | undefined;
-  description?: string;
-};
+export type CreateTacticalGameDto = Omit<TacticalGame, 'id' | 'status' | 'round' | 'phase' | 'factions' | 'actors'>;
 
-export type CreateTacticalGameEnvironmentDto = {
-  temperatureFatigueModifier: number | undefined;
-  altitudeFatigueModifier: number | undefined;
-};
-
-export type UpdateTacticalGameDto = {
-  name: string | undefined;
-  description: string | undefined;
-};
+export type UpdateTacticalGameDto = Partial<Omit<CreateTacticalGameDto, 'strategicGameId'>>;

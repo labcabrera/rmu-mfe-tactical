@@ -1,38 +1,29 @@
-import React, { ChangeEvent, FC } from 'react';
-import { MenuItem, TextField } from '@mui/material';
+import React, { FC } from 'react';
+import { Autocomplete, TextField } from '@mui/material';
 import { t } from 'i18next';
 import { StrategicGame } from '../../api/strategic-games';
 
 const SelectStrategicGame: FC<{
-  value: string;
-  onChange: (value: string) => void;
+  value: string | null | undefined;
+  onChange: (value: string | null) => void;
   strategicGames: StrategicGame[];
 }> = ({ value, onChange, strategicGames }) => {
-  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const selectedValue = event.target.value;
-    onChange(selectedValue);
-  };
-
   if (!strategicGames) {
     return <p>Loading...</p>;
   }
 
+  const selectedOption = strategicGames.find((s) => s.id === value) ?? null;
+
   return (
-    <TextField
-      select
-      label={t('strategic-game')}
-      value={value === undefined || value === null || strategicGames.length === 0 ? '' : value}
+    <Autocomplete
+      options={strategicGames}
+      getOptionLabel={(option) => option.name || ''}
+      isOptionEqualToValue={(option, val) => option.id === val.id}
+      value={selectedOption}
+      onChange={(_event, newValue) => onChange(newValue ? newValue.id : null)}
       fullWidth
-      variant="standard"
-      onChange={handleChange}
-      error={!value}
-    >
-      {strategicGames.map((option, index) => (
-        <MenuItem key={index} value={option.id}>
-          {option.name}
-        </MenuItem>
-      ))}
-    </TextField>
+      renderInput={(params) => <TextField {...params} label={t('strategic-game')} error={!value} />}
+    />
   );
 };
 
