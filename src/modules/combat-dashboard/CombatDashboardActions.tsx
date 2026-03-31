@@ -1,15 +1,13 @@
 import React, { FC, useContext } from 'react';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import { Box, Breadcrumbs, Button, Link, Stack, Typography } from '@mui/material';
+import { AddButton, BackButton, CancelButton, NextButton } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { t } from 'i18next';
 import { CombatContext } from '../../CombatContext';
 import { useError } from '../../ErrorContext';
 import { startRound, startPhase } from '../api/tactical-game';
 import { TacticalGame } from '../api/tactical-game.dto';
-import AddButton from '../shared/buttons/AddButton';
-import BackButton from '../shared/buttons/BackButton';
 import CloseButton from '../shared/buttons/CloseButton';
-import NextButton from '../shared/buttons/NextButton';
 
 const CombatDashboardActions: FC = () => {
   const navigate = useNavigate();
@@ -76,11 +74,15 @@ const CombatDashboardActions: FC = () => {
           <BackButton onClick={onDisplayPrevRound} disabled={displayRound === 1} />
           <NextButton onClick={onDisplayNextRound} disabled={displayRound === game.round} />
           <AddButton onClick={onNextRound} />
-          <CloseButton onClick={onClose} />
+          <CancelButton onClick={onClose} />
           {nextPhaseAvailable() ? (
-            <Button onClick={onNextPhase}>Next phase</Button>
+            <Button onClick={onNextPhase} size="small">
+              Next phase
+            </Button>
           ) : (
-            <Button onClick={onNextRound}>Next round</Button>
+            <Button onClick={onNextRound} size="small">
+              Next round
+            </Button>
           )}
         </Stack>
       </Stack>

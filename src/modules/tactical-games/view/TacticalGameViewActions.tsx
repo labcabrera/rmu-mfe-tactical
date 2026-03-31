@@ -1,7 +1,7 @@
 import React, { Dispatch, FC, SetStateAction, useState } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { Box, Breadcrumbs, Link, Stack } from '@mui/material';
-import { CancelButton, RefreshButton } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { CancelButton, DeleteDialog, RefreshButton } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { t } from 'i18next';
 import { useError } from '../../../ErrorContext';
 import { deleteTacticalGame, fetchTacticalGame, startRound } from '../../api/tactical-game';
@@ -9,7 +9,6 @@ import { TacticalGame } from '../../api/tactical-game.dto';
 import DeleteButton from '../../shared/buttons/DeleteButton';
 import EditButton from '../../shared/buttons/EditButton';
 import PlayButton from '../../shared/buttons/PlayButton';
-import DeleteDialog from '../../shared/dialogs/DeleteDialog';
 
 const TacticalGameViewActions: FC<{
   tacticalGame: TacticalGame;
