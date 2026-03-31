@@ -1,12 +1,11 @@
 import React, { FC } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { Link, Breadcrumbs, Stack } from '@mui/material';
+import { CancelButton, SaveButton } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { t } from 'i18next';
 import { useError } from '../../../ErrorContext';
-import { updateTacticalGame } from '../../api/tactical-games';
-import type { TacticalGame, UpdateTacticalGameDto } from '../../api/tactical-games';
-import CancelButton from '../../shared/buttons/CancelButton';
-import SaveButton from '../../shared/buttons/SaveButton';
+import { updateTacticalGame } from '../../api/tactical-game';
+import { TacticalGame, UpdateTacticalGameDto } from '../../api/tactical-game.dto';
 
 const TacticalGameEditActions: FC<{
   tacticalGame: TacticalGame;

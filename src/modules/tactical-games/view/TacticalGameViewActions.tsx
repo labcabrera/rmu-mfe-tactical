@@ -1,20 +1,22 @@
 import React, { Dispatch, FC, SetStateAction, useState } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import { Box, Breadcrumbs, Link, Stack } from '@mui/material';
+import {
+  CancelButton,
+  DeleteButton,
+  DeleteDialog,
+  EditButton,
+  RefreshButton,
+} from '@labcabrera-rmu/rmu-react-shared-lib';
 import { t } from 'i18next';
 import { useError } from '../../../ErrorContext';
-import { deleteTacticalGame, fetchTacticalGame, startRound } from '../../api/tactical-games';
-import type { TacticalGame } from '../../api/tactical-games';
-import CloseButton from '../../shared/buttons/CloseButton';
-import DeleteButton from '../../shared/buttons/DeleteButton';
-import EditButton from '../../shared/buttons/EditButton';
+import { deleteTacticalGame, fetchTacticalGame, startRound } from '../../api/tactical-game';
+import { TacticalGame } from '../../api/tactical-game.dto';
 import PlayButton from '../../shared/buttons/PlayButton';
-import RefreshButton from '../../shared/buttons/RefreshButton';
-import DeleteDialog from '../../shared/dialogs/DeleteDialog';
 
 const TacticalGameViewActions: FC<{
   tacticalGame: TacticalGame;
-  setTacticalGame: Dispatch<SetStateAction<TacticalGame | null>>;
+  setTacticalGame: Dispatch<SetStateAction<TacticalGame | undefined>>;
 }> = ({ tacticalGame, setTacticalGame }) => {
   const navigate = useNavigate();
   const { showError } = useError();
@@ -67,7 +69,7 @@ const TacticalGameViewActions: FC<{
           </Breadcrumbs>
         </Box>
         <Stack direction="row" spacing={1}>
-          <CloseButton onClick={() => {}} />
+          <CancelButton onClick={() => {}} />
           <PlayButton onClick={() => onPlay()} />
           <RefreshButton onClick={() => onRefresh()} />
           <EditButton onClick={() => onEdit()} />

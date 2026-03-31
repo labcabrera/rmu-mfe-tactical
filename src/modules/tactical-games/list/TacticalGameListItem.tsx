@@ -1,7 +1,7 @@
 import React, { FC } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Avatar, ListItemAvatar, ListItemButton, ListItemText } from '@mui/material';
-import type { TacticalGame } from '../../api/tactical-games';
+import type { TacticalGame } from '../../api/tactical-game';
 
 type TacticalGameListItemProps = {
   tacticalGame: TacticalGame;

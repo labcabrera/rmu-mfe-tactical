@@ -1,9 +1,10 @@
 import React, { FC, useContext, useEffect, useState } from 'react';
 import { CombatContext } from '../../../../CombatContext';
 import { Action } from '../../../api/action.dto';
-import type { Character } from '../../../api/characters';
+import { Character } from '../../../api/characters.dto';
 import MovementModifiersForm from './MovementModifiersForm';
 
+//TODO remove character. Read from actor
 const MovementForm: FC<{
   action: Action;
   character: Character;

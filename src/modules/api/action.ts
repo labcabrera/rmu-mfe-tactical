@@ -1,9 +1,10 @@
+import { getAuthHeaders, mergeJsonHeaders } from '../services/auth-token-service';
 import { Action, AttackDeclaration, ParryDeclaration } from './action.dto';
 import { buildErrorFromResponse } from './api-errors';
 
 export async function fetchAction(actionId: string): Promise<Action> {
   const url = `${process.env.RMU_API_TACTICAL_URL}/actions/${actionId}`;
-  const response = await fetch(url, { method: 'GET' });
+  const response = await fetch(url, { method: 'GET', headers: getAuthHeaders() });
   if (response.status !== 200) {
     throw await buildErrorFromResponse(response, url);
   }
@@ -13,7 +14,7 @@ export async function fetchAction(actionId: string): Promise<Action> {
 
 export async function fetchActionsByGameAndRound(gameId: string, round: number): Promise<Action[]> {
   const url = `${process.env.RMU_API_TACTICAL_URL}/actions?q=gameId==${gameId};round==${round}`;
-  const response = await fetch(url, { method: 'GET' });
+  const response = await fetch(url, { method: 'GET', headers: getAuthHeaders() });
   if (response.status !== 200) {
     throw await buildErrorFromResponse(response, url);
   }
@@ -25,9 +26,7 @@ export async function createAction(actionData: any): Promise<Action> {
   const url = `${process.env.RMU_API_TACTICAL_URL}/actions`;
   const response = await fetch(url, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: mergeJsonHeaders(),
     body: JSON.stringify(actionData),
   });
   if (response.status !== 201) {
@@ -38,7 +37,7 @@ export async function createAction(actionData: any): Promise<Action> {
 
 export async function deleteAction(actionId: string): Promise<boolean> {
   const url = `${process.env.RMU_API_TACTICAL_URL}/actions/${actionId}`;
-  const response = await fetch(url, { method: 'DELETE' });
+  const response = await fetch(url, { method: 'DELETE', headers: getAuthHeaders() });
   if (response.status !== 204) {
     throw await buildErrorFromResponse(response, url);
   }
@@ -49,9 +48,7 @@ export async function resolveMovement(actionId: string, data: any): Promise<Acti
   const url = `${process.env.RMU_API_TACTICAL_URL}/actions/${actionId}/movement/resolve`;
   const response = await fetch(url, {
     method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: mergeJsonHeaders(),
     body: JSON.stringify(data),
   });
   if (response.status !== 200) {
@@ -64,9 +61,7 @@ export async function resolveManeuver(actionId: string, data: any): Promise<Acti
   const url = `${process.env.RMU_API_TACTICAL_URL}/actions/${actionId}/maneuver/resolve`;
   const response = await fetch(url, {
     method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: mergeJsonHeaders(),
     body: JSON.stringify(data),
   });
   if (response.status !== 200) {
@@ -79,9 +74,7 @@ export async function prepareAttack(actionId: string, data: AttackDeclaration): 
   const url = `${process.env.RMU_API_TACTICAL_URL}/actions/${actionId}/attack/prepare`;
   const response = await fetch(url, {
     method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: mergeJsonHeaders(),
     body: JSON.stringify(data),
   });
   if (response.status !== 200) {
@@ -94,9 +87,7 @@ export async function declareParry(actionId: string, data: ParryDeclaration): Pr
   const url = `${process.env.RMU_API_TACTICAL_URL}/actions/${actionId}/attack/parry`;
   const response = await fetch(url, {
     method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: mergeJsonHeaders(),
     body: JSON.stringify(data),
   });
   if (response.status !== 200) {
@@ -114,9 +105,7 @@ export async function updateAttackRoll(
   const url = `${process.env.RMU_API_TACTICAL_URL}/actions/${actionId}/attack/roll`;
   const response = await fetch(url, {
     method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: mergeJsonHeaders(),
     body: JSON.stringify({ attackName, roll, locationRoll }),
   });
   if (response.status !== 200) {
@@ -134,9 +123,7 @@ export async function updateCriticalRoll(
   const url = `${process.env.RMU_API_TACTICAL_URL}/actions/${actionId}/attack/critical-roll`;
   const response = await fetch(url, {
     method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: mergeJsonHeaders(),
     body: JSON.stringify({ attackName, criticalKey, roll }),
   });
   if (response.status !== 200) {
@@ -149,9 +136,7 @@ export async function updateFumbleRoll(actionId: string, attackName: string, rol
   const url = `${process.env.RMU_API_TACTICAL_URL}/actions/${actionId}/attack/fumble-roll`;
   const response = await fetch(url, {
     method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: mergeJsonHeaders(),
     body: JSON.stringify({ attackName, fumbleRoll: roll }),
   });
   if (response.status !== 200) {
@@ -164,9 +149,7 @@ export async function applyAttack(actionId: string): Promise<Action> {
   const url = `${process.env.RMU_API_TACTICAL_URL}/actions/${actionId}/attack/apply`;
   const response = await fetch(url, {
     method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: mergeJsonHeaders(),
   });
   if (response.status !== 200) {
     throw await buildErrorFromResponse(response, url);

@@ -1,11 +1,11 @@
 import React, { useState, useContext, FC, useEffect } from 'react';
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grid } from '@mui/material';
+import { NumericInput } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { t } from 'i18next';
 import { CombatContext } from '../../../CombatContext';
 import { useError } from '../../../ErrorContext';
 import { declareActorRoundInitiative } from '../../api/actor-rounds';
 import { ActorRound } from '../../api/actor-rounds.dto';
-import { NumericInput } from '../../shared/inputs/NumericInput';
 import NumericReadonlyInput from '../../shared/inputs/NumericReadonlyInput';
 
 const DeclareInitiativeDialog: FC<{

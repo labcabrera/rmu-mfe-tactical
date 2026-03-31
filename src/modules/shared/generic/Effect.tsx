@@ -1,37 +1,13 @@
 import React, { FC } from 'react';
 import { Avatar, Chip } from '@mui/material';
-import { t } from 'i18next';
 
 const Effect: FC<{
-  effect: string;
-  rounds?: number | undefined;
-  value?: number | undefined;
+  label: string;
+  status: string | undefined;
   color?: 'default' | 'primary' | 'secondary' | 'error' | 'info' | 'success' | 'warning';
-}> = ({ effect: status, rounds, value, color = 'default' }) => {
-  const getLabel = () => {
-    let label = '';
-    switch (status) {
-      case 'dmg':
-        break;
-      default:
-        label = t(`effect-${status}`);
-        break;
-    }
-    if (value) {
-      label += ` ${value}`;
-    }
-    if (rounds) {
-      label += rounds > 1 ? ` (${rounds} rounds)` : ` (1 round)`;
-    }
-    return label;
-  };
-
+}> = ({ label, status, color = 'default' }) => {
   return (
-    <Chip
-      avatar={<Avatar alt={getLabel()} src={`/static/images/icons/${status}.png`} />}
-      label={getLabel()}
-      color={color}
-    />
+    <Chip avatar={<Avatar alt={label} src={`/static/images/icons/${status}.png`} />} label={label} color={color} />
   );
 };
 

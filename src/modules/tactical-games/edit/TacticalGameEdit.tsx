@@ -1,19 +1,24 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { FC, useEffect, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import { Grid } from '@mui/material';
+import { EditableAvatar, TechnicalInfo } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { useError } from '../../../ErrorContext';
-import { fetchTacticalGame, type TacticalGame, type UpdateTacticalGameDto } from '../../api/tactical-games';
-import GenericAvatar from '../../shared/avatars/GenericAvatar';
+import { fetchStrategicGame, StrategicGame } from '../../api/strategic-games';
+import { fetchTacticalGame } from '../../api/tactical-game';
+import { TacticalGame, UpdateTacticalGameDto } from '../../api/tactical-game.dto';
+import { gridSizeResume, gridSizeMain } from '../../services/display';
+import { defaultImage, getAvatarImages } from '../../services/image-service';
+import TacticalGameForm from '../shared/TacticalGameForm';
 import TacticalGameEditActions from './TacticalGameEditActions';
-import TacticalGameEditAttributes from './TacticalGameEditAttributes';
-import TacticalGameEditResume from './TacticalGameEditResume';
 
 const TacticalGameEdit: FC = () => {
   const location = useLocation();
   const { showError } = useError();
   const { gameId } = useParams<{ gameId?: string }>();
-  const [tacticalGame, setTacticalGame] = useState<TacticalGame | null>(null);
-  const [formData, setFormData] = useState<UpdateTacticalGameDto | null>(null);
+  const [tacticalGame, setTacticalGame] = useState<TacticalGame>();
+  const [strategicGame, setStrategicGame] = useState<StrategicGame>();
+  const [formData, setFormData] = useState<UpdateTacticalGameDto>();
   const [isValid, setIsValid] = useState(false);
 
   const validateForm = (formData: UpdateTacticalGameDto) => {
@@ -31,8 +36,12 @@ const TacticalGameEdit: FC = () => {
     if (tacticalGame) {
       setFormData({
         name: tacticalGame.name,
-        description: tacticalGame.description || '',
+        description: tacticalGame.description,
+        environment: tacticalGame.environment,
       });
+      fetchStrategicGame(tacticalGame.strategicGameId)
+        .then((response) => setStrategicGame(response))
+        .catch((err) => showError(err.message));
     }
   }, [tacticalGame]);
 
@@ -51,13 +60,19 @@ const TacticalGameEdit: FC = () => {
   return (
     <>
       <TacticalGameEditActions tacticalGame={tacticalGame} formData={formData} isValid={isValid} />
-      <Grid container spacing={2}>
-        <Grid size={2}>
-          <GenericAvatar imageUrl="/static/images/generic/tactical.png" size={300} />
-          <TacticalGameEditResume formData={formData} setFormData={setFormData} />
+      <Grid container spacing={1}>
+        <Grid size={gridSizeResume}>
+          <EditableAvatar
+            imageUrl={formData.imageUrl || defaultImage}
+            images={getAvatarImages()}
+            onImageChange={(imageUrl) => setFormData({ ...formData, imageUrl: imageUrl })}
+          />
         </Grid>
-        <Grid size={10}>
-          <TacticalGameEditAttributes formData={formData} setFormData={setFormData} />
+        <Grid size={gridSizeMain}>
+          <TacticalGameForm formData={formData} setFormData={setFormData} strategicGame={strategicGame} />
+          <TechnicalInfo>
+            <pre>FormData: {JSON.stringify(formData, null, 2)}</pre>
+          </TechnicalInfo>
         </Grid>
       </Grid>
     </>

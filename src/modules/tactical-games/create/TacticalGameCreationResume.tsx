@@ -2,7 +2,7 @@ import React, { Dispatch, FC, SetStateAction } from 'react';
 import { Grid, TextField } from '@mui/material';
 import { t } from 'i18next';
 import type { StrategicGame } from '../../api/strategic-games';
-import { CreateTacticalGameDto } from '../../api/tactical-games';
+import { CreateTacticalGameDto } from '../../api/tactical-game';
 import SelectStrategicGame from '../../shared/selects/SelectStrategicGame';
 
 const TacticalGameCreationResume: FC<{
@@ -16,7 +16,7 @@ const TacticalGameCreationResume: FC<{
         <TextField
           label={t('name')}
           variant="standard"
-          name="name"
+          name="tactical-game-name"
           value={formData.name}
           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
           fullWidth

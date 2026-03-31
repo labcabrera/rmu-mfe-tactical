@@ -1,6 +1,5 @@
 import React, { Dispatch, FC, SetStateAction } from 'react';
-import { Badge, FormControl, FormLabel, Stack, ToggleButtonGroup, ToggleButton } from '@mui/material';
-import { t } from 'i18next';
+import { Badge, FormControl, Stack, ToggleButtonGroup, ToggleButton } from '@mui/material';
 import { AttackDeclaration } from '../../../api/action.dto';
 
 const MeleeAttackOptions: FC<{
@@ -8,7 +7,6 @@ const MeleeAttackOptions: FC<{
   formData: AttackDeclaration;
   setFormData: Dispatch<SetStateAction<AttackDeclaration>>;
 }> = ({ formData, setFormData, index }) => {
-  const labelId = `melee-attack-options-${index}-label`;
   const attack = formData.attacks?.[index];
   const modifiers = attack?.modifiers;
   const higherGround = modifiers?.higherGround || false;
@@ -23,9 +21,6 @@ const MeleeAttackOptions: FC<{
 
   return (
     <FormControl component="fieldset" variant="standard" sx={{ width: '100%' }}>
-      <FormLabel id={labelId} component="legend" sx={{ mb: 1, typography: 'body1' }}>
-        {t('attack-options')}
-      </FormLabel>
       <Stack direction="row" spacing={3}>
         <ToggleButtonGroup
           value={[

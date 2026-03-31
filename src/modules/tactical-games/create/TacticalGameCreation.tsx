@@ -1,25 +1,39 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { FC, useEffect, useState } from 'react';
 import { Grid } from '@mui/material';
+import { EditableAvatar, TechnicalInfo } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { useError } from '../../../ErrorContext';
-import { fetchStrategicGames } from '../../api/strategic-games';
+import { fetchStrategicGame } from '../../api/strategic-games';
 import type { StrategicGame } from '../../api/strategic-games';
-import { CreateTacticalGameDto } from '../../api/tactical-games';
+import { CreateTacticalGameDto } from '../../api/tactical-game.dto';
 import { createGameTemplate } from '../../data/tactical-game-data';
-import GenericAvatar from '../../shared/avatars/GenericAvatar';
+import { gridSizeResume, gridSizeMain } from '../../services/display';
+import { defaultImage, getAvatarImages } from '../../services/image-service';
+import TacticalGameForm from '../shared/TacticalGameForm';
 import TacticalGameCreationActions from './TacticalGameCreationActions';
-import TacticalGameCreationAttributes from './TacticalGameCreationAttributes';
-import TacticalGameCreationResume from './TacticalGameCreationResume';
 
 const TacticalGameCreation: FC = () => {
   const { showError } = useError();
-  const [strategicGames, setStrategicGames] = useState<StrategicGame[]>([]);
-  const [formData, setFormData] = useState<CreateTacticalGameDto>({ ...createGameTemplate });
+  const params = new URLSearchParams(window.location.search);
+  const strategicGameId = params.get('strategicGame');
+
+  const [formData, setFormData] = useState<CreateTacticalGameDto | undefined>({ ...createGameTemplate });
   const [isValid, setIsValid] = useState(false);
+  const [strategicGame, setStrategicGame] = useState<StrategicGame>();
 
   const validateForm = (formData: CreateTacticalGameDto) => {
     if (!formData.name) return false;
     if (!formData.strategicGameId) return false;
     return true;
+  };
+
+  const bindStrategicGame = (strategicGameId: string) => {
+    fetchStrategicGame(strategicGameId)
+      .then((response) => {
+        setStrategicGame(response);
+        setFormData({ ...formData, strategicGameId: response.id });
+      })
+      .catch((err) => showError(err.message));
   };
 
   useEffect(() => {
@@ -29,25 +43,31 @@ const TacticalGameCreation: FC = () => {
   }, [formData]);
 
   useEffect(() => {
-    fetchStrategicGames('', 0, 20)
-      .then((response) => setStrategicGames(response))
-      .catch((err) => showError(err.message));
-  }, [showError]);
+    if (strategicGameId) {
+      bindStrategicGame(strategicGameId);
+    }
+  }, [strategicGameId]);
+
+  if (!formData) return <p>Loading...</p>;
 
   return (
     <>
       <TacticalGameCreationActions formData={formData} isValid={isValid} />
-      <Grid container spacing={2}>
-        <Grid size={2}>
-          <GenericAvatar imageUrl="/static/images/generic/tactical.png" size={300} />
-          <TacticalGameCreationResume formData={formData} setFormData={setFormData} strategicGames={strategicGames} />
+      <Grid container spacing={1}>
+        <Grid size={gridSizeResume}>
+          <EditableAvatar
+            imageUrl={formData.imageUrl || defaultImage}
+            images={getAvatarImages()}
+            onImageChange={(imageUrl) => setFormData({ ...formData, imageUrl: imageUrl })}
+          />
         </Grid>
-        <Grid size={10}>
-          <TacticalGameCreationAttributes formData={formData} setFormData={setFormData} />
+        <Grid size={gridSizeMain}>
+          <TacticalGameForm formData={formData} setFormData={setFormData} strategicGame={strategicGame} />
+          <TechnicalInfo>
+            <pre>FormData: {JSON.stringify(formData, null, 2)}</pre>
+          </TechnicalInfo>
         </Grid>
       </Grid>
-      {/* <pre>Form: {JSON.stringify(formData, null, 2)}</pre>
-      <pre>Strategic Games: {JSON.stringify(strategicGames, null, 2)}</pre> */}
     </>
   );
 };

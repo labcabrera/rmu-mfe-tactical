@@ -1,7 +1,7 @@
 import React, { FC } from 'react';
-import { useTranslation } from 'react-i18next';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
+import { t } from 'i18next';
 import { ActorRound } from '../../api/actor-rounds.dto';
 
 type SelectActorRoundProps = {
@@ -12,9 +12,13 @@ type SelectActorRoundProps = {
   i18nLabel?: string;
 };
 
-const SelectActorRound: FC<SelectActorRoundProps> = ({ value, onChange, actorRounds, name = 'selectActorRound', i18nLabel = 'actor' }) => {
-  const { t } = useTranslation();
-
+const SelectActorRound: FC<SelectActorRoundProps> = ({
+  value,
+  onChange,
+  actorRounds,
+  name = 'selectActorRound',
+  i18nLabel = 'actor',
+}) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedActorRound = actorRounds.find((ar) => ar.id === e.target.value);
     if (selectedActorRound) {

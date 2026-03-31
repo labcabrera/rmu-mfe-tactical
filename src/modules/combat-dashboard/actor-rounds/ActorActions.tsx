@@ -1,13 +1,12 @@
 import React, { FC, useContext } from 'react';
 import { useState } from 'react';
-import AddIcon from '@mui/icons-material/Add';
 import { Box, Button } from '@mui/material';
 import { t } from 'i18next';
 import { CombatContext } from '../../../CombatContext';
 import type { Action } from '../../api/action.dto';
 import type { ActorRound } from '../../api/actor-rounds.dto';
 import ActionDialog from '../action-dialogs/ActionDialog';
-import DeclareActionDialog from '../action-dialogs/DeclareActionDialog';
+import ActorRoundDeclarationButtons from './ActorRoundDeclarationButtons';
 
 type ActorActionsProps = {
   actorId: string;
@@ -57,12 +56,14 @@ function assignRows(actions: Action[], phases: number, currentPhase: number) {
 
 const ActorActions: FC<ActorActionsProps> = ({ actorId, phases = 4, currentPhase = phases, onActionClick }) => {
   const { roundActions, actorRounds, characters } = useContext(CombatContext)!;
-  const [declareActionDialogOpen, setDeclareActionDialogOpen] = useState(false);
   const [resolveDialogOpen, setResolveDialogOpen] = useState(false);
   const [selectedAction, setSelectedAction] = useState<Action | null>(null);
   const actions = (roundActions || []).filter((a: Action) => a.actorId === actorId);
   const actorRound: ActorRound | undefined = (actorRounds || []).find((r) => r.actorId === actorId);
   const character = (characters || []).find((c) => c.id === actorId);
+
+  if (!actorRound) return <>Loading...</>;
+
   const { placement, rowsCount } = assignRows(actions, phases, currentPhase);
   const isDead = actorRound.effects.some((e) => e.status === 'dead');
 
@@ -71,15 +72,18 @@ const ActorActions: FC<ActorActionsProps> = ({ actorId, phases = 4, currentPhase
   const declareHeight = 36; // px for declare button row
 
   const getActionName = (action: Action) => {
+    let name = '';
     if (action.maneuver) {
-      return t(action.maneuver?.modifiers?.skillId || 'maneuver');
+      name = t(action.maneuver?.modifiers?.skillId || 'maneuver');
+    } else if (action.movement) {
+      name = `${t('movement')}${action.movement.calculated?.distanceAdjusted ? `: ${action.movement.calculated.distanceAdjusted}` : ''}`;
+    } else {
+      name = t(action.actionType);
     }
-    return t(action.actionType);
+    return action.freeAction ? `${t('Free ')} ${name}` : name;
   };
 
-  if (isDead) {
-    return <></>;
-  }
+  if (isDead) return <></>;
 
   return (
     <>
@@ -156,43 +160,13 @@ const ActorActions: FC<ActorActionsProps> = ({ actorId, phases = 4, currentPhase
                 }}
               >
                 {i + 1 === currentPhase && (
-                  <Button
-                    fullWidth
-                    variant={'outlined'}
-                    color={'primary'}
-                    onClick={() => {
-                      if (actorRound) setDeclareActionDialogOpen(true);
-                    }}
-                    disabled={!actorRound}
-                    sx={{
-                      height: '100%',
-                      textTransform: 'none',
-                      overflow: 'hidden',
-                      whiteSpace: 'nowrap',
-                      textOverflow: 'ellipsis',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      bgcolor: 'background.paper',
-                    }}
-                    aria-label="declare-action"
-                  >
-                    <AddIcon sx={{ fontSize: 18 }} />
-                  </Button>
+                  <ActorRoundDeclarationButtons actorRound={actorRound} currentPhase={currentPhase} />
                 )}
               </Box>
             );
           })}
         </Box>
       </Box>
-      {actorRound && (
-        <DeclareActionDialog
-          actorRound={actorRound}
-          phaseNumber={currentPhase}
-          open={declareActionDialogOpen}
-          setOpen={setDeclareActionDialogOpen}
-        />
-      )}
       {selectedAction && actorRound && character && (
         <ActionDialog
           action={selectedAction}

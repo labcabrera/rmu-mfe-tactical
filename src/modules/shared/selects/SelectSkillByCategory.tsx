@@ -1,6 +1,7 @@
-import React, { FC, useEffect, useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import React, { FC, useEffect, useState } from 'react';
 import { Stack, Button, Grid, FormControl, Divider } from '@mui/material';
+import { t } from 'i18next';
+import { useError } from '../../../ErrorContext';
 import { fetchSkills } from '../../api/skill';
 import { fetchSkillCategories } from '../../api/skill-category';
 import { SkillCategory } from '../../api/skill-category.dto';
@@ -10,75 +11,33 @@ const SelectSkillByCategory: FC<{
   value?: string;
   onChange: (skillId: string | null) => void;
   readOnly?: boolean;
-  categories?: SkillCategory[];
-  skills?: Skill[];
-}> = ({ value, onChange, readOnly = false, categories, skills }) => {
-  const { t } = useTranslation();
-  const [catsState, setCatsState] = useState<SkillCategory[] | null>(
-    categories && categories.length > 0 ? categories : null
-  );
-  const [skillsState, setSkillsState] = useState<Skill[] | null>(skills && skills.length > 0 ? skills : null);
+}> = ({ value, onChange, readOnly = false }) => {
+  const { showError } = useError();
 
-  const cats = catsState ?? categories ?? [];
-  const allSkills = skillsState ?? skills ?? [];
-
+  const [categories, setCategories] = useState<SkillCategory[] | undefined>(undefined);
+  const [allSkills, setAllSkills] = useState<Skill[] | undefined>(undefined);
+  const [skills, setSkills] = useState<Skill[] | undefined>(undefined);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
-  // set initial selected category when categories are available or value changes
   useEffect(() => {
-    if (cats && cats.length > 0) {
-      if (value) {
-        const s = allSkills.find((sk) => sk.id === value);
-        setSelectedCategory(s ? s.categoryId : cats[0].id);
-      } else {
-        setSelectedCategory((prev) => prev ?? cats[0].id);
-      }
-    }
-  }, [cats, allSkills, value]);
-
-  const skillsForCategory = useMemo(
-    () => allSkills.filter((s) => s.categoryId === selectedCategory),
-    [allSkills, selectedCategory]
-  );
-
-  // fetch categories if not provided
-  useEffect(() => {
-    if (categories && categories.length > 0) return;
-    let mounted = true;
     fetchSkillCategories()
-      .then((data) => {
-        if (!mounted) return;
-        setCatsState(data);
-      })
-      .catch(() => {
-        /* ignore errors silently for now */
-      });
-    return () => {
-      mounted = false;
-    };
-  }, [categories]);
+      .then((data) => setCategories(data))
+      .catch((err) => showError(err.message));
+    fetchSkills()
+      .then((data) => setAllSkills(data))
+      .catch((err) => showError(err.message));
+  }, [showError]);
 
-  // fetch skills for selected category if not provided
   useEffect(() => {
-    if (!selectedCategory) return;
-    if (skills && skills.length > 0) return;
-    let mounted = true;
-    fetchSkills(selectedCategory)
-      .then((data) => {
-        if (!mounted) return;
-        setSkillsState(data);
-      })
-      .catch(() => {
-        /* ignore errors silently for now */
-      });
-    return () => {
-      mounted = false;
-    };
-  }, [selectedCategory, skills]);
+    if (selectedCategory) {
+      setSkills(allSkills?.filter((sk) => sk.categoryId === selectedCategory));
+    } else {
+      setSkills(undefined);
+    }
+  }, [selectedCategory]);
 
   const handleCategoryClick = (catId: string) => {
     if (readOnly) return;
-    // notify parent that selected skill is cleared when changing category
     onChange(null);
     setSelectedCategory(catId);
   };
@@ -88,12 +47,14 @@ const SelectSkillByCategory: FC<{
     onChange(skillId);
   };
 
+  if (!categories || !allSkills) return <div>Loading...</div>;
+
   return (
     <Grid container spacing={2} mt={2}>
       <Grid size={12}>
         <FormControl component="fieldset" variant="standard" sx={{ width: '100%' }}>
           <Stack direction="row" sx={{ flexWrap: 'wrap', gap: 1 }}>
-            {cats.map((cat) => {
+            {categories.map((cat) => {
               const selected = cat.id === selectedCategory;
               return (
                 <Button
@@ -117,7 +78,7 @@ const SelectSkillByCategory: FC<{
       <Grid size={12}>
         <FormControl component="fieldset" variant="standard" sx={{ width: '100%' }}>
           <Stack direction="row" sx={{ flexWrap: 'wrap', gap: 1 }}>
-            {skillsForCategory.map((sk) => {
+            {skills?.map((sk) => {
               const selected = sk.id === value;
               return (
                 <Button

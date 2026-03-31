@@ -1,5 +1,5 @@
 import React, { Dispatch, FC, SetStateAction } from 'react';
-import { Badge, FormControl, FormLabel, ToggleButtonGroup, ToggleButton } from '@mui/material';
+import { Badge, FormControl, ToggleButtonGroup, ToggleButton } from '@mui/material';
 import { t } from 'i18next';
 import { AttackDeclaration } from '../../../api/action.dto';
 
@@ -8,8 +8,6 @@ const RangedAttackOptionsForm: FC<{
   setFormData: Dispatch<SetStateAction<AttackDeclaration>>;
   index: number;
 }> = ({ formData, setFormData, index }) => {
-  const labelAttackOptionsId = 'ranged-attack-attack-options-selector-label';
-
   const attack = formData.attacks?.[index];
   const modifiers = attack?.modifiers;
   const higherGround = modifiers?.higherGround || false;
@@ -24,9 +22,6 @@ const RangedAttackOptionsForm: FC<{
 
   return (
     <FormControl component="fieldset" variant="standard" sx={{ width: '100%' }}>
-      <FormLabel id={labelAttackOptionsId} component="legend" sx={{ mb: 1, typography: 'body1' }}>
-        {t('Attack options')}
-      </FormLabel>
       <ToggleButtonGroup
         value={[
           higherGround ? 'higherGround' : null,

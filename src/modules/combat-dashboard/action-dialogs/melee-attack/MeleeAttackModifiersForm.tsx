@@ -1,9 +1,9 @@
 import React, { ChangeEvent, Dispatch, FC, SetStateAction, useContext } from 'react';
-import { Grid } from '@mui/material';
+import { Grid, Typography } from '@mui/material';
+import { NumericInput } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { AttackDeclaration } from '../../../api/action.dto';
-import { NumericInput } from '../../../shared/inputs/NumericInput';
 import SelectCalledShot from '../../../shared/selects/SelectCalledShot';
 import SelectDodge from '../../../shared/selects/SelectDodge';
 import SelectMeleeCover from '../../../shared/selects/SelectMeleeCover';
@@ -110,32 +110,62 @@ const MeleeAttackModifiersForm: FC<{
       <Grid size={12}>
         <AttackTitle attack={attack} target={target} />
       </Grid>
-      <Grid size={12}>
+      <Grid size={2}>
+        <Typography color="secondary">{t('positional-target')}</Typography>
+      </Grid>
+      <Grid size={10}>
         <SelectPositionalTarget value={positionalTarget} onChange={(e) => handlePositionalTarget(e)} />
       </Grid>
-      <Grid size={12}>
+      <Grid size={2}>
+        <Typography color="secondary">{t('positional-source')}</Typography>
+      </Grid>
+      <Grid size={10}>
         <SelectPositionalSource value={positionalSource} onChange={(e) => handlePositionalSource(e)} />
       </Grid>
-      <Grid size={12}>
+      <Grid size={2}>
+        <Typography color="secondary">{t('cover')}</Typography>
+      </Grid>
+      <Grid size={10}>
         <SelectMeleeCover value={cover} onChange={(e) => handleCoverChange(e)} />
       </Grid>
-      <Grid size={12}>
+      <Grid size={2}>
+        <Typography color="secondary">{t('restricted-quarters')}</Typography>
+      </Grid>
+      <Grid size={10}>
         <SelectRestrictedQuarters value={restrictedQuarters} onChange={(e) => handleRestrictedQuartersChange(e)} />
       </Grid>
-      <Grid size={12}>
+      <Grid size={2}>
+        <Typography color="secondary">{t('pace')}</Typography>
+      </Grid>
+      <Grid size={10}>
         <SelectPace value={pace} combatOptions={true} onChange={(v, p) => handlePaceChange(p?.id || v)} />
       </Grid>
-      <Grid size={12}>
+      <Grid size={2}>
+        <Typography color="secondary">{t('called-shot')}</Typography>
+      </Grid>
+      <Grid size={10}>
         <SelectCalledShot value={modifiers.calledShot || ''} onChange={onCalledShotChange} target={target} />
       </Grid>
-      <Grid size={12}>
+      <Grid size={2}>
+        <Typography color="secondary">{t('dodge')}</Typography>
+      </Grid>
+      <Grid size={10}>
         <SelectDodge value={dodge} onChange={(e) => handleDodgeChange(e)} />
       </Grid>
-      <Grid size={12}>
+      <Grid size={2}>
+        <Typography color="secondary">{t('defense-options')}</Typography>
+      </Grid>
+      <Grid size={10}>
         <MeleeAttackDefenseOptions index={index} formData={formData} setFormData={setFormData} />
       </Grid>
-      <Grid size={12}>
+      <Grid size={2}>
+        <Typography color="secondary">{t('attack-options')}</Typography>
+      </Grid>
+      <Grid size={10}>
         <MeleeAttackOptions index={index} formData={formData} setFormData={setFormData} />
+      </Grid>
+      <Grid size={2}>
+        <Typography color="secondary">{t('custom-bonus')}</Typography>
       </Grid>
       <Grid size={2}>
         <NumericInput

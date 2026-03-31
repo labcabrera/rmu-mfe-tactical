@@ -6,13 +6,15 @@ import { ActorRound } from '../../api/actor-rounds.dto';
 import { Character } from '../../api/characters.dto';
 import ActionDialog from '../action-dialogs/ActionDialog';
 import ActorActions from './ActorActions';
+import ActorRoundAlerts from './ActorRoundAlerts';
 import ActorRoundEffects from './ActorRoundEffects';
 import ActorRoundInitiative from './ActorRoundInitiative';
 import ActorRoundResume from './ActorRoundResume';
 
 const CombatActorRoundListItem: FC<{
   actorRound: ActorRound;
-}> = ({ actorRound }) => {
+  onActorRoundView?: (actorRound: ActorRound) => void;
+}> = ({ actorRound, onActorRoundView }) => {
   const [character, setCharacter] = useState<Character | undefined>();
   const { characters, game, roundActions } = useContext(CombatContext)!;
   const [resolveDialogOpen, setResolveDialogOpen] = useState(false);
@@ -30,7 +32,9 @@ const CombatActorRoundListItem: FC<{
     <>
       <Grid container spacing={1} mt={1} sx={{ borderBottom: '1px solid #282e2f', pb: 1 }}>
         <Grid size={2}>
-          <ActorRoundResume actorRound={actorRound} />
+          <div style={{ cursor: 'pointer' }} onClick={() => onActorRoundView && onActorRoundView(actorRound)}>
+            <ActorRoundResume actorRound={actorRound} />
+          </div>
         </Grid>
         <Grid size={1}>
           <ActorRoundInitiative actorRound={actorRound} />
@@ -48,7 +52,9 @@ const CombatActorRoundListItem: FC<{
         <Grid size={2}>
           <ActorRoundEffects actorRound={actorRound} />
         </Grid>
-        <Grid size={1}></Grid>
+        <Grid size={1}>
+          <ActorRoundAlerts actorRound={actorRound} />
+        </Grid>
       </Grid>
 
       {selectedActionId && (

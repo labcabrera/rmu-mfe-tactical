@@ -1,16 +1,22 @@
-import React, { FC, useContext } from 'react';
+import React, { FC, useContext, useState } from 'react';
 import ElectricBoltIcon from '@mui/icons-material/ElectricBolt';
+import SortIcon from '@mui/icons-material/Sort';
+import TextRotateVerticalIcon from '@mui/icons-material/TextRotateVertical';
 import { IconButton, Tooltip, Typography } from '@mui/material';
 import Grid from '@mui/material/Grid';
+import { t } from 'i18next';
 import { CombatContext } from '../../../CombatContext';
 import { useError } from '../../../ErrorContext';
 import { ActorRound } from '../../api/actor-rounds.dto';
-import { randomizeInitiatives } from '../../api/tactical-games';
+import { randomizeInitiatives } from '../../api/tactical-game';
+import ActorRoundViewDialog from './ActorRoundViewDialog';
 import CombatActorRoundListItem from './CombatActorRoundListItem';
 
 const CombatActorRoundList: FC = () => {
-  const { game, actorRounds, refreshActorRounds } = useContext(CombatContext)!;
+  const { game, actorRounds, roundActorSort, refreshActorRounds, setRoundActorSort } = useContext(CombatContext)!;
   const { showError } = useError();
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [selectedActorRoundId, setSelectedActorRoundId] = useState<string | null>(null);
 
   if (!actorRounds || actorRounds.length === 0) {
     return <p>Loading...</p>;
@@ -22,17 +28,21 @@ const CombatActorRoundList: FC = () => {
       .catch((err) => showError(err.message));
   };
 
+  const toggleSort = () => {
+    setRoundActorSort((prevSort) => (prevSort === 'name' ? 'initiative' : 'name'));
+  };
+
   return (
     <>
       <Grid container spacing={1}>
         <Grid size={2}></Grid>
         <Grid size={1}>
           <Typography
-            variant="caption"
+            variant="subtitle1"
             align="left"
             color={game.phase === 'declare_initiative' ? 'primary' : 'secondary'}
           >
-            Initiative
+            {t('initiative')}
             {game.phase === 'declare_initiative' && (
               <Tooltip title="Randomize Initiatives">
                 <IconButton size="small" color="primary" onClick={() => onRandomizeInitiatives()}>
@@ -40,46 +50,64 @@ const CombatActorRoundList: FC = () => {
                 </IconButton>
               </Tooltip>
             )}
+            <Tooltip title={roundActorSort === 'initiative' ? 'Sort by Name' : 'Sort by Initiative'}>
+              <IconButton size="small" color="primary" onClick={() => toggleSort()}>
+                {roundActorSort === 'initiative' ? <SortIcon /> : <TextRotateVerticalIcon />}
+              </IconButton>
+            </Tooltip>
           </Typography>
         </Grid>
         <Grid size={5}>
           <Grid container spacing={0}>
             <Grid size={3}>
-              <Typography variant="caption" align="left" color={game.phase === 'phase_1' ? 'primary' : 'secondary'}>
+              <Typography variant="subtitle1" align="left" color={game.phase === 'phase_1' ? 'primary' : 'secondary'}>
                 Phase 1
               </Typography>
             </Grid>
             <Grid size={3}>
-              <Typography variant="caption" align="left" color={game.phase === 'phase_2' ? 'primary' : 'secondary'}>
+              <Typography variant="subtitle1" align="left" color={game.phase === 'phase_2' ? 'primary' : 'secondary'}>
                 Phase 2
               </Typography>
             </Grid>
             <Grid size={3}>
-              <Typography variant="caption" align="left" color={game.phase === 'phase_3' ? 'primary' : 'secondary'}>
+              <Typography variant="subtitle1" align="left" color={game.phase === 'phase_3' ? 'primary' : 'secondary'}>
                 Phase 3
               </Typography>
             </Grid>
             <Grid size={3}>
-              <Typography variant="caption" align="left" color={game.phase === 'phase_4' ? 'primary' : 'secondary'}>
+              <Typography variant="subtitle1" align="left" color={game.phase === 'phase_4' ? 'primary' : 'secondary'}>
                 Phase 4
               </Typography>
             </Grid>
           </Grid>
         </Grid>
         <Grid size={2}>
-          <Typography variant="caption" align="left" color="secondary">
+          <Typography variant="subtitle1" align="left" color="secondary">
             Effects
           </Typography>
         </Grid>
         <Grid size={1}>
-          <Typography variant="caption" align="left" color="secondary">
+          <Typography variant="subtitle1" align="left" color="secondary">
             Alerts
           </Typography>
         </Grid>
       </Grid>
-      {actorRounds.map((item: ActorRound, index: number) => (
-        <CombatActorRoundListItem key={index} actorRound={item} />
+      {actorRounds.map((actorRound: ActorRound, index: number) => (
+        <CombatActorRoundListItem
+          key={index}
+          actorRound={actorRound}
+          onActorRoundView={(ar) => {
+            setSelectedActorRoundId(ar.id);
+            setDialogOpen(true);
+          }}
+        />
       ))}
+
+      <ActorRoundViewDialog
+        open={dialogOpen}
+        actorRound={actorRounds ? actorRounds.find((a) => a.id === selectedActorRoundId) || null : null}
+        onClose={() => setDialogOpen(false)}
+      />
     </>
   );
 };

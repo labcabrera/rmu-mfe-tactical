@@ -1,10 +1,10 @@
 import React, { FC, useContext, useState } from 'react';
 import { Button, Grid } from '@mui/material';
+import { NumericInput } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../CombatContext';
 import { useError } from '../../ErrorContext';
 import { addActorRoundHp, addActorRoundEffect } from '../api/actor-rounds';
 import { ActorRoundEffect } from '../api/actor-rounds.dto';
-import { NumericInput } from '../shared/inputs/NumericInput';
 import SelectActorRound from '../shared/selects/SelectActorRound';
 import SelectEffect from '../shared/selects/SelectEffect';
 

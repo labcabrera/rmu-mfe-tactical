@@ -1,9 +1,9 @@
 import React, { Dispatch, FC, Fragment, SetStateAction, useContext } from 'react';
 import { Grid, TextField, Typography } from '@mui/material';
+import { NumericInput } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { AttackDeclaration } from '../../../api/action.dto';
-import { NumericInput } from '../../../shared/inputs/NumericInput';
 import NumericReadonlyInput from '../../../shared/inputs/NumericReadonlyInput';
 
 const ResolveAttackFormModifiers: FC<{
