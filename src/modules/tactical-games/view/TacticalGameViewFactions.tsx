@@ -1,16 +1,16 @@
 import React, { Dispatch, FC, SetStateAction } from 'react';
-import { Box, Typography } from '@mui/material';
+import { Grid } from '@mui/material';
+import { CategorySeparator, RmuTextCard } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { t } from 'i18next';
 import { useError } from '../../../ErrorContext';
 import type { Faction } from '../../api/factions';
 import { addFaction, deleteFaction } from '../../api/tactical-game';
 import { TacticalGame } from '../../api/tactical-game.dto';
 import { defaultFactionImage } from '../../services/image-service';
-import ImageCard from '../../shared/cards/ImageCard';
 
 const TacticalGameViewFactions: FC<{
   tacticalGame: TacticalGame;
-  setTacticalGame: Dispatch<SetStateAction<TacticalGame>>;
+  setTacticalGame: Dispatch<SetStateAction<TacticalGame | undefined>>;
   factions: Faction[];
 }> = ({ tacticalGame, setTacticalGame, factions }) => {
   const { showError } = useError();
@@ -38,26 +38,21 @@ const TacticalGameViewFactions: FC<{
 
   return (
     <>
-      <Typography variant="h6" color="primary">
-        {t('factions')}
-      </Typography>
-      <Box mb={2} display="flex" flexDirection="row" flexWrap="wrap" gap={2}>
-        {factions.map((faction) => (
-          <ImageCard
-            key={faction.id}
-            image={faction.imageUrl ? faction.imageUrl : defaultFactionImage}
-            disabled={!isSelected(faction.id)}
-            onClick={() => handleFactionChange(faction.id)}
-          >
-            <Typography component="div" variant="subtitle1">
-              {faction.name}
-            </Typography>
-            <Typography component="div" variant="caption" color="text.secondary">
-              {faction.shortDescription}
-            </Typography>
-          </ImageCard>
+      <CategorySeparator text={t('factions')} />
+      <Grid container spacing={1}>
+        {factions.map((faction, index) => (
+          <Grid size={12}>
+            <RmuTextCard
+              key={index}
+              value={faction.name}
+              subtitle={faction.shortDescription}
+              image={faction.imageUrl ? faction.imageUrl : defaultFactionImage}
+              grayscale={isSelected(faction.id) ? 0 : 1}
+              onClick={() => handleFactionChange(faction.id)}
+            />
+          </Grid>
         ))}
-      </Box>
+      </Grid>
     </>
   );
 };

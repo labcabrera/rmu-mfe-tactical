@@ -1,7 +1,9 @@
 import React, { FC } from 'react';
-import { Grid, Typography } from '@mui/material';
+import { Grid } from '@mui/material';
+import { CategorySeparator, RmuTextCard } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { t } from 'i18next';
 import { TacticalGame } from '../../api/tactical-game.dto';
+import { defaultImage } from '../../services/image-service';
 
 const TacticalGameViewEnvironment: FC<{
   tacticalGame: TacticalGame;
@@ -12,21 +14,23 @@ const TacticalGameViewEnvironment: FC<{
 
   return (
     <>
-      <Grid container spacing={2}>
+      <CategorySeparator text={t('Environment')} />
+      <Grid container spacing={1}>
         <Grid size={12}>
-          <Typography variant="h6" color="primary" gutterBottom>
-            {t('Environment')}
-          </Typography>
+          <RmuTextCard
+            value={tacticalGame.environment.temperatureFatigueModifier}
+            subtitle={t('Temperature modifier')}
+            image={defaultImage}
+            applyColor
+          />
         </Grid>
         <Grid size={12}>
-          <Typography variant="body1" color="primary" gutterBottom>
-            {t('Temperature')}: {tacticalGame.environment.temperatureFatigueModifier}
-          </Typography>
-        </Grid>
-        <Grid size={12}>
-          <Typography variant="body1" color="primary" gutterBottom>
-            {t('Altitude')}: {tacticalGame.environment.altitudeFatigueModifier}
-          </Typography>
+          <RmuTextCard
+            value={tacticalGame.environment.altitudeFatigueModifier}
+            subtitle={t('Altitude modifier')}
+            image={defaultImage}
+            applyColor
+          />
         </Grid>
       </Grid>
     </>

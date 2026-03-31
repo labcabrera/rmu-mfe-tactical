@@ -9,6 +9,7 @@ export type TacticalGame = {
   actors: ActorRound[];
   environment: TacticalGameEnvironment;
   description: string;
+  imageUrl?: string;
 };
 
 export type ActorRound = {
