@@ -1,28 +1,32 @@
-import React, { FC, useEffect, useState } from 'react';
+import React, { FC, useState } from 'react';
+import { Grid } from '@mui/material';
+import { NumericInput, TechnicalInfo } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { t } from 'i18next';
 import { ActorRoundAlert } from '../../api/actor-rounds.dto';
 
 type Props = {
   alert: ActorRoundAlert;
-  onChange?: (a: ActorRoundAlert) => void;
 };
 
-const BreakageForm: FC<Props> = ({ alert, onChange }) => {
-  const [note, setNote] = useState<string>(alert.value || '');
-
-  useEffect(() => {
-    setNote(alert.value || '');
-  }, [alert]);
-
-  const handleChange = (v: string) => {
-    setNote(v);
-    onChange?.({ ...alert, value: v });
-  };
+const BreakageForm: FC<Props> = ({ alert }) => {
+  const [formData, setFormData] = useState<any>({ roll: undefined });
 
   return (
-    <div>
-      <label>Breakage details</label>
-      <textarea value={note} onChange={(e) => handleChange(e.target.value)} style={{ width: '100%' }} />
-    </div>
+    <Grid container spacing={1}>
+      <Grid size={2}>
+        <NumericInput
+          label={t('Breakage roll')}
+          value={formData.roll || null}
+          onChange={(e) => setFormData({ ...formData, roll: e })}
+        />
+      </Grid>
+      <Grid size={12}>
+        <TechnicalInfo>
+          <pre>FormData: {JSON.stringify(formData, null, 2)}</pre>
+          <pre>Alert: {JSON.stringify(alert, null, 2)}</pre>
+        </TechnicalInfo>
+      </Grid>
+    </Grid>
   );
 };
 
