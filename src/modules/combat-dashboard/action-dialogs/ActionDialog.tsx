@@ -3,6 +3,7 @@ import { Button, DialogActions, Slide, Stack, Typography } from '@mui/material';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
+import { TransitionProps } from '@mui/material/transitions';
 import { t } from 'i18next';
 import { CombatContext } from '../../../CombatContext';
 import { useError } from '../../../ErrorContext';
@@ -16,8 +17,13 @@ import MeleeAttackForm from './melee-attack/MeleeAttackForm';
 import MovementForm from './movement/MovementForm';
 import RangedAttackForm from './ranged-attack/RangedAttackForm';
 
-const Transition = React.forwardRef(function Transition(props, ref) {
-  return <Slide children={undefined} direction="up" ref={ref} {...props} />;
+const Transition = React.forwardRef(function Transition(
+  props: TransitionProps & {
+    children: React.ReactElement<unknown>;
+  },
+  ref: React.Ref<unknown>
+) {
+  return <Slide direction="up" ref={ref} {...props} />;
 });
 
 const ActionDialog: FC<{
@@ -46,6 +52,7 @@ const ActionDialog: FC<{
   return (
     <Dialog
       open={open}
+      fullScreen={action.actionType === 'melee_attack'}
       onClose={onClose}
       aria-labelledby="alert-dialog-title"
       aria-describedby="alert-dialog-description"

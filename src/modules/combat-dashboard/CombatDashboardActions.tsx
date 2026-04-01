@@ -1,7 +1,7 @@
 import React, { FC, useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button, ButtonGroup, ToggleButton, ToggleButtonGroup } from '@mui/material';
-import { AddButton, BackButton, CancelButton, NextButton, RmuBreadcrumbs } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { Button, ButtonGroup } from '@mui/material';
+import { BackButton, CancelButton, NextButton, RmuBreadcrumbs } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { t } from 'i18next';
 import { CombatContext } from '../../CombatContext';
 import { useError } from '../../ErrorContext';
@@ -38,11 +38,7 @@ const CombatDashboardActions: FC = () => {
   };
 
   const onClose = () => {
-    navigate(`/tactical/view/${game!.id}`, { state: { game } });
-  };
-
-  const nextPhaseAvailable = () => {
-    return game!.phase !== 'upkeep';
+    navigate(`/tactical/games/view/${game!.id}`);
   };
 
   useEffect(() => {
@@ -51,10 +47,9 @@ const CombatDashboardActions: FC = () => {
         { name: t('Tactical'), link: '/tactical' },
         { name: t('Game'), link: `/tactical/games/view/${game.id}` },
         { name: `Round ${displayRound} of ${game.round}` },
-        { name: t(game.phase) },
       ]);
     }
-  }, [game]);
+  }, [game, displayRound]);
 
   if (!displayRound || !game) return <p>Loading...</p>;
 
@@ -63,19 +58,11 @@ const CombatDashboardActions: FC = () => {
       <RmuBreadcrumbs items={breadcrumbs}>
         <BackButton onClick={onDisplayPrevRound} disabled={displayRound === 1} />
         <NextButton onClick={onDisplayNextRound} disabled={displayRound === game.round} />
-        <AddButton onClick={onNextRound} />
         <CancelButton onClick={onClose} />
-        {nextPhaseAvailable() ? (
-          <Button onClick={onNextPhase} size="small">
-            Next phase
-          </Button>
-        ) : (
-          <Button onClick={onNextRound} size="small">
-            Next round
-          </Button>
-        )}
       </RmuBreadcrumbs>
-      <TurnPhaseButtons game={game} onNextPhase={onNextPhase} onNextRound={onNextRound} />
+      {game.round === displayRound && (
+        <TurnPhaseButtons game={game} onNextPhase={onNextPhase} onNextRound={onNextRound} />
+      )}
     </>
   );
 };
@@ -117,7 +104,7 @@ const TurnPhaseButtons: FC<{ game: TacticalGame; onNextPhase: () => void; onNext
       <TurnPhaseButton game={game} phase={'phase_2'} enabledPhases={['phase_1', 'phase_2']} onNextPhase={onNextPhase} />
       <TurnPhaseButton game={game} phase={'phase_3'} enabledPhases={['phase_2', 'phase_3']} onNextPhase={onNextPhase} />
       <TurnPhaseButton game={game} phase={'phase_4'} enabledPhases={['phase_3', 'phase_4']} onNextPhase={onNextPhase} />
-      <TurnPhaseButton game={game} phase={'upkeep'} enabledPhases={['phase_4', 'upkeep']} />
+      <TurnPhaseButton game={game} phase={'upkeep'} enabledPhases={['phase_4', 'upkeep']} onNextPhase={onNextPhase} />
       <Button onClick={onNextRound} disabled={game.phase !== 'upkeep'}>
         Next round
       </Button>

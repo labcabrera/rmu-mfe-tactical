@@ -1,6 +1,6 @@
 import React, { ChangeEvent, Dispatch, FC, SetStateAction, useContext } from 'react';
 import { Grid, Typography } from '@mui/material';
-import { NumericInput } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { CategorySeparator, NumericInput } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { AttackDeclaration } from '../../../api/action.dto';
@@ -106,7 +106,7 @@ const MeleeAttackModifiersForm: FC<{
   const handlePaceChange = handleSharedChange('pace');
 
   return (
-    <Grid container spacing={2} sx={{ marginTop: 1, marginBottom: 1 }}>
+    <Grid container spacing={1}>
       <Grid size={12}>
         <AttackTitle attack={attack} target={target} />
       </Grid>

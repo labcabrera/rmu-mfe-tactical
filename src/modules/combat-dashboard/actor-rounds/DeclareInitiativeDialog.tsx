@@ -1,12 +1,31 @@
 import React, { useState, useContext, FC, useEffect } from 'react';
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grid } from '@mui/material';
-import { NumericInput } from '@labcabrera-rmu/rmu-react-shared-lib';
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Grid,
+  Slide,
+  Stack,
+  Typography,
+} from '@mui/material';
+import { TransitionProps } from '@mui/material/transitions';
+import { CategorySeparator, NumericInput } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { t } from 'i18next';
 import { CombatContext } from '../../../CombatContext';
 import { useError } from '../../../ErrorContext';
 import { declareActorRoundInitiative } from '../../api/actor-rounds';
 import { ActorRound } from '../../api/actor-rounds.dto';
-import NumericReadonlyInput from '../../shared/inputs/NumericReadonlyInput';
+
+const Transition = React.forwardRef(function Transition(
+  props: TransitionProps & {
+    children: React.ReactElement<unknown>;
+  },
+  ref: React.Ref<unknown>
+) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
 
 const DeclareInitiativeDialog: FC<{
   actorRound: ActorRound;
@@ -14,7 +33,7 @@ const DeclareInitiativeDialog: FC<{
   setOpen: (open: boolean) => void;
 }> = ({ actorRound, open, setOpen }) => {
   const { showError } = useError();
-  const [roll, setRoll] = useState<number>(actorRound.initiative?.roll || 0);
+  const [roll, setRoll] = useState<number | undefined>(actorRound.initiative?.roll || undefined);
   const { updateActorRound } = useContext(CombatContext)!;
 
   const handleRandomRoll = () => {
@@ -28,18 +47,14 @@ const DeclareInitiativeDialog: FC<{
   };
 
   const handleDeclare = () => {
+    if (!roll) return;
     declareActorRoundInitiative(actorRound.id, roll)
       .then((updatedActorRound) => {
         updateActorRound(updatedActorRound);
-        setRoll(2);
+        setRoll(undefined);
         setOpen(false);
       })
       .catch((err) => showError(err.message));
-  };
-
-  const handleRollChange = (e: number | null) => {
-    const check = Math.max(2, Math.min(20, e));
-    setRoll(check);
   };
 
   useEffect(() => {
@@ -47,33 +62,50 @@ const DeclareInitiativeDialog: FC<{
   }, [actorRound]);
 
   return (
-    <Dialog open={open} onClose={handleClose}>
-      <DialogTitle>{actorRound.actorName} initiative declaration</DialogTitle>
+    <Dialog
+      open={open}
+      onClose={handleClose}
+      slots={{
+        transition: Transition,
+      }}
+    >
+      <DialogTitle>Initiative declaration</DialogTitle>
       <DialogContent>
-        <DialogContentText>Declare initiative (2D10)</DialogContentText>
-        <Grid container spacing={2}>
-          <Grid size={6}>
-            <NumericReadonlyInput
-              label={t('initiative-base')}
-              name="initiative-base"
-              value={actorRound.initiative?.base}
-            />
+        <Grid container spacing={1}>
+          <Grid size={12}>
+            <CategorySeparator text={t('Modifiers')} />
           </Grid>
-          <Grid size={6}></Grid>
           <Grid size={6}>
-            <NumericReadonlyInput
-              label={t('initiative-penalty')}
-              name="initiative-penalty"
-              value={actorRound.initiative?.penalty}
-            />
+            <Stack>
+              <Typography color="primary" variant="body1">
+                {actorRound.initiative?.base || 0}
+              </Typography>
+              <Typography color="secondary" variant="body2">
+                {t('initiative-base')}
+              </Typography>
+            </Stack>
           </Grid>
-          <Grid size={6}></Grid>
+          <Grid size={6}>
+            <Stack>
+              <Typography color="primary" variant="body1">
+                {actorRound.initiative?.penalty || 0}
+              </Typography>
+              <Typography color="secondary" variant="body2">
+                {t('initiative-penalty')}
+              </Typography>
+            </Stack>
+          </Grid>
+          <Grid size={12}>
+            <CategorySeparator text={t('Roll (2D10)')} />
+          </Grid>
           <Grid size={6}>
             <NumericInput
               label={t('initiative-roll')}
-              value={roll}
-              onChange={handleRollChange}
+              value={roll || null}
+              onChange={(e) => setRoll(e || undefined)}
               inputMode="numeric"
+              min={2}
+              max={20}
               integer
               allowNegatives={false}
             />

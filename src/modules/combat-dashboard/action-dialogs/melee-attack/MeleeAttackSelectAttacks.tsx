@@ -1,5 +1,6 @@
 import React, { Dispatch, FC, Fragment, SetStateAction, useContext } from 'react';
 import { Grid, Typography } from '@mui/material';
+import { CategorySeparator } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { ActionAttack, ActionAttackModifiers, AttackDeclaration } from '../../../api/action.dto';
@@ -118,8 +119,8 @@ const AttackList: FC<{
             } as ActionAttackModifiers);
 
           return (
-            <Fragment key={attack.attackName || index}>
-              <Typography variant="h6">{t(def?.attackName || attack.attackName)}</Typography>
+            <Fragment key={index}>
+              <CategorySeparator text={t(def?.attackName || attack.attackName)} />
               <Grid container spacing={1} alignItems="center">
                 <Grid size={2}>
                   {t(def?.attackTable || '')} {def ? `+${def.currentBo}` : ''}
