@@ -1,4 +1,5 @@
 import React, { useContext, useState, useEffect, FC } from 'react';
+import { WidthFull } from '@mui/icons-material';
 import { Box, Stack, Typography } from '@mui/material';
 import { t } from 'i18next';
 import { CombatContext } from '../../../CombatContext';

@@ -2,25 +2,55 @@ import React, { FC, useContext, useState } from 'react';
 import ElectricBoltIcon from '@mui/icons-material/ElectricBolt';
 import SortIcon from '@mui/icons-material/Sort';
 import TextRotateVerticalIcon from '@mui/icons-material/TextRotateVertical';
-import { IconButton, Tooltip, Typography } from '@mui/material';
-import Grid from '@mui/material/Grid';
+import { IconButton, Tooltip, Typography, Grid, Paper } from '@mui/material';
 import { t } from 'i18next';
 import { CombatContext } from '../../../CombatContext';
 import { useError } from '../../../ErrorContext';
 import { ActorRound } from '../../api/actor-rounds.dto';
 import { randomizeInitiatives } from '../../api/tactical-game';
+import { TacticalGame } from '../../api/tactical-game.dto';
 import ActorRoundViewDialog from './ActorRoundViewDialog';
 import CombatActorRoundListItem from './CombatActorRoundListItem';
 
 const CombatActorRoundList: FC = () => {
-  const { game, actorRounds, roundActorSort, refreshActorRounds, setRoundActorSort } = useContext(CombatContext)!;
-  const { showError } = useError();
+  const { game, actorRounds } = useContext(CombatContext)!;
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedActorRoundId, setSelectedActorRoundId] = useState<string | null>(null);
 
-  if (!actorRounds || actorRounds.length === 0) {
-    return <p>Loading...</p>;
-  }
+  if (!game || !actorRounds || actorRounds.length === 0) return <p>Loading...</p>;
+
+  return (
+    <>
+      <Grid container spacing={1}>
+        <Grid size={12}>
+          <Paper>
+            <CombatActorRoundListHeader game={game} />
+          </Paper>
+        </Grid>
+        {actorRounds.map((actorRound: ActorRound, index: number) => (
+          <Grid key={index} size={12}>
+            <CombatActorRoundListItem
+              actorRound={actorRound}
+              onActorRoundView={(ar) => {
+                setSelectedActorRoundId(ar.id);
+                setDialogOpen(true);
+              }}
+            />
+          </Grid>
+        ))}
+      </Grid>
+      <ActorRoundViewDialog
+        open={dialogOpen}
+        actorRound={actorRounds ? actorRounds.find((a) => a.id === selectedActorRoundId) || null : null}
+        onClose={() => setDialogOpen(false)}
+      />
+    </>
+  );
+};
+
+const CombatActorRoundListHeader: FC<{ game: TacticalGame }> = ({ game }) => {
+  const { showError } = useError();
+  const { roundActorSort, refreshActorRounds, setRoundActorSort } = useContext(CombatContext)!;
 
   const onRandomizeInitiatives = () => {
     randomizeInitiatives(game.id)
@@ -35,7 +65,7 @@ const CombatActorRoundList: FC = () => {
   return (
     <>
       <Grid container spacing={1}>
-        <Grid size={2}></Grid>
+        <Grid size={3}></Grid>
         <Grid size={1}>
           <Typography
             variant="subtitle1"
@@ -81,7 +111,7 @@ const CombatActorRoundList: FC = () => {
             </Grid>
           </Grid>
         </Grid>
-        <Grid size={2}>
+        <Grid size={1}>
           <Typography variant="subtitle1" align="left" color="secondary">
             Effects
           </Typography>
@@ -92,22 +122,6 @@ const CombatActorRoundList: FC = () => {
           </Typography>
         </Grid>
       </Grid>
-      {actorRounds.map((actorRound: ActorRound, index: number) => (
-        <CombatActorRoundListItem
-          key={index}
-          actorRound={actorRound}
-          onActorRoundView={(ar) => {
-            setSelectedActorRoundId(ar.id);
-            setDialogOpen(true);
-          }}
-        />
-      ))}
-
-      <ActorRoundViewDialog
-        open={dialogOpen}
-        actorRound={actorRounds ? actorRounds.find((a) => a.id === selectedActorRoundId) || null : null}
-        onClose={() => setDialogOpen(false)}
-      />
     </>
   );
 };

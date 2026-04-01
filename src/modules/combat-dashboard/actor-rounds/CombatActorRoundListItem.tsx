@@ -30,8 +30,8 @@ const CombatActorRoundListItem: FC<{
 
   return (
     <>
-      <Grid container spacing={1} mt={1} sx={{ borderBottom: '1px solid #282e2f', pb: 1 }}>
-        <Grid size={2}>
+      <Grid container spacing={1} sx={{ borderBottom: '1px solid #282e2f', pb: 1 }}>
+        <Grid size={3} sx={{ backgroundColor: 'red' }}>
           <div style={{ cursor: 'pointer' }} onClick={() => onActorRoundView && onActorRoundView(actorRound)}>
             <ActorRoundResume actorRound={actorRound} />
           </div>
@@ -49,7 +49,7 @@ const CombatActorRoundListItem: FC<{
             }}
           />
         </Grid>
-        <Grid size={2}>
+        <Grid size={1}>
           <ActorRoundEffects actorRound={actorRound} />
         </Grid>
         <Grid size={1}>
