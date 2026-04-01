@@ -5,6 +5,7 @@ import { buildErrorFromResponse } from './api-errors';
 export type StrategicGame = {
   id: string;
   name: string;
+  imageUrl?: string;
 };
 
 export async function fetchStrategicGames(rsql: string, page: number, size: number): Promise<StrategicGame[]> {

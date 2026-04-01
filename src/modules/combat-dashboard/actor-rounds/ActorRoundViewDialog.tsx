@@ -1,9 +1,19 @@
 import React, { FC } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CloseIcon from '@mui/icons-material/Close';
-import { Dialog, DialogTitle, DialogContent, IconButton, Avatar, Box, Stack, Typography } from '@mui/material';
+import { Dialog, DialogTitle, DialogContent, IconButton, Avatar, Box, Stack, Typography, Slide } from '@mui/material';
+import { TransitionProps } from '@mui/material/transitions';
 import ActorRoundView from '../../actor-round/ActorRoundView';
 import { ActorRound } from '../../api/actor-rounds.dto';
+
+const Transition = React.forwardRef(function Transition(
+  props: TransitionProps & {
+    children: React.ReactElement<unknown>;
+  },
+  ref: React.Ref<unknown>
+) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
 
 const ActorRoundViewDialog: FC<{
   open: boolean;
@@ -19,7 +29,7 @@ const ActorRoundViewDialog: FC<{
   };
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="xl" aria-labelledby="actor-round-view-dialog">
+    <Dialog open={open} onClose={onClose} fullWidth maxWidth="xl" slots={{ transition: Transition }}>
       <DialogTitle id="actor-round-view-dialog">
         <Stack direction="row" spacing={2} alignItems="center">
           <Avatar

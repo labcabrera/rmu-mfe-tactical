@@ -9,6 +9,7 @@ export type TacticalGame = {
   actors: ActorRound[];
   environment: TacticalGameEnvironment;
   description: string;
+  owner: string;
   imageUrl?: string;
 };
 
@@ -22,6 +23,26 @@ export type TacticalGameEnvironment = {
   altitudeFatigueModifier: number;
 };
 
-export type CreateTacticalGameDto = Omit<TacticalGame, 'id' | 'status' | 'round' | 'phase' | 'factions' | 'actors'>;
+export type CreateTacticalGameDto = Omit<
+  TacticalGame,
+  'id' | 'status' | 'round' | 'phase' | 'factions' | 'actors' | 'owner'
+>;
 
-export type UpdateTacticalGameDto = Partial<Omit<CreateTacticalGameDto, 'strategicGameId'>>;
+export type UpdateTacticalGameDto = Partial<
+  Omit<TacticalGame, 'id' | 'strategicGameId' | 'status' | 'round' | 'phase' | 'factions' | 'actors' | 'owner'>
+>;
+
+export const emptyTacticalGame: TacticalGame = {
+  id: '',
+  strategicGameId: '',
+  name: '',
+  status: '',
+  round: 0,
+  phase: '',
+  factions: [],
+  actors: [],
+  environment: { temperatureFatigueModifier: 0, altitudeFatigueModifier: 0 },
+  description: '',
+  imageUrl: '',
+  owner: '',
+};

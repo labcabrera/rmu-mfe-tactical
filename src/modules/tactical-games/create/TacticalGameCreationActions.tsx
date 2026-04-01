@@ -4,7 +4,7 @@ import { CancelButton, RmuBreadcrumbs, SaveButton } from '@labcabrera-rmu/rmu-re
 import { t } from 'i18next';
 import { useError } from '../../../ErrorContext';
 import { createTacticalGame } from '../../api/tactical-game';
-import { CreateTacticalGameDto } from '../../api/tactical-game.dto';
+import { CreateTacticalGameDto, UpdateTacticalGameDto } from '../../api/tactical-game.dto';
 
 const TacticalGameCreationActions: FC<{
   formData: CreateTacticalGameDto;
@@ -14,7 +14,8 @@ const TacticalGameCreationActions: FC<{
   const { showError } = useError();
 
   const onSave = async () => {
-    createTacticalGame(formData)
+    const dto: UpdateTacticalGameDto = { ...formData };
+    createTacticalGame(dto)
       .then((game) => navigate(`/tactical/games/view/${game.id}`))
       .catch((err) => showError(err.message));
   };

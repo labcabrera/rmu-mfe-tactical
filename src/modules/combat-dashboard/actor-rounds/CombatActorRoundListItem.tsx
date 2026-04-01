@@ -13,7 +13,7 @@ import ActorRoundInitiative from './initiative/ActorRoundInitiative';
 
 const CombatActorRoundListItem: FC<{
   actorRound: ActorRound;
-  onActorRoundView?: (actorRound: ActorRound) => void;
+  onActorRoundView: (actorRound: ActorRound) => void;
 }> = ({ actorRound, onActorRoundView }) => {
   const [character, setCharacter] = useState<Character | undefined>();
   const { characters, game, roundActions } = useContext(CombatContext)!;
@@ -26,15 +26,13 @@ const CombatActorRoundListItem: FC<{
     }
   }, [actorRound, characters]);
 
-  if (!actorRound || !character || !game) return <p>CombatActorRoundListItem: loading...</p>;
+  if (!actorRound || !character || !game) return <p>Loading...</p>;
 
   return (
     <>
       <Grid container spacing={1} sx={{ borderBottom: '1px solid #282e2f', pb: 1 }}>
-        <Grid size={3} sx={{ backgroundColor: 'red' }}>
-          <div style={{ cursor: 'pointer' }} onClick={() => onActorRoundView && onActorRoundView(actorRound)}>
-            <ActorRoundResume actorRound={actorRound} />
-          </div>
+        <Grid size={3}>
+          <ActorRoundResume actorRound={actorRound} onActorRoundView={() => onActorRoundView(actorRound)} />
         </Grid>
         <Grid size={1}>
           <ActorRoundInitiative actorRound={actorRound} />

@@ -6,7 +6,7 @@ import { EditableAvatar, TechnicalInfo } from '@labcabrera-rmu/rmu-react-shared-
 import { useError } from '../../../ErrorContext';
 import { fetchStrategicGame, StrategicGame } from '../../api/strategic-games';
 import { fetchTacticalGame } from '../../api/tactical-game';
-import { TacticalGame, UpdateTacticalGameDto } from '../../api/tactical-game.dto';
+import { emptyTacticalGame, TacticalGame, UpdateTacticalGameDto } from '../../api/tactical-game.dto';
 import { gridSizeResume, gridSizeMain } from '../../services/display';
 import { defaultImage, getAvatarImages } from '../../services/image-service';
 import TacticalGameForm from '../shared/TacticalGameForm';
@@ -18,7 +18,7 @@ const TacticalGameEdit: FC = () => {
   const { gameId } = useParams<{ gameId?: string }>();
   const [tacticalGame, setTacticalGame] = useState<TacticalGame>();
   const [strategicGame, setStrategicGame] = useState<StrategicGame>();
-  const [formData, setFormData] = useState<UpdateTacticalGameDto>();
+  const [formData, setFormData] = useState<TacticalGame>(emptyTacticalGame);
   const [isValid, setIsValid] = useState(false);
 
   const validateForm = (formData: UpdateTacticalGameDto) => {
@@ -34,11 +34,7 @@ const TacticalGameEdit: FC = () => {
 
   useEffect(() => {
     if (tacticalGame) {
-      setFormData({
-        name: tacticalGame.name,
-        description: tacticalGame.description,
-        environment: tacticalGame.environment,
-      });
+      setFormData(tacticalGame);
       fetchStrategicGame(tacticalGame.strategicGameId)
         .then((response) => setStrategicGame(response))
         .catch((err) => showError(err.message));

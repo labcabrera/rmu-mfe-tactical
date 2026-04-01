@@ -27,17 +27,21 @@ const CombatActorRoundList: FC = () => {
             <CombatActorRoundListHeader game={game} />
           </Paper>
         </Grid>
-        {actorRounds.map((actorRound: ActorRound, index: number) => (
-          <Grid key={index} size={12}>
-            <CombatActorRoundListItem
-              actorRound={actorRound}
-              onActorRoundView={(ar) => {
-                setSelectedActorRoundId(ar.id);
-                setDialogOpen(true);
-              }}
-            />
+        <Grid size={12}>
+          <Grid container spacing={1}>
+            {actorRounds.map((actorRound: ActorRound, index: number) => (
+              <Grid key={index} size={12}>
+                <CombatActorRoundListItem
+                  actorRound={actorRound}
+                  onActorRoundView={(ar) => {
+                    setSelectedActorRoundId(ar.id);
+                    setDialogOpen(true);
+                  }}
+                />
+              </Grid>
+            ))}
           </Grid>
-        ))}
+        </Grid>
       </Grid>
       <ActorRoundViewDialog
         open={dialogOpen}
