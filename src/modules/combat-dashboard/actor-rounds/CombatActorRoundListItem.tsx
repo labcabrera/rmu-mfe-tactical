@@ -8,8 +8,8 @@ import ActionDialog from '../action-dialogs/ActionDialog';
 import ActorActions from './ActorActions';
 import ActorRoundAlerts from './ActorRoundAlerts';
 import ActorRoundEffects from './ActorRoundEffects';
-import ActorRoundInitiative from './ActorRoundInitiative';
 import ActorRoundResume from './ActorRoundResume';
+import ActorRoundInitiative from './initiative/ActorRoundInitiative';
 
 const CombatActorRoundListItem: FC<{
   actorRound: ActorRound;

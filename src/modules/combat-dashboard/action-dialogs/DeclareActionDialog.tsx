@@ -18,6 +18,7 @@ import {
   AccordionSummary,
   AccordionDetails,
 } from '@mui/material';
+import { TransitionProps } from '@mui/material/transitions';
 import { t } from 'i18next';
 import { CombatContext } from '../../../CombatContext';
 import { useError } from '../../../ErrorContext';
@@ -26,10 +27,6 @@ import { ActorRound } from '../../api/actor-rounds.dto';
 import ActorRoundAvatar from '../../shared/avatars/ActorRoundAvatar';
 import SelectManeuverType from '../../shared/selects/SelectManeuverType';
 import SelectSkillByCategory from '../../shared/selects/SelectSkillByCategory';
-
-const Transition = React.forwardRef(function Transition(props, ref) {
-  return <Slide children={undefined} direction="up" ref={ref} {...props} />;
-});
 
 const actionOptions = [
   {
@@ -73,6 +70,15 @@ const actionOptions = [
     ],
   },
 ];
+
+const Transition = React.forwardRef(function Transition(
+  props: TransitionProps & {
+    children: React.ReactElement<unknown>;
+  },
+  ref: React.Ref<unknown>
+) {
+  return <Slide direction="up" ref={ref} {...props} />;
+});
 
 const DeclareActionDialog: FC<{
   actorRound: ActorRound;
@@ -165,11 +171,12 @@ const DeclareActionDialog: FC<{
     <Dialog open={open} onClose={handleClose} maxWidth="xl" fullWidth slots={{ transition: Transition }}>
       <DialogTitle>
         <Stack direction="row" spacing={2} alignItems="center">
-          <ActorRoundAvatar actorRound={actorRound} size={100} variant="square" />
+          <ActorRoundAvatar actorRound={actorRound} size={100} variant="rounded" />
           <Stack direction="column">
             <Typography variant="h6">{actorRound.actorName}</Typography>
-            <Typography variant="subtitle1">Action Declaration</Typography>
-            <Typography variant="subtitle1">Additional information here</Typography>
+            <Typography variant="subtitle1" color="secondary">
+              Action Declaration
+            </Typography>
           </Stack>
         </Stack>
       </DialogTitle>

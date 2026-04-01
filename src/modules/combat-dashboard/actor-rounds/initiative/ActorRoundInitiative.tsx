@@ -1,8 +1,8 @@
 import React, { FC, useState } from 'react';
 import ElectricBoltIcon from '@mui/icons-material/ElectricBolt';
 import { IconButton, Paper, Stack, Typography } from '@mui/material';
-import { ActorRound } from '../../api/actor-rounds.dto';
-import InitiativeBar from '../../shared/generic/InitiativeBar';
+import { ActorRound } from '../../../api/actor-rounds.dto';
+import InitiativeBar from '../../../shared/generic/InitiativeBar';
 import DeclareInitiativeDialog from './DeclareInitiativeDialog';
 
 const ActorRoundInitiative: FC<{
@@ -30,10 +30,7 @@ const ActorRoundInitiative: FC<{
               <ElectricBoltIcon />
             </IconButton>
           </Stack>
-          <Typography variant="caption" color="text.secondary">
-            {actorRound.initiative.base} + {actorRound.initiative.penalty}
-            {actorRound.initiative.roll && <> {' + ' + actorRound.initiative.roll} </>}
-          </Typography>
+          {!actorRound.initiative.total && <Typography>Not declared</Typography>}
           <DeclareInitiativeDialog open={dialogOpen} setOpen={setDialogOpen} actorRound={actorRound} />
           {actorRound.initiative?.roll && <InitiativeBar current={actorRound.initiative.total} max={30} width={100} />}
         </Stack>
