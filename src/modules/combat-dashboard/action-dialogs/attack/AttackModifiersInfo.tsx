@@ -48,16 +48,16 @@ export const AttackModifiersInfo: FC<{
 };
 
 const AttackModifier: FC<{
-  value: string | boolean | null;
-  title: string | undefined;
+  value: string | boolean | null | undefined;
+  title: string;
   ignoreValue?: string | null;
 }> = ({ value, title, ignoreValue }) => {
   return value && value !== ignoreValue ? <InfoChip label={`${t(title)}: ${t(String(value))}`} /> : null;
 };
 
 const AttackModifierBoolean: FC<{
-  value: boolean | null;
-  title: string | undefined;
+  value: boolean | null | undefined;
+  title: string;
   ignoreValue?: boolean | null;
 }> = ({ value, title, ignoreValue }) => {
   return value && value !== ignoreValue ? <InfoChip label={`${t(title)}`} /> : null;

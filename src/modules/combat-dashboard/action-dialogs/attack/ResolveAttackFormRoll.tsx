@@ -102,7 +102,7 @@ const ResolveAttackFormRoll: FC<{
         <Grid size={8}>
           <Stack direction="row" spacing={1}>
             {attack.results.attackTableEntry.damage > 0 ? (
-              <Effect effect={'dmg'} value={attack.results.attackTableEntry.damage} color="error" />
+              <Effect status={'dmg'} label={attack.results.attackTableEntry.damage} color="error" />
             ) : (
               <Typography>{t('no-damage')}</Typography>
             )}
