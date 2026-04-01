@@ -6,7 +6,7 @@ import { useError } from '../../../ErrorContext';
 import { fetchTacticalGames } from '../../api/tactical-game';
 import { TacticalGame } from '../../api/tactical-game.dto';
 import { gridSizeResume, gridSizeMain, gridSizeCard } from '../../services/display';
-import { defaultImage } from '../../services/image-service';
+import { defaultTacticalGameImage } from '../../services/image-service';
 import TacticalGameListActions from './TacticalGameListActions';
 import TacticalGameResume from './TacticalGameResume';
 
@@ -39,7 +39,7 @@ const TacticalGameList: FC = () => {
                 <RmuTextCard
                   value={game.name}
                   subtitle={game.description}
-                  image={defaultImage}
+                  image={game.imageUrl || defaultTacticalGameImage}
                   onClick={() => onTacticalGameClick(game)}
                 />
               </Grid>
