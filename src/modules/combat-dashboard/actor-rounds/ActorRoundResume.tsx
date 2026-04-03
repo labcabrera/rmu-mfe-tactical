@@ -6,6 +6,7 @@ import { CombatContext } from '../../../CombatContext';
 import { ActorRound } from '../../api/actor-rounds.dto';
 import { Character } from '../../api/characters.dto';
 import { imageBaseUrl } from '../../services/config';
+import { deadFilter } from '../../services/display';
 import GenericBar from '../../shared/generic/GenericBar';
 
 const barSize = 96;
@@ -39,11 +40,11 @@ const ActorRoundResume: FC<{
     <RmuCard
       image={actorRound.imageUrl || `${imageBaseUrl}images/races/unknown.png`}
       height={150}
-      grayscale={isDead ? 1 : 0}
+      imageFilter={isDead ? deadFilter : undefined}
       onClick={() => onActorRoundView(actorRound)}
     >
       <Stack direction="column">
-        <Typography variant="body1" color="primary">
+        <Typography variant="body1" color={isDead ? 'error' : 'primary'}>
           {character.name}
         </Typography>
         <Typography variant="body1" color="secondary">

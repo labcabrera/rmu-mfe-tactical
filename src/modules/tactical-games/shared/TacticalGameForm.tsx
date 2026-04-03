@@ -32,7 +32,7 @@ const TacticalGameForm: FC<{
     <Grid container spacing={1}>
       <Grid size={12}>
         <TextField
-          label={t('name')}
+          label={t('Name')}
           name="tactical-game-name"
           value={formData.name}
           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -76,7 +76,7 @@ const TacticalGameForm: FC<{
       </Grid>
       <Grid size={12}>
         <TextField
-          label={t('description')}
+          label={t('Description')}
           name="description"
           value={formData.description}
           onChange={(e) => setFormData({ ...formData, description: e.target.value })}

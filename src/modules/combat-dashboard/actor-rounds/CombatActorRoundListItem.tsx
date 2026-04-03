@@ -47,10 +47,8 @@ const CombatActorRoundListItem: FC<{
             }}
           />
         </Grid>
-        <Grid size={1}>
+        <Grid size={3}>
           <ActorRoundEffects actorRound={actorRound} />
-        </Grid>
-        <Grid size={1}>
           <ActorRoundAlerts actorRound={actorRound} />
         </Grid>
       </Grid>

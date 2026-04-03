@@ -1,5 +1,5 @@
 import React, { FC, useContext, useState } from 'react';
-import { Button } from '@mui/material';
+import { Button, Stack } from '@mui/material';
 import { t } from 'i18next';
 import { CombatContext } from '../../../CombatContext';
 import { ActorRound, ActorRoundAlert } from '../../api/actor-rounds.dto';
@@ -35,18 +35,20 @@ const ActorRoundAlerts: FC<{
     <>
       {actorRound.alerts && actorRound.alerts.length > 0 && (
         <>
-          {actorRound.alerts.map((alert) => (
-            <Button
-              key={alert.id}
-              variant="contained"
-              color="error"
-              size="small"
-              onClick={() => handleAlertClick(alert.id)}
-              sx={{ mr: 0.5, mb: 0.5 }}
-            >
-              {t(`alert-${alert.type}`)}
-            </Button>
-          ))}
+          <Stack direction="row" spacing={1} mt={1}>
+            {actorRound.alerts.map((alert) => (
+              <Button
+                key={alert.id}
+                variant="contained"
+                color="error"
+                size="small"
+                onClick={() => handleAlertClick(alert.id)}
+                sx={{ mr: 0.5, mb: 0.5 }}
+              >
+                {t(`alert-${alert.type}`)}
+              </Button>
+            ))}
+          </Stack>
         </>
       )}
 

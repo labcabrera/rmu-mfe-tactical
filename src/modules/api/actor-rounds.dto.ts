@@ -73,7 +73,7 @@ export type ActorRoundAttack = {
   type: 'melee' | 'ranged';
   attackTable: string;
   fumbleTable: string;
-  attackSize: string;
+  attackSize: number;
   fumble: number;
   canThrow: boolean;
   ranges: ActorRoundAttackRange[] | undefined;

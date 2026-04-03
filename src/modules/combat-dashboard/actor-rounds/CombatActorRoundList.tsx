@@ -115,14 +115,9 @@ const CombatActorRoundListHeader: FC<{ game: TacticalGame }> = ({ game }) => {
             </Grid>
           </Grid>
         </Grid>
-        <Grid size={1}>
+        <Grid size={2}>
           <Typography variant="subtitle1" align="left" color="secondary">
-            Effects
-          </Typography>
-        </Grid>
-        <Grid size={1}>
-          <Typography variant="subtitle1" align="left" color="secondary">
-            Alerts
+            Effects & Alerts
           </Typography>
         </Grid>
       </Grid>

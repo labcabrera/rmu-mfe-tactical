@@ -10,6 +10,7 @@ import {
   Paper,
   TableContainer,
 } from '@mui/material';
+import { t } from 'i18next';
 import { ActorRound, ActorRoundAttack } from '../api/actor-rounds.dto';
 
 const formatRanges = (ranges: ActorRoundAttack['ranges']): string => {
@@ -19,6 +20,11 @@ const formatRanges = (ranges: ActorRoundAttack['ranges']): string => {
 
 const ActorRoundAttacks: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
   const attacks = actorRound.attacks ?? [];
+
+  const getAttackTableLabel = (attack: ActorRoundAttack): string => {
+    if (attack.attackSize === 0) return t(attack.attackTable);
+    return `${t(attack.attackTable)} (${attack.attackSize > 0 ? '+' : ''}${attack.attackSize})`;
+  };
 
   return (
     <Stack spacing={1}>
@@ -30,23 +36,23 @@ const ActorRoundAttacks: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
               <TableRow>
                 <TableCell>Attack</TableCell>
                 <TableCell>Type</TableCell>
+                <TableCell>Attack Table</TableCell>
                 <TableCell align="right">Base BO</TableCell>
                 <TableCell align="right">Current BO</TableCell>
                 <TableCell align="right">Fumble</TableCell>
                 <TableCell>Ranges</TableCell>
-                <TableCell>Attack Table</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {attacks.map((a: ActorRoundAttack, i: number) => (
                 <TableRow key={`${a.attackName}-${i}`} hover>
-                  <TableCell>{a.attackName}</TableCell>
-                  <TableCell>{a.type}</TableCell>
+                  <TableCell>{t(a.attackName)}</TableCell>
+                  <TableCell>{t(a.type)}</TableCell>
+                  <TableCell>{getAttackTableLabel(a)}</TableCell>
                   <TableCell align="right">{a.baseBo}</TableCell>
                   <TableCell align="right">{a.currentBo}</TableCell>
                   <TableCell align="right">{a.fumble}</TableCell>
                   <TableCell>{formatRanges(a.ranges)}</TableCell>
-                  <TableCell>{a.attackTable}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
