@@ -1,4 +1,6 @@
+import { Page } from '../api/common.dto';
 import { getAuthHeaders, mergeJsonHeaders } from '../services/auth-token-service';
+import { apiTacticalUrl } from '../services/config';
 import { buildErrorFromResponse } from './api-errors';
 import { TacticalGame } from './tactical-game.dto';
 
@@ -15,18 +17,17 @@ export function getPhaseAsNumber(game: TacticalGame): number | undefined {
   return num;
 }
 
-export async function fetchTacticalGames(rsql: string, page: number, size: number): Promise<TacticalGame[]> {
-  const url = `${process.env.RMU_API_TACTICAL_URL}/tactical-games?q=${rsql}&page=${page}&size=${size}`;
+export async function fetchTacticalGames(rsql: string, page: number, size: number): Promise<Page<TacticalGame>> {
+  const url = `${apiTacticalUrl}/tactical-games?q=${rsql}&page=${page}&size=${size}`;
   const response = await fetch(url, { method: 'GET', headers: getAuthHeaders() });
   if (response.status !== 200) {
     throw await buildErrorFromResponse(response, url);
   }
-  const pageContent = await response.json();
-  return pageContent.content;
+  return await response.json();
 }
 
 export async function fetchTacticalGame(gameId: string): Promise<TacticalGame> {
-  const url = `${process.env.RMU_API_TACTICAL_URL}/tactical-games/${gameId}`;
+  const url = `${apiTacticalUrl}/tactical-games/${gameId}`;
   const response = await fetch(url, { method: 'GET', headers: getAuthHeaders() });
   if (response.status !== 200) {
     throw await buildErrorFromResponse(response, url);
@@ -35,7 +36,7 @@ export async function fetchTacticalGame(gameId: string): Promise<TacticalGame> {
 }
 
 export async function createTacticalGame(gameData: any): Promise<TacticalGame> {
-  const url = `${process.env.RMU_API_TACTICAL_URL}/tactical-games`;
+  const url = `${apiTacticalUrl}/tactical-games`;
   const response = await fetch(url, {
     method: 'POST',
     headers: mergeJsonHeaders(),
@@ -48,7 +49,7 @@ export async function createTacticalGame(gameData: any): Promise<TacticalGame> {
 }
 
 export async function updateTacticalGame(gameId: string, gameData: any): Promise<TacticalGame> {
-  const url = `${process.env.RMU_API_TACTICAL_URL}/tactical-games/${gameId}`;
+  const url = `${apiTacticalUrl}/tactical-games/${gameId}`;
   const response = await fetch(url, {
     method: 'PATCH',
     headers: mergeJsonHeaders(),
@@ -61,7 +62,7 @@ export async function updateTacticalGame(gameId: string, gameData: any): Promise
 }
 
 export async function deleteTacticalGame(gameId: string): Promise<boolean> {
-  const url = `${process.env.RMU_API_TACTICAL_URL}/tactical-games/${gameId}`;
+  const url = `${apiTacticalUrl}/tactical-games/${gameId}`;
   const response = await fetch(url, { method: 'DELETE', headers: getAuthHeaders() });
   if (response.status !== 204) {
     throw await buildErrorFromResponse(response, url);
@@ -70,7 +71,7 @@ export async function deleteTacticalGame(gameId: string): Promise<boolean> {
 }
 
 export async function addFaction(gameId: string, factionId: string): Promise<TacticalGame> {
-  const url = `${process.env.RMU_API_TACTICAL_URL}/tactical-games/${gameId}/factions`;
+  const url = `${apiTacticalUrl}/tactical-games/${gameId}/factions`;
   const data = { factions: [factionId] };
   const response = await fetch(url, {
     method: 'POST',
@@ -84,7 +85,7 @@ export async function addFaction(gameId: string, factionId: string): Promise<Tac
 }
 
 export async function deleteFaction(gameId: string, factionId: string): Promise<TacticalGame> {
-  const url = `${process.env.RMU_API_TACTICAL_URL}/tactical-games/${gameId}/factions`;
+  const url = `${apiTacticalUrl}/tactical-games/${gameId}/factions`;
   const data = { factions: [factionId] };
   const response = await fetch(url, {
     method: 'DELETE',
@@ -99,7 +100,7 @@ export async function deleteFaction(gameId: string, factionId: string): Promise<
 
 export async function addActor(gameId: string, actorId: string, type: string): Promise<TacticalGame> {
   const request = { actors: [{ id: actorId, type }] };
-  const url = `${process.env.RMU_API_TACTICAL_URL}/tactical-games/${gameId}/actors`;
+  const url = `${apiTacticalUrl}/tactical-games/${gameId}/actors`;
   const response = await fetch(url, {
     method: 'POST',
     headers: mergeJsonHeaders(),
@@ -113,7 +114,7 @@ export async function addActor(gameId: string, actorId: string, type: string): P
 
 export async function deleteActor(gameId: string, actorId: string): Promise<TacticalGame> {
   const data = { actors: [actorId] };
-  const url = `${process.env.RMU_API_TACTICAL_URL}/tactical-games/${gameId}/actors`;
+  const url = `${apiTacticalUrl}/tactical-games/${gameId}/actors`;
   const response = await fetch(url, {
     method: 'DELETE',
     headers: mergeJsonHeaders(),
@@ -126,7 +127,7 @@ export async function deleteActor(gameId: string, actorId: string): Promise<Tact
 }
 
 export async function startRound(gameId: string): Promise<TacticalGame> {
-  const url = `${process.env.RMU_API_TACTICAL_URL}/tactical-games/${gameId}/rounds/start`;
+  const url = `${apiTacticalUrl}/tactical-games/${gameId}/rounds/start`;
   const response = await fetch(url, { method: 'POST', headers: getAuthHeaders() });
   if (response.status !== 200) {
     throw await buildErrorFromResponse(response, url);
@@ -135,7 +136,7 @@ export async function startRound(gameId: string): Promise<TacticalGame> {
 }
 
 export async function startPhase(gameId: string): Promise<TacticalGame> {
-  const url = `${process.env.RMU_API_TACTICAL_URL}/tactical-games/${gameId}/phases/start`;
+  const url = `${apiTacticalUrl}/tactical-games/${gameId}/phases/start`;
   const response = await fetch(url, { method: 'POST', headers: getAuthHeaders() });
   if (response.status !== 200) {
     throw await buildErrorFromResponse(response, url);
@@ -144,7 +145,7 @@ export async function startPhase(gameId: string): Promise<TacticalGame> {
 }
 
 export async function randomizeInitiatives(gameId: string): Promise<TacticalGame> {
-  const url = `${process.env.RMU_API_TACTICAL_URL}/tactical-games/${gameId}/initiatives/randomize`;
+  const url = `${apiTacticalUrl}/tactical-games/${gameId}/initiatives/randomize`;
   const response = await fetch(url, { method: 'POST', headers: getAuthHeaders() });
   if (response.status !== 200) {
     throw await buildErrorFromResponse(response, url);
