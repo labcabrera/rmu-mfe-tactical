@@ -161,13 +161,11 @@ const CombatDashboardAttacks: FC = () => {
 const SelectActor: FC<{
   value: string | null;
   characters: Character[];
-  onChange: (characterID: string | null) => void;
+  onChange: (characterId: string | null) => void;
 }> = ({ value, characters, onChange }) => {
   const selected = characters.find((e) => e.id === (value ?? '')) ?? null;
   const handleChange = (_event: React.SyntheticEvent, newValue: Character | null) => {
-    if (newValue) {
-      onChange(newValue.id);
-    }
+    onChange(newValue?.id || null);
   };
   return (
     <Autocomplete
