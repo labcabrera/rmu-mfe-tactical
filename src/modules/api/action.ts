@@ -1,9 +1,20 @@
 import { getAuthHeaders, mergeJsonHeaders } from '../services/auth-token-service';
+import { apiTacticalUrl } from '../services/config';
 import { Action, AttackDeclaration, ParryDeclaration } from './action.dto';
 import { buildErrorFromResponse } from './api-errors';
 
 export async function fetchAction(actionId: string): Promise<Action> {
-  const url = `${process.env.RMU_API_TACTICAL_URL}/actions/${actionId}`;
+  const url = `${apiTacticalUrl}/actions/${actionId}`;
+  const response = await fetch(url, { method: 'GET', headers: getAuthHeaders() });
+  if (response.status !== 200) {
+    throw await buildErrorFromResponse(response, url);
+  }
+  const json = await response.json();
+  return json.content;
+}
+
+export async function fetchActions(rsql: string | undefined, page: number, size: number): Promise<Action[]> {
+  const url = `${apiTacticalUrl}/actions?q=${rsql || ''}&page=${page}&size=${size}`;
   const response = await fetch(url, { method: 'GET', headers: getAuthHeaders() });
   if (response.status !== 200) {
     throw await buildErrorFromResponse(response, url);
@@ -13,7 +24,7 @@ export async function fetchAction(actionId: string): Promise<Action> {
 }
 
 export async function fetchActionsByGameAndRound(gameId: string, round: number): Promise<Action[]> {
-  const url = `${process.env.RMU_API_TACTICAL_URL}/actions?q=gameId==${gameId};round==${round}&size=1000`;
+  const url = `${apiTacticalUrl}/actions?q=gameId==${gameId};round==${round}&size=1000`;
   const response = await fetch(url, { method: 'GET', headers: getAuthHeaders() });
   if (response.status !== 200) {
     throw await buildErrorFromResponse(response, url);
@@ -23,7 +34,7 @@ export async function fetchActionsByGameAndRound(gameId: string, round: number):
 }
 
 export async function createAction(actionData: any): Promise<Action> {
-  const url = `${process.env.RMU_API_TACTICAL_URL}/actions`;
+  const url = `${apiTacticalUrl}/actions`;
   const response = await fetch(url, {
     method: 'POST',
     headers: mergeJsonHeaders(),
@@ -36,7 +47,7 @@ export async function createAction(actionData: any): Promise<Action> {
 }
 
 export async function deleteAction(actionId: string): Promise<boolean> {
-  const url = `${process.env.RMU_API_TACTICAL_URL}/actions/${actionId}`;
+  const url = `${apiTacticalUrl}/actions/${actionId}`;
   const response = await fetch(url, { method: 'DELETE', headers: getAuthHeaders() });
   if (response.status !== 204) {
     throw await buildErrorFromResponse(response, url);
@@ -45,7 +56,7 @@ export async function deleteAction(actionId: string): Promise<boolean> {
 }
 
 export async function resolveMovement(actionId: string, data: any): Promise<Action> {
-  const url = `${process.env.RMU_API_TACTICAL_URL}/actions/${actionId}/movement/resolve`;
+  const url = `${apiTacticalUrl}/actions/${actionId}/movement/resolve`;
   const response = await fetch(url, {
     method: 'PATCH',
     headers: mergeJsonHeaders(),
@@ -58,7 +69,7 @@ export async function resolveMovement(actionId: string, data: any): Promise<Acti
 }
 
 export async function resolveManeuver(actionId: string, data: any): Promise<Action> {
-  const url = `${process.env.RMU_API_TACTICAL_URL}/actions/${actionId}/maneuver/resolve`;
+  const url = `${apiTacticalUrl}/actions/${actionId}/maneuver/resolve`;
   const response = await fetch(url, {
     method: 'PATCH',
     headers: mergeJsonHeaders(),
@@ -71,7 +82,7 @@ export async function resolveManeuver(actionId: string, data: any): Promise<Acti
 }
 
 export async function prepareAttack(actionId: string, data: AttackDeclaration): Promise<Action> {
-  const url = `${process.env.RMU_API_TACTICAL_URL}/actions/${actionId}/attack/prepare`;
+  const url = `${apiTacticalUrl}/actions/${actionId}/attack/prepare`;
   const response = await fetch(url, {
     method: 'PATCH',
     headers: mergeJsonHeaders(),
@@ -84,7 +95,7 @@ export async function prepareAttack(actionId: string, data: AttackDeclaration): 
 }
 
 export async function declareParry(actionId: string, data: ParryDeclaration): Promise<Action> {
-  const url = `${process.env.RMU_API_TACTICAL_URL}/actions/${actionId}/attack/parry`;
+  const url = `${apiTacticalUrl}/actions/${actionId}/attack/parry`;
   const response = await fetch(url, {
     method: 'PATCH',
     headers: mergeJsonHeaders(),
@@ -102,7 +113,7 @@ export async function updateAttackRoll(
   roll: number,
   locationRoll: number | undefined
 ): Promise<Action> {
-  const url = `${process.env.RMU_API_TACTICAL_URL}/actions/${actionId}/attack/roll`;
+  const url = `${apiTacticalUrl}/actions/${actionId}/attack/roll`;
   const response = await fetch(url, {
     method: 'PATCH',
     headers: mergeJsonHeaders(),
@@ -120,7 +131,7 @@ export async function updateCriticalRoll(
   criticalKey: string,
   roll: number
 ): Promise<Action> {
-  const url = `${process.env.RMU_API_TACTICAL_URL}/actions/${actionId}/attack/critical-roll`;
+  const url = `${apiTacticalUrl}/actions/${actionId}/attack/critical-roll`;
   const response = await fetch(url, {
     method: 'PATCH',
     headers: mergeJsonHeaders(),
@@ -133,7 +144,7 @@ export async function updateCriticalRoll(
 }
 
 export async function updateFumbleRoll(actionId: string, attackName: string, roll: number | null): Promise<Action> {
-  const url = `${process.env.RMU_API_TACTICAL_URL}/actions/${actionId}/attack/fumble-roll`;
+  const url = `${apiTacticalUrl}/actions/${actionId}/attack/fumble-roll`;
   const response = await fetch(url, {
     method: 'PATCH',
     headers: mergeJsonHeaders(),
@@ -146,7 +157,7 @@ export async function updateFumbleRoll(actionId: string, attackName: string, rol
 }
 
 export async function applyAttack(actionId: string): Promise<Action> {
-  const url = `${process.env.RMU_API_TACTICAL_URL}/actions/${actionId}/attack/apply`;
+  const url = `${apiTacticalUrl}/actions/${actionId}/attack/apply`;
   const response = await fetch(url, {
     method: 'PATCH',
     headers: mergeJsonHeaders(),
