@@ -110,22 +110,42 @@ export type ResolveMovementDto = {
 export type ActionAttack = {
   attackName: string;
   modifiers: ActionAttackModifiers;
-  roll: {
-    roll: number | null;
-    locationRoll: number | null;
-    criticalRolls?: Map<string, number | undefined>;
-    fumbleRoll?: number | null;
-  };
+  roll: ActionAttackRoll | undefined;
   calculated: AttackCalculationsDto | undefined;
   results: ActionAttackResults | undefined;
   status: string;
 };
 
+export type ActionAttackRoll = {
+  roll: number | null;
+  locationRoll: number | null;
+  criticalRolls?: Map<string, number | undefined>;
+  fumbleRoll?: number | null;
+};
+
 export type ActionAttackResults = {
-  attackTableEntry: any;
-  criticals: any[];
+  attackTableEntry: AttackTableEntry | undefined;
+  criticals: Critical[];
   fumble: any;
   attackTableResult: string;
+};
+
+export type Critical = {
+  key: string;
+  status: string;
+  criticalType: string;
+  criticalSeverity: number;
+  adjustedRoll: number;
+  result: CriticalResult;
+};
+
+export type CriticalResult = {
+  text: string;
+};
+
+export type AttackTableEntry = {
+  damage: number;
+  text: string;
 };
 
 export type ActionAttackFumbleResult = {

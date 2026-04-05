@@ -2,6 +2,7 @@ import { getAuthHeaders, mergeJsonHeaders } from '../services/auth-token-service
 import { apiTacticalUrl } from '../services/config';
 import { Action, AttackDeclaration, ParryDeclaration } from './action.dto';
 import { buildErrorFromResponse } from './api-errors';
+import { Page } from './common.dto';
 
 export async function fetchAction(actionId: string): Promise<Action> {
   const url = `${apiTacticalUrl}/actions/${actionId}`;
@@ -13,14 +14,13 @@ export async function fetchAction(actionId: string): Promise<Action> {
   return json.content;
 }
 
-export async function fetchActions(rsql: string | undefined, page: number, size: number): Promise<Action[]> {
+export async function fetchActions(rsql: string | undefined, page: number, size: number): Promise<Page<Action>> {
   const url = `${apiTacticalUrl}/actions?q=${rsql || ''}&page=${page}&size=${size}`;
   const response = await fetch(url, { method: 'GET', headers: getAuthHeaders() });
   if (response.status !== 200) {
     throw await buildErrorFromResponse(response, url);
   }
-  const json = await response.json();
-  return json.content;
+  return await response.json();
 }
 
 export async function fetchActionsByGameAndRound(gameId: string, round: number): Promise<Action[]> {
