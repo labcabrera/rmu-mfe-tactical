@@ -106,7 +106,7 @@ const TacticalGameViewActorsFactionItem: FC<{
   return (
     <RmuTextCard
       value={character.name}
-      subtitle={`${character.info.raceName} - ${t(character.info.professionId)} - ${character.experience.availableLevel}`}
+      subtitle={`${character.info.race.name} - ${t(character.info.professionId)} - ${character.experience.availableLevel}`}
       image={character.imageUrl || ''}
       grayscale={!isSelected() ? 1 : 0}
       onClick={() => handleToggle(character)}

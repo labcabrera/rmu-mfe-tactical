@@ -5,7 +5,7 @@ import { t } from 'i18next';
 import { ActorRound } from '../../api/actor-rounds.dto';
 
 type SelectActorRoundProps = {
-  value: string | number;
+  actorId: string;
   onChange: (e: ActorRound) => void;
   name?: string;
   actorRounds: ActorRound[];
@@ -13,7 +13,7 @@ type SelectActorRoundProps = {
 };
 
 const SelectActorRound: FC<SelectActorRoundProps> = ({
-  value,
+  actorId,
   onChange,
   actorRounds,
   name = 'selectActorRound',
@@ -37,7 +37,7 @@ const SelectActorRound: FC<SelectActorRoundProps> = ({
       name={name}
       label={t(i18nLabel)}
       fullWidth
-      value={value === undefined || value === null || actorRounds.length === 0 ? '' : value}
+      value={actorId}
       variant="standard"
       onChange={handleChange}
     >

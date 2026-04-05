@@ -10,7 +10,7 @@ import SelectEffect from '../shared/selects/SelectEffect';
 
 const CombatDashboardManagement: FC = () => {
   const { showError } = useError();
-  const { actorRounds, updateActorRound } = useContext(CombatContext);
+  const { actorRounds, updateActorRound } = useContext(CombatContext)!;
   const [actorId, setActorId] = useState<string | null>(null);
   const [hpValue, setHpValue] = useState<number | null>(null);
   const [effectFormData, setEffectFormData] = useState<ActorRoundEffect | null>(null);
@@ -32,7 +32,7 @@ const CombatDashboardManagement: FC = () => {
   return (
     <Grid container spacing={2}>
       <Grid size={1}>
-        <SelectActorRound value={actorId} actorRounds={actorRounds} onChange={(e) => setActorId(e.id)} />
+        <SelectActorRound actorId={actorId} actorRounds={actorRounds} onChange={(e) => setActorId(e.id)} />
       </Grid>
       <Grid size={1}>
         <Button variant="contained" disabled={!actorId || !hpValue} onClick={handleAddHp}>

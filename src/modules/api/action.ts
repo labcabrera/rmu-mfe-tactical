@@ -13,7 +13,7 @@ export async function fetchAction(actionId: string): Promise<Action> {
 }
 
 export async function fetchActionsByGameAndRound(gameId: string, round: number): Promise<Action[]> {
-  const url = `${process.env.RMU_API_TACTICAL_URL}/actions?q=gameId==${gameId};round==${round}`;
+  const url = `${process.env.RMU_API_TACTICAL_URL}/actions?q=gameId==${gameId};round==${round}&size=1000`;
   const response = await fetch(url, { method: 'GET', headers: getAuthHeaders() });
   if (response.status !== 200) {
     throw await buildErrorFromResponse(response, url);
