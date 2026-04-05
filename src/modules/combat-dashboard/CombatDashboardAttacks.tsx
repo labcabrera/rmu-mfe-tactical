@@ -16,6 +16,8 @@ import {
   DialogContent,
   DialogTitle,
   Button,
+  Autocomplete,
+  TextField,
 } from '@mui/material';
 import { TechnicalInfo } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { t } from 'i18next';
@@ -24,13 +26,27 @@ import { useError } from '../../ErrorContext';
 import { fetchActions } from '../api/action';
 import { Action, ActionAttack } from '../api/action.dto';
 import { Character } from '../api/characters.dto';
-import ActorAlertForm from './actor-alert-dialogs/ActorAlertForm';
 
 const CombatDashboardAttacks: FC = () => {
   const { showError } = useError();
   const { characters, game } = useContext(CombatContext)!;
   const [actions, setActions] = useState<Action[]>([]);
   const [openDialog, setOpenDialog] = useState<boolean>(false);
+  const [selectedAction, setSelectedAction] = useState<Action | null>(null);
+  const [filterCharacterId, setFilterCharacterId] = useState<string | null>(null);
+
+  const getActor = (actorId: string): Character => {
+    return characters!.find((a) => a.id === actorId)!;
+  };
+
+  const filteredActions = () => {
+    if (!filterCharacterId) return actions;
+    return actions.filter((a) => a.actorId === filterCharacterId || filterTarget(filterCharacterId, a));
+  };
+
+  const filterTarget = (targetId: string, attack: Action): boolean => {
+    return attack.attacks!.filter((e) => e.modifiers.targetId === targetId).length > 0;
+  };
 
   useEffect(() => {
     const rsql = `(actionType==melee_attack,actionType==ranged_attack);gameId==${game?.id};status!=declared`;
@@ -39,12 +55,13 @@ const CombatDashboardAttacks: FC = () => {
       .catch((err) => showError(err.message));
   }, [game]);
 
-  const getActor = (actorId: string): Character => {
-    return characters!.find((a) => a.id === actorId)!;
-  };
+  if (!characters) return <p>Loading...</p>;
 
   return (
     <>
+      <Stack spacing={1} mb={2}>
+        <SelectActor value={filterCharacterId} characters={characters} onChange={(e) => setFilterCharacterId(e)} />
+      </Stack>
       <TableContainer component={Paper}>
         <Table size="small">
           <TableHead>
@@ -53,18 +70,18 @@ const CombatDashboardAttacks: FC = () => {
               <TableCell>Defender</TableCell>
               <TableCell>Type</TableCell>
               <TableCell>AP</TableCell>
-              <TableCell>Roll</TableCell>
-              <TableCell>Total</TableCell>
-              <TableCell>BO</TableCell>
-              <TableCell>Parry</TableCell>
-              <TableCell>Damage</TableCell>
-              <TableCell>CRoll</TableCell>
+              <TableCell align="right">Roll</TableCell>
+              <TableCell align="right">Total</TableCell>
+              <TableCell align="right">BO</TableCell>
+              <TableCell align="right">Parry</TableCell>
+              <TableCell align="right">Damage</TableCell>
+              <TableCell align="right">CRoll</TableCell>
               <TableCell>CText</TableCell>
               <TableCell></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {actions.map((a: Action) =>
+            {filteredActions().map((a: Action) =>
               (a.attacks ?? []).map((at: ActionAttack, idx: number) => {
                 const attacker = getActor(a.actorId);
                 const defender = getActor(at.modifiers.targetId);
@@ -77,7 +94,15 @@ const CombatDashboardAttacks: FC = () => {
                 const criticalRolls = at.results?.criticals.map((c) => c.adjustedRoll) || [];
                 const criticalTexts = criticalResults ? criticalResults.map((e) => e.text) : [];
                 return (
-                  <TableRow key={`${a.id || ''}-${idx}`}>
+                  <TableRow
+                    key={`${a.id || ''}-${idx}`}
+                    hover
+                    onClick={() => {
+                      setSelectedAction(a);
+                      setOpenDialog(true);
+                    }}
+                    sx={{ cursor: 'pointer' }}
+                  >
                     <TableCell>
                       <Stack direction="row" spacing={1}>
                         <Avatar src={attacker.imageUrl} variant="square" />
@@ -104,7 +129,7 @@ const CombatDashboardAttacks: FC = () => {
                     </TableCell>
                     <TableCell align="right">{bo}</TableCell>
                     <TableCell align="right">{parry}</TableCell>
-                    <TableCell>
+                    <TableCell align="right">
                       <Typography variant="body2" color={damage !== '0' ? 'error' : undefined}>
                         {damage}
                       </Typography>
@@ -119,7 +144,49 @@ const CombatDashboardAttacks: FC = () => {
           </TableBody>
         </Table>
       </TableContainer>
+      {selectedAction && (
+        <AttackShowDialog
+          attack={selectedAction}
+          open={openDialog}
+          onClose={() => {
+            setOpenDialog(false);
+            setSelectedAction(null);
+          }}
+        />
+      )}
     </>
+  );
+};
+
+const SelectActor: FC<{
+  value: string | null;
+  characters: Character[];
+  onChange: (characterID: string | null) => void;
+}> = ({ value, characters, onChange }) => {
+  const selected = characters.find((e) => e.id === (value ?? '')) ?? null;
+  const handleChange = (_event: React.SyntheticEvent, newValue: Character | null) => {
+    if (newValue) {
+      onChange(newValue.id);
+    }
+  };
+  return (
+    <Autocomplete
+      options={characters}
+      getOptionLabel={(opt) => opt?.name || ''}
+      value={selected}
+      onChange={handleChange}
+      isOptionEqualToValue={(option, val) => option.id === val.id}
+      renderOption={(props, option) => (
+        <li {...props}>
+          <Stack direction="row" spacing={1} alignItems="center">
+            <Avatar src={option.imageUrl} variant="square" sx={{ width: 40, height: 40 }} />
+            <Typography variant="body2">{option.name}</Typography>
+          </Stack>
+        </li>
+      )}
+      renderInput={(params) => <TextField {...params} label={t('Actor')} variant="outlined" />}
+      sx={{ width: 220 }}
+    />
   );
 };
 
