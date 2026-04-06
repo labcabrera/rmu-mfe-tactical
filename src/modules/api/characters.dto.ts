@@ -15,3 +15,8 @@ export type CharacterAttack = {
   fumble: number;
   bo: number;
 };
+
+export type CharacterSize = {
+  id: number;
+  [key: string]: any;
+};
