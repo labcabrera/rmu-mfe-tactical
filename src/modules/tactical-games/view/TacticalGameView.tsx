@@ -1,16 +1,19 @@
 import React, { FC, useEffect, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import { Grid } from '@mui/material';
-import { EditableAvatar, TechnicalInfo } from '@labcabrera-rmu/rmu-react-shared-lib';
+import {
+  EditableAvatar,
+  fetchStrategicGame,
+  fetchTacticalGame,
+  StrategicGame,
+  TacticalGame,
+  TechnicalInfo,
+} from '@labcabrera-rmu/rmu-react-shared-lib';
 import { useError } from '../../../ErrorContext';
 import { fetchCharacters } from '../../api/characters';
 import { Character } from '../../api/characters.dto';
 import { fetchFactions } from '../../api/factions';
 import type { Faction } from '../../api/factions';
-import { fetchStrategicGame } from '../../api/strategic-games';
-import type { StrategicGame } from '../../api/strategic-games';
-import { fetchTacticalGame } from '../../api/tactical-game';
-import { TacticalGame } from '../../api/tactical-game.dto';
 import { gridSizeResume, gridSizeMain } from '../../services/display';
 import { defaultTacticalGameImage, getAvatarImages } from '../../services/image-service';
 import TacticalGameViewEnvironment from './TacticalGameEnvironment';

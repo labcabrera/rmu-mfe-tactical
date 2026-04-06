@@ -3,12 +3,11 @@ import ElectricBoltIcon from '@mui/icons-material/ElectricBolt';
 import SortIcon from '@mui/icons-material/Sort';
 import TextRotateVerticalIcon from '@mui/icons-material/TextRotateVertical';
 import { IconButton, Tooltip, Typography, Grid, Paper } from '@mui/material';
+import { randomizeInitiatives, TacticalGame } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { t } from 'i18next';
 import { CombatContext } from '../../../CombatContext';
 import { useError } from '../../../ErrorContext';
 import { ActorRound } from '../../api/actor-rounds.dto';
-import { randomizeInitiatives } from '../../api/tactical-game';
-import { TacticalGame } from '../../api/tactical-game.dto';
 import ActorRoundViewDialog from './ActorRoundViewDialog';
 import CombatActorRoundListItem from './CombatActorRoundListItem';
 

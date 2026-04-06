@@ -2,11 +2,17 @@
 import React, { FC, useEffect, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import { Grid } from '@mui/material';
-import { EditableAvatar, TechnicalInfo } from '@labcabrera-rmu/rmu-react-shared-lib';
+import {
+  EditableAvatar,
+  emptyTacticalGame,
+  fetchStrategicGame,
+  fetchTacticalGame,
+  StrategicGame,
+  TacticalGame,
+  TechnicalInfo,
+  UpdateTacticalGameDto,
+} from '@labcabrera-rmu/rmu-react-shared-lib';
 import { useError } from '../../../ErrorContext';
-import { fetchStrategicGame, StrategicGame } from '../../api/strategic-games';
-import { fetchTacticalGame } from '../../api/tactical-game';
-import { emptyTacticalGame, TacticalGame, UpdateTacticalGameDto } from '../../api/tactical-game.dto';
 import { gridSizeResume, gridSizeMain } from '../../services/display';
 import { defaultImage, getAvatarImages } from '../../services/image-service';
 import TacticalGameForm from '../shared/TacticalGameForm';

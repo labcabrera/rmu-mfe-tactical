@@ -1,11 +1,16 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { FC, useEffect, useState } from 'react';
 import { Grid } from '@mui/material';
-import { EditableAvatar, TechnicalInfo } from '@labcabrera-rmu/rmu-react-shared-lib';
+import {
+  CreateTacticalGameDto,
+  EditableAvatar,
+  emptyTacticalGame,
+  fetchStrategicGame,
+  StrategicGame,
+  TacticalGame,
+  TechnicalInfo,
+} from '@labcabrera-rmu/rmu-react-shared-lib';
 import { useError } from '../../../ErrorContext';
-import { fetchStrategicGame } from '../../api/strategic-games';
-import type { StrategicGame } from '../../api/strategic-games';
-import { CreateTacticalGameDto, emptyTacticalGame, TacticalGame } from '../../api/tactical-game.dto';
 import { imageBaseUrl } from '../../services/config';
 import { gridSizeResume, gridSizeMain } from '../../services/display';
 import { defaultImage, getAvatarImages } from '../../services/image-service';

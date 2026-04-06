@@ -1,12 +1,16 @@
 import React, { Dispatch, FC, SetStateAction, useEffect, useState } from 'react';
 import { Grid } from '@mui/material';
-import { CategorySeparator, RmuTextCard } from '@labcabrera-rmu/rmu-react-shared-lib';
+import {
+  addActor,
+  CategorySeparator,
+  deleteActor,
+  RmuTextCard,
+  TacticalGame,
+} from '@labcabrera-rmu/rmu-react-shared-lib';
 import { t } from 'i18next';
 import { useError } from '../../../ErrorContext';
 import { Character } from '../../api/characters.dto';
 import type { Faction } from '../../api/factions';
-import { addActor, deleteActor } from '../../api/tactical-game';
-import { TacticalGame } from '../../api/tactical-game.dto';
 
 const TacticalGameViewActors: FC<{
   tacticalGame: TacticalGame;

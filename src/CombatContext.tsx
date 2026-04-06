@@ -3,6 +3,12 @@
 import React, { createContext, useEffect, useState, ReactNode, Dispatch, SetStateAction, FC } from 'react';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { Box, Typography, Accordion, AccordionDetails, AccordionSummary } from '@mui/material';
+import {
+  StrategicGame,
+  TacticalGame,
+  fetchTacticalGame,
+  fetchStrategicGame,
+} from '@labcabrera-rmu/rmu-react-shared-lib';
 import { useError } from './ErrorContext';
 import { fetchActionsByGameAndRound } from './modules/api/action';
 import { Action } from './modules/api/action.dto';
@@ -11,9 +17,6 @@ import { ActorRound } from './modules/api/actor-rounds.dto';
 import { fetchCharacters } from './modules/api/characters';
 import { Character } from './modules/api/characters.dto';
 import { Faction, fetchFactions } from './modules/api/factions';
-import { StrategicGame, fetchStrategicGame } from './modules/api/strategic-games';
-import { fetchTacticalGame } from './modules/api/tactical-game';
-import { TacticalGame } from './modules/api/tactical-game.dto';
 
 type RoundActorSort = 'name' | 'initiative';
 

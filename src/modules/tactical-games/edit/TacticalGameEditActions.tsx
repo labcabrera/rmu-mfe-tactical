@@ -1,10 +1,14 @@
 import React, { FC } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CancelButton, RmuBreadcrumbs, SaveButton } from '@labcabrera-rmu/rmu-react-shared-lib';
+import {
+  CancelButton,
+  RmuBreadcrumbs,
+  SaveButton,
+  TacticalGame,
+  updateTacticalGame,
+} from '@labcabrera-rmu/rmu-react-shared-lib';
 import { t } from 'i18next';
 import { useError } from '../../../ErrorContext';
-import { updateTacticalGame } from '../../api/tactical-game';
-import { TacticalGame } from '../../api/tactical-game.dto';
 
 const TacticalGameEditActions: FC<{
   tacticalGame: TacticalGame;

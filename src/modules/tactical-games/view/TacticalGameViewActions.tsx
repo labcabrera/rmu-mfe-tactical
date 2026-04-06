@@ -5,13 +5,15 @@ import {
   CancelButton,
   DeleteButton,
   DeleteDialog,
+  deleteTacticalGame,
   EditButton,
+  fetchTacticalGame,
   RefreshButton,
+  startRound,
+  TacticalGame,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { t } from 'i18next';
 import { useError } from '../../../ErrorContext';
-import { deleteTacticalGame, fetchTacticalGame, startRound } from '../../api/tactical-game';
-import { TacticalGame } from '../../api/tactical-game.dto';
 import PlayButton from '../../shared/buttons/PlayButton';
 
 const TacticalGameViewActions: FC<{

@@ -1,11 +1,9 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { Dispatch, FC, SetStateAction, useEffect, useState } from 'react';
 import { Grid, TextField } from '@mui/material';
-import { NumericInput } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { fetchStrategicGames, NumericInput, StrategicGame, TacticalGame } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { t } from 'i18next';
 import { useError } from '../../../ErrorContext';
-import { fetchStrategicGames, StrategicGame } from '../../api/strategic-games';
-import { TacticalGame } from '../../api/tactical-game.dto';
 import SelectStrategicGame from '../../shared/selects/SelectStrategicGame';
 
 const TacticalGameForm: FC<{
@@ -17,8 +15,8 @@ const TacticalGameForm: FC<{
   const [strategicGames, setStrategicGames] = useState<StrategicGame[]>([]);
 
   const bindStrategicGames = () => {
-    fetchStrategicGames('', 0, 20)
-      .then((response) => setStrategicGames(response))
+    fetchStrategicGames('', 0, 50)
+      .then((response) => setStrategicGames(response.content))
       .catch((err) => showError(err.message));
   };
 

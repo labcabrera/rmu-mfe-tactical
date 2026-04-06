@@ -1,12 +1,18 @@
 import React, { FC, useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, ButtonGroup } from '@mui/material';
-import { BackButton, CancelButton, NextButton, RmuBreadcrumbs } from '@labcabrera-rmu/rmu-react-shared-lib';
+import {
+  BackButton,
+  CancelButton,
+  NextButton,
+  RmuBreadcrumbs,
+  startPhase,
+  startRound,
+  TacticalGame,
+} from '@labcabrera-rmu/rmu-react-shared-lib';
 import { t } from 'i18next';
 import { CombatContext } from '../../CombatContext';
 import { useError } from '../../ErrorContext';
-import { startRound, startPhase } from '../api/tactical-game';
-import { TacticalGame } from '../api/tactical-game.dto';
 
 const CombatDashboardActions: FC = () => {
   const navigate = useNavigate();
