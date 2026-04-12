@@ -5,6 +5,7 @@ import { Action } from '../../api/action.dto';
 import { ActorRound } from '../../api/actor-rounds.dto';
 import { Character } from '../../api/characters.dto';
 import ActionDialog from '../action-dialogs/ActionDialog';
+import MovementDialog from '../action-dialogs/movement/MovementDialog';
 import ActorActions from './ActorActions';
 import ActorRoundAlerts from './ActorRoundAlerts';
 import ActorRoundEffects from './ActorRoundEffects';
@@ -53,7 +54,37 @@ const CombatActorRoundListItem: FC<{
         </Grid>
       </Grid>
 
-      {selectedActionId && (
+      {selectedActionId &&
+        roundActions &&
+        (() => {
+          const action = roundActions.find((a: Action) => a.id === selectedActionId)!;
+          if (action.actionType === 'movement') {
+            return (
+              <MovementDialog
+                action={action}
+                actorRound={actorRound}
+                open={resolveDialogOpen}
+                onClose={() => {
+                  setResolveDialogOpen(false);
+                  setSelectedActionId(null);
+                }}
+              />
+            );
+          }
+          return (
+            <ActionDialog
+              action={action}
+              actorRound={actorRound}
+              character={character}
+              open={resolveDialogOpen}
+              onClose={() => {
+                setResolveDialogOpen(false);
+                setSelectedActionId(null);
+              }}
+            />
+          );
+        })()}
+      {/* {selectedActionId && (
         <ActionDialog
           action={(roundActions || []).find((a: Action) => a.id === selectedActionId) || (null as any)}
           actorRound={actorRound}
@@ -64,7 +95,7 @@ const CombatActorRoundListItem: FC<{
             setSelectedActionId(null);
           }}
         />
-      )}
+      )} */}
     </>
   );
 };

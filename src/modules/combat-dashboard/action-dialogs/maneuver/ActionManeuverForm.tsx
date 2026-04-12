@@ -3,7 +3,7 @@ import { Chip, Grid, Stack, Typography } from '@mui/material';
 import { t } from 'i18next';
 import { Action, ActionManeuver } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
-import useSkillService from '../../../services/skillService';
+import useSkillService from '../../../services/skill-service';
 import KeyValueModifiersView from '../../../shared/generic/KeyValueModifiersView';
 import ActionManeuverModifiersForm from './ActionManeuverModifiersForm';
 

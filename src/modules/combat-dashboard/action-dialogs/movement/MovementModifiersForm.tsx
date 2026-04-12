@@ -1,14 +1,13 @@
 import React, { Dispatch, FC, SetStateAction, useContext, useEffect, useState } from 'react';
 import { Button, Chip, Grid, Stack, Typography } from '@mui/material';
-import { NumericInput } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { NumericInput, StrategicGame, TacticalGame } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { useError } from '../../../../ErrorContext';
 import { resolveMovement } from '../../../api/action';
 import { Action, ActionMovement } from '../../../api/action.dto';
-import { Character } from '../../../api/characters.dto';
-import type { StrategicGame } from '../../../api/strategic-games';
-import { TacticalGame } from '../../../api/tactical-game.dto';
+import { ActorRound } from '../../../api/actor-rounds.dto';
+import { useSkillService } from '../../../services/skill-service';
 import SelectBoolean from '../../../shared/selects/SelectBoolean';
 import SelectDifficulty from '../../../shared/selects/SelectDifficulty';
 import SelectMovementSkill from '../../../shared/selects/SelectMovementSkill';
@@ -18,17 +17,18 @@ import MovementResult from './MovementResult';
 const MovementModifiersForm: FC<{
   formData: ActionMovement;
   setFormData: Dispatch<SetStateAction<ActionMovement>>;
-  character: Character;
+  actorRound: ActorRound;
   game: TacticalGame;
   strategicGame: StrategicGame;
   action: Action;
-}> = ({ formData, setFormData, character, game, strategicGame, action }) => {
+}> = ({ formData, setFormData, actorRound, game, strategicGame, action }) => {
   const [paceMultiplier, setPaceMultiplier] = useState<number | null>(null);
   const [movement, setMovement] = useState<number | null>(null);
   const [adjustedMovement, setAdjustedMovement] = useState<number | null>(null);
   const [skillBonus, setSkillBonus] = useState<number | null>(null);
   const { updateAction } = useContext(CombatContext)!;
   const { showError } = useError();
+  const { getSkillBonus } = useSkillService();
 
   const getActionPoints = () => {
     const startPhase = action.phaseStart;
@@ -40,7 +40,7 @@ const MovementModifiersForm: FC<{
     setFormData({ ...formData, modifiers: { ...formData.modifiers, pace: value } });
     setPaceMultiplier(pace.multiplier);
     const actionPoints = getActionPoints();
-    const movementValue = character.movement.baseMovementRate * pace.multiplier * actionPoints;
+    const movementValue = actorRound.movement.bmr * pace.multiplier * actionPoints;
     const scaleMultiplier = strategicGame?.options?.boardScaleMultiplier || 1;
     const adjustedMovementValue = movementValue * scaleMultiplier;
     setMovement(Number(movementValue.toFixed(2)));
@@ -51,10 +51,10 @@ const MovementModifiersForm: FC<{
     setFormData({ ...formData, modifiers: { ...formData.modifiers, difficulty: value } });
   };
 
-  const handleMovementSkillChange = (value: string) => {
-    setFormData({ ...formData, modifiers: { ...formData.modifiers, skillId: value } });
-    const skill = character.skills.find((s) => s.skillId === value);
-    setSkillBonus(skill ? skill.totalBonus : 0);
+  const handleMovementSkillChange = (skillId: string) => {
+    setFormData({ ...formData, modifiers: { ...formData.modifiers, skillId: skillId } });
+    const bonus = getSkillBonus(skillId, actorRound);
+    setSkillBonus(typeof bonus === 'number' ? bonus : null);
   };
 
   const onResolve = () => {
@@ -72,15 +72,20 @@ const MovementModifiersForm: FC<{
   };
 
   useEffect(() => {
-    const skill = character.skills.find((s) => s.skillId === 'running');
-    setSkillBonus(skill ? skill.totalBonus : 0);
-  }, [character]);
+    const skillId = formData?.modifiers?.skillId;
+    if (!skillId) {
+      setSkillBonus(null);
+      return;
+    }
+    const bonus = getSkillBonus(skillId, actorRound);
+    setSkillBonus(typeof bonus === 'number' ? bonus : null);
+  }, [actorRound, formData?.modifiers?.skillId]);
 
   return (
     <Grid container spacing={2}>
       <Grid size={12}>
         <SelectMovementSkill
-          value={formData.modifiers.skillId}
+          value={formData.modifiers.skillId || ''}
           onChange={handleMovementSkillChange}
           readOnly={action.status === 'completed'}
         />
@@ -141,11 +146,11 @@ const MovementModifiersForm: FC<{
           <Typography variant="h6">Estimated</Typography>
           <Stack direction="row" spacing={1}>
             <Chip label={`Action points: ${getActionPoints()}`} />
-            <Chip label={`Maneuver penalty: ${character.equipment.maneuverPenalty}`} />
+            <Chip label={`Maneuver penalty: ${actorRound.movement.penalty}`} />
             <Chip label={`Skill bonus: ${skillBonus !== null ? `${skillBonus > 0 ? '+' : ''}${skillBonus}` : ''}`} />
           </Stack>
           <Stack direction="row" spacing={1} mt={1}>
-            <Chip label={`BMR: ${character.movement.baseMovementRate}'`} />
+            <Chip label={`BMR: ${actorRound.movement.bmr}'`} />
             {formData?.modifiers?.pace && (
               <>
                 <Chip label={`Pace x${paceMultiplier}`} />
