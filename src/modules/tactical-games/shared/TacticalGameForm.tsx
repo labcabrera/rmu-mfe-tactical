@@ -1,23 +1,22 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { Dispatch, FC, SetStateAction, useEffect, useState } from 'react';
 import { Grid, TextField } from '@mui/material';
-import { NumericInput } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { fetchStrategicGames, NumericInput, StrategicGame, TacticalGame } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { t } from 'i18next';
 import { useError } from '../../../ErrorContext';
-import { fetchStrategicGames, StrategicGame } from '../../api/strategic-games';
-import { CreateTacticalGameDto, UpdateTacticalGameDto } from '../../api/tactical-game.dto';
 import SelectStrategicGame from '../../shared/selects/SelectStrategicGame';
 
 const TacticalGameForm: FC<{
-  formData: CreateTacticalGameDto | UpdateTacticalGameDto;
-  setFormData: Dispatch<SetStateAction<CreateTacticalGameDto | UpdateTacticalGameDto | undefined>>;
+  formData: TacticalGame;
+  setFormData: Dispatch<SetStateAction<TacticalGame>>;
   strategicGame: StrategicGame | undefined;
 }> = ({ formData, setFormData, strategicGame }) => {
   const { showError } = useError();
   const [strategicGames, setStrategicGames] = useState<StrategicGame[]>([]);
 
   const bindStrategicGames = () => {
-    fetchStrategicGames('', 0, 20)
-      .then((response) => setStrategicGames(response))
+    fetchStrategicGames('', 0, 50)
+      .then((response) => setStrategicGames(response.content))
       .catch((err) => showError(err.message));
   };
 
@@ -31,7 +30,7 @@ const TacticalGameForm: FC<{
     <Grid container spacing={1}>
       <Grid size={12}>
         <TextField
-          label={t('name')}
+          label={t('Name')}
           name="tactical-game-name"
           value={formData.name}
           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -43,7 +42,7 @@ const TacticalGameForm: FC<{
         <Grid size={12}>
           <SelectStrategicGame
             value={formData.strategicGameId}
-            onChange={(e) => setFormData({ ...formData, strategicGameId: e })}
+            onChange={(e) => setFormData({ ...formData, strategicGameId: e || '' })}
             strategicGames={strategicGames}
           />
         </Grid>
@@ -75,7 +74,7 @@ const TacticalGameForm: FC<{
       </Grid>
       <Grid size={12}>
         <TextField
-          label={t('description')}
+          label={t('Description')}
           name="description"
           value={formData.description}
           onChange={(e) => setFormData({ ...formData, description: e.target.value })}

@@ -1,5 +1,6 @@
 import React, { FC } from 'react';
 import { Typography } from '@mui/material';
+import { CategorySeparator } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { t } from 'i18next';
 import { ActionAttack } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
@@ -22,9 +23,7 @@ const AttackTitle: FC<{
 
   return (
     <>
-      <Typography variant="h6" color="primary">
-        {`${t(attack.attackName)} → ${target?.actorName}`}
-      </Typography>
+      <CategorySeparator text={`${t(attack.attackName)} → ${target?.actorName}`} />
       <Typography variant="body2" color="primary">
         {getAttackDetail()}
       </Typography>

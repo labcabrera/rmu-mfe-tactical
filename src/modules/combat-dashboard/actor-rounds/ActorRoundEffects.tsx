@@ -18,7 +18,7 @@ const ActorRoundEffects: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
         label = t('Penalty');
         break;
       default:
-        label = t(`effect-${effect.status}`);
+        label = t(`${effect.status}`);
         break;
     }
     if (effect.value) {

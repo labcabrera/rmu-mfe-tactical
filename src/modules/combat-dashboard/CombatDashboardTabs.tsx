@@ -1,6 +1,7 @@
 import React, { FC, ReactNode, SyntheticEvent, useState } from 'react';
 import { Box, Tab, Tabs } from '@mui/material';
 import CombatDashboardActions from './CombatDashboardActions';
+import CombatDashboardAttacks from './CombatDashboardAttacks';
 import CombatDashboardManagement from './CombatDashboardManagement';
 import CombatActorRoundList from './actor-rounds/CombatActorRoundList';
 
@@ -60,7 +61,9 @@ const CombatDashboardTabs: FC = () => {
           <CombatDashboardManagement />
         </CustomTabPanel>
         <CustomTabPanel value={value} index={2}></CustomTabPanel>
-        <CustomTabPanel value={value} index={3}></CustomTabPanel>
+        <CustomTabPanel value={value} index={3}>
+          <CombatDashboardAttacks />
+        </CustomTabPanel>
         <CustomTabPanel value={value} index={4}></CustomTabPanel>
       </Box>
     </>

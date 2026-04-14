@@ -5,14 +5,19 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
+import { TransitionProps } from '@mui/material/transitions';
 import { t } from 'i18next';
 import { ActorRound, ActorRoundAlert } from '../../api/actor-rounds.dto';
 import ActorAlertForm from './ActorAlertForm';
 
-const Transition = React.forwardRef(function Transition(props, ref) {
-  return <Slide children={undefined} direction="up" ref={ref} {...props} />;
+const Transition = React.forwardRef(function Transition(
+  props: TransitionProps & {
+    children: React.ReactElement<unknown>;
+  },
+  ref: React.Ref<unknown>
+) {
+  return <Slide direction="up" ref={ref} {...props} />;
 });
-
 const ActorAlertDialog: FC<{
   actorRound: ActorRound;
   alertId: string;

@@ -1,29 +1,35 @@
-import React, { FC, useContext } from 'react';
-import { useNavigate, Link as RouterLink } from 'react-router-dom';
-import { Box, Breadcrumbs, Button, Link, Stack, Typography } from '@mui/material';
-import { AddButton, BackButton, CancelButton, NextButton } from '@labcabrera-rmu/rmu-react-shared-lib';
+import React, { FC, useContext, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Button, ButtonGroup } from '@mui/material';
+import {
+  BackButton,
+  CancelButton,
+  NextButton,
+  RmuBreadcrumbs,
+  startPhase,
+  startRound,
+  TacticalGame,
+} from '@labcabrera-rmu/rmu-react-shared-lib';
 import { t } from 'i18next';
 import { CombatContext } from '../../CombatContext';
 import { useError } from '../../ErrorContext';
-import { startRound, startPhase } from '../api/tactical-game';
-import { TacticalGame } from '../api/tactical-game.dto';
-import CloseButton from '../shared/buttons/CloseButton';
 
 const CombatDashboardActions: FC = () => {
   const navigate = useNavigate();
   const { showError } = useError();
   const { displayRound, setDisplayRound, game, setGame } = useContext(CombatContext)!;
+  const [breadcrumbs, setBreadcrumbs] = useState<any[]>([]);
 
   const onDisplayPrevRound = () => {
-    setDisplayRound(displayRound > 1 ? displayRound - 1 : 1);
+    setDisplayRound(displayRound! > 1 ? displayRound! - 1 : 1);
   };
 
   const onDisplayNextRound = () => {
-    setDisplayRound(displayRound + 1);
+    setDisplayRound(displayRound! + 1);
   };
 
   const onNextRound = async () => {
-    startRound(game.id)
+    startRound(game!.id)
       .then((game: TacticalGame) => {
         setGame(game);
         setDisplayRound(game.round);
@@ -32,61 +38,103 @@ const CombatDashboardActions: FC = () => {
   };
 
   const onNextPhase = async () => {
-    startPhase(game.id)
+    startPhase(game!.id)
       .then((game: TacticalGame) => setGame(game))
       .catch((err) => showError(err.message));
   };
 
   const onClose = () => {
-    navigate(`/tactical/view/${game.id}`, { state: { game } });
+    navigate(`/tactical/games/view/${game!.id}`);
   };
 
-  const nextPhaseAvailable = () => {
-    return game.phase !== 'upkeep';
-  };
+  useEffect(() => {
+    if (game) {
+      setBreadcrumbs([
+        { name: t('Tactical'), link: '/tactical' },
+        { name: t('Game'), link: `/tactical/games/view/${game.id}` },
+        { name: `Round ${displayRound} of ${game.round}` },
+      ]);
+    }
+  }, [game, displayRound]);
 
   if (!displayRound || !game) return <p>Loading...</p>;
 
   return (
     <>
-      <Stack spacing={2} direction="row" justifyContent="space-between" alignItems="center" sx={{ minHeight: 80 }}>
-        <Box>
-          <Breadcrumbs aria-label="breadcrumb">
-            <Link color="primary" underline="hover" href="/">
-              {t('home')}
-            </Link>
-            <Link component={RouterLink} color="primary" underline="hover" to="/tactical/games">
-              {t('tactical')}
-            </Link>
-            <Link component={RouterLink} color="primary" underline="hover" to="/tactical/games">
-              {t('games')}
-            </Link>
-            <Link component={RouterLink} color="primary" underline="hover" to={`/tactical/games/view/${game.id}`}>
-              {game.name}
-            </Link>
-            <Typography color="secondary">
-              Round {displayRound} of {game.round}
-            </Typography>
-            <Typography color="secondary">{t(game.phase)}</Typography>
-          </Breadcrumbs>
-        </Box>
-        <Stack direction="row" spacing={2}>
-          <BackButton onClick={onDisplayPrevRound} disabled={displayRound === 1} />
-          <NextButton onClick={onDisplayNextRound} disabled={displayRound === game.round} />
-          <AddButton onClick={onNextRound} />
-          <CancelButton onClick={onClose} />
-          {nextPhaseAvailable() ? (
-            <Button onClick={onNextPhase} size="small">
-              Next phase
-            </Button>
-          ) : (
-            <Button onClick={onNextRound} size="small">
-              Next round
-            </Button>
-          )}
-        </Stack>
-      </Stack>
+      <RmuBreadcrumbs items={breadcrumbs}>
+        <BackButton onClick={onDisplayPrevRound} disabled={displayRound === 1} />
+        <NextButton onClick={onDisplayNextRound} disabled={displayRound === game.round} />
+        <CancelButton onClick={onClose} />
+      </RmuBreadcrumbs>
+      {game.round === displayRound && (
+        <TurnPhaseButtons game={game} onNextPhase={onNextPhase} onNextRound={onNextRound} />
+      )}
     </>
+  );
+};
+
+const TurnPhaseButtons: FC<{ game: TacticalGame; onNextPhase: () => void; onNextRound: () => void }> = ({
+  game,
+  onNextPhase,
+  onNextRound,
+}) => {
+  return (
+    <ButtonGroup variant="contained">
+      <Button
+        value="left"
+        color={game.phase === 'declare_initiative' ? 'secondary' : 'primary'}
+        disabled={game.phase !== 'declare_initiative'}
+        sx={{
+          cursor: 'default',
+          pointerEvents: 'none',
+          '&:hover': {
+            backgroundColor: 'inherit',
+          },
+          '&:active': {
+            boxShadow: 'none',
+            transform: 'none',
+          },
+          '&:focus': {
+            outline: 'none',
+          },
+        }}
+      >
+        Initiative
+      </Button>
+      <TurnPhaseButton
+        game={game}
+        phase={'phase_1'}
+        enabledPhases={['phase_1', 'declare_initiative']}
+        onNextPhase={onNextPhase}
+      />
+      <TurnPhaseButton game={game} phase={'phase_2'} enabledPhases={['phase_1', 'phase_2']} onNextPhase={onNextPhase} />
+      <TurnPhaseButton game={game} phase={'phase_3'} enabledPhases={['phase_2', 'phase_3']} onNextPhase={onNextPhase} />
+      <TurnPhaseButton game={game} phase={'phase_4'} enabledPhases={['phase_3', 'phase_4']} onNextPhase={onNextPhase} />
+      <TurnPhaseButton game={game} phase={'upkeep'} enabledPhases={['phase_4', 'upkeep']} onNextPhase={onNextPhase} />
+      <Button onClick={onNextRound} disabled={game.phase !== 'upkeep'}>
+        Next round
+      </Button>
+    </ButtonGroup>
+  );
+};
+
+const TurnPhaseButton: FC<{ game: TacticalGame; phase: string; enabledPhases: string[]; onNextPhase?: () => void }> = ({
+  game,
+  phase,
+  enabledPhases,
+  onNextPhase,
+}) => {
+  const disabled = !enabledPhases.includes(game.phase);
+  const samePhase = game.phase === phase;
+  return (
+    <Button
+      color={samePhase ? 'secondary' : 'primary'}
+      sx={{ pointer: samePhase ? 'default' : 'pointer' }}
+      disabled={disabled}
+      onClick={samePhase ? undefined : onNextPhase}
+    >
+      {t(phase)}
+    </Button>
   );
 };
 

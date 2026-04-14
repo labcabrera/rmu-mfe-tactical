@@ -2,7 +2,6 @@ import React, { FC } from 'react';
 import { Box, LinearProgress, Typography } from '@mui/material';
 
 type GenericBarProps = {
-  title: string;
   width?: number;
   max: number;
   current: number;
@@ -12,7 +11,7 @@ type GenericBarProps = {
 };
 
 const GenericBar: FC<GenericBarProps> = ({
-  width = 140,
+  width = 600,
   max,
   current,
   colorOk = '#4caf50',

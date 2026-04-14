@@ -1,10 +1,9 @@
 import React, { Dispatch, FC, Fragment, SetStateAction, useContext } from 'react';
-import { Grid, TextField, Typography } from '@mui/material';
-import { NumericInput } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { Grid, Stack, Typography } from '@mui/material';
+import { CategorySeparator, NumericInput } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { AttackDeclaration } from '../../../api/action.dto';
-import NumericReadonlyInput from '../../../shared/inputs/NumericReadonlyInput';
 
 const ResolveAttackFormModifiers: FC<{
   formData: AttackDeclaration;
@@ -25,23 +24,31 @@ const ResolveAttackFormModifiers: FC<{
           {formData.parries.map((parry, index) => (
             <Fragment key={index}>
               <Grid size={12}>
-                <Typography variant="h6" color="primary">
-                  {t('parries')}
-                </Typography>
+                <CategorySeparator text={t('parries')} />
               </Grid>
               <Grid size={2}>
-                <TextField
-                  label={t('defending-with')}
-                  value={t(getActorName(parry.actorId))}
-                  name="actorId"
-                  variant="standard"
-                />
+                <Stack direction={'column'}>
+                  <Typography>{t(getActorName(parry.actorId))}</Typography>
+                  <Typography variant="body2" color="secondary">
+                    {t('defending-with')}
+                  </Typography>
+                </Stack>
               </Grid>
               <Grid size={2}>
-                <TextField label={t('parry-type')} value={t(parry.parryType)} name="parryType" variant="standard" />
+                <Stack direction={'column'}>
+                  <Typography>{t(parry.parryType || '')}</Typography>
+                  <Typography variant="body2" color="secondary">
+                    {t('parry-type')}
+                  </Typography>
+                </Stack>
               </Grid>
               <Grid size={2}>
-                <NumericReadonlyInput label={t('available-parry')} value={parry.parryAvailable} name="availableParry" />
+                <Stack direction={'column'}>
+                  <Typography>{parry.parryAvailable}</Typography>
+                  <Typography variant="body2" color="secondary">
+                    {t('available-parry')}
+                  </Typography>
+                </Stack>
               </Grid>
               <Grid size={2}>
                 <NumericInput

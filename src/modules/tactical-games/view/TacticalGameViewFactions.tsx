@@ -1,11 +1,15 @@
 import React, { Dispatch, FC, SetStateAction } from 'react';
 import { Grid } from '@mui/material';
-import { CategorySeparator, RmuTextCard } from '@labcabrera-rmu/rmu-react-shared-lib';
+import {
+  CategorySeparator,
+  deleteTacticalGameFaction,
+  addTacticalGameFaction,
+  RmuTextCard,
+  TacticalGame,
+} from '@labcabrera-rmu/rmu-react-shared-lib';
 import { t } from 'i18next';
 import { useError } from '../../../ErrorContext';
 import type { Faction } from '../../api/factions';
-import { addFaction, deleteFaction } from '../../api/tactical-game';
-import { TacticalGame } from '../../api/tactical-game.dto';
 import { defaultFactionImage } from '../../services/image-service';
 
 const TacticalGameViewFactions: FC<{
@@ -21,15 +25,10 @@ const TacticalGameViewFactions: FC<{
 
   const handleFactionChange = (factionId: string) => {
     const checked = isSelected(factionId);
-    const func = checked ? deleteFaction : addFaction;
+    const func = checked ? deleteTacticalGameFaction : addTacticalGameFaction;
     func(tacticalGame.id, factionId)
-      .then((updatedGame) => {
-        setTacticalGame(updatedGame);
-      })
-      .catch((err: unknown) => {
-        if (err instanceof Error) showError(err.message);
-        else showError('An unknown error occurred');
-      });
+      .then((updatedGame) => setTacticalGame(updatedGame))
+      .catch((err) => showError(err.message));
   };
 
   if (!tacticalGame) return <p>Loading game...</p>;

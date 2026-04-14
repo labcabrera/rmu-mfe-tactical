@@ -40,6 +40,20 @@ const ResolveAttackFormCriticals: FC<{
       .catch((err: Error) => showError(err.message));
   };
 
+  const getStatusLabel = (effect: any) => {
+    const labels = [];
+    if (effect.value) {
+      labels.push(`${t(effect.status)} ${effect.value}`);
+    } else {
+      labels.push(t(effect.status));
+    }
+    if (effect.rounds) {
+      labels.push(`${effect.rounds} ${effect.rounds === 1 ? ' Round' : ' Rounds'}`);
+    }
+    if (effect.deplay) labels.push(`${effect.rounds} Delay`);
+    return labels.join(', ');
+  };
+
   return (
     <>
       {attack.results.criticals.map((critical: any, index: number) => (
@@ -47,7 +61,7 @@ const ResolveAttackFormCriticals: FC<{
           <Grid size={2} offset={2}>
             <NumericInput
               label={t('critical-roll')}
-              value={getCriticalRoll(critical.key)}
+              value={getCriticalRoll(critical.key) || null}
               onChange={(e) => onUpdateCriticalRoll(critical.key, e)}
               disabled={action.status === 'completed'}
             />
@@ -65,19 +79,13 @@ const ResolveAttackFormCriticals: FC<{
               }}
             >
               {critical.result && critical.result.damage && critical.result.damage > 0 && (
-                <Effect effect={'dmg'} value={critical.result.damage} color="error" />
+                <Effect status={'dmg'} label={critical.result.damage} color="error" />
               )}
               {critical.result &&
                 critical.result.effects &&
                 critical.result.effects.length > 0 &&
                 critical.result.effects.map((effect, effectIndex) => (
-                  <Effect
-                    key={effectIndex}
-                    effect={effect.status}
-                    rounds={effect.rounds}
-                    value={effect.value}
-                    color="error"
-                  />
+                  <Effect key={effectIndex} label={getStatusLabel(effect)} color="error" status={effect.status} />
                 ))}
             </Stack>
           </Grid>

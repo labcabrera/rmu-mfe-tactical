@@ -22,7 +22,7 @@ const SelectStrategicGame: FC<{
       value={selectedOption}
       onChange={(_event, newValue) => onChange(newValue ? newValue.id : null)}
       fullWidth
-      renderInput={(params) => <TextField {...params} label={t('strategic-game')} error={!value} />}
+      renderInput={(params) => <TextField {...params} label={t('Strategic game')} error={!value} />}
     />
   );
 };

@@ -1,9 +1,10 @@
 import { getAuthHeaders } from '../services/auth-token-service';
+import { apiStrategicUrl } from '../services/config';
 import { buildErrorFromResponse } from './api-errors';
-import { Character } from './characters.dto';
+import { Character, CharacterSize } from './characters.dto';
 
 export async function fetchCharacter(characterId: string): Promise<Character> {
-  const url = `${process.env.RMU_API_STRATEGIC_URL}/characters/${characterId}`;
+  const url = `${apiStrategicUrl}/characters/${characterId}`;
   const response = await fetch(url, { method: 'GET', headers: getAuthHeaders() });
   if (response.status !== 200) {
     throw await buildErrorFromResponse(response, url);
@@ -12,7 +13,7 @@ export async function fetchCharacter(characterId: string): Promise<Character> {
 }
 
 export async function fetchCharacters(rsql: string, page: number, size: number): Promise<Character[]> {
-  const url = `${process.env.RMU_API_STRATEGIC_URL}/characters?q=${rsql}&page=${page}&size=${size}`;
+  const url = `${apiStrategicUrl}/characters?q=${rsql}&page=${page}&size=${size}`;
   const response = await fetch(url, { method: 'GET', headers: getAuthHeaders() });
   if (response.status !== 200) {
     throw await buildErrorFromResponse(response, url);
@@ -21,13 +22,8 @@ export async function fetchCharacters(rsql: string, page: number, size: number):
   return pageContent.content;
 }
 
-export type CharacterSize = {
-  id: number;
-  [key: string]: any;
-};
-
 export async function fetchCharacterSizes(): Promise<CharacterSize[]> {
-  const url = `${process.env.RMU_API_CORE_URL}/character-sizes`;
+  const url = `${apiStrategicUrl}/character-sizes`;
   const response = await fetch(url, { method: 'GET', headers: getAuthHeaders() });
   if (response.status !== 200) {
     throw await buildErrorFromResponse(response, url);

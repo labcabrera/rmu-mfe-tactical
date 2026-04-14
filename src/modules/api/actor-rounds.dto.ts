@@ -4,6 +4,7 @@ export type ActorRound = {
   actorId: string;
   actorName: string;
   round: number;
+  movement: ActorRoundMovement;
   initiative: ActorRoundInitiative;
   actionPoints: number;
   hp: ActorRoundHp;
@@ -14,6 +15,13 @@ export type ActorRound = {
   defense: ActorRoundDefense;
   alerts: ActorRoundAlert[];
   imageUrl: string | undefined;
+};
+
+export type ActorRoundMovement = {
+  bmr: number;
+  penalty: number;
+  maxPace: string;
+  baseDificulty: string;
 };
 
 export type ActorRoundPenaltyModifier = {
@@ -73,7 +81,7 @@ export type ActorRoundAttack = {
   type: 'melee' | 'ranged';
   attackTable: string;
   fumbleTable: string;
-  attackSize: string;
+  attackSize: number;
   fumble: number;
   canThrow: boolean;
   ranges: ActorRoundAttackRange[] | undefined;

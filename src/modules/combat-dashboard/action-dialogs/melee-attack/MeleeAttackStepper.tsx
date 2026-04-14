@@ -1,5 +1,5 @@
 import React, { Dispatch, FC, SetStateAction } from 'react';
-import { Box, Button, Step, StepLabel, Stepper } from '@mui/material';
+import { Box, Button, Stack, Step, StepLabel, Stepper } from '@mui/material';
 import { t } from 'i18next';
 import { Action, AttackDeclaration } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
@@ -70,8 +70,8 @@ const MeleeAttackStepper: FC<{
       {activeStep === 2 && <ResolveAttackParry action={action} formData={formData} setFormData={setFormData} />}
       {activeStep === 3 && <ResolveAttackTabRoll formData={formData} action={action} setFormData={setFormData} />}
 
-      <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2, mt: 'auto' }}>
-        <Button color="inherit" disabled={activeStep === 0} onClick={handleBack} sx={{ mr: 1 }}>
+      <Stack direction="row" spacing={1}>
+        <Button disabled={activeStep === 0} onClick={handleBack} sx={{ mr: 1 }}>
           {t('back')}
         </Button>
         <Box sx={{ flex: '1 1 auto' }} />
@@ -81,7 +81,9 @@ const MeleeAttackStepper: FC<{
         <Button onClick={handleNext} disabled={isDisabledNext()}>
           {t('next')}
         </Button>
-      </Box>
+      </Stack>
+      {/* <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2, mt: 'auto' }}>
+      </Box> */}
     </Box>
   );
 };
