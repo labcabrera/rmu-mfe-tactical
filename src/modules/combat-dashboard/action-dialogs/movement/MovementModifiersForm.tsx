@@ -9,6 +9,7 @@ import SelectBoolean from '../../../shared/selects/SelectBoolean';
 import SelectDifficulty from '../../../shared/selects/SelectDifficulty';
 import SelectMovementSkill from '../../../shared/selects/SelectMovementSkill';
 import SelectPace, { Pace } from '../../../shared/selects/SelectPace';
+import MovementPaceTableSelector from './MovementPaceTableSelector';
 import MovementResult from './MovementResult';
 
 const MovementModifiersForm: FC<{
@@ -69,6 +70,16 @@ const MovementModifiersForm: FC<{
           value={formData.modifiers.skillId || ''}
           onChange={handleMovementSkillChange}
           readOnly={action.status === 'completed'}
+        />
+      </Grid>
+      <Grid size={12}>
+        <MovementPaceTableSelector
+          actorRound={actorRound}
+          formData={formData}
+          setFormData={setFormData}
+          game={game}
+          strategicGame={strategicGame}
+          action={action}
         />
       </Grid>
       <Grid size={12}>
