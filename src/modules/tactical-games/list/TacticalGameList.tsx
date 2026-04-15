@@ -38,12 +38,12 @@ const TacticalGameList: FC = () => {
 
   return (
     <>
-      <TacticalGameListActions />
       <Grid container spacing={1}>
         <Grid size={gridSizeResume}>
           <TacticalGameResume />
         </Grid>
         <Grid size={gridSizeMain}>
+          <TacticalGameListActions />
           <Grid container spacing={1}>
             <Grid size={12}>
               <TacticalGameListSearch setQueryString={setQueryString} />

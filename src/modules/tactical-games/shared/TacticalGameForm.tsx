@@ -51,7 +51,7 @@ const TacticalGameForm: FC<{
       <Grid size={2}>
         <NumericInput
           label="Temperature fatigue modifier"
-          value={formData.environment?.temperatureFatigueModifier || null}
+          value={formData.environment?.temperatureFatigueModifier || 0}
           onChange={(value) =>
             setFormData({
               ...formData,
@@ -63,7 +63,7 @@ const TacticalGameForm: FC<{
       <Grid size={2}>
         <NumericInput
           label="Altitude fatigue modifier"
-          value={formData.environment?.altitudeFatigueModifier || null}
+          value={formData.environment?.altitudeFatigueModifier || 0}
           onChange={(value) =>
             setFormData({
               ...formData,

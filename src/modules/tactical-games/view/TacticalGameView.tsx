@@ -8,6 +8,7 @@ import {
   StrategicGame,
   TacticalGame,
   TechnicalInfo,
+  updateTacticalGame,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { useError } from '../../../ErrorContext';
 import { fetchCharacters } from '../../api/characters';
@@ -32,7 +33,11 @@ const TacticalGameView: FC = () => {
   const [factions, setFactions] = useState<Faction[]>([]);
 
   const updateImage = (imageUrl: string) => {
-    showError('Not implemented ' + imageUrl);
+    if (!gameId || !imageUrl) return;
+    const dto = { imageUrl };
+    updateTacticalGame(gameId, dto)
+      .then((response) => setTacticalGame(response))
+      .catch((err) => showError(err));
   };
 
   useEffect(() => {
@@ -67,34 +72,32 @@ const TacticalGameView: FC = () => {
   if (!tacticalGame) return <p>Loading...</p>;
 
   return (
-    <>
-      <TacticalGameViewActions tacticalGame={tacticalGame} setTacticalGame={setTacticalGame} />
-      <Grid container spacing={1}>
-        <Grid size={gridSizeResume}>
-          <EditableAvatar
-            imageUrl={tacticalGame.imageUrl || defaultTacticalGameImage}
-            images={getAvatarImages()}
-            onImageChange={(imageUrl) => updateImage(imageUrl)}
-          />
-          <TacticalGameViewResume tacticalGame={tacticalGame} strategicGame={strategicGame} />
-          <TacticalGameViewFactions tacticalGame={tacticalGame} setTacticalGame={setTacticalGame} factions={factions} />
-          <TacticalGameViewEnvironment tacticalGame={tacticalGame} />
-        </Grid>
-        <Grid size={gridSizeMain}>
-          <TacticalGameViewActors
-            tacticalGame={tacticalGame}
-            setTacticalGame={setTacticalGame}
-            factions={factions}
-            characters={characters}
-          />
-        </Grid>
-        <Grid size={12}>
-          <TechnicalInfo>
-            <pre>TacticalGame: {JSON.stringify(tacticalGame, null, 2)}</pre>
-          </TechnicalInfo>
-        </Grid>
+    <Grid container spacing={1}>
+      <Grid size={gridSizeResume}>
+        <EditableAvatar
+          imageUrl={tacticalGame.imageUrl || defaultTacticalGameImage}
+          images={getAvatarImages()}
+          onImageChange={(imageUrl) => updateImage(imageUrl)}
+        />
+        <TacticalGameViewResume tacticalGame={tacticalGame} strategicGame={strategicGame} />
+        <TacticalGameViewFactions tacticalGame={tacticalGame} setTacticalGame={setTacticalGame} factions={factions} />
+        <TacticalGameViewEnvironment tacticalGame={tacticalGame} />
       </Grid>
-    </>
+      <Grid size={gridSizeMain}>
+        <TacticalGameViewActions tacticalGame={tacticalGame} setTacticalGame={setTacticalGame} />
+        <TacticalGameViewActors
+          tacticalGame={tacticalGame}
+          setTacticalGame={setTacticalGame}
+          factions={factions}
+          characters={characters}
+        />
+      </Grid>
+      <Grid size={12}>
+        <TechnicalInfo>
+          <pre>TacticalGame: {JSON.stringify(tacticalGame, null, 2)}</pre>
+        </TechnicalInfo>
+      </Grid>
+    </Grid>
   );
 };
 

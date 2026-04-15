@@ -60,24 +60,22 @@ const TacticalGameEdit: FC = () => {
   if (!tacticalGame || !formData) return <div>Loading tactical game...</div>;
 
   return (
-    <>
-      <TacticalGameEditActions tacticalGame={tacticalGame} formData={formData} isValid={isValid} />
-      <Grid container spacing={1}>
-        <Grid size={gridSizeResume}>
-          <EditableAvatar
-            imageUrl={formData.imageUrl || defaultImage}
-            images={getAvatarImages()}
-            onImageChange={(imageUrl) => setFormData({ ...formData, imageUrl: imageUrl })}
-          />
-        </Grid>
-        <Grid size={gridSizeMain}>
-          <TacticalGameForm formData={formData} setFormData={setFormData} strategicGame={strategicGame} />
-          <TechnicalInfo>
-            <pre>FormData: {JSON.stringify(formData, null, 2)}</pre>
-          </TechnicalInfo>
-        </Grid>
+    <Grid container spacing={1}>
+      <Grid size={gridSizeResume}>
+        <EditableAvatar
+          imageUrl={formData.imageUrl || defaultImage}
+          images={getAvatarImages()}
+          onImageChange={(imageUrl) => setFormData({ ...formData, imageUrl: imageUrl })}
+        />
       </Grid>
-    </>
+      <Grid size={gridSizeMain}>
+        <TacticalGameEditActions tacticalGame={tacticalGame} formData={formData} isValid={isValid} />
+        <TacticalGameForm formData={formData} setFormData={setFormData} strategicGame={strategicGame} />
+        <TechnicalInfo>
+          <pre>FormData: {JSON.stringify(formData, null, 2)}</pre>
+        </TechnicalInfo>
+      </Grid>
+    </Grid>
   );
 };
 

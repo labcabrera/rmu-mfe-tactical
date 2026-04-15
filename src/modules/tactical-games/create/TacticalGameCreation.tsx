@@ -4,7 +4,6 @@ import { Grid } from '@mui/material';
 import {
   CreateTacticalGameDto,
   EditableAvatar,
-  emptyTacticalGame,
   fetchStrategicGame,
   StrategicGame,
   TacticalGame,
@@ -13,11 +12,11 @@ import {
 import { useError } from '../../../ErrorContext';
 import { imageBaseUrl } from '../../services/config';
 import { gridSizeResume, gridSizeMain } from '../../services/display';
-import { defaultImage, getAvatarImages } from '../../services/image-service';
+import { getAvatarImages } from '../../services/image-service';
 import TacticalGameForm from '../shared/TacticalGameForm';
 import TacticalGameCreationActions from './TacticalGameCreationActions';
 
-export const createGameTemplate = {
+const EMPTY_GAME_TEMPLATE = {
   strategicGameId: '',
   name: '',
   actors: [],
@@ -26,14 +25,14 @@ export const createGameTemplate = {
     altitudeFatigueModifier: 0,
   },
   description: '',
-  imageUrl: '',
-};
+  imageUrl: `${imageBaseUrl}images/generic/tactical.png`,
+} as unknown as TacticalGame;
 
 const TacticalGameCreation: FC = () => {
   const { showError } = useError();
   const params = new URLSearchParams(window.location.search);
   const strategicGameId = params.get('strategicGame');
-  const [formData, setFormData] = useState<TacticalGame>(emptyTacticalGame);
+  const [formData, setFormData] = useState<TacticalGame>(EMPTY_GAME_TEMPLATE);
   const [isValid, setIsValid] = useState(false);
   const [strategicGame, setStrategicGame] = useState<StrategicGame>();
 
@@ -72,16 +71,16 @@ const TacticalGameCreation: FC = () => {
 
   return (
     <>
-      <TacticalGameCreationActions formData={formData} isValid={isValid} />
       <Grid container spacing={1}>
         <Grid size={gridSizeResume}>
           <EditableAvatar
-            imageUrl={formData.imageUrl || defaultImage}
+            imageUrl={formData.imageUrl || `${imageBaseUrl}images/generic/tactical.png`}
             images={getAvatarImages()}
             onImageChange={(imageUrl) => setFormData({ ...formData, imageUrl: imageUrl })}
           />
         </Grid>
         <Grid size={gridSizeMain}>
+          <TacticalGameCreationActions formData={formData} isValid={isValid} />
           <TacticalGameForm formData={formData} setFormData={setFormData} strategicGame={strategicGame} />
           <TechnicalInfo>
             <pre>FormData: {JSON.stringify(formData, null, 2)}</pre>

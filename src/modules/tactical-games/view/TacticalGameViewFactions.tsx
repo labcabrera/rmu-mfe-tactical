@@ -37,7 +37,7 @@ const TacticalGameViewFactions: FC<{
 
   return (
     <>
-      <CategorySeparator text={t('factions')} />
+      <CategorySeparator text={t('Factions')} />
       <Grid container spacing={1}>
         {factions.map((faction, index) => (
           <Grid size={12}>
