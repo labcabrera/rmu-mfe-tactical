@@ -8,6 +8,7 @@ import { resolveMovement } from '../../../api/action';
 import { Action, ActionMovement } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
 import { useSkillService } from '../../../services/skill-service';
+import OpenEndedRollInput from '../../../shared/inputs/OpenEndedRollInput';
 import SelectBoolean from '../../../shared/selects/SelectBoolean';
 import SelectDifficulty from '../../../shared/selects/SelectDifficulty';
 import SelectMovementSkill from '../../../shared/selects/SelectMovementSkill';
@@ -135,6 +136,9 @@ const MovementModifiersForm: FC<{
                   onChange={(val: number | null) => setFormData({ ...formData, roll: { roll: val } })}
                   integer
                 />
+              </Grid>
+              <Grid size={12}>
+                <OpenEndedRollInput value={''} onChange={(v) => setFormData({ ...formData, roll: { roll: v } })} />
               </Grid>
               <Grid size={12}></Grid>
             </>

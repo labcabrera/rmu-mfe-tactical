@@ -4,7 +4,6 @@ import { Action } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
 import MovementModifiersForm from './MovementModifiersForm';
 
-//TODO remove character. Read from actor
 const MovementForm: FC<{
   action: Action;
   actorRound: ActorRound;
@@ -34,6 +33,8 @@ const MovementForm: FC<{
       }));
     }
   }, [action]);
+
+  if (!game || !strategicGame) return <p>Loading...</p>;
 
   if (!formData) return <div>Loading...</div>;
 
