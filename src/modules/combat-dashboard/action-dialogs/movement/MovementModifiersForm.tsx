@@ -1,14 +1,10 @@
-import React, { Dispatch, FC, SetStateAction, useContext, useEffect, useState } from 'react';
-import { Button, Chip, Grid, Stack, Typography } from '@mui/material';
-import { NumericInput, StrategicGame, TacticalGame } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { t } from 'i18next';
-import { CombatContext } from '../../../../CombatContext';
-import { useError } from '../../../../ErrorContext';
-import { resolveMovement } from '../../../api/action';
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { Dispatch, FC, SetStateAction, useEffect, useState } from 'react';
+import { Chip, Grid, Stack, Typography } from '@mui/material';
+import { NumericInput, OpenEndedRollInput, StrategicGame, TacticalGame } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { Action, ActionMovement } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
 import { useSkillService } from '../../../services/skill-service';
-import OpenEndedRollInput from '../../../shared/inputs/OpenEndedRollInput';
 import SelectBoolean from '../../../shared/selects/SelectBoolean';
 import SelectDifficulty from '../../../shared/selects/SelectDifficulty';
 import SelectMovementSkill from '../../../shared/selects/SelectMovementSkill';
@@ -27,8 +23,6 @@ const MovementModifiersForm: FC<{
   const [movement, setMovement] = useState<number | null>(null);
   const [adjustedMovement, setAdjustedMovement] = useState<number | null>(null);
   const [skillBonus, setSkillBonus] = useState<number | null>(null);
-  const { updateAction } = useContext(CombatContext)!;
-  const { showError } = useError();
   const { getSkillBonus } = useSkillService();
 
   const getActionPoints = () => {
@@ -56,20 +50,6 @@ const MovementModifiersForm: FC<{
     setFormData({ ...formData, modifiers: { ...formData.modifiers, skillId: skillId } });
     const bonus = getSkillBonus(skillId, actorRound);
     setSkillBonus(typeof bonus === 'number' ? bonus : null);
-  };
-
-  const onResolve = () => {
-    resolveMovement(action.id, formData)
-      .then((result: Action) => {
-        updateAction(result);
-      })
-      .catch((err: Error) => showError(err.message));
-  };
-
-  const resolveButtonDisabled = () => {
-    if (!formData.modifiers.pace) return true;
-    if (formData.modifiers.requiredManeuver && !formData.roll?.roll) return true;
-    return false;
   };
 
   useEffect(() => {
@@ -124,23 +104,17 @@ const MovementModifiersForm: FC<{
                   label="Custom modifier"
                   value={formData.modifiers.customModifier}
                   onChange={(val: number | null) =>
-                    setFormData({ ...formData, modifiers: { ...formData.modifiers, customModifier: val } })
+                    setFormData({ ...formData, modifiers: { ...formData.modifiers, customModifier: val || 0 } })
                   }
                   integer
                 />
               </Grid>
-              <Grid size={2}>
-                <NumericInput
-                  label="Roll"
-                  value={formData.roll.roll}
-                  onChange={(val: number | null) => setFormData({ ...formData, roll: { roll: val } })}
-                  integer
-                />
+              <Grid size={12}>
+                <OpenEndedRollInput onChange={(v) => setFormData({ ...formData, roll: { roll: v } })} />
               </Grid>
               <Grid size={12}>
-                <OpenEndedRollInput value={''} onChange={(v) => setFormData({ ...formData, roll: { roll: v } })} />
+                {formData.roll && formData.roll.roll && <Typography>Roll: {formData.roll.roll}</Typography>}
               </Grid>
-              <Grid size={12}></Grid>
             </>
           )}
         </>
@@ -165,18 +139,7 @@ const MovementModifiersForm: FC<{
           </Stack>
         </Grid>
       )}
-      {action.status !== 'completed' && (
-        <Button onClick={onResolve} size="large" disabled={resolveButtonDisabled()} variant="contained" color="success">
-          {t('resolve')}
-        </Button>
-      )}
       {action.movement && action.movement.calculated && <MovementResult action={action} />}
-      {/* <Grid size={12}>
-        <pre>{JSON.stringify(formData, null, 2)}</pre>
-      </Grid>
-      <Grid size={12}>
-        <pre>{JSON.stringify(action, null, 2)}</pre>
-      </Grid> */}
     </Grid>
   );
 };

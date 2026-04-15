@@ -21,7 +21,7 @@ const SelectMovementSkill: FC<{
       <FormLabel id={labelId} component="legend" sx={{ mb: 1, typography: 'body1' }}>
         {t('skill')}
       </FormLabel>
-      <ToggleButtonGroup aria-label="movement skill" value={value} exclusive>
+      <ToggleButtonGroup aria-label="movement skill" value={value} exclusive size="small">
         {codes.map((option) => (
           <ToggleButton value={option} onClick={() => handleClick(option)} disabled={readOnly} sx={{ minWidth: 140 }}>
             {t(option)}

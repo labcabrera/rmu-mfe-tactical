@@ -4,7 +4,6 @@ import { useLocation, useParams } from 'react-router-dom';
 import { Grid } from '@mui/material';
 import {
   EditableAvatar,
-  emptyTacticalGame,
   fetchStrategicGame,
   fetchTacticalGame,
   StrategicGame,
@@ -24,7 +23,7 @@ const TacticalGameEdit: FC = () => {
   const { gameId } = useParams<{ gameId?: string }>();
   const [tacticalGame, setTacticalGame] = useState<TacticalGame>();
   const [strategicGame, setStrategicGame] = useState<StrategicGame>();
-  const [formData, setFormData] = useState<TacticalGame>(emptyTacticalGame);
+  const [formData, setFormData] = useState<TacticalGame>({} as TacticalGame);
   const [isValid, setIsValid] = useState(false);
 
   const validateForm = (formData: UpdateTacticalGameDto) => {

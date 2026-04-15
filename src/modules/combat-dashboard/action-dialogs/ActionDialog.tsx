@@ -15,7 +15,6 @@ import { Character } from '../../api/characters.dto';
 import ActorRoundAvatar from '../../shared/avatars/ActorRoundAvatar';
 import ActionManeuverForm from './maneuver/ActionManeuverForm';
 import MeleeAttackForm from './melee-attack/MeleeAttackForm';
-import MovementForm from './movement/MovementForm';
 import RangedAttackForm from './ranged-attack/RangedAttackForm';
 
 const Transition = React.forwardRef(function Transition(
@@ -66,9 +65,6 @@ const ActionDialog: FC<{
         <>
           {!deleting ? (
             <>
-              {action.actionType === 'movement' && (
-                <MovementForm action={action} actorRound={actorRound} onClose={onClose} />
-              )}
               {action.actionType === 'melee_attack' && <MeleeAttackForm action={action} actorRound={actorRound} />}
               {action.actionType === 'ranged_attack' && <RangedAttackForm action={action} actorRound={actorRound} />}
               {action.actionType === 'maneuver' && <ActionManeuverForm action={action} actorRound={actorRound} />}

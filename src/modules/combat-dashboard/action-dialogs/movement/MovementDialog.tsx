@@ -1,13 +1,14 @@
-import React, { FC, useContext, useState } from 'react';
-import { Typography } from '@mui/material';
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { FC, useContext, useEffect, useState } from 'react';
+import { Button, Typography } from '@mui/material';
 import { RmuDialog, TechnicalInfo } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { useError } from '../../../../ErrorContext';
-import { deleteAction } from '../../../api/action';
-import { Action } from '../../../api/action.dto';
+import { deleteAction, resolveMovement } from '../../../api/action';
+import { Action, ActionMovement } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
-import MovementForm from './../movement/MovementForm';
+import MovementModifiersForm from './MovementModifiersForm';
 
 const MovementDialog: FC<{
   action: Action;
@@ -16,42 +17,129 @@ const MovementDialog: FC<{
   onClose: () => void;
 }> = ({ action, actorRound, open, onClose }) => {
   const [deleting, setDeleting] = useState(false);
-  const { roundActions, setRoundActions } = useContext(CombatContext)!;
+  const { game, strategicGame, roundActions, setRoundActions, updateAction } = useContext(CombatContext)!;
   const { showError } = useError();
+  const [formData, setFormData] = useState<ActionMovement>({} as ActionMovement);
+  const [isValidForm, setIsValidForm] = useState<boolean>(false);
+  const isCompleted = action.status === 'completed';
 
-  if (!actorRound || !roundActions) return <p>Loading...</p>;
+  const buttons = [<Button onClick={onClose}>{t('Close')}</Button>];
+
+  const buttonsDeleting = [
+    <Button color="error" onClick={() => onDelete()}>
+      {t('Confirm')}
+    </Button>,
+    <Button onClick={() => setDeleting(false)}>{t('Cancel')}</Button>,
+  ];
+
+  if (action.status !== 'completed') {
+    buttons.push(
+      <Button color="error" onClick={() => setDeleting(true)}>
+        {t('Delete')}
+      </Button>,
+      <Button color="success" disabled={!isValidForm} onClick={() => onResolve()}>
+        {t('Resolve')}
+      </Button>
+    );
+  }
+
+  const getButtons = () => {
+    const buttons = [];
+    if (!isCompleted) {
+      buttons.push(
+        <Button color="error" onClick={() => setDeleting(true)}>
+          {t('Delete')}
+        </Button>
+      );
+    }
+    buttons.push(<Button onClick={onClose}>{t('Close')}</Button>);
+    if (!isCompleted) {
+      buttons.push(
+        <Button color="success" disabled={!isValidForm} onClick={() => onResolve()}>
+          {t('Resolve')}
+        </Button>
+      );
+    }
+    return buttons;
+  };
+
+  const onResolve = () => {
+    resolveMovement(action.id, formData)
+      .then((result: Action) => {
+        updateAction(result);
+      })
+      .catch((err) => showError(err.message));
+  };
 
   const onDelete = () => {
-    if (!deleting) {
-      setDeleting(true);
-    } else {
-      if (deleting) {
-        deleteAction(action.id)
-          .then(() => {
-            const newActionList = roundActions.filter((e: Action) => e.id !== action.id);
-            setRoundActions(newActionList);
-            onClose();
-          })
-          .catch((err) => showError(err.message));
-      }
-    }
+    deleteAction(action.id)
+      .then(() => {
+        const newActionList = roundActions!.filter((e: Action) => e.id !== action.id);
+        setRoundActions(newActionList);
+        onClose();
+      })
+      .catch((err) => showError(err.message));
   };
+
+  const validateForm = () => {
+    if (!formData || !formData.modifiers) return false;
+    if (!formData.modifiers.pace) return false;
+    if (!formData.modifiers.requiredManeuver) return true;
+    if (!formData.roll || !formData.roll.roll) return false;
+    if (!formData.modifiers.difficulty) return false;
+    return true;
+  };
+
+  useEffect(() => {
+    setIsValidForm(validateForm());
+  }, [formData]);
+
+  useEffect(() => {
+    if (action.movement) {
+      setFormData(() => ({
+        modifiers: action.movement.modifiers,
+        roll: action.movement.roll,
+      }));
+    } else {
+      setFormData(() => ({
+        modifiers: {
+          pace: '',
+          requiredManeuver: false,
+          skillId: 'running',
+          difficulty: actorRound.movement.baseDifficulty || '',
+          customModifier: null,
+        },
+        roll: {
+          roll: null,
+        },
+      }));
+    }
+  }, [action]);
+
+  if (!actorRound || !roundActions || !formData || !strategicGame || !game) return <p>Loading...</p>;
 
   return (
     <RmuDialog
       title={actorRound.actorName}
-      subtitle={t('Movement TODO')}
+      subtitle={t('Movement')}
       avatarImg={actorRound.imageUrl}
       fullScreen={false}
       open={open}
-      onClose={onClose}
-      onDelete={action.status === 'completed' ? undefined : () => onDelete()}
+      buttons={deleting ? buttonsDeleting : getButtons()}
     >
       <>
         {!deleting ? (
           <>
-            <MovementForm action={action} actorRound={actorRound} onClose={onClose} />
+            <MovementModifiersForm
+              formData={formData}
+              setFormData={setFormData}
+              actorRound={actorRound}
+              strategicGame={strategicGame}
+              action={action}
+              game={game}
+            />
             <TechnicalInfo>
+              <pre>FormData: {JSON.stringify(formData, null, 2)}</pre>
               <pre>Action: {JSON.stringify(action, null, 2)}</pre>
             </TechnicalInfo>
           </>
