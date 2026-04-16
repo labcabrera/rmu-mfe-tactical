@@ -26,12 +26,13 @@ const codes = [
 
 const MovementPaceTableSelector: FC<{
   formData: ActionMovement;
-  setFormData: Dispatch<SetStateAction<ActionMovement>>;
   actorRound: ActorRound;
   game: TacticalGame;
   strategicGame: StrategicGame;
   action: Action;
-}> = ({ formData, setFormData, actorRound, game, strategicGame, action }) => {
+  readonly?: boolean;
+  setFormData: Dispatch<SetStateAction<ActionMovement>>;
+}> = ({ formData, actorRound, game, strategicGame, action, readonly = false, setFormData }) => {
   const getActionPoints = () => {
     const startPhase = action.phaseStart;
     const currentPhase = parseInt((game.phase || '').replace('phase_', ''));
@@ -48,7 +49,7 @@ const MovementPaceTableSelector: FC<{
       </Grid>
       <Grid size={12}>
         <TableContainer component={Paper}>
-          <Table size="small">
+          <Table size="medium">
             <TableHead>
               <TableRow>
                 <TableCell>Pace</TableCell>
@@ -69,7 +70,11 @@ const MovementPaceTableSelector: FC<{
                     key={pace.id}
                     hover
                     selected={isSelected}
-                    onClick={() => setFormData({ ...formData, modifiers: { ...formData.modifiers, pace: pace.id } })}
+                    onClick={
+                      readonly
+                        ? undefined
+                        : () => setFormData({ ...formData, modifiers: { ...formData.modifiers, pace: pace.id } })
+                    }
                     sx={{ cursor: 'pointer' }}
                   >
                     <TableCell>{t(pace.id)}</TableCell>
