@@ -1,10 +1,12 @@
 import React, { FC, useContext, useState } from 'react';
-import { ButtonGroup } from '@mui/material';
+import { Badge, Stack } from '@mui/material';
+import { t } from 'i18next';
 import { CombatContext } from '../../../CombatContext';
 import { useError } from '../../../ErrorContext';
 import { createAction } from '../../api/action';
 import { ActorRound } from '../../api/actor-rounds.dto';
-import ActionIconButton from '../../shared/buttons/ActionIconButton';
+import { imageBaseUrl } from '../../services/config';
+import RmuImageButton from '../../shared/buttons/RmuImageButton';
 import DeclareActionDialog from '../action-dialogs/DeclareActionDialog';
 
 const ActorRoundDeclarationButtons: FC<{ actorRound: ActorRound; currentPhase: number }> = ({
@@ -18,7 +20,7 @@ const ActorRoundDeclarationButtons: FC<{ actorRound: ActorRound; currentPhase: n
 
   if (!actorRound || !game) return <>Loading...</>;
 
-  const disabledRangedWeapon = !actorRound.attacks.some((a) => a.type === 'ranged');
+  const disabledRangedAttack = !actorRound.attacks.some((a) => a.type === 'ranged');
 
   const disabledMovement = pendingActions.some(
     (a) => a.actorId === actorRound.actorId && a.actionType === 'movement' && !a.freeAction
@@ -38,14 +40,63 @@ const ActorRoundDeclarationButtons: FC<{ actorRound: ActorRound; currentPhase: n
     };
     createAction(data)
       .then((action) => {
-        setRoundActions([...roundActions, action]);
+        setRoundActions([...(roundActions || []), action]);
       })
       .catch((err: Error) => showError(err.message));
   };
 
   return (
     <>
-      <ButtonGroup variant="outlined" size="small" aria-label="Actor round declaration buttons" sx={{ mt: 1.5 }}>
+      <Stack direction="row" spacing={1} mt={2} ml={2}>
+        {!disabledMovement && (
+          <>
+            <Badge
+              badgeContent="F"
+              color="success"
+              sx={{
+                '& .MuiBadge-badge': {
+                  right: 8,
+                  top: 8,
+                },
+              }}
+            >
+              <RmuImageButton
+                src={`${imageBaseUrl}images/icons/movement.png`}
+                tooltip={t('Free movement')}
+                onClick={() => onActionDeclaration('movement', true)}
+                size={50}
+              />
+            </Badge>
+            <RmuImageButton
+              src={`${imageBaseUrl}images/icons/movement.png`}
+              tooltip={t('Normal movement')}
+              onClick={() => onActionDeclaration('movement', false)}
+              size={50}
+            />
+          </>
+        )}
+        {!disabledMeleeAttack && (
+          <RmuImageButton
+            src={`${imageBaseUrl}images/icons/attack.png`}
+            tooltip={t('Melee attack')}
+            onClick={() => onActionDeclaration('melee_attack', false)}
+          />
+        )}
+        {!disabledRangedAttack && (
+          <RmuImageButton
+            src={`${imageBaseUrl}images/icons/ranged-attack.png`}
+            tooltip={t('Ranged attack')}
+            onClick={() => onActionDeclaration('ranged_attack', false)}
+            size={50}
+          />
+        )}
+        <RmuImageButton
+          src={`${imageBaseUrl}images/icons/add.png`}
+          tooltip={t('Other actions')}
+          onClick={() => setDeclareActionDialogOpen(true)}
+        />
+      </Stack>
+      {/* <ButtonGroup variant="outlined" size="small" aria-label="Actor round declaration buttons" sx={{ mt: 1.5 }}>
         <ActionIconButton
           actionType="movement"
           onClick={() => onActionDeclaration('movement', false)}
@@ -67,7 +118,7 @@ const ActorRoundDeclarationButtons: FC<{ actorRound: ActorRound; currentPhase: n
           disabled={disabledRangedWeapon}
         />
         <ActionIconButton actionType="other" onClick={() => setDeclareActionDialogOpen(true)} />
-      </ButtonGroup>
+      </ButtonGroup> */}
       <DeclareActionDialog
         actorRound={actorRound}
         phaseNumber={currentPhase}
