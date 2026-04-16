@@ -1,10 +1,9 @@
 import React, { FC } from 'react';
-import { Chip, Grid, Stack, Typography } from '@mui/material';
+import { Grid, Stack, Typography } from '@mui/material';
 import { CategorySeparator } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { t } from 'i18next';
 import { Action } from '../../../api/action.dto';
 import { gridSizeCard } from '../../../services/display';
-import KeyValueModifiersView from '../../../shared/generic/KeyValueModifiersView';
 import ModifierDualList from './ModifierDualList';
 
 const MovementResult: FC<{
@@ -12,6 +11,7 @@ const MovementResult: FC<{
 }> = ({ action }) => {
   if (!action || !action.movement || !action.movement.calculated) return;
 
+  const modifiers = action.movement.modifiers;
   const percent = action.movement.calculated.percent;
 
   return (
@@ -48,16 +48,12 @@ const MovementResult: FC<{
             </Typography>
           </Stack>
         </Grid>
-        <Grid size={gridSizeCard}>
-          <Stack>
-            <Typography variant="h6" color="primary">
-              {action.fatigue || 0}
-            </Typography>
-            <Typography variant="caption" color="secondary">
-              {t('Fatigue')}
-            </Typography>
-          </Stack>
-        </Grid>
+        <KeyValueInfo value={action.fatigue || 0} label={t('Fatigue')} />
+        <KeyValueInfo value={t(modifiers.pace)} label={t('Pace')} />
+        <KeyValueInfo value={t(modifiers.skillId!)} label={t('Skill')} />
+        {modifiers.difficulty && (
+          <KeyValueInfo value={t(`difficulty-${modifiers.difficulty}`)} label={t('Difficulty')} />
+        )}
         {action.movement.roll && action.movement.roll.modifiers && (
           <Grid size={12}>
             <CategorySeparator text="Roll modifiers" />
@@ -66,6 +62,24 @@ const MovementResult: FC<{
         )}
       </Grid>
     </>
+  );
+};
+
+const KeyValueInfo: FC<{
+  value: string | number;
+  label: string;
+}> = ({ value, label }) => {
+  return (
+    <Grid size={gridSizeCard}>
+      <Stack>
+        <Typography variant="h6" color="primary">
+          {value}
+        </Typography>
+        <Typography variant="caption" color="secondary">
+          {label}
+        </Typography>
+      </Stack>
+    </Grid>
   );
 };
 

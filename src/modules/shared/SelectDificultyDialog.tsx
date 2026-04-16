@@ -11,13 +11,8 @@ import {
   FormControlLabel,
   Radio,
 } from '@mui/material';
+import { KeyValue } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { t } from 'i18next';
-
-type DifficultyCode = {
-  id: string;
-  code: string;
-  modifier: number;
-};
 
 const SelectDifficulty: FC<{
   value: string | null | undefined;
@@ -25,20 +20,21 @@ const SelectDifficulty: FC<{
   onChange: (value: string | null) => void;
 }> = ({ value, readOnly = false, onChange }) => {
   const [open, setOpen] = useState(false);
+  const buttonLabel = value ? `Difficulty: ${t(`difficulty-${value}`)}` : `Difficulty`;
 
-  const codes: DifficultyCode[] = [
-    { id: 'casual', code: 'c', modifier: 70 },
-    { id: 'simple', code: 's', modifier: 50 },
-    { id: 'routine', code: 'r', modifier: 30 },
-    { id: 'easy', code: 'e', modifier: 20 },
-    { id: 'light', code: 'l', modifier: 10 },
-    { id: 'medium', code: 'm', modifier: 0 },
-    { id: 'hard', code: 'h', modifier: -10 },
-    { id: 'very_hard', code: 'vh', modifier: -20 },
-    { id: 'extremely_hard', code: 'xh', modifier: -30 },
-    { id: 'sheer_folly', code: 'sf', modifier: -50 },
-    { id: 'absurd', code: 'a', modifier: -70 },
-    { id: 'nigh_impossible', code: 'ni', modifier: -100 },
+  const codes: KeyValue[] = [
+    { key: 'c', value: 70 },
+    { key: 's', value: 50 },
+    { key: 'r', value: 30 },
+    { key: 'e', value: 20 },
+    { key: 'l', value: 10 },
+    { key: 'm', value: 0 },
+    { key: 'h', value: -10 },
+    { key: 'vh', value: -20 },
+    { key: 'xh', value: -30 },
+    { key: 'sf', value: -50 },
+    { key: 'a', value: -70 },
+    { key: 'ni', value: -100 },
   ];
 
   const onItemListClick = (code: string) => {
@@ -61,7 +57,7 @@ const SelectDifficulty: FC<{
         color={!value ? 'warning' : 'secondary'}
         fullWidth
       >
-        {`Difficulty${value ? `: ${value}` : ''}`}
+        {buttonLabel}
       </Button>
       {!readOnly && (
         <Dialog maxWidth="xs" open={open}>
@@ -70,11 +66,11 @@ const SelectDifficulty: FC<{
             <RadioGroup value={value} onChange={(e) => onItemListClick(e.target.value)}>
               {codes.map((option, index) => (
                 <FormControlLabel
-                  value={option.id}
+                  value={option.key}
                   key={index}
                   control={<Radio />}
-                  color={option.modifier < 0 ? 'error' : undefined}
-                  label={`${t(`difficulty-${option.code}`)} ${option.modifier > 0 ? '+' : ''}${option.modifier}`}
+                  color={option.value < 0 ? 'error' : undefined}
+                  label={`${t(`difficulty-${option.key}`)} ${option.value > 0 ? '+' : ''}${option.value}`}
                 />
               ))}
             </RadioGroup>

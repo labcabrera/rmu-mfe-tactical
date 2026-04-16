@@ -18,6 +18,7 @@ const rowHeight = 36;
 const ModifierDualList: FC<Props> = ({ modifiers, leftIsPositive = false, centerWidth = 300 }) => {
   const theme = useTheme();
   const list = modifiers;
+  const sum = modifiers.map((e) => e.value).reduce((acc, val) => acc + val, 0);
   const positives = list.filter((x) => x.value >= 0).sort((a, b) => b.value - a.value);
   const negatives = list.filter((x) => x.value < 0).sort((a, b) => Math.abs(b.value) - Math.abs(a.value));
   const maxAbs = Math.max(1, ...list.map((x) => Math.abs(x.value)));
@@ -30,6 +31,11 @@ const ModifierDualList: FC<Props> = ({ modifiers, leftIsPositive = false, center
 
   return (
     <Box display="flex" flexDirection="column">
+      <Box display="flex" justifyContent="center" alignItems="center" mb={1}>
+        <Typography variant="h6" color={sum < 0 ? 'error' : 'primary'}>
+          Total: {sum}
+        </Typography>
+      </Box>
       {Array.from({ length: rows }).map((_, i) => {
         const left = negatives[i];
         const right = positives[i];
@@ -107,8 +113,6 @@ const ModifierDualList: FC<Props> = ({ modifiers, leftIsPositive = false, center
           </Box>
         );
       })}
-      <pre>Positives: {JSON.stringify(positives, null, 2)}</pre>
-      <pre>Negatives: {JSON.stringify(negatives, null, 2)}</pre>
     </Box>
   );
 };
