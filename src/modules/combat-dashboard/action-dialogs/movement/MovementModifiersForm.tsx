@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { Dispatch, FC, SetStateAction, useEffect, useState } from 'react';
-import { Chip, Grid, Stack, Typography } from '@mui/material';
+import { Chip, Grid, Stack } from '@mui/material';
 import {
   CategorySeparator,
   NumericInput,
@@ -94,7 +94,6 @@ const MovementModifiersForm: FC<{
           onChange={(e) =>
             setFormData({ ...formData, modifiers: { ...formData.modifiers, requiredManeuver: e === 'yes' } })
           }
-          readOnly={isCompleted}
         />
       </Grid>
 
@@ -122,9 +121,6 @@ const MovementModifiersForm: FC<{
               </Grid>
               <Grid size={12}>
                 <OpenEndedRollInput onChange={(v) => setFormData({ ...formData, roll: { roll: v } })} />
-              </Grid>
-              <Grid size={12}>
-                {formData.roll && formData.roll.roll && <Typography>Roll: {formData.roll.roll}</Typography>}
               </Grid>
             </>
           )}

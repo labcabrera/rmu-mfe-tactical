@@ -18,7 +18,8 @@ const MovementDialog: FC<{
   onClose: () => void;
 }> = ({ action, actorRound, open, onClose }) => {
   const [deleting, setDeleting] = useState(false);
-  const { game, strategicGame, roundActions, setRoundActions, updateAction } = useContext(CombatContext)!;
+  const { game, strategicGame, roundActions, setRoundActions, updateAction, refreshActorRounds } =
+    useContext(CombatContext)!;
   const { showError } = useError();
   const [formData, setFormData] = useState<ActionMovement>({} as ActionMovement);
   const [isValidForm, setIsValidForm] = useState<boolean>(false);
@@ -55,6 +56,7 @@ const MovementDialog: FC<{
     resolveMovement(action.id, formData)
       .then((result: Action) => {
         updateAction(result);
+        refreshActorRounds();
       })
       .catch((err) => showError(err.message));
   };
