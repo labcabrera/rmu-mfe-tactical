@@ -5,6 +5,7 @@ import { t } from 'i18next';
 import { Action } from '../../../api/action.dto';
 import { gridSizeCard } from '../../../services/display';
 import KeyValueModifiersView from '../../../shared/generic/KeyValueModifiersView';
+import ModifierDualList from './ModifierDualList';
 
 const MovementResult: FC<{
   action: Action;
@@ -58,15 +59,16 @@ const MovementResult: FC<{
           </Stack>
         </Grid>
         {action.movement.roll && action.movement.roll.modifiers && (
-          <>
-            <Grid size={12}>
-              <Typography variant="h6">Modifiers</Typography>
-              <Stack direction="row" spacing={1} mt={1} mb={1}>
-                <Chip size="medium" label={`Total: ${action.movement.roll.totalRoll}`} />
-              </Stack>
-              <KeyValueModifiersView modifiers={action.movement.roll.modifiers || []} />
-            </Grid>
-          </>
+          <Grid size={12}>
+            <ModifierDualList modifiers={action.movement.roll.modifiers} />
+          </Grid>
+          // <Grid size={12}>
+          //   <Typography variant="h6">Modifiers</Typography>
+          //   <Stack direction="row" spacing={1} mt={1} mb={1}>
+          //     <Chip size="medium" label={`Total: ${action.movement.roll.totalRoll}`} />
+          //   </Stack>
+          //   <KeyValueModifiersView modifiers={action.movement.roll.modifiers || []} />
+          // </Grid>
         )}
       </Grid>
     </>

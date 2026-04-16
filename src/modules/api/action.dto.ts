@@ -1,3 +1,5 @@
+import { KeyValue } from '@labcabrera-rmu/rmu-react-shared-lib';
+
 export type ActionStatus =
   | 'declared'
   | 'prepared'
@@ -49,7 +51,7 @@ export type KeyValueModifier = {
 };
 
 export type ActionRoll = {
-  modifiers?: KeyValueModifier[];
+  modifiers?: KeyValue[];
   roll: number | null;
   totalRoll?: number;
 };
