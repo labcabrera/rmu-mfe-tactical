@@ -29,7 +29,7 @@ const MovementModifiersForm: FC<{
   const isCompleted = action.status === 'completed';
   const maneuverPenalty = actorRound.movement.penalty;
   const maxPace = actorRound.movement.maxPace;
-  const baseDifficulty = actorRound.movement.baseDificulty;
+  const baseDifficulty = actorRound.movement.baseDifficulty;
 
   const getActionPoints = () => {
     const startPhase = action.phaseStart;
@@ -71,7 +71,7 @@ const MovementModifiersForm: FC<{
             label={`Skill bonus: ${skillBonus ? `${skillBonus > 0 ? '+' : ''}${skillBonus}` : ''}`}
           />
           <Chip color="secondary" label={`Max pace: ${t(maxPace)}`} />
-          <Chip color="secondary" label={`Base difficulty: ${t(baseDifficulty)}`} />
+          <Chip color="secondary" label={`Base difficulty: ${t(`difficulty-${baseDifficulty}`)}`} />
         </Stack>
       </Grid>
       <Grid size={12}>
@@ -103,7 +103,7 @@ const MovementModifiersForm: FC<{
           <Grid size={4}>
             <SelectDifficultyDialog
               value={formData.modifiers.difficulty}
-              onChange={(e) => handleDifficultyChange(e)}
+              onChange={(e) => handleDifficultyChange(e!)}
               readOnly={isCompleted}
             />
           </Grid>
@@ -113,9 +113,9 @@ const MovementModifiersForm: FC<{
               <Grid size={2}>
                 <NumericInput
                   label="Custom modifier"
-                  value={formData.modifiers.customModifier}
+                  value={formData.modifiers.customBonus}
                   onChange={(val: number | null) =>
-                    setFormData({ ...formData, modifiers: { ...formData.modifiers, customModifier: val || 0 } })
+                    setFormData({ ...formData, modifiers: { ...formData.modifiers, customBonus: val || 0 } })
                   }
                   integer
                 />

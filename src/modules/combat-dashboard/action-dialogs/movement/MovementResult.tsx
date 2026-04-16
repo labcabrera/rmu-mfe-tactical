@@ -11,43 +11,20 @@ const MovementResult: FC<{
 }> = ({ action }) => {
   if (!action || !action.movement || !action.movement.calculated) return;
 
-  const modifiers = action.movement.modifiers;
   const percent = action.movement.calculated.percent;
+  const modifiers = action.movement.modifiers;
+  const calculated = action.movement.calculated;
 
   return (
     <>
       <CategorySeparator text="Results" />
       <Grid container spacing={1}>
-        <Grid size={gridSizeCard}>
-          <Stack>
-            <Typography variant="h6" color={percent < 100 ? 'error' : 'primary'}>
-              {percent}%
-            </Typography>
-            <Typography variant="caption" color="secondary">
-              {t('Percent')}
-            </Typography>
-          </Stack>
-        </Grid>
-        <Grid size={gridSizeCard}>
-          <Stack>
-            <Typography variant="h6" color="primary">
-              {action.movement.calculated.distance}'
-            </Typography>
-            <Typography variant="caption" color="secondary">
-              {t('Distance')}
-            </Typography>
-          </Stack>
-        </Grid>
-        <Grid size={gridSizeCard}>
-          <Stack>
-            <Typography variant="h6" color="primary">
-              {action.movement.calculated.distanceAdjusted}
-            </Typography>
-            <Typography variant="caption" color="secondary">
-              {t('Adjusted distance')}
-            </Typography>
-          </Stack>
-        </Grid>
+        {calculated.critical && (
+          <KeyValueInfo value={`${calculated.critical}K`} label={t('Received critical')} valueColor="error" />
+        )}
+        <KeyValueInfo value={`${percent}%`} label={t('Percent')} valueColor={percent < 100 ? 'error' : undefined} />
+        <KeyValueInfo value={`${calculated.distance}'`} label={t('Distance')} />
+        <KeyValueInfo value={calculated.distanceAdjusted} label={t('Adjusted distance')} />
         <KeyValueInfo value={action.fatigue || 0} label={t('Fatigue')} />
         <KeyValueInfo value={t(modifiers.pace)} label={t('Pace')} />
         <KeyValueInfo value={t(modifiers.skillId!)} label={t('Skill')} />
@@ -68,11 +45,12 @@ const MovementResult: FC<{
 const KeyValueInfo: FC<{
   value: string | number;
   label: string;
-}> = ({ value, label }) => {
+  valueColor?: string;
+}> = ({ value, label, valueColor }) => {
   return (
     <Grid size={gridSizeCard}>
       <Stack>
-        <Typography variant="h6" color="primary">
+        <Typography variant="h6" color={valueColor || 'primary'}>
           {value}
         </Typography>
         <Typography variant="caption" color="secondary">

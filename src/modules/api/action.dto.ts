@@ -31,9 +31,9 @@ export type ParryDeclaration = {
 export type ActionMovementModifiers = {
   pace: string;
   requiredManeuver: boolean;
-  skillId?: string;
-  difficulty?: string;
-  customModifier?: number;
+  skillId: string;
+  difficulty: string | null;
+  customBonus: number | null;
 };
 
 export type ActionMovementCalculated = {
@@ -43,6 +43,7 @@ export type ActionMovementCalculated = {
   distance: number;
   distanceAdjusted: number;
   description: string;
+  critical: string | null;
 };
 
 export type KeyValueModifier = {
@@ -68,7 +69,7 @@ export type ActionManeuverModifiers = {
   difficulty: string | null;
   lightModifier: string | null;
   light: string | null;
-  customModifier: number | null;
+  customBonus: number | null;
 };
 
 export type ActionManeuverResult = {

@@ -1,12 +1,12 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { FC, useContext, useEffect, useState } from 'react';
-import { Button, Grid, Typography } from '@mui/material';
+import { Button, Typography } from '@mui/material';
 import { RmuDialog, TechnicalInfo } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { useError } from '../../../../ErrorContext';
 import { deleteAction, resolveMovement } from '../../../api/action';
-import { Action, ActionMovement } from '../../../api/action.dto';
+import { Action, ActionMovement, ActionRoll } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
 import MovementModifiersForm from './MovementModifiersForm';
 import MovementResult from './MovementResult';
@@ -24,23 +24,12 @@ const MovementDialog: FC<{
   const [isValidForm, setIsValidForm] = useState<boolean>(false);
   const isCompleted = action.status === 'completed';
 
-  // const buttons = [<Button onClick={onClose}>{t('Close')}</Button>];
   const buttonsDeleting = [
     <Button color="error" onClick={() => onDelete()}>
       {t('Confirm')}
     </Button>,
     <Button onClick={() => setDeleting(false)}>{t('Cancel')}</Button>,
   ];
-  // if (action.status !== 'completed') {
-  //   buttons.push(
-  //     <Button color="error" onClick={() => setDeleting(true)}>
-  //       {t('Delete')}
-  //     </Button>,
-  //     <Button color="success" disabled={!isValidForm} onClick={() => onResolve()}>
-  //       {t('Resolve')}
-  //     </Button>
-  //   );
-  // }
 
   const getButtons = () => {
     const buttons = [];
@@ -96,8 +85,8 @@ const MovementDialog: FC<{
   useEffect(() => {
     if (action.movement) {
       setFormData(() => ({
-        modifiers: action.movement.modifiers,
-        roll: action.movement.roll,
+        modifiers: action.movement!.modifiers,
+        roll: action.movement?.roll || ({} as ActionRoll),
       }));
     } else {
       setFormData(() => ({
@@ -105,8 +94,8 @@ const MovementDialog: FC<{
           pace: '',
           requiredManeuver: false,
           skillId: 'running',
-          difficulty: actorRound.movement.baseDifficulty || '',
-          customModifier: null,
+          difficulty: actorRound.movement?.baseDifficulty || '',
+          customBonus: null,
         },
         roll: {
           roll: null,

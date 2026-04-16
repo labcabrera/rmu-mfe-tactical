@@ -21,7 +21,7 @@ export type ActorRoundMovement = {
   bmr: number;
   penalty: number;
   maxPace: string;
-  baseDificulty: string;
+  baseDifficulty: string;
 };
 
 export type ActorRoundPenaltyModifier = {
