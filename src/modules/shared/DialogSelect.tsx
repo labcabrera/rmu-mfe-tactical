@@ -1,16 +1,7 @@
 import React, { FC, useState } from 'react';
 import ErrorOutlineOutlinedIcon from '@mui/icons-material/ErrorOutlineOutlined';
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
-import {
-  Button,
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  DialogActions,
-  RadioGroup,
-  FormControlLabel,
-  Radio,
-} from '@mui/material';
+import { Button, Dialog, DialogContent, DialogTitle, ToggleButtonGroup, ToggleButton } from '@mui/material';
 import { t } from 'i18next';
 
 const DialogSelect: FC<{
@@ -24,11 +15,6 @@ const DialogSelect: FC<{
 
   const onItemListClick = (code: string) => {
     onChange(code);
-    setOpen(false);
-  };
-
-  const onClear = () => {
-    onChange(null);
     setOpen(false);
   };
 
@@ -46,22 +32,31 @@ const DialogSelect: FC<{
       </Button>
       {!readOnly && (
         <Dialog maxWidth="xs" open={open}>
-          <DialogTitle>{t('Select difficulty')}</DialogTitle>
+          <DialogTitle>{label}</DialogTitle>
           <DialogContent dividers>
-            <RadioGroup value={value} onChange={(e) => onItemListClick(e.target.value)}>
+            <ToggleButtonGroup
+              orientation="vertical"
+              value={value}
+              exclusive
+              onChange={(e, v) => onItemListClick(v)}
+              fullWidth
+              size="small"
+            >
               {options.map((option, index) => (
-                <FormControlLabel value={option} key={index} control={<Radio />} label={`${t(option)}`} />
+                <ToggleButton key={index} value={option}>
+                  {t(option)}
+                </ToggleButton>
               ))}
-            </RadioGroup>
+            </ToggleButtonGroup>
           </DialogContent>
-          <DialogActions>
+          {/* <DialogActions>
             <Button autoFocus onClick={() => onClear()}>
               Clear
             </Button>
             <Button autoFocus onClick={() => setOpen(false)}>
               Cancel
             </Button>
-          </DialogActions>
+          </DialogActions> */}
         </Dialog>
       )}
     </>

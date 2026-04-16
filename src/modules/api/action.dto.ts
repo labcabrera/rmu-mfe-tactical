@@ -91,14 +91,14 @@ export type Action = {
   actionType: ActionType;
   freeAction: boolean;
   phaseStart: number;
-  phaseEnd: number | undefined;
+  phaseEnd: number | null;
   status: ActionStatus;
-  actionPoints: number | undefined;
-  movement: ActionMovement | undefined;
-  maneuver: ActionManeuver | undefined;
-  attacks: ActionAttack[] | undefined;
-  parries: ActionParry[] | undefined;
-  fatigue: number | undefined;
+  actionPoints: number | null;
+  movement: ActionMovement | null;
+  maneuver: ActionManeuver | null;
+  attacks: ActionAttack[] | null;
+  parries: ActionParry[] | null;
+  fatigue: number | null;
 };
 
 export type ResolveMovementDto = {
@@ -113,21 +113,21 @@ export type ResolveMovementDto = {
 export type ActionAttack = {
   attackName: string;
   modifiers: ActionAttackModifiers;
-  roll: ActionAttackRoll | undefined;
-  calculated: AttackCalculationsDto | undefined;
-  results: ActionAttackResults | undefined;
+  roll: ActionAttackRoll | null;
+  calculated: AttackCalculationsDto | null;
+  results: ActionAttackResults | null;
   status: string;
 };
 
 export type ActionAttackRoll = {
   roll: number | null;
   locationRoll: number | null;
-  criticalRolls?: Map<string, number | undefined>;
+  criticalRolls?: Map<string, number | null>;
   fumbleRoll?: number | null;
 };
 
 export type ActionAttackResults = {
-  attackTableEntry: AttackTableEntry | undefined;
+  attackTableEntry: AttackTableEntry | null;
   criticals: Critical[];
   fumble: any;
   attackTableResult: string;

@@ -33,7 +33,7 @@ const ModifierDualList: FC<Props> = ({ modifiers, leftIsPositive = false, center
     <Box display="flex" flexDirection="column">
       <Box display="flex" justifyContent="center" alignItems="center" mb={1}>
         <Typography variant="h6" color={sum < 0 ? 'error' : 'primary'}>
-          Total: {sum}
+          {t('Total roll')}: {sum}
         </Typography>
       </Box>
       {Array.from({ length: rows }).map((_, i) => {

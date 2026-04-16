@@ -25,6 +25,7 @@ const MovementResult: FC<{
         <KeyValueInfo value={`${percent}%`} label={t('Percent')} valueColor={percent < 100 ? 'error' : undefined} />
         <KeyValueInfo value={`${calculated.distance}'`} label={t('Distance')} />
         <KeyValueInfo value={calculated.distanceAdjusted} label={t('Adjusted distance')} />
+        <KeyValueInfo value={action.actionPoints} label={t('Action points')} />
         <KeyValueInfo value={action.fatigue || 0} label={t('Fatigue')} />
         <KeyValueInfo value={t(modifiers.pace)} label={t('Pace')} />
         <KeyValueInfo value={t(modifiers.skillId!)} label={t('Skill')} />
