@@ -120,23 +120,7 @@ const ActorActions: FC<ActorActionsProps> = ({ actorId, phases = 4, currentPhase
                   zIndex: 1,
                 }}
               >
-                <Button
-                  fullWidth
-                  variant={completed ? 'contained' : 'contained'}
-                  color={completed ? 'secondary' : 'primary'}
-                  onClick={() => onActionClick(p.action)}
-                  sx={{
-                    height: '100%',
-                    textTransform: 'none',
-                    overflow: 'hidden',
-                    whiteSpace: 'nowrap',
-                    textOverflow: 'ellipsis',
-                    color: completed ? 'secondary.contrastText' : 'primary.contrastText',
-                  }}
-                >
-                  {getActionName(p.action)}
-                  {completed ? undefined : '...'}
-                </Button>
+                <ActorAction action={p.action} completed={completed} onClick={() => onActionClick(p.action)} />
               </Box>
             );
           })}
@@ -180,6 +164,44 @@ const ActorActions: FC<ActorActionsProps> = ({ actorId, phases = 4, currentPhase
         />
       )}
     </>
+  );
+};
+
+const ActorAction: FC<{ action: Action; completed: boolean; onClick: () => void }> = ({
+  action,
+  completed,
+  onClick,
+}) => {
+  const getActionName = (action: Action) => {
+    let name = '';
+    if (action.maneuver) {
+      name = t(action.maneuver?.modifiers?.skillId || 'maneuver');
+    } else if (action.movement) {
+      name = `${t('movement')}${action.movement.calculated?.distanceAdjusted ? `: ${action.movement.calculated.distanceAdjusted}` : ''}`;
+    } else {
+      name = t(action.actionType);
+    }
+    return action.freeAction ? `${t('Free ')} ${name}` : name;
+  };
+
+  return (
+    <Button
+      fullWidth
+      variant={completed ? 'contained' : 'contained'}
+      color={completed ? 'secondary' : 'primary'}
+      onClick={onClick}
+      sx={{
+        height: '100%',
+        textTransform: 'none',
+        overflow: 'hidden',
+        whiteSpace: 'nowrap',
+        textOverflow: 'ellipsis',
+        color: completed ? 'secondary.contrastText' : 'primary.contrastText',
+      }}
+    >
+      {getActionName(action)}
+      {completed ? undefined : '...'}
+    </Button>
   );
 };
 
