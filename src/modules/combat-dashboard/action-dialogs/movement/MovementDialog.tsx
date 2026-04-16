@@ -23,25 +23,23 @@ const MovementDialog: FC<{
   const [isValidForm, setIsValidForm] = useState<boolean>(false);
   const isCompleted = action.status === 'completed';
 
-  const buttons = [<Button onClick={onClose}>{t('Close')}</Button>];
-
+  // const buttons = [<Button onClick={onClose}>{t('Close')}</Button>];
   const buttonsDeleting = [
     <Button color="error" onClick={() => onDelete()}>
       {t('Confirm')}
     </Button>,
     <Button onClick={() => setDeleting(false)}>{t('Cancel')}</Button>,
   ];
-
-  if (action.status !== 'completed') {
-    buttons.push(
-      <Button color="error" onClick={() => setDeleting(true)}>
-        {t('Delete')}
-      </Button>,
-      <Button color="success" disabled={!isValidForm} onClick={() => onResolve()}>
-        {t('Resolve')}
-      </Button>
-    );
-  }
+  // if (action.status !== 'completed') {
+  //   buttons.push(
+  //     <Button color="error" onClick={() => setDeleting(true)}>
+  //       {t('Delete')}
+  //     </Button>,
+  //     <Button color="success" disabled={!isValidForm} onClick={() => onResolve()}>
+  //       {t('Resolve')}
+  //     </Button>
+  //   );
+  // }
 
   const getButtons = () => {
     const buttons = [];

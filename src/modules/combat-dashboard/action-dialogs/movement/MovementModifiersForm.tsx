@@ -1,7 +1,14 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { Dispatch, FC, SetStateAction, useEffect, useState } from 'react';
 import { Chip, Grid, Stack, Typography } from '@mui/material';
-import { NumericInput, OpenEndedRollInput, StrategicGame, TacticalGame } from '@labcabrera-rmu/rmu-react-shared-lib';
+import {
+  CategorySeparator,
+  NumericInput,
+  OpenEndedRollInput,
+  StrategicGame,
+  TacticalGame,
+} from '@labcabrera-rmu/rmu-react-shared-lib';
+import { t } from 'i18next';
 import { Action, ActionMovement } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
 import { useSkillService } from '../../../services/skill-service';
@@ -18,9 +25,12 @@ const MovementModifiersForm: FC<{
   strategicGame: StrategicGame;
   action: Action;
 }> = ({ formData, setFormData, actorRound, game, strategicGame, action }) => {
-  const [skillBonus, setSkillBonus] = useState<number | null>(null);
+  const [skillBonus, setSkillBonus] = useState<number>();
   const { getSkillBonus } = useSkillService();
   const isCompleted = action.status === 'completed';
+  const maneuverPenalty = actorRound.movement.penalty;
+  const maxPace = actorRound.movement.maxPace;
+  const baseDifficulty = actorRound.movement.baseDificulty;
 
   const getActionPoints = () => {
     const startPhase = action.phaseStart;
@@ -32,18 +42,40 @@ const MovementModifiersForm: FC<{
     setFormData({ ...formData, modifiers: { ...formData.modifiers, difficulty: value } });
   };
 
+  const getChipColor = (value: number | null | undefined) => {
+    if (!value) return 'secondary';
+    if (value > 0) return 'success';
+    if (value < 1) return 'error';
+    return 'secondary';
+  };
+
   useEffect(() => {
     const skillId = formData?.modifiers?.skillId;
     if (!skillId) {
-      setSkillBonus(null);
+      setSkillBonus(undefined);
       return;
     }
     const bonus = getSkillBonus(skillId, actorRound);
-    setSkillBonus(typeof bonus === 'number' ? bonus : null);
+    setSkillBonus(bonus || -20);
   }, [actorRound, formData?.modifiers?.skillId]);
 
   return (
-    <Grid container spacing={2}>
+    <Grid container spacing={1}>
+      <Grid size={12}>
+        <Stack direction="row" spacing={1}>
+          <Chip color="secondary" label={`Action points: ${getActionPoints()}`} />
+          <Chip color={getChipColor(maneuverPenalty)} label={`Maneuver penalty: ${maneuverPenalty}`} />
+          <Chip
+            color={getChipColor(skillBonus)}
+            label={`Skill bonus: ${skillBonus ? `${skillBonus > 0 ? '+' : ''}${skillBonus}` : ''}`}
+          />
+          <Chip color="secondary" label={`Max pace: ${t(maxPace)}`} />
+          <Chip color="secondary" label={`Base difficulty: ${t(baseDifficulty)}`} />
+        </Stack>
+      </Grid>
+      <Grid size={12}>
+        <CategorySeparator text="Modifiers" />
+      </Grid>
       <Grid size={4}>
         <DialogSelect
           label="Skill"
@@ -108,17 +140,9 @@ const MovementModifiersForm: FC<{
           readonly={isCompleted}
         />
       </Grid>
-      {formData.modifiers.pace && !action.movement?.calculated && (
-        <Grid size={12}>
-          <Typography variant="h6">Estimated</Typography>
-          <Stack direction="row" spacing={1}>
-            <Chip label={`Action points: ${getActionPoints()}`} />
-            <Chip label={`Maneuver penalty: ${actorRound.movement.penalty}`} />
-            <Chip label={`Skill bonus: ${skillBonus !== null ? `${skillBonus > 0 ? '+' : ''}${skillBonus}` : ''}`} />
-          </Stack>
-        </Grid>
-      )}
-      {action.movement && action.movement.calculated && <MovementResult action={action} />}
+      <Grid size={12}>
+        <MovementResult action={action} />
+      </Grid>
     </Grid>
   );
 };

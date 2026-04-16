@@ -13,7 +13,7 @@ const ActorRoundEffects: FC<{
 }> = ({ actorRound }) => {
   const [newState, setNewState] = useState('');
   const { showError } = useError();
-  const { updateActorRound } = useContext(CombatContext);
+  const { updateActorRound } = useContext(CombatContext)!;
 
   const addState = () => {
     const effect: ActorRoundEffect = { id: '', status: newState, value: undefined, rounds: undefined };

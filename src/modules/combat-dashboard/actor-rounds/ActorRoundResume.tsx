@@ -47,8 +47,11 @@ const ActorRoundResume: FC<{
         <Typography variant="body1" color={isDead ? 'error' : 'primary'}>
           {character.name}
         </Typography>
-        <Typography variant="body1" color="secondary">
-          {`${character.faction?.name || ''} · ${t(character.info.professionId)} lvl ${character.experience.level}`}
+        <Typography variant="caption" color="secondary">
+          {`${t(character.info.professionId)} lvl ${character.experience.level}`}
+        </Typography>
+        <Typography variant="caption" color="secondary">
+          {`${character.faction?.name || ''}`}
         </Typography>
 
         <GenericBar

@@ -38,7 +38,7 @@ const DialogSelect: FC<{
         onClick={() => setOpen(true)}
         disabled={readOnly}
         startIcon={!value ? <ErrorOutlineOutlinedIcon /> : <TaskAltIcon />}
-        size="large"
+        size="small"
         color={!value ? 'warning' : 'secondary'}
         fullWidth
       >

@@ -14,7 +14,7 @@ const ActorRoundDeclarationButtons: FC<{ actorRound: ActorRound; currentPhase: n
   const { showError } = useError();
   const { game, roundActions, setRoundActions } = useContext(CombatContext)!;
   const [declareActionDialogOpen, setDeclareActionDialogOpen] = useState(false);
-  const pendingActions = roundActions.filter((a) => a.status !== 'completed');
+  const pendingActions = roundActions?.filter((a) => a.status !== 'completed') || [];
 
   if (!actorRound || !game) return <>Loading...</>;
 

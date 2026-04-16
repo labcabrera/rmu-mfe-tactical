@@ -1,8 +1,5 @@
 import React, { FC, useState } from 'react';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ErrorOutlineOutlinedIcon from '@mui/icons-material/ErrorOutlineOutlined';
-import ErrorOutlinedIcon from '@mui/icons-material/ErrorOutlined';
-import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import {
   Button,
@@ -22,13 +19,11 @@ type DifficultyCode = {
   modifier: number;
 };
 
-// startIcon={<DeleteIcon />}
-
 const SelectDifficulty: FC<{
   value: string | null | undefined;
-  onChange: (value: string | null) => void;
   readOnly?: boolean;
-}> = ({ value, onChange, readOnly = false }) => {
+  onChange: (value: string | null) => void;
+}> = ({ value, readOnly = false, onChange }) => {
   const [open, setOpen] = useState(false);
 
   const codes: DifficultyCode[] = [
@@ -62,7 +57,7 @@ const SelectDifficulty: FC<{
         onClick={() => setOpen(true)}
         disabled={readOnly}
         startIcon={!value ? <ErrorOutlineOutlinedIcon /> : <TaskAltIcon />}
-        size="large"
+        size="small"
         color={!value ? 'warning' : 'secondary'}
         fullWidth
       >
@@ -79,7 +74,7 @@ const SelectDifficulty: FC<{
                   key={index}
                   control={<Radio />}
                   color={option.modifier < 0 ? 'error' : undefined}
-                  label={`${t(option.id)} ${option.modifier > 0 ? '+' : ''}${option.modifier}`}
+                  label={`${t(`difficulty-${option.code}`)} ${option.modifier > 0 ? '+' : ''}${option.modifier}`}
                 />
               ))}
             </RadioGroup>

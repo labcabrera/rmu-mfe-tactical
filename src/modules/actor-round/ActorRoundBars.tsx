@@ -13,7 +13,7 @@ const ActorRoundBars: FC<{
   actorRound: ActorRound;
 }> = ({ actorRound }) => {
   const { showError } = useError();
-  const { updateActorRound } = useContext(CombatContext);
+  const { updateActorRound } = useContext(CombatContext)!;
 
   const updateActorRoundHP = (newHp: number) => {
     const diff = (actorRound.hp?.current ?? 0) - newHp;
@@ -33,7 +33,7 @@ const ActorRoundBars: FC<{
     <Stack spacing={1} sx={{ width: '100%' }}>
       <Stack direction="column" spacing={2} alignItems="flex-start">
         <Stack direction="row" spacing={2}>
-          <GenericBar current={actorRound.hp?.current ?? 0} max={actorRound.hp?.max ?? 0} title="HP" width={barSize} />
+          <GenericBar current={actorRound.hp?.current ?? 0} max={actorRound.hp?.max ?? 0} width={barSize} />
           <NumericInput
             label="New hit points"
             value={actorRound.hp?.current ?? null}
@@ -44,7 +44,7 @@ const ActorRoundBars: FC<{
           />
         </Stack>
         <Stack direction="row" spacing={2}>
-          <GenericBar current={Math.round(actorRound.fatigue?.accumulator ?? 0)} max={100} title="FA" width={barSize} />
+          <GenericBar current={Math.round(actorRound.fatigue?.accumulator ?? 0)} max={100} width={barSize} />
           <NumericInput
             label="New fatigue accumulator"
             value={actorRound.fatigue?.accumulator ?? null}
