@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { FC, useContext, useEffect, useState } from 'react';
-import { Button, Typography } from '@mui/material';
+import { Button, Grid, Typography } from '@mui/material';
 import { RmuDialog, TechnicalInfo } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
@@ -9,6 +9,7 @@ import { deleteAction, resolveMovement } from '../../../api/action';
 import { Action, ActionMovement } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
 import MovementModifiersForm from './MovementModifiersForm';
+import MovementResult from './MovementResult';
 
 const MovementDialog: FC<{
   action: Action;
@@ -136,6 +137,7 @@ const MovementDialog: FC<{
               action={action}
               game={game}
             />
+            <MovementResult action={action} />
             <TechnicalInfo>
               <pre>FormData: {JSON.stringify(formData, null, 2)}</pre>
               <pre>Action: {JSON.stringify(action, null, 2)}</pre>

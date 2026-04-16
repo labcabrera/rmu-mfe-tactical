@@ -60,15 +60,9 @@ const MovementResult: FC<{
         </Grid>
         {action.movement.roll && action.movement.roll.modifiers && (
           <Grid size={12}>
+            <CategorySeparator text="Roll modifiers" />
             <ModifierDualList modifiers={action.movement.roll.modifiers} />
           </Grid>
-          // <Grid size={12}>
-          //   <Typography variant="h6">Modifiers</Typography>
-          //   <Stack direction="row" spacing={1} mt={1} mb={1}>
-          //     <Chip size="medium" label={`Total: ${action.movement.roll.totalRoll}`} />
-          //   </Stack>
-          //   <KeyValueModifiersView modifiers={action.movement.roll.modifiers || []} />
-          // </Grid>
         )}
       </Grid>
     </>

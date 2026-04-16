@@ -15,7 +15,6 @@ import { useSkillService } from '../../../services/skill-service';
 import DialogSelect from '../../../shared/DialogSelect';
 import SelectDifficultyDialog from '../../../shared/SelectDificultyDialog';
 import MovementPaceTableSelector from './MovementPaceTableSelector';
-import MovementResult from './MovementResult';
 
 const MovementModifiersForm: FC<{
   formData: ActionMovement;
@@ -58,6 +57,8 @@ const MovementModifiersForm: FC<{
     const bonus = getSkillBonus(skillId, actorRound);
     setSkillBonus(bonus || -20);
   }, [actorRound, formData?.modifiers?.skillId]);
+
+  if (isCompleted) return;
 
   return (
     <Grid container spacing={1}>
@@ -139,9 +140,6 @@ const MovementModifiersForm: FC<{
           action={action}
           readonly={isCompleted}
         />
-      </Grid>
-      <Grid size={12}>
-        <MovementResult action={action} />
       </Grid>
     </Grid>
   );
