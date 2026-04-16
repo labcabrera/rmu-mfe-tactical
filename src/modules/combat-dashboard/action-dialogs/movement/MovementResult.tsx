@@ -44,7 +44,7 @@ const MovementResult: FC<{
 };
 
 const KeyValueInfo: FC<{
-  value: string | number;
+  value: string | number | null;
   label: string;
   valueColor?: string;
 }> = ({ value, label, valueColor }) => {

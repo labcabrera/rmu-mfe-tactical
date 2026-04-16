@@ -9,10 +9,32 @@ export type ActionStatus =
   | 'critical_and_fumble_roll_declaration'
   | 'pending_apply'
   | 'completed';
-
 export type ActionType = 'movement' | 'melee_attack' | 'ranged_attack' | 'maneuver' | 'skill' | 'free';
-
 export type CalledShot = 'none' | 'head' | 'chest' | 'abdomen' | 'arms' | 'legs';
+
+export const MOVEMENT_TABLE = [
+  { id: 'creep', multiplier: 1 / 8, penalty: '-', label: 'x1/2' },
+  { id: 'walk', multiplier: 1 / 4, penalty: '-25 | 1AP', label: 'x1' },
+  { id: 'jog', multiplier: 1 / 2, penalty: '-50 | 2AP', label: 'x2' },
+  { id: 'run', multiplier: 3 / 4, penalty: '-75 | 3AP', label: 'x3' },
+  { id: 'sprint', multiplier: 1, penalty: '4AP', label: 'x4' },
+  { id: 'dash', multiplier: 1.25, penalty: '4AP+', label: 'x5' },
+];
+
+export const DIFFICULTY_TABLE: KeyValue[] = [
+  { key: 'c', value: 70 },
+  { key: 's', value: 50 },
+  { key: 'r', value: 30 },
+  { key: 'e', value: 20 },
+  { key: 'l', value: 10 },
+  { key: 'm', value: 0 },
+  { key: 'h', value: -10 },
+  { key: 'vh', value: -20 },
+  { key: 'xh', value: -30 },
+  { key: 'sf', value: -50 },
+  { key: 'a', value: -70 },
+  { key: 'ni', value: -100 },
+];
 
 export type AttackDeclaration = {
   attacks: ActionAttack[];

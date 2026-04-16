@@ -11,8 +11,8 @@ import {
   FormControlLabel,
   Radio,
 } from '@mui/material';
-import { KeyValue } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { t } from 'i18next';
+import { DIFFICULTY_TABLE } from '../api/action.dto';
 
 const SelectDifficulty: FC<{
   value: string | null | undefined;
@@ -21,21 +21,6 @@ const SelectDifficulty: FC<{
 }> = ({ value, readOnly = false, onChange }) => {
   const [open, setOpen] = useState(false);
   const buttonLabel = value ? `Difficulty: ${t(`difficulty-${value}`)}` : `Difficulty`;
-
-  const codes: KeyValue[] = [
-    { key: 'c', value: 70 },
-    { key: 's', value: 50 },
-    { key: 'r', value: 30 },
-    { key: 'e', value: 20 },
-    { key: 'l', value: 10 },
-    { key: 'm', value: 0 },
-    { key: 'h', value: -10 },
-    { key: 'vh', value: -20 },
-    { key: 'xh', value: -30 },
-    { key: 'sf', value: -50 },
-    { key: 'a', value: -70 },
-    { key: 'ni', value: -100 },
-  ];
 
   const onItemListClick = (code: string) => {
     onChange(code);
@@ -64,7 +49,7 @@ const SelectDifficulty: FC<{
           <DialogTitle>{t('Select difficulty')}</DialogTitle>
           <DialogContent dividers>
             <RadioGroup value={value} onChange={(e) => onItemListClick(e.target.value)}>
-              {codes.map((option, index) => (
+              {DIFFICULTY_TABLE.map((option, index) => (
                 <FormControlLabel
                   value={option.key}
                   key={index}

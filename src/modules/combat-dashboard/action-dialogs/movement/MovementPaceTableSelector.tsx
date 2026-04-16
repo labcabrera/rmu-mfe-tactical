@@ -2,17 +2,8 @@ import React, { Dispatch, FC, SetStateAction } from 'react';
 import { Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
 import { StrategicGame, TacticalGame } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { t } from 'i18next';
-import { Action, ActionMovement } from '../../../api/action.dto';
+import { Action, ActionMovement, MOVEMENT_TABLE } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
-
-const codes = [
-  { id: 'creep', multiplier: 1 / 8, penalty: '-', label: 'x1/2' },
-  { id: 'walk', multiplier: 1 / 4, penalty: '-25 | 1AP', label: 'x1' },
-  { id: 'jog', multiplier: 1 / 2, penalty: '-50 | 2AP', label: 'x2' },
-  { id: 'run', multiplier: 3 / 4, penalty: '-75 | 3AP', label: 'x3' },
-  { id: 'sprint', multiplier: 1, penalty: '4AP', label: 'x4' },
-  { id: 'dash', multiplier: 1.25, penalty: '4AP+', label: 'x5' },
-];
 
 const MovementPaceTableSelector: FC<{
   formData: ActionMovement;
@@ -32,8 +23,8 @@ const MovementPaceTableSelector: FC<{
   };
 
   const isDisabled = (pace: string) => {
-    const index = codes.findIndex((e) => e.id === pace);
-    const maxIndex = codes.findIndex((e) => e.id === maxPace);
+    const index = MOVEMENT_TABLE.findIndex((e) => e.id === pace);
+    const maxIndex = MOVEMENT_TABLE.findIndex((e) => e.id === maxPace);
     return index > maxIndex;
   };
 
@@ -57,7 +48,7 @@ const MovementPaceTableSelector: FC<{
               </TableRow>
             </TableHead>
             <TableBody>
-              {codes.map((pace) => {
+              {MOVEMENT_TABLE.map((pace) => {
                 const estimated = actorRound.movement.bmr * pace.multiplier * actionPoints;
                 const adjusted = estimated * scaleMultiplier;
                 const disabled = isDisabled(pace.id);
