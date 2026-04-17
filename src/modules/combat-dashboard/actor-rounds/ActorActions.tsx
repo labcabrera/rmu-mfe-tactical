@@ -68,21 +68,22 @@ const ActorActions: FC<ActorActionsProps> = ({ actorId, phases = 4, currentPhase
   const { placement, rowsCount } = assignRows(actions, phases, currentPhase);
   const isDead = actorRound.effects.some((e) => e.status === 'dead');
 
-  const rowHeight = 56; // px (increased for taller action cards)
-  const gap = 8;
+  const rowHeight = 100;
+  const gap = 5;
   const declareHeight = 36; // px for declare button row
 
   if (isDead) return <></>;
 
   return (
     <>
-      <Box sx={{ width: '100%' }}>
+      <Box sx={{ width: '100%', height: '100%' }}>
         <Box
           sx={{
             position: 'relative',
             height: (rowsCount + 1) * (rowHeight + gap),
+            width: '100%',
             border: '1px solid rgba(0,0,0,0.06)',
-            borderRadius: 1,
+            borderRadius: 0,
             p: 1,
             boxSizing: 'border-box',
             overflow: 'hidden',
@@ -190,12 +191,16 @@ const ActorAction: FC<{ action: Action; completed: boolean; onClick: () => void 
         width: '100%',
         height: '100%',
         boxShadow: 1,
-        borderRadius: 1,
+        borderRadius: 0.5,
+        border: 2,
+        borderColor: completed ? 'secondary' : '#e9a3a5',
         overflow: 'hidden',
         backgroundColor: completed ? 'secondary.main' : 'primary.main',
         backgroundImage: bg ? `url(${bg})` : undefined,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
+        backgroundSize: 'auto 100%',
+        //TODO las imagenes se cortan porque no tienen la anchura adecuada. Generar nuevas imagenes
+        backgroundPosition: 'right center',
+        backgroundRepeat: 'no-repeat',
       }}
       onClick={onClick}
     >

@@ -3,6 +3,7 @@ import ErrorOutlineOutlinedIcon from '@mui/icons-material/ErrorOutlineOutlined';
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import { Button, Dialog, DialogContent, DialogTitle, ToggleButtonGroup, ToggleButton } from '@mui/material';
 import { t } from 'i18next';
+import { imageBaseUrl } from '../services/config';
 
 const DialogSelect: FC<{
   label: string;
@@ -33,7 +34,16 @@ const DialogSelect: FC<{
       {!readOnly && (
         <Dialog maxWidth="xs" open={open}>
           <DialogTitle>{label}</DialogTitle>
-          <DialogContent dividers>
+          <DialogContent
+            dividers
+            sx={{
+              p: 2,
+              backgroundImage: `linear-gradient(rgba(0,0,0,0.75), rgba(0,0,0,0.95)), url(${imageBaseUrl}images/backgrounds/action-movement-screen.png)`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'right center',
+              backgroundRepeat: 'no-repeat',
+            }}
+          >
             <ToggleButtonGroup
               orientation="vertical"
               value={value}

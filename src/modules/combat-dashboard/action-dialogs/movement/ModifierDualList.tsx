@@ -67,7 +67,7 @@ const ModifierDualList: FC<Props> = ({ modifiers, leftIsPositive = false, center
 
             {/* centro: mostrar los nombres de los modificadores izquierdo y derecho */}
             <Box width={centerWidth} display="flex" alignItems="center" justifyContent="center">
-              <Box sx={{ width: '50%', display: 'flex', justifyContent: 'flex-end', pr: 1 }}>
+              <Box sx={{ width: '50%', display: 'flex', justifyContent: 'flex-start', pr: 1 }}>
                 <Typography
                   variant="body2"
                   noWrap
@@ -77,7 +77,7 @@ const ModifierDualList: FC<Props> = ({ modifiers, leftIsPositive = false, center
                   {t(left?.key ?? '')}
                 </Typography>
               </Box>
-              <Box sx={{ width: '50%', display: 'flex', justifyContent: 'flex-start', pl: 1 }}>
+              <Box sx={{ width: '50%', display: 'flex', justifyContent: 'flex-end', pl: 1 }}>
                 <Typography
                   variant="body2"
                   noWrap

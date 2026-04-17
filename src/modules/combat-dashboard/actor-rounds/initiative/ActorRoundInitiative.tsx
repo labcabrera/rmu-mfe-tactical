@@ -12,9 +12,7 @@ const ActorRoundInitiative: FC<{
   const [dialogOpen, setDialogOpen] = useState(false);
   const isDead = actorRound.effects.some((e) => e.status === 'dead');
 
-  const bgUrl = imageBaseUrl
-    ? `${imageBaseUrl.replace(/\/?$/, '/')}images/actions/actions-initiative-2.png`
-    : undefined;
+  const bgUrl = `${imageBaseUrl}images/backgrounds/bg-initiative-02.png`;
 
   return (
     <Card
@@ -23,7 +21,7 @@ const ActorRoundInitiative: FC<{
         height: '100%',
         display: 'flex',
         alignItems: 'stretch',
-        backgroundImage: bgUrl ? `url(${bgUrl})` : undefined,
+        backgroundImage: `url(${bgUrl})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',

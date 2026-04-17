@@ -1,27 +1,20 @@
 import React, { FC, useContext } from 'react';
-import { Chip, Grid } from '@mui/material';
-import { t } from 'i18next';
+import { Grid } from '@mui/material';
 import { CombatContext } from '../../../../CombatContext';
 import { Action, ActionAttack } from '../../../api/action.dto';
-import KeyValueModifiersView from '../../../shared/generic/KeyValueModifiersView';
 import AttackTitle from '../melee-attack/AttackTitle';
+import ModifierDualList from '../movement/ModifierDualList';
 import AttackModifiersInfo from './AttackModifiersInfo';
 
 const ResolveAttackFormModifiers: FC<{
   action: Action;
   attack: ActionAttack;
 }> = ({ action, attack }) => {
-  const { actorRounds } = useContext(CombatContext);
+  const { actorRounds } = useContext(CombatContext)!;
 
   if (!attack || !attack.calculated) return <div>Loading...</div>;
 
-  const target = actorRounds.find((a) => a.actorId === attack.modifiers?.targetId);
-
-  const getModifierColor = (value: number) => {
-    if (value > 0) return 'success';
-    if (value < 0) return 'error';
-    return undefined;
-  };
+  const target = actorRounds!.find((a) => a.actorId === attack.modifiers?.targetId)!;
 
   return (
     <Grid container spacing={1} sx={{ marginTop: 1, marginBottom: 1 }}>
@@ -32,15 +25,11 @@ const ResolveAttackFormModifiers: FC<{
       <Grid size={10}>
         <AttackModifiersInfo attack={attack} action={action} />
       </Grid>
-      <Grid size={2}>
-        <Chip
-          label={`${t('total-modifiers')}: ${attack.calculated.rollTotal}`}
-          color={getModifierColor(attack.calculated.rollTotal)}
-        />
-      </Grid>
-      <Grid size={10}>
-        <KeyValueModifiersView modifiers={attack.calculated.rollModifiers} />
-      </Grid>
+      {attack.calculated.rollModifiers && (
+        <Grid size={12}>
+          <ModifierDualList modifiers={attack.calculated.rollModifiers} />
+        </Grid>
+      )}
     </Grid>
   );
 };
