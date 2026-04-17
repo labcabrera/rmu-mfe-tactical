@@ -164,11 +164,11 @@ const ActorAction: FC<{ action: Action; completed: boolean; onClick: () => void 
 }) => {
   const getActionImage = () => {
     if (action.actionType === 'ranged_attack') {
-      return `${imageBaseUrl}images/actions/panoramic-ranged.png`;
+      return `${imageBaseUrl}images/actions/action-ranged-panoramic-01.png`;
     } else if (action.actionType === 'movement') {
-      return `${imageBaseUrl}images/actions/panoramic-movement.png`;
+      return `${imageBaseUrl}images/actions/action-movement-panoramic-02.png`;
     }
-    return `${imageBaseUrl}images/actions/panoramic-melee.png`;
+    return `${imageBaseUrl}images/actions/action-melee-panoramic-01.png`;
   };
 
   const getActionName = (action: Action) => {
@@ -193,12 +193,11 @@ const ActorAction: FC<{ action: Action; completed: boolean; onClick: () => void 
         boxShadow: 1,
         borderRadius: 0.5,
         border: 2,
-        borderColor: completed ? 'secondary' : '#e9a3a5',
+        borderColor: completed ? 'black' : '#515e60',
         overflow: 'hidden',
         backgroundColor: completed ? 'secondary.main' : 'primary.main',
         backgroundImage: bg ? `url(${bg})` : undefined,
         backgroundSize: 'auto 100%',
-        //TODO las imagenes se cortan porque no tienen la anchura adecuada. Generar nuevas imagenes
         backgroundPosition: 'right center',
         backgroundRepeat: 'no-repeat',
       }}
@@ -211,7 +210,7 @@ const ActorAction: FC<{ action: Action; completed: boolean; onClick: () => void 
               variant="body2"
               noWrap
               sx={{
-                color: completed ? 'secondary.contrastText' : 'primary.contrastText',
+                color: completed ? 'secondary' : 'primary',
                 textTransform: 'none',
                 fontWeight: 600,
               }}

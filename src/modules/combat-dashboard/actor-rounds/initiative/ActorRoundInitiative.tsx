@@ -12,7 +12,7 @@ const ActorRoundInitiative: FC<{
   const [dialogOpen, setDialogOpen] = useState(false);
   const isDead = actorRound.effects.some((e) => e.status === 'dead');
 
-  const bgUrl = `${imageBaseUrl}images/backgrounds/bg-initiative-02.png`;
+  const bgUrl = `${imageBaseUrl}images/actions/action-initiative-panoramic-02.png`;
 
   return (
     <Card

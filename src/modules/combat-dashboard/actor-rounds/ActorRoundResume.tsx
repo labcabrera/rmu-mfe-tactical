@@ -42,16 +42,16 @@ const ActorRoundResume: FC<{
       height={150}
       imageFilter={isDead ? deadFilter : undefined}
       onClick={() => onActorRoundView(actorRound)}
-      contentBgImage={`${imageBaseUrl}images/backgrounds/bg-04.png`}
+      contentBgImage={`${imageBaseUrl}images/actions/action-melee-screen-01.png`}
     >
       <Stack direction="column">
         <Typography variant="body1" color={isDead ? 'error' : 'primary'}>
           {character.name}
         </Typography>
-        <Typography variant="caption" color="primary">
+        <Typography variant="body2" color="primary">
           {`${t(character.info.professionId)} lvl ${character.experience.level}`}
         </Typography>
-        <Typography variant="caption" color="primary">
+        <Typography variant="body2" color="primary">
           {`${character.faction?.name || ''}`}
         </Typography>
 
