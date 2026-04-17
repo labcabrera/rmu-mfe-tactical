@@ -31,14 +31,14 @@ const CombatActorRoundListItem: FC<{
 
   return (
     <>
-      <Grid container spacing={1} sx={{ borderBottom: '1px solid #282e2f', pb: 1 }}>
-        <Grid size={3}>
+      <Grid container columns={24} spacing={1} sx={{ borderBottom: '1px solid #282e2f', pb: 1 }}>
+        <Grid size={5}>
           <ActorRoundResume actorRound={actorRound} onActorRoundView={() => onActorRoundView(actorRound)} />
         </Grid>
-        <Grid size={1}>
+        <Grid size={2}>
           <ActorRoundInitiative actorRound={actorRound} />
         </Grid>
-        <Grid size={5}>
+        <Grid size={8}>
           <ActorActions
             actorId={actorRound.actorId}
             currentPhase={game.phase.startsWith('phase_') ? parseInt(game.phase.replace('phase_', '')) : 5}
@@ -48,7 +48,7 @@ const CombatActorRoundListItem: FC<{
             }}
           />
         </Grid>
-        <Grid size={3}>
+        <Grid size={6}>
           <ActorRoundEffects actorRound={actorRound} />
           <ActorRoundAlerts actorRound={actorRound} />
         </Grid>

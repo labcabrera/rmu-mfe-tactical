@@ -9,6 +9,8 @@ import { imageBaseUrl } from '../../services/config';
 import RmuImageButton from '../../shared/buttons/RmuImageButton';
 import DeclareActionDialog from '../action-dialogs/DeclareActionDialog';
 
+const buttonSize = 35;
+
 const ActorRoundDeclarationButtons: FC<{ actorRound: ActorRound; currentPhase: number }> = ({
   actorRound,
   currentPhase,
@@ -21,11 +23,9 @@ const ActorRoundDeclarationButtons: FC<{ actorRound: ActorRound; currentPhase: n
   if (!actorRound || !game) return <>Loading...</>;
 
   const disabledRangedAttack = !actorRound.attacks.some((a) => a.type === 'ranged');
-
   const disabledMovement = pendingActions.some(
     (a) => a.actorId === actorRound.actorId && a.actionType === 'movement' && !a.freeAction
   );
-
   const disabledMeleeAttack = pendingActions.some(
     (a) => a.actorId === actorRound.actorId && a.actionType === 'melee_attack' && !a.freeAction
   );
@@ -39,15 +39,13 @@ const ActorRoundDeclarationButtons: FC<{ actorRound: ActorRound; currentPhase: n
       freeAction: freeAction,
     };
     createAction(data)
-      .then((action) => {
-        setRoundActions([...(roundActions || []), action]);
-      })
-      .catch((err: Error) => showError(err.message));
+      .then((action) => setRoundActions([...(roundActions || []), action]))
+      .catch((err) => showError(err.message));
   };
 
   return (
     <>
-      <Stack direction="row" spacing={1} mt={2} ml={2}>
+      <Stack direction="row" spacing={1} flexWrap="wrap" gap={0} sx={{ backgroundColor: undefined }}>
         {!disabledMovement && (
           <>
             <Badge
@@ -64,14 +62,14 @@ const ActorRoundDeclarationButtons: FC<{ actorRound: ActorRound; currentPhase: n
                 src={`${imageBaseUrl}images/icons/movement.png`}
                 tooltip={t('Free movement')}
                 onClick={() => onActionDeclaration('movement', true)}
-                size={50}
+                size={buttonSize}
               />
             </Badge>
             <RmuImageButton
               src={`${imageBaseUrl}images/icons/movement.png`}
               tooltip={t('Normal movement')}
               onClick={() => onActionDeclaration('movement', false)}
-              size={50}
+              size={buttonSize}
             />
           </>
         )}
@@ -80,6 +78,7 @@ const ActorRoundDeclarationButtons: FC<{ actorRound: ActorRound; currentPhase: n
             src={`${imageBaseUrl}images/icons/attack.png`}
             tooltip={t('Melee attack')}
             onClick={() => onActionDeclaration('melee_attack', false)}
+            size={buttonSize}
           />
         )}
         {!disabledRangedAttack && (
@@ -87,38 +86,16 @@ const ActorRoundDeclarationButtons: FC<{ actorRound: ActorRound; currentPhase: n
             src={`${imageBaseUrl}images/icons/ranged-attack.png`}
             tooltip={t('Ranged attack')}
             onClick={() => onActionDeclaration('ranged_attack', false)}
-            size={50}
+            size={buttonSize}
           />
         )}
         <RmuImageButton
           src={`${imageBaseUrl}images/icons/add.png`}
           tooltip={t('Other actions')}
           onClick={() => setDeclareActionDialogOpen(true)}
+          size={buttonSize}
         />
       </Stack>
-      {/* <ButtonGroup variant="outlined" size="small" aria-label="Actor round declaration buttons" sx={{ mt: 1.5 }}>
-        <ActionIconButton
-          actionType="movement"
-          onClick={() => onActionDeclaration('movement', false)}
-          disabled={disabledMovement}
-        />
-        <ActionIconButton
-          actionType="free_movement"
-          onClick={() => onActionDeclaration('movement', true)}
-          disabled={disabledMovement}
-        />
-        <ActionIconButton
-          actionType="melee_attack"
-          onClick={() => onActionDeclaration('melee_attack', false)}
-          disabled={disabledMeleeAttack}
-        />
-        <ActionIconButton
-          actionType="ranged_attack"
-          onClick={() => onActionDeclaration('ranged_attack', false)}
-          disabled={disabledRangedWeapon}
-        />
-        <ActionIconButton actionType="other" onClick={() => setDeclareActionDialogOpen(true)} />
-      </ButtonGroup> */}
       <DeclareActionDialog
         actorRound={actorRound}
         phaseNumber={currentPhase}

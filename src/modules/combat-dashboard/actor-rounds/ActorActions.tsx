@@ -1,6 +1,6 @@
 import React, { FC, useContext } from 'react';
 import { useState } from 'react';
-import { Box } from '@mui/material';
+import { Box, Grid } from '@mui/material';
 import { CombatContext } from '../../../CombatContext';
 import type { Action } from '../../api/action.dto';
 import type { ActorRound } from '../../api/actor-rounds.dto';
@@ -67,78 +67,82 @@ const ActorActions: FC<ActorActionsProps> = ({ actorId, phases = 4, currentPhase
   const { placement, rowsCount } = assignRows(actions, phases, currentPhase);
   const isDead = actorRound.effects.some((e) => e.status === 'dead');
 
-  const rowHeight = 100;
-  const gap = 5;
-  const declareHeight = 36; // px for declare button row
+  const rowHeight = 80;
+  const gap = 8;
+  const declareHeight = 'auto'; // declaration row will size to content
 
-  if (isDead) return <></>;
+  if (isDead) return;
+
+  // Build CSS grid: columns = phases, rows = rowsCount fixed height and last row auto for declarations
+  const gridTemplateColumns = `repeat(${phases}, 1fr)`;
+  const gridTemplateRows = `repeat(${rowsCount}, ${rowHeight}px) auto`;
 
   return (
     <>
       <Box sx={{ width: '100%', height: '100%' }}>
-        <Box
+        <Grid
+          container
           sx={{
-            position: 'relative',
-            height: (rowsCount + 1) * (rowHeight + gap),
+            display: 'grid',
+            gridTemplateColumns,
+            gridAutoRows: `${rowHeight}px`,
+            gridTemplateRows,
+            gap: `${gap}px`,
             width: '100%',
             border: '1px solid rgba(0,0,0,0.06)',
             borderRadius: 0,
-            p: 1,
+            // p: 1,
             boxSizing: 'border-box',
             overflow: 'hidden',
           }}
         >
           {placement.map((p) => {
-            const leftPercent = ((p.start - 1) / phases) * 100;
-            const widthPercent = ((p.end - p.start + 1) / phases) * 100;
-            const topPx = p.row * (rowHeight + gap);
+            const colStart = p.start;
+            const colEnd = p.end + 1; // grid column end is exclusive
+            const row = p.row + 1; // grid rows are 1-based
             const completed = p.action.status === 'completed';
 
             return (
-              <Box
+              <Grid
                 key={p.action.id}
                 sx={{
-                  position: 'absolute',
-                  left: `${leftPercent}%`,
-                  top: `${topPx}px`,
-                  width: `calc(${widthPercent}% - ${gap}px)`,
+                  gridColumn: `${colStart} / ${colEnd}`,
+                  gridRow: `${row} / ${row + 1}`,
                   height: `${rowHeight}px`,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  zIndex: 1,
                 }}
               >
                 <ActorAction action={p.action} completed={completed} onClick={() => onActionClick(p.action)} />
-              </Box>
+              </Grid>
             );
           })}
+
+          {/* Declaration buttons row */}
           {Array.from({ length: phases }, (_, i) => {
-            const leftPercent = (i / phases) * 100;
-            const widthPercent = 100 / phases;
-            const topPx = rowsCount * (rowHeight + gap);
+            const colStart = i + 1;
+            const colEnd = i + 2;
+            const row = rowsCount + 1;
             return (
-              <Box
+              <Grid
                 key={`declare-${i}`}
                 sx={{
-                  position: 'absolute',
-                  left: `${leftPercent}%`,
-                  top: `${topPx}px`,
-                  width: `calc(${widthPercent}% - ${gap}px)`,
-                  height: `${declareHeight}px`,
+                  gridColumn: `${colStart} / ${colEnd}`,
+                  gridRow: `${row} / ${row + 1}`,
+                  height: declareHeight,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  zIndex: 1,
                 }}
               >
                 {i + 1 === currentPhase && (
                   <ActorRoundDeclarationButtons actorRound={actorRound} currentPhase={currentPhase} />
                 )}
-              </Box>
+              </Grid>
             );
           })}
-        </Box>
+        </Grid>
       </Box>
 
       {selectedAction && actorRound && character && (

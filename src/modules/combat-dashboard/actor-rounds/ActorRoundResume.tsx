@@ -15,9 +15,6 @@ const colorEnduranceOk = '#433a21ff';
 const colorEnduranceAccumulator = '#686868';
 const colorKo = '#2e140aff';
 
-/**
- * Component that displays general information about the actor, such as their name, health bar, etc.
- */
 const ActorRoundResume: FC<{
   actorRound: ActorRound;
   onActorRoundView: (actorRound: ActorRound) => void;
@@ -51,7 +48,7 @@ const ActorRoundResume: FC<{
       }}
       elevation={0}
     >
-      <CardContent sx={{ width: '100%', p: 2, display: 'flex', alignItems: 'center' }}>
+      <CardContent sx={{ width: '100%', p: 2, display: 'flex', alignItems: 'flex-start' }}>
         <CardMedia
           component="img"
           image={actorRound.imageUrl || `${imageBaseUrl}images/races/unknown.png`}
