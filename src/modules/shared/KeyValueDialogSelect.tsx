@@ -2,17 +2,21 @@ import React, { FC, useState } from 'react';
 import ErrorOutlineOutlinedIcon from '@mui/icons-material/ErrorOutlineOutlined';
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import { Button, Dialog, DialogContent, DialogTitle, ToggleButtonGroup, ToggleButton } from '@mui/material';
+import { KeyValue } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { t } from 'i18next';
 import { imageBaseUrl } from '../services/config';
 
-const DialogSelect: FC<{
+const KeyValueDialogSelect: FC<{
   label: string;
   value: string | null | undefined;
-  options: string[];
+  options: KeyValue[];
   readOnly?: boolean;
   onChange: (value: string | null) => void;
 }> = ({ label, value, options, readOnly = false, onChange }) => {
   const [open, setOpen] = useState(false);
+
+  const modifier = value ? options.find((e) => e.key === value)?.value : undefined;
+  const selectedOption = modifier !== undefined ? `: ${t(value!)} (${modifier > 0 ? '+' : ''}${modifier})` : undefined;
 
   const onItemListClick = (code: string) => {
     onChange(code);
@@ -29,7 +33,7 @@ const DialogSelect: FC<{
         color={!value ? 'warning' : 'secondary'}
         fullWidth
       >
-        {`${t(label)}${value ? `: ${value}` : ''}`}
+        {`${t(label)}${selectedOption ? selectedOption : ''}`}
       </Button>
       {!readOnly && (
         <Dialog maxWidth="xs" open={open}>
@@ -53,24 +57,16 @@ const DialogSelect: FC<{
               size="small"
             >
               {options.map((option, index) => (
-                <ToggleButton key={index} value={option}>
-                  {t(option)}
+                <ToggleButton key={index} value={option.key}>
+                  {`${t(option.key)} (${option.value > 0 ? '+' : ''}${option.value})`}
                 </ToggleButton>
               ))}
             </ToggleButtonGroup>
           </DialogContent>
-          {/* <DialogActions>
-            <Button autoFocus onClick={() => onClear()}>
-              Clear
-            </Button>
-            <Button autoFocus onClick={() => setOpen(false)}>
-              Cancel
-            </Button>
-          </DialogActions> */}
         </Dialog>
       )}
     </>
   );
 };
 
-export default DialogSelect;
+export default KeyValueDialogSelect;

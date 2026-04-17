@@ -97,18 +97,6 @@ const CombatActorRoundListItem: FC<{
             />
           );
         })()}
-      {/* {selectedActionId && (
-        <ActionDialog
-          action={(roundActions || []).find((a: Action) => a.id === selectedActionId) || (null as any)}
-          actorRound={actorRound}
-          character={character}
-          open={resolveDialogOpen}
-          onClose={() => {
-            setResolveDialogOpen(false);
-            setSelectedActionId(null);
-          }}
-        />
-      )} */}
     </>
   );
 };

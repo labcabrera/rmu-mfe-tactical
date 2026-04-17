@@ -11,11 +11,9 @@ import { useError } from '../../../ErrorContext';
 import { deleteAction } from '../../api/action';
 import { Action } from '../../api/action.dto';
 import { ActorRound } from '../../api/actor-rounds.dto';
-import { Character } from '../../api/characters.dto';
 import ActorRoundAvatar from '../../shared/avatars/ActorRoundAvatar';
 import ActionManeuverForm from './maneuver/ActionManeuverForm';
 import MeleeAttackForm from './melee-attack/MeleeAttackForm';
-import RangedAttackForm from './ranged-attack/RangedAttackForm';
 
 const Transition = React.forwardRef(function Transition(
   props: TransitionProps & {
@@ -29,10 +27,9 @@ const Transition = React.forwardRef(function Transition(
 const ActionDialog: FC<{
   action: Action;
   actorRound: ActorRound;
-  character: Character;
   open: boolean;
   onClose: () => void;
-}> = ({ action, actorRound, character, open, onClose }) => {
+}> = ({ action, actorRound, open, onClose }) => {
   const [deleting, setDeleting] = useState(false);
   const { roundActions, setRoundActions } = useContext(CombatContext)!;
   const { showError } = useError();
@@ -66,7 +63,6 @@ const ActionDialog: FC<{
           {!deleting ? (
             <>
               {action.actionType === 'melee_attack' && <MeleeAttackForm action={action} actorRound={actorRound} />}
-              {action.actionType === 'ranged_attack' && <RangedAttackForm action={action} actorRound={actorRound} />}
               {action.actionType === 'maneuver' && <ActionManeuverForm action={action} actorRound={actorRound} />}
               <TechnicalInfo>
                 <pre>Action: {JSON.stringify(action, null, 2)}</pre>
@@ -103,11 +99,7 @@ const ActionDialog: FC<{
         </DialogTitle>
         {!deleting ? (
           <DialogContent sx={{ minHeight: '800px' }}>
-            {action.actionType === 'movement' && (
-              <MovementForm action={action} character={character} onClose={onClose} />
-            )}
             {action.actionType === 'melee_attack' && <MeleeAttackForm action={action} actorRound={actorRound} />}
-            {action.actionType === 'ranged_attack' && <RangedAttackForm action={action} actorRound={actorRound} />}
             {action.actionType === 'maneuver' && <ActionManeuverForm action={action} actorRound={actorRound} />}
           </DialogContent>
         ) : (
