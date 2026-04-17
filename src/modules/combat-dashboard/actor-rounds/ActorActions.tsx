@@ -1,12 +1,11 @@
 import React, { FC, useContext } from 'react';
 import { useState } from 'react';
-import { Box, Card, CardActionArea, CardContent, Typography } from '@mui/material';
-import { t } from 'i18next';
+import { Box } from '@mui/material';
 import { CombatContext } from '../../../CombatContext';
 import type { Action } from '../../api/action.dto';
 import type { ActorRound } from '../../api/actor-rounds.dto';
-import { imageBaseUrl } from '../../services/config';
 import ActionDialog from '../action-dialogs/ActionDialog';
+import ActorAction from './ActorAction';
 import ActorRoundDeclarationButtons from './ActorRoundDeclarationButtons';
 
 type ActorActionsProps = {
@@ -141,6 +140,7 @@ const ActorActions: FC<ActorActionsProps> = ({ actorId, phases = 4, currentPhase
           })}
         </Box>
       </Box>
+
       {selectedAction && actorRound && character && (
         <ActionDialog
           action={selectedAction}
@@ -154,74 +154,6 @@ const ActorActions: FC<ActorActionsProps> = ({ actorId, phases = 4, currentPhase
         />
       )}
     </>
-  );
-};
-
-const ActorAction: FC<{ action: Action; completed: boolean; onClick: () => void }> = ({
-  action,
-  completed,
-  onClick,
-}) => {
-  const getActionImage = () => {
-    if (action.actionType === 'ranged_attack') {
-      return `${imageBaseUrl}images/actions/action-ranged-panoramic-01.png`;
-    } else if (action.actionType === 'movement') {
-      return `${imageBaseUrl}images/actions/action-movement-panoramic-02.png`;
-    }
-    return `${imageBaseUrl}images/actions/action-melee-panoramic-01.png`;
-  };
-
-  const getActionName = (action: Action) => {
-    let name = '';
-    if (action.maneuver) {
-      name = t(action.maneuver?.modifiers?.skillId || 'maneuver');
-    } else if (action.movement) {
-      name = `${t('movement')}${action.movement.calculated?.distanceAdjusted ? `: ${action.movement.calculated.distanceAdjusted}` : ''}`;
-    } else {
-      name = t(action.actionType);
-    }
-    return action.freeAction ? `${t('Free ')} ${name}` : name;
-  };
-
-  const bg = getActionImage();
-
-  return (
-    <Card
-      sx={{
-        width: '100%',
-        height: '100%',
-        boxShadow: 1,
-        borderRadius: 0.5,
-        border: 2,
-        borderColor: completed ? 'black' : '#515e60',
-        overflow: 'hidden',
-        backgroundColor: completed ? 'secondary.main' : 'primary.main',
-        backgroundImage: bg ? `url(${bg})` : undefined,
-        backgroundSize: 'auto 100%',
-        backgroundPosition: 'right center',
-        backgroundRepeat: 'no-repeat',
-      }}
-      onClick={onClick}
-    >
-      <CardActionArea sx={{ height: '100%' }} onClick={onClick}>
-        <CardContent sx={{ height: '100%', display: 'flex', alignItems: 'center', p: 0, bgcolor: 'rgba(0,0,0,0)' }}>
-          <Box sx={{ width: '100%', px: 1 }}>
-            <Typography
-              variant="body2"
-              noWrap
-              sx={{
-                color: completed ? 'secondary' : 'primary',
-                textTransform: 'none',
-                fontWeight: 600,
-              }}
-            >
-              {getActionName(action)}
-              {completed ? '' : '...'}
-            </Typography>
-          </Box>
-        </CardContent>
-      </CardActionArea>
-    </Card>
   );
 };
 
