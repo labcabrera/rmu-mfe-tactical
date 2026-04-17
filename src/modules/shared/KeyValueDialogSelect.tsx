@@ -1,7 +1,16 @@
 import React, { FC, useState } from 'react';
-import ErrorOutlineOutlinedIcon from '@mui/icons-material/ErrorOutlineOutlined';
-import TaskAltIcon from '@mui/icons-material/TaskAlt';
-import { Button, Dialog, DialogContent, DialogTitle, ToggleButtonGroup, ToggleButton } from '@mui/material';
+import {
+  Card,
+  CardActionArea,
+  CardContent,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  ToggleButtonGroup,
+  ToggleButton,
+  Typography,
+  Stack,
+} from '@mui/material';
 import { KeyValue } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { t } from 'i18next';
 import { imageBaseUrl } from '../services/config';
@@ -16,7 +25,7 @@ const KeyValueDialogSelect: FC<{
   const [open, setOpen] = useState(false);
 
   const modifier = value ? options.find((e) => e.key === value)?.value : undefined;
-  const selectedOption = modifier !== undefined ? `: ${t(value!)} (${modifier > 0 ? '+' : ''}${modifier})` : undefined;
+  const selectedOption = modifier !== undefined ? `${t(value!)} (${modifier > 0 ? '+' : ''}${modifier})` : undefined;
 
   const onItemListClick = (code: string) => {
     onChange(code);
@@ -25,16 +34,22 @@ const KeyValueDialogSelect: FC<{
 
   return (
     <>
-      <Button
-        onClick={() => setOpen(true)}
-        disabled={readOnly}
-        startIcon={!value ? <ErrorOutlineOutlinedIcon /> : <TaskAltIcon />}
-        size="small"
-        color={!value ? 'warning' : 'secondary'}
-        fullWidth
-      >
-        {`${t(label)}${selectedOption ? selectedOption : ''}`}
-      </Button>
+      <Card sx={{ width: '100%', boxShadow: 'none' }}>
+        <CardActionArea onClick={() => !readOnly && setOpen(true)}>
+          <CardContent sx={{ p: 2 }}>
+            <Stack direction="row" spacing={1}>
+              <Typography sx={{ fontWeight: 600 }} color={!value ? 'error' : undefined}>
+                {selectedOption ? `${t(label)}:` : t(label)}
+              </Typography>
+              {selectedOption && (
+                <Typography sx={{ fontWeight: 600 }} color={selectedOption.includes('-') ? 'error' : undefined}>
+                  {selectedOption}
+                </Typography>
+              )}
+            </Stack>
+          </CardContent>
+        </CardActionArea>
+      </Card>
       {!readOnly && (
         <Dialog maxWidth="xs" open={open}>
           <DialogTitle>{label}</DialogTitle>
@@ -54,7 +69,6 @@ const KeyValueDialogSelect: FC<{
               exclusive
               onChange={(e, v) => onItemListClick(v)}
               fullWidth
-              size="small"
               sx={{ mt: 2 }}
             >
               {options.map((option, index) => (

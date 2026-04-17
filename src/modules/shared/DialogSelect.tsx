@@ -1,7 +1,16 @@
 import React, { FC, useState } from 'react';
-import ErrorOutlineOutlinedIcon from '@mui/icons-material/ErrorOutlineOutlined';
-import TaskAltIcon from '@mui/icons-material/TaskAlt';
-import { Button, Dialog, DialogContent, DialogTitle, ToggleButtonGroup, ToggleButton } from '@mui/material';
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  ToggleButtonGroup,
+  ToggleButton,
+  Card,
+  CardActionArea,
+  CardContent,
+  Stack,
+  Typography,
+} from '@mui/material';
 import { t } from 'i18next';
 import { imageBaseUrl } from '../services/config';
 
@@ -21,16 +30,18 @@ const DialogSelect: FC<{
 
   return (
     <>
-      <Button
-        onClick={() => setOpen(true)}
-        disabled={readOnly}
-        startIcon={!value ? <ErrorOutlineOutlinedIcon /> : <TaskAltIcon />}
-        size="small"
-        color={!value ? 'warning' : 'secondary'}
-        fullWidth
-      >
-        {`${t(label)}${value ? `: ${value}` : ''}`}
-      </Button>
+      <Card sx={{ width: '100%', boxShadow: 'none' }}>
+        <CardActionArea onClick={() => !readOnly && setOpen(true)}>
+          <CardContent sx={{ p: 2 }}>
+            <Stack direction="row" spacing={1}>
+              <Typography sx={{ fontWeight: 600 }} color={!value ? 'error' : undefined}>
+                {value ? `${t(label)}:` : t(label)}
+              </Typography>
+              {value && <Typography sx={{ fontWeight: 600 }}>{value}</Typography>}
+            </Stack>
+          </CardContent>
+        </CardActionArea>
+      </Card>
       {!readOnly && (
         <Dialog maxWidth="xs" open={open}>
           <DialogTitle>{label}</DialogTitle>
@@ -50,7 +61,7 @@ const DialogSelect: FC<{
               exclusive
               onChange={(e, v) => onItemListClick(v)}
               fullWidth
-              size="small"
+              sx={{ mt: 2 }}
             >
               {options.map((option, index) => (
                 <ToggleButton key={index} value={option}>
