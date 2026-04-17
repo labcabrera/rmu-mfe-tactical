@@ -1,10 +1,11 @@
 import React, { FC, useContext } from 'react';
 import { useState } from 'react';
-import { Box, Button } from '@mui/material';
+import { Box, Card, CardActionArea, CardContent, Typography } from '@mui/material';
 import { t } from 'i18next';
 import { CombatContext } from '../../../CombatContext';
 import type { Action } from '../../api/action.dto';
 import type { ActorRound } from '../../api/actor-rounds.dto';
+import { imageBaseUrl } from '../../services/config';
 import ActionDialog from '../action-dialogs/ActionDialog';
 import ActorRoundDeclarationButtons from './ActorRoundDeclarationButtons';
 
@@ -67,21 +68,9 @@ const ActorActions: FC<ActorActionsProps> = ({ actorId, phases = 4, currentPhase
   const { placement, rowsCount } = assignRows(actions, phases, currentPhase);
   const isDead = actorRound.effects.some((e) => e.status === 'dead');
 
-  const rowHeight = 40; // px
+  const rowHeight = 56; // px (increased for taller action cards)
   const gap = 8;
   const declareHeight = 36; // px for declare button row
-
-  const getActionName = (action: Action) => {
-    let name = '';
-    if (action.maneuver) {
-      name = t(action.maneuver?.modifiers?.skillId || 'maneuver');
-    } else if (action.movement) {
-      name = `${t('movement')}${action.movement.calculated?.distanceAdjusted ? `: ${action.movement.calculated.distanceAdjusted}` : ''}`;
-    } else {
-      name = t(action.actionType);
-    }
-    return action.freeAction ? `${t('Free ')} ${name}` : name;
-  };
 
   if (isDead) return <></>;
 
@@ -172,6 +161,15 @@ const ActorAction: FC<{ action: Action; completed: boolean; onClick: () => void 
   completed,
   onClick,
 }) => {
+  const getActionImage = () => {
+    if (action.actionType === 'ranged_attack') {
+      return `${imageBaseUrl}images/actions/panoramic-ranged.png`;
+    } else if (action.actionType === 'movement') {
+      return `${imageBaseUrl}images/actions/panoramic-movement.png`;
+    }
+    return `${imageBaseUrl}images/actions/panoramic-melee.png`;
+  };
+
   const getActionName = (action: Action) => {
     let name = '';
     if (action.maneuver) {
@@ -184,24 +182,42 @@ const ActorAction: FC<{ action: Action; completed: boolean; onClick: () => void 
     return action.freeAction ? `${t('Free ')} ${name}` : name;
   };
 
+  const bg = getActionImage();
+
   return (
-    <Button
-      fullWidth
-      variant={completed ? 'contained' : 'contained'}
-      color={completed ? 'secondary' : 'primary'}
-      onClick={onClick}
+    <Card
       sx={{
+        width: '100%',
         height: '100%',
-        textTransform: 'none',
+        boxShadow: 1,
+        borderRadius: 1,
         overflow: 'hidden',
-        whiteSpace: 'nowrap',
-        textOverflow: 'ellipsis',
-        color: completed ? 'secondary.contrastText' : 'primary.contrastText',
+        backgroundColor: completed ? 'secondary.main' : 'primary.main',
+        backgroundImage: bg ? `url(${bg})` : undefined,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
       }}
+      onClick={onClick}
     >
-      {getActionName(action)}
-      {completed ? undefined : '...'}
-    </Button>
+      <CardActionArea sx={{ height: '100%' }} onClick={onClick}>
+        <CardContent sx={{ height: '100%', display: 'flex', alignItems: 'center', p: 0, bgcolor: 'rgba(0,0,0,0)' }}>
+          <Box sx={{ width: '100%', px: 1 }}>
+            <Typography
+              variant="body2"
+              noWrap
+              sx={{
+                color: completed ? 'secondary.contrastText' : 'primary.contrastText',
+                textTransform: 'none',
+                fontWeight: 600,
+              }}
+            >
+              {getActionName(action)}
+              {completed ? '' : '...'}
+            </Typography>
+          </Box>
+        </CardContent>
+      </CardActionArea>
+    </Card>
   );
 };
 

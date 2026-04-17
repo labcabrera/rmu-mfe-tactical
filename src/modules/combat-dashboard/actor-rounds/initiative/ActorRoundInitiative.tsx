@@ -1,7 +1,8 @@
 import React, { FC, useState } from 'react';
 import ElectricBoltIcon from '@mui/icons-material/ElectricBolt';
-import { IconButton, Paper, Stack, Typography } from '@mui/material';
+import { IconButton, Card, CardContent, Stack, Typography } from '@mui/material';
 import { ActorRound } from '../../../api/actor-rounds.dto';
+import { imageBaseUrl } from '../../../services/config';
 import InitiativeBar from '../../../shared/generic/InitiativeBar';
 import DeclareInitiativeDialog from './DeclareInitiativeDialog';
 
@@ -11,31 +12,45 @@ const ActorRoundInitiative: FC<{
   const [dialogOpen, setDialogOpen] = useState(false);
   const isDead = actorRound.effects.some((e) => e.status === 'dead');
 
+  const bgUrl = imageBaseUrl
+    ? `${imageBaseUrl.replace(/\/?$/, '/')}images/actions/actions-initiative-2.png`
+    : undefined;
+
   return (
-    <Paper
+    <Card
       sx={{
         width: '100%',
         height: '100%',
-        padding: 2,
+        display: 'flex',
+        alignItems: 'stretch',
+        backgroundImage: bgUrl ? `url(${bgUrl})` : undefined,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        bgcolor: 'transparent',
       }}
       elevation={0}
     >
       {!isDead && (
-        <Stack direction="column" alignItems="center" spacing={1}>
-          <Stack direction="row" alignItems="center" spacing={1}>
-            <Typography variant="body1" color="text.primary">
-              {actorRound.initiative.total}
-            </Typography>
-            <IconButton onClick={() => setDialogOpen(true)} size="small" color="primary">
-              <ElectricBoltIcon />
-            </IconButton>
+        <CardContent sx={{ width: '100%', p: 2 }}>
+          <Stack direction="column" alignItems="center" spacing={1}>
+            <Stack direction="row" alignItems="center" spacing={1}>
+              <Typography variant="body1" color="text.primary">
+                {actorRound.initiative.total}
+              </Typography>
+              <IconButton onClick={() => setDialogOpen(true)} size="small" color="primary">
+                <ElectricBoltIcon />
+              </IconButton>
+            </Stack>
+            {!actorRound.initiative.total && <Typography>Not declared</Typography>}
+            <DeclareInitiativeDialog open={dialogOpen} setOpen={setDialogOpen} actorRound={actorRound} />
+            {actorRound.initiative?.roll && (
+              <InitiativeBar current={actorRound.initiative.total} max={30} width={100} />
+            )}
           </Stack>
-          {!actorRound.initiative.total && <Typography>Not declared</Typography>}
-          <DeclareInitiativeDialog open={dialogOpen} setOpen={setDialogOpen} actorRound={actorRound} />
-          {actorRound.initiative?.roll && <InitiativeBar current={actorRound.initiative.total} max={30} width={100} />}
-        </Stack>
+        </CardContent>
       )}
-    </Paper>
+    </Card>
   );
 };
 
