@@ -1,6 +1,6 @@
 import React, { Dispatch, FC, SetStateAction, useContext, useState } from 'react';
 import { Grid, Chip, Stack, Typography } from '@mui/material';
-import { NumericInput } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { CategorySeparator, NumericInput, OpenEndedRollInput } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { useError } from '../../../../ErrorContext';
@@ -18,12 +18,14 @@ const ResolveAttackFormRoll: FC<{
   attack: ActionAttack;
   index: number;
 }> = ({ formData, setFormData, action, attack, index }) => {
-  const { updateAction } = useContext(CombatContext);
+  const { updateAction } = useContext(CombatContext)!;
   const { showError } = useError();
   const [attackRoll, setAttackRoll] = useState<number | undefined>(attack.roll?.roll);
   const [locationRoll, setLocationRoll] = useState<number | undefined>(attack.roll?.locationRoll);
 
   if (!formData || !formData.attacks || formData.attacks.length <= index) return <div>Loading...</div>;
+
+  if (!attack.calculated) return <p>Not calculated attack...</p>;
 
   const onRollChange = (value: number | undefined) => {
     setAttackRoll(value);
@@ -65,6 +67,9 @@ const ResolveAttackFormRoll: FC<{
   return (
     <Grid container spacing={1}>
       <Grid size={12}>
+        <CategorySeparator text="Resolve roll" />
+      </Grid>
+      <Grid size={12}>
         <ResolveAttackInfo action={action} attack={formData.attacks[index]} />
       </Grid>
       {attack.calculated.requiredLocationRoll && (
@@ -88,14 +93,8 @@ const ResolveAttackFormRoll: FC<{
         )}
       </Grid>
       <Grid size={12}></Grid>
-      <Grid size={2} offset={2}>
-        <NumericInput
-          label={t('attack-roll')}
-          value={attack.roll?.roll || null}
-          onChange={(e) => onRollChange(e)}
-          disabled={action.status === 'completed'}
-          error={!attackRoll}
-        />
+      <Grid size={10} offset={2}>
+        <OpenEndedRollInput onChange={(e) => onRollChange(e || undefined)} />
       </Grid>
 
       {attack.results && attack.results.attackTableEntry && (

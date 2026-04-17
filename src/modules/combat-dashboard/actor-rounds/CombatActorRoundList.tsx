@@ -79,9 +79,7 @@ const CombatActorRoundListHeader: FC<{ actorRounds: ActorRound[]; game: Tactical
       <Grid container columns={24} spacing={1}>
         <Grid size={5}>
           <Stack direction="row" justifyContent="space-between">
-            <Typography variant="body1" align="left" color={'secondary'} sx={{ fontWeight: 600, m: 1 }}>
-              {t('Initiative')}
-            </Typography>
+            <PhaseTypograpy label={t('Actors')} active={false} />
             <Tooltip title={roundActorSort === 'initiative' ? 'Sort by Name' : 'Sort by Initiative'}>
               <IconButton size="small" color="primary" onClick={() => toggleSort()}>
                 {roundActorSort === 'initiative' ? <SortIcon /> : <TextRotateVerticalIcon />}
@@ -91,14 +89,7 @@ const CombatActorRoundListHeader: FC<{ actorRounds: ActorRound[]; game: Tactical
         </Grid>
         <Grid size={2} sx={{ backgroundColor: game.phase === 'declare_initiative' ? 'secondary.main' : undefined }}>
           <Stack direction="row" justifyContent="space-between">
-            <Typography
-              variant="body1"
-              align="left"
-              color={game.phase === 'declare_initiative' ? 'primary' : 'secondary'}
-              sx={{ fontWeight: 600, m: 1 }}
-            >
-              {t('Initiative')}
-            </Typography>
+            <PhaseTypograpy label={t('Initiative')} active={game.phase === 'declare_initiative'} />
             {game.phase === 'declare_initiative' && undeclaredInitiatives && (
               <Tooltip title="Randomize Initiatives">
                 <IconButton size="small" color="primary" onClick={() => onRandomizeInitiatives()}>
@@ -106,6 +97,7 @@ const CombatActorRoundListHeader: FC<{ actorRounds: ActorRound[]; game: Tactical
                 </IconButton>
               </Tooltip>
             )}
+            {game.phase === 'declare_initiative' && !undeclaredInitiatives && <NextButton onNext={onNextPhase} />}
           </Stack>
         </Grid>
         <PhaseTitle label={'Phase 1'} active={game.phase === 'phase_1'} onNext={onNextPhase} />
@@ -127,16 +119,27 @@ const PhaseTitle: FC<{ label: string; active: boolean; gridSize?: number; onNext
   return (
     <Grid size={gridSize} sx={{ backgroundColor: active ? 'secondary.main' : undefined }}>
       <Stack direction="row" justifyContent="space-between">
-        <Typography variant="body1" align="left" color={active ? 'white' : 'secondary'} sx={{ fontWeight: 600, m: 1 }}>
-          {label}
-        </Typography>
-        {active && onNext && (
-          <IconButton size="small" color="primary" onClick={() => onNext()}>
-            <SkipNextIcon fontSize="small" />
-          </IconButton>
-        )}
+        <PhaseTypograpy label={label} active={active} />
+        {active && onNext && <NextButton onNext={onNext} />}
       </Stack>
     </Grid>
+  );
+};
+
+const PhaseTypograpy: FC<{ label: string; active: boolean }> = ({ label, active }) => {
+  return (
+    <Typography variant="body1" align="left" color={active ? 'white' : 'secondary'} sx={{ fontWeight: 600, m: 1 }}>
+      {label}
+    </Typography>
+  );
+};
+
+const NextButton: FC<{ onNext?: () => void }> = ({ onNext }) => {
+  if (!onNext) return;
+  return (
+    <IconButton size="small" color="primary" onClick={() => onNext()}>
+      <SkipNextIcon fontSize="small" />
+    </IconButton>
   );
 };
 

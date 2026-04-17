@@ -6,6 +6,7 @@ import { ActorRound } from '../../api/actor-rounds.dto';
 import { Character } from '../../api/characters.dto';
 import ActionDialog from '../action-dialogs/ActionDialog';
 import MovementDialog from '../action-dialogs/movement/MovementDialog';
+import RangedAttackDialog from '../action-dialogs/ranged-attack/RangedAttackDialog';
 import ActorActions from './ActorActions';
 import ActorRoundAlerts from './ActorRoundAlerts';
 import ActorRoundEffects from './ActorRoundEffects';
@@ -61,6 +62,18 @@ const CombatActorRoundListItem: FC<{
           if (action.actionType === 'movement') {
             return (
               <MovementDialog
+                action={action}
+                actorRound={actorRound}
+                open={resolveDialogOpen}
+                onClose={() => {
+                  setResolveDialogOpen(false);
+                  setSelectedActionId(null);
+                }}
+              />
+            );
+          } else if (action.actionType === 'ranged_attack') {
+            return (
+              <RangedAttackDialog
                 action={action}
                 actorRound={actorRound}
                 open={resolveDialogOpen}

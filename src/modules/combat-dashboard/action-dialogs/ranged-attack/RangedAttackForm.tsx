@@ -1,6 +1,5 @@
-import React, { FC, useContext, useEffect, useState } from 'react';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { Accordion, AccordionDetails, AccordionSummary, Button, Grid, Typography } from '@mui/material';
+import React, { Dispatch, FC, SetStateAction, useContext } from 'react';
+import { Button, Grid, Typography } from '@mui/material';
 import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { useError } from '../../../../ErrorContext';
@@ -14,11 +13,11 @@ import RangedAttackModifiersForm from './RangedAttackModifiersForm';
 const RangedAttackForm: FC<{
   actorRound: ActorRound;
   action: Action;
-}> = ({ actorRound, action }) => {
-  const { refreshActorRounds, updateAction } = useContext(CombatContext);
+  formData: AttackDeclaration;
+  setFormData: Dispatch<SetStateAction<AttackDeclaration>>;
+}> = ({ actorRound, action, formData, setFormData }) => {
+  const { refreshActorRounds, updateAction } = useContext(CombatContext)!;
   const { showError } = useError();
-
-  const [formData, setFormData] = useState<AttackDeclaration>({ attacks: [], parries: [] });
 
   const selected = formData.attacks || [];
 
@@ -45,23 +44,7 @@ const RangedAttackForm: FC<{
       .catch((err: Error) => showError(err.message));
   };
 
-  useEffect(() => {
-    if (action.attacks) {
-      setFormData(action as AttackDeclaration);
-    }
-  }, [action]);
-
-  useEffect(() => {
-    if (actorRound && formData) {
-      formData.attacks?.forEach((attack) => {
-        const matchingAttack = actorRound.attacks?.find((a) => a.attackName === attack.attackName);
-        if (!matchingAttack) {
-          const newAttacks = formData.attacks?.filter((a) => a.attackName !== attack.attackName) || [];
-          setFormData({ ...formData, attacks: newAttacks });
-        }
-      });
-    }
-  }, [actorRound, formData]);
+  if (!formData) return <p>Loading...</p>;
 
   if (!actorRound || (!actorRound.attacks && !action.attacks)) {
     return <Typography>No ranged attacks available</Typography>;
@@ -71,9 +54,9 @@ const RangedAttackForm: FC<{
     <>
       {(action.attacks || []).map((actionAttack, index) => {
         const actorAttack = actorRound.attacks?.find((a) => a.attackName === actionAttack.attackName);
-        const existing = findAttack(actionAttack.attackName);
+        const existingAttack = findAttack(actionAttack.attackName);
         const modifiers =
-          existing?.modifiers ??
+          existingAttack?.modifiers ??
           actionAttack.modifiers ??
           ({ targetId: null, bo: actorAttack?.currentBo || 0 } as ActionAttackModifiers);
 
@@ -82,7 +65,7 @@ const RangedAttackForm: FC<{
 
         return (
           <div key={index}>
-            {existing && actorAttack && !existing.calculated && (
+            {existingAttack && actorAttack && !existingAttack.calculated && (
               <>
                 <Typography variant="h6">{t(actionAttack.attackName)}</Typography>
                 <Grid container spacing={1} alignItems="center">
@@ -106,12 +89,12 @@ const RangedAttackForm: FC<{
                 />
               </>
             )}
-            {existing && actorAttack && existing.calculated && (
+            {existingAttack && actorAttack && existingAttack.calculated && (
               <ResolveAttackFormRoll
                 formData={formData}
                 setFormData={setFormData}
                 action={action}
-                attack={existing}
+                attack={existingAttack}
                 index={index}
               />
             )}
@@ -123,15 +106,6 @@ const RangedAttackForm: FC<{
           {t('apply')}
         </Button>
       )}
-      <Accordion sx={{ mt: 2 }}>
-        <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1-content" id="panel1-header">
-          <Typography component="span">Details</Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <pre>FormData: {JSON.stringify(formData, null, 2)}</pre>
-          <pre>Action: {JSON.stringify(action, null, 2)}</pre>
-        </AccordionDetails>
-      </Accordion>
     </>
   );
 };
