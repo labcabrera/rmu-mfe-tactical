@@ -55,6 +55,7 @@ const KeyValueDialogSelect: FC<{
               onChange={(e, v) => onItemListClick(v)}
               fullWidth
               size="small"
+              sx={{ mt: 2 }}
             >
               {options.map((option, index) => (
                 <ToggleButton key={index} value={option.key}>

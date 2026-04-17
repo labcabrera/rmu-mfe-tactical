@@ -5,7 +5,7 @@ import { RmuDialog, TechnicalInfo } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { useError } from '../../../../ErrorContext';
-import { applyAttack, deleteAction, prepareAttack, resolveMovement } from '../../../api/action';
+import { applyAttack, deleteAction, prepareAttack } from '../../../api/action';
 import { Action, AttackDeclaration } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
 import RangedAttackForm from './RangedAttackForm';
@@ -58,15 +58,22 @@ const RangedAttackDialog: FC<{
     return buttons;
   };
 
+  const validateForm = () => {
+    if (!formData || !formData.attacks || formData.attacks.length < 1) return false;
+    const attack = formData.attacks[0];
+    if (!attack.modifiers) return false;
+    if (!attack.modifiers.targetId) return false;
+    if (!attack.modifiers.range) return false;
+    return true;
+  };
+
   const onPrepare = () => {
     prepareAttack(action.id, formData)
       .then((data) => {
         updateAction(data);
         // setFormData(data);
       })
-      .catch((error) => {
-        console.error('Error preparing attack:', error);
-      });
+      .catch((err) => showError(err.message));
   };
 
   const onApply = () => {
@@ -75,7 +82,7 @@ const RangedAttackDialog: FC<{
         updateAction(updatedAction);
         refreshActorRounds();
       })
-      .catch((err: Error) => showError(err.message));
+      .catch((err) => showError(err.message));
   };
 
   const onDelete = () => {
@@ -86,15 +93,6 @@ const RangedAttackDialog: FC<{
         onClose();
       })
       .catch((err) => showError(err.message));
-  };
-
-  const validateForm = () => {
-    if (!formData || !formData.attacks || formData.attacks.length < 1) return false;
-    const attack = formData.attacks[0];
-    if (!attack.modifiers) return false;
-    if (!attack.modifiers.targetId) return false;
-    if (!attack.modifiers.range) return false;
-    return true;
   };
 
   useEffect(() => {

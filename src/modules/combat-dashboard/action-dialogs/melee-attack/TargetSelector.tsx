@@ -3,7 +3,6 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
   Box,
   IconButton,
-  Collapse,
   Stack,
   Typography,
   Radio,
@@ -11,7 +10,10 @@ import {
   FormControlLabel,
   Button,
   Tooltip,
+  DialogTitle,
 } from '@mui/material';
+import Dialog from '@mui/material/Dialog';
+import DialogContent from '@mui/material/DialogContent';
 import { CombatContext } from '../../../../CombatContext';
 import { ActorRound } from '../../../api/actor-rounds.dto';
 import ActorRoundAvatar from '../../../shared/avatars/ActorRoundAvatar';
@@ -27,20 +29,12 @@ const TargetSelector: FC<{
   const [open, setOpen] = useState(false);
   const [filter, setFilter] = useState<'distinct' | 'all'>('distinct');
 
-  const items = useMemo(() => {
-    if (!actorRounds) return [] as ActorRound[];
-    let list = actorRounds;
-    if (filter === 'distinct' && actorRounds && sourceId) {
-      const sourceChar = (actorRounds || []).find((c) => c.id === (sourceId as string)) as any;
-      const sourceFaction = sourceChar?.factionId;
-      if (sourceFaction) {
-        list = list.filter((ar) => {
-          const ch = (actorRounds || []).find((c) => c.id === ar.actorId) as any;
-          return ch && ch.factionId !== sourceFaction;
-        });
-      }
-    }
-    return list;
+  const targets = useMemo(() => {
+    if (!actorRounds || !sourceId) return [] as ActorRound[];
+    if (filter === 'all') return actorRounds;
+    const sourceActorRound = actorRounds.find((e) => e.actorId === sourceId)!;
+    const sourceFactionId = sourceActorRound.factionId;
+    return actorRounds.filter((c) => c.factionId !== sourceFactionId);
   }, [actorRounds, filter, sourceId]);
 
   const selectedActorRound = useMemo(() => {
@@ -71,16 +65,9 @@ const TargetSelector: FC<{
         </IconButton>
       </Stack>
 
-      <Collapse in={open} timeout="auto" unmountOnExit>
-        <Box
-          sx={{
-            mt: 1,
-            p: 0.5,
-            border: '1px solid primary.main',
-            borderRadius: 1,
-            backgroundColor: '#484c4d',
-          }}
-        >
+      <Dialog open={open} onClose={() => setOpen(false)} maxWidth="md" fullWidth transitionDuration={0}>
+        <DialogTitle>Select target</DialogTitle>
+        <DialogContent>
           <Stack direction="row" spacing={0.5} alignItems="center" sx={{ mb: 0.5 }}>
             <RadioGroup row value={filter} onChange={(e) => setFilter(e.target.value as any)}>
               <FormControlLabel
@@ -97,7 +84,7 @@ const TargetSelector: FC<{
           </Stack>
 
           <Stack direction="row" spacing={0.5} sx={{ flexWrap: 'wrap' }}>
-            {(items || []).map((ar) => {
+            {(targets || []).map((ar) => {
               const actorRound = (actorRounds || []).find((c) => c.actorId === ar.actorId) || null;
               const isSelected = value === ar.actorId;
               return (
@@ -120,8 +107,8 @@ const TargetSelector: FC<{
               );
             })}
           </Stack>
-        </Box>
-      </Collapse>
+        </DialogContent>
+      </Dialog>
     </Box>
   );
 };

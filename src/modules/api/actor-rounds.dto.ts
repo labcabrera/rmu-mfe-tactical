@@ -1,6 +1,7 @@
 export type ActorRound = {
   id: string;
   gameId: string;
+  factionId: string;
   actorId: string;
   actorName: string;
   round: number;

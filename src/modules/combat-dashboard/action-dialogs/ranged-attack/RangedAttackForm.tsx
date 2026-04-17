@@ -1,5 +1,6 @@
 import React, { Dispatch, FC, SetStateAction, useContext } from 'react';
 import { Button, Grid, Typography } from '@mui/material';
+import { CategorySeparator } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { useError } from '../../../../ErrorContext';
@@ -18,9 +19,7 @@ const RangedAttackForm: FC<{
 }> = ({ actorRound, action, formData, setFormData }) => {
   const { refreshActorRounds, updateAction } = useContext(CombatContext)!;
   const { showError } = useError();
-
   const selected = formData.attacks || [];
-
   const findAttack = (attackName: string) => selected.find((a) => a.attackName === attackName);
 
   const handleTargetChange = (attackName: string, targetId: string | null) => {
@@ -59,7 +58,6 @@ const RangedAttackForm: FC<{
           existingAttack?.modifiers ??
           actionAttack.modifiers ??
           ({ targetId: null, bo: actorAttack?.currentBo || 0 } as ActionAttackModifiers);
-
         const displayTable = actorAttack?.attackTable || '';
         const displayBo = actorAttack?.currentBo ?? actionAttack.modifiers?.bo ?? 0;
 
@@ -67,7 +65,7 @@ const RangedAttackForm: FC<{
           <div key={index}>
             {existingAttack && actorAttack && !existingAttack.calculated && (
               <>
-                <Typography variant="h6">{t(actionAttack.attackName)}</Typography>
+                <CategorySeparator text={t(actionAttack.attackName)} />
                 <Grid container spacing={1} alignItems="center">
                   <Grid size={2}>
                     {t(displayTable)} +{displayBo}

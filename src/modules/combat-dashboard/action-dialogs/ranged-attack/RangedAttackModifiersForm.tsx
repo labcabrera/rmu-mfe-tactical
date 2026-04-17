@@ -1,4 +1,4 @@
-import React, { ChangeEvent, Dispatch, FC, SetStateAction, useContext } from 'react';
+import React, { Dispatch, FC, SetStateAction, useContext } from 'react';
 import { Grid, Typography } from '@mui/material';
 import { KeyValue, NumericInput } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { t } from 'i18next';
@@ -8,8 +8,6 @@ import { ActorRoundAttack } from '../../../api/actor-rounds.dto';
 import DialogSelect from '../../../shared/DialogSelect';
 import KeyValueDialogSelect from '../../../shared/KeyValueDialogSelect';
 import SelectAttackRange from '../../../shared/selects/SelectAttackRange';
-import SelectCalledShot from '../../../shared/selects/SelectCalledShot';
-import SelectDodge from '../../../shared/selects/SelectDodge';
 import AttackTitle from '../melee-attack/AttackTitle';
 import RangedAttackDefenseOptions from './RangedAttackDefenseOptions';
 import RangedAttackOptionsForm from './RangedAttackOptionsForm';
@@ -34,6 +32,7 @@ const RESTRICTED_QUARTER_OPTIONS: KeyValue[] = [
 
 const CALLED_SHOT_OPTIONS: CalledShot[] = ['none', 'head', 'chest', 'abdomen', 'arms', 'legs'];
 const DODGE_OPTIONS = ['none', 'passive', 'partial', 'full'];
+const ENABLED_OPTIONS = ['enabled', 'disabled'];
 
 const RangedAttackModifiersForm: FC<{
   action: Action;
@@ -47,7 +46,6 @@ const RangedAttackModifiersForm: FC<{
   const formDataAttack = formData.attacks?.[index];
   const modifiers = formDataAttack?.modifiers;
   const customBonus = modifiers?.customBonus || null;
-  const dodge = modifiers?.dodge || '';
   const target = actorRounds!.find((actorRound) => actorRound.actorId === modifiers?.targetId);
 
   const handleChange = (name: string, value: string | boolean) => {
@@ -71,8 +69,8 @@ const RangedAttackModifiersForm: FC<{
     setFormData({ ...formData, attacks: newAttacks });
   };
 
-  const onCalledShotChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
+  const onCalledShotChange = (value: CalledShot) => {
+    // const value = e.target.value;
     let penalty = 0;
     if (value !== 'none') {
       penalty = -25;
@@ -91,7 +89,7 @@ const RangedAttackModifiersForm: FC<{
   };
 
   return (
-    <Grid container spacing={2} sx={{ marginTop: 1, marginBottom: 1 }}>
+    <Grid container spacing={1}>
       {target && (
         <Grid size={12}>
           <AttackTitle attack={formDataAttack} target={target} />
@@ -122,7 +120,7 @@ const RangedAttackModifiersForm: FC<{
       <Grid size={3}>
         <DialogSelect
           value={formDataAttack.modifiers.calledShot}
-          onChange={(e) => handleChange('calledShot', e!)}
+          onChange={(e) => onCalledShotChange(e as CalledShot)}
           label={'Called shot'}
           options={CALLED_SHOT_OPTIONS}
         />
@@ -135,20 +133,23 @@ const RangedAttackModifiersForm: FC<{
           options={DODGE_OPTIONS}
         />
       </Grid>
+      <Grid size={3}>
+        <DialogSelect
+          value={formDataAttack.modifiers.disabledDB ? 'disabled' : 'enabled'}
+          onChange={(e) => handleChange('disabledDB', e === 'disabled')}
+          label={'DB'}
+          options={ENABLED_OPTIONS}
+        />
+      </Grid>
+      <Grid size={3}>
+        <DialogSelect
+          value={formDataAttack.modifiers.disabledShield ? 'disabled' : 'enabled'}
+          onChange={(e) => handleChange('disabledShield', e === 'disabled')}
+          label={'Shield'}
+          options={ENABLED_OPTIONS}
+        />
+      </Grid>
       <Grid size={12}></Grid>
-
-      <Grid size={2}>
-        <Typography color="secondary">{t('dodge')}</Typography>
-      </Grid>
-      <Grid size={10}>
-        <SelectDodge value={dodge} onChange={(e) => handleChange('dodge', e)} />
-      </Grid>
-      <Grid size={2}>
-        <Typography color="secondary">{t('defense-options')}</Typography>
-      </Grid>
-      <Grid size={10}>
-        <RangedAttackDefenseOptions formData={formData} setFormData={setFormData} index={0} />
-      </Grid>
       <Grid size={2}>
         <Typography color="secondary">{t('attack-options')}</Typography>
       </Grid>
