@@ -5,45 +5,36 @@ type InitiativeBarProps = {
   current: number;
   max?: number;
   width?: number;
-  color?: string;
+  barColor?: string;
   backgroundColor?: string;
 };
 
 const InitiativeBar: FC<InitiativeBarProps> = ({
   current,
   max = 30,
-  width = 140,
-  color = '#253a4bff',
-  backgroundColor = '#656d64ff',
+  width = 240,
+  barColor = '#617274',
+  backgroundColor = 'rgb(28, 31, 34)',
 }) => {
   const percentage = (current / max) * 100;
 
   return (
     <Box display="flex" alignItems="center" sx={{ gap: 1 }}>
       <Box sx={{ width: `${width}px` }}>
-        <Box
+        <LinearProgress
+          variant="determinate"
+          value={Math.max(0, Math.min(100, percentage))}
           sx={{
-            border: '1px solid',
-            borderColor: 'divider',
+            width: '100%',
+            height: 16,
             borderRadius: 0,
-            p: '4px',
-            boxSizing: 'border-box',
+            border: '1px solid #6e8688',
+            backgroundColor: backgroundColor,
+            '& .MuiLinearProgress-bar': {
+              backgroundColor: barColor,
+            },
           }}
-        >
-          <LinearProgress
-            variant="determinate"
-            value={Math.max(0, Math.min(100, percentage))}
-            sx={{
-              width: '100%',
-              height: 12,
-              borderRadius: 0,
-              backgroundColor: backgroundColor,
-              '& .MuiLinearProgress-bar': {
-                backgroundColor: color,
-              },
-            }}
-          />
-        </Box>
+        />
       </Box>
     </Box>
   );

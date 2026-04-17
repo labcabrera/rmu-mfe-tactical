@@ -1,6 +1,5 @@
 import React, { useContext, useState, useEffect, FC } from 'react';
-import { Stack, Typography } from '@mui/material';
-import { RmuCard } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { Typography, Card, CardMedia, CardContent, Box } from '@mui/material';
 import { t } from 'i18next';
 import { CombatContext } from '../../../CombatContext';
 import { ActorRound } from '../../api/actor-rounds.dto';
@@ -35,51 +34,76 @@ const ActorRoundResume: FC<{
   }, [actorRound, characters, factions]);
 
   if (!character) return <p>CombatCharacterRoundInfo Loading...</p>;
+  const bgUrl = `${imageBaseUrl.replace(/\/?$/, '/')}images/backgrounds/bg-03.png`;
 
   return (
-    <RmuCard
-      image={actorRound.imageUrl || `${imageBaseUrl}images/races/unknown.png`}
-      height={150}
-      imageFilter={isDead ? deadFilter : undefined}
+    <Card
       onClick={() => onActorRoundView(actorRound)}
-      contentBgImage={`${imageBaseUrl}images/actions/action-melee-screen-01.png`}
+      sx={{
+        width: '100%',
+        height: '100%',
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'stretch',
+        backgroundImage: `linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url(${bgUrl})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      }}
+      elevation={0}
     >
-      <Stack direction="column">
-        <Typography variant="body1" color={isDead ? 'error' : 'primary'}>
-          {character.name}
-        </Typography>
-        <Typography variant="body2" color="primary">
-          {`${t(character.info.professionId)} lvl ${character.experience.level}`}
-        </Typography>
-        <Typography variant="body2" color="primary">
-          {`${character.faction?.name || ''}`}
-        </Typography>
+      <CardContent sx={{ width: '100%', p: 2, display: 'flex', alignItems: 'center' }}>
+        <CardMedia
+          component="img"
+          image={actorRound.imageUrl || `${imageBaseUrl}images/races/unknown.png`}
+          sx={{
+            width: barSize,
+            height: barSize,
+            objectFit: 'cover',
+            borderRadius: 1,
+            mr: 2,
+            filter: isDead ? deadFilter : undefined,
+          }}
+        />
 
-        <GenericBar
-          current={actorRound.hp.current}
-          max={actorRound.hp.max}
-          width={barSize}
-          colorOk={colorHpOk}
-          colorKo={colorKo}
-        />
-        {character.power && character.power.max > 0 && (
-          <GenericBar
-            current={character.power.current}
-            max={character.power.max}
-            width={barSize}
-            colorOk={colorPowerOk}
-            colorKo={colorEnduranceAccumulator}
-          />
-        )}
-        <GenericBar
-          current={Math.round(actorRound.fatigue.accumulator)}
-          max={100}
-          width={barSize}
-          colorOk={colorKo}
-          colorKo={colorEnduranceOk}
-        />
-      </Stack>
-    </RmuCard>
+        <Box sx={{ flex: 1, color: 'white' }}>
+          <Typography variant="body1" color={isDead ? 'error' : 'primary'} noWrap sx={{ fontWeight: 600 }}>
+            {character.name}
+          </Typography>
+          <Typography variant="body2" color="secondary" noWrap sx={{ fontWeight: 600 }}>
+            {`${t(character.info.professionId)} lvl ${character.experience.level}`}
+          </Typography>
+          <Typography variant="body2" color="secondary" noWrap sx={{ fontWeight: 600 }}>
+            {`${character.faction?.name || ''}`}
+          </Typography>
+
+          <Box sx={{ mt: 1 }}>
+            <GenericBar
+              current={actorRound.hp.current}
+              max={actorRound.hp.max}
+              width={barSize}
+              colorOk={colorHpOk}
+              colorKo={colorKo}
+            />
+            {character.power && character.power.max > 0 && (
+              <GenericBar
+                current={character.power.current}
+                max={character.power.max}
+                width={barSize}
+                colorOk={colorPowerOk}
+                colorKo={colorEnduranceAccumulator}
+              />
+            )}
+            <GenericBar
+              current={Math.round(actorRound.fatigue.accumulator)}
+              max={100}
+              width={barSize}
+              colorOk={colorKo}
+              colorKo={colorEnduranceOk}
+            />
+          </Box>
+        </Box>
+      </CardContent>
+    </Card>
   );
 };
 
