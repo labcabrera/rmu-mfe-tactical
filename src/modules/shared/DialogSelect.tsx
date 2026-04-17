@@ -59,14 +59,6 @@ const DialogSelect: FC<{
               ))}
             </ToggleButtonGroup>
           </DialogContent>
-          {/* <DialogActions>
-            <Button autoFocus onClick={() => onClear()}>
-              Clear
-            </Button>
-            <Button autoFocus onClick={() => setOpen(false)}>
-              Cancel
-            </Button>
-          </DialogActions> */}
         </Dialog>
       )}
     </>

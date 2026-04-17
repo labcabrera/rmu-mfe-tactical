@@ -43,14 +43,14 @@ const RangedAttackDialog: FC<{
     buttons.push(<Button onClick={onClose}>{t('Close')}</Button>);
     if (action.status === 'declared') {
       buttons.push(
-        <Button variant="contained" color="success" onClick={onApply} disabled={!isValidForm}>
+        <Button variant="contained" color="success" onClick={onPrepare} disabled={!isValidForm}>
           {t('Prepare')}
         </Button>
       );
     }
     if (action.status !== 'completed') {
       buttons.push(
-        <Button variant="contained" color="success" onClick={onPrepare}>
+        <Button variant="contained" color="success" onClick={onApply}>
           {t('Apply attack')}
         </Button>
       );
