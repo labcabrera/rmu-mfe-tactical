@@ -1,4 +1,4 @@
-import React, { Dispatch, FC, Fragment, SetStateAction, useContext, useState } from 'react';
+import React, { Dispatch, FC, Fragment, SetStateAction, useContext, useEffect, useState } from 'react';
 import {
   Card,
   CardContent,
@@ -16,6 +16,10 @@ import {
   Grid,
   Stack,
   Typography,
+  DialogContent,
+  FormControlLabel,
+  FormGroup,
+  Switch,
 } from '@mui/material';
 import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
@@ -31,7 +35,7 @@ const MeleeAttackSelectAttacks: FC<{
   availableAttacks: ActionAttack[];
 }> = ({ formData, actorRound, availableAttacks, setFormData }) => {
   const { actorRounds, roundActions } = useContext(CombatContext)!;
-  const [selectedAttack, setSelectedAttack] = useState<ActionAttack>();
+  const [sourceActorId, setSourceActorId] = useState<String>();
   const [openProtectorDialog, setOpenProtectorDialog] = useState<boolean>(false);
   const paceOrder = ['creep', 'walk', 'jog', 'run', 'sprint', 'dash'];
 
@@ -175,7 +179,7 @@ const MeleeAttackSelectAttacks: FC<{
                 <>
                   <Button
                     onClick={() => {
-                      setSelectedAttack(attack);
+                      setSourceActorId(actorRound.actorId);
                       setOpenProtectorDialog(true);
                     }}
                   >
@@ -189,8 +193,9 @@ const MeleeAttackSelectAttacks: FC<{
           </Fragment>
         );
       })}
-      {selectedAttack && actorRounds && (
+      {sourceActorId && actorRounds && (
         <AddProtectDialog
+          sourceActorId={sourceActorId}
           open={openProtectorDialog}
           actorRounds={actorRounds}
           onAdd={(actorId) => onAddProtector(selectedAttack.attackName, actorId)}
@@ -233,14 +238,24 @@ const TargetInfo: FC<{
 };
 
 const AddProtectDialog: FC<{
-  selectedActorRound?: ActorRound | null;
+  sourceActorId: string;
   actorRounds: ActorRound[];
   open: boolean;
   onAdd: (actorId: string) => void;
-  onRemove: (actorId: string) => void;
   onClose: () => void;
-}> = ({ selectedActorRound, actorRounds, open, onAdd, onRemove, onClose }) => {
-  const others = (actorRounds || []).filter((a) => a.actorId !== selectedActorRound?.actorId);
+}> = ({ sourceActorId, actorRounds, open, onAdd, onClose }) => {
+  const [displayAll, setDisplayAll] = useState<boolean>(false);
+  const [availableActors, setAvailableActors] = useState<ActorRound[]>([]);
+
+  useEffect(() => {
+    if (!actorRounds) return;
+    let list = actorRounds.filter((a) => a.actorId !== sourceActorId);
+    if (!displayAll) {
+      const factionId = actorRounds.find((e) => e.actorId === sourceActorId)!.factionId;
+      list = list.filter((e) => e.factionId !== factionId);
+    }
+    setAvailableActors(list);
+  }, [displayAll]);
 
   const handleAdd = (actorId: string) => {
     onAdd(actorId);
@@ -250,24 +265,26 @@ const AddProtectDialog: FC<{
   return (
     <Dialog open={open} onClose={() => onClose && onClose()} fullWidth maxWidth="sm">
       <DialogTitle>{t('Select protector')}</DialogTitle>
-      <List>
-        {others.map((actor) => (
-          <ListItem key={actor.actorId}>
-            <ListItemAvatar>
-              <Avatar src={actor.imageUrl || undefined} alt={actor.actorName} />
-            </ListItemAvatar>
-            <ListItemText primary={actor.actorName} secondary={`${t('Protect')}: ${actor.defense?.protect ?? 0}`} />
-            <ListItemSecondaryAction>
-              <IconButton edge="end" onClick={() => handleAdd(actor.actorId)}>
-                <Typography color="primary">{t('Add')}</Typography>
-              </IconButton>
-              <IconButton edge="end" onClick={() => onRemove(actor.actorId)}>
-                <Typography color="error">{t('Remove')}</Typography>
-              </IconButton>
-            </ListItemSecondaryAction>
-          </ListItem>
-        ))}
-      </List>
+      <DialogContent>
+        <FormGroup>
+          <FormControlLabel value={displayAll} control={<Switch />} label="All" onChange={(e, v) => setDisplayAll(v)} />
+        </FormGroup>
+        <List>
+          {availableActors.map((actor, index) => (
+            <ListItem key={index}>
+              <ListItemAvatar>
+                <Avatar src={actor.imageUrl || undefined} alt={actor.actorName} />
+              </ListItemAvatar>
+              <ListItemText primary={actor.actorName} secondary={`${t('Protect')}: ${actor.defense?.protect ?? 0}`} />
+              <ListItemSecondaryAction>
+                <IconButton edge="end" onClick={() => handleAdd(actor.actorId)}>
+                  <Typography color="primary">{t('Add')}</Typography>
+                </IconButton>
+              </ListItemSecondaryAction>
+            </ListItem>
+          ))}
+        </List>
+      </DialogContent>
       <DialogActions>
         <Button onClick={() => onClose()}>{t('Close')}</Button>
       </DialogActions>
