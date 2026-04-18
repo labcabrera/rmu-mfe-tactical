@@ -110,6 +110,17 @@ const MeleeAttackSelectAttacks: FC<{
     });
   };
 
+  const onAddProtector = (attackName: string, actorId: string) => {
+    setFormData((prev) => {
+      const attacks = prev.attacks || [];
+      const newAttacks = attacks.map((e) =>
+        e.attackName === attackName ? { ...e, protectors: [...(e.protectors || []), actorId] } : e
+      );
+      const next = { ...prev, attacks: newAttacks };
+      return next;
+    });
+  };
+
   if (!availableAttacks || availableAttacks.length < 1) return <p>No available melee attacks</p>;
 
   if (!actorRound || !actorRound.attacks) return <Typography>No attacks available</Typography>;
@@ -160,14 +171,19 @@ const MeleeAttackSelectAttacks: FC<{
               )}
             </Grid>
             <Grid size={3}>
-              <Button
-                onClick={() => {
-                  setSelectedAttack(attack);
-                  setOpenProtectorDialog(true);
-                }}
-              >
-                Add protector
-              </Button>
+              {attack.modifiers.targetId && (
+                <>
+                  <Button
+                    onClick={() => {
+                      setSelectedAttack(attack);
+                      setOpenProtectorDialog(true);
+                    }}
+                  >
+                    Add protector
+                  </Button>
+                  <pre>{JSON.stringify(attack.protectors, null, 2)}</pre>
+                </>
+              )}
             </Grid>
             <Grid size={12}></Grid>
           </Fragment>
@@ -176,10 +192,10 @@ const MeleeAttackSelectAttacks: FC<{
       {selectedAttack && actorRounds && (
         <AddProtectDialog
           open={openProtectorDialog}
-          actionAttack={selectedAttack}
           actorRounds={actorRounds}
-          onAdd={(actorId) => {}}
+          onAdd={(actorId) => onAddProtector(selectedAttack.attackName, actorId)}
           onRemove={(actorId) => {}}
+          onClose={() => setOpenProtectorDialog(false)}
         />
       )}
     </Grid>
@@ -217,15 +233,19 @@ const TargetInfo: FC<{
 };
 
 const AddProtectDialog: FC<{
-  actionAttack: ActionAttack;
   selectedActorRound?: ActorRound | null;
   actorRounds: ActorRound[];
   open: boolean;
   onAdd: (actorId: string) => void;
   onRemove: (actorId: string) => void;
-  onClose?: () => void;
-}> = ({ actionAttack, selectedActorRound, actorRounds, open, onAdd, onRemove, onClose }) => {
+  onClose: () => void;
+}> = ({ selectedActorRound, actorRounds, open, onAdd, onRemove, onClose }) => {
   const others = (actorRounds || []).filter((a) => a.actorId !== selectedActorRound?.actorId);
+
+  const handleAdd = (actorId: string) => {
+    onAdd(actorId);
+    onClose();
+  };
 
   return (
     <Dialog open={open} onClose={() => onClose && onClose()} fullWidth maxWidth="sm">
@@ -238,10 +258,10 @@ const AddProtectDialog: FC<{
             </ListItemAvatar>
             <ListItemText primary={actor.actorName} secondary={`${t('Protect')}: ${actor.defense?.protect ?? 0}`} />
             <ListItemSecondaryAction>
-              <IconButton edge="end" onClick={() => onAdd(actor.actorId)} aria-label="add">
+              <IconButton edge="end" onClick={() => handleAdd(actor.actorId)}>
                 <Typography color="primary">{t('Add')}</Typography>
               </IconButton>
-              <IconButton edge="end" onClick={() => onRemove(actor.actorId)} aria-label="remove">
+              <IconButton edge="end" onClick={() => onRemove(actor.actorId)}>
                 <Typography color="error">{t('Remove')}</Typography>
               </IconButton>
             </ListItemSecondaryAction>
@@ -249,7 +269,7 @@ const AddProtectDialog: FC<{
         ))}
       </List>
       <DialogActions>
-        <Button onClick={() => onClose && onClose()}>{t('Close')}</Button>
+        <Button onClick={() => onClose()}>{t('Close')}</Button>
       </DialogActions>
     </Dialog>
   );

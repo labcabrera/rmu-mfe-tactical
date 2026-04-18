@@ -140,6 +140,7 @@ export type ActionAttack = {
   calculated: AttackCalculationsDto | null;
   results: ActionAttackResults | null;
   status: string;
+  protectors: string[] | null;
 };
 
 export type ActionAttackRoll = {
