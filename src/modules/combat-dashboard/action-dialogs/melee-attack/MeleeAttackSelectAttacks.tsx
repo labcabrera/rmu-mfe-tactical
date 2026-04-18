@@ -56,6 +56,15 @@ const MeleeAttackSelectAttacks: FC<{
     available.modifiers.proneTarget = hasStatus(targetActorRound, 'prone');
     available.modifiers.stunnedFoe = hasStatus(targetActorRound, 'stunned');
     available.modifiers.surprisedFoe = hasStatus(targetActorRound, 'surprised');
+    available.modifiers.positionalSource = 'none';
+    available.modifiers.positionalTarget = 'none';
+    available.modifiers.cover = 'none';
+    available.modifiers.dodge = 'none';
+    available.modifiers.restrictedQuarters = 'none';
+    available.modifiers.calledShot = 'none';
+    //TODO check two weapon
+    available.modifiers.restrictedParry = false;
+    available.modifiers.customBonus = 0;
 
     setFormData((prev) => {
       const exists = prev.attacks.some((e) => e.attackName === attackName);

@@ -46,16 +46,19 @@ const MeleeAttackDialog: FC<{
       buttons.push(<Button onClick={() => setActiveStep(1)}>{t('Next')}</Button>);
     } else if (activeStep === 1) {
       buttons.push(<Button onClick={() => setActiveStep(0)}>{t('Back')}</Button>);
-      buttons.push(<Button onClick={() => setActiveStep(2)}>{t('Next')}</Button>);
-    }
-    buttons.push(<Button onClick={onClose}>{t('Close')}</Button>);
-    if (action.status === 'declared') {
+      // buttons.push(<Button onClick={() => setActiveStep(2)}>{t('Next')}</Button>);
       buttons.push(
-        <Button variant="contained" color="success" onClick={onPrepare} disabled={!isValidForm}>
+        //TODO disabled
+        <Button variant="contained" color="success" onClick={onPrepare} disabled={false}>
           {t('Prepare')}
         </Button>
       );
+    } else if (activeStep === 2) {
+      buttons.push(<Button onClick={() => setActiveStep(0)}>{t('Back')}</Button>);
     }
+    buttons.push(<Button onClick={onClose}>{t('Close')}</Button>);
+    // if (action.status === 'declared') {
+    // }
     if (action.status !== 'completed') {
       buttons.push(
         <Button variant="contained" color="success" onClick={onApply}>
@@ -123,24 +126,18 @@ const MeleeAttackDialog: FC<{
   }, [formData]);
 
   useEffect(() => {
-    console.warn('Use effect action, actorRound');
-    if (action && action.attacks) {
-      console.warn('Loading attacks from action');
-      // Action has been prepared
-      if (action.attacks.length > 0) {
-        setFormData({ attacks: action.attacks, parries: [] });
+    if (!action || !actorRound) return;
+    const attacks = actorRound.attacks.filter((a) => a.type === 'melee').map(mapActionAttack);
+    setAvailableAttaks(attacks);
+    switch (action.status) {
+      case 'declared': {
+        setActiveStep(0);
+        break;
       }
-    } else if (actorRound) {
-      console.warn('Loading attacks from actorRound');
-      // Initial load
-      const attacks = actorRound.attacks.filter((a) => a.type === 'melee').map(mapActionAttack);
-      if (attacks.length < 1) {
-        showError('No available melee attacks');
-      } else {
-        setAvailableAttaks(attacks);
-      }
-    } else {
-      console.warn('Error loading attacks');
+      case 'prepared':
+        setFormData({ attacks: action.attacks!, parries: [] });
+        setActiveStep(2);
+        break;
     }
   }, [action, actorRound]);
 

@@ -43,19 +43,6 @@ const MeleeAttackStepper: FC<{
       {activeStep === 1 && <MeleeAttackDeclaration formData={formData} setFormData={setFormData} />}
       {activeStep === 2 && <ResolveAttackParry action={action} formData={formData} setFormData={setFormData} />}
       {activeStep === 3 && <ResolveAttackTabRoll formData={formData} action={action} setFormData={setFormData} />}
-
-      {/* <Stack direction="row" spacing={1}>
-        <Button disabled={activeStep === 0} onClick={handleBack} sx={{ mr: 1 }}>
-          {t('back')}
-        </Button>
-        <Box sx={{ flex: '1 1 auto' }} />
-        {activeStep === 1 && action.status === 'declared' && <Button onClick={onPrepare}>{t('prepare')}</Button>}
-        {activeStep === 2 && <Button onClick={onParry}>{t('parry')}</Button>}
-        {activeStep === 3 && action.status !== 'completed' && <Button onClick={onApply}>{t('apply')}</Button>}
-        <Button onClick={handleNext} disabled={isDisabledNext()}>
-          {t('next')}
-        </Button>
-      </Stack> */}
     </Box>
   );
 };
