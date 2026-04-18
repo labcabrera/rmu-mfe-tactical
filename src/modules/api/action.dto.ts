@@ -5,6 +5,7 @@ export type ActionStatus =
   | 'prepared'
   | 'parry'
   | 'parry_declaration'
+  | 'pending_attack_roll'
   | 'roll_declaration'
   | 'critical_and_fumble_roll_declaration'
   | 'pending_apply'

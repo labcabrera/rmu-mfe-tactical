@@ -1,12 +1,12 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { FC, useContext, useEffect, useState } from 'react';
+import React, { FC, ReactNode, useContext, useEffect, useState } from 'react';
 import { Button, Typography } from '@mui/material';
 import { RmuDialog, TechnicalInfo } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { useError } from '../../../../ErrorContext';
-import { applyAttack, deleteAction, prepareAttack } from '../../../api/action';
-import { Action, ActionAttack, AttackDeclaration } from '../../../api/action.dto';
+import { applyAttack, declareParry, deleteAction, prepareAttack } from '../../../api/action';
+import { Action, ActionAttack, AttackDeclaration, ParryDeclaration } from '../../../api/action.dto';
 import { ActorRound, ActorRoundAttack } from '../../../api/actor-rounds.dto';
 import MeleeAttackStepper from './MeleeAttackStepper';
 
@@ -22,9 +22,9 @@ const MeleeAttackDialog: FC<{
   const { showError } = useError();
   const [formData, setFormData] = useState<AttackDeclaration>({ attacks: [], parries: [] });
   const [isValidForm, setIsValidForm] = useState<boolean>(false);
-  const isCompleted = action.status === 'completed';
   const [availableAttacks, setAvailableAttaks] = useState<ActionAttack[]>([]);
   const [activeStep, setActiveStep] = useState<number>(0);
+  const [buttons, setButtons] = useState<any>([]);
 
   const buttonsDeleting = [
     <Button color="error" onClick={() => onDelete()}>
@@ -32,42 +32,6 @@ const MeleeAttackDialog: FC<{
     </Button>,
     <Button onClick={() => setDeleting(false)}>{t('Cancel')}</Button>,
   ];
-
-  const getButtons = () => {
-    const buttons = [];
-    if (!isCompleted) {
-      buttons.push(
-        <Button color="error" onClick={() => setDeleting(true)}>
-          {t('Delete')}
-        </Button>
-      );
-    }
-    if (activeStep === 0) {
-      buttons.push(<Button onClick={() => setActiveStep(1)}>{t('Next')}</Button>);
-    } else if (activeStep === 1) {
-      buttons.push(<Button onClick={() => setActiveStep(0)}>{t('Back')}</Button>);
-      // buttons.push(<Button onClick={() => setActiveStep(2)}>{t('Next')}</Button>);
-      buttons.push(
-        //TODO disabled
-        <Button variant="contained" color="success" onClick={onPrepare} disabled={false}>
-          {t('Prepare')}
-        </Button>
-      );
-    } else if (activeStep === 2) {
-      buttons.push(<Button onClick={() => setActiveStep(0)}>{t('Back')}</Button>);
-    }
-    buttons.push(<Button onClick={onClose}>{t('Close')}</Button>);
-    // if (action.status === 'declared') {
-    // }
-    if (action.status !== 'completed') {
-      buttons.push(
-        <Button variant="contained" color="success" onClick={onApply}>
-          {t('Apply attack')}
-        </Button>
-      );
-    }
-    return buttons;
-  };
 
   const validateForm = () => {
     if (!formData || !formData.attacks || formData.attacks.length < 1) return false;
@@ -92,6 +56,18 @@ const MeleeAttackDialog: FC<{
       .then((updatedAction) => {
         updateAction(updatedAction);
         refreshActorRounds();
+      })
+      .catch((err) => showError(err.message));
+  };
+
+  const onParry = () => {
+    const parries = formData.parries?.map((e) => ({ parryId: e.id, parry: e.parry }));
+    const parryDeclaration = { parries } as ParryDeclaration;
+    declareParry(action.id, parryDeclaration)
+      .then((updatedAction) => {
+        console.log('Parry response: ', updatedAction);
+        updateAction(updatedAction);
+        // refreshActorRounds();
       })
       .catch((err) => showError(err.message));
   };
@@ -121,49 +97,88 @@ const MeleeAttackDialog: FC<{
     } as ActionAttack;
   };
 
+  const getButtons = (activeStep: number, action: Action) => {
+    const buttons: ReactNode[] = [];
+    if (action.status !== 'completed') {
+      pushButton(buttons, 'Delete', 'error', () => setDeleting(true));
+    }
+    pushButton(buttons, 'Close', undefined, () => onClose());
+    if (activeStep === 0) {
+      //TODO check disabled
+      pushButton(buttons, 'Next', undefined, () => setActiveStep(activeStep + 1));
+    } else if (activeStep === 1) {
+      pushButton(buttons, 'Back', undefined, () => setActiveStep(activeStep - 1));
+      pushButton(buttons, 'Prepare', 'success', () => onPrepare());
+    } else if (activeStep === 2) {
+      pushButton(buttons, 'Back', undefined, () => setActiveStep(activeStep - 1));
+      pushButton(buttons, 'Parry', 'success', () => onParry());
+    } else if (activeStep === 3) {
+      pushButton(buttons, 'Back', undefined, () => setActiveStep(activeStep - 1));
+      if (action.status === 'pending_apply' || action.status === 'prepared') {
+        pushButton(buttons, 'Apply', 'success', () => onApply());
+      }
+    }
+    return buttons;
+  };
+
+  const pushButton = (
+    buttons: ReactNode[],
+    label: string,
+    color: 'error' | 'success' | undefined,
+    onClick: () => void
+  ) => {
+    buttons.push(
+      <Button variant="contained" color={color} onClick={onClick}>
+        {t(label)}
+      </Button>
+    );
+  };
+
+  useEffect(() => {
+    if (activeStep !== undefined && action) {
+      setButtons(getButtons(activeStep, action));
+    }
+  }, [activeStep, action]);
+
   useEffect(() => {
     setIsValidForm(validateForm());
   }, [formData]);
 
   useEffect(() => {
     if (!action || !actorRound) return;
+    console.log('useEffect [action, actorRound]', action);
     const attacks = actorRound.attacks.filter((a) => a.type === 'melee').map(mapActionAttack);
     setAvailableAttaks(attacks);
+    setFormData({ attacks: action.attacks || [], parries: action.parries || [] });
     switch (action.status) {
       case 'declared': {
         setActiveStep(0);
         break;
       }
-      case 'prepared':
-        setFormData({ attacks: action.attacks!, parries: [] });
+      case 'parry':
         setActiveStep(2);
         break;
+      case 'pending_attack_roll':
+      case 'prepared':
+      case 'pending_apply':
+      case 'completed':
+        setActiveStep(3);
+        break;
+      default:
+        showError(`Invalid attack status ${action.status}`);
     }
   }, [action, actorRound]);
-
-  // useEffect(() => {
-  //   if (actorRound && formData) {
-  //     console.log('Loading attacks from actorRound and formData');
-  //     formData.attacks?.forEach((attack) => {
-  //       const matchingAttack = actorRound.attacks?.find((a) => a.attackName === attack.attackName);
-  //       if (!matchingAttack) {
-  //         const newAttacks = formData.attacks?.filter((a) => a.attackName !== attack.attackName) || [];
-  //         setFormData({ ...formData, attacks: newAttacks });
-  //       }
-  //     });
-  //   }
-  // }, [formData]);
 
   if (!actorRound || !roundActions || !formData || !strategicGame || !game) return <p>Loading...</p>;
 
   return (
     <RmuDialog
       title={actorRound.actorName}
-      subtitle={`${t('Melee attack X')} (${action.status})`}
+      subtitle={`${t('Melee attack')} (${action.status})`}
       avatarImg={actorRound.imageUrl}
       fullScreen={false}
       open={open}
-      buttons={deleting ? buttonsDeleting : getButtons()}
+      buttons={deleting ? buttonsDeleting : buttons}
     >
       <>
         {!deleting ? (

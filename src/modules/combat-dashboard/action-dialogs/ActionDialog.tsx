@@ -97,7 +97,6 @@ const ActionDialog: FC<{
         </DialogTitle>
         {!deleting ? (
           <DialogContent sx={{ minHeight: '800px' }}>
-            {action.actionType === 'melee_attack' && <MeleeAttackForm action={action} actorRound={actorRound} />}
             {action.actionType === 'maneuver' && <ActionManeuverForm action={action} actorRound={actorRound} />}
           </DialogContent>
         ) : (

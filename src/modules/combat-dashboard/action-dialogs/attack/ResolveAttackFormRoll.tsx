@@ -20,8 +20,8 @@ const ResolveAttackFormRoll: FC<{
 }> = ({ formData, setFormData, action, attack, index }) => {
   const { updateAction } = useContext(CombatContext)!;
   const { showError } = useError();
-  const [attackRoll, setAttackRoll] = useState<number | undefined>(attack.roll?.roll);
-  const [locationRoll, setLocationRoll] = useState<number | undefined>(attack.roll?.locationRoll);
+  const [attackRoll, setAttackRoll] = useState<number | undefined>(attack.roll?.roll || undefined);
+  const [locationRoll, setLocationRoll] = useState<number | undefined>(attack.roll?.locationRoll || undefined);
 
   if (!formData || !formData.attacks || formData.attacks.length <= index) return <div>Loading...</div>;
 
@@ -41,7 +41,7 @@ const ResolveAttackFormRoll: FC<{
     const roll = newAttackRoll !== undefined ? newAttackRoll : attackRoll;
     const loc = newLocationRoll !== undefined ? newLocationRoll : locationRoll;
     if (roll === undefined || roll === null) return;
-    if (attack.calculated.requiredLocationRoll && (loc === undefined || loc === null)) return;
+    if (attack.calculated!.requiredLocationRoll && (loc === undefined || loc === null)) return;
     updateAttackRoll(action.id, attack.attackName, roll, loc)
       .then((updatedAction) => {
         const newFormData = { attacks: updatedAction.attacks, parries: updatedAction.parries } as AttackDeclaration;
@@ -73,19 +73,19 @@ const ResolveAttackFormRoll: FC<{
         <ResolveAttackInfo action={action} attack={formData.attacks[index]} />
       </Grid>
       {attack.calculated.requiredLocationRoll && (
-        <Grid size={2} offset={2}>
+        <Grid size={2}>
           <NumericInput
             label={t('location-roll')}
             value={attack.roll?.locationRoll || null}
             min={1}
             max={100}
-            onChange={(e) => onLocationRollChange(e)}
+            onChange={(e) => onLocationRollChange(e!)}
             disabled={action.status === 'completed'}
             error={!locationRoll}
           />
         </Grid>
       )}
-      <Grid size={2}>
+      <Grid size={12}>
         {attack.calculated.location && (
           <Grid size={8}>
             <Chip size="medium" color="error" label={t(attack.calculated.location)} />
@@ -93,7 +93,7 @@ const ResolveAttackFormRoll: FC<{
         )}
       </Grid>
       <Grid size={12}></Grid>
-      <Grid size={10} offset={2}>
+      <Grid size={12}>
         <OpenEndedRollInput onChange={(e) => onRollChange(e || undefined)} />
       </Grid>
 
@@ -101,7 +101,7 @@ const ResolveAttackFormRoll: FC<{
         <Grid size={8}>
           <Stack direction="row" spacing={1}>
             {attack.results.attackTableEntry.damage > 0 ? (
-              <Effect status={'dmg'} label={attack.results.attackTableEntry.damage} color="error" />
+              <Effect status={'dmg'} label={`${attack.results.attackTableEntry.damage}`} color="error" />
             ) : (
               <Typography>{t('no-damage')}</Typography>
             )}

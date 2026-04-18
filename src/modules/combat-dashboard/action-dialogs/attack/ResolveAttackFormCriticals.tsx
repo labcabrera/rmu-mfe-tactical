@@ -58,7 +58,7 @@ const ResolveAttackFormCriticals: FC<{
     <>
       {attack.results.criticals.map((critical: any, index: number) => (
         <Fragment key={index}>
-          <Grid size={2} offset={2}>
+          <Grid size={2}>
             <NumericInput
               label={t('critical-roll')}
               value={getCriticalRoll(critical.key) || null}
