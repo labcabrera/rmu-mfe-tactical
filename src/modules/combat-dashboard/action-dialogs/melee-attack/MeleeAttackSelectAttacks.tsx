@@ -20,6 +20,7 @@ import {
   FormControlLabel,
   FormGroup,
   Switch,
+  ListItemButton,
 } from '@mui/material';
 import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
@@ -270,19 +271,22 @@ const AddProtectDialog: FC<{
           <FormControlLabel value={displayAll} control={<Switch />} label="All" onChange={(e, v) => setDisplayAll(v)} />
         </FormGroup>
         <List>
-          {availableActors.map((actor, index) => (
-            <ListItem key={index}>
-              <ListItemAvatar>
-                <Avatar src={actor.imageUrl || undefined} alt={actor.actorName} />
-              </ListItemAvatar>
-              <ListItemText primary={actor.actorName} secondary={`${t('Protect')}: ${actor.defense?.protect ?? 0}`} />
-              <ListItemSecondaryAction>
-                <IconButton edge="end" onClick={() => handleAdd(actor.actorId)}>
-                  <Typography color="primary">{t('Add')}</Typography>
-                </IconButton>
-              </ListItemSecondaryAction>
-            </ListItem>
-          ))}
+          {availableActors.map((actor, index) => {
+            const isSelected = false;
+            return (
+              <ListItem key={index}>
+                <ListItemButton selected={isSelected} onClick={() => handleAdd(actor.actorId)}>
+                  <ListItemAvatar>
+                    <Avatar src={actor.imageUrl || undefined} alt={actor.actorName} />
+                  </ListItemAvatar>
+                  <ListItemText
+                    primary={actor.actorName}
+                    secondary={`${t('Protect')}: ${actor.defense?.protect ?? 0}`}
+                  />
+                </ListItemButton>
+              </ListItem>
+            );
+          })}
         </List>
       </DialogContent>
       <DialogActions>
