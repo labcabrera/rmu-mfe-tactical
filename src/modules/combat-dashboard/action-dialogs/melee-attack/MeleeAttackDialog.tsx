@@ -17,14 +17,12 @@ const MeleeAttackDialog: FC<{
   onClose: () => void;
 }> = ({ action, actorRound, open, onClose }) => {
   const [deleting, setDeleting] = useState(false);
-  const { game, strategicGame, roundActions, setRoundActions, updateAction, refreshActorRounds } =
-    useContext(CombatContext)!;
+  const { game, strategicGame, roundActions, setRoundActions, refreshActorRounds } = useContext(CombatContext)!;
   const { showError } = useError();
   const [formData, setFormData] = useState<AttackDeclaration>({ attacks: [], parries: [] });
-  const [isValidForm, setIsValidForm] = useState<boolean>(false);
   const [availableAttacks, setAvailableAttaks] = useState<ActionAttack[]>([]);
   const [activeStep, setActiveStep] = useState<number>(0);
-  const [buttons, setButtons] = useState<any>([]);
+  const [buttons, setButtons] = useState<ReactNode>([]);
 
   const buttonsDeleting = [
     <Button color="error" onClick={() => onDelete()}>
@@ -32,6 +30,31 @@ const MeleeAttackDialog: FC<{
     </Button>,
     <Button onClick={() => setDeleting(false)}>{t('Cancel')}</Button>,
   ];
+
+  const loadAction = (action: Action) => {
+    if (!actorRound) return;
+    console.log('loadAction', action);
+    const attacks = actorRound.attacks.filter((a) => a.type === 'melee').map(mapActionAttack);
+    setAvailableAttaks(attacks);
+    setFormData({ attacks: action.attacks || [], parries: action.parries || [] });
+    switch (action.status) {
+      case 'declared': {
+        setActiveStep(0);
+        break;
+      }
+      case 'parry':
+        setActiveStep(2);
+        break;
+      case 'pending_attack_roll':
+      case 'prepared':
+      case 'pending_apply':
+      case 'completed':
+        setActiveStep(3);
+        break;
+      default:
+        showError(`Invalid attack status ${action.status}`);
+    }
+  };
 
   const validateForm = () => {
     if (!formData || !formData.attacks || formData.attacks.length < 1) return false;
@@ -44,19 +67,7 @@ const MeleeAttackDialog: FC<{
 
   const onPrepare = () => {
     prepareAttack(action.id, formData)
-      .then((data) => {
-        updateAction(data);
-        // setFormData(data);
-      })
-      .catch((err) => showError(err.message));
-  };
-
-  const onApply = () => {
-    applyAttack(action.id)
-      .then((updatedAction) => {
-        updateAction(updatedAction);
-        refreshActorRounds();
-      })
+      .then((response) => loadAction(response))
       .catch((err) => showError(err.message));
   };
 
@@ -64,10 +75,16 @@ const MeleeAttackDialog: FC<{
     const parries = formData.parries?.map((e) => ({ parryId: e.id, parry: e.parry }));
     const parryDeclaration = { parries } as ParryDeclaration;
     declareParry(action.id, parryDeclaration)
-      .then((updatedAction) => {
-        console.log('Parry response: ', updatedAction);
-        updateAction(updatedAction);
-        // refreshActorRounds();
+      .then((response) => loadAction(response))
+      .catch((err) => showError(err.message));
+  };
+
+  const onApply = () => {
+    applyAttack(action.id)
+      .then((response) => {
+        loadAction(response);
+        refreshActorRounds();
+        onClose();
       })
       .catch((err) => showError(err.message));
   };
@@ -141,32 +158,12 @@ const MeleeAttackDialog: FC<{
   }, [activeStep, action]);
 
   useEffect(() => {
-    setIsValidForm(validateForm());
+    //setIsValidForm(validateForm());
   }, [formData]);
 
   useEffect(() => {
     if (!action || !actorRound) return;
-    console.log('useEffect [action, actorRound]', action);
-    const attacks = actorRound.attacks.filter((a) => a.type === 'melee').map(mapActionAttack);
-    setAvailableAttaks(attacks);
-    setFormData({ attacks: action.attacks || [], parries: action.parries || [] });
-    switch (action.status) {
-      case 'declared': {
-        setActiveStep(0);
-        break;
-      }
-      case 'parry':
-        setActiveStep(2);
-        break;
-      case 'pending_attack_roll':
-      case 'prepared':
-      case 'pending_apply':
-      case 'completed':
-        setActiveStep(3);
-        break;
-      default:
-        showError(`Invalid attack status ${action.status}`);
-    }
+    loadAction(action);
   }, [action, actorRound]);
 
   if (!actorRound || !roundActions || !formData || !strategicGame || !game) return <p>Loading...</p>;

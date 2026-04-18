@@ -1,5 +1,5 @@
 import React, { Dispatch, FC, Fragment, SetStateAction, useContext } from 'react';
-import { Button, Grid, Stack, Typography } from '@mui/material';
+import { Button, Card, CardContent, Grid, Stack, Typography } from '@mui/material';
 import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { ActionAttack, AttackDeclaration } from '../../../api/action.dto';
@@ -98,13 +98,15 @@ const MeleeAttackSelectAttacks: FC<{
   return (
     <Grid container spacing={1}>
       <Grid size={12}>
-        {availableAttacks.map((attack, index) => {
-          return (
-            <Button key={index} onClick={() => onAddAttack(attack.attackName)}>
-              {attack.attackName}
-            </Button>
-          );
-        })}
+        <Grid container spacing={1}>
+          {availableAttacks.map((attack, index) => {
+            return (
+              <Grid size={4} key={index}>
+                <AvailableAttackCard actionAttack={attack} onClick={() => onAddAttack(attack.attackName)} />
+              </Grid>
+            );
+          })}
+        </Grid>
       </Grid>
       {formData.attacks.map((attack, index) => {
         const targetId = attack.modifiers.targetId;
@@ -128,15 +130,7 @@ const MeleeAttackSelectAttacks: FC<{
                 onChange={(e) => onTargetSelect(attack.attackName, e!)}
               />
             </Grid>
-            <Grid size={2}>
-              {targetActorRound && (
-                <>
-                  <Typography>{targetActorRound.actorName}</Typography>
-                  <Typography>{targetActorRound.defense.bd}</Typography>
-                  <Typography>{targetActorRound.defense.at}</Typography>
-                </>
-              )}
-            </Grid>
+            <Grid size={2}>{targetActorRound && <TargetInfo target={targetActorRound} />}</Grid>
             {attack.modifiers.targetId && (
               <Grid size={4}>
                 <OffensiveBonusSelector
@@ -151,6 +145,36 @@ const MeleeAttackSelectAttacks: FC<{
         );
       })}
     </Grid>
+  );
+};
+
+const AvailableAttackCard: FC<{
+  actionAttack: ActionAttack;
+  onClick: () => void;
+}> = ({ actionAttack, onClick }) => {
+  return (
+    <Card onClick={onClick}>
+      <CardContent>
+        <Typography>{t(actionAttack.attackName)}</Typography>
+        <Typography>BO: {actionAttack.modifiers.bo}</Typography>
+      </CardContent>
+    </Card>
+  );
+};
+
+const TargetInfo: FC<{
+  target: ActorRound;
+}> = ({ target }) => {
+  const at = target.defense.at
+    ? `${target.defense.at}`
+    : `${target.defense.headAt}-${target.defense.bodyAt}-${target.defense.armsAt}-${target.defense.legsAt}`;
+
+  return (
+    <Stack direction={'column'} spacing={1}>
+      <Typography>{target.actorName}</Typography>
+      <Typography>BD: {target.defense.bd}</Typography>
+      <Typography>AT: {at}</Typography>
+    </Stack>
   );
 };
 

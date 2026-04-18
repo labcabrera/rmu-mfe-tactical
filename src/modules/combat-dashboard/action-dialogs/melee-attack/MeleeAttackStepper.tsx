@@ -7,7 +7,7 @@ import MeleeAttackSelectAttacks from './MeleeAttackSelectAttacks';
 import ResolveAttackParry from './ResolveAttackParry';
 import ResolveAttackTabRoll from './ResolveAttackRoll';
 
-const steps = ['Select targets', 'Choose attack options', 'Declare parry', 'Resolve attacks'];
+const steps = ['Select targets', 'Attack options', 'Parry', 'Resolve'];
 
 const MeleeAttackStepper: FC<{
   action: Action;

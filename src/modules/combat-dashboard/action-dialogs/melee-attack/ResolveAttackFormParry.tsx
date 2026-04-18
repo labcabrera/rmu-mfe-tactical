@@ -9,12 +9,12 @@ const ResolveAttackFormModifiers: FC<{
   formData: AttackDeclaration;
   setFormData: Dispatch<SetStateAction<AttackDeclaration>>;
 }> = ({ formData, setFormData }) => {
-  const { actorRounds } = useContext(CombatContext);
+  const { actorRounds } = useContext(CombatContext)!;
 
   if (!formData || !formData.attacks) return <div>Loading...</div>;
 
   const getActorName = (id: string) => {
-    return actorRounds.find((a) => a.actorId === id)?.actorName || '';
+    return actorRounds!.find((a) => a.actorId === id)?.actorName || '';
   };
 
   return (
@@ -56,7 +56,7 @@ const ResolveAttackFormModifiers: FC<{
                   value={parry.parry}
                   name="parry"
                   onChange={(e) => {
-                    parry.parry = e;
+                    parry.parry = e!;
                     setFormData({ ...formData, parries: formData.parries });
                   }}
                   integer
