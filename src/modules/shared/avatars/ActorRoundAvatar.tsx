@@ -9,7 +9,7 @@ const ActorRoundAvatar: FC<{
   dead?: boolean;
   variant?: 'circular' | 'rounded' | 'square';
 }> = ({ actorRound, dead = false, variant = 'circular', size = 70 }) => {
-  const imageUrl = actorRound?.imageUrl ? actorRound.imageUrl : `${imageBaseUrl}images/races/unknown.png`;
+  const imageUrl = actorRound?.imageUrl ? actorRound.imageUrl : `${imageBaseUrl}images/actions/select-actor-01.png`;
 
   return (
     <Avatar

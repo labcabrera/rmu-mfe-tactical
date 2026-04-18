@@ -1,5 +1,4 @@
 import React, { FC, useContext, useMemo, useState } from 'react';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
   Box,
   IconButton,
@@ -50,19 +49,11 @@ const TargetSelector: FC<{
             <ActorRoundAvatar
               actorRound={selectedActorRound || undefined}
               size={avatarSize}
-              variant="square"
+              variant="rounded"
               dead={false}
             />
           </IconButton>
         </Tooltip>
-        <Box sx={{ minWidth: 0 }}>
-          <Typography variant="body2" noWrap>
-            {selectedActorRound ? selectedActorRound.actorName : 'Select target'}
-          </Typography>
-        </Box>
-        <IconButton onClick={() => setOpen((s) => !s)} aria-label="expand">
-          <ExpandMoreIcon sx={{ transform: open ? 'rotate(180deg)' : 'rotate(0deg)', transition: '0.2s' }} />
-        </IconButton>
       </Stack>
 
       <Dialog open={open} onClose={() => setOpen(false)} maxWidth="md" fullWidth transitionDuration={0}>

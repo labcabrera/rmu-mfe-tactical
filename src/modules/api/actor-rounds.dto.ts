@@ -67,6 +67,7 @@ export type ActorRoundDefense = {
   armsAt: number | undefined;
   legsAt: number | undefined;
   shield: ActorRoundDefenseShield | null;
+  protect: number;
 };
 
 export type ActorRoundDefenseShield = {

@@ -1,5 +1,22 @@
-import React, { Dispatch, FC, Fragment, SetStateAction, useContext } from 'react';
-import { Button, Card, CardContent, Grid, Stack, Typography } from '@mui/material';
+import React, { Dispatch, FC, Fragment, SetStateAction, useContext, useState } from 'react';
+import {
+  Card,
+  CardContent,
+  Dialog,
+  DialogTitle,
+  DialogActions,
+  List,
+  ListItem,
+  ListItemAvatar,
+  Avatar,
+  ListItemText,
+  ListItemSecondaryAction,
+  IconButton,
+  Button,
+  Grid,
+  Stack,
+  Typography,
+} from '@mui/material';
 import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { ActionAttack, AttackDeclaration } from '../../../api/action.dto';
@@ -14,6 +31,8 @@ const MeleeAttackSelectAttacks: FC<{
   availableAttacks: ActionAttack[];
 }> = ({ formData, actorRound, availableAttacks, setFormData }) => {
   const { actorRounds, roundActions } = useContext(CombatContext)!;
+  const [selectedAttack, setSelectedAttack] = useState<ActionAttack>();
+  const [openProtectorDialog, setOpenProtectorDialog] = useState<boolean>(false);
   const paceOrder = ['creep', 'walk', 'jog', 'run', 'sprint', 'dash'];
 
   const hasStatus = (actorRound: ActorRound, status: string): boolean => {
@@ -123,7 +142,7 @@ const MeleeAttackSelectAttacks: FC<{
                 {t(actorRoundAttack.attackTable)}: {actorRoundAttack.currentBo} ({actorRoundAttack.baseBo})
               </Typography>
             </Grid>
-            <Grid size={3}>
+            <Grid size={2}>
               <TargetSelector
                 value={attack.modifiers.targetId}
                 sourceId={actorRound.actorId}
@@ -131,19 +150,38 @@ const MeleeAttackSelectAttacks: FC<{
               />
             </Grid>
             <Grid size={2}>{targetActorRound && <TargetInfo target={targetActorRound} />}</Grid>
-            {attack.modifiers.targetId && (
-              <Grid size={4}>
+            <Grid size={3}>
+              {attack.modifiers.targetId && (
                 <OffensiveBonusSelector
                   value={attack.modifiers.bo || 0}
                   max={actorRoundAttack.currentBo || 0}
                   onChange={(bo) => onBoChange(attack.attackName, bo)}
                 />
-              </Grid>
-            )}
+              )}
+            </Grid>
+            <Grid size={3}>
+              <Button
+                onClick={() => {
+                  setSelectedAttack(attack);
+                  setOpenProtectorDialog(true);
+                }}
+              >
+                Add protector
+              </Button>
+            </Grid>
             <Grid size={12}></Grid>
           </Fragment>
         );
       })}
+      {selectedAttack && actorRounds && (
+        <AddProtectDialog
+          open={openProtectorDialog}
+          actionAttack={selectedAttack}
+          actorRounds={actorRounds}
+          onAdd={(actorId) => {}}
+          onRemove={(actorId) => {}}
+        />
+      )}
     </Grid>
   );
 };
@@ -175,6 +213,45 @@ const TargetInfo: FC<{
       <Typography>BD: {target.defense.bd}</Typography>
       <Typography>AT: {at}</Typography>
     </Stack>
+  );
+};
+
+const AddProtectDialog: FC<{
+  actionAttack: ActionAttack;
+  selectedActorRound?: ActorRound | null;
+  actorRounds: ActorRound[];
+  open: boolean;
+  onAdd: (actorId: string) => void;
+  onRemove: (actorId: string) => void;
+  onClose?: () => void;
+}> = ({ actionAttack, selectedActorRound, actorRounds, open, onAdd, onRemove, onClose }) => {
+  const others = (actorRounds || []).filter((a) => a.actorId !== selectedActorRound?.actorId);
+
+  return (
+    <Dialog open={open} onClose={() => onClose && onClose()} fullWidth maxWidth="sm">
+      <DialogTitle>{t('Select protector')}</DialogTitle>
+      <List>
+        {others.map((actor) => (
+          <ListItem key={actor.actorId}>
+            <ListItemAvatar>
+              <Avatar src={actor.imageUrl || undefined} alt={actor.actorName} />
+            </ListItemAvatar>
+            <ListItemText primary={actor.actorName} secondary={`${t('Protect')}: ${actor.defense?.protect ?? 0}`} />
+            <ListItemSecondaryAction>
+              <IconButton edge="end" onClick={() => onAdd(actor.actorId)} aria-label="add">
+                <Typography color="primary">{t('Add')}</Typography>
+              </IconButton>
+              <IconButton edge="end" onClick={() => onRemove(actor.actorId)} aria-label="remove">
+                <Typography color="error">{t('Remove')}</Typography>
+              </IconButton>
+            </ListItemSecondaryAction>
+          </ListItem>
+        ))}
+      </List>
+      <DialogActions>
+        <Button onClick={() => onClose && onClose()}>{t('Close')}</Button>
+      </DialogActions>
+    </Dialog>
   );
 };
 
