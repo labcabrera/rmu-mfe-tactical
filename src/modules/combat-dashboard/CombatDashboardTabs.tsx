@@ -3,7 +3,7 @@ import { Box, Tab, Tabs } from '@mui/material';
 import CombatDashboardActions from './CombatDashboardActions';
 import CombatDashboardAttacks from './CombatDashboardAttacks';
 import CombatDashboardManagement from './CombatDashboardManagement';
-import CombatActorRoundList from './actor-rounds/CombatActorRoundList';
+import CombatActorRoundList from './actor-rounds/ActorRoundList';
 
 type CustomTabPanelProps = {
   children?: ReactNode;

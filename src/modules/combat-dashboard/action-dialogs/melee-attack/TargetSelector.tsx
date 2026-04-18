@@ -21,10 +21,10 @@ import ActorRoundAvatar from '../../../shared/avatars/ActorRoundAvatar';
 const avatarSize = 100;
 
 const TargetSelector: FC<{
-  value?: string | null; // actorRound id
+  value: string | undefined | null;
   onChange: (actorRoundId: string | null) => void;
-  sourceId?: string | null; // character id of source
-}> = ({ value = null, onChange, sourceId = null }) => {
+  sourceId: string | null;
+}> = ({ value = null, onChange, sourceId }) => {
   const { actorRounds } = useContext(CombatContext)!;
   const [open, setOpen] = useState(false);
   const [filter, setFilter] = useState<'distinct' | 'all'>('distinct');
@@ -84,11 +84,11 @@ const TargetSelector: FC<{
           </Stack>
 
           <Stack direction="row" spacing={0.5} sx={{ flexWrap: 'wrap' }}>
-            {(targets || []).map((ar) => {
+            {(targets || []).map((ar, index) => {
               const actorRound = (actorRounds || []).find((c) => c.actorId === ar.actorId) || null;
               const isSelected = value === ar.actorId;
               return (
-                <Box key={ar.id} sx={{ textAlign: 'center', mb: 0.5 }}>
+                <Box key={index} sx={{ textAlign: 'center', mb: 0.5 }}>
                   <Button
                     onClick={() => {
                       onChange(ar.actorId);

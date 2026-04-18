@@ -9,8 +9,8 @@ import { t } from 'i18next';
 import { CombatContext } from '../../../CombatContext';
 import { useError } from '../../../ErrorContext';
 import { ActorRound } from '../../api/actor-rounds.dto';
+import CombatActorRoundListItem from './ActorRoundListItem';
 import ActorRoundViewDialog from './ActorRoundViewDialog';
-import CombatActorRoundListItem from './CombatActorRoundListItem';
 
 const CombatActorRoundList: FC = () => {
   const { game, actorRounds } = useContext(CombatContext)!;

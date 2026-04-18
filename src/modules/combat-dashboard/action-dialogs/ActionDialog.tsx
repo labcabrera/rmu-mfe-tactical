@@ -53,7 +53,6 @@ const ActionDialog: FC<{
         title={actorRound.actorName}
         subtitle={t(action.actionType)}
         avatarImg={actorRound.imageUrl}
-        // fullScreen={action.actionType === 'melee_attack'}
         fullScreen={true}
         open={open}
         onClose={onClose}
@@ -62,7 +61,6 @@ const ActionDialog: FC<{
         <>
           {!deleting ? (
             <>
-              {action.actionType === 'melee_attack' && <MeleeAttackForm action={action} actorRound={actorRound} />}
               {action.actionType === 'maneuver' && <ActionManeuverForm action={action} actorRound={actorRound} />}
               <TechnicalInfo>
                 <pre>Action: {JSON.stringify(action, null, 2)}</pre>

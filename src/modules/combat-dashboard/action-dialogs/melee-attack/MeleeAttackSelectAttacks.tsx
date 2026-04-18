@@ -1,36 +1,20 @@
 import React, { Dispatch, FC, Fragment, SetStateAction, useContext } from 'react';
-import { Grid, Typography } from '@mui/material';
-import { CategorySeparator } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { Button, Grid, Stack, Typography } from '@mui/material';
 import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
-import { ActionAttack, ActionAttackModifiers, AttackDeclaration } from '../../../api/action.dto';
+import { ActionAttack, AttackDeclaration } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
 import OffensiveBonusSelector from './OffensiveBonusSelector';
 import TargetSelector from './TargetSelector';
 
 const MeleeAttackSelectAttacks: FC<{
   formData: AttackDeclaration;
-  setFormData: Dispatch<SetStateAction<AttackDeclaration>>;
   actorRound: ActorRound;
-}> = ({ formData, setFormData, actorRound }) => {
-  return <AttackList actorRound={actorRound} formData={formData} setFormData={setFormData} />;
-};
-
-export default MeleeAttackSelectAttacks;
-
-const AttackList: FC<{
-  formData: AttackDeclaration;
   setFormData: Dispatch<SetStateAction<AttackDeclaration>>;
-  actorRound: ActorRound;
-}> = ({ formData, setFormData, actorRound }) => {
-  const { actorRounds, roundActions } = useContext(CombatContext);
-  const selected = formData.attacks || [];
+  availableAttacks: ActionAttack[];
+}> = ({ formData, actorRound, availableAttacks, setFormData }) => {
+  const { actorRounds, roundActions } = useContext(CombatContext)!;
   const paceOrder = ['creep', 'walk', 'jog', 'run', 'sprint', 'dash'];
-
-  const findAttack = (attackName: string) => selected.find((a) => a.attackName === attackName);
-
-  const findActorRound = (actorRoundId: string | null | undefined): ActorRound | undefined =>
-    (actorRounds || []).find((ar) => ar.id === actorRoundId);
 
   const hasStatus = (actorRound: ActorRound, status: string): boolean => {
     return actorRound.effects?.some((se) => se.status === status);
@@ -52,98 +36,113 @@ const AttackList: FC<{
     return valid[0];
   };
 
-  const handleTargetChange = (attackName: string, targetId: string | null) => {
-    const normalizedTargetId = targetId === '' ? null : targetId;
-    const target = normalizedTargetId ? findActorRound(normalizedTargetId) : undefined;
-    const exists = findAttack(attackName);
-    const maxTargetPace = findSourceMaxPace();
-    if (!exists) return;
-    const hasShield = target && false;
-    const isProne = target && hasStatus(target as ActorRound, 'prone');
-    const isStunned = target && hasStatus(target as ActorRound, 'stunned');
-    const isSurprised = target && hasStatus(target as ActorRound, 'surprised');
-    const isOffHand = attackName === 'offHand';
-    const pace = maxTargetPace;
-
-    const newSelected = selected.map((a) =>
-      a.attackName === attackName
-        ? {
-            ...a,
-            modifiers: {
-              ...a.modifiers,
-              targetId: normalizedTargetId,
-              disabledShield: target ? !hasShield : a.modifiers?.disabledShield,
-              stunnedFoe: target ? isStunned && !isSurprised : a.modifiers?.stunnedFoe,
-              surprisedFoe: target ? isSurprised : a.modifiers?.surprisedFoe,
-              proneTarget: target ? isProne : a.modifiers?.proneTarget,
-              offHand: isOffHand,
-              pace: target ? pace : a.modifiers?.pace,
-            },
-          }
-        : a
-    );
-
-    setFormData((prev) => ({ ...prev, attacks: newSelected }));
+  const onAddAttack = (attackName: string) => {
+    const available = availableAttacks.find((e) => e.attackName === attackName)!;
+    setFormData((prev) => ({
+      ...prev,
+      attacks: [...prev.attacks, available],
+    }));
   };
 
-  const handleBoChange = (attackName: string, bo: number) => {
-    const exists = findAttack(attackName);
-    let newSelected: ActionAttack[];
-    if (exists) {
-      newSelected = selected.map((a) =>
-        a.attackName === attackName ? { ...a, modifiers: { ...a.modifiers, bo } } : a
+  const onTargetSelect = (attackName: string, targetId: string) => {
+    const targetActorRound = actorRounds!.find((e) => e.actorId === targetId)!;
+    const available = availableAttacks.find((e) => e.attackName === attackName)!;
+
+    available.modifiers.targetId = targetId;
+    available.modifiers.disabledShield = !targetActorRound.defense.shield;
+    //TODO check all status values
+    available.modifiers.disabledDB = hasStatus(targetActorRound, 'dead');
+    available.modifiers.pace = findSourceMaxPace();
+    available.modifiers.proneTarget = hasStatus(targetActorRound, 'prone');
+    available.modifiers.stunnedFoe = hasStatus(targetActorRound, 'stunned');
+    available.modifiers.surprisedFoe = hasStatus(targetActorRound, 'surprised');
+
+    setFormData((prev) => {
+      const exists = prev.attacks.some((e) => e.attackName === attackName);
+      return {
+        ...prev,
+        attacks: exists
+          ? prev.attacks.map((a) =>
+              a.attackName === attackName ? { ...a, modifiers: { ...a.modifiers, targetId } } : a
+            )
+          : [...prev.attacks, available],
+      };
+    });
+  };
+
+  const onBoChange = (attackName: string, bo: number) => {
+    setFormData((prev) => {
+      const attacks = prev.attacks || [];
+      const newAttacks = attacks.map((e) =>
+        e.attackName === attackName ? { ...e, modifiers: { ...(e.modifiers || {}), bo } } : e
       );
-    }
-    setFormData({ ...formData, attacks: newSelected });
+      const next = { ...prev, attacks: newAttacks };
+      console.warn('On bo change', attackName, bo, { prev, next });
+      return next;
+    });
   };
 
-  if (!actorRound || !actorRound.attacks) {
-    return <Typography>No attacks available</Typography>;
-  }
+  if (!availableAttacks || availableAttacks.length < 1) return <p>No available melee attacks</p>;
 
-  const displayed = formData.attacks && formData.attacks.length > 0 ? formData.attacks : [];
+  if (!actorRound || !actorRound.attacks) return <Typography>No attacks available</Typography>;
 
   return (
-    <>
-      {displayed.length === 0 ? (
-        <Typography variant="body2">No attacks selected</Typography>
-      ) : (
-        displayed.map((attack, index) => {
-          const def = (actorRound.attacks || []).find((a) => a.attackName === attack.attackName);
-          const existing = findAttack(attack.attackName);
-          const modifiers =
-            existing?.modifiers ??
-            ({
-              targetId: null,
-              bo: def?.currentBo || 0,
-            } as ActionAttackModifiers);
-
+    <Grid container spacing={1}>
+      <Grid size={12}>
+        {availableAttacks.map((attack, index) => {
           return (
-            <Fragment key={index}>
-              <CategorySeparator text={t(def?.attackName || attack.attackName)} />
-              <Grid container spacing={1} alignItems="center">
-                <Grid size={2}>
-                  {t(def?.attackTable || '')} {def ? `+${def.currentBo}` : ''}
-                </Grid>
-                <Grid size={4}>
-                  <OffensiveBonusSelector
-                    value={modifiers.bo}
-                    max={def?.currentBo || 0}
-                    onChange={(bo: number) => handleBoChange(attack.attackName, bo)}
-                  />
-                </Grid>
-                <Grid size={6}>
-                  <TargetSelector
-                    value={modifiers.targetId || ''}
-                    onChange={(actorId) => handleTargetChange(attack.attackName, actorId)}
-                    sourceId={(actorRound as any).actorId}
-                  />
-                </Grid>
-              </Grid>
-            </Fragment>
+            <Button key={index} onClick={() => onAddAttack(attack.attackName)}>
+              {attack.attackName}
+            </Button>
           );
-        })
-      )}
-    </>
+        })}
+      </Grid>
+      {formData.attacks.map((attack, index) => {
+        const targetId = attack.modifiers.targetId;
+        const actorRoundAttack = actorRound.attacks.find((e) => e.attackName === attack.attackName)!;
+        const targetActorRound = targetId ? actorRounds?.find((e) => e.actorId === targetId) : null;
+        return (
+          <Fragment key={index}>
+            <Grid size={2}>
+              <Stack direction="column"></Stack>
+              <Typography variant="h6" color="primary">
+                {t(attack.attackName)}
+              </Typography>
+              <Typography variant="body2" color="secondary">
+                {t(actorRoundAttack.attackTable)}: {actorRoundAttack.currentBo} ({actorRoundAttack.baseBo})
+              </Typography>
+            </Grid>
+            <Grid size={3}>
+              <TargetSelector
+                value={attack.modifiers.targetId}
+                sourceId={actorRound.actorId}
+                onChange={(e) => onTargetSelect(attack.attackName, e!)}
+              />
+            </Grid>
+            <Grid size={2}>
+              {targetActorRound && (
+                <>
+                  <Typography>{targetActorRound.actorName}</Typography>
+                  <Typography>{targetActorRound.defense.bd}</Typography>
+                  <Typography>{targetActorRound.defense.at}</Typography>
+                </>
+              )}
+            </Grid>
+            {attack.modifiers.targetId && (
+              <Grid size={4}>
+                <OffensiveBonusSelector
+                  value={attack.modifiers.bo || 0}
+                  max={actorRoundAttack.currentBo || 0}
+                  onChange={(bo) => onBoChange(attack.attackName, bo)}
+                />
+              </Grid>
+            )}
+            <Grid size={12}></Grid>
+          </Fragment>
+        );
+      })}
+    </Grid>
   );
 };
+
+export default MeleeAttackSelectAttacks;

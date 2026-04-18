@@ -5,6 +5,7 @@ import { Action } from '../../api/action.dto';
 import { ActorRound } from '../../api/actor-rounds.dto';
 import { Character } from '../../api/characters.dto';
 import ActionDialog from '../action-dialogs/ActionDialog';
+import MeleeAttackDialog from '../action-dialogs/melee-attack/MeleeAttackDialog';
 import MovementDialog from '../action-dialogs/movement/MovementDialog';
 import RangedAttackDialog from '../action-dialogs/ranged-attack/RangedAttackDialog';
 import ActorActions from './ActorActions';
@@ -71,6 +72,18 @@ const CombatActorRoundListItem: FC<{
                 }}
               />
             );
+          } else if (action.actionType === 'melee_attack') {
+            return (
+              <MeleeAttackDialog
+                action={action}
+                actorRound={actorRound}
+                open={resolveDialogOpen}
+                onClose={() => {
+                  setResolveDialogOpen(false);
+                  setSelectedActionId(null);
+                }}
+              />
+            );
           } else if (action.actionType === 'ranged_attack') {
             return (
               <RangedAttackDialog
@@ -88,7 +101,6 @@ const CombatActorRoundListItem: FC<{
             <ActionDialog
               action={action}
               actorRound={actorRound}
-              character={character}
               open={resolveDialogOpen}
               onClose={() => {
                 setResolveDialogOpen(false);
