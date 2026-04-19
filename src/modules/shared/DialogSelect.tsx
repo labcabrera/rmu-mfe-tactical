@@ -19,13 +19,33 @@ const DialogSelect: FC<{
   value: string | null | undefined;
   options: string[];
   readOnly?: boolean;
+  colorDisabledValues?: string[];
+  colorErrorValues?: string[];
+  colorSuccessValues?: string[];
   onChange: (value: string | null) => void;
-}> = ({ label, value, options, readOnly = false, onChange }) => {
+}> = ({
+  label,
+  value,
+  options,
+  readOnly = false,
+  colorDisabledValues,
+  colorErrorValues,
+  colorSuccessValues,
+  onChange,
+}) => {
   const [open, setOpen] = useState(false);
 
   const onItemListClick = (code: string) => {
     onChange(code);
     setOpen(false);
+  };
+
+  const getColor = () => {
+    if (value) {
+      if (colorDisabledValues && colorDisabledValues.includes(value)) return 'secondary';
+      if (colorErrorValues && colorErrorValues.includes(value)) return 'error';
+      if (colorSuccessValues && colorSuccessValues.includes(value)) return 'success';
+    }
   };
 
   return (
@@ -37,7 +57,11 @@ const DialogSelect: FC<{
               <Typography sx={{ fontWeight: 600 }} color={!value ? 'error' : undefined}>
                 {value ? `${t(label)}:` : t(label)}
               </Typography>
-              {value && <Typography sx={{ fontWeight: 600 }}>{value}</Typography>}
+              {value && (
+                <Typography sx={{ fontWeight: 600 }} color={getColor()}>
+                  {t(value)}
+                </Typography>
+              )}
             </Stack>
           </CardContent>
         </CardActionArea>

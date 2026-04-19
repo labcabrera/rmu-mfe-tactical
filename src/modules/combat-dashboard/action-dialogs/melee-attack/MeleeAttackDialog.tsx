@@ -142,7 +142,7 @@ const MeleeAttackDialog: FC<{
     pushButton(buttons, 'Close', undefined, false, () => onClose());
     if (activeStep === 0) {
       //TODO check disabled
-      pushButton(buttons, 'Next', undefined, !isValidForm, () => onStep1());
+      pushButton(buttons, 'Next', 'success', !isValidForm, () => onStep1());
     } else if (activeStep === 1) {
       pushButton(buttons, 'Back', undefined, false, () => setActiveStep(activeStep - 1));
       pushButton(buttons, 'Prepare', 'success', false, () => onPrepare());
@@ -201,7 +201,6 @@ const MeleeAttackDialog: FC<{
       <>
         {!deleting ? (
           <>
-            Active Step: {activeStep}
             <MeleeAttackStepper
               action={action}
               actorRound={actorRound}

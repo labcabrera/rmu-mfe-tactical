@@ -4,7 +4,7 @@ import { CategorySeparator } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { t } from 'i18next';
 import { Action } from '../../../api/action.dto';
 import { gridSizeCard } from '../../../services/display';
-import ModifierDualList from './ModifierDualList';
+import ModifierDualList from '../../../shared/ModifierDualList';
 
 const MovementResult: FC<{
   action: Action;

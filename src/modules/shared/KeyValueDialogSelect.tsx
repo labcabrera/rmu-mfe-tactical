@@ -20,12 +20,21 @@ const KeyValueDialogSelect: FC<{
   value: string | null | undefined;
   options: KeyValue[];
   readOnly?: boolean;
+  colorDisabledValues?: string[];
   onChange: (value: string | null) => void;
-}> = ({ label, value, options, readOnly = false, onChange }) => {
+}> = ({ label, value, options, readOnly = false, onChange, colorDisabledValues }) => {
   const [open, setOpen] = useState(false);
 
   const modifier = value ? options.find((e) => e.key === value)?.value : undefined;
-  const selectedOption = modifier !== undefined ? `${t(value!)} (${modifier > 0 ? '+' : ''}${modifier})` : undefined;
+  const modifierStr = modifier !== undefined && modifier !== 0 ? ` (${modifier > 0 ? '+' : ''}${modifier})` : undefined;
+  const selectedOption = modifier !== undefined ? `${t(value!)}${modifierStr ? modifierStr : ''}` : undefined;
+
+  const getColor = () => {
+    if (value && colorDisabledValues && colorDisabledValues.includes(value)) {
+      return 'secondary';
+    }
+    return modifier && modifier < 0 ? 'error' : modifier && modifier > 1 ? 'success' : undefined;
+  };
 
   const onItemListClick = (code: string) => {
     onChange(code);
@@ -42,7 +51,7 @@ const KeyValueDialogSelect: FC<{
                 {selectedOption ? `${t(label)}:` : t(label)}
               </Typography>
               {selectedOption && (
-                <Typography sx={{ fontWeight: 600 }} color={selectedOption.includes('-') ? 'error' : undefined}>
+                <Typography sx={{ fontWeight: 600 }} color={getColor()}>
                   {selectedOption}
                 </Typography>
               )}

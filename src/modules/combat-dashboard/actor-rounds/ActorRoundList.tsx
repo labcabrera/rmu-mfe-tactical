@@ -145,9 +145,14 @@ const CombatActorRoundListHeader: FC<{
         <Stack direction="row" justifyContent="space-between">
           <PhaseTypograpy label={displayPhase === 'upkeep' ? 'Upkeep' : 'Effects'} active={displayPhase === 'upkeep'} />
           {displayPhase === 'upkeep' && (
-            <IconButton size="small" color="primary" onClick={onNextRound}>
-              <NextPlanIcon />
-            </IconButton>
+            <Stack direction="row" spacing={1}>
+              <IconButton size="small" color="primary" onClick={onPrevPhase}>
+                <SkipPreviousIcon fontSize="small" />
+              </IconButton>
+              <IconButton size="small" color="primary" onClick={onNextRound}>
+                <NextPlanIcon />
+              </IconButton>
+            </Stack>
           )}
         </Stack>
       </Grid>

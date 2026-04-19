@@ -11,6 +11,7 @@ import {
   ListItemText,
   IconButton,
   Avatar,
+  Divider,
 } from '@mui/material';
 import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
@@ -128,18 +129,7 @@ const MeleeAttackSelectAttacks: FC<{
   if (!actorRound || !actorRound.attacks) return <Typography>No attacks available</Typography>;
 
   return (
-    <Grid container spacing={1}>
-      {/* <Grid size={12}>
-        <Grid container spacing={1}>
-          {availableAttacks.map((attack, index) => {
-            return (
-              <Grid size={4} key={index}>
-                <AvailableAttackCard actionAttack={attack} onClick={() => onAddAttack(attack.attackName)} />
-              </Grid>
-            );
-          })}
-        </Grid>
-      </Grid> */}
+    <Grid container spacing={1} mt={2}>
       {formData.attacks.map((attack, index) => {
         const targetId = attack.modifiers.targetId;
         const actorRoundAttack = actorRound.attacks.find((e) => e.attackName === attack.attackName)!;
@@ -147,13 +137,17 @@ const MeleeAttackSelectAttacks: FC<{
         return (
           <Fragment key={index}>
             <Grid size={2}>
-              <Stack direction="column"></Stack>
-              <Typography variant="h6" color="primary">
-                {t(attack.attackName)}
-              </Typography>
-              <Typography variant="body2" color="secondary">
-                {t(actorRoundAttack.attackTable)}: {actorRoundAttack.currentBo} ({actorRoundAttack.baseBo})
-              </Typography>
+              <Stack direction="column">
+                <Typography variant="h6" color="primary">
+                  {t(attack.attackName)}
+                </Typography>
+                <Typography variant="body2" color="secondary">
+                  {t(actorRoundAttack.attackTable)}: {actorRoundAttack.currentBo}
+                </Typography>
+                <Typography variant="body2" color="secondary">
+                  {t('Base BO')}: {actorRoundAttack.baseBo}
+                </Typography>
+              </Stack>
             </Grid>
             <Grid size={2}>
               <TargetSelector
@@ -162,7 +156,15 @@ const MeleeAttackSelectAttacks: FC<{
                 onChange={(e) => onTargetSelect(attack.attackName, e!)}
               />
             </Grid>
-            <Grid size={2}>{targetActorRound && <TargetInfo target={targetActorRound} />}</Grid>
+            <Grid size={2}>
+              {targetActorRound ? (
+                <TargetInfo target={targetActorRound} />
+              ) : (
+                <Typography color="secondary">
+                  <em>Select target</em>
+                </Typography>
+              )}
+            </Grid>
             <Grid size={3}>
               {attack.modifiers.targetId && (
                 <OffensiveBonusSelector
@@ -185,7 +187,9 @@ const MeleeAttackSelectAttacks: FC<{
                 />
               )}
             </Grid>
-            <Grid size={12}></Grid>
+            <Grid size={12}>
+              <Divider />
+            </Grid>
           </Fragment>
         );
       })}

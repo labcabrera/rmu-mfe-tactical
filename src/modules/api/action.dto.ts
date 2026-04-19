@@ -173,6 +173,8 @@ export type CriticalResult = {
 export type AttackTableEntry = {
   damage: number;
   text: string;
+  criticalType: string;
+  criticalSeverity: string;
 };
 
 export type ActionAttackFumbleResult = {
