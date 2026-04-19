@@ -9,6 +9,14 @@ import ActorRoundAlerts from './ActorRoundAlerts';
 const ActorRoundEffects: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
   if (!actorRound) return <p>Loading...</p>;
 
+  const isDead = actorRound.effects.find((e) => e.status === 'dead');
+  const hasEffects = actorRound.effects.length > 0;
+  const background = isDead
+    ? `${imageBaseUrl}images/actions/actor-dead-01.png`
+    : hasEffects
+      ? `${imageBaseUrl}images/actions/actor-effects-01.png`
+      : `${imageBaseUrl}images/actions/actor-ok-01.png`;
+
   //if (!actorRound.effects || actorRound.effects.length === 0) return null;
 
   const getEffectLabel = (effect: ActorRoundEffect): string => {
@@ -40,7 +48,7 @@ const ActorRoundEffects: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
   return (
     <Card
       sx={{
-        backgroundImage: `url('${imageBaseUrl}images/actions/actor-effects-01.png')`,
+        backgroundImage: `url('${background}')`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         width: '100%',
