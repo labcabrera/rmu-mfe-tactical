@@ -12,7 +12,7 @@ const ResolveAttackFormModifiers: FC<{
 }> = ({ action, attack }) => {
   const { actorRounds } = useContext(CombatContext)!;
 
-  if (!attack || !attack.calculated) return <div>Loading...</div>;
+  if (!attack || !attack.calculated) return <div>Loading ResolveAttackFormModifiers...</div>;
 
   const target = actorRounds!.find((a) => a.actorId === attack.modifiers?.targetId)!;
 

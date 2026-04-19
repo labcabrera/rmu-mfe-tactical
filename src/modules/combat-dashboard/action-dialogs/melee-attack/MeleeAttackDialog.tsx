@@ -17,7 +17,8 @@ const MeleeAttackDialog: FC<{
   onClose: () => void;
 }> = ({ action, actorRound, open, onClose }) => {
   const [deleting, setDeleting] = useState(false);
-  const { game, strategicGame, roundActions, setRoundActions, refreshActorRounds } = useContext(CombatContext)!;
+  const { game, strategicGame, roundActions, setRoundActions, refreshActorRounds, updateAction } =
+    useContext(CombatContext)!;
   const { showError } = useError();
   const [formData, setFormData] = useState<AttackDeclaration>({ attacks: [], parries: [] });
   const [availableAttacks, setAvailableAttaks] = useState<ActionAttack[]>([]);
@@ -34,10 +35,14 @@ const MeleeAttackDialog: FC<{
 
   const loadAction = (action: Action) => {
     if (!actorRound) return;
-    const attacks = actorRound.attacks.filter((a) => a.type === 'melee').map(mapActionAttack);
-    setAvailableAttaks(attacks);
-    // setFormData({ attacks: action.attacks || [], parries: action.parries || [] });
-    setFormData({ attacks: attacks || [], parries: action.parries || [] });
+    if (action.attacks && action.attacks.length > 0) {
+      setFormData({ attacks: action.attacks || [], parries: action.parries || [] });
+    } else {
+      const attacks = actorRound.attacks.filter((a) => a.type === 'melee').map(mapActionAttack);
+      setAvailableAttaks(attacks);
+      setFormData({ attacks: attacks || [], parries: action.parries || [] });
+    }
+
     switch (action.status) {
       case 'declared': {
         setActiveStep(0);
@@ -58,12 +63,8 @@ const MeleeAttackDialog: FC<{
   };
 
   const validateForm = () => {
-    if (!formData || !formData.attacks || formData.attacks.length < 1 || !activeStep) return false;
+    if (!formData || !formData.attacks || formData.attacks.length < 1 || activeStep === undefined) return false;
     if (activeStep === 0) {
-      console.log(
-        'check: ',
-        formData.attacks.some((e) => e.modifiers.targetId !== '')
-      );
       return formData.attacks.some((e) => e.modifiers.targetId !== '');
     }
     //TODO
@@ -93,6 +94,7 @@ const MeleeAttackDialog: FC<{
       .then((response) => {
         loadAction(response);
         refreshActorRounds();
+        updateAction(response);
         onClose();
       })
       .catch((err) => showError(err.message));
@@ -109,7 +111,11 @@ const MeleeAttackDialog: FC<{
   };
 
   const onStep1 = () => {
-    //cleanup
+    // Cleanup attacks with no target declared
+    setFormData((prev) => ({
+      ...prev,
+      attacks: (prev.attacks || []).filter((e) => e.modifiers && e.modifiers.targetId !== ''),
+    }));
     setActiveStep(1);
   };
 
@@ -136,7 +142,7 @@ const MeleeAttackDialog: FC<{
     pushButton(buttons, 'Close', undefined, false, () => onClose());
     if (activeStep === 0) {
       //TODO check disabled
-      pushButton(buttons, 'Next', undefined, !isValidForm, () => setActiveStep(activeStep + 1));
+      pushButton(buttons, 'Next', undefined, !isValidForm, () => onStep1());
     } else if (activeStep === 1) {
       pushButton(buttons, 'Back', undefined, false, () => setActiveStep(activeStep - 1));
       pushButton(buttons, 'Prepare', 'success', false, () => onPrepare());
@@ -170,10 +176,9 @@ const MeleeAttackDialog: FC<{
     if (activeStep !== undefined && action) {
       setButtons(getButtons(activeStep, action));
     }
-  }, [activeStep, action]);
+  }, [activeStep, action, formData, isValidForm]);
 
   useEffect(() => {
-    console.log('use effect validate');
     setIsValidForm(validateForm());
   }, [formData]);
 

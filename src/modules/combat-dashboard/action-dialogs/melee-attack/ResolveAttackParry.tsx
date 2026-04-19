@@ -9,7 +9,7 @@ const ResolveAttackParry: FC<{
   formData: AttackDeclaration;
   setFormData: Dispatch<SetStateAction<AttackDeclaration>>;
 }> = ({ action, formData, setFormData }) => {
-  if (!formData || !formData.attacks) return <div>Loading...</div>;
+  if (!formData || !formData.attacks) return <div>Loading ResolveAttackParry...</div>;
 
   return (
     <Grid container spacing={1}>

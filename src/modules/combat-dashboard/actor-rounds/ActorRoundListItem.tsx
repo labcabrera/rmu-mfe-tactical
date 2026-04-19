@@ -9,7 +9,6 @@ import MeleeAttackDialog from '../action-dialogs/melee-attack/MeleeAttackDialog'
 import MovementDialog from '../action-dialogs/movement/MovementDialog';
 import RangedAttackDialog from '../action-dialogs/ranged-attack/RangedAttackDialog';
 import ActorActions from './ActorActions';
-import ActorRoundAlerts from './ActorRoundAlerts';
 import ActorRoundEffects from './ActorRoundEffects';
 import ActorRoundResume from './ActorRoundResume';
 import ActorRoundInitiative from './initiative/ActorRoundInitiative';
@@ -52,7 +51,6 @@ const CombatActorRoundListItem: FC<{
         </Grid>
         <Grid size={6}>
           <ActorRoundEffects actorRound={actorRound} />
-          <ActorRoundAlerts actorRound={actorRound} />
         </Grid>
       </Grid>
 

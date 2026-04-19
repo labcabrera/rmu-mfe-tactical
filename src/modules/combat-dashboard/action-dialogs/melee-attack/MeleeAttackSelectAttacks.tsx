@@ -2,8 +2,6 @@ import React, { Dispatch, FC, Fragment, SetStateAction, useContext, useState } f
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import DeleteIcon from '@mui/icons-material/Delete';
 import {
-  Card,
-  CardContent,
   Grid,
   Stack,
   Typography,
@@ -55,35 +53,29 @@ const MeleeAttackSelectAttacks: FC<{
     return valid[0];
   };
 
-  const onAddAttack = (attackName: string) => {
-    const available = availableAttacks.find((e) => e.attackName === attackName)!;
-    setFormData((prev) => ({
-      ...prev,
-      attacks: [...prev.attacks, available],
-    }));
-  };
-
   const onTargetSelect = (attackName: string, targetId: string) => {
     const targetActorRound = actorRounds!.find((e) => e.actorId === targetId)!;
     const available = availableAttacks.find((e) => e.attackName === attackName)!;
 
-    available.modifiers.targetId = targetId;
-    available.modifiers.disabledShield = !targetActorRound.defense.shield;
-    //TODO check all status values
-    available.modifiers.disabledDB = hasStatus(targetActorRound, ['dead']);
-    available.modifiers.pace = findSourceMaxPace();
-    available.modifiers.proneTarget = hasStatus(targetActorRound, ['prone', 'dead']);
-    available.modifiers.stunnedFoe = hasStatus(targetActorRound, ['stunned']);
-    available.modifiers.surprisedFoe = hasStatus(targetActorRound, ['surprised']);
-    available.modifiers.positionalSource = 'none';
-    available.modifiers.positionalTarget = 'none';
-    available.modifiers.cover = 'none';
-    available.modifiers.dodge = 'none';
-    available.modifiers.restrictedQuarters = 'none';
-    available.modifiers.calledShot = 'none';
-    //TODO check two weapon
-    available.modifiers.restrictedParry = false;
-    available.modifiers.customBonus = 0;
+    const modifiersUpdate = {
+      targetId,
+      disabledShield: !targetActorRound.defense.shield,
+      // TODO check all status values
+      disabledDB: hasStatus(targetActorRound, ['dead']),
+      pace: findSourceMaxPace(),
+      proneTarget: hasStatus(targetActorRound, ['prone', 'dead']),
+      stunnedFoe: hasStatus(targetActorRound, ['stunned']),
+      surprisedFoe: hasStatus(targetActorRound, ['surprised']),
+      positionalSource: 'none',
+      positionalTarget: 'none',
+      cover: 'none',
+      dodge: 'none',
+      restrictedQuarters: 'none',
+      calledShot: 'none',
+      // TODO check two weapon
+      restrictedParry: false,
+      customBonus: 0,
+    } as any;
 
     setFormData((prev) => {
       const exists = prev.attacks.some((e) => e.attackName === attackName);
@@ -91,9 +83,9 @@ const MeleeAttackSelectAttacks: FC<{
         ...prev,
         attacks: exists
           ? prev.attacks.map((a) =>
-              a.attackName === attackName ? { ...a, modifiers: { ...a.modifiers, targetId } } : a
+              a.attackName === attackName ? { ...a, modifiers: { ...(a.modifiers || {}), ...modifiersUpdate } } : a
             )
-          : [...prev.attacks, available],
+          : [...prev.attacks, { ...available, modifiers: { ...(available.modifiers || {}), ...modifiersUpdate } }],
       };
     });
   };
@@ -137,7 +129,7 @@ const MeleeAttackSelectAttacks: FC<{
 
   return (
     <Grid container spacing={1}>
-      <Grid size={12}>
+      {/* <Grid size={12}>
         <Grid container spacing={1}>
           {availableAttacks.map((attack, index) => {
             return (
@@ -147,7 +139,7 @@ const MeleeAttackSelectAttacks: FC<{
             );
           })}
         </Grid>
-      </Grid>
+      </Grid> */}
       {formData.attacks.map((attack, index) => {
         const targetId = attack.modifiers.targetId;
         const actorRoundAttack = actorRound.attacks.find((e) => e.attackName === attack.attackName)!;
@@ -208,20 +200,6 @@ const MeleeAttackSelectAttacks: FC<{
         />
       )}
     </Grid>
-  );
-};
-
-const AvailableAttackCard: FC<{
-  actionAttack: ActionAttack;
-  onClick: () => void;
-}> = ({ actionAttack, onClick }) => {
-  return (
-    <Card onClick={onClick}>
-      <CardContent>
-        <Typography>{t(actionAttack.attackName)}</Typography>
-        <Typography>BO: {actionAttack.modifiers.bo}</Typography>
-      </CardContent>
-    </Card>
   );
 };
 

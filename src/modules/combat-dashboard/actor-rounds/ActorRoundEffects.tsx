@@ -1,13 +1,15 @@
 import React, { FC } from 'react';
-import { Grid } from '@mui/material';
+import { Card, CardContent, Box } from '@mui/material';
 import { t } from 'i18next';
 import { ActorRound, ActorRoundEffect, ActorRoundPenaltyModifier } from '../../api/actor-rounds.dto';
+import { imageBaseUrl } from '../../services/config';
 import Effect from '../../shared/generic/Effect';
+import ActorRoundAlerts from './ActorRoundAlerts';
 
 const ActorRoundEffects: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
   if (!actorRound) return <p>Loading...</p>;
 
-  if (!actorRound.effects || actorRound.effects.length === 0) return null;
+  //if (!actorRound.effects || actorRound.effects.length === 0) return null;
 
   const getEffectLabel = (effect: ActorRoundEffect): string => {
     let label = '';
@@ -36,15 +38,29 @@ const ActorRoundEffects: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
   };
 
   return (
-    <Grid container spacing={1}>
-      {actorRound.effects.map((effect, index) => (
-        <Effect key={`effect-${index}`} label={getEffectLabel(effect)} status={effect.status} />
-      ))}
-      {actorRound.penalty.modifiers &&
-        actorRound.penalty.modifiers.map((modifier, index) => (
-          <Effect key={`penalty-${index}`} label={getPenaltyEffect(modifier)} status={'penalty'} />
-        ))}
-    </Grid>
+    <Card
+      sx={{
+        backgroundImage: `url('${imageBaseUrl}images/actions/actor-effects-01.png')`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        width: '100%',
+        height: '100%',
+        color: (theme) => (actorRound.imageUrl ? theme.palette.getContrastText('#000') : undefined),
+      }}
+    >
+      <CardContent>
+        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+          {actorRound.effects.map((effect, index) => (
+            <Effect key={`effect-${index}`} label={getEffectLabel(effect)} status={effect.status} />
+          ))}
+          {actorRound.penalty.modifiers &&
+            actorRound.penalty.modifiers.map((modifier, index) => (
+              <Effect key={`penalty-${index}`} label={getPenaltyEffect(modifier)} status={'penalty'} />
+            ))}
+          <ActorRoundAlerts actorRound={actorRound} />
+        </Box>
+      </CardContent>
+    </Card>
   );
 };
 
