@@ -23,6 +23,7 @@ const MeleeAttackDialog: FC<{
   const [availableAttacks, setAvailableAttaks] = useState<ActionAttack[]>([]);
   const [activeStep, setActiveStep] = useState<number>(0);
   const [buttons, setButtons] = useState<ReactNode>([]);
+  const [isValidForm, setIsValidForm] = useState<boolean>(false);
 
   const buttonsDeleting = [
     <Button color="error" onClick={() => onDelete()}>
@@ -33,10 +34,10 @@ const MeleeAttackDialog: FC<{
 
   const loadAction = (action: Action) => {
     if (!actorRound) return;
-    console.log('loadAction', action);
     const attacks = actorRound.attacks.filter((a) => a.type === 'melee').map(mapActionAttack);
     setAvailableAttaks(attacks);
-    setFormData({ attacks: action.attacks || [], parries: action.parries || [] });
+    // setFormData({ attacks: action.attacks || [], parries: action.parries || [] });
+    setFormData({ attacks: attacks || [], parries: action.parries || [] });
     switch (action.status) {
       case 'declared': {
         setActiveStep(0);
@@ -57,7 +58,15 @@ const MeleeAttackDialog: FC<{
   };
 
   const validateForm = () => {
-    if (!formData || !formData.attacks || formData.attacks.length < 1) return false;
+    if (!formData || !formData.attacks || formData.attacks.length < 1 || !activeStep) return false;
+    if (activeStep === 0) {
+      console.log(
+        'check: ',
+        formData.attacks.some((e) => e.modifiers.targetId !== '')
+      );
+      return formData.attacks.some((e) => e.modifiers.targetId !== '');
+    }
+    //TODO
     const attack = formData.attacks[0];
     if (!attack.modifiers) return false;
     if (!attack.modifiers.targetId) return false;
@@ -99,6 +108,11 @@ const MeleeAttackDialog: FC<{
       .catch((err) => showError(err.message));
   };
 
+  const onStep1 = () => {
+    //cleanup
+    setActiveStep(1);
+  };
+
   const mapActionAttack = (a: ActorRoundAttack): ActionAttack => {
     return {
       attackName: a.attackName,
@@ -117,22 +131,22 @@ const MeleeAttackDialog: FC<{
   const getButtons = (activeStep: number, action: Action) => {
     const buttons: ReactNode[] = [];
     if (action.status !== 'completed') {
-      pushButton(buttons, 'Delete', 'error', () => setDeleting(true));
+      pushButton(buttons, 'Delete', 'error', false, () => setDeleting(true));
     }
-    pushButton(buttons, 'Close', undefined, () => onClose());
+    pushButton(buttons, 'Close', undefined, false, () => onClose());
     if (activeStep === 0) {
       //TODO check disabled
-      pushButton(buttons, 'Next', undefined, () => setActiveStep(activeStep + 1));
+      pushButton(buttons, 'Next', undefined, !isValidForm, () => setActiveStep(activeStep + 1));
     } else if (activeStep === 1) {
-      pushButton(buttons, 'Back', undefined, () => setActiveStep(activeStep - 1));
-      pushButton(buttons, 'Prepare', 'success', () => onPrepare());
+      pushButton(buttons, 'Back', undefined, false, () => setActiveStep(activeStep - 1));
+      pushButton(buttons, 'Prepare', 'success', false, () => onPrepare());
     } else if (activeStep === 2) {
-      pushButton(buttons, 'Back', undefined, () => setActiveStep(activeStep - 1));
-      pushButton(buttons, 'Parry', 'success', () => onParry());
+      pushButton(buttons, 'Back', undefined, false, () => setActiveStep(activeStep - 1));
+      pushButton(buttons, 'Parry', 'success', false, () => onParry());
     } else if (activeStep === 3) {
-      pushButton(buttons, 'Back', undefined, () => setActiveStep(activeStep - 1));
+      pushButton(buttons, 'Back', undefined, false, () => setActiveStep(activeStep - 1));
       if (action.status === 'pending_apply' || action.status === 'prepared') {
-        pushButton(buttons, 'Apply', 'success', () => onApply());
+        pushButton(buttons, 'Apply', 'success', false, () => onApply());
       }
     }
     return buttons;
@@ -142,10 +156,11 @@ const MeleeAttackDialog: FC<{
     buttons: ReactNode[],
     label: string,
     color: 'error' | 'success' | undefined,
+    disabled: boolean,
     onClick: () => void
   ) => {
     buttons.push(
-      <Button variant="contained" color={color} onClick={onClick}>
+      <Button variant="contained" color={color} onClick={onClick} disabled={disabled}>
         {t(label)}
       </Button>
     );
@@ -158,7 +173,8 @@ const MeleeAttackDialog: FC<{
   }, [activeStep, action]);
 
   useEffect(() => {
-    //setIsValidForm(validateForm());
+    console.log('use effect validate');
+    setIsValidForm(validateForm());
   }, [formData]);
 
   useEffect(() => {
