@@ -61,7 +61,7 @@ const ResolveAttackFormRoll: FC<{
 
   const getCriticalText = (): string => {
     if (!attack.results || !attack.results.criticals || attack.results.criticals.length === 0) return '';
-    return `Critical ${attack.results.attackTableEntry!.criticalSeverity}${attack.results.attackTableEntry.criticalType}`;
+    return `Critical ${attack.results.attackTableEntry!.criticalSeverity}${attack.results.attackTableEntry!.criticalType}`;
   };
 
   const getAbsoluteHitText = (totalRoll: number) => {

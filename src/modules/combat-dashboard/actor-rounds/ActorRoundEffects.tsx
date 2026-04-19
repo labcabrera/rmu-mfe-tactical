@@ -9,7 +9,9 @@ import ActorRoundAlerts from './ActorRoundAlerts';
 const ActorRoundEffects: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
   if (!actorRound) return <p>Loading...</p>;
 
-  const isDead = actorRound.effects.find((e) => e.status === 'dead');
+  const isDead = actorRound.effects.find(
+    (e) => e.status === 'dead' || e.status === 'dying' || e.status === 'unconcious'
+  );
   const hasEffects = actorRound.effects.length > 0;
   const background = isDead
     ? `${imageBaseUrl}images/actions/actor-dead-01.png`

@@ -15,7 +15,7 @@ const ResolveAttackFormFumble: FC<{
   index: number;
   attack: ActionAttack;
 }> = ({ formData, setFormData, action, index, attack }) => {
-  const { updateAction } = useContext(CombatContext);
+  const { updateAction } = useContext(CombatContext)!;
   const { showError } = useError();
   const fumble = attack.results?.fumble;
 
@@ -35,12 +35,17 @@ const ResolveAttackFormFumble: FC<{
       });
   };
 
+  const getEffectLabel = (effect: any) => {
+    //TODO
+    return `${effect.status} ${effect.value || ''}`;
+  };
+
   return (
     <>
       <Grid size={2} offset={2}>
         <NumericInput
           label={t('fumble-roll')}
-          value={attack.roll.fumbleRoll || null}
+          value={attack.roll!.fumbleRoll || null}
           onChange={(e) => onUpdateFumbleRoll(e)}
           disabled={action.status === 'completed'}
         />
@@ -48,18 +53,12 @@ const ResolveAttackFormFumble: FC<{
       <Grid size={8}>
         <Stack direction="row" spacing={1}>
           {fumble.result && fumble.result.damage && fumble.result.damage > 0 && (
-            <Effect effect={'dmg'} value={fumble.result.damage} color="error" />
+            <Effect status={'dmg'} label={`${fumble.result.damage}`} color="error" />
           )}
           {fumble.effects &&
             fumble.effects.length > 0 &&
-            fumble.effects.map((effect, effectIndex) => (
-              <Effect
-                key={effectIndex}
-                effect={effect.status}
-                rounds={effect.rounds}
-                value={effect.value}
-                color="error"
-              />
+            fumble.effects.map((effect, index) => (
+              <Effect key={index} status={effect.status} label={getEffectLabel(effect)} color="error" />
             ))}
         </Stack>
       </Grid>
