@@ -1,10 +1,13 @@
 import React, { FC, useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Refresh } from '@mui/icons-material';
 import { Button, ButtonGroup } from '@mui/material';
 import {
   BackButton,
   CancelButton,
+  fetchTacticalGame,
   NextButton,
+  RefreshButton,
   RmuBreadcrumbs,
   startPhase,
   startRound,
@@ -37,9 +40,15 @@ const CombatDashboardActions: FC = () => {
       .catch((err) => showError(err.message));
   };
 
-  const onNextPhase = async () => {
+  const onNextPhase = () => {
     startPhase(game!.id)
-      .then((game: TacticalGame) => setGame(game))
+      .then((game) => setGame(game))
+      .catch((err) => showError(err.message));
+  };
+
+  const onRefresh = () => {
+    fetchTacticalGame(game!.id)
+      .then((data) => setGame(data))
       .catch((err) => showError(err.message));
   };
 
@@ -64,6 +73,7 @@ const CombatDashboardActions: FC = () => {
       <RmuBreadcrumbs items={breadcrumbs}>
         <BackButton onClick={onDisplayPrevRound} disabled={displayRound === 1} />
         <NextButton onClick={onDisplayNextRound} disabled={displayRound === game.round} />
+        <RefreshButton onClick={onRefresh} />
         <CancelButton onClick={onClose} />
       </RmuBreadcrumbs>
       {game.round === displayRound && (

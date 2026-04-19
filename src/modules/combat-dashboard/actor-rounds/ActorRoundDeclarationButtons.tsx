@@ -1,4 +1,4 @@
-import React, { FC, useContext, useState } from 'react';
+import React, { Dispatch, FC, SetStateAction, useContext, useState } from 'react';
 import { Badge, Stack } from '@mui/material';
 import { t } from 'i18next';
 import { CombatContext } from '../../../CombatContext';
@@ -11,10 +11,11 @@ import DeclareActionDialog from '../action-dialogs/DeclareActionDialog';
 
 const buttonSize = 35;
 
-const ActorRoundDeclarationButtons: FC<{ actorRound: ActorRound; currentPhase: number }> = ({
-  actorRound,
-  currentPhase,
-}) => {
+const ActorRoundDeclarationButtons: FC<{
+  actorRound: ActorRound;
+  currentPhase: number;
+  setDisplayPhase: Dispatch<SetStateAction<string>>;
+}> = ({ actorRound, currentPhase, setDisplayPhase }) => {
   const { showError } = useError();
   const { game, roundActions, setRoundActions } = useContext(CombatContext)!;
   const [declareActionDialogOpen, setDeclareActionDialogOpen] = useState(false);
@@ -39,7 +40,10 @@ const ActorRoundDeclarationButtons: FC<{ actorRound: ActorRound; currentPhase: n
       freeAction: freeAction,
     };
     createAction(data)
-      .then((action) => setRoundActions([...(roundActions || []), action]))
+      .then((action) => {
+        setRoundActions([...(roundActions || []), action]);
+        setDisplayPhase(game.phase);
+      })
       .catch((err) => showError(err.message));
   };
 

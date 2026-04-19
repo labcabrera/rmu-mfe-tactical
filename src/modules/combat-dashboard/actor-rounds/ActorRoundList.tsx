@@ -1,10 +1,12 @@
-import React, { FC, useContext, useState } from 'react';
+import React, { Dispatch, FC, SetStateAction, useContext, useEffect, useState } from 'react';
 import ElectricBoltIcon from '@mui/icons-material/ElectricBolt';
+import NextPlanIcon from '@mui/icons-material/NextPlan';
 import SkipNextIcon from '@mui/icons-material/SkipNext';
+import SkipPreviousIcon from '@mui/icons-material/SkipPrevious';
 import SortIcon from '@mui/icons-material/Sort';
 import TextRotateVerticalIcon from '@mui/icons-material/TextRotateVertical';
 import { IconButton, Tooltip, Typography, Grid, Paper, Stack } from '@mui/material';
-import { randomizeInitiatives, startPhase, TacticalGame } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { randomizeInitiatives, startPhase, startRound, TacticalGame } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { t } from 'i18next';
 import { CombatContext } from '../../../CombatContext';
 import { useError } from '../../../ErrorContext';
@@ -12,10 +14,18 @@ import { ActorRound } from '../../api/actor-rounds.dto';
 import CombatActorRoundListItem from './ActorRoundListItem';
 import ActorRoundViewDialog from './ActorRoundViewDialog';
 
+const PHASES = ['declare_initiative', 'phase_1', 'phase_2', 'phase_3', 'phase_4', 'upkeep'];
+
 const CombatActorRoundList: FC = () => {
   const { game, actorRounds } = useContext(CombatContext)!;
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedActorRoundId, setSelectedActorRoundId] = useState<string | null>(null);
+  const [displayPhase, setDisplayPhase] = useState<string>('initiative');
+
+  useEffect(() => {
+    if (!game) return;
+    setDisplayPhase(game.phase);
+  }, [game]);
 
   if (!game || !actorRounds || actorRounds.length === 0) return <p>Loading...</p>;
 
@@ -24,7 +34,12 @@ const CombatActorRoundList: FC = () => {
       <Grid container spacing={1}>
         <Grid size={12}>
           <Paper>
-            <CombatActorRoundListHeader actorRounds={actorRounds} game={game} />
+            <CombatActorRoundListHeader
+              actorRounds={actorRounds}
+              game={game}
+              displayPhase={displayPhase}
+              setDisplayPhase={setDisplayPhase}
+            />
           </Paper>
         </Grid>
         <Grid size={12}>
@@ -33,6 +48,8 @@ const CombatActorRoundList: FC = () => {
               <Grid key={index} size={12}>
                 <CombatActorRoundListItem
                   actorRound={actorRound}
+                  displayPhase={displayPhase}
+                  setDisplayPhase={setDisplayPhase}
                   onActorRoundView={(ar) => {
                     setSelectedActorRoundId(ar.id);
                     setDialogOpen(true);
@@ -52,9 +69,15 @@ const CombatActorRoundList: FC = () => {
   );
 };
 
-const CombatActorRoundListHeader: FC<{ actorRounds: ActorRound[]; game: TacticalGame }> = ({ actorRounds, game }) => {
+const CombatActorRoundListHeader: FC<{
+  actorRounds: ActorRound[];
+  game: TacticalGame;
+  displayPhase: string;
+  setDisplayPhase: Dispatch<SetStateAction<string>>;
+}> = ({ actorRounds, game, displayPhase, setDisplayPhase }) => {
   const { showError } = useError();
-  const { roundActorSort, refreshActorRounds, setRoundActorSort, setGame } = useContext(CombatContext)!;
+  const { roundActorSort, refreshActorRounds, setRoundActorSort, setGame, setDisplayRound } =
+    useContext(CombatContext)!;
 
   const undeclaredInitiatives = actorRounds.find((e) => !e.initiative.roll);
 
@@ -68,57 +91,81 @@ const CombatActorRoundListHeader: FC<{ actorRounds: ActorRound[]; game: Tactical
     setRoundActorSort((prevSort) => (prevSort === 'name' ? 'initiative' : 'name'));
   };
 
+  const onNextRound = async () => {
+    startRound(game!.id)
+      .then((game: TacticalGame) => {
+        setGame(game);
+        setDisplayRound(game.round);
+        setDisplayPhase(game.phase);
+      })
+      .catch((err) => showError(err.message));
+  };
+
   const onNextPhase = async () => {
     startPhase(game!.id)
       .then((game: TacticalGame) => setGame(game))
       .catch((err) => showError(err.message));
   };
 
+  const onPrevPhase = async () => {
+    const index = PHASES.indexOf(displayPhase);
+    if (index > 0) setDisplayPhase(PHASES[index - 1]);
+  };
+
   return (
-    <>
-      <Grid container columns={24} spacing={1}>
-        <Grid size={5}>
-          <Stack direction="row" justifyContent="space-between">
-            <PhaseTypograpy label={t('Actors')} active={false} />
-            <Tooltip title={roundActorSort === 'initiative' ? 'Sort by Name' : 'Sort by Initiative'}>
-              <IconButton size="small" color="primary" onClick={() => toggleSort()}>
-                {roundActorSort === 'initiative' ? <SortIcon /> : <TextRotateVerticalIcon />}
+    <Grid container columns={24} spacing={1}>
+      <Grid size={5}>
+        <Stack direction="row" justifyContent="space-between">
+          <PhaseTypograpy label={t('Actors')} active={false} />
+          <Tooltip title={roundActorSort === 'initiative' ? 'Sort by Name' : 'Sort by Initiative'}>
+            <IconButton size="small" color="primary" onClick={() => toggleSort()}>
+              {roundActorSort === 'initiative' ? <SortIcon /> : <TextRotateVerticalIcon />}
+            </IconButton>
+          </Tooltip>
+        </Stack>
+      </Grid>
+      <Grid size={2} sx={{ backgroundColor: displayPhase === 'declare_initiative' ? 'secondary.main' : undefined }}>
+        <Stack direction="row" justifyContent="space-between">
+          <PhaseTypograpy label={t('Initiative')} active={displayPhase === 'declare_initiative'} />
+          {displayPhase === 'declare_initiative' && undeclaredInitiatives && (
+            <Tooltip title="Randomize Initiatives">
+              <IconButton size="small" color="primary" onClick={() => onRandomizeInitiatives()}>
+                <ElectricBoltIcon fontSize="small" />
               </IconButton>
             </Tooltip>
-          </Stack>
-        </Grid>
-        <Grid size={2} sx={{ backgroundColor: game.phase === 'declare_initiative' ? 'secondary.main' : undefined }}>
-          <Stack direction="row" justifyContent="space-between">
-            <PhaseTypograpy label={t('Initiative')} active={game.phase === 'declare_initiative'} />
-            {game.phase === 'declare_initiative' && undeclaredInitiatives && (
-              <Tooltip title="Randomize Initiatives">
-                <IconButton size="small" color="primary" onClick={() => onRandomizeInitiatives()}>
-                  <ElectricBoltIcon fontSize="small" />
-                </IconButton>
-              </Tooltip>
-            )}
-            {game.phase === 'declare_initiative' && !undeclaredInitiatives && <NextButton onNext={onNextPhase} />}
-          </Stack>
-        </Grid>
-        <PhaseTitle label={'Phase 1'} active={game.phase === 'phase_1'} onNext={onNextPhase} />
-        <PhaseTitle label={'Phase 2'} active={game.phase === 'phase_2'} onNext={onNextPhase} />
-        <PhaseTitle label={'Phase 3'} active={game.phase === 'phase_3'} onNext={onNextPhase} />
-        <PhaseTitle label={'Phase 4'} active={game.phase === 'phase_4'} onNext={onNextPhase} />
-        <PhaseTitle label={'Effects'} active={false} gridSize={6} />
+          )}
+          {displayPhase === 'declare_initiative' && !undeclaredInitiatives && <NextButton onNext={onNextPhase} />}
+        </Stack>
       </Grid>
-    </>
+      <PhaseTitle label={'Phase 1'} active={displayPhase === 'phase_1'} onPrev={onPrevPhase} onNext={onNextPhase} />
+      <PhaseTitle label={'Phase 2'} active={displayPhase === 'phase_2'} onPrev={onPrevPhase} onNext={onNextPhase} />
+      <PhaseTitle label={'Phase 3'} active={displayPhase === 'phase_3'} onPrev={onPrevPhase} onNext={onNextPhase} />
+      <PhaseTitle label={'Phase 4'} active={displayPhase === 'phase_4'} onPrev={onPrevPhase} onNext={onNextPhase} />
+      <Grid size={6}>
+        <Stack direction="row" justifyContent="space-between">
+          <PhaseTypograpy label={displayPhase === 'upkeep' ? 'Upkeep' : 'Effects'} active={displayPhase === 'upkeep'} />
+          {displayPhase === 'upkeep' && (
+            <IconButton size="small" color="primary" onClick={onNextRound}>
+              <NextPlanIcon />
+            </IconButton>
+          )}
+        </Stack>
+      </Grid>
+    </Grid>
   );
 };
 
-const PhaseTitle: FC<{ label: string; active: boolean; gridSize?: number; onNext?: () => void }> = ({
-  label,
-  gridSize = 2,
-  active,
-  onNext,
-}) => {
+const PhaseTitle: FC<{
+  label: string;
+  active: boolean;
+  gridSize?: number;
+  onPrev?: () => void;
+  onNext?: () => void;
+}> = ({ label, gridSize = 2, active, onPrev, onNext }) => {
   return (
     <Grid size={gridSize} sx={{ backgroundColor: active ? 'secondary.main' : undefined }}>
       <Stack direction="row" justifyContent="space-between">
+        {active && onPrev && <PrevButton onPrev={onPrev} />}
         <PhaseTypograpy label={label} active={active} />
         {active && onNext && <NextButton onNext={onNext} />}
       </Stack>
@@ -139,6 +186,15 @@ const NextButton: FC<{ onNext?: () => void }> = ({ onNext }) => {
   return (
     <IconButton size="small" color="primary" onClick={() => onNext()}>
       <SkipNextIcon fontSize="small" />
+    </IconButton>
+  );
+};
+
+const PrevButton: FC<{ onPrev?: () => void }> = ({ onPrev }) => {
+  if (!onPrev) return;
+  return (
+    <IconButton size="small" color="primary" onClick={() => onPrev()}>
+      <SkipPreviousIcon fontSize="small" />
     </IconButton>
   );
 };

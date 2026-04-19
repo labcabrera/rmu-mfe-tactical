@@ -1,4 +1,4 @@
-import React, { FC, useContext, useEffect, useState } from 'react';
+import React, { Dispatch, FC, SetStateAction, useContext, useEffect, useState } from 'react';
 import { Grid } from '@mui/material';
 import { CombatContext } from '../../../CombatContext';
 import { Action } from '../../api/action.dto';
@@ -15,8 +15,10 @@ import ActorRoundInitiative from './initiative/ActorRoundInitiative';
 
 const CombatActorRoundListItem: FC<{
   actorRound: ActorRound;
+  displayPhase: string;
+  setDisplayPhase: Dispatch<SetStateAction<string>>;
   onActorRoundView: (actorRound: ActorRound) => void;
-}> = ({ actorRound, onActorRoundView }) => {
+}> = ({ actorRound, displayPhase, onActorRoundView, setDisplayPhase }) => {
   const [character, setCharacter] = useState<Character | undefined>();
   const { characters, game, roundActions } = useContext(CombatContext)!;
   const [resolveDialogOpen, setResolveDialogOpen] = useState(false);
@@ -42,7 +44,8 @@ const CombatActorRoundListItem: FC<{
         <Grid size={8}>
           <ActorActions
             actorId={actorRound.actorId}
-            currentPhase={game.phase.startsWith('phase_') ? parseInt(game.phase.replace('phase_', '')) : 5}
+            currentPhase={displayPhase.startsWith('phase_') ? parseInt(displayPhase.replace('phase_', '')) : 5}
+            setDisplayPhase={setDisplayPhase}
             onActionClick={(action) => {
               setSelectedActionId(action.id);
               setResolveDialogOpen(true);

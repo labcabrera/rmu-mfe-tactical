@@ -1,4 +1,4 @@
-import React, { FC, useContext } from 'react';
+import React, { Dispatch, FC, SetStateAction, useContext } from 'react';
 import { useState } from 'react';
 import { Box, Grid } from '@mui/material';
 import { CombatContext } from '../../../CombatContext';
@@ -13,6 +13,7 @@ type ActorActionsProps = {
   phases?: number;
   currentPhase?: number;
   onActionClick: (action: Action) => void;
+  setDisplayPhase: Dispatch<SetStateAction<string>>;
 };
 
 // Assign each action to a row so that overlapping actions don't share the same row
@@ -54,7 +55,13 @@ function assignRows(actions: Action[], phases: number, currentPhase: number) {
   return { placement, rowsCount: rows.length };
 }
 
-const ActorActions: FC<ActorActionsProps> = ({ actorId, phases = 4, currentPhase = phases, onActionClick }) => {
+const ActorActions: FC<ActorActionsProps> = ({
+  actorId,
+  phases = 4,
+  currentPhase = phases,
+  onActionClick,
+  setDisplayPhase,
+}) => {
   const { roundActions, actorRounds, characters } = useContext(CombatContext)!;
   const [resolveDialogOpen, setResolveDialogOpen] = useState(false);
   const [selectedAction, setSelectedAction] = useState<Action | null>(null);
@@ -69,11 +76,10 @@ const ActorActions: FC<ActorActionsProps> = ({ actorId, phases = 4, currentPhase
 
   const rowHeight = 80;
   const gap = 8;
-  const declareHeight = 'auto'; // declaration row will size to content
+  const declareHeight = 'auto';
 
   if (isDead) return;
 
-  // Build CSS grid: columns = phases, rows = rowsCount fixed height and last row auto for declarations
   const gridTemplateColumns = `repeat(${phases}, 1fr)`;
   const gridTemplateRows = `repeat(${rowsCount}, ${rowHeight}px) auto`;
 
@@ -91,15 +97,14 @@ const ActorActions: FC<ActorActionsProps> = ({ actorId, phases = 4, currentPhase
             width: '100%',
             border: '1px solid rgba(0,0,0,0.06)',
             borderRadius: 0,
-            // p: 1,
             boxSizing: 'border-box',
             overflow: 'hidden',
           }}
         >
           {placement.map((p) => {
             const colStart = p.start;
-            const colEnd = p.end + 1; // grid column end is exclusive
-            const row = p.row + 1; // grid rows are 1-based
+            const colEnd = p.end + 1;
+            const row = p.row + 1;
             const completed = p.action.status === 'completed';
 
             return (
@@ -137,7 +142,11 @@ const ActorActions: FC<ActorActionsProps> = ({ actorId, phases = 4, currentPhase
                 }}
               >
                 {i + 1 === currentPhase && (
-                  <ActorRoundDeclarationButtons actorRound={actorRound} currentPhase={currentPhase} />
+                  <ActorRoundDeclarationButtons
+                    actorRound={actorRound}
+                    currentPhase={currentPhase}
+                    setDisplayPhase={setDisplayPhase}
+                  />
                 )}
               </Grid>
             );
@@ -149,7 +158,6 @@ const ActorActions: FC<ActorActionsProps> = ({ actorId, phases = 4, currentPhase
         <ActionDialog
           action={selectedAction}
           actorRound={actorRound}
-          character={character}
           open={resolveDialogOpen}
           onClose={() => {
             setResolveDialogOpen(false);
