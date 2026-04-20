@@ -172,6 +172,12 @@ const MeleeAttackDialog: FC<{
     );
   };
 
+  const availableActionPoints = () => {
+    //TODO pendiente de refactor de phase string -> number
+    const ap = activeStep - action.phaseStart + 3;
+    return ap > 1;
+  };
+
   useEffect(() => {
     if (activeStep !== undefined && action) {
       setButtons(getButtons(activeStep, action));
@@ -201,14 +207,18 @@ const MeleeAttackDialog: FC<{
       <>
         {!deleting ? (
           <>
-            <MeleeAttackStepper
-              action={action}
-              actorRound={actorRound}
-              formData={formData}
-              activeStep={activeStep}
-              availableAttacks={availableAttacks}
-              setFormData={setFormData}
-            />
+            {availableActionPoints() ? (
+              <MeleeAttackStepper
+                action={action}
+                actorRound={actorRound}
+                formData={formData}
+                activeStep={activeStep}
+                availableAttacks={availableAttacks}
+                setFormData={setFormData}
+              />
+            ) : (
+              <Typography>Not available action points</Typography>
+            )}
             <TechnicalInfo>
               <pre>FormData: {JSON.stringify(formData, null, 2)}</pre>
               <pre>ActiveStep: {JSON.stringify(activeStep, null, 2)}</pre>
