@@ -2,7 +2,6 @@ import React, { FC, ReactNode, SyntheticEvent, useState } from 'react';
 import { Box, Tab, Tabs } from '@mui/material';
 import CombatDashboardActions from './CombatDashboardActions';
 import CombatDashboardAttacks from './CombatDashboardAttacks';
-import CombatDashboardManagement from './CombatDashboardManagement';
 import CombatActorRoundList from './actor-rounds/ActorRoundList';
 
 type CustomTabPanelProps = {
@@ -48,7 +47,6 @@ const CombatDashboardTabs: FC = () => {
         <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
           <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
             <Tab label="Dashboard" {...a11yProps(0)} />
-            <Tab label="Management" {...a11yProps(1)} />
             <Tab label="Actions" {...a11yProps(2)} />
             <Tab label="Attacks" {...a11yProps(3)} />
             <Tab label="Log" {...a11yProps(4)} />
@@ -58,13 +56,14 @@ const CombatDashboardTabs: FC = () => {
           <CombatActorRoundList />
         </CustomTabPanel>
         <CustomTabPanel value={value} index={1}>
-          <CombatDashboardManagement />
+          TODO: actions
         </CustomTabPanel>
-        <CustomTabPanel value={value} index={2}></CustomTabPanel>
-        <CustomTabPanel value={value} index={3}>
+        <CustomTabPanel value={value} index={2}>
           <CombatDashboardAttacks />
         </CustomTabPanel>
-        <CustomTabPanel value={value} index={4}></CustomTabPanel>
+        <CustomTabPanel value={value} index={3}>
+          TODO: Log
+        </CustomTabPanel>
       </Box>
     </>
   );

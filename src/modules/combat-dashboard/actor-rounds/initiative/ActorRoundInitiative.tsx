@@ -10,7 +10,7 @@ const ActorRoundInitiative: FC<{
   actorRound: ActorRound;
 }> = ({ actorRound }) => {
   const [dialogOpen, setDialogOpen] = useState(false);
-  const isDead = actorRound.effects.some((e) => e.status === 'dead');
+  const isDisabled = actorRound.effects.some((e) => e.status === 'dead' || e.status === 'unconcious');
 
   const bgUrl = `${imageBaseUrl}images/actions/action-initiative-panoramic-02.png`;
 
@@ -29,7 +29,7 @@ const ActorRoundInitiative: FC<{
       }}
       elevation={0}
     >
-      {!isDead && (
+      {!isDisabled && (
         <CardContent sx={{ width: '100%', p: 2 }}>
           <Stack direction="column" alignItems="center" spacing={1}>
             <Stack direction="row" alignItems="center" spacing={1}>

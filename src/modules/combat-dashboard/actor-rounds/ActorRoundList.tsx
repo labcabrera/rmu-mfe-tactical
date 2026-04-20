@@ -79,7 +79,13 @@ const CombatActorRoundListHeader: FC<{
   const { roundActorSort, refreshActorRounds, setRoundActorSort, setGame, setDisplayRound } =
     useContext(CombatContext)!;
 
-  const undeclaredInitiatives = actorRounds.find((e) => !e.initiative.roll);
+  const notDisabled = (actorRound: ActorRound) => {
+    if (!actorRound.effects) return true;
+    if (actorRound.effects.some((e) => e.status === 'dead' || e.status === 'unconcious')) return false;
+    return true;
+  };
+
+  const undeclaredInitiatives = actorRounds.filter((e) => notDisabled(e)).find((e) => !e.initiative.roll);
 
   const onRandomizeInitiatives = () => {
     randomizeInitiatives(game.id)
@@ -149,9 +155,11 @@ const CombatActorRoundListHeader: FC<{
               <IconButton size="small" color="primary" onClick={onPrevPhase}>
                 <SkipPreviousIcon fontSize="small" />
               </IconButton>
-              <IconButton size="small" color="primary" onClick={onNextRound}>
-                <NextPlanIcon />
-              </IconButton>
+              <Tooltip title="Next round">
+                <IconButton size="small" color="primary" onClick={onNextRound}>
+                  <NextPlanIcon />
+                </IconButton>
+              </Tooltip>
             </Stack>
           )}
         </Stack>
