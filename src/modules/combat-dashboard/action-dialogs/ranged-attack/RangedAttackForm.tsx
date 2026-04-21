@@ -5,6 +5,12 @@ import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { Action, AttackDeclaration } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
+import {
+  actorRoundHasEffect,
+  isActorRoundDisabled,
+  isActorRoundProne,
+  isActorRoundStunned,
+} from '../../../services/actor-round-service';
 import ResolveAttackFormRoll from '../attack/ResolveAttackFormRoll';
 import TargetSelector from '../melee-attack/TargetSelector';
 import RangedAttackModifiersForm from './RangedAttackModifiersForm';
@@ -18,20 +24,10 @@ const RangedAttackForm: FC<{
   const { actorRounds } = useContext(CombatContext)!;
   const selected = formData.attacks || [];
 
-  const hasState = (actorRound: ActorRound, effects: string[]) => {
-    const tmp = actorRound.effects.map((e) => e.status);
-    return effects.some((value) => tmp.includes(value));
-  };
-
   const handleTargetChange = (attackName: string, targetId: string) => {
     if (!targetId) return;
     const targetActorRound = actorRounds!.find((e) => e.actorId === targetId)!;
-
-    const proneTarget = hasState(targetActorRound, ['prone', 'dead', 'unconscious']);
-    const stunedTarget = hasState(targetActorRound, ['stunned']);
-    const disabledDB = hasState(targetActorRound, ['dead', 'unconscious']);
-    const surprised = hasState(targetActorRound, ['surprised']);
-
+    const isTargetDisabled = isActorRoundDisabled(actorRound);
     const newSelected = selected.map((a) =>
       a.attackName === attackName
         ? {
@@ -39,11 +35,11 @@ const RangedAttackForm: FC<{
             modifiers: {
               ...a.modifiers,
               targetId: targetId,
-              proneTarget: proneTarget,
-              stunnedFoe: stunedTarget,
-              disabledDB: disabledDB,
-              disabledShield: disabledDB,
-              surprisedFoe: surprised,
+              proneTarget: isActorRoundProne(targetActorRound),
+              stunnedFoe: isActorRoundStunned(targetActorRound),
+              disabledDB: isTargetDisabled,
+              disabledShield: isTargetDisabled,
+              surprisedFoe: actorRoundHasEffect(targetActorRound, ['surprised']),
               customBonus: 0,
             },
           }

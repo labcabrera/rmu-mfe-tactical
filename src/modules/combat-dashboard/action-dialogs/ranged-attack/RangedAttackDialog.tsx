@@ -8,6 +8,7 @@ import { useError } from '../../../../ErrorContext';
 import { applyAttack, deleteAction, prepareAttack } from '../../../api/action';
 import { Action, ActionAttack, AttackDeclaration } from '../../../api/action.dto';
 import { ActorRound, ActorRoundAttack } from '../../../api/actor-rounds.dto';
+import { findMaxActorRoundPace } from '../../../services/actor-round-service';
 import RangedAttackForm from './RangedAttackForm';
 
 const RangedAttackDialog: FC<{
@@ -63,12 +64,13 @@ const RangedAttackDialog: FC<{
     if (action.attacks && action.attacks.length > 0) {
       setFormData({ attacks: action.attacks || [], parries: action.parries || [] });
     } else {
-      const attacks = actorRound.attacks.filter((a) => a.type === 'ranged').map(mapActionAttack);
+      const maxPace = findMaxActorRoundPace(actorRound.actorId, roundActions || []);
+      const attacks = actorRound.attacks.filter((a) => a.type === 'ranged').map((e) => mapActionAttack(e, maxPace));
       setFormData({ attacks: attacks || [], parries: action.parries || [] });
     }
   };
 
-  const mapActionAttack = (a: ActorRoundAttack): ActionAttack => {
+  const mapActionAttack = (a: ActorRoundAttack, maxPace: string): ActionAttack => {
     return {
       attackName: a.attackName,
       modifiers: {
@@ -87,6 +89,7 @@ const RangedAttackDialog: FC<{
         proneSource: false,
         proneTarget: false,
         ambush: false,
+        pace: maxPace,
       },
     } as ActionAttack;
   };

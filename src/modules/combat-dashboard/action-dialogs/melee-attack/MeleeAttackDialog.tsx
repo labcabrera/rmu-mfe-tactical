@@ -42,7 +42,6 @@ const MeleeAttackDialog: FC<{
       setAvailableAttaks(attacks);
       setFormData({ attacks: attacks || [], parries: action.parries || [] });
     }
-
     switch (action.status) {
       case 'declared': {
         setActiveStep(0);

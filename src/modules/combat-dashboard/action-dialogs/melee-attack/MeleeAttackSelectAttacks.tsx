@@ -17,12 +17,15 @@ import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { ActionAttack, AttackDeclaration } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
+import {
+  findMaxActorRoundPace,
+  isActorRoundDisabled,
+  isActorRoundProne,
+  isActorRoundStunned,
+} from '../../../services/actor-round-service';
 import AddProtectorDialog from './AddProtectorDialog';
 import OffensiveBonusSelector from './OffensiveBonusSelector';
 import TargetSelector from './TargetSelector';
-
-//TODO shared model
-const PACE_ORDER = ['creep', 'walk', 'jog', 'run', 'sprint', 'dash'];
 
 const MeleeAttackSelectAttacks: FC<{
   formData: AttackDeclaration;
@@ -38,34 +41,20 @@ const MeleeAttackSelectAttacks: FC<{
     return actorRound.effects?.some((se) => statuses.includes(se.status));
   };
 
-  const findSourceMaxPace = (): string => {
-    const actions = (roundActions || []).filter(
-      (ra) => ra.actorId === actorRound.actorId && ra.actionType === 'movement'
-    );
-    if (!actions || actions.length === 0) return 'creep';
-    const paces = actions
-      .map((a) => a.movement?.modifiers?.pace)
-      .filter((p): p is string => typeof p === 'string' && p !== '');
-    if (paces.length === 0) return 'creep';
-    const valid = Array.from(new Set(paces)).filter((p) => PACE_ORDER.includes(p));
-    if (valid.length === 0) return paces[0];
-
-    valid.sort((a, b) => PACE_ORDER.indexOf(b) - PACE_ORDER.indexOf(a));
-    return valid[0];
-  };
-
   const onTargetSelect = (attackName: string, targetId: string) => {
     const targetActorRound = actorRounds!.find((e) => e.actorId === targetId)!;
     const available = availableAttacks.find((e) => e.attackName === attackName)!;
+    const maxPace = findMaxActorRoundPace(actorRound.actorId, roundActions || []);
+
+    const isTargetDisabled = isActorRoundDisabled(actorRound);
 
     const modifiersUpdate = {
       targetId,
-      disabledShield: !targetActorRound.defense.shield,
-      // TODO check all status values
-      disabledDB: hasStatus(targetActorRound, ['dead']),
-      pace: findSourceMaxPace(),
-      proneTarget: hasStatus(targetActorRound, ['prone', 'dead']),
-      stunnedFoe: hasStatus(targetActorRound, ['stunned']),
+      disabledShield: !targetActorRound.defense.shield || isTargetDisabled,
+      disabledDB: isTargetDisabled,
+      pace: maxPace,
+      proneTarget: isActorRoundProne(actorRound),
+      stunnedFoe: isActorRoundStunned(actorRound),
       surprisedFoe: hasStatus(targetActorRound, ['surprised']),
       positionalSource: 'none',
       positionalTarget: 'none',

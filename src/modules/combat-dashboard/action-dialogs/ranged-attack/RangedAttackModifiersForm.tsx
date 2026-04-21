@@ -50,6 +50,12 @@ const SOURCE_IN_MELEE_OPTIONS: KeyValue[] = [
   { key: 'no', value: 0 },
   { key: 'yes', value: -20 },
 ];
+const PACES_OPTIONS: KeyValue[] = [
+  { key: 'creep', value: 0 },
+  { key: 'walk', value: -25 },
+  { key: 'jog', value: -50 },
+  { key: 'run', value: -75 },
+];
 const CALLED_SHOT_OPTIONS: CalledShot[] = ['none', 'head', 'chest', 'abdomen', 'arms', 'legs'];
 const DODGE_OPTIONS = ['none', 'passive', 'partial', 'full'];
 const ENABLED_OPTIONS = ['enabled', 'disabled'];
@@ -137,6 +143,15 @@ const RangedAttackModifiersForm: FC<{
           label={'Restricted Quarters'}
           colorDisabledValues={['none']}
           options={RESTRICTED_QUARTER_OPTIONS}
+        />
+      </Grid>
+      <Grid size={3}>
+        <KeyValueDialogSelect
+          label={t('Pace')}
+          value={modifiers?.pace}
+          options={PACES_OPTIONS}
+          colorDisabledValues={['creep']}
+          onChange={(e) => handleChange('pace', e!)}
         />
       </Grid>
       <Grid size={3}>
