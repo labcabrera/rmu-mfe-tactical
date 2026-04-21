@@ -6,8 +6,8 @@ import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { useError } from '../../../../ErrorContext';
 import { applyAttack, deleteAction, prepareAttack } from '../../../api/action';
-import { Action, AttackDeclaration } from '../../../api/action.dto';
-import { ActorRound } from '../../../api/actor-rounds.dto';
+import { Action, ActionAttack, AttackDeclaration } from '../../../api/action.dto';
+import { ActorRound, ActorRoundAttack } from '../../../api/actor-rounds.dto';
 import RangedAttackForm from './RangedAttackForm';
 
 const RangedAttackDialog: FC<{
@@ -56,6 +56,39 @@ const RangedAttackDialog: FC<{
       );
     }
     return buttons;
+  };
+
+  const loadAction = (action: Action) => {
+    if (!actorRound) return;
+    if (action.attacks && action.attacks.length > 0) {
+      setFormData({ attacks: action.attacks || [], parries: action.parries || [] });
+    } else {
+      const attacks = actorRound.attacks.filter((a) => a.type === 'ranged').map(mapActionAttack);
+      setFormData({ attacks: attacks || [], parries: action.parries || [] });
+    }
+  };
+
+  const mapActionAttack = (a: ActorRoundAttack): ActionAttack => {
+    return {
+      attackName: a.attackName,
+      modifiers: {
+        targetId: '',
+        bo: a.currentBo,
+        disabledDB: false,
+        disabledShield: false,
+        restrictedParry: false,
+        customBonus: 0,
+        cover: 'none',
+        restrictedQuarters: 'none',
+        calledShot: 'none',
+        dodge: 'none',
+        attackerInMelee: false,
+        stunnedFoe: false,
+        proneSource: false,
+        proneTarget: false,
+        ambush: false,
+      },
+    } as ActionAttack;
   };
 
   const validateForm = () => {
@@ -108,16 +141,9 @@ const RangedAttackDialog: FC<{
   }, [action]);
 
   useEffect(() => {
-    if (actorRound && formData) {
-      formData.attacks?.forEach((attack) => {
-        const matchingAttack = actorRound.attacks?.find((a) => a.attackName === attack.attackName);
-        if (!matchingAttack) {
-          const newAttacks = formData.attacks?.filter((a) => a.attackName !== attack.attackName) || [];
-          setFormData({ ...formData, attacks: newAttacks });
-        }
-      });
-    }
-  }, [actorRound, formData]);
+    if (!action || !actorRound) return;
+    loadAction(action);
+  }, [action, actorRound]);
 
   if (!actorRound || !roundActions || !formData || !strategicGame || !game) return <p>Loading...</p>;
 
@@ -134,6 +160,7 @@ const RangedAttackDialog: FC<{
         {!deleting ? (
           <>
             <RangedAttackForm actorRound={actorRound} action={action} formData={formData} setFormData={setFormData} />
+
             <TechnicalInfo>
               <pre>FormData: {JSON.stringify(formData, null, 2)}</pre>
               <pre>Action: {JSON.stringify(action, null, 2)}</pre>

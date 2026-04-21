@@ -76,7 +76,7 @@ const ResolveAttackFormRoll: FC<{
       {attack.calculated.requiredLocationRoll && (
         <Grid size={2}>
           <NumericInput
-            label={t('location-roll')}
+            label={t('Location roll')}
             value={attack.roll?.locationRoll || null}
             min={1}
             max={100}
