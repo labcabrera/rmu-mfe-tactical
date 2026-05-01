@@ -1,6 +1,7 @@
 import React, { Dispatch, FC, SetStateAction, useState } from 'react';
-import { Link as RouterLink, useNavigate } from 'react-router-dom';
-import { Box, Breadcrumbs, Link, Stack } from '@mui/material';
+import { useTranslation } from 'react-i18next';
+import { useAuth } from 'react-oidc-context';
+import { useNavigate } from 'react-router-dom';
 import {
   CancelButton,
   DeleteButton,
@@ -9,10 +10,10 @@ import {
   EditButton,
   fetchTacticalGame,
   RefreshButton,
+  RmuBreadcrumbs,
   startRound,
   TacticalGame,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { t } from 'i18next';
 import { useError } from '../../../ErrorContext';
 import PlayButton from '../../shared/buttons/PlayButton';
 
@@ -20,12 +21,14 @@ const TacticalGameViewActions: FC<{
   tacticalGame: TacticalGame;
   setTacticalGame: Dispatch<SetStateAction<TacticalGame | undefined>>;
 }> = ({ tacticalGame, setTacticalGame }) => {
+  const auth = useAuth();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { showError } = useError();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const onDelete = () => {
-    deleteTacticalGame(tacticalGame.id)
+    deleteTacticalGame(tacticalGame.id, auth)
       .then(() => {
         navigate('/tactical/games');
         setDeleteDialogOpen(false);
@@ -39,7 +42,7 @@ const TacticalGameViewActions: FC<{
 
   const onPlay = async () => {
     if (tacticalGame.status === 'created') {
-      startRound(tacticalGame.id)
+      startRound(tacticalGame.id, auth)
         .then((data) => navigate(`/tactical/combat/${data.id}`, { state: { tacticalGame: data } }))
         .catch((err) => showError(err.message));
     } else {
@@ -48,36 +51,26 @@ const TacticalGameViewActions: FC<{
   };
 
   const onRefresh = () => {
-    fetchTacticalGame(tacticalGame.id)
+    fetchTacticalGame(tacticalGame.id, auth)
       .then((response) => setTacticalGame(response))
       .catch((err) => showError(err.message));
   };
 
   return (
     <>
-      <Stack spacing={2} direction="row" justifyContent="space-between" alignItems="center" sx={{ minHeight: 80 }}>
-        <Box>
-          <Breadcrumbs aria-label="breadcrumb">
-            <Link color="primary" underline="hover" href="/">
-              {t('home')}
-            </Link>
-            <Link component={RouterLink} color="primary" underline="hover" to="/tactical/games">
-              {t('tactical')}
-            </Link>
-            <Link component={RouterLink} color="primary" underline="hover" to="/tactical/games">
-              {t('games')}
-            </Link>
-            <span>{tacticalGame.name}</span>
-          </Breadcrumbs>
-        </Box>
-        <Stack direction="row" spacing={1}>
-          <CancelButton onClick={() => {}} />
-          <PlayButton onClick={() => onPlay()} />
-          <RefreshButton onClick={() => onRefresh()} />
-          <EditButton onClick={() => onEdit()} />
-          <DeleteButton onClick={() => setDeleteDialogOpen(true)} />
-        </Stack>
-      </Stack>
+      <RmuBreadcrumbs
+        items={[
+          { name: t('home'), link: '/' },
+          { name: t('strategic-games'), link: '/tactical/games' },
+          { name: t('strategic-game') },
+        ]}
+      >
+        <CancelButton onClick={() => {}} />
+        <PlayButton onClick={() => onPlay()} />
+        <RefreshButton onClick={() => onRefresh()} />
+        <EditButton onClick={() => onEdit()} />
+        <DeleteButton onClick={() => setDeleteDialogOpen(true)} />
+      </RmuBreadcrumbs>
       <DeleteDialog
         message={`Are you sure you want to delete ${tacticalGame.name} game? This action cannot be undone.`}
         onDelete={() => onDelete()}

@@ -1,12 +1,12 @@
-import React, { Dispatch, FC, SetStateAction, useEffect } from 'react';
+import React, { Dispatch, SetStateAction, useEffect } from 'react';
 import { Grid } from '@mui/material';
 import { ClearableTextField } from '@labcabrera-rmu/rmu-react-shared-lib';
 
-type Props = {
+export default function TacticalGameListSearch({
+  setQueryString,
+}: {
   setQueryString: Dispatch<SetStateAction<string>>;
-};
-
-const TacticalGameListSearch: FC<Props> = ({ setQueryString }) => {
+}) {
   const [searchName, setSearchName] = React.useState('');
 
   useEffect(() => {
@@ -29,6 +29,4 @@ const TacticalGameListSearch: FC<Props> = ({ setQueryString }) => {
       </Grid>
     </Grid>
   );
-};
-
-export default TacticalGameListSearch;
+}

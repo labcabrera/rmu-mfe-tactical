@@ -8,15 +8,17 @@ import {
   TacticalGame,
   fetchTacticalGame,
   fetchStrategicGame,
+  Faction,
+  fetchFactions,
+  Character,
+  fetchCharacters,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { useError } from './ErrorContext';
 import { fetchActionsByGameAndRound } from './modules/api/action';
 import { Action } from './modules/api/action.dto';
 import { fetchActorRounds } from './modules/api/actor-rounds';
 import { ActorRound } from './modules/api/actor-rounds.dto';
-import { fetchCharacters } from './modules/api/characters';
-import { Character } from './modules/api/characters.dto';
-import { Faction, fetchFactions } from './modules/api/factions';
+import { useAuth } from 'react-oidc-context';
 
 type RoundActorSort = 'name' | 'initiative';
 
@@ -49,6 +51,7 @@ export const CombatContext = createContext<CombatContextType | undefined>(undefi
 export const CombatProvider: FC<{
   children: ReactNode;
 }> = ({ children }) => {
+  const auth = useAuth();
   const { showError } = useError();
 
   const [gameId, setGameId] = useState<string | null>(null);
@@ -62,7 +65,7 @@ export const CombatProvider: FC<{
   const [roundActorSort, setRoundActorSort] = useState<RoundActorSort>('name');
 
   const bindGame = (gameId: string) => {
-    fetchTacticalGame(gameId)
+    fetchTacticalGame(gameId, auth)
       .then((data: TacticalGame) => {
         setGame(data);
         setDisplayRound(data.round);
@@ -71,7 +74,7 @@ export const CombatProvider: FC<{
   };
 
   const bindStrategicGame = (strategicGameId: string) => {
-    fetchStrategicGame(strategicGameId)
+    fetchStrategicGame(strategicGameId, auth)
       .then((data: StrategicGame) => setStrategicGame(data))
       .catch((err) => showError(err.message));
   };
@@ -98,15 +101,15 @@ export const CombatProvider: FC<{
   const bindCharacters = (game: TacticalGame) => {
     const characterIds = game.actors.map((e) => e.id);
     const rsql = `id=in=(${characterIds.join(',')})`;
-    fetchCharacters(rsql, 0, 100)
-      .then((data) => setCharacters(data))
+    fetchCharacters(rsql, 0, 100, auth)
+      .then((data) => setCharacters(data.content))
       .catch((err) => showError(err.message));
   };
 
   const bindFactions = (game: TacticalGame) => {
     const rsql = `id=in=(${game.factions.join(',')})`;
-    fetchFactions(rsql, 0, 100)
-      .then((data) => setFactions(data))
+    fetchFactions(rsql, 0, 100, auth)
+      .then((data) => setFactions(data.content))
       .catch((err) => showError(err.message));
   };
 

@@ -2,9 +2,9 @@ import React from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { Box, ThemeProvider } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
+import { NotFound } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatProvider } from './CombatContext';
 import { ErrorProvider } from './ErrorContext';
-import './i18n';
 import CombatDashboard from './modules/combat-dashboard/CombatDashboard';
 import TacticalGameCreation from './modules/tactical-games/create/TacticalGameCreation';
 import TacticalGameEdit from './modules/tactical-games/edit/TacticalGameEdit';
@@ -16,7 +16,7 @@ const App = () => {
     <ThemeProvider theme={useTheme()}>
       <ErrorProvider>
         <CombatProvider>
-          <Box padding={2}>
+          <Box sx={{ p: 2 }}>
             <Routes>
               <Route path="/" element={<TacticalGameList />} />
               <Route path="/games" element={<TacticalGameList />} />
@@ -24,6 +24,7 @@ const App = () => {
               <Route path="/games/view/:gameId" element={<TacticalGameView />} />
               <Route path="/games/edit/:gameId" element={<TacticalGameEdit />} />
               <Route path="/combat/:gameId" element={<CombatDashboard />} />
+              <Route path="*" element={<NotFound />} />
             </Routes>
           </Box>
         </CombatProvider>

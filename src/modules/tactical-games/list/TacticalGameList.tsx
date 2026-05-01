@@ -1,5 +1,5 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import React, { FC, useEffect, useState } from 'react';
+import { useAuth } from 'react-oidc-context';
 import { useNavigate } from 'react-router-dom';
 import { Grid } from '@mui/material';
 import { fetchTacticalGames, RmuPagination, RmuTextCard, TacticalGame } from '@labcabrera-rmu/rmu-react-shared-lib';
@@ -8,9 +8,9 @@ import { gridSizeResume, gridSizeMain, gridSizeCard } from '../../services/displ
 import { defaultTacticalGameImage } from '../../services/image-service';
 import TacticalGameListActions from './TacticalGameListActions';
 import TacticalGameListSearch from './TacticalGameListSearch';
-import TacticalGameResume from './TacticalGameResume';
 
 const TacticalGameList: FC = () => {
+  const auth = useAuth();
   const navigate = useNavigate();
   const { showError } = useError();
   const [queryString, setQueryString] = useState<string>('');
@@ -24,7 +24,7 @@ const TacticalGameList: FC = () => {
   };
 
   const bindTacticalGames = () => {
-    fetchTacticalGames(queryString, page, pageSize)
+    fetchTacticalGames(queryString, page, pageSize, auth)
       .then((response) => {
         setGames(response.content);
         setTotalPages(response.pagination.totalPages);
@@ -39,9 +39,7 @@ const TacticalGameList: FC = () => {
   return (
     <>
       <Grid container spacing={1}>
-        <Grid size={gridSizeResume}>
-          <TacticalGameResume />
-        </Grid>
+        <Grid size={gridSizeResume}></Grid>
         <Grid size={gridSizeMain}>
           <TacticalGameListActions />
           <Grid container spacing={1}>
@@ -54,7 +52,7 @@ const TacticalGameList: FC = () => {
                   <Grid size={gridSizeCard} key={index}>
                     <RmuTextCard
                       value={game.name}
-                      subtitle={game.description}
+                      subtitle={game.description || 'No description provided'}
                       image={game.imageUrl || defaultTacticalGameImage}
                       onClick={() => onTacticalGameClick(game)}
                     />

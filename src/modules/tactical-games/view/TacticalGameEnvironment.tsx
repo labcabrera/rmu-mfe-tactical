@@ -1,8 +1,7 @@
 import React, { FC } from 'react';
 import { Grid } from '@mui/material';
-import { CategorySeparator, RmuTextCard } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { CategorySeparator, RmuTextCard, TacticalGame } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { t } from 'i18next';
-import { TacticalGame } from '../../api/tactical-game.dto';
 import { defaultImage } from '../../services/image-service';
 
 const TacticalGameViewEnvironment: FC<{
