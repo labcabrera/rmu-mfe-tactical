@@ -23,7 +23,7 @@ const GenericBar: FC<GenericBarProps> = ({
   const healthPercentage = (current / max) * 100;
 
   return (
-    <Box display="flex" alignItems="center" sx={{ gap: 1 }}>
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
         <LinearProgress
           variant="determinate"
@@ -47,7 +47,6 @@ const GenericBar: FC<GenericBarProps> = ({
           {current} / {max}
         </Typography>
       </Box>
-      {/* </Box> */}
     </Box>
   );
 };

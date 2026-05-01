@@ -3,6 +3,10 @@ import { ActorRound } from '../api/actor-rounds.dto';
 
 const PACE_ORDER = ['creep', 'walk', 'jog', 'run', 'sprint', 'dash'];
 
+export function isActorRoundDead(actorRound: ActorRound): boolean {
+  return actorRoundHasEffect(actorRound, ['dead', 'unconscious']);
+}
+
 export function actorRoundHasEffect(actorRound: ActorRound, statuses: string[]): boolean {
   return actorRound.effects?.some((se) => statuses.includes(se.status)) || false;
 }

@@ -1,27 +1,23 @@
 import React, { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, Box } from '@mui/material';
 import { ActorRound, ActorRoundEffect, ActorRoundPenaltyModifier } from '../../api/actor-rounds.dto';
+import { isActorRoundDead } from '../../services/actor-round-service';
 import { imageBaseUrl } from '../../services/config';
 import Effect from '../../shared/generic/Effect';
 import ActorRoundAlerts from './ActorRoundAlerts';
-import { useTranslation } from 'react-i18next';
 
 const ActorRoundEffects: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
-  const { t } = useTranslation();
-  
   if (!actorRound) return <p>Loading...</p>;
 
-  const isDead = actorRound.effects.find(
-    (e) => e.status === 'dead' || e.status === 'dying' || e.status === 'unconcious'
-  );
+  const { t } = useTranslation();
+  const isDead = isActorRoundDead(actorRound);
   const hasEffects = actorRound.effects.length > 0;
   const background = isDead
     ? `${imageBaseUrl}images/actions/actor-dead-01.png`
     : hasEffects
       ? `${imageBaseUrl}images/actions/actor-effects-01.png`
       : `${imageBaseUrl}images/actions/actor-ok-01.png`;
-
-  //if (!actorRound.effects || actorRound.effects.length === 0) return null;
 
   const getEffectLabel = (effect: ActorRoundEffect): string => {
     let label = '';
