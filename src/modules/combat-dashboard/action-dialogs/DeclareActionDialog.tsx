@@ -173,7 +173,7 @@ const DeclareActionDialog: FC<{
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="xl" fullWidth slots={{ transition: Transition }}>
       <DialogTitle>
-        <Stack direction="row" spacing={2} alignItems="center">
+        <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
           <ActorRoundAvatar actorRound={actorRound} size={100} variant="rounded" />
           <Stack direction="column">
             <Typography variant="h6">{actorRound.actorName}</Typography>
@@ -255,7 +255,6 @@ const DeclareActionDialog: FC<{
                         return (
                           <Grid key={atk.attackName}>
                             <ToggleButton
-                              size="small"
                               value={selected}
                               selected={selected}
                               onClick={() => toggleAttack(atk.attackName)}

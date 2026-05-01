@@ -1,4 +1,5 @@
 import React, { FC, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Card,
   CardActionArea,
@@ -12,17 +13,24 @@ import {
   Stack,
 } from '@mui/material';
 import { KeyValue } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { t } from 'i18next';
 import { imageBaseUrl } from '../services/config';
 
-const KeyValueDialogSelect: FC<{
+export default function KeyValueDialogSelect({
+  label,
+  value,
+  options,
+  readOnly = false,
+  onChange,
+  colorDisabledValues,
+}: {
   label: string;
   value: string | null | undefined;
   options: KeyValue[];
   readOnly?: boolean;
   colorDisabledValues?: string[];
   onChange: (value: string | null) => void;
-}> = ({ label, value, options, readOnly = false, onChange, colorDisabledValues }) => {
+}) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
 
   const modifier = value ? options.find((e) => e.key === value)?.value : undefined;
@@ -91,6 +99,4 @@ const KeyValueDialogSelect: FC<{
       )}
     </>
   );
-};
-
-export default KeyValueDialogSelect;
+}

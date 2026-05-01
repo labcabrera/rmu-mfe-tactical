@@ -1,4 +1,5 @@
 import React, { FC, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Dialog,
   DialogContent,
@@ -11,7 +12,6 @@ import {
   Stack,
   Typography,
 } from '@mui/material';
-import { t } from 'i18next';
 import { imageBaseUrl } from '../services/config';
 
 const DialogSelect: FC<{
@@ -33,6 +33,7 @@ const DialogSelect: FC<{
   colorSuccessValues,
   onChange,
 }) => {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
 
   const onItemListClick = (code: string) => {

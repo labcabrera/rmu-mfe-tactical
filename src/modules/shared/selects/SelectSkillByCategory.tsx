@@ -2,15 +2,16 @@
 import React, { FC, useEffect, useState } from 'react';
 import { Stack, Button, Grid, FormControl, Divider } from '@mui/material';
 import { SkillCategory, Skill, fetchSkillCategories, fetchSkills } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { t } from 'i18next';
 import { useError } from '../../../ErrorContext';
 import { useAuth } from 'react-oidc-context';
+import { useTranslation } from 'react-i18next';
 
 const SelectSkillByCategory: FC<{
   value?: string;
-  onChange: (skillId: string | null) => void;
+  onChange: (skillId: string) => void;
   readOnly?: boolean;
 }> = ({ value, onChange, readOnly = false }) => {
+  const { t } = useTranslation();
   const auth = useAuth();
   const { showError } = useError();
 
@@ -38,7 +39,6 @@ const SelectSkillByCategory: FC<{
 
   const handleCategoryClick = (catId: string) => {
     if (readOnly) return;
-    onChange(null);
     setSelectedCategory(catId);
   };
 
