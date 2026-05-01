@@ -1,4 +1,4 @@
-import React, { Dispatch, FC, SetStateAction, useContext } from 'react';
+import React, { Dispatch, SetStateAction, useContext } from 'react';
 import { useState } from 'react';
 import { Box, Grid } from '@mui/material';
 import { CombatContext } from '../../../CombatContext';

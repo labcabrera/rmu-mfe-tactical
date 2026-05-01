@@ -24,7 +24,12 @@ export async function fetchActionsByGameAndRound(
   auth: AuthContextProps
 ): Promise<Action[]> {
   const url = `${apiTacticalUrl}/actions?q=gameId==${gameId};round==${round}&size=1000`;
-  return await callApi(auth, url, { method: 'GET' });
+  const res = await callApi(auth, url, { method: 'GET' });
+  // The backend may return either an array of actions or a paged response { content: Action[] }
+  // Normalize to always return the array of actions.
+  if (Array.isArray(res)) return res as Action[];
+  if (res && (res as any).content) return (res as any).content as Action[];
+  return [];
 }
 
 export async function createAction(actionData: any, auth: AuthContextProps): Promise<Action> {

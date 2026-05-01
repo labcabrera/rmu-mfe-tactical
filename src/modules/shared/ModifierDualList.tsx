@@ -1,7 +1,7 @@
 import React, { FC } from 'react';
 import { Box, Typography, useTheme } from '@mui/material';
 import { KeyValue } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 type Modifiers = KeyValue[];
 
@@ -16,6 +16,7 @@ interface Props {
 const rowHeight = 36;
 
 const ModifierDualList: FC<Props> = ({ modifiers, leftIsPositive = false, centerWidth = 300 }) => {
+  const { t } = useTranslation();
   const theme = useTheme();
   const list = modifiers;
   const sum = modifiers.map((e) => e.value).reduce((acc, val) => acc + val, 0);
@@ -30,8 +31,8 @@ const ModifierDualList: FC<Props> = ({ modifiers, leftIsPositive = false, center
   const rightColor = leftIsPositive ? theme.palette.error.main : theme.palette.success.main;
 
   return (
-    <Box display="flex" flexDirection="column">
-      <Box display="flex" justifyContent="center" alignItems="center" mb={1}>
+    <Box  sx={{display:"flex", flexDirection:"column"}}>
+      <Box sx={{display:"flex", justifyContent:"center", alignItems:"center", mb:1}}>
         <Typography variant="h6" color={sum < 0 ? 'error' : 'primary'}>
           {t('Total roll')}: {sum}
         </Typography>
@@ -43,11 +44,11 @@ const ModifierDualList: FC<Props> = ({ modifiers, leftIsPositive = false, center
         // mostraremos en el centro los nombres de los modificadores izquierdo/derecho
 
         return (
-          <Box key={i} display="flex" alignItems="center" sx={{ height: rowHeight, gap: 2 }}>
+          <Box key={i}  sx={{ height: rowHeight, gap: 2, display:"flex", alignItems:"center" }}>
             {/* izquierda */}
-            <Box flex={1} display="flex" justifyContent="flex-end" pr={1}>
+            <Box  sx={{flex:1, display:"flex", justifyContent:"flex-end", pr:1}}>
               {left ? (
-                <Box display="flex" alignItems="center" width="100%" justifyContent="flex-end">
+                <Box sx={{display:"flex", alignItems:"center", width:"100%", justifyContent:"flex-end"}}>
                   <Box
                     sx={{
                       height: 10,
@@ -56,7 +57,7 @@ const ModifierDualList: FC<Props> = ({ modifiers, leftIsPositive = false, center
                       borderRadius: 1,
                     }}
                   />
-                  <Typography variant="body2" ml={1} color="error" sx={{ minWidth: 50 }}>
+                  <Typography variant="body2"  color="error" sx={{ minWidth: 50, ml:1 }}>
                     {left.value}
                   </Typography>
                 </Box>
@@ -66,7 +67,7 @@ const ModifierDualList: FC<Props> = ({ modifiers, leftIsPositive = false, center
             </Box>
 
             {/* centro: mostrar los nombres de los modificadores izquierdo y derecho */}
-            <Box width={centerWidth} display="flex" alignItems="center" justifyContent="center">
+            <Box  sx={{width:centerWidth, display:"flex", alignItems:"center", justifyContent:"center"}}>
               <Box sx={{ width: '50%', display: 'flex', justifyContent: 'flex-start', pr: 1 }}>
                 <Typography
                   variant="body2"
@@ -90,10 +91,10 @@ const ModifierDualList: FC<Props> = ({ modifiers, leftIsPositive = false, center
             </Box>
 
             {/* derecha */}
-            <Box flex={1} display="flex" justifyContent="flex-start" pl={1}>
+            <Box sx={{flex:1, display:"flex", justifyContent:"flex-start", pl:1}}>
               {right ? (
-                <Box display="flex" alignItems="center" width="100%" justifyContent="flex-start">
-                  <Typography variant="body2" mr={1} color="success" sx={{ minWidth: 50 }}>
+                <Box sx={{display:"flex", alignItems:"center", width:"100%", justifyContent:"flex-start"}}>
+                  <Typography variant="body2"  color="success" sx={{ minWidth: 50,mr:1 }}>
                     {right.value > 0 ? '+' : ''}
                     {right.value}
                   </Typography>
