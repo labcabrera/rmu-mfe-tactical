@@ -7,6 +7,7 @@ type GenericBarProps = {
   current: number;
   colorOk?: string;
   colorKo?: string;
+  borderColor?: string;
   backgroundColor?: string;
 };
 
@@ -16,43 +17,35 @@ const GenericBar: FC<GenericBarProps> = ({
   current,
   colorOk = '#4caf50',
   colorKo = '#ffeb3b',
+  borderColor = '#5b6b6d',
   backgroundColor = '#656d64ff',
 }) => {
   const healthPercentage = (current / max) * 100;
 
   return (
-    <Box display="flex" alignItems="center" sx={{ gap: 1 }}>
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-        <Box
+        <LinearProgress
+          variant="determinate"
+          value={healthPercentage}
           sx={{
-            border: '2px solid',
-            borderColor: 'divider',
+            minWidth: width,
+            width: '100%',
+            height: 16,
             borderRadius: 0,
-            p: '3px',
-            boxSizing: 'border-box',
+            border: `1px solid ${borderColor}`,
+            backgroundColor: backgroundColor,
+            '& .MuiLinearProgress-bar': {
+              backgroundColor: healthPercentage > 50 ? colorOk : colorKo,
+            },
           }}
-        >
-          <LinearProgress
-            variant="determinate"
-            value={healthPercentage}
-            sx={{
-              minWidth: width,
-              width: '100%',
-              height: 12,
-              borderRadius: 0,
-              backgroundColor: backgroundColor,
-              '& .MuiLinearProgress-bar': {
-                backgroundColor: healthPercentage > 50 ? colorOk : colorKo,
-              },
-            }}
-          />
-        </Box>
+        />
+      </Box>
 
-        <Box sx={{ minWidth: 50, ml: 1 }}>
-          <Typography variant="caption" color="text.secondary" sx={{ textAlign: 'right' }}>
-            {current} / {max}
-          </Typography>
-        </Box>
+      <Box sx={{ minWidth: 50, ml: 1 }}>
+        <Typography variant="caption" color="primary" sx={{ textAlign: 'right', fontWeight: 600 }}>
+          {current} / {max}
+        </Typography>
       </Box>
     </Box>
   );

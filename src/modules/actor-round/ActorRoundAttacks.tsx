@@ -1,4 +1,5 @@
 import React, { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Stack,
   Typography,
@@ -10,20 +11,20 @@ import {
   Paper,
   TableContainer,
 } from '@mui/material';
-import { t } from 'i18next';
 import { ActorRound, ActorRoundAttack } from '../api/actor-rounds.dto';
 
-const formatRanges = (ranges: ActorRoundAttack['ranges']): string => {
-  if (!ranges || ranges.length === 0) return '-';
-  return ranges.map((r) => `${r.from}-${r.to} (${r.bonus >= 0 ? `+${r.bonus}` : r.bonus})`).join(', ');
-};
-
 const ActorRoundAttacks: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
+  const { t } = useTranslation();
   const attacks = actorRound.attacks ?? [];
 
   const getAttackTableLabel = (attack: ActorRoundAttack): string => {
     if (attack.attackSize === 0) return t(attack.attackTable);
     return `${t(attack.attackTable)} (${attack.attackSize > 0 ? '+' : ''}${attack.attackSize})`;
+  };
+
+  const formatRanges = (ranges: ActorRoundAttack['ranges']): string => {
+    if (!ranges || ranges.length === 0) return '-';
+    return ranges.map((r) => `${r.from}-${r.to} (${r.bonus >= 0 ? `+${r.bonus}` : r.bonus})`).join(', ');
   };
 
   return (

@@ -7,15 +7,18 @@ import {
   TacticalGame,
   updateTacticalGame,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { t } from 'i18next';
 import { useError } from '../../../ErrorContext';
+import { useAuth } from 'react-oidc-context';
+import { useTranslation } from 'react-i18next';
 
 const TacticalGameEditActions: FC<{
   tacticalGame: TacticalGame;
   formData: TacticalGame;
   isValid: boolean;
 }> = ({ tacticalGame, formData, isValid }) => {
+  const auth = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { showError } = useError();
   const breadcrumbs = [
     { name: t('Tactical'), link: '/tactical' },
@@ -26,7 +29,7 @@ const TacticalGameEditActions: FC<{
   const onUpdate = async () => {
     // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
     const { id, strategicGameId, status, round, phase, factions, actors, owner, ...dto } = formData;
-    updateTacticalGame(tacticalGame.id, dto)
+    updateTacticalGame(tacticalGame.id, dto, auth)
       .then((data) => navigate(`/tactical/games/view/${tacticalGame.id}`, { state: { tacticalGame: data } }))
       .catch((err) => showError(err.message));
   };

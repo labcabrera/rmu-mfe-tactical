@@ -1,84 +1,76 @@
-import { getAuthHeaders, mergeJsonHeaders } from '../services/auth-token-service';
+import { AuthContextProps } from 'react-oidc-context';
+import { callApi, Page } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { apiTacticalUrl } from '../services/config';
 import { ActorRound, ActorRoundEffect } from './actor-rounds.dto';
-import { buildErrorFromResponse } from './api-errors';
 
-export async function fetchActorRound(actorRoundId: string): Promise<ActorRound> {
-  const url = `${process.env.RMU_API_TACTICAL_URL}/actor-rounds/${actorRoundId}`;
-  const response = await fetch(url, { method: 'GET', headers: getAuthHeaders() });
-  if (response.status !== 200) {
-    throw await buildErrorFromResponse(response, url);
-  }
-  return await response.json();
+export async function fetchActorRound(actorRoundId: string, auth: AuthContextProps): Promise<ActorRound> {
+  const url = `${apiTacticalUrl}/actor-rounds/${actorRoundId}`;
+  return await callApi(auth, url, { method: 'GET' });
 }
 
-export async function fetchActorRounds(gameId: string, round: number): Promise<ActorRound[]> {
+export async function fetchActorRounds(
+  gameId: string,
+  round: number,
+  auth: AuthContextProps
+): Promise<Page<ActorRound>> {
   const rsql = `gameId==${gameId};round==${round}`;
-  const url = `${process.env.RMU_API_TACTICAL_URL}/actor-rounds?q=${rsql}&page=0&size=100`;
-  const response = await fetch(url, { method: 'GET', headers: getAuthHeaders() });
-  if (response.status !== 200) {
-    throw await buildErrorFromResponse(response, url);
-  }
-  const json = await response.json();
-  return json.content;
+  const url = `${apiTacticalUrl}/actor-rounds?q=${rsql}&page=0&size=100`;
+  return await callApi(auth, url, { method: 'GET' });
 }
 
-export async function declareActorRoundInitiative(actorRoundId: string, roll: number): Promise<ActorRound> {
-  const url = `${process.env.RMU_API_TACTICAL_URL}/actor-rounds/${actorRoundId}/initiative`;
-  const response = await fetch(url, {
+export async function declareActorRoundInitiative(
+  actorRoundId: string,
+  roll: number,
+  auth: AuthContextProps
+): Promise<ActorRound> {
+  const url = `${apiTacticalUrl}/actor-rounds/${actorRoundId}/initiative`;
+  return await callApi(auth, url, {
     method: 'PATCH',
-    headers: mergeJsonHeaders(),
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ roll }),
   });
-  if (response.status !== 200) {
-    throw await buildErrorFromResponse(response, url);
-  }
-  return await response.json();
 }
 
-export async function addActorRoundHp(actorRoundId: string, hp: number): Promise<ActorRound> {
-  const url = `${process.env.RMU_API_TACTICAL_URL}/actor-rounds/${actorRoundId}/hp`;
-  const response = await fetch(url, {
+export async function addActorRoundHp(actorRoundId: string, hp: number, auth: AuthContextProps): Promise<ActorRound> {
+  const url = `${apiTacticalUrl}/actor-rounds/${actorRoundId}/hp`;
+  return await callApi(auth, url, {
     method: 'PATCH',
-    headers: mergeJsonHeaders(),
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ dmg: hp }),
   });
-  if (response.status !== 200) {
-    throw await buildErrorFromResponse(response, url);
-  }
-  return await response.json();
 }
 
-export async function addActorRoundEffect(actorRoundId: string, effect: ActorRoundEffect): Promise<ActorRound> {
-  const url = `${process.env.RMU_API_TACTICAL_URL}/actor-rounds/${actorRoundId}/effects`;
-  const response = await fetch(url, {
+export async function addActorRoundEffect(
+  actorRoundId: string,
+  effect: ActorRoundEffect,
+  auth: AuthContextProps
+): Promise<ActorRound> {
+  const url = `${apiTacticalUrl}/actor-rounds/${actorRoundId}/effects`;
+  return await callApi(auth, url, {
     method: 'POST',
-    headers: mergeJsonHeaders(),
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(effect),
   });
-  if (response.status !== 201) {
-    throw await buildErrorFromResponse(response, url);
-  }
-  return await response.json();
 }
 
-export async function addActorRoundFatigueAccumulator(actorRoundId: string, value: number): Promise<ActorRound> {
-  const url = `${process.env.RMU_API_TACTICAL_URL}/actor-rounds/${actorRoundId}/fatigue-accumulator`;
-  const response = await fetch(url, {
+export async function addActorRoundFatigueAccumulator(
+  actorRoundId: string,
+  value: number,
+  auth: AuthContextProps
+): Promise<ActorRound> {
+  const url = `${apiTacticalUrl}/actor-rounds/${actorRoundId}/fatigue-accumulator`;
+  return await callApi(auth, url, {
     method: 'PATCH',
-    headers: mergeJsonHeaders(),
-    body: JSON.stringify({ fatigueAccumulator: value }),
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ value }),
   });
-  if (response.status !== 200) {
-    throw await buildErrorFromResponse(response, url);
-  }
-  return await response.json();
 }
 
-export async function deleteActorRoundEffect(actorRoundId: string, effectId: string): Promise<ActorRound> {
-  const url = `${process.env.RMU_API_TACTICAL_URL}/actor-rounds/${actorRoundId}/effects/${effectId}`;
-  const response = await fetch(url, { method: 'DELETE', headers: getAuthHeaders() });
-  if (response.status !== 200) {
-    throw await buildErrorFromResponse(response, url);
-  }
-  return await response.json();
+export async function deleteActorRoundEffect(
+  actorRoundId: string,
+  effectId: string,
+  auth: AuthContextProps
+): Promise<ActorRound> {
+  const url = `${apiTacticalUrl}/actor-rounds/${actorRoundId}/effects/${effectId}`;
+  return await callApi(auth, url, { method: 'DELETE' });
 }

@@ -1,7 +1,7 @@
 import React, { Dispatch, FC, Fragment, SetStateAction, useContext } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Grid, Stack, Typography } from '@mui/material';
 import { CategorySeparator, NumericInput } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { AttackDeclaration } from '../../../api/action.dto';
 
@@ -9,12 +9,13 @@ const ResolveAttackFormModifiers: FC<{
   formData: AttackDeclaration;
   setFormData: Dispatch<SetStateAction<AttackDeclaration>>;
 }> = ({ formData, setFormData }) => {
-  const { actorRounds } = useContext(CombatContext);
+  const { t } = useTranslation();
+  const { actorRounds } = useContext(CombatContext)!;
 
-  if (!formData || !formData.attacks) return <div>Loading...</div>;
+  if (!formData || !formData.attacks) return <div>Loading ResolveAttackFormModifiers...</div>;
 
   const getActorName = (id: string) => {
-    return actorRounds.find((a) => a.actorId === id)?.actorName || '';
+    return actorRounds!.find((a) => a.actorId === id)?.actorName || '';
   };
 
   return (
@@ -56,7 +57,7 @@ const ResolveAttackFormModifiers: FC<{
                   value={parry.parry}
                   name="parry"
                   onChange={(e) => {
-                    parry.parry = e;
+                    parry.parry = e!;
                     setFormData({ ...formData, parries: formData.parries });
                   }}
                   integer

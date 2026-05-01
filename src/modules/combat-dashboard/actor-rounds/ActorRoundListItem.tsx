@@ -1,21 +1,24 @@
-import React, { FC, useContext, useEffect, useState } from 'react';
+import React, { Dispatch, FC, SetStateAction, useContext, useEffect, useState } from 'react';
 import { Grid } from '@mui/material';
+import { Character } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
 import { Action } from '../../api/action.dto';
 import { ActorRound } from '../../api/actor-rounds.dto';
-import { Character } from '../../api/characters.dto';
 import ActionDialog from '../action-dialogs/ActionDialog';
+import MeleeAttackDialog from '../action-dialogs/melee-attack/MeleeAttackDialog';
 import MovementDialog from '../action-dialogs/movement/MovementDialog';
+import RangedAttackDialog from '../action-dialogs/ranged-attack/RangedAttackDialog';
 import ActorActions from './ActorActions';
-import ActorRoundAlerts from './ActorRoundAlerts';
 import ActorRoundEffects from './ActorRoundEffects';
 import ActorRoundResume from './ActorRoundResume';
 import ActorRoundInitiative from './initiative/ActorRoundInitiative';
 
 const CombatActorRoundListItem: FC<{
   actorRound: ActorRound;
+  displayPhase: string;
+  setDisplayPhase: Dispatch<SetStateAction<string>>;
   onActorRoundView: (actorRound: ActorRound) => void;
-}> = ({ actorRound, onActorRoundView }) => {
+}> = ({ actorRound, displayPhase, onActorRoundView, setDisplayPhase }) => {
   const [character, setCharacter] = useState<Character | undefined>();
   const { characters, game, roundActions } = useContext(CombatContext)!;
   const [resolveDialogOpen, setResolveDialogOpen] = useState(false);
@@ -31,26 +34,26 @@ const CombatActorRoundListItem: FC<{
 
   return (
     <>
-      <Grid container spacing={1} sx={{ borderBottom: '1px solid #282e2f', pb: 1 }}>
-        <Grid size={3}>
+      <Grid container columns={24} spacing={1} sx={{ borderBottom: '1px solid #282e2f', pb: 1 }}>
+        <Grid size={5}>
           <ActorRoundResume actorRound={actorRound} onActorRoundView={() => onActorRoundView(actorRound)} />
         </Grid>
-        <Grid size={1}>
+        <Grid size={2}>
           <ActorRoundInitiative actorRound={actorRound} />
         </Grid>
-        <Grid size={5}>
+        <Grid size={8}>
           <ActorActions
             actorId={actorRound.actorId}
-            currentPhase={game.phase.startsWith('phase_') ? parseInt(game.phase.replace('phase_', '')) : 5}
+            currentPhase={displayPhase.startsWith('phase_') ? parseInt(displayPhase.replace('phase_', '')) : 5}
+            setDisplayPhase={setDisplayPhase}
             onActionClick={(action) => {
               setSelectedActionId(action.id);
               setResolveDialogOpen(true);
             }}
           />
         </Grid>
-        <Grid size={3}>
+        <Grid size={6}>
           <ActorRoundEffects actorRound={actorRound} />
-          <ActorRoundAlerts actorRound={actorRound} />
         </Grid>
       </Grid>
 
@@ -70,12 +73,35 @@ const CombatActorRoundListItem: FC<{
                 }}
               />
             );
+          } else if (action.actionType === 'melee_attack') {
+            return (
+              <MeleeAttackDialog
+                action={action}
+                actorRound={actorRound}
+                open={resolveDialogOpen}
+                onClose={() => {
+                  setResolveDialogOpen(false);
+                  setSelectedActionId(null);
+                }}
+              />
+            );
+          } else if (action.actionType === 'ranged_attack') {
+            return (
+              <RangedAttackDialog
+                action={action}
+                actorRound={actorRound}
+                open={resolveDialogOpen}
+                onClose={() => {
+                  setResolveDialogOpen(false);
+                  setSelectedActionId(null);
+                }}
+              />
+            );
           }
           return (
             <ActionDialog
               action={action}
               actorRound={actorRound}
-              character={character}
               open={resolveDialogOpen}
               onClose={() => {
                 setResolveDialogOpen(false);
@@ -84,18 +110,6 @@ const CombatActorRoundListItem: FC<{
             />
           );
         })()}
-      {/* {selectedActionId && (
-        <ActionDialog
-          action={(roundActions || []).find((a: Action) => a.id === selectedActionId) || (null as any)}
-          actorRound={actorRound}
-          character={character}
-          open={resolveDialogOpen}
-          onClose={() => {
-            setResolveDialogOpen(false);
-            setSelectedActionId(null);
-          }}
-        />
-      )} */}
     </>
   );
 };

@@ -1,8 +1,9 @@
 import React, { FC, useContext, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useAuth } from 'react-oidc-context';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Stack, Typography, Chip, Box, TextField, IconButton } from '@mui/material';
-import { t } from 'i18next';
 import { CombatContext } from '../../CombatContext';
 import { useError } from '../../ErrorContext';
 import { addActorRoundEffect, deleteActorRoundEffect } from '../api/actor-rounds';
@@ -11,19 +12,21 @@ import { ActorRound, ActorRoundEffect } from '../api/actor-rounds.dto';
 const ActorRoundEffects: FC<{
   actorRound: ActorRound;
 }> = ({ actorRound }) => {
+  const auth = useAuth();
+  const { t } = useTranslation();
   const [newState, setNewState] = useState('');
   const { showError } = useError();
-  const { updateActorRound } = useContext(CombatContext);
+  const { updateActorRound } = useContext(CombatContext)!;
 
   const addState = () => {
     const effect: ActorRoundEffect = { id: '', status: newState, value: undefined, rounds: undefined };
-    addActorRoundEffect(actorRound.id, effect)
+    addActorRoundEffect(actorRound.id, effect, auth)
       .then((updatedActorRound) => updateActorRound(updatedActorRound))
       .catch((err) => showError(err));
   };
 
   const removeState = (id: string) => {
-    deleteActorRoundEffect(actorRound.id, id)
+    deleteActorRoundEffect(actorRound.id, id, auth)
       .then((updatedActorRound) => updateActorRound(updatedActorRound))
       .catch((err) => showError(err));
   };
@@ -52,7 +55,7 @@ const ActorRoundEffects: FC<{
         </Stack>
       )}
 
-      <Box display="flex" alignItems="center" sx={{ mt: 1 }}>
+      <Box sx={{ mt: 1, display: 'flex', alignItems: 'center' }}>
         <TextField
           size="small"
           label="New state"

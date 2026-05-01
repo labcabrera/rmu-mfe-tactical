@@ -1,16 +1,41 @@
+import { KeyValue } from '@labcabrera-rmu/rmu-react-shared-lib';
+
 export type ActionStatus =
   | 'declared'
   | 'prepared'
   | 'parry'
   | 'parry_declaration'
+  | 'pending_attack_roll'
   | 'roll_declaration'
   | 'critical_and_fumble_roll_declaration'
   | 'pending_apply'
   | 'completed';
-
 export type ActionType = 'movement' | 'melee_attack' | 'ranged_attack' | 'maneuver' | 'skill' | 'free';
-
 export type CalledShot = 'none' | 'head' | 'chest' | 'abdomen' | 'arms' | 'legs';
+
+export const MOVEMENT_TABLE = [
+  { id: 'creep', multiplier: 1 / 8, penalty: '-', label: 'x1/2' },
+  { id: 'walk', multiplier: 1 / 4, penalty: '-25 | 1AP', label: 'x1' },
+  { id: 'jog', multiplier: 1 / 2, penalty: '-50 | 2AP', label: 'x2' },
+  { id: 'run', multiplier: 3 / 4, penalty: '-75 | 3AP', label: 'x3' },
+  { id: 'sprint', multiplier: 1, penalty: '4AP', label: 'x4' },
+  { id: 'dash', multiplier: 1.25, penalty: '4AP+', label: 'x5' },
+];
+
+export const DIFFICULTY_TABLE: KeyValue[] = [
+  { key: 'c', value: 70 },
+  { key: 's', value: 50 },
+  { key: 'r', value: 30 },
+  { key: 'e', value: 20 },
+  { key: 'l', value: 10 },
+  { key: 'm', value: 0 },
+  { key: 'h', value: -10 },
+  { key: 'vh', value: -20 },
+  { key: 'xh', value: -30 },
+  { key: 'sf', value: -50 },
+  { key: 'a', value: -70 },
+  { key: 'ni', value: -100 },
+];
 
 export type AttackDeclaration = {
   attacks: ActionAttack[];
@@ -29,9 +54,9 @@ export type ParryDeclaration = {
 export type ActionMovementModifiers = {
   pace: string;
   requiredManeuver: boolean;
-  skillId?: string;
-  difficulty?: string;
-  customModifier?: number;
+  skillId: string;
+  difficulty: string | null;
+  customBonus: number | null;
 };
 
 export type ActionMovementCalculated = {
@@ -41,6 +66,7 @@ export type ActionMovementCalculated = {
   distance: number;
   distanceAdjusted: number;
   description: string;
+  critical: string | null;
 };
 
 export type KeyValueModifier = {
@@ -49,7 +75,7 @@ export type KeyValueModifier = {
 };
 
 export type ActionRoll = {
-  modifiers?: KeyValueModifier[];
+  modifiers?: KeyValue[];
   roll: number | null;
   totalRoll?: number;
 };
@@ -66,7 +92,7 @@ export type ActionManeuverModifiers = {
   difficulty: string | null;
   lightModifier: string | null;
   light: string | null;
-  customModifier: number | null;
+  customBonus: number | null;
 };
 
 export type ActionManeuverResult = {
@@ -88,14 +114,14 @@ export type Action = {
   actionType: ActionType;
   freeAction: boolean;
   phaseStart: number;
-  phaseEnd: number | undefined;
+  phaseEnd: number | null;
   status: ActionStatus;
-  actionPoints: number | undefined;
-  movement: ActionMovement | undefined;
-  maneuver: ActionManeuver | undefined;
-  attacks: ActionAttack[] | undefined;
-  parries: ActionParry[] | undefined;
-  fatigue: number | undefined;
+  actionPoints: number | null;
+  movement: ActionMovement | null;
+  maneuver: ActionManeuver | null;
+  attacks: ActionAttack[] | null;
+  parries: ActionParry[] | null;
+  fatigue: number | null;
 };
 
 export type ResolveMovementDto = {
@@ -110,21 +136,22 @@ export type ResolveMovementDto = {
 export type ActionAttack = {
   attackName: string;
   modifiers: ActionAttackModifiers;
-  roll: ActionAttackRoll | undefined;
-  calculated: AttackCalculationsDto | undefined;
-  results: ActionAttackResults | undefined;
+  roll: ActionAttackRoll | null;
+  calculated: AttackCalculationsDto | null;
+  results: ActionAttackResults | null;
   status: string;
+  protectors: string[] | null;
 };
 
 export type ActionAttackRoll = {
   roll: number | null;
   locationRoll: number | null;
-  criticalRolls?: Map<string, number | undefined>;
+  criticalRolls?: Map<string, number | null>;
   fumbleRoll?: number | null;
 };
 
 export type ActionAttackResults = {
-  attackTableEntry: AttackTableEntry | undefined;
+  attackTableEntry: AttackTableEntry | null;
   criticals: Critical[];
   fumble: any;
   attackTableResult: string;
@@ -146,6 +173,8 @@ export type CriticalResult = {
 export type AttackTableEntry = {
   damage: number;
   text: string;
+  criticalType: string;
+  criticalSeverity: string;
 };
 
 export type ActionAttackFumbleResult = {

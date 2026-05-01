@@ -1,16 +1,15 @@
 import React, { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Grid, Typography } from '@mui/material';
-import { RmuTextCard } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { t } from 'i18next';
-import type { StrategicGame } from '../../api/strategic-games';
-import { TacticalGame } from '../../api/tactical-game.dto';
+import { RmuTextCard, StrategicGame, TacticalGame } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { defaultImage } from '../../services/image-service';
 
 const TacticalGameViewResume: FC<{
   tacticalGame: TacticalGame;
   strategicGame?: StrategicGame | null;
 }> = ({ tacticalGame, strategicGame }) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   if (!tacticalGame || !strategicGame) return <p>Loading...</p>;
 

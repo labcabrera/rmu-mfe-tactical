@@ -1,7 +1,7 @@
 import React, { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Typography } from '@mui/material';
 import { CategorySeparator } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { t } from 'i18next';
 import { ActionAttack } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
 
@@ -9,6 +9,7 @@ const AttackTitle: FC<{
   attack: ActionAttack;
   target: ActorRound;
 }> = ({ attack, target }) => {
+  const { t } = useTranslation();
   if (!attack || !target) return <div>Loading...</div>;
 
   const getFormattedArmor = (): string => {

@@ -1,53 +1,22 @@
 import React, { Dispatch, FC, SetStateAction } from 'react';
-import { Box, Button, Stack, Step, StepLabel, Stepper } from '@mui/material';
-import { t } from 'i18next';
-import { Action, AttackDeclaration } from '../../../api/action.dto';
+import { Box, Step, StepLabel, Stepper } from '@mui/material';
+import { Action, ActionAttack, AttackDeclaration } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
 import MeleeAttackDeclaration from './MeleeAttackDeclaration';
 import MeleeAttackSelectAttacks from './MeleeAttackSelectAttacks';
 import ResolveAttackParry from './ResolveAttackParry';
 import ResolveAttackTabRoll from './ResolveAttackRoll';
 
-const steps = ['Select targets', 'Choose attack options', 'Declare parry', 'Resolve attacks'];
+const steps = ['Select targets', 'Attack options', 'Parry', 'Resolve'];
 
 const MeleeAttackStepper: FC<{
-  formData: AttackDeclaration;
-  setFormData: Dispatch<SetStateAction<AttackDeclaration>>;
-  activeStep: number;
-  setActiveStep: Dispatch<SetStateAction<number>>;
-  onDeclare: () => void;
-  onParry: () => void;
-  onApply: () => void;
   action: Action;
   actorRound: ActorRound;
-  isValidDeclaration: boolean;
-}> = ({
-  formData,
-  setFormData,
-  activeStep,
-  setActiveStep,
-  onDeclare,
-  onParry,
-  onApply,
-  action,
-  actorRound,
-  isValidDeclaration,
-}) => {
-  const handleNext = () => {
-    setActiveStep(activeStep + 1);
-  };
-
-  const handleBack = () => {
-    setActiveStep(activeStep - 1);
-  };
-
-  const isDisabledNext = () => {
-    if (activeStep === 0 && !isValidDeclaration) return true;
-    if (activeStep === 1 && action.status === 'declared') return true;
-    if (activeStep === 3) return true;
-    return false;
-  };
-
+  formData: AttackDeclaration;
+  activeStep: number;
+  availableAttacks: ActionAttack[];
+  setFormData: Dispatch<SetStateAction<AttackDeclaration>>;
+}> = ({ action, actorRound, formData, activeStep, availableAttacks, setFormData }) => {
   if (!actorRound) return <p>Loading... (melee attack stepper)</p>;
 
   return (
@@ -64,26 +33,16 @@ const MeleeAttackStepper: FC<{
         })}
       </Stepper>
       {activeStep === 0 && (
-        <MeleeAttackSelectAttacks formData={formData} setFormData={setFormData} actorRound={actorRound} />
+        <MeleeAttackSelectAttacks
+          formData={formData}
+          setFormData={setFormData}
+          actorRound={actorRound}
+          availableAttacks={availableAttacks}
+        />
       )}
       {activeStep === 1 && <MeleeAttackDeclaration formData={formData} setFormData={setFormData} />}
       {activeStep === 2 && <ResolveAttackParry action={action} formData={formData} setFormData={setFormData} />}
       {activeStep === 3 && <ResolveAttackTabRoll formData={formData} action={action} setFormData={setFormData} />}
-
-      <Stack direction="row" spacing={1}>
-        <Button disabled={activeStep === 0} onClick={handleBack} sx={{ mr: 1 }}>
-          {t('back')}
-        </Button>
-        <Box sx={{ flex: '1 1 auto' }} />
-        {activeStep === 1 && action.status === 'declared' && <Button onClick={onDeclare}>{t('prepare')}</Button>}
-        {activeStep === 2 && <Button onClick={onParry}>{t('parry')}</Button>}
-        {activeStep === 3 && action.status !== 'completed' && <Button onClick={onApply}>{t('apply')}</Button>}
-        <Button onClick={handleNext} disabled={isDisabledNext()}>
-          {t('next')}
-        </Button>
-      </Stack>
-      {/* <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2, mt: 'auto' }}>
-      </Box> */}
     </Box>
   );
 };

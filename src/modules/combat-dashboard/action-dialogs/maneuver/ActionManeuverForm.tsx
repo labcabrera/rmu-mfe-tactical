@@ -1,17 +1,18 @@
 import React, { FC, useEffect, useState } from 'react';
 import { Chip, Grid, Stack, Typography } from '@mui/material';
-import { t } from 'i18next';
 import { Action, ActionManeuver } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
 import useSkillService from '../../../services/skill-service';
 import KeyValueModifiersView from '../../../shared/generic/KeyValueModifiersView';
 import ActionManeuverModifiersForm from './ActionManeuverModifiersForm';
+import { useTranslation } from 'react-i18next';
 
 const ActionManeuverForm: FC<{
   action: Action;
   actorRound: ActorRound;
 }> = ({ action, actorRound }) => {
-  const [formData, setFormData] = useState<ActionManeuver>(null);
+  const { t } = useTranslation();
+  const [formData, setFormData] = useState<ActionManeuver>();
 
   const isSuccess = (): boolean => {
     return !action.maneuver.result.result.includes('failure');
@@ -38,7 +39,7 @@ const ActionManeuverForm: FC<{
     <>
       <Grid container spacing={2} sx={{ mt: 1 }}>
         <Grid size={12}>
-          <Stack direction="row" spacing={1} mb={2}>
+          <Stack direction="row" spacing={1} sx={{mb:2}}>
             <Chip label={`${t(action.maneuver?.modifiers?.skillId)}${getSkillBonusLabel()}`} color="info" />
             <Chip label={t(action.maneuver?.modifiers?.maneuverType)} color="info" />
             {action.freeAction && <Chip label={t('free-action')} color="info" />}
@@ -60,7 +61,7 @@ const ActionManeuverForm: FC<{
             <Typography variant="h6" gutterBottom>
               Modifiers
             </Typography>
-            <Stack direction="row" spacing={1} mt={1} mb={1}>
+            <Stack direction="row" spacing={1} sx={{mt:1, mb:1}}>
               <Chip label={`Total: ${action.maneuver.roll.totalRoll}`} />
             </Stack>
             <KeyValueModifiersView modifiers={action.maneuver?.roll?.modifiers} />

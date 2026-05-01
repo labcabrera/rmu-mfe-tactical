@@ -1,149 +1,271 @@
-import React, { Dispatch, FC, Fragment, SetStateAction, useContext } from 'react';
-import { Grid, Typography } from '@mui/material';
-import { CategorySeparator } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { t } from 'i18next';
+import React, { Dispatch, FC, Fragment, SetStateAction, useContext, useState } from 'react';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
+import DeleteIcon from '@mui/icons-material/Delete';
+import {
+  Grid,
+  Stack,
+  Typography,
+  List,
+  ListItem,
+  ListItemAvatar,
+  ListItemText,
+  IconButton,
+  Avatar,
+  Divider,
+} from '@mui/material';
 import { CombatContext } from '../../../../CombatContext';
-import { ActionAttack, ActionAttackModifiers, AttackDeclaration } from '../../../api/action.dto';
+import { ActionAttack, AttackDeclaration } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
+import {
+  findMaxActorRoundPace,
+  isActorRoundDisabled,
+  isActorRoundProne,
+  isActorRoundStunned,
+} from '../../../services/actor-round-service';
+import AddProtectorDialog from './AddProtectorDialog';
 import OffensiveBonusSelector from './OffensiveBonusSelector';
 import TargetSelector from './TargetSelector';
+import { useTranslation } from 'react-i18next';
 
 const MeleeAttackSelectAttacks: FC<{
   formData: AttackDeclaration;
-  setFormData: Dispatch<SetStateAction<AttackDeclaration>>;
   actorRound: ActorRound;
-}> = ({ formData, setFormData, actorRound }) => {
-  return <AttackList actorRound={actorRound} formData={formData} setFormData={setFormData} />;
+  setFormData: Dispatch<SetStateAction<AttackDeclaration>>;
+  availableAttacks: ActionAttack[];
+}> = ({ formData, actorRound, availableAttacks, setFormData }) => {
+  const { t } = useTranslation();
+  const { actorRounds, roundActions } = useContext(CombatContext)!;
+  const [selectedAttack, setSelectedAttack] = useState<ActionAttack>();
+  const [openProtectorDialog, setOpenProtectorDialog] = useState<boolean>(false);
+
+  const hasStatus = (actorRound: ActorRound, statuses: string[]): boolean => {
+    return actorRound.effects?.some((se) => statuses.includes(se.status));
+  };
+
+  const onTargetSelect = (attackName: string, targetId: string) => {
+    const targetActorRound = actorRounds!.find((e) => e.actorId === targetId)!;
+    const available = availableAttacks.find((e) => e.attackName === attackName)!;
+    const maxPace = findMaxActorRoundPace(actorRound.actorId, roundActions || []);
+
+    const isTargetDisabled = isActorRoundDisabled(actorRound);
+
+    const modifiersUpdate = {
+      targetId,
+      disabledShield: !targetActorRound.defense.shield || isTargetDisabled,
+      disabledDB: isTargetDisabled,
+      pace: maxPace,
+      proneTarget: isActorRoundProne(actorRound),
+      stunnedFoe: isActorRoundStunned(actorRound),
+      surprisedFoe: hasStatus(targetActorRound, ['surprised']),
+      positionalSource: 'none',
+      positionalTarget: 'none',
+      cover: 'none',
+      dodge: 'none',
+      restrictedQuarters: 'none',
+      calledShot: 'none',
+      // TODO check two weapon
+      restrictedParry: false,
+      customBonus: 0,
+    } as any;
+
+    setFormData((prev) => {
+      const exists = prev.attacks.some((e) => e.attackName === attackName);
+      return {
+        ...prev,
+        attacks: exists
+          ? prev.attacks.map((a) =>
+              a.attackName === attackName ? { ...a, modifiers: { ...(a.modifiers || {}), ...modifiersUpdate } } : a
+            )
+          : [...prev.attacks, { ...available, modifiers: { ...(available.modifiers || {}), ...modifiersUpdate } }],
+      };
+    });
+  };
+
+  const onBoChange = (attackName: string, bo: number) => {
+    setFormData((prev) => {
+      const attacks = prev.attacks || [];
+      const newAttacks = attacks.map((e) =>
+        e.attackName === attackName ? { ...e, modifiers: { ...(e.modifiers || {}), bo } } : e
+      );
+      const next = { ...prev, attacks: newAttacks };
+      return next;
+    });
+  };
+
+  const onAddProtector = (attackName: string, actorId: string) => {
+    setFormData((prev) => {
+      const attacks = prev.attacks || [];
+      const newAttacks = attacks.map((e) =>
+        e.attackName === attackName ? { ...e, protectors: [...(e.protectors || []), actorId] } : e
+      );
+      const next = { ...prev, attacks: newAttacks };
+      return next;
+    });
+  };
+
+  const onDeleteProtector = (attackName: string, protectorId: string) => {
+    setFormData((prev) => {
+      const attacks = prev.attacks || [];
+      const newAttacks = attacks.map((e) =>
+        e.attackName === attackName ? { ...e, protectors: (e.protectors || []).filter((p) => p !== protectorId) } : e
+      );
+      const next = { ...prev, attacks: newAttacks };
+      return next;
+    });
+  };
+
+  if (!availableAttacks || availableAttacks.length < 1) return <p>No available melee attacks</p>;
+
+  if (!actorRound || !actorRound.attacks) return <Typography>No attacks available</Typography>;
+
+  return (
+    <Grid container spacing={1} sx={{mt:2}}>
+      {formData.attacks.map((attack, index) => {
+        const targetId = attack.modifiers.targetId;
+        const actorRoundAttack = actorRound.attacks.find((e) => e.attackName === attack.attackName)!;
+        const targetActorRound = targetId ? actorRounds?.find((e) => e.actorId === targetId) : null;
+        return (
+          <Fragment key={index}>
+            <Grid size={2}>
+              <Stack direction="column">
+                <Typography variant="h6" color="primary">
+                  {t(attack.attackName)}
+                </Typography>
+                <Typography variant="body2" color="secondary">
+                  {t(actorRoundAttack.attackTable)}: {actorRoundAttack.currentBo}
+                </Typography>
+                <Typography variant="body2" color="secondary">
+                  {t('Base BO')}: {actorRoundAttack.baseBo}
+                </Typography>
+              </Stack>
+            </Grid>
+            <Grid size={2}>
+              <TargetSelector
+                value={attack.modifiers.targetId}
+                sourceId={actorRound.actorId}
+                onChange={(e) => onTargetSelect(attack.attackName, e!)}
+              />
+            </Grid>
+            <Grid size={2}>
+              {targetActorRound ? (
+                <TargetInfo target={targetActorRound} />
+              ) : (
+                <Typography color="secondary">
+                  <em>Select target</em>
+                </Typography>
+              )}
+            </Grid>
+            <Grid size={3}>
+              {attack.modifiers.targetId && (
+                <OffensiveBonusSelector
+                  value={attack.modifiers.bo || 0}
+                  max={actorRoundAttack.currentBo || 0}
+                  onChange={(bo) => onBoChange(attack.attackName, bo)}
+                />
+              )}
+            </Grid>
+            <Grid size={3}>
+              {attack.modifiers.targetId && (
+                <ProtectorsList
+                  attack={attack}
+                  actorRounds={actorRounds}
+                  onAdd={() => {
+                    setSelectedAttack(attack);
+                    setOpenProtectorDialog(true);
+                  }}
+                  onDelete={(protectorId: string) => onDeleteProtector(attack.attackName, protectorId)}
+                />
+              )}
+            </Grid>
+            <Grid size={12}>
+              <Divider />
+            </Grid>
+          </Fragment>
+        );
+      })}
+      {selectedAttack && actorRound && actorRounds && (
+        <AddProtectorDialog
+          selectedAttack={selectedAttack}
+          actorRound={actorRound}
+          actorRounds={actorRounds}
+          open={openProtectorDialog}
+          onAdd={(actorId) => onAddProtector(selectedAttack.attackName, actorId)}
+          onClose={() => setOpenProtectorDialog(false)}
+        />
+      )}
+    </Grid>
+  );
+};
+
+const TargetInfo: FC<{
+  target: ActorRound;
+}> = ({ target }) => {
+  const at = target.defense.at
+    ? `${target.defense.at}`
+    : `${target.defense.headAt}-${target.defense.bodyAt}-${target.defense.armsAt}-${target.defense.legsAt}`;
+
+  return (
+    <Stack direction={'column'} spacing={1}>
+      <Typography>{target.actorName}</Typography>
+      <Typography>BD: {target.defense.bd}</Typography>
+      <Typography>AT: {at}</Typography>
+    </Stack>
+  );
+};
+
+const ProtectorsList: FC<{
+  attack: ActionAttack;
+  actorRounds: ActorRound[] | null;
+  onAdd: () => void;
+  onDelete: (protectorId: string) => void;
+}> = ({ attack, actorRounds, onAdd, onDelete }) => {
+  const { t } = useTranslation();
+  if (!actorRounds || !attack) return;
+  return (
+    <List>
+      <ListItem
+        secondaryAction={
+          <IconButton
+            edge="end"
+            color="primary"
+            onClick={(e) => {
+              e.stopPropagation();
+              onAdd();
+            }}
+          >
+            <AddCircleIcon />
+          </IconButton>
+        }
+      >
+        <ListItemText>{t('Protectors')}</ListItemText>
+      </ListItem>
+      {(attack.protectors || []).map((protectorId, index) => {
+        const actorRound = actorRounds.find((e) => e.actorId === protectorId)!;
+        return (
+          <ListItem
+            key={index}
+            secondaryAction={
+              <IconButton
+                color="primary"
+                edge="end"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete(protectorId);
+                }}
+              >
+                <DeleteIcon />
+              </IconButton>
+            }
+          >
+            <ListItemAvatar>
+              <Avatar variant="square" src={actorRound.imageUrl} />
+            </ListItemAvatar>
+            <ListItemText>{actorRound.actorName}</ListItemText>
+          </ListItem>
+        );
+      })}
+    </List>
+  );
 };
 
 export default MeleeAttackSelectAttacks;
-
-const AttackList: FC<{
-  formData: AttackDeclaration;
-  setFormData: Dispatch<SetStateAction<AttackDeclaration>>;
-  actorRound: ActorRound;
-}> = ({ formData, setFormData, actorRound }) => {
-  const { actorRounds, roundActions } = useContext(CombatContext);
-  const selected = formData.attacks || [];
-  const paceOrder = ['creep', 'walk', 'jog', 'run', 'sprint', 'dash'];
-
-  const findAttack = (attackName: string) => selected.find((a) => a.attackName === attackName);
-
-  const findActorRound = (actorRoundId: string | null | undefined): ActorRound | undefined =>
-    (actorRounds || []).find((ar) => ar.id === actorRoundId);
-
-  const hasStatus = (actorRound: ActorRound, status: string): boolean => {
-    return actorRound.effects?.some((se) => se.status === status);
-  };
-
-  const findSourceMaxPace = (): string => {
-    const actions = (roundActions || []).filter(
-      (ra) => ra.actorId === actorRound.actorId && ra.actionType === 'movement'
-    );
-    if (!actions || actions.length === 0) return 'creep';
-    const paces = actions
-      .map((a) => a.movement?.modifiers?.pace)
-      .filter((p): p is string => typeof p === 'string' && p !== '');
-    if (paces.length === 0) return 'creep';
-    const valid = Array.from(new Set(paces)).filter((p) => paceOrder.includes(p));
-    if (valid.length === 0) return paces[0];
-
-    valid.sort((a, b) => paceOrder.indexOf(b) - paceOrder.indexOf(a));
-    return valid[0];
-  };
-
-  const handleTargetChange = (attackName: string, targetId: string | null) => {
-    const normalizedTargetId = targetId === '' ? null : targetId;
-    const target = normalizedTargetId ? findActorRound(normalizedTargetId) : undefined;
-    const exists = findAttack(attackName);
-    const maxTargetPace = findSourceMaxPace();
-    if (!exists) return;
-    const hasShield = target && false;
-    const isProne = target && hasStatus(target as ActorRound, 'prone');
-    const isStunned = target && hasStatus(target as ActorRound, 'stunned');
-    const isSurprised = target && hasStatus(target as ActorRound, 'surprised');
-    const isOffHand = attackName === 'offHand';
-    const pace = maxTargetPace;
-
-    const newSelected = selected.map((a) =>
-      a.attackName === attackName
-        ? {
-            ...a,
-            modifiers: {
-              ...a.modifiers,
-              targetId: normalizedTargetId,
-              disabledShield: target ? !hasShield : a.modifiers?.disabledShield,
-              stunnedFoe: target ? isStunned && !isSurprised : a.modifiers?.stunnedFoe,
-              surprisedFoe: target ? isSurprised : a.modifiers?.surprisedFoe,
-              proneTarget: target ? isProne : a.modifiers?.proneTarget,
-              offHand: isOffHand,
-              pace: target ? pace : a.modifiers?.pace,
-            },
-          }
-        : a
-    );
-
-    setFormData((prev) => ({ ...prev, attacks: newSelected }));
-  };
-
-  const handleBoChange = (attackName: string, bo: number) => {
-    const exists = findAttack(attackName);
-    let newSelected: ActionAttack[];
-    if (exists) {
-      newSelected = selected.map((a) =>
-        a.attackName === attackName ? { ...a, modifiers: { ...a.modifiers, bo } } : a
-      );
-    }
-    setFormData({ ...formData, attacks: newSelected });
-  };
-
-  if (!actorRound || !actorRound.attacks) {
-    return <Typography>No attacks available</Typography>;
-  }
-
-  const displayed = formData.attacks && formData.attacks.length > 0 ? formData.attacks : [];
-
-  return (
-    <>
-      {displayed.length === 0 ? (
-        <Typography variant="body2">No attacks selected</Typography>
-      ) : (
-        displayed.map((attack, index) => {
-          const def = (actorRound.attacks || []).find((a) => a.attackName === attack.attackName);
-          const existing = findAttack(attack.attackName);
-          const modifiers =
-            existing?.modifiers ??
-            ({
-              targetId: null,
-              bo: def?.currentBo || 0,
-            } as ActionAttackModifiers);
-
-          return (
-            <Fragment key={index}>
-              <CategorySeparator text={t(def?.attackName || attack.attackName)} />
-              <Grid container spacing={1} alignItems="center">
-                <Grid size={2}>
-                  {t(def?.attackTable || '')} {def ? `+${def.currentBo}` : ''}
-                </Grid>
-                <Grid size={4}>
-                  <OffensiveBonusSelector
-                    value={modifiers.bo}
-                    max={def?.currentBo || 0}
-                    onChange={(bo: number) => handleBoChange(attack.attackName, bo)}
-                  />
-                </Grid>
-                <Grid size={6}>
-                  <TargetSelector
-                    value={modifiers.targetId || ''}
-                    onChange={(actorId) => handleTargetChange(attack.attackName, actorId)}
-                    sourceId={(actorRound as any).actorId}
-                  />
-                </Grid>
-              </Grid>
-            </Fragment>
-          );
-        })
-      )}
-    </>
-  );
-};

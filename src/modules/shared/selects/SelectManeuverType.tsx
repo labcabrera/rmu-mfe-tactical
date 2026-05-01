@@ -1,12 +1,17 @@
 import React, { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 import { FormControl, ToggleButtonGroup, ToggleButton } from '@mui/material';
-import { t } from 'i18next';
 
-const SelectManeuverType: FC<{
+export default function SelectManeuverType({
+  value,
+  onChange,
+  readOnly = false,
+}: {
   value: string;
   onChange: (value: string) => void;
   readOnly?: boolean;
-}> = ({ value, onChange, readOnly = false }) => {
+}) {
+  const { t } = useTranslation();
   const options: string[] = ['absolute', 'percent'];
 
   const handleClick = (option: string) => {
@@ -31,6 +36,4 @@ const SelectManeuverType: FC<{
       </ToggleButtonGroup>
     </FormControl>
   );
-};
-
-export default SelectManeuverType;
+}

@@ -1,19 +1,49 @@
-import React, { FC, useContext } from 'react';
+import React, { Dispatch, SetStateAction, useContext } from 'react';
 import { useState } from 'react';
-import { Box, Button } from '@mui/material';
-import { t } from 'i18next';
+import { Box, Grid } from '@mui/material';
 import { CombatContext } from '../../../CombatContext';
 import type { Action } from '../../api/action.dto';
 import type { ActorRound } from '../../api/actor-rounds.dto';
 import ActionDialog from '../action-dialogs/ActionDialog';
+import ActorAction from './ActorAction';
 import ActorRoundDeclarationButtons from './ActorRoundDeclarationButtons';
 
-type ActorActionsProps = {
+export default function ActorActions({
+  actorId,
+  phases = 4,
+  currentPhase = phases,
+  onActionClick,
+  setDisplayPhase,  
+}:{
   actorId: string;
   phases?: number;
   currentPhase?: number;
   onActionClick: (action: Action) => void;
-};
+  setDisplayPhase: Dispatch<SetStateAction<string>>;
+}) {
+  const { roundActions, actorRounds, characters } = useContext(CombatContext)!;
+  const [resolveDialogOpen, setResolveDialogOpen] = useState(false);
+  const [selectedAction, setSelectedAction] = useState<Action | null>(null);
+  
+  if (!roundActions || !actorRounds) return <>Loading...</>;
+  
+  const actions = (roundActions || []).filter((a: Action) => a.actorId === actorId);
+  const actorRound: ActorRound = (actorRounds || []).find((r) => r.actorId === actorId)!;
+  const character = (characters || []).find((c) => c.id === actorId);
+  const { placement, rowsCount } = assignRows(actions, phases, currentPhase);
+  const isDead = actorRound.effects.some((e) => e.status === 'dead');
+
+  const rowHeight = 80;
+  const gap = 8;
+  const declareHeight = 'auto';
+
+  if (isDead) return;
+
+  const gridTemplateColumns = `repeat(${phases}, 1fr)`;
+  const gridTemplateRows = `repeat(${rowsCount}, ${rowHeight}px) auto`;
+
+  if(!actions) return <p>Loading...</p>
+
 
 // Assign each action to a row so that overlapping actions don't share the same row
 function assignRows(actions: Action[], phases: number, currentPhase: number) {
@@ -54,124 +84,81 @@ function assignRows(actions: Action[], phases: number, currentPhase: number) {
   return { placement, rowsCount: rows.length };
 }
 
-const ActorActions: FC<ActorActionsProps> = ({ actorId, phases = 4, currentPhase = phases, onActionClick }) => {
-  const { roundActions, actorRounds, characters } = useContext(CombatContext)!;
-  const [resolveDialogOpen, setResolveDialogOpen] = useState(false);
-  const [selectedAction, setSelectedAction] = useState<Action | null>(null);
-  const actions = (roundActions || []).filter((a: Action) => a.actorId === actorId);
-  const actorRound: ActorRound | undefined = (actorRounds || []).find((r) => r.actorId === actorId);
-  const character = (characters || []).find((c) => c.id === actorId);
-
-  if (!actorRound) return <>Loading...</>;
-
-  const { placement, rowsCount } = assignRows(actions, phases, currentPhase);
-  const isDead = actorRound.effects.some((e) => e.status === 'dead');
-
-  const rowHeight = 40; // px
-  const gap = 8;
-  const declareHeight = 36; // px for declare button row
-
-  const getActionName = (action: Action) => {
-    let name = '';
-    if (action.maneuver) {
-      name = t(action.maneuver?.modifiers?.skillId || 'maneuver');
-    } else if (action.movement) {
-      name = `${t('movement')}${action.movement.calculated?.distanceAdjusted ? `: ${action.movement.calculated.distanceAdjusted}` : ''}`;
-    } else {
-      name = t(action.actionType);
-    }
-    return action.freeAction ? `${t('Free ')} ${name}` : name;
-  };
-
-  if (isDead) return <></>;
-
   return (
     <>
-      <Box sx={{ width: '100%' }}>
-        <Box
+      <Box sx={{ width: '100%', height: '100%' }}>
+        <Grid
+          container
           sx={{
-            position: 'relative',
-            height: (rowsCount + 1) * (rowHeight + gap),
+            display: 'grid',
+            gridTemplateColumns,
+            gridAutoRows: `${rowHeight}px`,
+            gridTemplateRows,
+            gap: `${gap}px`,
+            width: '100%',
             border: '1px solid rgba(0,0,0,0.06)',
-            borderRadius: 1,
-            p: 1,
+            borderRadius: 0,
             boxSizing: 'border-box',
             overflow: 'hidden',
           }}
         >
           {placement.map((p) => {
-            const leftPercent = ((p.start - 1) / phases) * 100;
-            const widthPercent = ((p.end - p.start + 1) / phases) * 100;
-            const topPx = p.row * (rowHeight + gap);
+            const colStart = p.start;
+            const colEnd = p.end + 1;
+            const row = p.row + 1;
             const completed = p.action.status === 'completed';
 
             return (
-              <Box
+              <Grid
                 key={p.action.id}
                 sx={{
-                  position: 'absolute',
-                  left: `${leftPercent}%`,
-                  top: `${topPx}px`,
-                  width: `calc(${widthPercent}% - ${gap}px)`,
+                  gridColumn: `${colStart} / ${colEnd}`,
+                  gridRow: `${row} / ${row + 1}`,
                   height: `${rowHeight}px`,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  zIndex: 1,
                 }}
               >
-                <Button
-                  fullWidth
-                  variant={completed ? 'contained' : 'contained'}
-                  color={completed ? 'secondary' : 'primary'}
-                  onClick={() => onActionClick(p.action)}
-                  sx={{
-                    height: '100%',
-                    textTransform: 'none',
-                    overflow: 'hidden',
-                    whiteSpace: 'nowrap',
-                    textOverflow: 'ellipsis',
-                    color: completed ? 'secondary.contrastText' : 'primary.contrastText',
-                  }}
-                >
-                  {getActionName(p.action)}
-                  {completed ? undefined : '...'}
-                </Button>
-              </Box>
+                <ActorAction action={p.action} completed={completed} onClick={() => onActionClick(p.action)} />
+              </Grid>
             );
           })}
+
+          {/* Declaration buttons row */}
           {Array.from({ length: phases }, (_, i) => {
-            const leftPercent = (i / phases) * 100;
-            const widthPercent = 100 / phases;
-            const topPx = rowsCount * (rowHeight + gap);
+            const colStart = i + 1;
+            const colEnd = i + 2;
+            const row = rowsCount + 1;
             return (
-              <Box
+              <Grid
                 key={`declare-${i}`}
                 sx={{
-                  position: 'absolute',
-                  left: `${leftPercent}%`,
-                  top: `${topPx}px`,
-                  width: `calc(${widthPercent}% - ${gap}px)`,
-                  height: `${declareHeight}px`,
+                  gridColumn: `${colStart} / ${colEnd}`,
+                  gridRow: `${row} / ${row + 1}`,
+                  height: declareHeight,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  zIndex: 1,
                 }}
               >
                 {i + 1 === currentPhase && (
-                  <ActorRoundDeclarationButtons actorRound={actorRound} currentPhase={currentPhase} />
+                  <ActorRoundDeclarationButtons
+                    actorRound={actorRound}
+                    currentPhase={currentPhase}
+                    setDisplayPhase={setDisplayPhase}
+                  />
                 )}
-              </Box>
+              </Grid>
             );
           })}
-        </Box>
+        </Grid>
       </Box>
+
       {selectedAction && actorRound && character && (
         <ActionDialog
           action={selectedAction}
           actorRound={actorRound}
-          character={character}
           open={resolveDialogOpen}
           onClose={() => {
             setResolveDialogOpen(false);
@@ -183,4 +170,3 @@ const ActorActions: FC<ActorActionsProps> = ({ actorId, phases = 4, currentPhase
   );
 };
 
-export default ActorActions;

@@ -1,12 +1,12 @@
 import React, { Dispatch, FC, SetStateAction, useContext } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useAuth } from 'react-oidc-context';
 import { Button, Grid } from '@mui/material';
-import { NumericInput } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { t } from 'i18next';
+import { NumericInput, SelectDifficulty } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../CombatContext';
 import { useError } from '../../../../ErrorContext';
 import { resolveManeuver } from '../../../api/action';
 import { Action, ActionManeuver } from '../../../api/action.dto';
-import SelectDifficulty from '../../../shared/selects/SelectDifficulty';
 import SelectLightModifier from '../../../shared/selects/SelectLightModifier';
 import SelectLightType from '../../../shared/selects/SelectLightType';
 
@@ -15,6 +15,8 @@ const ActionManeuverModifiersForm: FC<{
   formData: ActionManeuver;
   setFormData: Dispatch<SetStateAction<ActionManeuver>>;
 }> = ({ action, formData, setFormData }) => {
+  const auth = useAuth();
+  const { t } = useTranslation();
   const { updateAction } = useContext(CombatContext)!;
   const { showError } = useError();
 
@@ -34,7 +36,7 @@ const ActionManeuverModifiersForm: FC<{
   }
 
   function onResolve(): void {
-    resolveManeuver(action.id, formData)
+    resolveManeuver(action.id, formData, auth)
       .then((result: Action) => {
         updateAction(result);
       })
@@ -45,9 +47,9 @@ const ActionManeuverModifiersForm: FC<{
     <Grid container spacing={2}>
       <Grid size={12}>
         <SelectDifficulty
-          value={formData.modifiers.difficulty}
-          onChange={(value) => setModifier('difficulty', value)}
-          readOnly={readOnly}
+          value={formData.modifiers.difficulty || ''}
+          onChange={(value) => setModifier('difficulty', value.key)}
+          label={t('difficulty')}
         />
       </Grid>
       <Grid size={12}>

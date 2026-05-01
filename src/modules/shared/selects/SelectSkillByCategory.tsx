@@ -1,17 +1,18 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { FC, useEffect, useState } from 'react';
 import { Stack, Button, Grid, FormControl, Divider } from '@mui/material';
-import { t } from 'i18next';
+import { SkillCategory, Skill, fetchSkillCategories, fetchSkills } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { useError } from '../../../ErrorContext';
-import { fetchSkills } from '../../api/skill';
-import { fetchSkillCategories } from '../../api/skill-category';
-import { SkillCategory } from '../../api/skill-category.dto';
-import { Skill } from '../../api/skill.dto';
+import { useAuth } from 'react-oidc-context';
+import { useTranslation } from 'react-i18next';
 
 const SelectSkillByCategory: FC<{
   value?: string;
-  onChange: (skillId: string | null) => void;
+  onChange: (skillId: string) => void;
   readOnly?: boolean;
 }> = ({ value, onChange, readOnly = false }) => {
+  const { t } = useTranslation();
+  const auth = useAuth();
   const { showError } = useError();
 
   const [categories, setCategories] = useState<SkillCategory[] | undefined>(undefined);
@@ -20,11 +21,11 @@ const SelectSkillByCategory: FC<{
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchSkillCategories()
-      .then((data) => setCategories(data))
+    fetchSkillCategories("", 0, 100, auth)
+      .then((data) => setCategories(data.content))
       .catch((err) => showError(err.message));
-    fetchSkills()
-      .then((data) => setAllSkills(data))
+    fetchSkills("", 0, 1000, auth)
+      .then((data) => setAllSkills(data.content))
       .catch((err) => showError(err.message));
   }, [showError]);
 
@@ -38,7 +39,6 @@ const SelectSkillByCategory: FC<{
 
   const handleCategoryClick = (catId: string) => {
     if (readOnly) return;
-    onChange(null);
     setSelectedCategory(catId);
   };
 
@@ -50,7 +50,7 @@ const SelectSkillByCategory: FC<{
   if (!categories || !allSkills) return <div>Loading...</div>;
 
   return (
-    <Grid container spacing={2} mt={2}>
+    <Grid container spacing={2} sx={{mt:2}}>
       <Grid size={12}>
         <FormControl component="fieldset" variant="standard" sx={{ width: '100%' }}>
           <Stack direction="row" sx={{ flexWrap: 'wrap', gap: 1 }}>
@@ -72,7 +72,7 @@ const SelectSkillByCategory: FC<{
           </Stack>
         </FormControl>
       </Grid>
-      <Grid size={12} mt={2}>
+      <Grid size={12} sx={{mt:2}}>
         <Divider sx={{ width: '100%', my: 1 }} />
       </Grid>
       <Grid size={12}>

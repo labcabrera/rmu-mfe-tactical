@@ -1,4 +1,5 @@
 import React, { FC, useContext } from 'react';
+import { useAuth } from 'react-oidc-context';
 import { Stack, Typography } from '@mui/material';
 import { NumericInput } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../CombatContext';
@@ -12,46 +13,47 @@ const barSize = 160;
 const ActorRoundBars: FC<{
   actorRound: ActorRound;
 }> = ({ actorRound }) => {
+  const auth = useAuth();
   const { showError } = useError();
-  const { updateActorRound } = useContext(CombatContext);
+  const { updateActorRound } = useContext(CombatContext)!;
 
   const updateActorRoundHP = (newHp: number) => {
     const diff = (actorRound.hp?.current ?? 0) - newHp;
-    addActorRoundHp(actorRound.id, diff)
+    addActorRoundHp(actorRound.id, diff, auth)
       .then((updated) => updateActorRound(updated))
       .catch((err) => showError(err));
   };
 
   const updateActorRoundFatigueAccumulator = (newFatigue: number) => {
     const diff = newFatigue - (actorRound.fatigue?.accumulator ?? 0);
-    addActorRoundFatigueAccumulator(actorRound.id, diff)
+    addActorRoundFatigueAccumulator(actorRound.id, diff, auth)
       .then((updated) => updateActorRound(updated))
       .catch((err) => showError(err));
   };
 
   return (
     <Stack spacing={1} sx={{ width: '100%' }}>
-      <Stack direction="column" spacing={2} alignItems="flex-start">
+      <Stack direction="column" spacing={2} sx={{ alignItems: 'flex-start' }}>
         <Stack direction="row" spacing={2}>
-          <GenericBar current={actorRound.hp?.current ?? 0} max={actorRound.hp?.max ?? 0} title="HP" width={barSize} />
+          <GenericBar current={actorRound.hp?.current ?? 0} max={actorRound.hp?.max ?? 0} width={barSize} />
           <NumericInput
             label="New hit points"
             value={actorRound.hp?.current ?? null}
             integer
             min={0}
             max={actorRound.hp?.max}
-            onChange={(e) => updateActorRoundHP(e)}
+            onChange={(e) => updateActorRoundHP(e!)}
           />
         </Stack>
         <Stack direction="row" spacing={2}>
-          <GenericBar current={Math.round(actorRound.fatigue?.accumulator ?? 0)} max={100} title="FA" width={barSize} />
+          <GenericBar current={Math.round(actorRound.fatigue?.accumulator ?? 0)} max={100} width={barSize} />
           <NumericInput
             label="New fatigue accumulator"
             value={actorRound.fatigue?.accumulator ?? null}
             maxFractionDigits={2}
             min={0}
             max={1000}
-            onChange={(e) => updateActorRoundFatigueAccumulator(e)}
+            onChange={(e) => updateActorRoundFatigueAccumulator(e!)}
           />
         </Stack>
       </Stack>

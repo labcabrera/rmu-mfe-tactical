@@ -4,15 +4,13 @@ import IconButton from '@mui/material/IconButton';
 import Stack from '@mui/material/Stack';
 import { Action } from '../../api/action.dto';
 import { ActorRound } from '../../api/actor-rounds.dto';
-import type { Character } from '../../api/characters';
 import ActionDialog from '../action-dialogs/ActionDialog';
 
 const ViewPrevAction: FC<{
   activeAction: Action;
   actorRound: ActorRound;
-  character: Character;
   phase: number;
-}> = ({ activeAction, actorRound, character, phase }) => {
+}> = ({ activeAction, actorRound, phase }) => {
   const [resolveDialogOpen, setResolveDialogOpen] = useState(false);
 
   if (!activeAction) return <p>Loading...</p>;
@@ -23,7 +21,6 @@ const ViewPrevAction: FC<{
         <ActionDialog
           action={activeAction}
           actorRound={actorRound}
-          character={character}
           open={resolveDialogOpen}
           onClose={() => setResolveDialogOpen(false)}
         />

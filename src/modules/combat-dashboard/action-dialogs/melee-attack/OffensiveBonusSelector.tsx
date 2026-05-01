@@ -31,7 +31,7 @@ const OffensiveBonusSelector: FC<Props> = ({ value, onChange, min = 0, max, inte
       <Typography variant="subtitle2" gutterBottom>
         Used BO
       </Typography>
-      <Stack direction="row" spacing={2} alignItems="center" sx={{ mb: 1 }}>
+      <Stack direction="row" spacing={2} sx={{ mb: 1,alignItems:"center"  }}>
         <Box sx={{ flex: 1, minWidth: 0, alignSelf: 'center' }}>
           <Slider
             value={current}

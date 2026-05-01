@@ -1,29 +1,35 @@
-import React, { FC, useContext, useState } from 'react';
-import { ButtonGroup } from '@mui/material';
+import React, { Dispatch, FC, SetStateAction, useContext, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useAuth } from 'react-oidc-context';
+import { Badge, Stack } from '@mui/material';
 import { CombatContext } from '../../../CombatContext';
 import { useError } from '../../../ErrorContext';
 import { createAction } from '../../api/action';
 import { ActorRound } from '../../api/actor-rounds.dto';
-import ActionIconButton from '../../shared/buttons/ActionIconButton';
+import { imageBaseUrl } from '../../services/config';
+import RmuImageButton from '../../shared/buttons/RmuImageButton';
 import DeclareActionDialog from '../action-dialogs/DeclareActionDialog';
 
-const ActorRoundDeclarationButtons: FC<{ actorRound: ActorRound; currentPhase: number }> = ({
-  actorRound,
-  currentPhase,
-}) => {
+const buttonSize = 35;
+
+const ActorRoundDeclarationButtons: FC<{
+  actorRound: ActorRound;
+  currentPhase: number;
+  setDisplayPhase: Dispatch<SetStateAction<string>>;
+}> = ({ actorRound, currentPhase, setDisplayPhase }) => {
+  const auth = useAuth();
+  const { t } = useTranslation();
   const { showError } = useError();
   const { game, roundActions, setRoundActions } = useContext(CombatContext)!;
   const [declareActionDialogOpen, setDeclareActionDialogOpen] = useState(false);
-  const pendingActions = roundActions.filter((a) => a.status !== 'completed');
+  const pendingActions = roundActions?.filter((a) => a.status !== 'completed') || [];
 
   if (!actorRound || !game) return <>Loading...</>;
 
-  const disabledRangedWeapon = !actorRound.attacks.some((a) => a.type === 'ranged');
-
+  const disabledRangedAttack = !actorRound.attacks.some((a) => a.type === 'ranged');
   const disabledMovement = pendingActions.some(
     (a) => a.actorId === actorRound.actorId && a.actionType === 'movement' && !a.freeAction
   );
-
   const disabledMeleeAttack = pendingActions.some(
     (a) => a.actorId === actorRound.actorId && a.actionType === 'melee_attack' && !a.freeAction
   );
@@ -36,38 +42,67 @@ const ActorRoundDeclarationButtons: FC<{ actorRound: ActorRound; currentPhase: n
       phaseStart: currentPhase,
       freeAction: freeAction,
     };
-    createAction(data)
+    createAction(data, auth)
       .then((action) => {
-        setRoundActions([...roundActions, action]);
+        setRoundActions([...(roundActions || []), action]);
+        setDisplayPhase(game.phase);
       })
-      .catch((err: Error) => showError(err.message));
+      .catch((err) => showError(err.message));
   };
 
   return (
     <>
-      <ButtonGroup variant="outlined" size="small" aria-label="Actor round declaration buttons" sx={{ mt: 1.5 }}>
-        <ActionIconButton
-          actionType="movement"
-          onClick={() => onActionDeclaration('movement', false)}
-          disabled={disabledMovement}
+      <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', gap: 0 }}>
+        {!disabledMovement && (
+          <>
+            <Badge
+              badgeContent="F"
+              color="success"
+              sx={{
+                '& .MuiBadge-badge': {
+                  right: 8,
+                  top: 8,
+                },
+              }}
+            >
+              <RmuImageButton
+                src={`${imageBaseUrl}images/icons/movement.png`}
+                tooltip={t('Free movement')}
+                onClick={() => onActionDeclaration('movement', true)}
+                size={buttonSize}
+              />
+            </Badge>
+            <RmuImageButton
+              src={`${imageBaseUrl}images/icons/movement.png`}
+              tooltip={t('Normal movement')}
+              onClick={() => onActionDeclaration('movement', false)}
+              size={buttonSize}
+            />
+          </>
+        )}
+        {!disabledMeleeAttack && (
+          <RmuImageButton
+            src={`${imageBaseUrl}images/icons/attack.png`}
+            tooltip={t('Melee attack')}
+            onClick={() => onActionDeclaration('melee_attack', false)}
+            size={buttonSize}
+          />
+        )}
+        {!disabledRangedAttack && (
+          <RmuImageButton
+            src={`${imageBaseUrl}images/icons/ranged-attack.png`}
+            tooltip={t('Ranged attack')}
+            onClick={() => onActionDeclaration('ranged_attack', false)}
+            size={buttonSize}
+          />
+        )}
+        <RmuImageButton
+          src={`${imageBaseUrl}images/icons/add.png`}
+          tooltip={t('Other actions')}
+          onClick={() => setDeclareActionDialogOpen(true)}
+          size={buttonSize}
         />
-        <ActionIconButton
-          actionType="free_movement"
-          onClick={() => onActionDeclaration('movement', true)}
-          disabled={disabledMovement}
-        />
-        <ActionIconButton
-          actionType="melee_attack"
-          onClick={() => onActionDeclaration('melee_attack', false)}
-          disabled={disabledMeleeAttack}
-        />
-        <ActionIconButton
-          actionType="ranged_attack"
-          onClick={() => onActionDeclaration('ranged_attack', false)}
-          disabled={disabledRangedWeapon}
-        />
-        <ActionIconButton actionType="other" onClick={() => setDeclareActionDialogOpen(true)} />
-      </ButtonGroup>
+      </Stack>
       <DeclareActionDialog
         actorRound={actorRound}
         phaseNumber={currentPhase}

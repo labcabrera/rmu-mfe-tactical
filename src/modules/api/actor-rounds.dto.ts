@@ -1,6 +1,7 @@
 export type ActorRound = {
   id: string;
   gameId: string;
+  factionId: string;
   actorId: string;
   actorName: string;
   round: number;
@@ -21,7 +22,7 @@ export type ActorRoundMovement = {
   bmr: number;
   penalty: number;
   maxPace: string;
-  baseDificulty: string;
+  baseDifficulty: string;
 };
 
 export type ActorRoundPenaltyModifier = {
@@ -65,6 +66,12 @@ export type ActorRoundDefense = {
   bodyAt: number | undefined;
   armsAt: number | undefined;
   legsAt: number | undefined;
+  shield: ActorRoundDefenseShield | null;
+  protect: number;
+};
+
+export type ActorRoundDefenseShield = {
+  db: number;
 };
 
 export type ActorRoundEffect = {

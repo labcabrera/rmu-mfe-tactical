@@ -1,18 +1,20 @@
-import React, { Dispatch, FC, SetStateAction, useContext, useEffect, useState } from 'react';
-import { Button, Chip, Grid, Stack, Typography } from '@mui/material';
-import { NumericInput, StrategicGame, TacticalGame } from '@labcabrera-rmu/rmu-react-shared-lib';
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { Dispatch, FC, SetStateAction, useEffect, useState } from 'react';
+import { Chip, Grid, Stack } from '@mui/material';
+import {
+  CategorySeparator,
+  NumericInput,
+  OpenEndedRollInput,
+  StrategicGame,
+  TacticalGame,
+} from '@labcabrera-rmu/rmu-react-shared-lib';
 import { t } from 'i18next';
-import { CombatContext } from '../../../../CombatContext';
-import { useError } from '../../../../ErrorContext';
-import { resolveMovement } from '../../../api/action';
 import { Action, ActionMovement } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
 import { useSkillService } from '../../../services/skill-service';
-import SelectBoolean from '../../../shared/selects/SelectBoolean';
-import SelectDifficulty from '../../../shared/selects/SelectDifficulty';
-import SelectMovementSkill from '../../../shared/selects/SelectMovementSkill';
-import SelectPace, { Pace } from '../../../shared/selects/SelectPace';
-import MovementResult from './MovementResult';
+import DialogSelect from '../../../shared/DialogSelect';
+import SelectDifficultyDialog from '../../../shared/SelectDificultyDialog';
+import MovementPaceTableSelector from './MovementPaceTableSelector';
 
 const MovementModifiersForm: FC<{
   formData: ActionMovement;
@@ -22,13 +24,12 @@ const MovementModifiersForm: FC<{
   strategicGame: StrategicGame;
   action: Action;
 }> = ({ formData, setFormData, actorRound, game, strategicGame, action }) => {
-  const [paceMultiplier, setPaceMultiplier] = useState<number | null>(null);
-  const [movement, setMovement] = useState<number | null>(null);
-  const [adjustedMovement, setAdjustedMovement] = useState<number | null>(null);
-  const [skillBonus, setSkillBonus] = useState<number | null>(null);
-  const { updateAction } = useContext(CombatContext)!;
-  const { showError } = useError();
+  const [skillBonus, setSkillBonus] = useState<number>();
   const { getSkillBonus } = useSkillService();
+  const isCompleted = action.status === 'completed';
+  const maneuverPenalty = actorRound.movement.penalty;
+  const maxPace = actorRound.movement.maxPace;
+  const baseDifficulty = actorRound.movement.baseDifficulty;
 
   const getActionPoints = () => {
     const startPhase = action.phaseStart;
@@ -36,83 +37,73 @@ const MovementModifiersForm: FC<{
     return currentPhase - startPhase + 1;
   };
 
-  const handlePaceChange = (value: string, pace: Pace) => {
-    setFormData({ ...formData, modifiers: { ...formData.modifiers, pace: value } });
-    setPaceMultiplier(pace.multiplier);
-    const actionPoints = getActionPoints();
-    const movementValue = actorRound.movement.bmr * pace.multiplier * actionPoints;
-    const scaleMultiplier = strategicGame?.options?.boardScaleMultiplier || 1;
-    const adjustedMovementValue = movementValue * scaleMultiplier;
-    setMovement(Number(movementValue.toFixed(2)));
-    setAdjustedMovement(Number(adjustedMovementValue.toFixed(1)));
-  };
-
   const handleDifficultyChange = (value: string) => {
     setFormData({ ...formData, modifiers: { ...formData.modifiers, difficulty: value } });
   };
 
-  const handleMovementSkillChange = (skillId: string) => {
-    setFormData({ ...formData, modifiers: { ...formData.modifiers, skillId: skillId } });
-    const bonus = getSkillBonus(skillId, actorRound);
-    setSkillBonus(typeof bonus === 'number' ? bonus : null);
-  };
-
-  const onResolve = () => {
-    resolveMovement(action.id, formData)
-      .then((result: Action) => {
-        updateAction(result);
-      })
-      .catch((err: Error) => showError(err.message));
-  };
-
-  const resolveButtonDisabled = () => {
-    if (!formData.modifiers.pace) return true;
-    if (formData.modifiers.requiredManeuver && !formData.roll?.roll) return true;
-    return false;
+  const getChipColor = (value: number | null | undefined) => {
+    if (!value) return 'secondary';
+    if (value > 0) return 'success';
+    if (value < 1) return 'error';
+    return 'secondary';
   };
 
   useEffect(() => {
     const skillId = formData?.modifiers?.skillId;
     if (!skillId) {
-      setSkillBonus(null);
+      setSkillBonus(undefined);
       return;
     }
     const bonus = getSkillBonus(skillId, actorRound);
-    setSkillBonus(typeof bonus === 'number' ? bonus : null);
+    setSkillBonus(bonus || -20);
   }, [actorRound, formData?.modifiers?.skillId]);
 
+  if (isCompleted) return;
+
   return (
-    <Grid container spacing={2}>
+    <Grid container spacing={1}>
       <Grid size={12}>
-        <SelectMovementSkill
-          value={formData.modifiers.skillId || ''}
-          onChange={handleMovementSkillChange}
-          readOnly={action.status === 'completed'}
-        />
+        <Stack direction="row" spacing={1}>
+          <Chip color="secondary" label={`Action points: ${getActionPoints()}`} />
+          <Chip color={getChipColor(maneuverPenalty)} label={`Maneuver penalty: ${maneuverPenalty}`} />
+          <Chip
+            color={getChipColor(skillBonus)}
+            label={`Skill bonus: ${skillBonus ? `${skillBonus > 0 ? '+' : ''}${skillBonus}` : ''}`}
+          />
+          <Chip color="secondary" label={`Max pace: ${t(maxPace)}`} />
+          <Chip color="secondary" label={`Base difficulty: ${t(`difficulty-${baseDifficulty}`)}`} />
+        </Stack>
       </Grid>
       <Grid size={12}>
-        <SelectPace
-          value={formData.modifiers.pace}
-          onChange={(v, p) => handlePaceChange(v, p)}
-          readOnly={action.status === 'completed'}
+        <CategorySeparator text="Modifiers" />
+      </Grid>
+      <Grid size={4}>
+        <DialogSelect
+          label="Skill"
+          value={formData.modifiers.skillId}
+          options={['running', 'swimming', 'climbing', 'flying']}
+          onChange={(e) => setFormData({ ...formData, modifiers: { ...formData.modifiers, skillId: e as string } })}
+          readOnly={isCompleted}
         />
       </Grid>
-      <Grid size={12}>
-        <SelectBoolean
-          id="required-maneuver"
-          name="Required maneuver"
-          value={formData.modifiers.requiredManeuver}
-          onChange={(val) => setFormData({ ...formData, modifiers: { ...formData.modifiers, requiredManeuver: val } })}
-          readOnly={action.status === 'completed'}
+      <Grid size={4}>
+        <DialogSelect
+          label="Required maneuver"
+          value={formData.modifiers.requiredManeuver === true ? 'yes' : 'no'}
+          options={['yes', 'no']}
+          onChange={(e) =>
+            setFormData({ ...formData, modifiers: { ...formData.modifiers, requiredManeuver: e === 'yes' } })
+          }
         />
       </Grid>
+
       {formData.modifiers.requiredManeuver && (
         <>
-          <Grid size={12}>
-            <SelectDifficulty
+          <Grid size={4}>
+            <SelectDifficultyDialog
               value={formData.modifiers.difficulty}
-              onChange={handleDifficultyChange}
-              readOnly={action.status === 'completed'}
+              onChange={(e) => handleDifficultyChange(e!)}
+              readOnly={isCompleted}
             />
           </Grid>
           {action.status !== 'completed' && (
@@ -121,58 +112,31 @@ const MovementModifiersForm: FC<{
               <Grid size={2}>
                 <NumericInput
                   label="Custom modifier"
-                  value={formData.modifiers.customModifier}
+                  value={formData.modifiers.customBonus}
                   onChange={(val: number | null) =>
-                    setFormData({ ...formData, modifiers: { ...formData.modifiers, customModifier: val } })
+                    setFormData({ ...formData, modifiers: { ...formData.modifiers, customBonus: val || 0 } })
                   }
                   integer
                 />
               </Grid>
-              <Grid size={2}>
-                <NumericInput
-                  label="Roll"
-                  value={formData.roll.roll}
-                  onChange={(val: number | null) => setFormData({ ...formData, roll: { roll: val } })}
-                  integer
-                />
+              <Grid size={12}>
+                <OpenEndedRollInput onChange={(v) => setFormData({ ...formData, roll: { roll: v } })} />
               </Grid>
-              <Grid size={12}></Grid>
             </>
           )}
         </>
       )}
-      {formData.modifiers.pace && !action.movement?.calculated && (
-        <Grid size={12}>
-          <Typography variant="h6">Estimated</Typography>
-          <Stack direction="row" spacing={1}>
-            <Chip label={`Action points: ${getActionPoints()}`} />
-            <Chip label={`Maneuver penalty: ${actorRound.movement.penalty}`} />
-            <Chip label={`Skill bonus: ${skillBonus !== null ? `${skillBonus > 0 ? '+' : ''}${skillBonus}` : ''}`} />
-          </Stack>
-          <Stack direction="row" spacing={1} mt={1}>
-            <Chip label={`BMR: ${actorRound.movement.bmr}'`} />
-            {formData?.modifiers?.pace && (
-              <>
-                <Chip label={`Pace x${paceMultiplier}`} />
-                <Chip label={`Distance: ${movement !== null ? `${movement}'` : ''}`} />
-                <Chip label={`Adjusted: ${adjustedMovement !== null ? `${adjustedMovement}` : ''}`} />
-              </>
-            )}
-          </Stack>
-        </Grid>
-      )}
-      {action.status !== 'completed' && (
-        <Button onClick={onResolve} size="large" disabled={resolveButtonDisabled()} variant="contained" color="success">
-          {t('resolve')}
-        </Button>
-      )}
-      {action.movement && action.movement.calculated && <MovementResult action={action} />}
-      {/* <Grid size={12}>
-        <pre>{JSON.stringify(formData, null, 2)}</pre>
-      </Grid>
       <Grid size={12}>
-        <pre>{JSON.stringify(action, null, 2)}</pre>
-      </Grid> */}
+        <MovementPaceTableSelector
+          actorRound={actorRound}
+          formData={formData}
+          setFormData={setFormData}
+          game={game}
+          strategicGame={strategicGame}
+          action={action}
+          readonly={isCompleted}
+        />
+      </Grid>
     </Grid>
   );
 };

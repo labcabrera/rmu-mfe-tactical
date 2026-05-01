@@ -1,4 +1,5 @@
 import React, { Dispatch, FC, SetStateAction } from 'react';
+import { useAuth } from 'react-oidc-context';
 import { Grid } from '@mui/material';
 import {
   CategorySeparator,
@@ -6,10 +7,10 @@ import {
   addTacticalGameFaction,
   RmuTextCard,
   TacticalGame,
+  Faction,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { t } from 'i18next';
 import { useError } from '../../../ErrorContext';
-import type { Faction } from '../../api/factions';
 import { defaultFactionImage } from '../../services/image-service';
 
 const TacticalGameViewFactions: FC<{
@@ -17,6 +18,7 @@ const TacticalGameViewFactions: FC<{
   setTacticalGame: Dispatch<SetStateAction<TacticalGame | undefined>>;
   factions: Faction[];
 }> = ({ tacticalGame, setTacticalGame, factions }) => {
+  const auth = useAuth();
   const { showError } = useError();
 
   const isSelected = (factionId: string) => {
@@ -26,7 +28,7 @@ const TacticalGameViewFactions: FC<{
   const handleFactionChange = (factionId: string) => {
     const checked = isSelected(factionId);
     const func = checked ? deleteTacticalGameFaction : addTacticalGameFaction;
-    func(tacticalGame.id, factionId)
+    func(tacticalGame.id, factionId, auth)
       .then((updatedGame) => setTacticalGame(updatedGame))
       .catch((err) => showError(err.message));
   };
@@ -37,7 +39,7 @@ const TacticalGameViewFactions: FC<{
 
   return (
     <>
-      <CategorySeparator text={t('factions')} />
+      <CategorySeparator text={t('Factions')} />
       <Grid container spacing={1}>
         {factions.map((faction, index) => (
           <Grid size={12}>

@@ -1,15 +1,16 @@
 import React, { Dispatch, FC, SetStateAction } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Grid, TextField } from '@mui/material';
-import { t } from 'i18next';
-import type { StrategicGame } from '../../api/strategic-games';
-import { CreateTacticalGameDto } from '../../api/tactical-game';
+import { StrategicGame, TacticalGame } from '@labcabrera-rmu/rmu-react-shared-lib';
 import SelectStrategicGame from '../../shared/selects/SelectStrategicGame';
 
 const TacticalGameCreationResume: FC<{
-  formData: CreateTacticalGameDto;
-  setFormData: Dispatch<SetStateAction<CreateTacticalGameDto>>;
+  formData: TacticalGame;
+  setFormData: Dispatch<SetStateAction<TacticalGame>>;
   strategicGames: StrategicGame[];
 }> = ({ formData, setFormData, strategicGames }) => {
+  const { t } = useTranslation();
+
   return (
     <Grid container spacing={2}>
       <Grid size={12}>

@@ -1,7 +1,8 @@
 import React, { Dispatch, FC, SetStateAction, useContext, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useAuth } from 'react-oidc-context';
 import { Grid, Chip, Stack, Typography } from '@mui/material';
-import { NumericInput } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { t } from 'i18next';
+import { CategorySeparator, NumericInput, OpenEndedRollInput } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../CombatContext';
 import { useError } from '../../../../ErrorContext';
 import { updateAttackRoll } from '../../../api/action';
@@ -18,12 +19,16 @@ const ResolveAttackFormRoll: FC<{
   attack: ActionAttack;
   index: number;
 }> = ({ formData, setFormData, action, attack, index }) => {
-  const { updateAction } = useContext(CombatContext);
+  const auth = useAuth();
+  const { t } = useTranslation();
+  const { updateAction } = useContext(CombatContext)!;
   const { showError } = useError();
-  const [attackRoll, setAttackRoll] = useState<number | undefined>(attack.roll?.roll);
-  const [locationRoll, setLocationRoll] = useState<number | undefined>(attack.roll?.locationRoll);
+  const [attackRoll, setAttackRoll] = useState<number | undefined>(attack.roll?.roll || undefined);
+  const [locationRoll, setLocationRoll] = useState<number | undefined>(attack.roll?.locationRoll || undefined);
 
   if (!formData || !formData.attacks || formData.attacks.length <= index) return <div>Loading...</div>;
+
+  if (!attack.calculated) return <p>Not calculated attack...</p>;
 
   const onRollChange = (value: number | undefined) => {
     setAttackRoll(value);
@@ -39,8 +44,8 @@ const ResolveAttackFormRoll: FC<{
     const roll = newAttackRoll !== undefined ? newAttackRoll : attackRoll;
     const loc = newLocationRoll !== undefined ? newLocationRoll : locationRoll;
     if (roll === undefined || roll === null) return;
-    if (attack.calculated.requiredLocationRoll && (loc === undefined || loc === null)) return;
-    updateAttackRoll(action.id, attack.attackName, roll, loc)
+    if (attack.calculated!.requiredLocationRoll && (loc === undefined || loc === null)) return;
+    updateAttackRoll(action.id, attack.attackName, roll, loc, auth)
       .then((updatedAction) => {
         const newFormData = { attacks: updatedAction.attacks, parries: updatedAction.parries } as AttackDeclaration;
         updateAction(updatedAction);
@@ -59,58 +64,68 @@ const ResolveAttackFormRoll: FC<{
 
   const getCriticalText = (): string => {
     if (!attack.results || !attack.results.criticals || attack.results.criticals.length === 0) return '';
-    return `Critical ${attack.results.attackTableEntry.criticalSeverity}${attack.results.attackTableEntry.criticalType}`;
+    return `Critical ${attack.results.attackTableEntry!.criticalSeverity}${attack.results.attackTableEntry!.criticalType}`;
+  };
+
+  const getAbsoluteHitText = (totalRoll: number) => {
+    return `Absolute hit: +${Math.ceil((totalRoll - 175) / 5)}`;
   };
 
   return (
     <Grid container spacing={1}>
       <Grid size={12}>
-        <ResolveAttackInfo action={action} attack={formData.attacks[index]} />
+        <ResolveAttackInfo attack={formData.attacks[index]} />
       </Grid>
       {attack.calculated.requiredLocationRoll && (
-        <Grid size={2} offset={2}>
+        <Grid size={2}>
           <NumericInput
-            label={t('location-roll')}
+            label={t('Location roll')}
             value={attack.roll?.locationRoll || null}
             min={1}
             max={100}
-            onChange={(e) => onLocationRollChange(e)}
+            onChange={(e) => onLocationRollChange(e!)}
             disabled={action.status === 'completed'}
             error={!locationRoll}
           />
         </Grid>
       )}
-      <Grid size={2}>
+      <Grid size={12}>
         {attack.calculated.location && (
           <Grid size={8}>
             <Chip size="medium" color="error" label={t(attack.calculated.location)} />
           </Grid>
         )}
       </Grid>
-      <Grid size={12}></Grid>
-      <Grid size={2} offset={2}>
-        <NumericInput
-          label={t('attack-roll')}
-          value={attack.roll?.roll || null}
-          onChange={(e) => onRollChange(e)}
-          disabled={action.status === 'completed'}
-          error={!attackRoll}
-        />
+      <Grid size={12}>
+        <CategorySeparator text="Attack roll" />
       </Grid>
-
-      {attack.results && attack.results.attackTableEntry && (
-        <Grid size={8}>
+      <Grid size={2}>
+        <OpenEndedRollInput inputGridSize={12} gridColumns={12} onChange={(e) => onRollChange(e || undefined)} />
+      </Grid>
+      <Grid size={2}></Grid>
+      <Grid size={2}>
+        <Stack>
+          <Typography variant="h6">{attack.calculated.rollTotal}</Typography>
+          <Typography variant="body2" color="secondary">
+            Total
+          </Typography>
+        </Stack>
+      </Grid>
+      <Grid size={6}>
+        {attack.results && attack.results.attackTableEntry && (
           <Stack direction="row" spacing={1}>
             {attack.results.attackTableEntry.damage > 0 ? (
-              <Effect status={'dmg'} label={attack.results.attackTableEntry.damage} color="error" />
+              <Effect status={'dmg'} label={`${attack.results.attackTableEntry.damage}`} color="error" />
             ) : (
               <Typography>{t('no-damage')}</Typography>
             )}
             {attack.results.attackTableEntry.criticalType && <Chip label={getCriticalText()} color="error" />}
+            {attack.calculated.rollTotal > 175 && (
+              <Chip label={getAbsoluteHitText(attack.calculated.rollTotal)} color="error" />
+            )}
           </Stack>
-        </Grid>
-      )}
-      <Grid size={12}></Grid>
+        )}
+      </Grid>
       {isCriticalAttack() && (
         <ResolveAttackFormCriticals
           attack={attack}

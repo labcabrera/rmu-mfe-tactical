@@ -1,16 +1,17 @@
 import React, { Dispatch, FC, SetStateAction, useEffect, useState } from 'react';
+import { useAuth } from 'react-oidc-context';
 import { Grid } from '@mui/material';
 import {
   addActor,
   CategorySeparator,
+  Character,
   deleteActor,
+  Faction,
   RmuTextCard,
   TacticalGame,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { t } from 'i18next';
 import { useError } from '../../../ErrorContext';
-import { Character } from '../../api/characters.dto';
-import type { Faction } from '../../api/factions';
 
 const TacticalGameViewActors: FC<{
   tacticalGame: TacticalGame;
@@ -65,7 +66,7 @@ const TacticalGameViewActorsFaction: FC<{
 
   return (
     <>
-      <CategorySeparator text={faction?.name} />
+      <CategorySeparator text={faction?.name || '...'} />
       <Grid container spacing={1}>
         {factionCharacters.map((character) => (
           <Grid size={3}>
@@ -87,6 +88,7 @@ const TacticalGameViewActorsFactionItem: FC<{
   tacticalGame: TacticalGame;
   setTacticalGame: Dispatch<SetStateAction<TacticalGame | undefined>>;
 }> = ({ character, tacticalGame, setTacticalGame }) => {
+  const auth = useAuth();
   const { showError } = useError();
 
   const isSelected = () => {
@@ -95,8 +97,8 @@ const TacticalGameViewActorsFactionItem: FC<{
 
   const handleToggle = (character: Character) => {
     const func = isSelected()
-      ? deleteActor(tacticalGame.id, character.id)
-      : addActor(tacticalGame.id, character.id, 'character');
+      ? deleteActor(tacticalGame.id, character.id, auth)
+      : addActor(tacticalGame.id, character.id, 'character', auth);
     func
       .then((response) => {
         setTacticalGame(response);

@@ -1,7 +1,8 @@
 import React, { Dispatch, FC, Fragment, SetStateAction, useContext } from 'react';
-import { Stack, Grid } from '@mui/material';
-import { NumericInput } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
+import { useAuth } from 'react-oidc-context';
+import { Stack, Grid, Typography } from '@mui/material';
+import { CategorySeparator, NumericInput } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../CombatContext';
 import { useError } from '../../../../ErrorContext';
 import { updateCriticalRoll } from '../../../api/action';
@@ -10,12 +11,14 @@ import Effect from '../../../shared/generic/Effect';
 
 const ResolveAttackFormCriticals: FC<{
   formData: AttackDeclaration;
-  setFormData: Dispatch<SetStateAction<AttackDeclaration>>;
   action: Action;
   index: number;
   attack: ActionAttack;
-}> = ({ formData, setFormData, action, index, attack }) => {
-  const { updateAction } = useContext(CombatContext);
+  setFormData: Dispatch<SetStateAction<AttackDeclaration>>;
+}> = ({ formData, action, index, attack, setFormData }) => {
+  const auth = useAuth();
+  const { t } = useTranslation();
+  const { updateAction } = useContext(CombatContext)!;
   const { showError } = useError();
 
   if (!formData || !formData.attacks || formData.attacks.length <= index) return <div>Loading...</div>;
@@ -31,13 +34,13 @@ const ResolveAttackFormCriticals: FC<{
   };
 
   const onUpdateCriticalRoll = (criticalKey: string, roll: number) => {
-    updateCriticalRoll(action.id, attack.attackName, criticalKey, roll)
+    updateCriticalRoll(action.id, attack.attackName, criticalKey, roll, auth)
       .then((updatedAction) => {
         const newFormData = { attacks: updatedAction.attacks, parries: undefined };
         updateAction(updatedAction);
         setFormData(newFormData);
       })
-      .catch((err: Error) => showError(err.message));
+      .catch((err) => showError(err.message));
   };
 
   const getStatusLabel = (effect: any) => {
@@ -56,43 +59,57 @@ const ResolveAttackFormCriticals: FC<{
 
   return (
     <>
-      {attack.results.criticals.map((critical: any, index: number) => (
-        <Fragment key={index}>
-          <Grid size={2} offset={2}>
-            <NumericInput
-              label={t('critical-roll')}
-              value={getCriticalRoll(critical.key) || null}
-              onChange={(e) => onUpdateCriticalRoll(critical.key, e)}
-              disabled={action.status === 'completed'}
-            />
-          </Grid>
-          <Grid size={8}>
-            <Stack
-              direction="row"
-              spacing={1}
-              flexWrap="wrap"
-              useFlexGap
-              alignContent="flex-start"
-              sx={{
-                justifyContent: 'flex-start',
-                alignItems: 'flex-start',
-              }}
-            >
-              {critical.result && critical.result.damage && critical.result.damage > 0 && (
-                <Effect status={'dmg'} label={critical.result.damage} color="error" />
-              )}
-              {critical.result &&
-                critical.result.effects &&
-                critical.result.effects.length > 0 &&
-                critical.result.effects.map((effect, effectIndex) => (
-                  <Effect key={effectIndex} label={getStatusLabel(effect)} color="error" status={effect.status} />
-                ))}
-            </Stack>
-          </Grid>
-          <Grid size={4}></Grid>
-          <Grid size={8}>{critical.result?.text || ''}</Grid>
-        </Fragment>
-      ))}
+      <Grid container spacing={1} sx={{ mt: 1 }}>
+        {attack.results!.criticals.map((critical, index) => (
+          <Fragment key={index}>
+            <Grid size={12}>
+              <CategorySeparator text={`Critical ${critical.criticalType}${critical.criticalSeverity}`} />
+            </Grid>
+            <Grid size={2}>
+              <NumericInput
+                label={t('Critical roll')}
+                value={getCriticalRoll(critical.key) || null}
+                onChange={(e) => onUpdateCriticalRoll(critical.key, e)}
+                disabled={action.status === 'completed'}
+              />
+            </Grid>
+            <Grid size={2}></Grid>
+            <Grid size={2}>
+              <Stack>
+                <Typography variant="h6">{critical.adjustedRoll}</Typography>
+                <Typography variant="body2" color="secondary">
+                  Total
+                </Typography>
+              </Stack>
+            </Grid>
+            <Grid size={6}>
+              <Stack
+                direction="row"
+                spacing={1}
+                useFlexGap
+                sx={{
+                  flexWrap: 'wrap',
+                  alignContent: 'flex-start',
+                  justifyContent: 'flex-start',
+                  alignItems: 'flex-start',
+                }}
+              >
+                {critical.result && critical.result.damage && critical.result.damage > 0 && (
+                  <Effect status={'dmg'} label={critical.result.damage} color="error" />
+                )}
+                {critical.result &&
+                  critical.result.effects &&
+                  critical.result.effects.length > 0 &&
+                  critical.result.effects.map((effect, effectIndex) => (
+                    <Effect key={effectIndex} label={getStatusLabel(effect)} color="error" status={effect.status} />
+                  ))}
+              </Stack>
+            </Grid>
+            <Grid size={6}></Grid>
+            <Grid size={6}>{critical.result?.text || ''}</Grid>
+          </Fragment>
+        ))}
+      </Grid>
     </>
   );
 };
