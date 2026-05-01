@@ -15,7 +15,7 @@ const ResolveAttackParry: FC<{
     <Grid container spacing={1}>
       {formData.attacks.map((attack, index) => (
         <Grid size={12} key={index}>
-          <ResolveAttackInfo action={action} attack={attack} />
+          <ResolveAttackInfo attack={attack} />
         </Grid>
       ))}
       <Grid size={12}>

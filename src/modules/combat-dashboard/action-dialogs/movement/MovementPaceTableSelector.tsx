@@ -1,7 +1,7 @@
 import React, { Dispatch, FC, SetStateAction } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
 import { StrategicGame, TacticalGame } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { t } from 'i18next';
 import { Action, ActionMovement, MOVEMENT_TABLE } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
 
@@ -14,6 +14,7 @@ const MovementPaceTableSelector: FC<{
   readonly?: boolean;
   setFormData: Dispatch<SetStateAction<ActionMovement>>;
 }> = ({ formData, actorRound, game, strategicGame, action, readonly = false, setFormData }) => {
+  const { t } = useTranslation();
   const maxPace = actorRound.movement.maxPace;
 
   const getActionPoints = () => {

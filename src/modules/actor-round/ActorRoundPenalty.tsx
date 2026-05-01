@@ -2,17 +2,18 @@ import React, { FC, useContext, useState } from 'react';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Stack, Typography, Chip, Box, TextField, IconButton } from '@mui/material';
-import { t } from 'i18next';
 import { CombatContext } from '../../CombatContext';
 import { useError } from '../../ErrorContext';
 import { ActorRound, ActorRoundPenaltyModifier } from '../api/actor-rounds.dto';
+import { useTranslation } from 'react-i18next';
 
 const ActorRoundPenalty: FC<{
   actorRound: ActorRound;
 }> = ({ actorRound }) => {
+  const { t } = useTranslation();
   const [newPenalty, setNewPenalty] = useState('');
   const { showError } = useError();
-  const { updateActorRound } = useContext(CombatContext);
+  const { updateActorRound } = useContext(CombatContext)!;
 
   const addPenalty = () => {
     //TODO
@@ -46,7 +47,7 @@ const ActorRoundPenalty: FC<{
         </Stack>
       )}
 
-      <Box display="flex" alignItems="center" sx={{ mt: 1 }}>
+      <Box sx={{ mt: 1, display:"flex", alignItems:"center" }}>
         <TextField
           size="small"
           label="New penalty"

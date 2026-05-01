@@ -1,13 +1,14 @@
 import React, { FC, useContext, useState } from 'react';
 import { Button, Stack } from '@mui/material';
-import { t } from 'i18next';
 import { CombatContext } from '../../../CombatContext';
 import { ActorRound, ActorRoundAlert } from '../../api/actor-rounds.dto';
 import ActorAlertDialog from '../actor-alert-dialogs/ActorAlertDialog';
+import { useTranslation } from 'react-i18next';
 
 const ActorRoundAlerts: FC<{
   actorRound: ActorRound;
 }> = ({ actorRound }) => {
+  const { t } = useTranslation();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [selectedAlertId, setSelectedAlertId] = useState<string | null>(null);
   const combat = useContext(CombatContext);
@@ -35,7 +36,7 @@ const ActorRoundAlerts: FC<{
     <>
       {actorRound.alerts && actorRound.alerts.length > 0 && (
         <>
-          <Stack direction="row" spacing={1} mt={1}>
+          <Stack spacing={1} sx={{direction: "row", mt:1}}>
             {actorRound.alerts.map((alert) => (
               <Button
                 key={alert.id}

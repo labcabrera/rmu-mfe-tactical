@@ -2,7 +2,6 @@
 import React, { FC, useContext, useEffect, useState } from 'react';
 import { Button, Typography } from '@mui/material';
 import { RmuDialog, TechnicalInfo } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { useError } from '../../../../ErrorContext';
 import { deleteAction, resolveMovement } from '../../../api/action';
@@ -10,6 +9,8 @@ import { Action, ActionMovement, ActionRoll } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
 import MovementModifiersForm from './MovementModifiersForm';
 import MovementResult from './MovementResult';
+import { useTranslation } from 'react-i18next';
+import { useAuth } from 'react-oidc-context';
 
 const MovementDialog: FC<{
   action: Action;
@@ -17,6 +18,8 @@ const MovementDialog: FC<{
   open: boolean;
   onClose: () => void;
 }> = ({ action, actorRound, open, onClose }) => {
+  const auth = useAuth();
+  const { t } = useTranslation();
   const [deleting, setDeleting] = useState(false);
   const { game, strategicGame, roundActions, setRoundActions, updateAction, refreshActorRounds } =
     useContext(CombatContext)!;
@@ -53,7 +56,7 @@ const MovementDialog: FC<{
   };
 
   const onResolve = () => {
-    resolveMovement(action.id, formData)
+    resolveMovement(action.id, formData, auth)
       .then((result: Action) => {
         updateAction(result);
         refreshActorRounds();
@@ -62,7 +65,7 @@ const MovementDialog: FC<{
   };
 
   const onDelete = () => {
-    deleteAction(action.id)
+    deleteAction(action.id, auth)
       .then(() => {
         const newActionList = roundActions!.filter((e: Action) => e.id !== action.id);
         setRoundActions(newActionList);

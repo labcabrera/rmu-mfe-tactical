@@ -13,7 +13,6 @@ import {
   Avatar,
   Divider,
 } from '@mui/material';
-import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { ActionAttack, AttackDeclaration } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
@@ -26,6 +25,7 @@ import {
 import AddProtectorDialog from './AddProtectorDialog';
 import OffensiveBonusSelector from './OffensiveBonusSelector';
 import TargetSelector from './TargetSelector';
+import { useTranslation } from 'react-i18next';
 
 const MeleeAttackSelectAttacks: FC<{
   formData: AttackDeclaration;
@@ -33,6 +33,7 @@ const MeleeAttackSelectAttacks: FC<{
   setFormData: Dispatch<SetStateAction<AttackDeclaration>>;
   availableAttacks: ActionAttack[];
 }> = ({ formData, actorRound, availableAttacks, setFormData }) => {
+  const { t } = useTranslation();
   const { actorRounds, roundActions } = useContext(CombatContext)!;
   const [selectedAttack, setSelectedAttack] = useState<ActionAttack>();
   const [openProtectorDialog, setOpenProtectorDialog] = useState<boolean>(false);
@@ -118,7 +119,7 @@ const MeleeAttackSelectAttacks: FC<{
   if (!actorRound || !actorRound.attacks) return <Typography>No attacks available</Typography>;
 
   return (
-    <Grid container spacing={1} mt={2}>
+    <Grid container spacing={1} sx={{mt:2}}>
       {formData.attacks.map((attack, index) => {
         const targetId = attack.modifiers.targetId;
         const actorRoundAttack = actorRound.attacks.find((e) => e.attackName === attack.attackName)!;
@@ -218,6 +219,7 @@ const ProtectorsList: FC<{
   onAdd: () => void;
   onDelete: (protectorId: string) => void;
 }> = ({ attack, actorRounds, onAdd, onDelete }) => {
+  const { t } = useTranslation();
   if (!actorRounds || !attack) return;
   return (
     <List>

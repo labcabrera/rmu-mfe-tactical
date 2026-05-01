@@ -1,21 +1,18 @@
-import React, { FC, useState } from 'react';
+import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Grid } from '@mui/material';
 import { NumericInput, TechnicalInfo } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { t } from 'i18next';
 import { ActorRoundAlert } from '../../api/actor-rounds.dto';
 
-type Props = {
-  alert: ActorRoundAlert;
-};
-
-const BreakageForm: FC<Props> = ({ alert }) => {
+export default function BreakageForm({ alert, onChange }: { alert: ActorRoundAlert; onChange: (alert: any) => void }) {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState<any>({ roll: undefined });
 
   return (
     <Grid container spacing={1}>
       <Grid size={2}>
         <NumericInput
-          label={t('Breakage roll')}
+          label={t('breakage-roll')}
           value={formData.roll || null}
           onChange={(e) => setFormData({ ...formData, roll: e })}
         />
@@ -28,6 +25,4 @@ const BreakageForm: FC<Props> = ({ alert }) => {
       </Grid>
     </Grid>
   );
-};
-
-export default BreakageForm;
+}

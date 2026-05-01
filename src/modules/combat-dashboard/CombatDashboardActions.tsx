@@ -1,4 +1,7 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { FC, useContext, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useAuth } from 'react-oidc-context';
 import { useNavigate } from 'react-router-dom';
 import {
   BackButton,
@@ -8,11 +11,12 @@ import {
   RefreshButton,
   RmuBreadcrumbs,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { t } from 'i18next';
 import { CombatContext } from '../../CombatContext';
 import { useError } from '../../ErrorContext';
 
 const CombatDashboardActions: FC = () => {
+  const auth = useAuth();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { showError } = useError();
   const { displayRound, setDisplayRound, game, setGame } = useContext(CombatContext)!;
@@ -27,7 +31,7 @@ const CombatDashboardActions: FC = () => {
   };
 
   const onRefresh = () => {
-    fetchTacticalGame(game!.id)
+    fetchTacticalGame(game!.id, auth)
       .then((data) => setGame(data))
       .catch((err) => showError(err.message));
   };
@@ -39,8 +43,8 @@ const CombatDashboardActions: FC = () => {
   useEffect(() => {
     if (game) {
       setBreadcrumbs([
-        { name: t('Tactical'), link: '/tactical' },
-        { name: t('Game'), link: `/tactical/games/view/${game.id}` },
+        { name: t('tactical-games'), link: '/tactical' },
+        { name: t('tactical-game'), link: `/tactical/games/view/${game.id}` },
         { name: `Round ${displayRound} of ${game.round}` },
       ]);
     }

@@ -1,7 +1,6 @@
 import React, { Dispatch, FC, SetStateAction, useContext } from 'react';
 import { Grid, Typography } from '@mui/material';
 import { CategorySeparator, KeyValue, NumericInput } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { Action, AttackDeclaration, CalledShot } from '../../../api/action.dto';
 import { ActorRoundAttack } from '../../../api/actor-rounds.dto';
@@ -9,6 +8,7 @@ import DialogSelect from '../../../shared/DialogSelect';
 import KeyValueDialogSelect from '../../../shared/KeyValueDialogSelect';
 import SelectAttackRange from '../../../shared/selects/SelectAttackRange';
 import AttackTitle from '../melee-attack/AttackTitle';
+import { useTranslation } from 'react-i18next';
 
 const COVER_OPTIONS: KeyValue[] = [
   { key: 'none', value: 0 },
@@ -67,6 +67,7 @@ const RangedAttackModifiersForm: FC<{
   setFormData: Dispatch<SetStateAction<AttackDeclaration>>;
   index: number;
 }> = ({ attack, formData, setFormData, index }) => {
+  const { t } = useTranslation();
   const { actorRounds } = useContext(CombatContext)!;
 
   const formDataAttack = formData.attacks?.[index];

@@ -1,12 +1,13 @@
 import React, { Dispatch, FC, SetStateAction, useContext } from 'react';
 import { Grid, Stack } from '@mui/material';
 import { NumericInput } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { useError } from '../../../../ErrorContext';
 import { updateFumbleRoll } from '../../../api/action';
 import { Action, ActionAttack, AttackDeclaration } from '../../../api/action.dto';
 import Effect from '../../../shared/generic/Effect';
+import { useTranslation } from 'react-i18next';
+import { useAuth } from 'react-oidc-context';
 
 const ResolveAttackFormFumble: FC<{
   formData: AttackDeclaration;
@@ -15,6 +16,8 @@ const ResolveAttackFormFumble: FC<{
   index: number;
   attack: ActionAttack;
 }> = ({ formData, setFormData, action, index, attack }) => {
+  const auth = useAuth();
+  const { t } = useTranslation();
   const { updateAction } = useContext(CombatContext)!;
   const { showError } = useError();
   const fumble = attack.results?.fumble;
@@ -22,7 +25,7 @@ const ResolveAttackFormFumble: FC<{
   if (!formData || !formData.attacks || formData.attacks.length <= index) return <div>Loading...</div>;
 
   const onUpdateFumbleRoll = (roll: number) => {
-    updateFumbleRoll(action.id, attack.attackName, roll)
+    updateFumbleRoll(action.id, attack.attackName, roll, auth)
       .then((updatedAction) => {
         const newFormData = { attacks: updatedAction.attacks, parries: undefined };
         updateAction(updatedAction);

@@ -2,7 +2,6 @@
 import React, { FC, useContext, useEffect, useState } from 'react';
 import { Button, Typography } from '@mui/material';
 import { RmuDialog, TechnicalInfo } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { useError } from '../../../../ErrorContext';
 import { applyAttack, deleteAction, prepareAttack } from '../../../api/action';
@@ -10,6 +9,8 @@ import { Action, ActionAttack, AttackDeclaration } from '../../../api/action.dto
 import { ActorRound, ActorRoundAttack } from '../../../api/actor-rounds.dto';
 import { findMaxActorRoundPace } from '../../../services/actor-round-service';
 import RangedAttackForm from './RangedAttackForm';
+import { useTranslation } from 'react-i18next';
+import { useAuth } from 'react-oidc-context';
 
 const RangedAttackDialog: FC<{
   action: Action;
@@ -17,6 +18,8 @@ const RangedAttackDialog: FC<{
   open: boolean;
   onClose: () => void;
 }> = ({ action, actorRound, open, onClose }) => {
+  const auth = useAuth();
+  const { t } = useTranslation();
   const [deleting, setDeleting] = useState(false);
   const { game, strategicGame, roundActions, setRoundActions, updateAction, refreshActorRounds } =
     useContext(CombatContext)!;
@@ -104,7 +107,7 @@ const RangedAttackDialog: FC<{
   };
 
   const onPrepare = () => {
-    prepareAttack(action.id, formData)
+    prepareAttack(action.id, formData, auth)
       .then((data) => {
         updateAction(data);
         // setFormData(data);
@@ -113,7 +116,7 @@ const RangedAttackDialog: FC<{
   };
 
   const onApply = () => {
-    applyAttack(action.id)
+    applyAttack(action.id, auth)
       .then((updatedAction) => {
         updateAction(updatedAction);
         refreshActorRounds();
@@ -122,7 +125,7 @@ const RangedAttackDialog: FC<{
   };
 
   const onDelete = () => {
-    deleteAction(action.id)
+    deleteAction(action.id, auth)
       .then(() => {
         const newActionList = roundActions!.filter((e: Action) => e.id !== action.id);
         setRoundActions(newActionList);

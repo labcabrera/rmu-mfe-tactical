@@ -1,9 +1,9 @@
 import React, { Dispatch, FC, SetStateAction, useContext, useEffect, useState } from 'react';
 import { Grid } from '@mui/material';
+import { Character } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
 import { Action } from '../../api/action.dto';
 import { ActorRound } from '../../api/actor-rounds.dto';
-import { Character } from '../../api/characters.dto';
 import ActionDialog from '../action-dialogs/ActionDialog';
 import MeleeAttackDialog from '../action-dialogs/melee-attack/MeleeAttackDialog';
 import MovementDialog from '../action-dialogs/movement/MovementDialog';

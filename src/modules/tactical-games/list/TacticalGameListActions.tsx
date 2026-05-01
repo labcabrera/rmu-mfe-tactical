@@ -1,9 +1,10 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { AddButton, RefreshButton, RmuBreadcrumbs } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { t } from 'i18next';
 
-const TacticalGameListActions: React.FC = () => {
+export default function TacticalGameListActions() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const onNewTacticalGame = async () => {
@@ -11,11 +12,9 @@ const TacticalGameListActions: React.FC = () => {
   };
 
   return (
-    <RmuBreadcrumbs items={[{ name: t('Tactical games') }]}>
+    <RmuBreadcrumbs items={[{ name: t('home'), link: '/' }, { name: t('tactical-games') }]}>
       <RefreshButton onClick={() => {}} />
       <AddButton onClick={() => onNewTacticalGame()} />
     </RmuBreadcrumbs>
   );
-};
-
-export default TacticalGameListActions;
+}

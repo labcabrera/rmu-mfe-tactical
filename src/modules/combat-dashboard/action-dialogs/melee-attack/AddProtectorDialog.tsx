@@ -1,4 +1,5 @@
 import React, { FC, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Dialog,
   DialogTitle,
@@ -15,7 +16,6 @@ import {
   Switch,
   ListItemButton,
 } from '@mui/material';
-import { t } from 'i18next';
 import { ActionAttack } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
 
@@ -27,6 +27,7 @@ const AddProtectorDialog: FC<{
   onAdd: (actorId: string) => void;
   onClose: () => void;
 }> = ({ selectedAttack, actorRound, actorRounds, open, onAdd, onClose }) => {
+  const { t } = useTranslation();
   const [displayAll, setDisplayAll] = useState<boolean>(false);
   const [availableActors, setAvailableActors] = useState<ActorRound[]>([]);
 

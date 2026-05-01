@@ -1,4 +1,6 @@
 import React, { useContext, FC, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useAuth } from 'react-oidc-context';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
   Button,
@@ -19,7 +21,6 @@ import {
   AccordionDetails,
 } from '@mui/material';
 import { TransitionProps } from '@mui/material/transitions';
-import { t } from 'i18next';
 import { CombatContext } from '../../../CombatContext';
 import { useError } from '../../../ErrorContext';
 import { createAction } from '../../api/action';
@@ -86,6 +87,8 @@ const DeclareActionDialog: FC<{
   open: boolean;
   setOpen: (open: boolean) => void;
 }> = ({ actorRound, phaseNumber, open, setOpen }) => {
+  const auth = useAuth();
+  const { t } = useTranslation();
   const { showError } = useError();
   const [actionForm, setActionForm] = useState({
     gameId: actorRound.gameId,
@@ -149,7 +152,7 @@ const DeclareActionDialog: FC<{
   };
 
   const handleDeclare = () => {
-    createAction(actionForm)
+    createAction(actionForm, auth)
       .then((action) => {
         setRoundActions([...roundActions, action]);
         setOpen(false);

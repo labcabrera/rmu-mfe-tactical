@@ -61,8 +61,8 @@ const TacticalGameViewActions: FC<{
       <RmuBreadcrumbs
         items={[
           { name: t('home'), link: '/' },
-          { name: t('strategic-games'), link: '/tactical/games' },
-          { name: t('strategic-game') },
+          { name: t('tactical-games'), link: '/tactical/games' },
+          { name: t('view') },
         ]}
       >
         <CancelButton onClick={() => {}} />

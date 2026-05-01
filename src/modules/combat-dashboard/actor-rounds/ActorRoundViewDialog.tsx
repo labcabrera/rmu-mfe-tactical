@@ -31,7 +31,7 @@ const ActorRoundViewDialog: FC<{
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="xl" slots={{ transition: Transition }}>
       <DialogTitle id="actor-round-view-dialog">
-        <Stack direction="row" spacing={2} alignItems="center">
+        <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
           <Avatar
             src={actorRound?.imageUrl || '/static/images/races/unknown.png'}
             sx={{ width: 100, height: 100, cursor: actorRound ? 'pointer' : 'default' }}

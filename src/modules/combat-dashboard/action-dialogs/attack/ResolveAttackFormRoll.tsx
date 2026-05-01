@@ -1,7 +1,8 @@
 import React, { Dispatch, FC, SetStateAction, useContext, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useAuth } from 'react-oidc-context';
 import { Grid, Chip, Stack, Typography } from '@mui/material';
 import { CategorySeparator, NumericInput, OpenEndedRollInput } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { useError } from '../../../../ErrorContext';
 import { updateAttackRoll } from '../../../api/action';
@@ -18,6 +19,8 @@ const ResolveAttackFormRoll: FC<{
   attack: ActionAttack;
   index: number;
 }> = ({ formData, setFormData, action, attack, index }) => {
+  const auth = useAuth();
+  const { t } = useTranslation();
   const { updateAction } = useContext(CombatContext)!;
   const { showError } = useError();
   const [attackRoll, setAttackRoll] = useState<number | undefined>(attack.roll?.roll || undefined);
@@ -42,7 +45,7 @@ const ResolveAttackFormRoll: FC<{
     const loc = newLocationRoll !== undefined ? newLocationRoll : locationRoll;
     if (roll === undefined || roll === null) return;
     if (attack.calculated!.requiredLocationRoll && (loc === undefined || loc === null)) return;
-    updateAttackRoll(action.id, attack.attackName, roll, loc)
+    updateAttackRoll(action.id, attack.attackName, roll, loc, auth)
       .then((updatedAction) => {
         const newFormData = { attacks: updatedAction.attacks, parries: updatedAction.parries } as AttackDeclaration;
         updateAction(updatedAction);

@@ -1,6 +1,7 @@
 import React, { Dispatch, FC, SetStateAction, useContext, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useAuth } from 'react-oidc-context';
 import { Badge, Stack } from '@mui/material';
-import { t } from 'i18next';
 import { CombatContext } from '../../../CombatContext';
 import { useError } from '../../../ErrorContext';
 import { createAction } from '../../api/action';
@@ -16,6 +17,8 @@ const ActorRoundDeclarationButtons: FC<{
   currentPhase: number;
   setDisplayPhase: Dispatch<SetStateAction<string>>;
 }> = ({ actorRound, currentPhase, setDisplayPhase }) => {
+  const auth = useAuth();
+  const { t } = useTranslation();
   const { showError } = useError();
   const { game, roundActions, setRoundActions } = useContext(CombatContext)!;
   const [declareActionDialogOpen, setDeclareActionDialogOpen] = useState(false);
@@ -39,7 +42,7 @@ const ActorRoundDeclarationButtons: FC<{
       phaseStart: currentPhase,
       freeAction: freeAction,
     };
-    createAction(data)
+    createAction(data, auth)
       .then((action) => {
         setRoundActions([...(roundActions || []), action]);
         setDisplayPhase(game.phase);
@@ -49,7 +52,7 @@ const ActorRoundDeclarationButtons: FC<{
 
   return (
     <>
-      <Stack direction="row" spacing={1} flexWrap="wrap" gap={0} sx={{ backgroundColor: undefined }}>
+      <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', gap: 0 }}>
         {!disabledMovement && (
           <>
             <Badge

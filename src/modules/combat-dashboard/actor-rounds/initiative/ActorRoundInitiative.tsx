@@ -31,8 +31,8 @@ const ActorRoundInitiative: FC<{
     >
       {!isDisabled && (
         <CardContent sx={{ width: '100%', p: 2 }}>
-          <Stack direction="column" alignItems="center" spacing={1}>
-            <Stack direction="row" alignItems="center" spacing={1}>
+          <Stack direction="column" spacing={1}>
+            <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
               <Typography variant="body1" color="text.primary">
                 {actorRound.initiative.total}
               </Typography>

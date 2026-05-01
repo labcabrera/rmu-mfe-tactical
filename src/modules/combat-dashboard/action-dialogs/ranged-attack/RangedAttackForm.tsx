@@ -1,7 +1,7 @@
 import React, { Dispatch, FC, SetStateAction, useContext } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Grid, Typography } from '@mui/material';
 import { CategorySeparator } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { Action, AttackDeclaration } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
@@ -21,6 +21,7 @@ const RangedAttackForm: FC<{
   formData: AttackDeclaration;
   setFormData: Dispatch<SetStateAction<AttackDeclaration>>;
 }> = ({ actorRound, action, formData, setFormData }) => {
+  const { t } = useTranslation();
   const { actorRounds } = useContext(CombatContext)!;
   const selected = formData.attacks || [];
 
@@ -65,11 +66,11 @@ const RangedAttackForm: FC<{
             {!actionAttack.calculated && (
               <>
                 <CategorySeparator text={t(actionAttack.attackName)} />
-                <Grid container spacing={1} alignItems="center">
+                <Grid container spacing={1} sx={{ alignItems: 'center' }}>
                   <Grid size={2}>
                     {t(displayTable)} +{actionAttack.modifiers.bo}
                   </Grid>
-                  <Grid size={10} mb={5}>
+                  <Grid size={10} sx={{ mb: 5 }}>
                     <TargetSelector
                       value={actionAttack.modifiers.targetId || ''}
                       onChange={(actorId) => handleTargetChange(actionAttack.attackName, actorId!)}

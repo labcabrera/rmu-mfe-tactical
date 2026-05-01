@@ -1,16 +1,14 @@
 import React, { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Grid, Stack, Typography } from '@mui/material';
 import { CategorySeparator } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { t } from 'i18next';
 import { Action } from '../../../api/action.dto';
 import { gridSizeCard } from '../../../services/display';
 import ModifierDualList from '../../../shared/ModifierDualList';
 
-const MovementResult: FC<{
-  action: Action;
-}> = ({ action }) => {
+export default function MovementResult({ action }: { action: Action }) {
+  const { t } = useTranslation();
   if (!action || !action.movement || !action.movement.calculated) return;
-
   const percent = action.movement.calculated.percent;
   const modifiers = action.movement.modifiers;
   const calculated = action.movement.calculated;
@@ -41,7 +39,7 @@ const MovementResult: FC<{
       </Grid>
     </>
   );
-};
+}
 
 const KeyValueInfo: FC<{
   value: string | number | null;
@@ -61,5 +59,3 @@ const KeyValueInfo: FC<{
     </Grid>
   );
 };
-
-export default MovementResult;

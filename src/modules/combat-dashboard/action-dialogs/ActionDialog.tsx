@@ -1,11 +1,11 @@
 import React, { FC, useContext, useState } from 'react';
-import { Button, DialogActions, Slide, Stack, Typography } from '@mui/material';
+import { useTranslation } from 'react-i18next';
+import { useAuth } from 'react-oidc-context';
+import { Button, DialogActions, Stack, Typography } from '@mui/material';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-import { TransitionProps } from '@mui/material/transitions';
 import { DeleteDialog, RmuDialog, TechnicalInfo } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { t } from 'i18next';
 import { CombatContext } from '../../../CombatContext';
 import { useError } from '../../../ErrorContext';
 import { deleteAction } from '../../api/action';
@@ -13,16 +13,6 @@ import { Action } from '../../api/action.dto';
 import { ActorRound } from '../../api/actor-rounds.dto';
 import ActorRoundAvatar from '../../shared/avatars/ActorRoundAvatar';
 import ActionManeuverForm from './maneuver/ActionManeuverForm';
-import MeleeAttackForm from './melee-attack/MeleeAttackForm';
-
-const Transition = React.forwardRef(function Transition(
-  props: TransitionProps & {
-    children: React.ReactElement<unknown>;
-  },
-  ref: React.Ref<unknown>
-) {
-  return <Slide direction="up" ref={ref} {...props} />;
-});
 
 const ActionDialog: FC<{
   action: Action;
@@ -30,6 +20,8 @@ const ActionDialog: FC<{
   open: boolean;
   onClose: () => void;
 }> = ({ action, actorRound, open, onClose }) => {
+  const auth = useAuth();
+  const { t } = useTranslation();
   const [deleting, setDeleting] = useState(false);
   const { roundActions, setRoundActions } = useContext(CombatContext)!;
   const { showError } = useError();
@@ -38,7 +30,7 @@ const ActionDialog: FC<{
 
   const confirmDelete = () => {
     if (!roundActions) return null;
-    deleteAction(action.id)
+    deleteAction(action.id, auth)
       .then(() => {
         const newActionList = roundActions.filter((e: Action) => e.id !== action.id);
         setRoundActions(newActionList);
@@ -84,10 +76,9 @@ const ActionDialog: FC<{
         aria-describedby="alert-dialog-description"
         maxWidth="xl"
         fullWidth
-        slots={{ transition: Transition }}
       >
         <DialogTitle id="alert-dialog-title">
-          <Stack direction="row" spacing={2} alignItems="center">
+          <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
             <ActorRoundAvatar actorRound={actorRound} size={100} variant="square" />
             <Stack direction="column">
               <Typography variant="h6">{actorRound.actorName}</Typography>

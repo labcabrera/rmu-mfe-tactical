@@ -1,4 +1,6 @@
 import React, { Dispatch, FC, SetStateAction, useContext, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useAuth } from 'react-oidc-context';
 import ElectricBoltIcon from '@mui/icons-material/ElectricBolt';
 import NextPlanIcon from '@mui/icons-material/NextPlan';
 import SkipNextIcon from '@mui/icons-material/SkipNext';
@@ -7,7 +9,6 @@ import SortIcon from '@mui/icons-material/Sort';
 import TextRotateVerticalIcon from '@mui/icons-material/TextRotateVertical';
 import { IconButton, Tooltip, Typography, Grid, Paper, Stack } from '@mui/material';
 import { randomizeInitiatives, startPhase, startRound, TacticalGame } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { t } from 'i18next';
 import { CombatContext } from '../../../CombatContext';
 import { useError } from '../../../ErrorContext';
 import { ActorRound } from '../../api/actor-rounds.dto';
@@ -75,6 +76,8 @@ const CombatActorRoundListHeader: FC<{
   displayPhase: string;
   setDisplayPhase: Dispatch<SetStateAction<string>>;
 }> = ({ actorRounds, game, displayPhase, setDisplayPhase }) => {
+  const auth = useAuth();
+  const { t } = useTranslation();
   const { showError } = useError();
   const { roundActorSort, refreshActorRounds, setRoundActorSort, setGame, setDisplayRound } =
     useContext(CombatContext)!;
@@ -88,7 +91,7 @@ const CombatActorRoundListHeader: FC<{
   const undeclaredInitiatives = actorRounds.filter((e) => notDisabled(e)).find((e) => !e.initiative.roll);
 
   const onRandomizeInitiatives = () => {
-    randomizeInitiatives(game.id)
+    randomizeInitiatives(game.id, auth)
       .then(() => refreshActorRounds())
       .catch((err) => showError(err.message));
   };
@@ -98,7 +101,7 @@ const CombatActorRoundListHeader: FC<{
   };
 
   const onNextRound = async () => {
-    startRound(game!.id)
+    startRound(game!.id, auth)
       .then((game: TacticalGame) => {
         setGame(game);
         setDisplayRound(game.round);
@@ -108,7 +111,7 @@ const CombatActorRoundListHeader: FC<{
   };
 
   const onNextPhase = async () => {
-    startPhase(game!.id)
+    startPhase(game!.id, auth)
       .then((game: TacticalGame) => setGame(game))
       .catch((err) => showError(err.message));
   };
@@ -121,7 +124,7 @@ const CombatActorRoundListHeader: FC<{
   return (
     <Grid container columns={24} spacing={1}>
       <Grid size={5}>
-        <Stack direction="row" justifyContent="space-between">
+        <Stack direction="row" sx={{ justifyContent: 'space-between' }}>
           <PhaseTypograpy label={t('Actors')} active={false} />
           <Tooltip title={roundActorSort === 'initiative' ? 'Sort by Name' : 'Sort by Initiative'}>
             <IconButton size="small" color="primary" onClick={() => toggleSort()}>
@@ -131,7 +134,7 @@ const CombatActorRoundListHeader: FC<{
         </Stack>
       </Grid>
       <Grid size={2} sx={{ backgroundColor: displayPhase === 'declare_initiative' ? 'secondary.main' : undefined }}>
-        <Stack direction="row" justifyContent="space-between">
+        <Stack direction="row" sx={{ justifyContent: 'space-between' }}>
           <PhaseTypograpy label={t('Initiative')} active={displayPhase === 'declare_initiative'} />
           {displayPhase === 'declare_initiative' && undeclaredInitiatives && (
             <Tooltip title="Randomize Initiatives">
@@ -148,7 +151,7 @@ const CombatActorRoundListHeader: FC<{
       <PhaseTitle label={'Phase 3'} active={displayPhase === 'phase_3'} onPrev={onPrevPhase} onNext={onNextPhase} />
       <PhaseTitle label={'Phase 4'} active={displayPhase === 'phase_4'} onPrev={onPrevPhase} onNext={onNextPhase} />
       <Grid size={6}>
-        <Stack direction="row" justifyContent="space-between">
+        <Stack direction="row" sx={{ justifyContent: 'space-between' }}>
           <PhaseTypograpy label={displayPhase === 'upkeep' ? 'Upkeep' : 'Effects'} active={displayPhase === 'upkeep'} />
           {displayPhase === 'upkeep' && (
             <Stack direction="row" spacing={1}>
@@ -177,7 +180,7 @@ const PhaseTitle: FC<{
 }> = ({ label, gridSize = 2, active, onPrev, onNext }) => {
   return (
     <Grid size={gridSize} sx={{ backgroundColor: active ? 'secondary.main' : undefined }}>
-      <Stack direction="row" justifyContent="space-between">
+      <Stack direction="row" sx={{ justifyContent: 'space-between' }}>
         {active && onPrev && <PrevButton onPrev={onPrev} />}
         <PhaseTypograpy label={label} active={active} />
         {active && onNext && <NextButton onNext={onNext} />}

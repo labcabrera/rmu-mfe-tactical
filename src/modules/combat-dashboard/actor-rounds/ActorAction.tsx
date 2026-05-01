@@ -1,14 +1,19 @@
-import React, { FC } from 'react';
+import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Box, Card, CardActionArea, CardContent, Typography } from '@mui/material';
-import { t } from 'i18next';
 import type { Action } from '../../api/action.dto';
 import { imageBaseUrl } from '../../services/config';
 
-const ActorAction: FC<{ action: Action; completed: boolean; onClick: () => void }> = ({
+export default function ActorAction({
   action,
   completed,
   onClick,
-}) => {
+}: {
+  action: Action;
+  completed: boolean;
+  onClick: () => void;
+}) {
+  const { t } = useTranslation();
   const getActionImage = () => {
     if (action.actionType === 'ranged_attack') {
       return `${imageBaseUrl}images/actions/action-ranged-panoramic-01.png`;
@@ -71,6 +76,4 @@ const ActorAction: FC<{ action: Action; completed: boolean; onClick: () => void 
       </CardActionArea>
     </Card>
   );
-};
-
-export default ActorAction;
+}

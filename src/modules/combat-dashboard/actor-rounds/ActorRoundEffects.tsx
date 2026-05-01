@@ -1,12 +1,14 @@
 import React, { FC } from 'react';
 import { Card, CardContent, Box } from '@mui/material';
-import { t } from 'i18next';
 import { ActorRound, ActorRoundEffect, ActorRoundPenaltyModifier } from '../../api/actor-rounds.dto';
 import { imageBaseUrl } from '../../services/config';
 import Effect from '../../shared/generic/Effect';
 import ActorRoundAlerts from './ActorRoundAlerts';
+import { useTranslation } from 'react-i18next';
 
 const ActorRoundEffects: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
+  const { t } = useTranslation();
+  
   if (!actorRound) return <p>Loading...</p>;
 
   const isDead = actorRound.effects.find(

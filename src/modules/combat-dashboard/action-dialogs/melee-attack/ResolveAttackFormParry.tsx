@@ -1,7 +1,7 @@
 import React, { Dispatch, FC, Fragment, SetStateAction, useContext } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Grid, Stack, Typography } from '@mui/material';
 import { CategorySeparator, NumericInput } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { AttackDeclaration } from '../../../api/action.dto';
 
@@ -9,6 +9,7 @@ const ResolveAttackFormModifiers: FC<{
   formData: AttackDeclaration;
   setFormData: Dispatch<SetStateAction<AttackDeclaration>>;
 }> = ({ formData, setFormData }) => {
+  const { t } = useTranslation();
   const { actorRounds } = useContext(CombatContext)!;
 
   if (!formData || !formData.attacks) return <div>Loading ResolveAttackFormModifiers...</div>;

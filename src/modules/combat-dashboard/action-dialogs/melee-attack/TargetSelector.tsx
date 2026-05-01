@@ -43,7 +43,7 @@ const TargetSelector: FC<{
 
   return (
     <Box>
-      <Stack direction="row" spacing={1} alignItems="center">
+      <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
         <Tooltip title={selectedActorRound ? selectedActorRound.actorName : 'No target selected'}>
           <IconButton onClick={() => setOpen((s) => !s)} sx={{ p: 0 }}>
             <ActorRoundAvatar
@@ -59,7 +59,7 @@ const TargetSelector: FC<{
       <Dialog open={open} onClose={() => setOpen(false)} maxWidth="md" fullWidth transitionDuration={0}>
         <DialogTitle>Select target</DialogTitle>
         <DialogContent>
-          <Stack direction="row" spacing={0.5} alignItems="center" sx={{ mb: 0.5 }}>
+          <Stack direction="row" spacing={0.5} sx={{ mb: 0.5, alignItems: 'center' }}>
             <RadioGroup row value={filter} onChange={(e) => setFilter(e.target.value as any)}>
               <FormControlLabel
                 value="distinct"

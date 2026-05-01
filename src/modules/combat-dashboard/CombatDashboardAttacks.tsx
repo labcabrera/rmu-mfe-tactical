@@ -19,13 +19,11 @@ import {
   Autocomplete,
   TextField,
 } from '@mui/material';
-import { TechnicalInfo } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { t } from 'i18next';
+import { Character, TechnicalInfo } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../CombatContext';
 import { useError } from '../../ErrorContext';
 import { fetchActions } from '../api/action';
 import { Action, ActionAttack } from '../api/action.dto';
-import { Character } from '../api/characters.dto';
 
 const CombatDashboardAttacks: FC = () => {
   const { showError } = useError();
@@ -59,7 +57,7 @@ const CombatDashboardAttacks: FC = () => {
 
   return (
     <>
-      <Stack spacing={1} mb={2}>
+      <Stack spacing={1} sx={{mb:2}}>
         <SelectActor value={filterCharacterId} characters={characters} onChange={(e) => setFilterCharacterId(e)} />
       </Stack>
       <TableContainer component={Paper}>
@@ -176,7 +174,7 @@ const SelectActor: FC<{
       isOptionEqualToValue={(option, val) => option.id === val.id}
       renderOption={(props, option) => (
         <li {...props}>
-          <Stack direction="row" spacing={1} alignItems="center">
+          <Stack direction="row" spacing={1} sx={{alignItems:"center"}}>
             <Avatar src={option.imageUrl} variant="square" sx={{ width: 40, height: 40 }} />
             <Typography variant="body2">{option.name}</Typography>
           </Stack>

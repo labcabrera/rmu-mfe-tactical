@@ -80,7 +80,8 @@ export const CombatProvider: FC<{
   };
 
   const bindActorRounds = (gameId: string, displayRound: number) => {
-    fetchActorRounds(gameId, displayRound)
+    fetchActorRounds(gameId, displayRound, auth)
+      .then(data => data.content)
       .then((data) => {
         if (roundActorSort === 'name') {
           data.sort((a, b) => a.actorName.localeCompare(b.actorName));
@@ -93,7 +94,7 @@ export const CombatProvider: FC<{
   };
 
   const bindActions = (gameId: string, displayRound: number) => {
-    fetchActionsByGameAndRound(gameId, displayRound)
+    fetchActionsByGameAndRound(gameId, displayRound, auth)
       .then((data) => setRoundActions(data))
       .catch((err) => showError(err.message));
   };

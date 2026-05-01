@@ -1,4 +1,5 @@
-import React, { FC, useEffect, useState } from 'react';
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { useEffect, useState } from 'react';
 import { useAuth } from 'react-oidc-context';
 import { useNavigate } from 'react-router-dom';
 import { Grid } from '@mui/material';
@@ -9,7 +10,7 @@ import { defaultTacticalGameImage } from '../../services/image-service';
 import TacticalGameListActions from './TacticalGameListActions';
 import TacticalGameListSearch from './TacticalGameListSearch';
 
-const TacticalGameList: FC = () => {
+export default function TacticalGameList() {
   const auth = useAuth();
   const navigate = useNavigate();
   const { showError } = useError();
@@ -75,6 +76,4 @@ const TacticalGameList: FC = () => {
       </Grid>
     </>
   );
-};
-
-export default TacticalGameList;
+}

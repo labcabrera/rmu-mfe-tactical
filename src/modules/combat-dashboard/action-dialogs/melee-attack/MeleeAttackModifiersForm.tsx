@@ -1,12 +1,12 @@
 import React, { Dispatch, FC, SetStateAction, useContext } from 'react';
 import { Grid } from '@mui/material';
 import { CategorySeparator, KeyValue, NumericInput } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { AttackDeclaration, CalledShot } from '../../../api/action.dto';
 import DialogSelect from '../../../shared/DialogSelect';
 import KeyValueDialogSelect from '../../../shared/KeyValueDialogSelect';
 import AttackTitle from './AttackTitle';
+import { useTranslation } from 'react-i18next';
 
 const POSITIONAL_TARGET_OPTIONS: KeyValue[] = [
   { key: 'none', value: 0 },
@@ -70,6 +70,7 @@ const MeleeAttackModifiersForm: FC<{
   setFormData: Dispatch<SetStateAction<AttackDeclaration>>;
   index: number;
 }> = ({ formData, setFormData, index }) => {
+  const { t } = useTranslation();
   const { actorRounds } = useContext(CombatContext)!;
 
   const attack = formData.attacks?.[index];

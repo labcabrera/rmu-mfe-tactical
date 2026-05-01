@@ -1,9 +1,9 @@
 import React, { useContext, useState, useEffect, FC } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Typography, Card, CardMedia, CardContent, Box } from '@mui/material';
-import { t } from 'i18next';
+import { Character } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
 import { ActorRound } from '../../api/actor-rounds.dto';
-import { Character } from '../../api/characters.dto';
 import { imageBaseUrl } from '../../services/config';
 import { deadFilter } from '../../services/display';
 import GenericBar from '../../shared/generic/GenericBar';
@@ -19,6 +19,7 @@ const ActorRoundResume: FC<{
   actorRound: ActorRound;
   onActorRoundView: (actorRound: ActorRound) => void;
 }> = ({ actorRound, onActorRoundView }) => {
+  const { t } = useTranslation();
   const { characters, factions } = useContext(CombatContext)!;
   const [character, setCharacter] = useState<Character | null>(null);
   const isDead = actorRound.effects.some((e) => e.status === 'dead');
@@ -81,7 +82,7 @@ const ActorRoundResume: FC<{
               colorOk={colorHpOk}
               colorKo={colorKo}
             />
-            {character.power && character.power.max > 0 && (
+            {/* {character.power && character.power.max > 0 && (
               <GenericBar
                 current={character.power.current}
                 max={character.power.max}
@@ -89,7 +90,7 @@ const ActorRoundResume: FC<{
                 colorOk={colorPowerOk}
                 colorKo={colorEnduranceAccumulator}
               />
-            )}
+            )} */}
             <GenericBar
               current={Math.round(actorRound.fatigue.accumulator)}
               max={100}

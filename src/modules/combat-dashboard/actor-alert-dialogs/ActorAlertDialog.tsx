@@ -1,23 +1,10 @@
 import React, { FC, useEffect, useState } from 'react';
-import { Slide } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 import Button from '@mui/material/Button';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogTitle from '@mui/material/DialogTitle';
-import { TransitionProps } from '@mui/material/transitions';
-import { t } from 'i18next';
+import { RmuDialog } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { ActorRound, ActorRoundAlert } from '../../api/actor-rounds.dto';
 import ActorAlertForm from './ActorAlertForm';
 
-const Transition = React.forwardRef(function Transition(
-  props: TransitionProps & {
-    children: React.ReactElement<unknown>;
-  },
-  ref: React.Ref<unknown>
-) {
-  return <Slide direction="up" ref={ref} {...props} />;
-});
 const ActorAlertDialog: FC<{
   actorRound: ActorRound;
   alertId: string;
@@ -25,6 +12,8 @@ const ActorAlertDialog: FC<{
   onClose: () => void;
   onSave?: (updated: ActorRoundAlert) => void;
 }> = ({ actorRound, alertId, open, onClose, onSave }) => {
+  const { t } = useTranslation();
+
   const [currentAlert, setCurrentAlert] = useState<ActorRoundAlert | undefined>(
     actorRound.alerts?.find((a) => a.id === alertId)
   );
@@ -43,22 +32,24 @@ const ActorAlertDialog: FC<{
   };
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="xl" slots={{ transition: Transition }}>
-      <DialogTitle>{t(`Alert`)}</DialogTitle>
-      <DialogContent dividers>
-        {currentAlert ? (
-          <ActorAlertForm actorRound={actorRound} alertId={alertId} onChange={handleChange} />
-        ) : (
-          <div>Alert not found</div>
-        )}
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
+    <RmuDialog
+      open={open}
+      onClose={onClose}
+      maxWidth="xl"
+      title={t('alert')}
+      buttons={[
+        <Button onClick={onClose}>{t('cancel')}</Button>,
         <Button onClick={handleSave} variant="contained" color="primary">
-          Apply
-        </Button>
-      </DialogActions>
-    </Dialog>
+          {t('apply')}
+        </Button>,
+      ]}
+    >
+      {currentAlert ? (
+        <ActorAlertForm actorRound={actorRound} alertId={alertId} onChange={handleChange} />
+      ) : (
+        <div>Alert not found</div>
+      )}
+    </RmuDialog>
   );
 };
 

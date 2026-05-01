@@ -1,7 +1,8 @@
 import React, { Dispatch, FC, Fragment, SetStateAction, useContext } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useAuth } from 'react-oidc-context';
 import { Stack, Grid, Typography } from '@mui/material';
 import { CategorySeparator, NumericInput } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { useError } from '../../../../ErrorContext';
 import { updateCriticalRoll } from '../../../api/action';
@@ -15,6 +16,8 @@ const ResolveAttackFormCriticals: FC<{
   attack: ActionAttack;
   setFormData: Dispatch<SetStateAction<AttackDeclaration>>;
 }> = ({ formData, action, index, attack, setFormData }) => {
+  const auth = useAuth();
+  const { t } = useTranslation();
   const { updateAction } = useContext(CombatContext)!;
   const { showError } = useError();
 
@@ -31,7 +34,7 @@ const ResolveAttackFormCriticals: FC<{
   };
 
   const onUpdateCriticalRoll = (criticalKey: string, roll: number) => {
-    updateCriticalRoll(action.id, attack.attackName, criticalKey, roll)
+    updateCriticalRoll(action.id, attack.attackName, criticalKey, roll, auth)
       .then((updatedAction) => {
         const newFormData = { attacks: updatedAction.attacks, parries: undefined };
         updateAction(updatedAction);
@@ -56,7 +59,7 @@ const ResolveAttackFormCriticals: FC<{
 
   return (
     <>
-      <Grid container spacing={1} mt={1}>
+      <Grid container spacing={1} sx={{ mt: 1 }}>
         {attack.results!.criticals.map((critical, index) => (
           <Fragment key={index}>
             <Grid size={12}>
@@ -83,10 +86,10 @@ const ResolveAttackFormCriticals: FC<{
               <Stack
                 direction="row"
                 spacing={1}
-                flexWrap="wrap"
                 useFlexGap
-                alignContent="flex-start"
                 sx={{
+                  flexWrap: 'wrap',
+                  alignContent: 'flex-start',
                   justifyContent: 'flex-start',
                   alignItems: 'flex-start',
                 }}

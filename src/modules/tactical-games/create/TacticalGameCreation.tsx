@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { FC, useEffect, useState } from 'react';
-import { Grid } from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { Grid, Paper } from '@mui/material';
 import {
   CreateTacticalGameDto,
   EditableAvatar,
@@ -15,6 +15,7 @@ import { gridSizeResume, gridSizeMain } from '../../services/display';
 import { getAvatarImages } from '../../services/image-service';
 import TacticalGameForm from '../shared/TacticalGameForm';
 import TacticalGameCreationActions from './TacticalGameCreationActions';
+import { useAuth } from 'react-oidc-context';
 
 const EMPTY_GAME_TEMPLATE = {
   strategicGameId: '',
@@ -28,7 +29,8 @@ const EMPTY_GAME_TEMPLATE = {
   imageUrl: `${imageBaseUrl}images/generic/tactical.png`,
 } as unknown as TacticalGame;
 
-const TacticalGameCreation: FC = () => {
+export default function TacticalGameCreation () {
+  const auth = useAuth();
   const { showError } = useError();
   const params = new URLSearchParams(window.location.search);
   const strategicGameId = params.get('strategicGame');
@@ -43,7 +45,7 @@ const TacticalGameCreation: FC = () => {
   };
 
   const bindStrategicGame = (strategicGameId: string) => {
-    fetchStrategicGame(strategicGameId)
+    fetchStrategicGame(strategicGameId, auth)
       .then((response) => setStrategicGame(response))
       .catch((err) => showError(err.message));
   };
@@ -81,7 +83,9 @@ const TacticalGameCreation: FC = () => {
         </Grid>
         <Grid size={gridSizeMain}>
           <TacticalGameCreationActions formData={formData} isValid={isValid} />
+          <Paper sx={{p:2}}>
           <TacticalGameForm formData={formData} setFormData={setFormData} strategicGame={strategicGame} />
+          </Paper>
           <TechnicalInfo>
             <pre>FormData: {JSON.stringify(formData, null, 2)}</pre>
             <pre>StrategicGame: {JSON.stringify(strategicGame, null, 2)}</pre>
@@ -92,4 +96,3 @@ const TacticalGameCreation: FC = () => {
   );
 };
 
-export default TacticalGameCreation;

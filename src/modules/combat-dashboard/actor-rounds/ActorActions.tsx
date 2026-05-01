@@ -8,13 +8,42 @@ import ActionDialog from '../action-dialogs/ActionDialog';
 import ActorAction from './ActorAction';
 import ActorRoundDeclarationButtons from './ActorRoundDeclarationButtons';
 
-type ActorActionsProps = {
+export default function ActorActions({
+  actorId,
+  phases = 4,
+  currentPhase = phases,
+  onActionClick,
+  setDisplayPhase,  
+}:{
   actorId: string;
   phases?: number;
   currentPhase?: number;
   onActionClick: (action: Action) => void;
   setDisplayPhase: Dispatch<SetStateAction<string>>;
-};
+}) {
+  const { roundActions, actorRounds, characters } = useContext(CombatContext)!;
+  const [resolveDialogOpen, setResolveDialogOpen] = useState(false);
+  const [selectedAction, setSelectedAction] = useState<Action | null>(null);
+  
+  if (!roundActions || !actorRounds) return <>Loading...</>;
+  
+  const actions = (roundActions || []).filter((a: Action) => a.actorId === actorId);
+  const actorRound: ActorRound = (actorRounds || []).find((r) => r.actorId === actorId)!;
+  const character = (characters || []).find((c) => c.id === actorId);
+  const { placement, rowsCount } = assignRows(actions, phases, currentPhase);
+  const isDead = actorRound.effects.some((e) => e.status === 'dead');
+
+  const rowHeight = 80;
+  const gap = 8;
+  const declareHeight = 'auto';
+
+  if (isDead) return;
+
+  const gridTemplateColumns = `repeat(${phases}, 1fr)`;
+  const gridTemplateRows = `repeat(${rowsCount}, ${rowHeight}px) auto`;
+
+  if(!actions) return <p>Loading...</p>
+
 
 // Assign each action to a row so that overlapping actions don't share the same row
 function assignRows(actions: Action[], phases: number, currentPhase: number) {
@@ -54,34 +83,6 @@ function assignRows(actions: Action[], phases: number, currentPhase: number) {
 
   return { placement, rowsCount: rows.length };
 }
-
-const ActorActions: FC<ActorActionsProps> = ({
-  actorId,
-  phases = 4,
-  currentPhase = phases,
-  onActionClick,
-  setDisplayPhase,
-}) => {
-  const { roundActions, actorRounds, characters } = useContext(CombatContext)!;
-  const [resolveDialogOpen, setResolveDialogOpen] = useState(false);
-  const [selectedAction, setSelectedAction] = useState<Action | null>(null);
-  const actions = (roundActions || []).filter((a: Action) => a.actorId === actorId);
-  const actorRound: ActorRound | undefined = (actorRounds || []).find((r) => r.actorId === actorId);
-  const character = (characters || []).find((c) => c.id === actorId);
-
-  if (!actorRound) return <>Loading...</>;
-
-  const { placement, rowsCount } = assignRows(actions, phases, currentPhase);
-  const isDead = actorRound.effects.some((e) => e.status === 'dead');
-
-  const rowHeight = 80;
-  const gap = 8;
-  const declareHeight = 'auto';
-
-  if (isDead) return;
-
-  const gridTemplateColumns = `repeat(${phases}, 1fr)`;
-  const gridTemplateRows = `repeat(${rowsCount}, ${rowHeight}px) auto`;
 
   return (
     <>
@@ -169,4 +170,3 @@ const ActorActions: FC<ActorActionsProps> = ({
   );
 };
 
-export default ActorActions;

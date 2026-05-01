@@ -2,13 +2,14 @@
 import React, { FC, ReactNode, useContext, useEffect, useState } from 'react';
 import { Button, Typography } from '@mui/material';
 import { RmuDialog, TechnicalInfo } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { useError } from '../../../../ErrorContext';
 import { applyAttack, declareParry, deleteAction, prepareAttack } from '../../../api/action';
 import { Action, ActionAttack, AttackDeclaration, ParryDeclaration } from '../../../api/action.dto';
 import { ActorRound, ActorRoundAttack } from '../../../api/actor-rounds.dto';
 import MeleeAttackStepper from './MeleeAttackStepper';
+import { useTranslation } from 'react-i18next';
+import { useAuth } from 'react-oidc-context';
 
 const MeleeAttackDialog: FC<{
   action: Action;
@@ -16,6 +17,8 @@ const MeleeAttackDialog: FC<{
   open: boolean;
   onClose: () => void;
 }> = ({ action, actorRound, open, onClose }) => {
+  const auth = useAuth();
+  const { t } = useTranslation();
   const [deleting, setDeleting] = useState(false);
   const { game, strategicGame, roundActions, setRoundActions, refreshActorRounds, updateAction } =
     useContext(CombatContext)!;
@@ -75,7 +78,7 @@ const MeleeAttackDialog: FC<{
   };
 
   const onPrepare = () => {
-    prepareAttack(action.id, formData)
+    prepareAttack(action.id, formData, auth)
       .then((response) => loadAction(response))
       .catch((err) => showError(err.message));
   };
@@ -83,13 +86,13 @@ const MeleeAttackDialog: FC<{
   const onParry = () => {
     const parries = formData.parries?.map((e) => ({ parryId: e.id, parry: e.parry }));
     const parryDeclaration = { parries } as ParryDeclaration;
-    declareParry(action.id, parryDeclaration)
+    declareParry(action.id, parryDeclaration, auth)
       .then((response) => loadAction(response))
       .catch((err) => showError(err.message));
   };
 
   const onApply = () => {
-    applyAttack(action.id)
+    applyAttack(action.id, auth)
       .then((response) => {
         loadAction(response);
         refreshActorRounds();
@@ -100,7 +103,7 @@ const MeleeAttackDialog: FC<{
   };
 
   const onDelete = () => {
-    deleteAction(action.id)
+    deleteAction(action.id, auth)
       .then(() => {
         const newActionList = roundActions!.filter((e: Action) => e.id !== action.id);
         setRoundActions(newActionList);
