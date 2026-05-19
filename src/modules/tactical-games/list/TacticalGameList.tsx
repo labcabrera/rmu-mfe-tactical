@@ -61,35 +61,32 @@ export default function TacticalGameList() {
         <AddButton onClick={() => onNewTacticalGame()} />,
       ]}
     >
-      <Grid size={12}>
-        <TacticalGameListSearch setQueryString={setQueryString} />
+      <TacticalGameListSearch setQueryString={setQueryString} />
+
+      <Grid container spacing={1} sx={{ mt: 2 }}>
+        {games.map((game, index) => (
+          <Grid size={gridSizeCard} key={index}>
+            <RmuTextCard
+              value={game.name}
+              subtitle={game.description || 'No description provided'}
+              image={game.imageUrl || defaultTacticalGameImage}
+              onClick={() => onTacticalGameClick(game)}
+            />
+          </Grid>
+        ))}
       </Grid>
-      <Grid size={12}>
-        <Grid container spacing={1}>
-          {games.map((game, index) => (
-            <Grid size={gridSizeCard} key={index}>
-              <RmuTextCard
-                value={game.name}
-                subtitle={game.description || 'No description provided'}
-                image={game.imageUrl || defaultTacticalGameImage}
-                onClick={() => onTacticalGameClick(game)}
-              />
-            </Grid>
-          ))}
-        </Grid>
-        {games.length === 0 && (
-          <Typography variant="body1" color="secondary" sx={{ mt: 2 }}>
-            <em>{t('no-data')}</em>
-          </Typography>
-        )}
-        <RmuPagination
-          page={page}
-          pageSize={pageSize}
-          totalPages={totalPages}
-          setPage={setPage}
-          setPageSize={setPageSize}
-        />
-      </Grid>
+      {games.length === 0 && (
+        <Typography variant="body1" color="secondary" sx={{ mt: 2 }}>
+          <em>{t('no-data')}</em>
+        </Typography>
+      )}
+      <RmuPagination
+        page={page}
+        pageSize={pageSize}
+        totalPages={totalPages}
+        setPage={setPage}
+        setPageSize={setPageSize}
+      />
     </LayoutBase>
   );
 }
