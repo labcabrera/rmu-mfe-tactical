@@ -1,4 +1,5 @@
 import React, { Dispatch, FC, SetStateAction, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import { Grid } from '@mui/material';
 import {
@@ -10,7 +11,6 @@ import {
   RmuTextCard,
   TacticalGame,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { t } from 'i18next';
 import { useError } from '../../../ErrorContext';
 
 const TacticalGameViewActors: FC<{
@@ -19,8 +19,10 @@ const TacticalGameViewActors: FC<{
   factions: Faction[];
   characters: Character[];
 }> = ({ tacticalGame, setTacticalGame, factions, characters }) => {
+  const { t } = useTranslation();
+
   if (!tacticalGame || !factions || !characters) return <p>Loading...</p>;
-  if (tacticalGame.factions.length < 1) return <p>Select at least one faction to import actors.</p>;
+  if (tacticalGame.factions.length < 1) return <p>{t('select-at-least-one-faction')}</p>;
 
   return (
     <>
@@ -89,6 +91,7 @@ const TacticalGameViewActorsFactionItem: FC<{
   setTacticalGame: Dispatch<SetStateAction<TacticalGame | undefined>>;
 }> = ({ character, tacticalGame, setTacticalGame }) => {
   const auth = useAuth();
+  const { t } = useTranslation();
   const { showError } = useError();
 
   const isSelected = () => {

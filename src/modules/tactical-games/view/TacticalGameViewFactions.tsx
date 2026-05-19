@@ -1,4 +1,5 @@
 import React, { Dispatch, FC, SetStateAction } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import { Grid } from '@mui/material';
 import {
@@ -9,7 +10,6 @@ import {
   TacticalGame,
   Faction,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { t } from 'i18next';
 import { useError } from '../../../ErrorContext';
 import { defaultFactionImage } from '../../services/image-service';
 
@@ -19,6 +19,7 @@ const TacticalGameViewFactions: FC<{
   factions: Faction[];
 }> = ({ tacticalGame, setTacticalGame, factions }) => {
   const auth = useAuth();
+  const { t } = useTranslation();
   const { showError } = useError();
 
   const isSelected = (factionId: string) => {
@@ -39,7 +40,7 @@ const TacticalGameViewFactions: FC<{
 
   return (
     <>
-      <CategorySeparator text={t('Factions')} />
+      <CategorySeparator text={t('factions')} />
       <Grid container spacing={1}>
         {factions.map((faction, index) => (
           <Grid size={12}>
