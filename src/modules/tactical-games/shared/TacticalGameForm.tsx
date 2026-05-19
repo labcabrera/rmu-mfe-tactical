@@ -1,11 +1,11 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { Dispatch, FC, SetStateAction, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useAuth } from 'react-oidc-context';
 import { Grid, TextField } from '@mui/material';
 import { fetchStrategicGames, NumericInput, StrategicGame, TacticalGame } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { useError } from '../../../ErrorContext';
 import SelectStrategicGame from '../../shared/selects/SelectStrategicGame';
-import { useTranslation } from 'react-i18next';
-import { useAuth } from 'react-oidc-context';
 
 const TacticalGameForm: FC<{
   formData: TacticalGame;
@@ -36,6 +36,7 @@ const TacticalGameForm: FC<{
           label={t('name')}
           name="tactical-game-name"
           value={formData.name}
+          size="small"
           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
           fullWidth
           error={!formData.name || formData.name.trim() === ''}

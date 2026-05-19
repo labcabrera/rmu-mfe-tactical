@@ -1,13 +1,15 @@
 import React, { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Autocomplete, TextField } from '@mui/material';
-import { t } from 'i18next';
-import { StrategicGame } from '../../api/strategic-games';
+import { StrategicGame } from '@labcabrera-rmu/rmu-react-shared-lib';
 
 const SelectStrategicGame: FC<{
   value: string | null | undefined;
   onChange: (value: string | null) => void;
   strategicGames: StrategicGame[];
 }> = ({ value, onChange, strategicGames }) => {
+  const { t } = useTranslation();
+
   if (!strategicGames) {
     return <p>Loading...</p>;
   }
@@ -22,7 +24,7 @@ const SelectStrategicGame: FC<{
       value={selectedOption}
       onChange={(_event, newValue) => onChange(newValue ? newValue.id : null)}
       fullWidth
-      renderInput={(params) => <TextField {...params} label={t('Strategic game')} error={!value} />}
+      renderInput={(params) => <TextField {...params} size="small" label={t('strategic-game')} error={!value} />}
     />
   );
 };

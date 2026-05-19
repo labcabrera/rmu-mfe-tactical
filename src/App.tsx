@@ -5,6 +5,7 @@ import { useTheme } from '@mui/material/styles';
 import { NotFound } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatProvider } from './CombatContext';
 import { ErrorProvider } from './ErrorContext';
+import HomePage from './HomePage';
 import CombatDashboard from './modules/combat-dashboard/CombatDashboard';
 import TacticalGameCreation from './modules/tactical-games/create/TacticalGameCreation';
 import TacticalGameEdit from './modules/tactical-games/edit/TacticalGameEdit';
@@ -18,7 +19,7 @@ const App = () => {
         <CombatProvider>
           <Box sx={{ p: 2 }}>
             <Routes>
-              <Route path="/" element={<TacticalGameList />} />
+              <Route path="/" element={<HomePage />} />
               <Route path="/games" element={<TacticalGameList />} />
               <Route path="/games/create" element={<TacticalGameCreation />} />
               <Route path="/games/view/:gameId" element={<TacticalGameView />} />

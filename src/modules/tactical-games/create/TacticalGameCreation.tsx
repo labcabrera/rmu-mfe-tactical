@@ -1,21 +1,24 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
-import { Grid, Paper } from '@mui/material';
+import { useTranslation } from 'react-i18next';
+import { useAuth } from 'react-oidc-context';
+import { useNavigate } from 'react-router-dom';
 import {
+  CancelButton,
+  createTacticalGame,
   CreateTacticalGameDto,
   EditableAvatar,
   fetchStrategicGame,
+  LayoutBase,
+  SaveButton,
   StrategicGame,
   TacticalGame,
   TechnicalInfo,
+  UpdateTacticalGameDto,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { useError } from '../../../ErrorContext';
 import { imageBaseUrl } from '../../services/config';
-import { gridSizeResume, gridSizeMain } from '../../services/display';
 import { getAvatarImages } from '../../services/image-service';
 import TacticalGameForm from '../shared/TacticalGameForm';
-import TacticalGameCreationActions from './TacticalGameCreationActions';
-import { useAuth } from 'react-oidc-context';
 
 const EMPTY_GAME_TEMPLATE = {
   strategicGameId: '',
@@ -29,8 +32,10 @@ const EMPTY_GAME_TEMPLATE = {
   imageUrl: `${imageBaseUrl}images/generic/tactical.png`,
 } as unknown as TacticalGame;
 
-export default function TacticalGameCreation () {
+export default function TacticalGameCreation() {
   const auth = useAuth();
+  const { t } = useTranslation();
+  const navigate = useNavigate();
   const { showError } = useError();
   const params = new URLSearchParams(window.location.search);
   const strategicGameId = params.get('strategicGame');
@@ -48,6 +53,17 @@ export default function TacticalGameCreation () {
     fetchStrategicGame(strategicGameId, auth)
       .then((response) => setStrategicGame(response))
       .catch((err) => showError(err.message));
+  };
+
+  const onSave = async () => {
+    const dto: UpdateTacticalGameDto = { ...formData };
+    createTacticalGame(dto, auth)
+      .then((game) => navigate(`/tactical/games/view/${game.id}`))
+      .catch((err) => showError(err.message));
+  };
+
+  const onCancel = () => {
+    navigate(`/tactical/games`);
   };
 
   useEffect(() => {
@@ -72,27 +88,30 @@ export default function TacticalGameCreation () {
   if (!formData) return <p>Loading...</p>;
 
   return (
-    <>
-      <Grid container spacing={1}>
-        <Grid size={gridSizeResume}>
-          <EditableAvatar
-            imageUrl={formData.imageUrl || `${imageBaseUrl}images/generic/tactical.png`}
-            images={getAvatarImages()}
-            onImageChange={(imageUrl) => setFormData({ ...formData, imageUrl: imageUrl })}
-          />
-        </Grid>
-        <Grid size={gridSizeMain}>
-          <TacticalGameCreationActions formData={formData} isValid={isValid} />
-          <Paper sx={{p:2}}>
-          <TacticalGameForm formData={formData} setFormData={setFormData} strategicGame={strategicGame} />
-          </Paper>
-          <TechnicalInfo>
-            <pre>FormData: {JSON.stringify(formData, null, 2)}</pre>
-            <pre>StrategicGame: {JSON.stringify(strategicGame, null, 2)}</pre>
-          </TechnicalInfo>
-        </Grid>
-      </Grid>
-    </>
+    <LayoutBase
+      breadcrumbs={[
+        { name: t('home'), link: '/' },
+        { name: t('tactical-module'), link: '/tactical' },
+        { name: t('tactical-games'), link: '/tactical/games' },
+        { name: t('create') },
+      ]}
+      actions={[
+        <CancelButton onClick={() => onCancel()} />,
+        <SaveButton onClick={() => onSave()} disabled={!isValid} />,
+      ]}
+      leftPanel={
+        <EditableAvatar
+          imageUrl={formData.imageUrl || `${imageBaseUrl}images/generic/tactical.png`}
+          images={getAvatarImages()}
+          onImageChange={(imageUrl) => setFormData({ ...formData, imageUrl: imageUrl })}
+        />
+      }
+    >
+      <TacticalGameForm formData={formData} setFormData={setFormData} strategicGame={strategicGame} />
+      <TechnicalInfo>
+        <pre>FormData: {JSON.stringify(formData, null, 2)}</pre>
+        <pre>StrategicGame: {JSON.stringify(strategicGame, null, 2)}</pre>
+      </TechnicalInfo>
+    </LayoutBase>
   );
-};
-
+}

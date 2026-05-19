@@ -1,17 +1,25 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import { useNavigate } from 'react-router-dom';
-import { Grid } from '@mui/material';
-import { fetchTacticalGames, RmuPagination, RmuTextCard, TacticalGame } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { Grid, Typography } from '@mui/material';
+import {
+  AddButton,
+  fetchTacticalGames,
+  LayoutBase,
+  RefreshButton,
+  RmuPagination,
+  RmuTextCard,
+  TacticalGame,
+} from '@labcabrera-rmu/rmu-react-shared-lib';
 import { useError } from '../../../ErrorContext';
-import { gridSizeResume, gridSizeMain, gridSizeCard } from '../../services/display';
+import { gridSizeCard } from '../../services/display';
 import { defaultTacticalGameImage } from '../../services/image-service';
-import TacticalGameListActions from './TacticalGameListActions';
 import TacticalGameListSearch from './TacticalGameListSearch';
 
 export default function TacticalGameList() {
   const auth = useAuth();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { showError } = useError();
   const [queryString, setQueryString] = useState<string>('');
@@ -33,47 +41,55 @@ export default function TacticalGameList() {
       .catch((err) => showError(err.message));
   };
 
+  const onNewTacticalGame = () => {
+    navigate('/tactical/games/create');
+  };
+
   useEffect(() => {
     bindTacticalGames();
   }, [queryString, page, pageSize]);
 
   return (
-    <>
-      <Grid container spacing={1}>
-        <Grid size={gridSizeResume}></Grid>
-        <Grid size={gridSizeMain}>
-          <TacticalGameListActions />
-          <Grid container spacing={1}>
-            <Grid size={12}>
-              <TacticalGameListSearch setQueryString={setQueryString} />
-            </Grid>
-            <Grid size={12}>
-              <Grid container spacing={1}>
-                {games.map((game, index) => (
-                  <Grid size={gridSizeCard} key={index}>
-                    <RmuTextCard
-                      value={game.name}
-                      subtitle={game.description || 'No description provided'}
-                      image={game.imageUrl || defaultTacticalGameImage}
-                      onClick={() => onTacticalGameClick(game)}
-                    />
-                  </Grid>
-                ))}
-              </Grid>
-              {games.length === 0 && <span>No games found.</span>}
-            </Grid>
-          </Grid>
-          <Grid size={12}>
-            <RmuPagination
-              page={page}
-              pageSize={pageSize}
-              totalPages={totalPages}
-              setPage={setPage}
-              setPageSize={setPageSize}
-            />
-          </Grid>
-        </Grid>
+    <LayoutBase
+      breadcrumbs={[
+        { name: t('home'), link: '/' },
+        { name: t('tactical-module'), link: '/tactical' },
+        { name: t('tactical-games') },
+      ]}
+      actions={[
+        <RefreshButton onClick={() => bindTacticalGames()} />,
+        <AddButton onClick={() => onNewTacticalGame()} />,
+      ]}
+    >
+      <Grid size={12}>
+        <TacticalGameListSearch setQueryString={setQueryString} />
       </Grid>
-    </>
+      <Grid size={12}>
+        <Grid container spacing={1}>
+          {games.map((game, index) => (
+            <Grid size={gridSizeCard} key={index}>
+              <RmuTextCard
+                value={game.name}
+                subtitle={game.description || 'No description provided'}
+                image={game.imageUrl || defaultTacticalGameImage}
+                onClick={() => onTacticalGameClick(game)}
+              />
+            </Grid>
+          ))}
+        </Grid>
+        {games.length === 0 && (
+          <Typography variant="body1" color="secondary" sx={{ mt: 2 }}>
+            <em>{t('no-data')}</em>
+          </Typography>
+        )}
+        <RmuPagination
+          page={page}
+          pageSize={pageSize}
+          totalPages={totalPages}
+          setPage={setPage}
+          setPageSize={setPageSize}
+        />
+      </Grid>
+    </LayoutBase>
   );
 }
