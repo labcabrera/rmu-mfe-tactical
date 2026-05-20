@@ -1,5 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { FC, ReactNode, useContext, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useAuth } from 'react-oidc-context';
 import { Button, Typography } from '@mui/material';
 import { RmuDialog, TechnicalInfo } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../CombatContext';
@@ -8,8 +10,6 @@ import { applyAttack, declareParry, deleteAction, prepareAttack } from '../../..
 import { Action, ActionAttack, AttackDeclaration, ParryDeclaration } from '../../../api/action.dto';
 import { ActorRound, ActorRoundAttack } from '../../../api/actor-rounds.dto';
 import MeleeAttackStepper from './MeleeAttackStepper';
-import { useTranslation } from 'react-i18next';
-import { useAuth } from 'react-oidc-context';
 
 const MeleeAttackDialog: FC<{
   action: Action;
@@ -53,7 +53,7 @@ const MeleeAttackDialog: FC<{
       case 'parry':
         setActiveStep(2);
         break;
-      case 'pending_attack_roll':
+      case 'pending_roll':
       case 'prepared':
       case 'pending_apply':
       case 'completed':
@@ -153,7 +153,7 @@ const MeleeAttackDialog: FC<{
       pushButton(buttons, 'Parry', 'success', false, () => onParry());
     } else if (activeStep === 3) {
       pushButton(buttons, 'Back', undefined, false, () => setActiveStep(activeStep - 1));
-      if (action.status === 'pending_apply' || action.status === 'prepared') {
+      if (action.status === 'pending_apply') {
         pushButton(buttons, 'Apply', 'success', false, () => onApply());
       }
     }

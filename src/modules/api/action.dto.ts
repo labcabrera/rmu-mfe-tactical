@@ -1,15 +1,7 @@
 import { KeyValue } from '@labcabrera-rmu/rmu-react-shared-lib';
 
-export type ActionStatus =
-  | 'declared'
-  | 'prepared'
-  | 'parry'
-  | 'parry_declaration'
-  | 'pending_attack_roll'
-  | 'roll_declaration'
-  | 'critical_and_fumble_roll_declaration'
-  | 'pending_apply'
-  | 'completed';
+export type ActionStatus = 'declared' | 'prepared' | 'parry' | 'pending_roll' | 'pending_apply' | 'completed';
+
 export type ActionType = 'movement' | 'melee_attack' | 'ranged_attack' | 'maneuver' | 'skill' | 'free';
 export type CalledShot = 'none' | 'head' | 'chest' | 'abdomen' | 'arms' | 'legs';
 

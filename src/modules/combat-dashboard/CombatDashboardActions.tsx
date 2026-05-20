@@ -43,6 +43,7 @@ const CombatDashboardActions: FC = () => {
   useEffect(() => {
     if (game) {
       setBreadcrumbs([
+        { name: t('home'), link: '/' },
         { name: t('tactical-games'), link: '/tactical' },
         { name: t('tactical-game'), link: `/tactical/games/view/${game.id}` },
         { name: `Round ${displayRound} of ${game.round}` },
