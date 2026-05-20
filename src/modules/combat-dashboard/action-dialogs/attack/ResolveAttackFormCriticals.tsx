@@ -71,7 +71,7 @@ const ResolveAttackFormCriticals: FC<{
               <NumericInput
                 label={t('Critical roll')}
                 value={getCriticalRoll(critical.key) || null}
-                onChange={(e) => onUpdateCriticalRoll(critical.key, e)}
+                onChange={(e) => onUpdateCriticalRoll(critical.key, e || 1)}
                 disabled={action.status === 'completed'}
               />
             </Grid>

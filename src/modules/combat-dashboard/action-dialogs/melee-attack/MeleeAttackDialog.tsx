@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { FC, ReactNode, useContext, useEffect, useState } from 'react';
+import React, { FC, ReactNode, useContext, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import { Button, Typography } from '@mui/material';
@@ -26,8 +26,11 @@ const MeleeAttackDialog: FC<{
   const [formData, setFormData] = useState<AttackDeclaration>({ attacks: [], parries: [] });
   const [availableAttacks, setAvailableAttaks] = useState<ActionAttack[]>([]);
   const [activeStep, setActiveStep] = useState<number>(0);
-  const [buttons, setButtons] = useState<ReactNode>([]);
   const [isValidForm, setIsValidForm] = useState<boolean>(false);
+  const currentAction = useMemo(
+    () => roundActions?.find((roundAction: Action) => roundAction.id === action.id) || action,
+    [action, roundActions]
+  );
 
   const buttonsDeleting = [
     <Button color="error" onClick={() => onDelete()}>
@@ -78,34 +81,40 @@ const MeleeAttackDialog: FC<{
   };
 
   const onPrepare = () => {
-    prepareAttack(action.id, formData, auth)
-      .then((response) => loadAction(response))
+    prepareAttack(currentAction.id, formData, auth)
+      .then((response) => {
+        updateAction(response);
+        loadAction(response);
+      })
       .catch((err) => showError(err.message));
   };
 
   const onParry = () => {
     const parries = formData.parries?.map((e) => ({ parryId: e.id, parry: e.parry }));
     const parryDeclaration = { parries } as ParryDeclaration;
-    declareParry(action.id, parryDeclaration, auth)
-      .then((response) => loadAction(response))
+    declareParry(currentAction.id, parryDeclaration, auth)
+      .then((response) => {
+        updateAction(response);
+        loadAction(response);
+      })
       .catch((err) => showError(err.message));
   };
 
   const onApply = () => {
-    applyAttack(action.id, auth)
+    applyAttack(currentAction.id, auth)
       .then((response) => {
-        loadAction(response);
         refreshActorRounds();
         updateAction(response);
+        loadAction(response);
         onClose();
       })
       .catch((err) => showError(err.message));
   };
 
   const onDelete = () => {
-    deleteAction(action.id, auth)
+    deleteAction(currentAction.id, auth)
       .then(() => {
-        const newActionList = roundActions!.filter((e: Action) => e.id !== action.id);
+        const newActionList = roundActions!.filter((e: Action) => e.id !== currentAction.id);
         setRoundActions(newActionList);
         onClose();
       })
@@ -177,42 +186,36 @@ const MeleeAttackDialog: FC<{
 
   const availableActionPoints = () => {
     //TODO pendiente de refactor de phase string -> number
-    const ap = activeStep - action.phaseStart + 3;
+    const ap = activeStep - currentAction.phaseStart + 3;
     return ap > 1;
   };
-
-  useEffect(() => {
-    if (activeStep !== undefined && action) {
-      setButtons(getButtons(activeStep, action));
-    }
-  }, [activeStep, action, formData, isValidForm]);
 
   useEffect(() => {
     setIsValidForm(validateForm());
   }, [formData]);
 
   useEffect(() => {
-    if (!action || !actorRound) return;
-    loadAction(action);
-  }, [action, actorRound]);
+    if (!currentAction || !actorRound) return;
+    loadAction(currentAction);
+  }, [currentAction, actorRound]);
 
   if (!actorRound || !roundActions || !formData || !strategicGame || !game) return <p>Loading...</p>;
 
   return (
     <RmuDialog
       title={actorRound.actorName}
-      subtitle={`${t('Melee attack')} (${action.status})`}
+      subtitle={`${t('Melee attack')} (${currentAction.status})`}
       avatarImg={actorRound.imageUrl}
       fullScreen={false}
       open={open}
-      buttons={deleting ? buttonsDeleting : buttons}
+      buttons={deleting ? buttonsDeleting : getButtons(activeStep, currentAction)}
     >
       <>
         {!deleting ? (
           <>
             {availableActionPoints() ? (
               <MeleeAttackStepper
-                action={action}
+                action={currentAction}
                 actorRound={actorRound}
                 formData={formData}
                 activeStep={activeStep}
@@ -225,7 +228,7 @@ const MeleeAttackDialog: FC<{
             <TechnicalInfo>
               <pre>FormData: {JSON.stringify(formData, null, 2)}</pre>
               <pre>ActiveStep: {JSON.stringify(activeStep, null, 2)}</pre>
-              <pre>Action: {JSON.stringify(action, null, 2)}</pre>
+              <pre>Action: {JSON.stringify(currentAction, null, 2)}</pre>
               <pre>AvailableAttacks: {JSON.stringify(availableAttacks, null, 2)}</pre>
               <pre>ActorRound: {JSON.stringify(actorRound, null, 2)}</pre>
             </TechnicalInfo>
