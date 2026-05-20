@@ -38,7 +38,7 @@ const ResolveAttackFormCriticals: FC<{
   const onUpdateCriticalRoll = (criticalKey: string, roll: number) => {
     updateCriticalRoll(action.id, attack.attackName, criticalKey, roll, auth)
       .then((updatedAction) => {
-        const newFormData = { attacks: updatedAction.attacks, parries: undefined };
+        const newFormData = { attacks: updatedAction.attacks, parries: updatedAction.parries } as AttackDeclaration;
         updateAction(updatedAction);
         setFormData(newFormData);
       })
