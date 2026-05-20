@@ -153,9 +153,10 @@ const MeleeAttackDialog: FC<{
       pushButton(buttons, 'Parry', 'success', false, () => onParry());
     } else if (activeStep === 3) {
       pushButton(buttons, 'Back', undefined, false, () => setActiveStep(activeStep - 1));
-      if (action.status === 'pending_apply') {
-        pushButton(buttons, 'Apply', 'success', false, () => onApply());
-      }
+      pushButton(buttons, 'Apply', 'success', action.status !== 'pending_apply', () => onApply());
+      // if (action.status === 'pending_apply') {
+      // }
+      // pushButton(buttons, 'Apply2', 'success', false, () => onApply());
     }
     return buttons;
   };

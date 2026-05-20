@@ -126,25 +126,29 @@ const ResolveAttackFormRoll: FC<{
           </Stack>
         )}
       </Grid>
+
       {isCriticalAttack() && (
-        <ResolveAttackFormCriticals
-          attack={attack}
-          formData={formData}
-          setFormData={setFormData}
-          action={action}
-          index={index}
-        />
+        <Grid size={12}>
+          <ResolveAttackFormCriticals
+            attack={attack}
+            formData={formData}
+            setFormData={setFormData}
+            action={action}
+            index={index}
+          />
+        </Grid>
       )}
       {isFumbleAttack() && (
-        <ResolveAttackFormFumble
-          attack={attack}
-          formData={formData}
-          setFormData={setFormData}
-          action={action}
-          index={index}
-        />
+        <Grid size={12}>
+          <ResolveAttackFormFumble
+            attack={attack}
+            formData={formData}
+            setFormData={setFormData}
+            action={action}
+            index={index}
+          />
+        </Grid>
       )}
-      <Grid size={12}></Grid>
     </Grid>
   );
 };

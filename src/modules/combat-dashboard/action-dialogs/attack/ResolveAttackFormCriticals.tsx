@@ -23,6 +23,8 @@ const ResolveAttackFormCriticals: FC<{
 
   if (!formData || !formData.attacks || formData.attacks.length <= index) return <div>Loading...</div>;
 
+  if (!attack.roll || !attack.roll.criticalRolls) return <pre>Error</pre>;
+
   const getCriticalRoll = (criticalKey: string): number | undefined => {
     let roll: number | undefined;
     try {
