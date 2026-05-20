@@ -160,6 +160,16 @@ export type Critical = {
 
 export type CriticalResult = {
   text: string;
+  damage: number;
+  location: string;
+  effects: CriticalEffect[];
+};
+
+export type CriticalEffect = {
+  status: string;
+  value: number | null;
+  rounds: number | null;
+  delay: boolean | null;
 };
 
 export type AttackTableEntry = {

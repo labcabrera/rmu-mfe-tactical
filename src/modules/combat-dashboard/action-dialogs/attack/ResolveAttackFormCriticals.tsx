@@ -97,7 +97,7 @@ const ResolveAttackFormCriticals: FC<{
                 }}
               >
                 {critical.result && critical.result.damage && critical.result.damage > 0 && (
-                  <Effect status={'dmg'} label={critical.result.damage} color="error" />
+                  <Effect status={'dmg'} label={`${critical.result.damage}`} color="error" />
                 )}
                 {critical.result &&
                   critical.result.effects &&
