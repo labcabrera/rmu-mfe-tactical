@@ -5,7 +5,7 @@ import { Stack, Grid, Typography } from '@mui/material';
 import { CategorySeparator, NumericInput } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../CombatContext';
 import { useError } from '../../../../ErrorContext';
-import { updateCriticalRoll } from '../../../api/action';
+import { fetchAction, updateCriticalRoll } from '../../../api/action';
 import { Action, ActionAttack, AttackDeclaration } from '../../../api/action.dto';
 import Effect from '../../../shared/generic/Effect';
 
@@ -37,9 +37,10 @@ const ResolveAttackFormCriticals: FC<{
 
   const onUpdateCriticalRoll = (criticalKey: string, roll: number) => {
     updateCriticalRoll(action.id, attack.attackName, criticalKey, roll, auth)
-      .then((updatedAction) => {
-        const newFormData = { attacks: updatedAction.attacks, parries: updatedAction.parries } as AttackDeclaration;
-        updateAction(updatedAction);
+      .then(() => fetchAction(action.id, auth))
+      .then((currentAction) => {
+        const newFormData = { attacks: currentAction.attacks || [], parries: currentAction.parries || [] };
+        updateAction(currentAction);
         setFormData(newFormData);
       })
       .catch((err) => showError(err.message));

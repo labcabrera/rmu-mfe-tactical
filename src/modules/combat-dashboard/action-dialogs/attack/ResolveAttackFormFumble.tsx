@@ -3,7 +3,7 @@ import { Grid, Stack } from '@mui/material';
 import { NumericInput } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../CombatContext';
 import { useError } from '../../../../ErrorContext';
-import { updateFumbleRoll } from '../../../api/action';
+import { fetchAction, updateFumbleRoll } from '../../../api/action';
 import { Action, ActionAttack, AttackDeclaration } from '../../../api/action.dto';
 import Effect from '../../../shared/generic/Effect';
 import { useTranslation } from 'react-i18next';
@@ -26,11 +26,11 @@ const ResolveAttackFormFumble: FC<{
 
   const onUpdateFumbleRoll = (roll: number) => {
     updateFumbleRoll(action.id, attack.attackName, roll, auth)
-      .then((updatedAction) => {
-        const newFormData = { attacks: updatedAction.attacks, parries: undefined };
-        updateAction(updatedAction);
-        //TODO fix types when model is updated
-        setFormData(newFormData as any);
+      .then(() => fetchAction(action.id, auth))
+      .then((currentAction) => {
+        const newFormData = { attacks: currentAction.attacks || [], parries: currentAction.parries || [] };
+        updateAction(currentAction);
+        setFormData(newFormData);
       })
       .catch((err: unknown) => {
         if (err instanceof Error) showError(err.message);
