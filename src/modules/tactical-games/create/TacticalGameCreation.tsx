@@ -17,7 +17,7 @@ import {
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { useError } from '../../../ErrorContext';
 import { imageBaseUrl } from '../../services/config';
-import TacticalGameForm from '../shared/TacticalGameForm';
+import TacticalGameForm from '../form/TacticalGameForm';
 
 const EMPTY_GAME_TEMPLATE = {
   strategicGameId: '',

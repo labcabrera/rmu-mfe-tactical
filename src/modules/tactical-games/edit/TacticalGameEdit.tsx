@@ -14,7 +14,7 @@ import {
 import { useError } from '../../../ErrorContext';
 import { gridSizeResume, gridSizeMain } from '../../services/display';
 import { defaultImage } from '../../services/image-service';
-import TacticalGameForm from '../shared/TacticalGameForm';
+import TacticalGameForm from '../form/TacticalGameForm';
 import TacticalGameEditActions from './TacticalGameEditActions';
 
 export default function TacticalGameEdit() {

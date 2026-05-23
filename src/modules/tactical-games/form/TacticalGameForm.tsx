@@ -30,13 +30,12 @@ const TacticalGameForm: FC<{
   }, [strategicGame]);
 
   return (
-    <Grid container spacing={1}>
+    <Grid container spacing={2}>
       <Grid size={12}>
         <TextField
           label={t('name')}
           name="tactical-game-name"
           value={formData.name}
-          size="small"
           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
           fullWidth
           error={!formData.name || formData.name.trim() === ''}
