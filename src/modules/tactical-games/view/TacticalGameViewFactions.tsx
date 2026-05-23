@@ -3,10 +3,10 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import { Grid } from '@mui/material';
 import {
-  CategorySeparator,
   deleteTacticalGameFaction,
   addTacticalGameFaction,
   RmuTextCard,
+  Section,
   TacticalGame,
   Faction,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
@@ -39,8 +39,7 @@ const TacticalGameViewFactions: FC<{
   if (!factions) return <p>Loading factions...</p>;
 
   return (
-    <>
-      <CategorySeparator text={t('factions')} />
+    <Section title={t('factions')}>
       <Grid container spacing={1}>
         {factions.map((faction, index) => (
           <Grid size={12}>
@@ -55,7 +54,7 @@ const TacticalGameViewFactions: FC<{
           </Grid>
         ))}
       </Grid>
-    </>
+    </Section>
   );
 };
 

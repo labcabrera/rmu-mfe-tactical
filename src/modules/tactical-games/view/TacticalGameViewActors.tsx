@@ -4,11 +4,11 @@ import { useAuth } from 'react-oidc-context';
 import { Grid } from '@mui/material';
 import {
   addActor,
-  CategorySeparator,
   Character,
   deleteActor,
   Faction,
   RmuTextCard,
+  Section,
   TacticalGame,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { useError } from '../../../ErrorContext';
@@ -67,8 +67,7 @@ const TacticalGameViewActorsFaction: FC<{
   if (factionCharacters.length === 0) return <p>No characters available for this faction.</p>;
 
   return (
-    <>
-      <CategorySeparator text={faction?.name || '...'} />
+    <Section title={faction?.name || '...'}>
       <Grid container spacing={1}>
         {factionCharacters.map((character) => (
           <Grid size={3}>
@@ -81,7 +80,7 @@ const TacticalGameViewActorsFaction: FC<{
           </Grid>
         ))}
       </Grid>
-    </>
+    </Section>
   );
 };
 
