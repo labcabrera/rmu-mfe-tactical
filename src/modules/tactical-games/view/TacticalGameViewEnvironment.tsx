@@ -1,12 +1,8 @@
-import React, { FC } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { Grid } from '@mui/material';
-import { RmuTextCard, Section, StatRow, TacticalGame } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { defaultImage } from '../../services/image-service';
+import { Section, StatRow, TacticalGame } from '@labcabrera-rmu/rmu-react-shared-lib';
 
-const TacticalGameViewEnvironment: FC<{
-  tacticalGame: TacticalGame;
-}> = ({ tacticalGame }) => {
+export default function TacticalGameViewEnvironment({ tacticalGame }: { tacticalGame: TacticalGame }) {
   const { t } = useTranslation();
 
   if (!tacticalGame) return <p>Loading game...</p>;
@@ -22,6 +18,4 @@ const TacticalGameViewEnvironment: FC<{
       <StatRow label={'altitude-modifier'} value={afm} danger={afm < 0} success={afm > 0} />
     </Section>
   );
-};
-
-export default TacticalGameViewEnvironment;
+}

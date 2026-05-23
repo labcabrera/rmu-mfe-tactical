@@ -15,7 +15,6 @@ import {
   CardActionArea,
   CardContent,
   CardMedia,
-  Checkbox,
   Divider,
   Grid,
   Stack,
@@ -343,7 +342,9 @@ function FactionSelectionCard({
       sx={{
         height: '100%',
         opacity: disabled ? 0.45 : 1,
-        borderColor: selected ? 'warning.main' : 'divider',
+        borderColor: selected ? 'primary.main' : 'divider',
+        bgcolor: selected ? 'action.selected' : 'background.paper',
+        boxShadow: selected ? 3 : 0,
         position: 'relative',
       }}
     >
@@ -364,9 +365,11 @@ function FactionSelectionCard({
           </Typography>
         </CardContent>
       </CardActionArea>
-      <Box sx={{ position: 'absolute', top: 8, right: 8 }}>
-        {disabled ? <LockIcon fontSize="small" /> : <Checkbox checked={selected} tabIndex={-1} />}
-      </Box>
+      {disabled && (
+        <Box sx={{ position: 'absolute', top: 8, right: 8 }}>
+          <LockIcon fontSize="small" />
+        </Box>
+      )}
     </Card>
   );
 }
@@ -386,7 +389,9 @@ function CharacterSelectionCard({
       variant="outlined"
       sx={{
         height: '100%',
-        borderColor: selected ? 'warning.main' : 'divider',
+        borderColor: selected ? 'primary.main' : 'divider',
+        bgcolor: selected ? 'action.selected' : 'background.paper',
+        boxShadow: selected ? 3 : 0,
         position: 'relative',
       }}
     >
@@ -411,9 +416,6 @@ function CharacterSelectionCard({
           </Stack>
         </CardContent>
       </CardActionArea>
-      <Box sx={{ position: 'absolute', top: 8, right: 8 }}>
-        <Checkbox checked={selected} tabIndex={-1} />
-      </Box>
     </Card>
   );
 }
