@@ -17,7 +17,6 @@ import {
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { useError } from '../../../ErrorContext';
 import { imageBaseUrl } from '../../services/config';
-import { getAvatarImages } from '../../services/image-service';
 import TacticalGameForm from '../shared/TacticalGameForm';
 
 const EMPTY_GAME_TEMPLATE = {
@@ -102,7 +101,6 @@ export default function TacticalGameCreation() {
       leftPanel={
         <EditableAvatar
           imageUrl={formData.imageUrl || `${imageBaseUrl}images/generic/tactical.png`}
-          images={getAvatarImages()}
           onImageChange={(imageUrl) => setFormData({ ...formData, imageUrl: imageUrl })}
         />
       }

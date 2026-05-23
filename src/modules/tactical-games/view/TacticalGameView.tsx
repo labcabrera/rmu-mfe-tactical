@@ -133,7 +133,6 @@ const TacticalGameView: FC = () => {
         <>
           <EditableAvatar
             imageUrl={tacticalGame.imageUrl || defaultTacticalGameImage}
-            images={getAvatarImages()}
             onImageChange={(imageUrl) => updateImage(imageUrl)}
           />
           <TacticalGameViewResume tacticalGame={tacticalGame} strategicGame={strategicGame} />

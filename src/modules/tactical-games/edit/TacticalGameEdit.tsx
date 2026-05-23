@@ -1,5 +1,5 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import React, { FC, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useAuth } from 'react-oidc-context';
 import { useLocation, useParams } from 'react-router-dom';
 import { Grid, Paper } from '@mui/material';
 import {
@@ -13,12 +13,11 @@ import {
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { useError } from '../../../ErrorContext';
 import { gridSizeResume, gridSizeMain } from '../../services/display';
-import { defaultImage, getAvatarImages } from '../../services/image-service';
+import { defaultImage } from '../../services/image-service';
 import TacticalGameForm from '../shared/TacticalGameForm';
 import TacticalGameEditActions from './TacticalGameEditActions';
-import { useAuth } from 'react-oidc-context';
 
-const TacticalGameEdit: FC = () => {
+export default function TacticalGameEdit() {
   const auth = useAuth();
   const location = useLocation();
   const { showError } = useError();
@@ -42,7 +41,7 @@ const TacticalGameEdit: FC = () => {
   useEffect(() => {
     if (tacticalGame) {
       setFormData(tacticalGame);
-      fetchStrategicGame(tacticalGame.strategicGameId,auth)
+      fetchStrategicGame(tacticalGame.strategicGameId, auth)
         .then((response) => setStrategicGame(response))
         .catch((err) => showError(err.message));
     }
@@ -52,7 +51,7 @@ const TacticalGameEdit: FC = () => {
     if (location.state && location.state.realm) {
       setTacticalGame(location.state.tacticalGame);
     } else if (gameId && auth) {
-      fetchTacticalGame(gameId,auth)
+      fetchTacticalGame(gameId, auth)
         .then((response) => setTacticalGame(response))
         .catch((err) => showError(err.message));
     }
@@ -65,14 +64,13 @@ const TacticalGameEdit: FC = () => {
       <Grid size={gridSizeResume}>
         <EditableAvatar
           imageUrl={formData.imageUrl || defaultImage}
-          images={getAvatarImages()}
           onImageChange={(imageUrl) => setFormData({ ...formData, imageUrl: imageUrl })}
         />
       </Grid>
       <Grid size={gridSizeMain}>
         <TacticalGameEditActions tacticalGame={tacticalGame} formData={formData} isValid={isValid} />
-        <Paper sx={{p:2}}>
-        <TacticalGameForm formData={formData} setFormData={setFormData} strategicGame={strategicGame} />
+        <Paper sx={{ p: 2 }}>
+          <TacticalGameForm formData={formData} setFormData={setFormData} strategicGame={strategicGame} />
         </Paper>
         <TechnicalInfo>
           <pre>FormData: {JSON.stringify(formData, null, 2)}</pre>
@@ -80,6 +78,4 @@ const TacticalGameEdit: FC = () => {
       </Grid>
     </Grid>
   );
-};
-
-export default TacticalGameEdit;
+}
