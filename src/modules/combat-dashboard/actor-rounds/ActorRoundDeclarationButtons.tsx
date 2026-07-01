@@ -1,16 +1,13 @@
 import React, { Dispatch, FC, SetStateAction, useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
-import { Badge, Stack } from '@mui/material';
+import { alpha, Box, Button, Stack } from '@mui/material';
 import { CombatContext } from '../../../CombatContext';
 import { useError } from '../../../ErrorContext';
 import { createAction } from '../../api/action';
 import { ActorRound } from '../../api/actor-rounds.dto';
 import { imageBaseUrl } from '../../services/config';
-import RmuImageButton from '../../shared/buttons/RmuImageButton';
 import DeclareActionDialog from '../action-dialogs/DeclareActionDialog';
-
-const buttonSize = 35;
 
 const ActorRoundDeclarationButtons: FC<{
   actorRound: ActorRound;
@@ -33,6 +30,48 @@ const ActorRoundDeclarationButtons: FC<{
   const disabledMeleeAttack = pendingActions.some(
     (a) => a.actorId === actorRound.actorId && a.actionType === 'melee_attack' && !a.freeAction
   );
+  const actions = [
+    {
+      key: 'free-movement',
+      label: t('Free movement'),
+      shortLabel: t('Free'),
+      icon: `${imageBaseUrl}images/icons/movement.png`,
+      hidden: disabledMovement,
+      onClick: () => onActionDeclaration('movement', true),
+    },
+    {
+      key: 'movement',
+      label: t('Normal movement'),
+      shortLabel: t('Move'),
+      icon: `${imageBaseUrl}images/icons/movement.png`,
+      hidden: disabledMovement,
+      onClick: () => onActionDeclaration('movement', false),
+    },
+    {
+      key: 'melee-attack',
+      label: t('Melee attack'),
+      shortLabel: t('Melee'),
+      icon: `${imageBaseUrl}images/icons/attack.png`,
+      hidden: disabledMeleeAttack,
+      onClick: () => onActionDeclaration('melee_attack', false),
+    },
+    {
+      key: 'ranged-attack',
+      label: t('Ranged attack'),
+      shortLabel: t('Ranged'),
+      icon: `${imageBaseUrl}images/icons/ranged-attack.png`,
+      hidden: disabledRangedAttack,
+      onClick: () => onActionDeclaration('ranged_attack', false),
+    },
+    {
+      key: 'other',
+      label: t('Other actions'),
+      shortLabel: t('Other'),
+      icon: `${imageBaseUrl}images/icons/add.png`,
+      hidden: false,
+      onClick: () => setDeclareActionDialogOpen(true),
+    },
+  ];
 
   const onActionDeclaration = (actionType: string, freeAction: boolean) => {
     const data = {
@@ -52,57 +91,75 @@ const ActorRoundDeclarationButtons: FC<{
 
   return (
     <>
-      <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', gap: 0 }}>
-        {!disabledMovement && (
-          <>
-            <Badge
-              badgeContent="F"
-              color="success"
-              sx={{
-                '& .MuiBadge-badge': {
-                  right: 8,
-                  top: 8,
+      <Box
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+          gap: 0.5,
+          width: '100%',
+          minWidth: 132,
+          maxWidth: 178,
+          py: 0.5,
+        }}
+      >
+        {actions
+          .filter((action) => !action.hidden)
+          .map((action) => (
+            <Button
+              key={action.key}
+              title={action.label}
+              onClick={action.onClick}
+              variant={action.key === 'other' ? 'outlined' : 'contained'}
+              color={action.key === 'free-movement' ? 'success' : 'primary'}
+              size="small"
+              sx={(theme) => ({
+                minWidth: 0,
+                minHeight: 28,
+                justifyContent: 'center',
+                gap: 0.5,
+                px: 0.5,
+                borderRadius: 1,
+                textTransform: 'none',
+                fontSize: '0.66rem',
+                lineHeight: 1.1,
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                bgcolor:
+                  action.key === 'other'
+                    ? alpha(theme.palette.background.paper, 0.12)
+                    : action.key === 'free-movement'
+                      ? alpha(theme.palette.success.main, 0.68)
+                      : alpha(theme.palette.primary.main, 0.72),
+                borderColor: action.key === 'other' ? alpha(theme.palette.primary.main, 0.45) : 'transparent',
+                color: action.key === 'other' ? 'primary.light' : 'primary.contrastText',
+                '&:hover': {
+                  bgcolor:
+                    action.key === 'other'
+                      ? alpha(theme.palette.primary.main, 0.12)
+                      : action.key === 'free-movement'
+                        ? alpha(theme.palette.success.main, 0.82)
+                        : alpha(theme.palette.primary.main, 0.86),
                 },
-              }}
+              })}
             >
-              <RmuImageButton
-                src={`${imageBaseUrl}images/icons/movement.png`}
-                tooltip={t('Free movement')}
-                onClick={() => onActionDeclaration('movement', true)}
-                size={buttonSize}
+              <Box
+                component="img"
+                src={action.icon}
+                alt=""
+                sx={{
+                  width: 14,
+                  height: 14,
+                  objectFit: 'contain',
+                  filter: 'grayscale(0.25)',
+                  flex: 'none',
+                }}
               />
-            </Badge>
-            <RmuImageButton
-              src={`${imageBaseUrl}images/icons/movement.png`}
-              tooltip={t('Normal movement')}
-              onClick={() => onActionDeclaration('movement', false)}
-              size={buttonSize}
-            />
-          </>
-        )}
-        {!disabledMeleeAttack && (
-          <RmuImageButton
-            src={`${imageBaseUrl}images/icons/attack.png`}
-            tooltip={t('Melee attack')}
-            onClick={() => onActionDeclaration('melee_attack', false)}
-            size={buttonSize}
-          />
-        )}
-        {!disabledRangedAttack && (
-          <RmuImageButton
-            src={`${imageBaseUrl}images/icons/ranged-attack.png`}
-            tooltip={t('Ranged attack')}
-            onClick={() => onActionDeclaration('ranged_attack', false)}
-            size={buttonSize}
-          />
-        )}
-        <RmuImageButton
-          src={`${imageBaseUrl}images/icons/add.png`}
-          tooltip={t('Other actions')}
-          onClick={() => setDeclareActionDialogOpen(true)}
-          size={buttonSize}
-        />
-      </Stack>
+              <Box component="span" sx={{ minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                {action.shortLabel}
+              </Box>
+            </Button>
+          ))}
+      </Box>
       <DeclareActionDialog
         actorRound={actorRound}
         phaseNumber={currentPhase}

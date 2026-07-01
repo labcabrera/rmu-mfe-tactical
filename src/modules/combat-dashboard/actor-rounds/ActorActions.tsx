@@ -99,7 +99,7 @@ function assignRows(actions: Action[], phases: number, currentPhase: number) {
             border: '1px solid rgba(0,0,0,0.06)',
             borderRadius: 0,
             boxSizing: 'border-box',
-            overflow: 'hidden',
+            overflow: 'visible',
           }}
         >
           {placement.map((p) => {
@@ -138,8 +138,9 @@ function assignRows(actions: Action[], phases: number, currentPhase: number) {
                   gridRow: `${row} / ${row + 1}`,
                   height: declareHeight,
                   display: 'flex',
-                  alignItems: 'center',
+                  alignItems: 'flex-start',
                   justifyContent: 'center',
+                  overflow: 'visible',
                 }}
               >
                 {i + 1 === currentPhase && (
@@ -169,4 +170,3 @@ function assignRows(actions: Action[], phases: number, currentPhase: number) {
     </>
   );
 };
-
