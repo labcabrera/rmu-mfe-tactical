@@ -3,11 +3,12 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import ElectricBoltIcon from '@mui/icons-material/ElectricBolt';
 import NextPlanIcon from '@mui/icons-material/NextPlan';
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import SkipNextIcon from '@mui/icons-material/SkipNext';
 import SkipPreviousIcon from '@mui/icons-material/SkipPrevious';
 import SortIcon from '@mui/icons-material/Sort';
 import TextRotateVerticalIcon from '@mui/icons-material/TextRotateVertical';
-import { IconButton, Tooltip, Typography, Grid, Paper, Stack } from '@mui/material';
+import { alpha, Box, Button, IconButton, Tooltip, Typography, Grid, Paper, Stack } from '@mui/material';
 import { randomizeInitiatives, startPhase, startRound, TacticalGame } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
 import { useError } from '../../../ErrorContext';
@@ -16,6 +17,7 @@ import CombatActorRoundListItem from './ActorRoundListItem';
 import ActorRoundViewDialog from './ActorRoundViewDialog';
 
 const PHASES = ['declare_initiative', 'phase_1', 'phase_2', 'phase_3', 'phase_4', 'upkeep'];
+const ROUND_GRID_COLUMNS = '6fr 2fr 3fr repeat(4, 3fr) 9fr';
 
 const CombatActorRoundList: FC = () => {
   const { game, actorRounds } = useContext(CombatContext)!;
@@ -49,6 +51,7 @@ const CombatActorRoundList: FC = () => {
               <Grid key={index} size={12}>
                 <CombatActorRoundListItem
                   actorRound={actorRound}
+                  index={index}
                   displayPhase={displayPhase}
                   setDisplayPhase={setDisplayPhase}
                   onActorRoundView={(ar) => {
@@ -111,6 +114,14 @@ const CombatActorRoundListHeader: FC<{
   };
 
   const onNextPhase = async () => {
+    const displayPhaseIndex = PHASES.indexOf(displayPhase);
+    const gamePhaseIndex = PHASES.indexOf(game.phase);
+
+    if (displayPhaseIndex >= 0 && gamePhaseIndex >= 0 && displayPhaseIndex < gamePhaseIndex) {
+      setDisplayPhase(PHASES[displayPhaseIndex + 1]);
+      return;
+    }
+
     startPhase(game!.id, auth)
       .then((game: TacticalGame) => setGame(game))
       .catch((err) => showError(err.message));
@@ -122,78 +133,135 @@ const CombatActorRoundListHeader: FC<{
   };
 
   return (
-    <Grid container columns={24} spacing={1}>
-      <Grid size={5}>
-        <Stack direction="row" sx={{ justifyContent: 'space-between' }}>
-          <PhaseTypograpy label={t('Actors')} active={false} />
+    <Stack spacing={1.25} sx={{ p: 1.5 }}>
+      <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center', justifyContent: 'space-between' }}>
+        <Stack>
+          <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 700, textTransform: 'uppercase' }}>
+            {t('Initiative order')}
+          </Typography>
+          <Typography variant="caption" color="text.secondary">
+            {roundActorSort === 'initiative' ? t('Ascending (Low -> High)') : t('Name order')}
+          </Typography>
+        </Stack>
+        <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
           <Tooltip title={roundActorSort === 'initiative' ? 'Sort by Name' : 'Sort by Initiative'}>
-            <IconButton size="small" color="primary" onClick={() => toggleSort()}>
+            <IconButton size="small" color="primary" onClick={() => toggleSort()} sx={{ border: '1px solid', borderColor: 'divider' }}>
               {roundActorSort === 'initiative' ? <SortIcon /> : <TextRotateVerticalIcon />}
             </IconButton>
           </Tooltip>
-        </Stack>
-      </Grid>
-      <Grid size={2} sx={{ backgroundColor: displayPhase === 'declare_initiative' ? 'secondary.main' : undefined }}>
-        <Stack direction="row" sx={{ justifyContent: 'space-between' }}>
-          <PhaseTypograpy label={t('Initiative')} active={displayPhase === 'declare_initiative'} />
           {displayPhase === 'declare_initiative' && undeclaredInitiatives && (
             <Tooltip title="Randomize Initiatives">
-              <IconButton size="small" color="primary" onClick={() => onRandomizeInitiatives()}>
+              <IconButton size="small" color="primary" onClick={() => onRandomizeInitiatives()} sx={{ border: '1px solid', borderColor: 'divider' }}>
                 <ElectricBoltIcon fontSize="small" />
               </IconButton>
             </Tooltip>
           )}
-          {displayPhase === 'declare_initiative' && !undeclaredInitiatives && <NextButton onNext={onNextPhase} />}
-        </Stack>
-      </Grid>
-      <PhaseTitle label={'Phase 1'} active={displayPhase === 'phase_1'} onPrev={onPrevPhase} onNext={onNextPhase} />
-      <PhaseTitle label={'Phase 2'} active={displayPhase === 'phase_2'} onPrev={onPrevPhase} onNext={onNextPhase} />
-      <PhaseTitle label={'Phase 3'} active={displayPhase === 'phase_3'} onPrev={onPrevPhase} onNext={onNextPhase} />
-      <PhaseTitle label={'Phase 4'} active={displayPhase === 'phase_4'} onPrev={onPrevPhase} onNext={onNextPhase} />
-      <Grid size={6}>
-        <Stack direction="row" sx={{ justifyContent: 'space-between' }}>
-          <PhaseTypograpy label={displayPhase === 'upkeep' ? 'Upkeep' : 'Effects'} active={displayPhase === 'upkeep'} />
-          {displayPhase === 'upkeep' && (
-            <Stack direction="row" spacing={1}>
-              <IconButton size="small" color="primary" onClick={onPrevPhase}>
-                <SkipPreviousIcon fontSize="small" />
-              </IconButton>
-              <Tooltip title="Next round">
-                <IconButton size="small" color="primary" onClick={onNextRound}>
-                  <NextPlanIcon />
-                </IconButton>
-              </Tooltip>
-            </Stack>
+          {displayPhase === 'upkeep' ? (
+            <Button variant="outlined" size="small" startIcon={<NextPlanIcon />} onClick={onNextRound}>
+              {t('Next round')}
+            </Button>
+          ) : (
+            <Button
+              variant="outlined"
+              size="small"
+              startIcon={<PlayArrowIcon />}
+              onClick={onNextPhase}
+              disabled={displayPhase === 'declare_initiative' && !!undeclaredInitiatives}
+              sx={{ color: 'success.light', borderColor: 'success.dark' }}
+            >
+              {t('End phase')}
+            </Button>
           )}
         </Stack>
-      </Grid>
-    </Grid>
-  );
-};
-
-const PhaseTitle: FC<{
-  label: string;
-  active: boolean;
-  gridSize?: number;
-  onPrev?: () => void;
-  onNext?: () => void;
-}> = ({ label, gridSize = 2, active, onPrev, onNext }) => {
-  return (
-    <Grid size={gridSize} sx={{ backgroundColor: active ? 'secondary.main' : undefined }}>
-      <Stack direction="row" sx={{ justifyContent: 'space-between' }}>
-        {active && onPrev && <PrevButton onPrev={onPrev} />}
-        <PhaseTypograpy label={label} active={active} />
-        {active && onNext && <NextButton onNext={onNext} />}
       </Stack>
-    </Grid>
+
+      <Box sx={{ display: 'grid', gridTemplateColumns: ROUND_GRID_COLUMNS, columnGap: 1, alignItems: 'stretch' }}>
+        <Box sx={{ minWidth: 0 }}>
+          <HeaderCell title={t('Actors')} subtitle={t('Initiative order')} />
+        </Box>
+        <Box sx={{ minWidth: 0 }}>
+          <HeaderCell title={t('Initiative')} active={displayPhase === 'declare_initiative'} />
+        </Box>
+        <Box sx={{ minWidth: 0 }}>
+          <HeaderCell title={t('Actions')} />
+        </Box>
+        {[1, 2, 3, 4].map((phase) => (
+          <Box key={phase} sx={{ minWidth: 0 }}>
+            <PhaseHeaderCell
+              phase={phase}
+              active={displayPhase === `phase_${phase}`}
+              onPrev={onPrevPhase}
+              onNext={onNextPhase}
+            />
+          </Box>
+        ))}
+        <Box sx={{ minWidth: 0 }}>
+          <HeaderCell title={displayPhase === 'upkeep' ? t('Upkeep') : t('Effects')} active={displayPhase === 'upkeep'} />
+        </Box>
+      </Box>
+    </Stack>
   );
 };
 
-const PhaseTypograpy: FC<{ label: string; active: boolean }> = ({ label, active }) => {
+const HeaderCell: FC<{
+  title: string;
+  subtitle?: string;
+  active?: boolean;
+}> = ({ title, subtitle, active = false }) => {
   return (
-    <Typography variant="body1" align="left" color={active ? 'white' : 'secondary'} sx={{ fontWeight: 600, m: 1 }}>
-      {label}
-    </Typography>
+    <Box
+      sx={(theme) => ({
+        height: '100%',
+        minHeight: 58,
+        px: 1.25,
+        py: 1,
+        borderRadius: 1,
+        bgcolor: active ? alpha(theme.palette.primary.main, 0.16) : alpha(theme.palette.background.default, 0.38),
+        border: '1px solid',
+        borderColor: active ? 'primary.main' : 'divider',
+      })}
+    >
+      <Typography variant="body2" color={active ? 'primary.light' : 'text.primary'} sx={{ fontWeight: 700 }}>
+        {title}
+      </Typography>
+      {subtitle && (
+        <Typography variant="caption" color="text.secondary">
+          {subtitle}
+        </Typography>
+      )}
+    </Box>
+  );
+};
+
+const PhaseHeaderCell: FC<{
+  phase: number;
+  active: boolean;
+  onPrev: () => void;
+  onNext: () => void;
+}> = ({ phase, active, onPrev, onNext }) => {
+  return (
+    <Box
+      sx={(theme) => ({
+        height: '100%',
+        minHeight: 58,
+        px: 0.75,
+        py: 0.75,
+        borderRadius: 1,
+        bgcolor: active ? alpha(theme.palette.primary.main, 0.18) : alpha(theme.palette.background.default, 0.38),
+        border: '1px solid',
+        borderColor: active ? 'primary.main' : 'divider',
+      })}
+    >
+      <Stack direction="row" sx={{ alignItems: 'center', justifyContent: 'space-between', minHeight: 34 }}>
+        {active ? <PrevButton onPrev={onPrev} /> : <Box sx={{ width: 24 }} />}
+        <Stack sx={{ alignItems: 'center', minWidth: 0 }}>
+          <Typography variant="body2" color={active ? 'primary.light' : 'text.primary'} sx={{ fontWeight: 700 }}>
+            {`Phase ${phase}`}
+          </Typography>
+        </Stack>
+        {active ? <NextButton onNext={onNext} /> : <Box sx={{ width: 24 }} />}
+      </Stack>
+    </Box>
   );
 };
 

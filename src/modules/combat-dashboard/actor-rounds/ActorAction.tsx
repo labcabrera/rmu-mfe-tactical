@@ -45,27 +45,29 @@ export default function ActorAction({
         height: '100%',
         boxShadow: 1,
         borderRadius: 0.5,
-        border: 2,
+        border: 1,
         borderColor: completed ? 'black' : '#515e60',
         overflow: 'hidden',
         backgroundColor: completed ? 'secondary.main' : 'primary.main',
-        backgroundImage: bg ? `url(${bg})` : undefined,
-        backgroundSize: 'auto 100%',
+        backgroundImage: bg ? `linear-gradient(90deg, rgba(0,0,0,0.56), rgba(0,0,0,0.1)), url(${bg})` : undefined,
+        backgroundSize: 'cover',
         backgroundPosition: 'right center',
         backgroundRepeat: 'no-repeat',
       }}
       onClick={onClick}
     >
       <CardActionArea sx={{ height: '100%' }} onClick={onClick}>
-        <CardContent sx={{ height: '100%', display: 'flex', alignItems: 'center', p: 0, bgcolor: 'rgba(0,0,0,0)' }}>
-          <Box sx={{ width: '100%', px: 1 }}>
+        <CardContent
+          sx={{ height: '100%', display: 'flex', alignItems: 'center', p: 1, bgcolor: 'rgba(0,0,0,0)', '&:last-child': { pb: 1 } }}
+        >
+          <Box sx={{ width: '100%', minWidth: 0 }}>
             <Typography
-              variant="body2"
+              variant="caption"
               noWrap
               sx={{
                 color: completed ? 'secondary' : 'primary',
                 textTransform: 'none',
-                fontWeight: 600,
+                fontWeight: 700,
               }}
             >
               {actionName}

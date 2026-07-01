@@ -30,20 +30,20 @@ const ActorRoundInitiative: FC<{
       elevation={0}
     >
       {!isDisabled && (
-        <CardContent sx={{ width: '100%', p: 2 }}>
-          <Stack direction="column" spacing={1}>
+        <CardContent sx={{ width: '100%', minWidth: 0, p: 1.25, '&:last-child': { pb: 1.25 } }}>
+          <Stack direction="column" spacing={0.75} sx={{ width: '100%', minWidth: 0 }}>
             <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
               <Typography variant="body1" color="text.primary">
                 {actorRound.initiative.total}
               </Typography>
-              <IconButton onClick={() => setDialogOpen(true)} size="small" color="primary">
-                <ElectricBoltIcon />
+              <IconButton onClick={() => setDialogOpen(true)} size="small" color="primary" sx={{ p: 0.25 }}>
+                <ElectricBoltIcon fontSize="small" />
               </IconButton>
             </Stack>
             {!actorRound.initiative.total && <Typography>Not declared</Typography>}
             <DeclareInitiativeDialog open={dialogOpen} setOpen={setDialogOpen} actorRound={actorRound} />
             {actorRound.initiative?.roll && (
-              <InitiativeBar current={actorRound.initiative.total} max={30} width={100} />
+              <InitiativeBar current={actorRound.initiative.total} max={30} width="100%" />
             )}
           </Stack>
         </CardContent>

@@ -1,7 +1,7 @@
 import React, { Dispatch, FC, SetStateAction, useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
-import { alpha, Box, Button, Stack } from '@mui/material';
+import { alpha, Box, Button } from '@mui/material';
 import { CombatContext } from '../../../CombatContext';
 import { useError } from '../../../ErrorContext';
 import { createAction } from '../../api/action';
@@ -94,11 +94,11 @@ const ActorRoundDeclarationButtons: FC<{
       <Box
         sx={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+          gridTemplateColumns: '1fr',
           gap: 0.5,
           width: '100%',
-          minWidth: 132,
-          maxWidth: 178,
+          minWidth: 0,
+          maxWidth: 116,
           py: 0.5,
         }}
       >
@@ -114,13 +114,13 @@ const ActorRoundDeclarationButtons: FC<{
               size="small"
               sx={(theme) => ({
                 minWidth: 0,
-                minHeight: 28,
+                minHeight: 24,
                 justifyContent: 'center',
                 gap: 0.5,
                 px: 0.5,
                 borderRadius: 1,
                 textTransform: 'none',
-                fontSize: '0.66rem',
+                fontSize: '0.62rem',
                 lineHeight: 1.1,
                 whiteSpace: 'nowrap',
                 overflow: 'hidden',

@@ -1,5 +1,5 @@
 import React, { FC, ReactNode, SyntheticEvent, useState } from 'react';
-import { Box, Tab, Tabs } from '@mui/material';
+import { Box, Paper, Tab, Tabs } from '@mui/material';
 import CombatDashboardActions from './CombatDashboardActions';
 import CombatDashboardAttacks from './CombatDashboardAttacks';
 import CombatActorRoundList from './actor-rounds/ActorRoundList';
@@ -21,7 +21,7 @@ function CustomTabPanel(props: CustomTabPanelProps) {
       aria-labelledby={`simple-tab-${index}`}
       {...other}
     >
-      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
+      {value === index && <Box sx={{ p: 1.5 }}>{children}</Box>}
     </div>
   );
 }
@@ -43,9 +43,19 @@ const CombatDashboardTabs: FC = () => {
   return (
     <>
       <CombatDashboardActions />
-      <Box sx={{ width: '100%' }}>
-        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-          <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
+      <Paper
+        elevation={0}
+        sx={{
+          width: '100%',
+          bgcolor: 'background.paper',
+          border: '1px solid',
+          borderColor: 'divider',
+          borderRadius: 1,
+          overflow: 'hidden',
+        }}
+      >
+        <Box sx={{ borderBottom: 1, borderColor: 'divider', px: 1.5 }}>
+          <Tabs value={value} onChange={handleChange} aria-label="combat dashboard tabs">
             <Tab label="Dashboard" {...a11yProps(0)} />
             <Tab label="Actions" {...a11yProps(2)} />
             <Tab label="Attacks" {...a11yProps(3)} />
@@ -64,7 +74,7 @@ const CombatDashboardTabs: FC = () => {
         <CustomTabPanel value={value} index={3}>
           TODO: Log
         </CustomTabPanel>
-      </Box>
+      </Paper>
     </>
   );
 };

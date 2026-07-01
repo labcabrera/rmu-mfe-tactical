@@ -4,7 +4,7 @@ import { Box, LinearProgress } from '@mui/material';
 type InitiativeBarProps = {
   current: number;
   max?: number;
-  width?: number;
+  width?: number | string;
   barColor?: string;
   backgroundColor?: string;
 };
@@ -20,7 +20,7 @@ const InitiativeBar: FC<InitiativeBarProps> = ({
 
   return (
     <Box display="flex" alignItems="center" sx={{ gap: 1 }}>
-      <Box sx={{ width: `${width}px` }}>
+      <Box sx={{ width: typeof width === 'number' ? `${width}px` : width, maxWidth: '100%' }}>
         <LinearProgress
           variant="determinate"
           value={Math.max(0, Math.min(100, percentage))}
