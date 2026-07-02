@@ -37,6 +37,9 @@ export default function ActorAction({
 
   const bg = getActionImage();
   const actionName = getActionName();
+  const actionOverlay = completed
+    ? 'linear-gradient(90deg, rgba(0,0,0,0.58), rgba(0,0,0,0.16))'
+    : 'linear-gradient(90deg, rgba(15,31,24,0.62), rgba(80,142,103,0.12)), linear-gradient(0deg, rgba(87,145,104,0.08), rgba(87,145,104,0.08))';
 
   return (
     <Card
@@ -49,7 +52,7 @@ export default function ActorAction({
         borderColor: completed ? 'black' : '#515e60',
         overflow: 'hidden',
         backgroundColor: completed ? 'secondary.main' : 'primary.main',
-        backgroundImage: bg ? `linear-gradient(90deg, rgba(0,0,0,0.56), rgba(0,0,0,0.1)), url(${bg})` : undefined,
+        backgroundImage: bg ? `${actionOverlay}, url(${bg})` : undefined,
         backgroundSize: 'cover',
         backgroundPosition: 'right center',
         backgroundRepeat: 'no-repeat',

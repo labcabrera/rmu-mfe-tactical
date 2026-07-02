@@ -6,7 +6,6 @@ import { CombatContext } from '../../../CombatContext';
 import { useError } from '../../../ErrorContext';
 import { createAction } from '../../api/action';
 import { ActorRound } from '../../api/actor-rounds.dto';
-import { imageBaseUrl } from '../../services/config';
 import DeclareActionDialog from '../action-dialogs/DeclareActionDialog';
 
 const ActorRoundDeclarationButtons: FC<{
@@ -25,7 +24,7 @@ const ActorRoundDeclarationButtons: FC<{
 
   const disabledRangedAttack = !actorRound.attacks.some((a) => a.type === 'ranged');
   const disabledMovement = pendingActions.some(
-    (a) => a.actorId === actorRound.actorId && a.actionType === 'movement' && !a.freeAction
+    (a) => a.actorId === actorRound.actorId && a.actionType === 'movement'
   );
   const disabledMeleeAttack = pendingActions.some(
     (a) => a.actorId === actorRound.actorId && a.actionType === 'melee_attack' && !a.freeAction
@@ -34,8 +33,7 @@ const ActorRoundDeclarationButtons: FC<{
     {
       key: 'free-movement',
       label: t('Free movement'),
-      shortLabel: t('Free'),
-      icon: `${imageBaseUrl}images/icons/movement.png`,
+      shortLabel: t('Free move'),
       hidden: disabledMovement,
       onClick: () => onActionDeclaration('movement', true),
     },
@@ -43,7 +41,6 @@ const ActorRoundDeclarationButtons: FC<{
       key: 'movement',
       label: t('Normal movement'),
       shortLabel: t('Move'),
-      icon: `${imageBaseUrl}images/icons/movement.png`,
       hidden: disabledMovement,
       onClick: () => onActionDeclaration('movement', false),
     },
@@ -51,7 +48,6 @@ const ActorRoundDeclarationButtons: FC<{
       key: 'melee-attack',
       label: t('Melee attack'),
       shortLabel: t('Melee'),
-      icon: `${imageBaseUrl}images/icons/attack.png`,
       hidden: disabledMeleeAttack,
       onClick: () => onActionDeclaration('melee_attack', false),
     },
@@ -59,7 +55,6 @@ const ActorRoundDeclarationButtons: FC<{
       key: 'ranged-attack',
       label: t('Ranged attack'),
       shortLabel: t('Ranged'),
-      icon: `${imageBaseUrl}images/icons/ranged-attack.png`,
       hidden: disabledRangedAttack,
       onClick: () => onActionDeclaration('ranged_attack', false),
     },
@@ -67,7 +62,6 @@ const ActorRoundDeclarationButtons: FC<{
       key: 'other',
       label: t('Other actions'),
       shortLabel: t('Other'),
-      icon: `${imageBaseUrl}images/icons/add.png`,
       hidden: false,
       onClick: () => setDeclareActionDialogOpen(true),
     },
@@ -98,7 +92,7 @@ const ActorRoundDeclarationButtons: FC<{
           gap: 0.5,
           width: '100%',
           minWidth: 0,
-          maxWidth: 116,
+          maxWidth: 132,
           py: 0.5,
         }}
       >
@@ -110,50 +104,33 @@ const ActorRoundDeclarationButtons: FC<{
               title={action.label}
               onClick={action.onClick}
               variant={action.key === 'other' ? 'outlined' : 'contained'}
-              color={action.key === 'free-movement' ? 'success' : 'primary'}
+              color="primary"
               size="small"
               sx={(theme) => ({
                 minWidth: 0,
                 minHeight: 24,
                 justifyContent: 'center',
-                gap: 0.5,
-                px: 0.5,
+                px: 1,
                 borderRadius: 1,
                 textTransform: 'none',
-                fontSize: '0.62rem',
+                fontSize: '0.66rem',
                 lineHeight: 1.1,
                 whiteSpace: 'nowrap',
                 overflow: 'hidden',
                 bgcolor:
                   action.key === 'other'
                     ? alpha(theme.palette.background.paper, 0.12)
-                    : action.key === 'free-movement'
-                      ? alpha(theme.palette.success.main, 0.68)
-                      : alpha(theme.palette.primary.main, 0.72),
+                    : alpha(theme.palette.primary.main, 0.72),
                 borderColor: action.key === 'other' ? alpha(theme.palette.primary.main, 0.45) : 'transparent',
                 color: action.key === 'other' ? 'primary.light' : 'primary.contrastText',
                 '&:hover': {
                   bgcolor:
                     action.key === 'other'
                       ? alpha(theme.palette.primary.main, 0.12)
-                      : action.key === 'free-movement'
-                        ? alpha(theme.palette.success.main, 0.82)
-                        : alpha(theme.palette.primary.main, 0.86),
+                      : alpha(theme.palette.primary.main, 0.86),
                 },
               })}
             >
-              <Box
-                component="img"
-                src={action.icon}
-                alt=""
-                sx={{
-                  width: 14,
-                  height: 14,
-                  objectFit: 'contain',
-                  filter: 'grayscale(0.25)',
-                  flex: 'none',
-                }}
-              />
               <Box component="span" sx={{ minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 {action.shortLabel}
               </Box>

@@ -177,7 +177,7 @@ const CombatActorRoundListHeader: FC<{
 
       <Box sx={{ display: 'grid', gridTemplateColumns: ROUND_GRID_COLUMNS, columnGap: 1, alignItems: 'stretch' }}>
         <Box sx={{ minWidth: 0 }}>
-          <HeaderCell title={t('Actors')} subtitle={t('Initiative order')} />
+          <HeaderCell title={t('Actors')} />
         </Box>
         <Box sx={{ minWidth: 0 }}>
           <HeaderCell title={t('Initiative')} active={displayPhase === 'declare_initiative'} />
@@ -213,6 +213,9 @@ const HeaderCell: FC<{
       sx={(theme) => ({
         height: '100%',
         minHeight: 58,
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
         px: 1.25,
         py: 1,
         borderRadius: 1,
@@ -244,6 +247,8 @@ const PhaseHeaderCell: FC<{
       sx={(theme) => ({
         height: '100%',
         minHeight: 58,
+        display: 'flex',
+        alignItems: 'center',
         px: 0.75,
         py: 0.75,
         borderRadius: 1,
@@ -252,7 +257,7 @@ const PhaseHeaderCell: FC<{
         borderColor: active ? 'primary.main' : 'divider',
       })}
     >
-      <Stack direction="row" sx={{ alignItems: 'center', justifyContent: 'space-between', minHeight: 34 }}>
+      <Stack direction="row" sx={{ alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
         {active ? <PrevButton onPrev={onPrev} /> : <Box sx={{ width: 24 }} />}
         <Stack sx={{ alignItems: 'center', minWidth: 0 }}>
           <Typography variant="body2" color={active ? 'primary.light' : 'text.primary'} sx={{ fontWeight: 700 }}>

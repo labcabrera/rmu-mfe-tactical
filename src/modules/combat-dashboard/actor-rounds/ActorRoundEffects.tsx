@@ -48,9 +48,10 @@ const ActorRoundEffects: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
   return (
     <Card
       sx={{
-        backgroundImage: `url('${background}')`,
+        backgroundImage: `linear-gradient(90deg, rgba(22, 27, 28, 0.72), rgba(102, 113, 113, 0.28)), linear-gradient(0deg, rgba(87, 97, 97, 0.18), rgba(87, 97, 97, 0.18)), url('${background}')`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
+        backgroundBlendMode: 'normal, color, normal',
         width: '100%',
         height: '100%',
         color: (theme) => (actorRound.imageUrl ? theme.palette.getContrastText('#000') : undefined),
