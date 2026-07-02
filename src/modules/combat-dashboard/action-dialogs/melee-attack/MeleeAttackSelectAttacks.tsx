@@ -1,4 +1,4 @@
-import React, { Dispatch, FC, Fragment, SetStateAction, useContext, useState } from 'react';
+import React, { Dispatch, FC, SetStateAction, useContext, useState } from 'react';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import DeleteIcon from '@mui/icons-material/Delete';
 import {
@@ -11,7 +11,9 @@ import {
   ListItemText,
   IconButton,
   Avatar,
-  Divider,
+  Box,
+  Paper,
+  alpha,
 } from '@mui/material';
 import { CombatContext } from '../../../../CombatContext';
 import { ActionAttack, AttackDeclaration } from '../../../api/action.dto';
@@ -119,68 +121,89 @@ const MeleeAttackSelectAttacks: FC<{
   if (!actorRound || !actorRound.attacks) return <Typography>No attacks available</Typography>;
 
   return (
-    <Grid container spacing={1} sx={{mt:2}}>
+    <Grid container spacing={1.5} sx={{ mt: 1 }}>
       {formData.attacks.map((attack, index) => {
         const targetId = attack.modifiers.targetId;
         const actorRoundAttack = actorRound.attacks.find((e) => e.attackName === attack.attackName)!;
         const targetActorRound = targetId ? actorRounds?.find((e) => e.actorId === targetId) : null;
         return (
-          <Fragment key={index}>
-            <Grid size={2}>
-              <Stack direction="column">
-                <Typography variant="h6" color="primary">
-                  {t(attack.attackName)}
-                </Typography>
-                <Typography variant="body2" color="secondary">
-                  {t(actorRoundAttack.attackTable)}: {actorRoundAttack.currentBo}
-                </Typography>
-                <Typography variant="body2" color="secondary">
-                  {t('Base BO')}: {actorRoundAttack.baseBo}
-                </Typography>
-              </Stack>
-            </Grid>
-            <Grid size={2}>
-              <TargetSelector
-                value={attack.modifiers.targetId}
-                sourceId={actorRound.actorId}
-                onChange={(e) => onTargetSelect(attack.attackName, e!)}
-              />
-            </Grid>
-            <Grid size={2}>
-              {targetActorRound ? (
-                <TargetInfo target={targetActorRound} />
-              ) : (
-                <Typography color="secondary">
-                  <em>Select target</em>
-                </Typography>
-              )}
-            </Grid>
-            <Grid size={3}>
-              {attack.modifiers.targetId && (
-                <OffensiveBonusSelector
-                  value={attack.modifiers.bo || 0}
-                  max={actorRoundAttack.currentBo || 0}
-                  onChange={(bo) => onBoChange(attack.attackName, bo)}
-                />
-              )}
-            </Grid>
-            <Grid size={3}>
-              {attack.modifiers.targetId && (
-                <ProtectorsList
-                  attack={attack}
-                  actorRounds={actorRounds}
-                  onAdd={() => {
-                    setSelectedAttack(attack);
-                    setOpenProtectorDialog(true);
-                  }}
-                  onDelete={(protectorId: string) => onDeleteProtector(attack.attackName, protectorId)}
-                />
-              )}
-            </Grid>
-            <Grid size={12}>
-              <Divider />
-            </Grid>
-          </Fragment>
+          <Grid size={12} key={index}>
+            <Paper
+              elevation={0}
+              sx={(theme) => ({
+                p: 1.5,
+                borderRadius: 1,
+                border: '1px solid',
+                borderColor: alpha(theme.palette.primary.main, 0.16),
+                bgcolor: alpha(theme.palette.common.black, 0.2),
+              })}
+            >
+              <Grid container spacing={1.5} sx={{ alignItems: 'center' }}>
+                <Grid size={{ xs: 12, md: 2 }}>
+                  <Stack direction="column" spacing={0.25}>
+                    <Typography variant="h6" color="primary.light" sx={{ lineHeight: 1.1 }}>
+                      {t(attack.attackName)}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {t(actorRoundAttack.attackTable)}: {actorRoundAttack.currentBo}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      {t('Base BO')}: {actorRoundAttack.baseBo}
+                    </Typography>
+                  </Stack>
+                </Grid>
+                <Grid size={{ xs: 12, md: 2 }}>
+                  <TargetSelector
+                    value={attack.modifiers.targetId}
+                    sourceId={actorRound.actorId}
+                    onChange={(e) => onTargetSelect(attack.attackName, e!)}
+                  />
+                </Grid>
+                <Grid size={{ xs: 12, md: 2 }}>
+                  {targetActorRound ? (
+                    <TargetInfo target={targetActorRound} />
+                  ) : (
+                    <Box
+                      sx={(theme) => ({
+                        px: 1.25,
+                        py: 1,
+                        borderRadius: 1,
+                        border: '1px dashed',
+                        borderColor: alpha(theme.palette.primary.light, 0.22),
+                        color: 'text.secondary',
+                      })}
+                    >
+                      <Typography variant="body2" fontStyle="italic">
+                        Select target
+                      </Typography>
+                    </Box>
+                  )}
+                </Grid>
+                <Grid size={{ xs: 12, md: 3 }}>
+                  {attack.modifiers.targetId && (
+                    <OffensiveBonusSelector
+                      value={attack.modifiers.bo || 0}
+                      max={actorRoundAttack.currentBo || 0}
+                      onChange={(bo) => onBoChange(attack.attackName, bo)}
+                    />
+                  )}
+                </Grid>
+                <Grid size={{ xs: 12, md: 3 }}>
+                  {attack.modifiers.targetId && (
+                    <ProtectorsList
+                      attack={attack}
+                      actorRounds={actorRounds}
+                      onAdd={() => {
+                        setSelectedAttack(attack);
+                        setOpenProtectorDialog(true);
+                      }}
+                      onDelete={(protectorId: string) => onDeleteProtector(attack.attackName, protectorId)}
+                    />
+                  )}
+                </Grid>
+              </Grid>
+            </Paper>
+          </Grid>
         );
       })}
       {selectedAttack && actorRound && actorRounds && (

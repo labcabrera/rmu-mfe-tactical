@@ -2,7 +2,7 @@
 import React, { FC, ReactNode, useContext, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
-import { Button, Typography } from '@mui/material';
+import { alpha, Box, Button, Card, CardContent, CardMedia, Chip, Divider, Stack, Typography } from '@mui/material';
 import { RmuDialog, TechnicalInfo } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../CombatContext';
 import { useError } from '../../../../ErrorContext';
@@ -205,39 +205,152 @@ const MeleeAttackDialog: FC<{
     <RmuDialog
       title={actorRound.actorName}
       subtitle={`${t('Melee attack')} (${currentAction.status})`}
-      avatarImg={actorRound.imageUrl}
       fullScreen={false}
       open={open}
+      paperSx={(theme) => ({
+        bgcolor: alpha(theme.palette.background.default, 0.98),
+        color: theme.palette.text.primary,
+        border: '1px solid',
+        borderColor: alpha(theme.palette.primary.main, 0.18),
+        boxShadow: `0 24px 80px ${alpha(theme.palette.common.black, 0.72)}`,
+        '& .MuiDialogTitle-root': {
+          borderBottom: '1px solid',
+          borderColor: alpha(theme.palette.divider, 0.72),
+          bgcolor: alpha(theme.palette.common.black, 0.22),
+        },
+        '& .MuiDialogContent-root': {
+          p: 0,
+        },
+        '& .MuiDialogActions-root': {
+          px: 3,
+          py: 2,
+          borderTop: '1px solid',
+          borderColor: alpha(theme.palette.divider, 0.72),
+          bgcolor: alpha(theme.palette.common.black, 0.24),
+        },
+      })}
       buttons={deleting ? buttonsDeleting : getButtons(activeStep, currentAction)}
     >
-      <>
+      <Box
+        sx={(theme) => ({
+          p: 3,
+          minHeight: 520,
+          color: 'text.primary',
+          bgcolor: alpha(theme.palette.common.black, 0.55),
+          backgroundImage: `linear-gradient(135deg, ${alpha(theme.palette.background.default, 0.96)}, ${alpha(theme.palette.background.paper, 0.86)})`,
+        })}
+      >
         {!deleting ? (
-          <>
-            {availableActionPoints() ? (
-              <MeleeAttackStepper
-                action={currentAction}
-                actorRound={actorRound}
-                formData={formData}
-                activeStep={activeStep}
-                availableAttacks={availableAttacks}
-                setFormData={setFormData}
-              />
-            ) : (
-              <Typography>Not available action points</Typography>
-            )}
-            <TechnicalInfo>
-              <pre>FormData: {JSON.stringify(formData, null, 2)}</pre>
-              <pre>ActiveStep: {JSON.stringify(activeStep, null, 2)}</pre>
-              <pre>Action: {JSON.stringify(currentAction, null, 2)}</pre>
-              <pre>AvailableAttacks: {JSON.stringify(availableAttacks, null, 2)}</pre>
-              <pre>ActorRound: {JSON.stringify(actorRound, null, 2)}</pre>
-            </TechnicalInfo>
-          </>
+          <Stack direction={{ xs: 'column', md: 'row' }} spacing={2.5} sx={{ alignItems: 'stretch' }}>
+            <AttackerCard actorRound={actorRound} action={currentAction} />
+            <Stack spacing={2} sx={{ flex: 1, minWidth: 0 }}>
+              <Box
+                sx={(theme) => ({
+                  minHeight: 360,
+                  p: 2,
+                  border: '1px solid',
+                  borderColor: alpha(theme.palette.primary.main, 0.18),
+                  borderRadius: 1,
+                  bgcolor: alpha(theme.palette.background.paper, 0.72),
+                  boxShadow: `inset 0 1px 0 ${alpha(theme.palette.common.white, 0.04)}`,
+                })}
+              >
+                {availableActionPoints() ? (
+                  <MeleeAttackStepper
+                    action={currentAction}
+                    actorRound={actorRound}
+                    formData={formData}
+                    activeStep={activeStep}
+                    availableAttacks={availableAttacks}
+                    setFormData={setFormData}
+                  />
+                ) : (
+                  <Typography color="text.secondary">Not available action points</Typography>
+                )}
+              </Box>
+              <Box
+                sx={(theme) => ({
+                  '& > *': {
+                    borderRadius: 1,
+                    bgcolor: alpha(theme.palette.common.black, 0.26),
+                    border: '1px solid',
+                    borderColor: alpha(theme.palette.divider, 0.75),
+                    overflow: 'hidden',
+                  },
+                })}
+              >
+                <TechnicalInfo>
+                  <pre>FormData: {JSON.stringify(formData, null, 2)}</pre>
+                  <pre>ActiveStep: {JSON.stringify(activeStep, null, 2)}</pre>
+                  <pre>Action: {JSON.stringify(currentAction, null, 2)}</pre>
+                  <pre>AvailableAttacks: {JSON.stringify(availableAttacks, null, 2)}</pre>
+                  <pre>ActorRound: {JSON.stringify(actorRound, null, 2)}</pre>
+                </TechnicalInfo>
+              </Box>
+            </Stack>
+          </Stack>
         ) : (
-          <Typography>Are you sure you want to delete this action?</Typography>
+          <Box
+            sx={(theme) => ({
+              p: 2,
+              borderRadius: 1,
+              border: '1px solid',
+              borderColor: alpha(theme.palette.error.main, 0.35),
+              bgcolor: alpha(theme.palette.error.dark, 0.12),
+            })}
+          >
+            <Typography>Are you sure you want to delete this action?</Typography>
+          </Box>
         )}
-      </>
+      </Box>
     </RmuDialog>
+  );
+};
+
+const AttackerCard: FC<{ actorRound: ActorRound; action: Action }> = ({ actorRound, action }) => {
+  const { t } = useTranslation();
+
+  return (
+    <Card
+      elevation={0}
+      sx={(theme) => ({
+        width: { xs: '100%', md: 220 },
+        flex: '0 0 auto',
+        borderRadius: 1,
+        border: '1px solid',
+        borderColor: alpha(theme.palette.primary.main, 0.22),
+        bgcolor: alpha(theme.palette.background.paper, 0.78),
+        overflow: 'hidden',
+      })}
+    >
+      <CardMedia
+        component="img"
+        image={actorRound.imageUrl}
+        alt={actorRound.actorName}
+        sx={{
+          height: 180,
+          objectFit: 'cover',
+          filter: 'grayscale(0.22) contrast(0.95) brightness(0.78)',
+        }}
+      />
+      <CardContent sx={{ p: 1.5, '&:last-child': { pb: 1.5 } }}>
+        <Stack spacing={1.25}>
+          <Box>
+            <Typography variant="h6" color="primary.light" sx={{ fontWeight: 700, lineHeight: 1.1 }}>
+              {actorRound.actorName}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              {t('Melee attack')}
+            </Typography>
+          </Box>
+          <Divider />
+          <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', rowGap: 1 }}>
+            <Chip size="small" label={t(action.status)} color="primary" variant="outlined" />
+            <Chip size="small" label={`${t('Phase')} ${action.phaseStart}`} variant="outlined" />
+          </Stack>
+        </Stack>
+      </CardContent>
+    </Card>
   );
 };
 

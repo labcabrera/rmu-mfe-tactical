@@ -9,10 +9,8 @@ import {
   FormControlLabel,
   Button,
   Tooltip,
-  DialogTitle,
 } from '@mui/material';
-import Dialog from '@mui/material/Dialog';
-import DialogContent from '@mui/material/DialogContent';
+import { RmuDialog } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../CombatContext';
 import { ActorRound } from '../../../api/actor-rounds.dto';
 import ActorRoundAvatar from '../../../shared/avatars/ActorRoundAvatar';
@@ -56,50 +54,47 @@ const TargetSelector: FC<{
         </Tooltip>
       </Stack>
 
-      <Dialog open={open} onClose={() => setOpen(false)} maxWidth="md" fullWidth transitionDuration={0}>
-        <DialogTitle>Select target</DialogTitle>
-        <DialogContent>
-          <Stack direction="row" spacing={0.5} sx={{ mb: 0.5, alignItems: 'center' }}>
-            <RadioGroup row value={filter} onChange={(e) => setFilter(e.target.value as any)}>
-              <FormControlLabel
-                value="distinct"
-                control={<Radio disabled={!actorRounds} />}
-                label={<Typography variant="caption">Distinct faction</Typography>}
-              />
-              <FormControlLabel
-                value="all"
-                control={<Radio disabled={!actorRounds} />}
-                label={<Typography variant="caption">All</Typography>}
-              />
-            </RadioGroup>
-          </Stack>
+      <RmuDialog title="Select target" open={open} onClose={() => setOpen(false)} maxWidth="md">
+        <Stack direction="row" spacing={0.5} sx={{ mb: 0.5, alignItems: 'center' }}>
+          <RadioGroup row value={filter} onChange={(e) => setFilter(e.target.value as any)}>
+            <FormControlLabel
+              value="distinct"
+              control={<Radio disabled={!actorRounds} />}
+              label={<Typography variant="caption">Distinct faction</Typography>}
+            />
+            <FormControlLabel
+              value="all"
+              control={<Radio disabled={!actorRounds} />}
+              label={<Typography variant="caption">All</Typography>}
+            />
+          </RadioGroup>
+        </Stack>
 
-          <Stack direction="row" spacing={0.5} sx={{ flexWrap: 'wrap' }}>
-            {(targets || []).map((ar, index) => {
-              const actorRound = (actorRounds || []).find((c) => c.actorId === ar.actorId) || null;
-              const isSelected = value === ar.actorId;
-              return (
-                <Box key={index} sx={{ textAlign: 'center', mb: 0.5 }}>
-                  <Button
-                    onClick={() => {
-                      onChange(ar.actorId);
-                      setOpen(false);
-                    }}
-                    variant={isSelected ? 'contained' : 'outlined'}
-                    size="medium"
-                    sx={{ display: 'flex', flexDirection: 'column', gap: 0.25, alignItems: 'center', p: 0.5 }}
-                  >
-                    <ActorRoundAvatar actorRound={actorRound || undefined} size={avatarSize} variant="square" />
-                    <Typography variant="caption" noWrap sx={{ maxWidth: 60 }}>
-                      {actorRound ? actorRound.actorName : ar.actorName}
-                    </Typography>
-                  </Button>
-                </Box>
-              );
-            })}
-          </Stack>
-        </DialogContent>
-      </Dialog>
+        <Stack direction="row" spacing={0.5} sx={{ flexWrap: 'wrap' }}>
+          {(targets || []).map((ar, index) => {
+            const actorRound = (actorRounds || []).find((c) => c.actorId === ar.actorId) || null;
+            const isSelected = value === ar.actorId;
+            return (
+              <Box key={index} sx={{ textAlign: 'center', mb: 0.5 }}>
+                <Button
+                  onClick={() => {
+                    onChange(ar.actorId);
+                    setOpen(false);
+                  }}
+                  variant={isSelected ? 'contained' : 'outlined'}
+                  size="medium"
+                  sx={{ display: 'flex', flexDirection: 'column', gap: 0.25, alignItems: 'center', p: 0.5 }}
+                >
+                  <ActorRoundAvatar actorRound={actorRound || undefined} size={avatarSize} variant="square" />
+                  <Typography variant="caption" noWrap sx={{ maxWidth: 60 }}>
+                    {actorRound ? actorRound.actorName : ar.actorName}
+                  </Typography>
+                </Button>
+              </Box>
+            );
+          })}
+        </Stack>
+      </RmuDialog>
     </Box>
   );
 };

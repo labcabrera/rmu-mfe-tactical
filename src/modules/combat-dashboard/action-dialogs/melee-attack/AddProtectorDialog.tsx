@@ -1,21 +1,18 @@
 import React, { FC, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  Dialog,
-  DialogTitle,
-  DialogActions,
   List,
   ListItem,
   ListItemAvatar,
   Avatar,
   ListItemText,
   Button,
-  DialogContent,
   FormControlLabel,
   FormGroup,
   Switch,
   ListItemButton,
 } from '@mui/material';
+import { RmuDialog } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { ActionAttack } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
 
@@ -48,35 +45,35 @@ const AddProtectorDialog: FC<{
   };
 
   return (
-    <Dialog open={open} onClose={() => onClose && onClose()} fullWidth maxWidth="sm">
-      <DialogTitle>{t('Select protector')}</DialogTitle>
-      <DialogContent>
-        <FormGroup>
-          <FormControlLabel value={displayAll} control={<Switch />} label="All" onChange={(e, v) => setDisplayAll(v)} />
-        </FormGroup>
-        <List>
-          {availableActors.map((actor, index) => {
-            const isSelected = false;
-            return (
-              <ListItem key={index}>
-                <ListItemButton selected={isSelected} onClick={() => handleAdd(actor.actorId)}>
-                  <ListItemAvatar>
-                    <Avatar src={actor.imageUrl || undefined} alt={actor.actorName} />
-                  </ListItemAvatar>
-                  <ListItemText
-                    primary={actor.actorName}
-                    secondary={`${t('Protect')}: ${actor.defense?.protect ?? 0}`}
-                  />
-                </ListItemButton>
-              </ListItem>
-            );
-          })}
-        </List>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={() => onClose()}>{t('Close')}</Button>
-      </DialogActions>
-    </Dialog>
+    <RmuDialog
+      title={t('Select protector')}
+      open={open}
+      onClose={() => onClose && onClose()}
+      maxWidth="sm"
+      buttons={<Button onClick={() => onClose()}>{t('Close')}</Button>}
+    >
+      <FormGroup>
+        <FormControlLabel value={displayAll} control={<Switch />} label="All" onChange={(e, v) => setDisplayAll(v)} />
+      </FormGroup>
+      <List>
+        {availableActors.map((actor, index) => {
+          const isSelected = false;
+          return (
+            <ListItem key={index}>
+              <ListItemButton selected={isSelected} onClick={() => handleAdd(actor.actorId)}>
+                <ListItemAvatar>
+                  <Avatar src={actor.imageUrl || undefined} alt={actor.actorName} />
+                </ListItemAvatar>
+                <ListItemText
+                  primary={actor.actorName}
+                  secondary={`${t('Protect')}: ${actor.defense?.protect ?? 0}`}
+                />
+              </ListItemButton>
+            </ListItem>
+          );
+        })}
+      </List>
+    </RmuDialog>
   );
 };
 

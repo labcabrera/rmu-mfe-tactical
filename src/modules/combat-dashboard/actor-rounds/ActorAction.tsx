@@ -49,7 +49,7 @@ export default function ActorAction({
         boxShadow: 1,
         borderRadius: 0.5,
         border: 1,
-        borderColor: completed ? 'black' : '#515e60',
+        borderColor: 'black',
         overflow: 'hidden',
         backgroundColor: completed ? 'secondary.main' : 'primary.main',
         backgroundImage: bg ? `${actionOverlay}, url(${bg})` : undefined,
@@ -61,7 +61,14 @@ export default function ActorAction({
     >
       <CardActionArea sx={{ height: '100%' }} onClick={onClick}>
         <CardContent
-          sx={{ height: '100%', display: 'flex', alignItems: 'center', p: 1, bgcolor: 'rgba(0,0,0,0)', '&:last-child': { pb: 1 } }}
+          sx={{
+            height: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            p: 1,
+            bgcolor: 'rgba(0,0,0,0)',
+            '&:last-child': { pb: 1 },
+          }}
         >
           <Box sx={{ width: '100%', minWidth: 0 }}>
             <Typography

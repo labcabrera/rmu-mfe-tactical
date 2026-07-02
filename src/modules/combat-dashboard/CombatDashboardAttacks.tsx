@@ -1,5 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { FC, useContext, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useAuth } from 'react-oidc-context';
 import {
   Table,
   TableBody,
@@ -11,21 +13,18 @@ import {
   Avatar,
   Stack,
   Typography,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Button,
   Autocomplete,
   TextField,
 } from '@mui/material';
-import { Character, TechnicalInfo } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { Character, RmuDialog, TechnicalInfo } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../CombatContext';
 import { useError } from '../../ErrorContext';
 import { fetchActions } from '../api/action';
 import { Action, ActionAttack } from '../api/action.dto';
 
 const CombatDashboardAttacks: FC = () => {
+  const auth = useAuth();
+  const { t } = useTranslation();
   const { showError } = useError();
   const { characters, game } = useContext(CombatContext)!;
   const [actions, setActions] = useState<Action[]>([]);
@@ -48,7 +47,7 @@ const CombatDashboardAttacks: FC = () => {
 
   useEffect(() => {
     const rsql = `(actionType==melee_attack,actionType==ranged_attack);gameId==${game?.id};status!=declared`;
-    fetchActions(rsql, 0, 1000)
+    fetchActions(rsql, 0, 1000, auth)
       .then((response) => setActions(response.content))
       .catch((err) => showError(err.message));
   }, [game]);
@@ -57,7 +56,7 @@ const CombatDashboardAttacks: FC = () => {
 
   return (
     <>
-      <Stack spacing={1} sx={{mb:2}}>
+      <Stack spacing={1} sx={{ mb: 2 }}>
         <SelectActor value={filterCharacterId} characters={characters} onChange={(e) => setFilterCharacterId(e)} />
       </Stack>
       <TableContainer component={Paper}>
@@ -86,7 +85,15 @@ const CombatDashboardAttacks: FC = () => {
                 const roll = at.roll?.roll || 0;
                 const rollTotal = at.calculated?.rollTotal || 0;
                 const bo = at.modifiers.bo || 0;
-                const parry = a.actionType === 'melee_attack' ? `${at.modifiers.parry}` || 0 : '-';
+                const parry =
+                  a.actionType === 'melee_attack'
+                    ? (a.parries ?? [])
+                        .filter(
+                          (p) => p.targetActorId === at.modifiers.targetId && p.targetAttackName === at.attackName
+                        )
+                        .map((p) => p.parry)
+                        .join(', ') || '0'
+                    : '-';
                 const damage = at.results?.attackTableEntry?.text || '0';
                 const criticalResults = at.results?.criticals.map((c) => c.result);
                 const criticalRolls = at.results?.criticals.map((c) => c.adjustedRoll) || [];
@@ -144,6 +151,7 @@ const CombatDashboardAttacks: FC = () => {
       </TableContainer>
       {selectedAction && (
         <AttackShowDialog
+          title={t('Attack info')}
           attack={selectedAction}
           open={openDialog}
           onClose={() => {
@@ -161,6 +169,7 @@ const SelectActor: FC<{
   characters: Character[];
   onChange: (characterId: string | null) => void;
 }> = ({ value, characters, onChange }) => {
+  const { t } = useTranslation();
   const selected = characters.find((e) => e.id === (value ?? '')) ?? null;
   const handleChange = (_event: React.SyntheticEvent, newValue: Character | null) => {
     onChange(newValue?.id || null);
@@ -174,7 +183,7 @@ const SelectActor: FC<{
       isOptionEqualToValue={(option, val) => option.id === val.id}
       renderOption={(props, option) => (
         <li {...props}>
-          <Stack direction="row" spacing={1} sx={{alignItems:"center"}}>
+          <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
             <Avatar src={option.imageUrl} variant="square" sx={{ width: 40, height: 40 }} />
             <Typography variant="body2">{option.name}</Typography>
           </Stack>
@@ -186,19 +195,18 @@ const SelectActor: FC<{
   );
 };
 
-const AttackShowDialog: FC<{ attack: Action; open: boolean; onClose: () => void }> = ({ attack, open, onClose }) => {
+const AttackShowDialog: FC<{ title: string; attack: Action; open: boolean; onClose: () => void }> = ({
+  title,
+  attack,
+  open,
+  onClose,
+}) => {
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="xl">
-      <DialogTitle>{t(`Attack info`)}</DialogTitle>
-      <DialogContent dividers>
-        <TechnicalInfo>
-          <pre>{JSON.stringify(attack, null, 2)}</pre>
-        </TechnicalInfo>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
-      </DialogActions>
-    </Dialog>
+    <RmuDialog title={title} open={open} onClose={onClose} maxWidth="xl">
+      <TechnicalInfo>
+        <pre>{JSON.stringify(attack, null, 2)}</pre>
+      </TechnicalInfo>
+    </RmuDialog>
   );
 };
 
