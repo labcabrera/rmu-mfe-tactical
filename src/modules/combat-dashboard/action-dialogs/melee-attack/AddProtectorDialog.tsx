@@ -12,7 +12,7 @@ import {
   Switch,
   ListItemButton,
 } from '@mui/material';
-import { RmuDialog } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { RmuDialog, resolveAssetUrl } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { ActionAttack } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
 
@@ -62,12 +62,9 @@ const AddProtectorDialog: FC<{
             <ListItem key={index}>
               <ListItemButton selected={isSelected} onClick={() => handleAdd(actor.actorId)}>
                 <ListItemAvatar>
-                  <Avatar src={actor.imageUrl || undefined} alt={actor.actorName} />
+                  <Avatar src={resolveAssetUrl(actor.imageUrl)} alt={actor.actorName} />
                 </ListItemAvatar>
-                <ListItemText
-                  primary={actor.actorName}
-                  secondary={`${t('Protect')}: ${actor.defense?.protect ?? 0}`}
-                />
+                <ListItemText primary={actor.actorName} secondary={`${t('Protect')}: ${actor.defense?.protect ?? 0}`} />
               </ListItemButton>
             </ListItem>
           );

@@ -1,3 +1,4 @@
+import { resolveAssetUrl } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { Character } from '../api/characters.dto';
 
 const imageBaseUrl = process.env.RMU_MFE_ASSETS_URI!;
@@ -29,7 +30,7 @@ const raceImageMap: Record<string, string> = {
 const defaultImage = `${imageBaseUrl}images/races/unknown.png`;
 
 export const resolveCharacterImage = (character: Character): string => {
-  if (character && character.imageUrl) return character.imageUrl;
+  if (character && character.imageUrl) return resolveAssetUrl(character.imageUrl)!;
   if (character.info && character.info.raceName) {
     return resolveRaceImage(character.info.raceName);
   }

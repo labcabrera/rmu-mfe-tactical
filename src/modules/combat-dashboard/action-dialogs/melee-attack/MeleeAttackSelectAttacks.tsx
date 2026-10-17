@@ -1,4 +1,5 @@
 import React, { Dispatch, FC, SetStateAction, useContext, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import DeleteIcon from '@mui/icons-material/Delete';
 import {
@@ -15,6 +16,7 @@ import {
   Paper,
   alpha,
 } from '@mui/material';
+import { resolveAssetUrl } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../CombatContext';
 import { ActionAttack, AttackDeclaration } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
@@ -27,7 +29,6 @@ import {
 import AddProtectorDialog from './AddProtectorDialog';
 import OffensiveBonusSelector from './OffensiveBonusSelector';
 import TargetSelector from './TargetSelector';
-import { useTranslation } from 'react-i18next';
 
 const MeleeAttackSelectAttacks: FC<{
   formData: AttackDeclaration;
@@ -281,7 +282,7 @@ const ProtectorsList: FC<{
             }
           >
             <ListItemAvatar>
-              <Avatar variant="square" src={actorRound.imageUrl} />
+              <Avatar variant="square" src={resolveAssetUrl(actorRound.imageUrl)} />
             </ListItemAvatar>
             <ListItemText>{actorRound.actorName}</ListItemText>
           </ListItem>

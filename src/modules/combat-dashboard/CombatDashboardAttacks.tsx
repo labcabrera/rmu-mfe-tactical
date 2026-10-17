@@ -16,7 +16,7 @@ import {
   Autocomplete,
   TextField,
 } from '@mui/material';
-import { Character, RmuDialog, TechnicalInfo } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { Character, RmuDialog, TechnicalInfo, resolveAssetUrl } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../CombatContext';
 import { useError } from '../../ErrorContext';
 import { fetchActions } from '../api/action';
@@ -110,13 +110,13 @@ const CombatDashboardAttacks: FC = () => {
                   >
                     <TableCell>
                       <Stack direction="row" spacing={1}>
-                        <Avatar src={attacker.imageUrl} variant="square" />
+                        <Avatar src={resolveAssetUrl(attacker.imageUrl)} variant="square" />
                         <Typography variant="body2">{attacker.name}</Typography>
                       </Stack>
                     </TableCell>
                     <TableCell>
                       <Stack direction="row" spacing={1}>
-                        <Avatar src={defender?.imageUrl || undefined} variant="square" />
+                        <Avatar src={resolveAssetUrl(defender?.imageUrl)} variant="square" />
                         <Typography variant="body2">{defender?.name || '?'}</Typography>
                       </Stack>
                     </TableCell>
@@ -184,7 +184,7 @@ const SelectActor: FC<{
       renderOption={(props, option) => (
         <li {...props}>
           <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
-            <Avatar src={option.imageUrl} variant="square" sx={{ width: 40, height: 40 }} />
+            <Avatar src={resolveAssetUrl(option.imageUrl)} variant="square" sx={{ width: 40, height: 40 }} />
             <Typography variant="body2">{option.name}</Typography>
           </Stack>
         </li>

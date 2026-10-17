@@ -3,7 +3,7 @@ import React, { FC, ReactNode, useContext, useEffect, useMemo, useState } from '
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import { alpha, Box, Button, Card, CardContent, CardMedia, Chip, Divider, Stack, Typography } from '@mui/material';
-import { RmuDialog, TechnicalInfo } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { RmuDialog, TechnicalInfo, resolveAssetUrl } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../CombatContext';
 import { useError } from '../../../../ErrorContext';
 import { applyAttack, declareParry, deleteAction, prepareAttack } from '../../../api/action';
@@ -325,7 +325,7 @@ const AttackerCard: FC<{ actorRound: ActorRound; action: Action }> = ({ actorRou
     >
       <CardMedia
         component="img"
-        image={actorRound.imageUrl}
+        image={resolveAssetUrl(actorRound.imageUrl)}
         alt={actorRound.actorName}
         sx={{
           height: 180,
