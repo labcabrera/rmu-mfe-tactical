@@ -1,6 +1,6 @@
 import { Character } from '../api/characters.dto';
 
-const imageBaseUrl = process.env.RMU_MFE_ASSETS!;
+const imageBaseUrl = process.env.RMU_MFE_ASSETS_URI!;
 
 const raceImageMap: Record<string, string> = {
   noldor: `${imageBaseUrl}images/races/generic-high-elf-01.png`,
