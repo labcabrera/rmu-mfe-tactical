@@ -16,7 +16,6 @@ import {
   UpdateTacticalGameDto,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { useError } from '../../../ErrorContext';
-import { imageBaseUrl } from '../../services/config';
 import TacticalGameForm from '../form/TacticalGameForm';
 
 const EMPTY_GAME_TEMPLATE = {
@@ -28,7 +27,7 @@ const EMPTY_GAME_TEMPLATE = {
     altitudeFatigueModifier: 0,
   },
   description: '',
-  imageUrl: `${imageBaseUrl}images/generic/tactical.png`,
+  imageUrl: 'images/generic/tactical.png',
 } as unknown as TacticalGame;
 
 export default function TacticalGameCreation() {
@@ -73,7 +72,7 @@ export default function TacticalGameCreation() {
 
   useEffect(() => {
     if (strategicGame) {
-      const imageUrl = strategicGame.imageUrl || `${imageBaseUrl}images/generic/tactical.png`;
+      const imageUrl = strategicGame.imageUrl || 'images/generic/tactical.png';
       setFormData({ ...formData!, strategicGameId: strategicGame.id, imageUrl: imageUrl });
     }
   }, [strategicGame]);
@@ -100,7 +99,7 @@ export default function TacticalGameCreation() {
       ]}
       leftPanel={
         <EditableAvatar
-          imageUrl={formData.imageUrl || `${imageBaseUrl}images/generic/tactical.png`}
+          imageUrl={formData.imageUrl || 'images/generic/tactical.png'}
           onImageChange={(imageUrl) => setFormData({ ...formData, imageUrl: imageUrl })}
         />
       }

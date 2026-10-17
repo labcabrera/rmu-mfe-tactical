@@ -9,17 +9,7 @@ import HeartBrokenIcon from '@mui/icons-material/HeartBroken';
 import LockIcon from '@mui/icons-material/Lock';
 import PersonIcon from '@mui/icons-material/Person';
 import ShieldIcon from '@mui/icons-material/Shield';
-import {
-  Box,
-  Card,
-  CardActionArea,
-  CardContent,
-  CardMedia,
-  Divider,
-  Grid,
-  Stack,
-  Typography,
-} from '@mui/material';
+import { Box, Card, CardActionArea, CardContent, CardMedia, Divider, Grid, Stack, Typography } from '@mui/material';
 import {
   addActor,
   addTacticalGameFaction,
@@ -44,6 +34,7 @@ import {
   TacticalGame,
   TechnicalInfo,
   updateTacticalGame,
+  resolveAssetUrl,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { useError } from '../../../ErrorContext';
 import { defaultFactionImage, defaultTacticalGameImage } from '../../services/image-service';
@@ -351,7 +342,7 @@ function FactionSelectionCard({
       <CardActionArea disabled={disabled} onClick={onClick}>
         <CardMedia
           component="img"
-          image={faction.imageUrl || defaultFactionImage}
+          image={resolveAssetUrl(faction.imageUrl) || defaultFactionImage}
           alt={faction.name}
           sx={{ aspectRatio: '16 / 9', objectFit: 'cover', filter: disabled ? 'grayscale(1)' : undefined }}
         />
@@ -398,7 +389,7 @@ function CharacterSelectionCard({
       <CardActionArea onClick={onClick}>
         <CardMedia
           component="img"
-          image={character.imageUrl || defaultTacticalGameImage}
+          image={resolveAssetUrl(character.imageUrl) || defaultTacticalGameImage}
           alt={character.name}
           sx={{ aspectRatio: '4 / 3', objectFit: 'cover' }}
         />

@@ -1,5 +1,6 @@
 import React, { FC } from 'react';
 import Avatar from '@mui/material/Avatar';
+import { resolveAssetUrl } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { ActorRound } from '../../api/actor-rounds.dto';
 import { imageBaseUrl } from '../../services/config';
 
@@ -9,7 +10,9 @@ const ActorRoundAvatar: FC<{
   dead?: boolean;
   variant?: 'circular' | 'rounded' | 'square';
 }> = ({ actorRound, dead = false, variant = 'circular', size = 70 }) => {
-  const imageUrl = actorRound?.imageUrl ? actorRound.imageUrl : `${imageBaseUrl}images/actions/select-actor-01.png`;
+  const imageUrl = actorRound?.imageUrl
+    ? resolveAssetUrl(actorRound.imageUrl)
+    : `${imageBaseUrl}images/actions/select-actor-01.png`;
 
   return (
     <Avatar

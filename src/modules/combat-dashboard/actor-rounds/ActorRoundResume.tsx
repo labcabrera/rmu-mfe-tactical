@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect, FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Typography, Card, CardMedia, CardContent, Box } from '@mui/material';
-import { Character } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { Character, resolveAssetUrl } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
 import { ActorRound } from '../../api/actor-rounds.dto';
 import { imageBaseUrl } from '../../services/config';
@@ -52,7 +52,7 @@ const ActorRoundResume: FC<{
       <CardContent sx={{ width: '100%', p: 2, display: 'flex', alignItems: 'flex-start' }}>
         <CardMedia
           component="img"
-          image={actorRound.imageUrl || `${imageBaseUrl}images/races/unknown.png`}
+          image={resolveAssetUrl(actorRound.imageUrl) || `${imageBaseUrl}images/races/unknown.png`}
           sx={{
             width: barSize,
             height: barSize,
