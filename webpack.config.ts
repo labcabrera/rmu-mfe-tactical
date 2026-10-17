@@ -1,47 +1,85 @@
 import CopyWebpackPlugin from 'copy-webpack-plugin';
 import dotenv from 'dotenv';
-import Dotenv from 'dotenv-webpack';
+import fs from 'fs';
 import HtmlWebPackPlugin from 'html-webpack-plugin';
-import { createRequire } from 'module';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import type { Configuration } from 'webpack';
+import type { Configuration as WebpackConfiguration } from 'webpack';
+import webpack from 'webpack';
+import type { Configuration as WebpackDevServerConfiguration } from 'webpack-dev-server';
+import printCompilationMessage from './compilation.config.js';
 
-const require = createRequire(import.meta.url);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const ModuleFederationPlugin = require('webpack/lib/container/ModuleFederationPlugin');
-const deps = require('./package.json').dependencies;
-const printCompilationMessage = require('./compilation.config.js');
+
+const deps = JSON.parse(fs.readFileSync(path.resolve(__dirname, 'package.json'), 'utf8')).dependencies;
+
+interface Configuration extends WebpackConfiguration {
+  devServer?: WebpackDevServerConfiguration;
+}
+
+// Runtime configuration. The keys listed in public/env-config.template.js are not baked into the
+// bundle: every `process.env.<KEY>` (in src/ and in rmu-react-shared-lib) is rewritten to read
+// window.__RMU_CONFIG__, which env-config.js sets before the bundle runs. The Docker image renders
+// the template with envsubst; the dev server serves the same keys from .env.
+const envConfigTemplate = fs.readFileSync(path.resolve(__dirname, 'public/env-config.template.js'), 'utf8');
+const runtimeConfigKeys = Array.from(envConfigTemplate.matchAll(/\$\{([A-Z0-9_]+)\}/g), (match) => match[1]);
+const runtimeConfigDefines = Object.fromEntries(
+  runtimeConfigKeys.map((key) => [`process.env.${key}`, `(window.__RMU_CONFIG__ || {})[${JSON.stringify(key)}]`])
+);
+const renderEnvConfig = (): string =>
+  `window.__RMU_CONFIG__ = ${JSON.stringify(Object.fromEntries(runtimeConfigKeys.map((key) => [key, process.env[key] ?? ''])))};\n`;
 
 export default (_env: unknown, argv: { mode?: string }): Configuration => {
   const mode = argv.mode || 'development';
-  dotenv.config({ path: path.resolve(__dirname, `.env.${mode}`) });
-
-  const publicPath = process.env.RMU_MFE_TACTICAL;
-
+  // `.env.<mode>` overrides the shared `.env` (dotenv keeps the first value it finds).
+  dotenv.config({ path: [path.resolve(__dirname, `.env.${mode}`), path.resolve(__dirname, '.env')], quiet: true });
+  const port = process.env.PORT ? Number(process.env.PORT) : 8083;
   return {
     output: {
-      publicPath,
+      // Chunks load from wherever tactical-app.js was loaded (gateway /mfe/tactical/, dev server, CDN).
+      publicPath: 'auto',
+      devtoolNamespace: 'tactical',
     },
+
     resolve: {
       extensions: ['.tsx', '.ts', '.jsx', '.js', '.json'],
     },
+
     devServer: {
       allowedHosts: 'all',
       host: '0.0.0.0',
-      port: process.env.PORT as unknown as number,
+      port,
       historyApiFallback: true,
+      // The page is served by the gateway (http://localhost), so HMR connects straight to the dev server.
+      client: {
+        webSocketURL: `ws://localhost:${port}/ws`,
+      },
+      setupMiddlewares: (middlewares, devServer) => {
+        devServer.app?.get('/env-config.js', (_req, res) => {
+          res.type('application/javascript').send(renderEnvConfig());
+        });
+        return middlewares;
+      },
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, PATCH, OPTIONS',
         'Access-Control-Allow-Headers': 'X-Requested-With, content-type, Authorization',
       },
       watchFiles: [path.resolve(__dirname, 'src')],
-      onListening: function (devServer: any) {
-        const port = devServer.server.address().port;
+      onListening: function (devServer) {
+        if (!devServer) {
+          throw new Error('webpack-dev-server is not defined');
+        }
+
+        const port =
+          devServer.server?.address() && typeof devServer.server.address() === 'object'
+            ? (devServer.server.address() as any).port
+            : 8083;
+
         printCompilationMessage('compiling', port);
-        devServer.compiler.hooks.done.tap('OutputMessagePlugin', (stats: any) => {
+
+        devServer.compiler.hooks.done.tap('OutputMessagePlugin', (stats) => {
           setImmediate(() => {
             if (stats.hasErrors()) {
               printCompilationMessage('failure', port);
@@ -94,10 +132,9 @@ export default (_env: unknown, argv: { mode?: string }): Configuration => {
           },
         ],
       }),
-      new ModuleFederationPlugin({
+      new (webpack as any).container.ModuleFederationPlugin({
         name: 'tactical',
         filename: 'tactical-app.js',
-        remotes: {},
         exposes: {
           './TacticalApp': './src/App.tsx',
         },
@@ -117,13 +154,7 @@ export default (_env: unknown, argv: { mode?: string }): Configuration => {
       new HtmlWebPackPlugin({
         template: './src/index.html',
       }),
-      new Dotenv({
-        path: `./.env.${argv.mode || 'development'}`,
-        safe: false,
-        systemvars: true,
-        silent: false,
-        defaults: './.env',
-      }),
+      new webpack.DefinePlugin(runtimeConfigDefines),
     ],
   };
 };
