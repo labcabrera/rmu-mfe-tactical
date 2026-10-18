@@ -1,8 +1,7 @@
 import React, { FC } from 'react';
 import Avatar from '@mui/material/Avatar';
-import { resolveAssetUrl } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { imageBaseUrl, resolveAssetUrl } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { ActorRound } from '../../api/actor-rounds.dto';
-import { imageBaseUrl } from '../../services/config';
 
 const ActorRoundAvatar: FC<{
   actorRound?: ActorRound;

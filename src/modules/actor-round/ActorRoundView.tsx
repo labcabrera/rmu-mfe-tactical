@@ -1,4 +1,5 @@
 import React, { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
   Divider,
@@ -16,6 +17,7 @@ import ActorRoundEffects from './ActorRoundEffects';
 import ActorRoundPenalty from './ActorRoundPenalty';
 
 const ActorRoundView: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
+  const { t } = useTranslation();
   if (!actorRound) return <CircularProgress size={24} />;
 
   return (
@@ -35,7 +37,7 @@ const ActorRoundView: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
       <Box sx={{ mt: 1 }}>
         <Accordion sx={{ mt: 2 }}>
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <Typography component="span">Details</Typography>
+            <Typography component="span">{t('details')}</Typography>
           </AccordionSummary>
           <AccordionDetails>
             <pre>{JSON.stringify(actorRound, null, 2)}</pre>

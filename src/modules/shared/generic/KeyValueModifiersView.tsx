@@ -16,10 +16,10 @@ const KeyValueModifiersView: FC<{ modifiers?: KeyValueModifier[] | null }> = ({ 
     <Stack
       direction="row"
       spacing={1}
-      flexWrap="wrap"
       useFlexGap
-      alignContent="flex-start"
       sx={{
+        flexWrap: 'wrap',
+        alignContent: 'flex-start',
         justifyContent: 'flex-start',
         alignItems: 'flex-start',
       }}

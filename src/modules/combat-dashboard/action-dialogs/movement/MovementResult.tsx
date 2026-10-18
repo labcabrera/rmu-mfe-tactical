@@ -1,9 +1,8 @@
 import React, { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Grid, Stack, Typography } from '@mui/material';
-import { CategorySeparator } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { CategorySeparator, gridSizeCard } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { Action } from '../../../api/action.dto';
-import { gridSizeCard } from '../../../services/display';
 import ModifierDualList from '../../../shared/ModifierDualList';
 
 export default function MovementResult({ action }: { action: Action }) {
@@ -15,24 +14,24 @@ export default function MovementResult({ action }: { action: Action }) {
 
   return (
     <>
-      <CategorySeparator text="Results" />
+      <CategorySeparator text={t('results')} />
       <Grid container spacing={1}>
         {calculated.critical && (
-          <KeyValueInfo value={`${calculated.critical}K`} label={t('Received critical')} valueColor="error" />
+          <KeyValueInfo value={`${calculated.critical}K`} label={t('received-critical')} valueColor="error" />
         )}
-        <KeyValueInfo value={`${percent}%`} label={t('Percent')} valueColor={percent < 100 ? 'error' : undefined} />
-        <KeyValueInfo value={`${calculated.distance}'`} label={t('Distance')} />
-        <KeyValueInfo value={calculated.distanceAdjusted} label={t('Adjusted distance')} />
-        <KeyValueInfo value={action.actionPoints} label={t('Action points')} />
-        <KeyValueInfo value={action.fatigue || 0} label={t('Fatigue')} />
-        <KeyValueInfo value={t(modifiers.pace)} label={t('Pace')} />
-        <KeyValueInfo value={t(modifiers.skillId!)} label={t('Skill')} />
+        <KeyValueInfo value={`${percent}%`} label={t('percent')} valueColor={percent < 100 ? 'error' : undefined} />
+        <KeyValueInfo value={`${calculated.distance}'`} label={t('distance')} />
+        <KeyValueInfo value={calculated.distanceAdjusted} label={t('adjusted-distance')} />
+        <KeyValueInfo value={action.actionPoints} label={t('action-points')} />
+        <KeyValueInfo value={action.fatigue || 0} label={t('fatigue')} />
+        <KeyValueInfo value={t(modifiers.pace)} label={t('pace')} />
+        <KeyValueInfo value={t(modifiers.skillId!)} label={t('skill')} />
         {modifiers.difficulty && (
-          <KeyValueInfo value={t(`difficulty-${modifiers.difficulty}`)} label={t('Difficulty')} />
+          <KeyValueInfo value={t(`difficulty-${modifiers.difficulty}`)} label={t('difficulty')} />
         )}
         {action.movement.roll && action.movement.roll.modifiers && (
           <Grid size={12}>
-            <CategorySeparator text="Roll modifiers" />
+            <CategorySeparator text={t('roll-modifiers')} />
             <ModifierDualList modifiers={action.movement.roll.modifiers} />
           </Grid>
         )}

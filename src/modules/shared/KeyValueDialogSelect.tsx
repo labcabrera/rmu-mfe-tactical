@@ -1,4 +1,4 @@
-import React, { FC, useState } from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Card,
@@ -12,8 +12,7 @@ import {
   Typography,
   Stack,
 } from '@mui/material';
-import { KeyValue } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { imageBaseUrl } from '../services/config';
+import { imageBaseUrl, KeyValue } from '@labcabrera-rmu/rmu-react-shared-lib';
 
 export default function KeyValueDialogSelect({
   label,

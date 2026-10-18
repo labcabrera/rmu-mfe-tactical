@@ -4,8 +4,8 @@ import { useAuth } from 'react-oidc-context';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Stack, Typography, Chip, Box, TextField, IconButton } from '@mui/material';
+import { useNotify } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../CombatContext';
-import { useError } from '../../ErrorContext';
 import { addActorRoundEffect, deleteActorRoundEffect } from '../api/actor-rounds';
 import { ActorRound, ActorRoundEffect } from '../api/actor-rounds.dto';
 
@@ -15,32 +15,32 @@ const ActorRoundEffects: FC<{
   const auth = useAuth();
   const { t } = useTranslation();
   const [newState, setNewState] = useState('');
-  const { showError } = useError();
+  const notify = useNotify();
   const { updateActorRound } = useContext(CombatContext)!;
 
   const addState = () => {
     const effect: ActorRoundEffect = { id: '', status: newState, value: undefined, rounds: undefined };
     addActorRoundEffect(actorRound.id, effect, auth)
       .then((updatedActorRound) => updateActorRound(updatedActorRound))
-      .catch((err) => showError(err));
+      .catch((err) => notify.error(err));
   };
 
   const removeState = (id: string) => {
     deleteActorRoundEffect(actorRound.id, id, auth)
       .then((updatedActorRound) => updateActorRound(updatedActorRound))
-      .catch((err) => showError(err));
+      .catch((err) => notify.error(err));
   };
 
   const getLabelForState = (state: ActorRoundEffect) => {
-    return `${t(`effect-${state.status}`)}${state.value ? ` ${state.value}` : ''}`;
+    return `${t(state.status)}${state.value ? ` ${state.value}` : ''}`;
   };
 
   return (
     <Stack spacing={1}>
-      <Typography variant="subtitle2">Effects / States</Typography>
+      <Typography variant="subtitle2">{t('effects-states')}</Typography>
 
       {(actorRound.effects || []).length === 0 ? (
-        <Typography variant="body2">No states</Typography>
+        <Typography variant="body2">{t('no-states')}</Typography>
       ) : (
         <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
           {(actorRound.effects || []).map((s: ActorRoundEffect, i: number) => (
@@ -58,7 +58,7 @@ const ActorRoundEffects: FC<{
       <Box sx={{ mt: 1, display: 'flex', alignItems: 'center' }}>
         <TextField
           size="small"
-          label="New state"
+          label={t('new-state')}
           value={newState}
           onChange={(e) => setNewState(e.target.value)}
           sx={{ mr: 1 }}

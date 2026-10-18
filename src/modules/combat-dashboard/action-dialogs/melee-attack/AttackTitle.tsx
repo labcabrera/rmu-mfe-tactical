@@ -10,7 +10,7 @@ const AttackTitle: FC<{
   target: ActorRound;
 }> = ({ attack, target }) => {
   const { t } = useTranslation();
-  if (!attack || !target) return <div>Loading...</div>;
+  if (!attack || !target) return null;
 
   const getFormattedArmor = (): string => {
     if (!target || !target.defense) return '';
@@ -19,7 +19,7 @@ const AttackTitle: FC<{
   };
 
   const getAttackDetail = (): string => {
-    return `${t('bo')}: ${attack.modifiers.bo}  •  BD: ${target.defense.bd}  •  Armor: ${getFormattedArmor()}`;
+    return `${t('bo')}: ${attack.modifiers.bo}  •  ${t('bd')}: ${target.defense.bd}  •  ${t('armor')}: ${getFormattedArmor()}`;
   };
 
   return (

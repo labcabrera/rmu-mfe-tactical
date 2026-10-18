@@ -12,7 +12,7 @@ const ResolveAttackFormModifiers: FC<{
   const { t } = useTranslation();
   const { actorRounds } = useContext(CombatContext)!;
 
-  if (!formData || !formData.attacks) return <div>Loading ResolveAttackFormModifiers...</div>;
+  if (!formData || !formData.attacks) return null;
 
   const getActorName = (id: string) => {
     return actorRounds!.find((a) => a.actorId === id)?.actorName || '';

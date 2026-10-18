@@ -9,16 +9,16 @@ export default function ActorActions({
   phases = 4,
   currentPhase = phases,
   onActionClick,
-}:{
+}: {
   actorId: string;
   phases?: number;
   currentPhase?: number;
   onActionClick: (action: Action) => void;
 }) {
   const { roundActions, actorRounds } = useContext(CombatContext)!;
-  
-  if (!roundActions || !actorRounds) return <>Loading...</>;
-  
+
+  if (!roundActions || !actorRounds) return null;
+
   const actions = (roundActions || []).filter((a: Action) => a.actorId === actorId);
   const actorRound = (actorRounds || []).find((r) => r.actorId === actorId)!;
   const { placement, rowsCount } = assignRows(actions, phases, currentPhase);
@@ -32,47 +32,46 @@ export default function ActorActions({
   const gridTemplateColumns = `repeat(${phases}, 1fr)`;
   const gridTemplateRows = `repeat(${Math.max(rowsCount, 1)}, ${rowHeight}px)`;
 
-  if(!actions) return <p>Loading...</p>
+  if (!actions) return null;
 
+  // Assign each action to a row so that overlapping actions don't share the same row
+  function assignRows(actions: Action[], phases: number, currentPhase: number) {
+    // Normalize start and effective end (if not finished, draw until currentPhase)
+    const items = actions.map((a) => {
+      const start = Math.max(1, Math.min(phases, a.phaseStart));
+      const rawEnd = a.phaseEnd ?? currentPhase;
+      const end = Math.max(start, Math.min(phases, rawEnd));
+      return { action: a, start, end };
+    });
 
-// Assign each action to a row so that overlapping actions don't share the same row
-function assignRows(actions: Action[], phases: number, currentPhase: number) {
-  // Normalize start and effective end (if not finished, draw until currentPhase)
-  const items = actions.map((a) => {
-    const start = Math.max(1, Math.min(phases, a.phaseStart));
-    const rawEnd = a.phaseEnd ?? currentPhase;
-    const end = Math.max(start, Math.min(phases, rawEnd));
-    return { action: a, start, end };
-  });
+    // sort by start asc, longer spans first when same start
+    items.sort((a, b) => a.start - b.start || b.end - b.start - (a.end - a.start));
 
-  // sort by start asc, longer spans first when same start
-  items.sort((a, b) => a.start - b.start || b.end - b.start - (a.end - a.start));
+    const rows: { end: number }[] = [];
+    const placement: { action: Action; start: number; end: number; row: number }[] = [];
 
-  const rows: { end: number }[] = [];
-  const placement: { action: Action; start: number; end: number; row: number }[] = [];
-
-  items.forEach((it) => {
-    // find first row where this fits (start > row.end)
-    let placed = false;
-    for (let r = 0; r < rows.length; r++) {
-      if (it.start > rows[r].end) {
-        // place here
-        placement.push({ action: it.action, start: it.start, end: it.end, row: r });
-        rows[r].end = it.end;
-        placed = true;
-        break;
+    items.forEach((it) => {
+      // find first row where this fits (start > row.end)
+      let placed = false;
+      for (let r = 0; r < rows.length; r++) {
+        if (it.start > rows[r].end) {
+          // place here
+          placement.push({ action: it.action, start: it.start, end: it.end, row: r });
+          rows[r].end = it.end;
+          placed = true;
+          break;
+        }
       }
-    }
-    if (!placed) {
-      // new row
-      const r = rows.length;
-      rows.push({ end: it.end });
-      placement.push({ action: it.action, start: it.start, end: it.end, row: r });
-    }
-  });
+      if (!placed) {
+        // new row
+        const r = rows.length;
+        rows.push({ end: it.end });
+        placement.push({ action: it.action, start: it.start, end: it.end, row: r });
+      }
+    });
 
-  return { placement, rowsCount: rows.length };
-}
+    return { placement, rowsCount: rows.length };
+  }
 
   return (
     <>
@@ -119,4 +118,4 @@ function assignRows(actions: Action[], phases: number, currentPhase: number) {
       </Box>
     </>
   );
-};
+}

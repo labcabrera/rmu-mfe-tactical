@@ -1,16 +1,15 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { FC, useContext, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useAuth } from 'react-oidc-context';
 import { Button, Typography } from '@mui/material';
-import { RmuDialog, TechnicalInfo } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { RmuDialog, TechnicalInfo, useNotify } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../CombatContext';
-import { useError } from '../../../../ErrorContext';
 import { deleteAction, resolveMovement } from '../../../api/action';
 import { Action, ActionMovement, ActionRoll } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
 import MovementModifiersForm from './MovementModifiersForm';
 import MovementResult from './MovementResult';
-import { useTranslation } from 'react-i18next';
-import { useAuth } from 'react-oidc-context';
 
 const MovementDialog: FC<{
   action: Action;
@@ -23,16 +22,16 @@ const MovementDialog: FC<{
   const [deleting, setDeleting] = useState(false);
   const { game, strategicGame, roundActions, setRoundActions, updateAction, refreshActorRounds } =
     useContext(CombatContext)!;
-  const { showError } = useError();
+  const notify = useNotify();
   const [formData, setFormData] = useState<ActionMovement>({} as ActionMovement);
   const [isValidForm, setIsValidForm] = useState<boolean>(false);
   const isCompleted = action.status === 'completed';
 
   const buttonsDeleting = [
     <Button color="error" onClick={() => onDelete()}>
-      {t('Confirm')}
+      {t('confirm')}
     </Button>,
-    <Button onClick={() => setDeleting(false)}>{t('Cancel')}</Button>,
+    <Button onClick={() => setDeleting(false)}>{t('cancel')}</Button>,
   ];
 
   const getButtons = () => {
@@ -40,15 +39,15 @@ const MovementDialog: FC<{
     if (!isCompleted) {
       buttons.push(
         <Button color="error" onClick={() => setDeleting(true)}>
-          {t('Delete')}
+          {t('delete')}
         </Button>
       );
     }
-    buttons.push(<Button onClick={onClose}>{t('Close')}</Button>);
+    buttons.push(<Button onClick={onClose}>{t('close')}</Button>);
     if (!isCompleted) {
       buttons.push(
         <Button color="success" disabled={!isValidForm} onClick={() => onResolve()}>
-          {t('Resolve')}
+          {t('resolve')}
         </Button>
       );
     }
@@ -61,7 +60,7 @@ const MovementDialog: FC<{
         updateAction(result);
         refreshActorRounds();
       })
-      .catch((err) => showError(err.message));
+      .catch((err) => notify.error(err));
   };
 
   const onDelete = () => {
@@ -71,7 +70,7 @@ const MovementDialog: FC<{
         setRoundActions(newActionList);
         onClose();
       })
-      .catch((err) => showError(err.message));
+      .catch((err) => notify.error(err));
   };
 
   const validateForm = () => {
@@ -109,12 +108,12 @@ const MovementDialog: FC<{
     }
   }, [action]);
 
-  if (!actorRound || !roundActions || !formData || !strategicGame || !game) return <p>Loading...</p>;
+  if (!actorRound || !roundActions || !formData || !strategicGame || !game) return null;
 
   return (
     <RmuDialog
       title={actorRound.actorName}
-      subtitle={t('Movement')}
+      subtitle={t('movement')}
       avatarImg={actorRound.imageUrl}
       fullScreen={false}
       open={open}
@@ -133,12 +132,11 @@ const MovementDialog: FC<{
             />
             <MovementResult action={action} />
             <TechnicalInfo>
-              <pre>FormData: {JSON.stringify(formData, null, 2)}</pre>
-              <pre>Action: {JSON.stringify(action, null, 2)}</pre>
+              <pre>{JSON.stringify({ formData, action }, null, 2)}</pre>
             </TechnicalInfo>
           </>
         ) : (
-          <Typography>Are you sure you want to delete this action?</Typography>
+          <Typography>{t('delete-action-confirmation')}</Typography>
         )}
       </>
     </RmuDialog>

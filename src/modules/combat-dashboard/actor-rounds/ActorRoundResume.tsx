@@ -1,24 +1,25 @@
 import React, { useContext, useState, useEffect, FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Typography, Card, CardMedia, CardContent, Box } from '@mui/material';
-import { Character, resolveAssetUrl } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { Character, imageBaseUrl, resolveAssetUrl } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
 import { ActorRound } from '../../api/actor-rounds.dto';
-import { imageBaseUrl } from '../../services/config';
-import { deadFilter } from '../../services/display';
+import { deadFilter } from '../../services/image-filters';
 import GenericBar from '../../shared/generic/GenericBar';
 
-const barSize = 96;
-const colorHpOk = '#253a4bff';
-const colorPowerOk = '#4180d3';
-const colorEnduranceOk = '#433a21ff';
-const colorEnduranceAccumulator = '#686868';
-const colorKo = '#2e140aff';
+// Palette paths: hit points in blue while above half, fatigue in red once above half.
+const colorHpOk = 'info.dark';
+const colorEnduranceOk = 'warning.dark';
+const colorKo = 'error.dark';
 
 const ActorRoundResume: FC<{
   actorRound: ActorRound;
   onActorRoundView: (actorRound: ActorRound) => void;
-}> = ({ actorRound, onActorRoundView }) => {
+  /** Phones: smaller portrait and bars. */
+  compact?: boolean;
+}> = ({ actorRound, onActorRoundView, compact = false }) => {
+  const imageSize = compact ? 64 : 80;
+  const barSize = compact ? 56 : 72;
   const { t } = useTranslation();
   const { characters, factions } = useContext(CombatContext)!;
   const [character, setCharacter] = useState<Character | null>(null);
@@ -31,13 +32,21 @@ const ActorRoundResume: FC<{
     }
   }, [actorRound, characters, factions]);
 
-  if (!character) return <p>CombatCharacterRoundInfo Loading...</p>;
-  const bgUrl = `${imageBaseUrl.replace(/\/?$/, '/')}images/backgrounds/bg-03.png`;
+  if (!character) return null;
+  const bgUrl = `${(imageBaseUrl ?? '').replace(/\/?$/, '/')}images/backgrounds/bg-03.png`;
 
   return (
     <Card
+      component="button"
+      type="button"
       onClick={() => onActorRoundView(actorRound)}
+      aria-label={character.name}
       sx={{
+        p: 0,
+        border: 0,
+        textAlign: 'left',
+        font: 'inherit',
+        color: 'inherit',
         width: '100%',
         height: '100%',
         cursor: 'pointer',
@@ -49,26 +58,27 @@ const ActorRoundResume: FC<{
       }}
       elevation={0}
     >
-      <CardContent sx={{ width: '100%', p: 2, display: 'flex', alignItems: 'flex-start' }}>
+      <CardContent sx={{ width: '100%', minWidth: 0, p: 1.5, '&:last-child': { pb: 1.5 }, display: 'flex', alignItems: 'flex-start' }}>
         <CardMedia
           component="img"
           image={resolveAssetUrl(actorRound.imageUrl) || `${imageBaseUrl}images/races/unknown.png`}
           sx={{
-            width: barSize,
-            height: barSize,
+            width: imageSize,
+            height: imageSize,
+            flexShrink: 0,
             objectFit: 'cover',
             borderRadius: 1,
-            mr: 2,
+            mr: 1.5,
             filter: isDead ? deadFilter : undefined,
           }}
         />
 
-        <Box sx={{ flex: 1, color: 'white' }}>
+        <Box sx={{ flex: 1, minWidth: 0 }}>
           <Typography variant="body1" color={isDead ? 'error' : 'primary'} noWrap sx={{ fontWeight: 600 }}>
             {character.name}
           </Typography>
           <Typography variant="body2" color="secondary" noWrap sx={{ fontWeight: 600 }}>
-            {`${t(character.info.professionId)} lvl ${character.experience.level}`}
+            {t('profession-level', { profession: t(character.info.professionId), level: character.experience.level })}
           </Typography>
           <Typography variant="body2" color="secondary" noWrap sx={{ fontWeight: 600 }}>
             {`${character.faction?.name || ''}`}
@@ -82,15 +92,6 @@ const ActorRoundResume: FC<{
               colorOk={colorHpOk}
               colorKo={colorKo}
             />
-            {/* {character.power && character.power.max > 0 && (
-              <GenericBar
-                current={character.power.current}
-                max={character.power.max}
-                width={barSize}
-                colorOk={colorPowerOk}
-                colorKo={colorEnduranceAccumulator}
-              />
-            )} */}
             <GenericBar
               current={Math.round(actorRound.fatigue.accumulator)}
               max={100}

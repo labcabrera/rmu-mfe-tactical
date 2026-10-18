@@ -5,8 +5,6 @@ import { Section, StatRow, TacticalGame } from '@labcabrera-rmu/rmu-react-shared
 export default function TacticalGameViewEnvironment({ tacticalGame }: { tacticalGame: TacticalGame }) {
   const { t } = useTranslation();
 
-  if (!tacticalGame) return <p>Loading game...</p>;
-
   if (!tacticalGame.environment) return null;
 
   const tfm = tacticalGame.environment.temperatureFatigueModifier || 0;
@@ -14,8 +12,8 @@ export default function TacticalGameViewEnvironment({ tacticalGame }: { tactical
 
   return (
     <Section title={t('environment')}>
-      <StatRow label={'temperature-modifier'} value={tfm} danger={tfm < 0} success={tfm > 0} />
-      <StatRow label={'altitude-modifier'} value={afm} danger={afm < 0} success={afm > 0} />
+      <StatRow label={t('temperature-modifier')} value={tfm} danger={tfm < 0} success={tfm > 0} />
+      <StatRow label={t('altitude-modifier')} value={afm} danger={afm < 0} success={afm > 0} />
     </Section>
   );
 }

@@ -1,26 +1,31 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { Dispatch, FC, SetStateAction, useEffect, useState } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import { Grid, TextField } from '@mui/material';
-import { fetchStrategicGames, NumericInput, StrategicGame, TacticalGame } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { useError } from '../../../ErrorContext';
+import {
+  fetchStrategicGames,
+  NumericInput,
+  StrategicGame,
+  TacticalGame,
+  useNotify,
+} from '@labcabrera-rmu/rmu-react-shared-lib';
 import SelectStrategicGame from '../../shared/selects/SelectStrategicGame';
 
 const TacticalGameForm: FC<{
   formData: TacticalGame;
-  setFormData: Dispatch<SetStateAction<TacticalGame>>;
+  setFormData: (formData: TacticalGame) => void;
   strategicGame: StrategicGame | undefined;
 }> = ({ formData, setFormData, strategicGame }) => {
   const auth = useAuth();
   const { t } = useTranslation();
-  const { showError } = useError();
+  const notify = useNotify();
   const [strategicGames, setStrategicGames] = useState<StrategicGame[]>([]);
 
   const bindStrategicGames = () => {
     fetchStrategicGames('', 0, 50, auth)
       .then((response) => setStrategicGames(response.content))
-      .catch((err) => showError(err.message));
+      .catch((err) => notify.error(err));
   };
 
   useEffect(() => {
@@ -51,9 +56,9 @@ const TacticalGameForm: FC<{
         </Grid>
       )}
 
-      <Grid size={2}>
+      <Grid size={{ xs: 6, md: 2 }}>
         <NumericInput
-          label="temperature-fatigue-modifier"
+          label={t('temperature-fatigue-modifier')}
           value={formData.environment?.temperatureFatigueModifier || 0}
           onChange={(value) =>
             setFormData({
@@ -63,9 +68,9 @@ const TacticalGameForm: FC<{
           }
         />
       </Grid>
-      <Grid size={2}>
+      <Grid size={{ xs: 6, md: 2 }}>
         <NumericInput
-          label="altitude-fatigue-modifier"
+          label={t('altitude-fatigue-modifier')}
           value={formData.environment?.altitudeFatigueModifier || 0}
           onChange={(value) =>
             setFormData({

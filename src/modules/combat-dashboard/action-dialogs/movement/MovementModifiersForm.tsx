@@ -64,22 +64,22 @@ const MovementModifiersForm: FC<{
     <Grid container spacing={1}>
       <Grid size={12}>
         <Stack direction="row" spacing={1}>
-          <Chip color="secondary" label={`Action points: ${getActionPoints()}`} />
-          <Chip color={getChipColor(maneuverPenalty)} label={`Maneuver penalty: ${maneuverPenalty}`} />
+          <Chip color="secondary" label={`${t('action-points')}: ${getActionPoints()}`} />
+          <Chip color={getChipColor(maneuverPenalty)} label={`${t('maneuver-penalty')}: ${maneuverPenalty}`} />
           <Chip
             color={getChipColor(skillBonus)}
-            label={`Skill bonus: ${skillBonus ? `${skillBonus > 0 ? '+' : ''}${skillBonus}` : ''}`}
+            label={`${t('skill-bonus')}: ${skillBonus ? `${skillBonus > 0 ? '+' : ''}${skillBonus}` : ''}`}
           />
-          <Chip color="secondary" label={`Max pace: ${t(maxPace)}`} />
-          <Chip color="secondary" label={`Base difficulty: ${t(`difficulty-${baseDifficulty}`)}`} />
+          <Chip color="secondary" label={`${t('max-pace')}: ${t(maxPace)}`} />
+          <Chip color="secondary" label={`${t('base-difficulty')}: ${t(`difficulty-${baseDifficulty}`)}`} />
         </Stack>
       </Grid>
       <Grid size={12}>
-        <CategorySeparator text="Modifiers" />
+        <CategorySeparator text={t('modifiers')} />
       </Grid>
       <Grid size={4}>
         <DialogSelect
-          label="Skill"
+          label={t('skill')}
           value={formData.modifiers.skillId}
           options={['running', 'swimming', 'climbing', 'flying']}
           onChange={(e) => setFormData({ ...formData, modifiers: { ...formData.modifiers, skillId: e as string } })}
@@ -88,7 +88,7 @@ const MovementModifiersForm: FC<{
       </Grid>
       <Grid size={4}>
         <DialogSelect
-          label="Required maneuver"
+          label={t('required-maneuver')}
           value={formData.modifiers.requiredManeuver === true ? 'yes' : 'no'}
           options={['yes', 'no']}
           onChange={(e) =>
@@ -111,7 +111,7 @@ const MovementModifiersForm: FC<{
               <Grid size={12}></Grid>
               <Grid size={2}>
                 <NumericInput
-                  label="Custom modifier"
+                  label={t('custom-modifier')}
                   value={formData.modifiers.customBonus}
                   onChange={(val: number | null) =>
                     setFormData({ ...formData, modifiers: { ...formData.modifiers, customBonus: val || 0 } })

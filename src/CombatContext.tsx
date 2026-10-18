@@ -1,24 +1,25 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-unused-vars */
 import React, { createContext, useEffect, useState, ReactNode, Dispatch, SetStateAction, FC } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useAuth } from 'react-oidc-context';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { Box, Typography, Accordion, AccordionDetails, AccordionSummary } from '@mui/material';
 import {
+  Character,
+  Faction,
+  fetchCharacters,
+  fetchFactions,
+  fetchStrategicGame,
+  fetchTacticalGame,
   StrategicGame,
   TacticalGame,
-  fetchTacticalGame,
-  fetchStrategicGame,
-  Faction,
-  fetchFactions,
-  Character,
-  fetchCharacters,
+  useNotify,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { useError } from './ErrorContext';
 import { fetchActionsByGameAndRound } from './modules/api/action';
 import { Action } from './modules/api/action.dto';
 import { fetchActorRounds } from './modules/api/actor-rounds';
 import { ActorRound } from './modules/api/actor-rounds.dto';
-import { useAuth } from 'react-oidc-context';
 
 type RoundActorSort = 'name' | 'initiative';
 
@@ -46,13 +47,23 @@ type CombatContextType = {
   refreshActorRounds: () => void;
 };
 
+// Debug panel with the raw combat state, enabled with localStorage.setItem('rmu-debug', 'true').
+const isDebugEnabled = (): boolean => {
+  try {
+    return localStorage.getItem('rmu-debug') === 'true';
+  } catch {
+    return false;
+  }
+};
+
 export const CombatContext = createContext<CombatContextType | undefined>(undefined);
 
 export const CombatProvider: FC<{
   children: ReactNode;
 }> = ({ children }) => {
+  const { t } = useTranslation();
   const auth = useAuth();
-  const { showError } = useError();
+  const notify = useNotify();
 
   const [gameId, setGameId] = useState<string | null>(null);
   const [game, setGame] = useState<TacticalGame | null>(null);
@@ -70,18 +81,18 @@ export const CombatProvider: FC<{
         setGame(data);
         setDisplayRound(data.round);
       })
-      .catch((err) => showError(err.message));
+      .catch((err) => notify.error(err));
   };
 
   const bindStrategicGame = (strategicGameId: string) => {
     fetchStrategicGame(strategicGameId, auth)
       .then((data: StrategicGame) => setStrategicGame(data))
-      .catch((err) => showError(err.message));
+      .catch((err) => notify.error(err));
   };
 
   const bindActorRounds = (gameId: string, displayRound: number) => {
     fetchActorRounds(gameId, displayRound, auth)
-      .then(data => data.content)
+      .then((data) => data.content)
       .then((data) => {
         if (roundActorSort === 'name') {
           data.sort((a, b) => a.actorName.localeCompare(b.actorName));
@@ -90,13 +101,13 @@ export const CombatProvider: FC<{
         }
         setActorRounds(data);
       })
-      .catch((err) => showError(err.message));
+      .catch((err) => notify.error(err));
   };
 
   const bindActions = (gameId: string, displayRound: number) => {
     fetchActionsByGameAndRound(gameId, displayRound, auth)
       .then((data) => setRoundActions(data))
-      .catch((err) => showError(err.message));
+      .catch((err) => notify.error(err));
   };
 
   const bindCharacters = (game: TacticalGame) => {
@@ -104,14 +115,14 @@ export const CombatProvider: FC<{
     const rsql = `id=in=(${characterIds.join(',')})`;
     fetchCharacters(rsql, 0, 100, auth)
       .then((data) => setCharacters(data.content))
-      .catch((err) => showError(err.message));
+      .catch((err) => notify.error(err));
   };
 
   const bindFactions = (game: TacticalGame) => {
     const rsql = `id=in=(${game.factions.join(',')})`;
     fetchFactions(rsql, 0, 100, auth)
       .then((data) => setFactions(data.content))
-      .catch((err) => showError(err.message));
+      .catch((err) => notify.error(err));
   };
 
   const refreshActorRounds = () => {
@@ -196,49 +207,51 @@ export const CombatProvider: FC<{
         {children}
       </CombatContext.Provider>
 
-      <Box sx={{ mt: 100 }}>
-        <Accordion>
-          <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1-content" id="panel1-header">
-            <Typography component="span">Tactical game</Typography>
-          </AccordionSummary>
-          <AccordionDetails>
-            <pre>TacticalGame: {JSON.stringify(game, null, 2)}</pre>
-          </AccordionDetails>
-        </Accordion>
-        <Accordion>
-          <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1-content" id="panel1-header">
-            <Typography component="span">Actor rounds</Typography>
-          </AccordionSummary>
-          <AccordionDetails>
-            <pre>actorRounds: {JSON.stringify(actorRounds, null, 2)}</pre>
-          </AccordionDetails>
-        </Accordion>
-        <Accordion>
-          <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1-content" id="panel1-header">
-            <Typography component="span">Characters</Typography>
-          </AccordionSummary>
-          <AccordionDetails>
-            <pre>characters: {JSON.stringify(characters, null, 2)}</pre>
-          </AccordionDetails>
-        </Accordion>
-        <Accordion>
-          <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1-content" id="panel1-header">
-            <Typography component="span">Round actions</Typography>
-          </AccordionSummary>
-          <AccordionDetails>
-            <pre>roundActions: {JSON.stringify(roundActions, null, 2)}</pre>
-          </AccordionDetails>
-        </Accordion>
-        <Accordion>
-          <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1-content" id="panel1-header">
-            <Typography component="span">Strategic Game</Typography>
-          </AccordionSummary>
-          <AccordionDetails>
-            <pre>strategicGame: {JSON.stringify(strategicGame, null, 2)}</pre>
-          </AccordionDetails>
-        </Accordion>
-        <pre>DisplayRound: {JSON.stringify(displayRound, null, 2)}</pre>
-      </Box>
+      {isDebugEnabled() && (
+        <Box sx={{ mt: 4 }}>
+          <Accordion>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1-content" id="panel1-header">
+              <Typography component="span">{t('tactical-game')}</Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <pre>{JSON.stringify(game, null, 2)}</pre>
+            </AccordionDetails>
+          </Accordion>
+          <Accordion>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1-content" id="panel1-header">
+              <Typography component="span">{t('actor-rounds')}</Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <pre>{JSON.stringify(actorRounds, null, 2)}</pre>
+            </AccordionDetails>
+          </Accordion>
+          <Accordion>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1-content" id="panel1-header">
+              <Typography component="span">{t('characters')}</Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <pre>{JSON.stringify(characters, null, 2)}</pre>
+            </AccordionDetails>
+          </Accordion>
+          <Accordion>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1-content" id="panel1-header">
+              <Typography component="span">{t('round-actions')}</Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <pre>{JSON.stringify(roundActions, null, 2)}</pre>
+            </AccordionDetails>
+          </Accordion>
+          <Accordion>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1-content" id="panel1-header">
+              <Typography component="span">{t('strategic-game')}</Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <pre>{JSON.stringify(strategicGame, null, 2)}</pre>
+            </AccordionDetails>
+          </Accordion>
+          <pre>{JSON.stringify({ displayRound }, null, 2)}</pre>
+        </Box>
+      )}
     </>
   );
 };

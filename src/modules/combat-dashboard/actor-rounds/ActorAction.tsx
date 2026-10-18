@@ -1,8 +1,8 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Box, Card, CardActionArea, CardContent, Typography } from '@mui/material';
+import { imageBaseUrl } from '@labcabrera-rmu/rmu-react-shared-lib';
 import type { Action } from '../../api/action.dto';
-import { imageBaseUrl } from '../../services/config';
 
 export default function ActorAction({
   action,
@@ -24,7 +24,7 @@ export default function ActorAction({
   };
 
   const getActionName = () => {
-    let name = '';
+    let name: string;
     if (action.maneuver) {
       name = t(action.maneuver?.modifiers?.skillId || 'maneuver');
     } else if (action.movement) {
@@ -32,7 +32,7 @@ export default function ActorAction({
     } else {
       name = t(action.actionType);
     }
-    return action.freeAction ? `${t('Free ')} ${name}` : name;
+    return action.freeAction ? `${t('free')} ${name}` : name;
   };
 
   const bg = getActionImage();

@@ -2,8 +2,8 @@ import React, { Dispatch, FC, SetStateAction, useContext, useState } from 'react
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import { alpha, Box, Button } from '@mui/material';
+import { useNotify } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
-import { useError } from '../../../ErrorContext';
 import { createAction } from '../../api/action';
 import { ActorRound } from '../../api/actor-rounds.dto';
 import DeclareActionDialog from '../action-dialogs/DeclareActionDialog';
@@ -12,56 +12,57 @@ const ActorRoundDeclarationButtons: FC<{
   actorRound: ActorRound;
   currentPhase: number;
   setDisplayPhase: Dispatch<SetStateAction<string>>;
-}> = ({ actorRound, currentPhase, setDisplayPhase }) => {
+  /** `column` fits the board cell; `row` spreads the buttons across a phone card with 44 px targets. */
+  layout?: 'column' | 'row';
+}> = ({ actorRound, currentPhase, setDisplayPhase, layout = 'column' }) => {
+  const isRow = layout === 'row';
   const auth = useAuth();
   const { t } = useTranslation();
-  const { showError } = useError();
+  const notify = useNotify();
   const { game, roundActions, setRoundActions } = useContext(CombatContext)!;
   const [declareActionDialogOpen, setDeclareActionDialogOpen] = useState(false);
   const pendingActions = roundActions?.filter((a) => a.status !== 'completed') || [];
 
-  if (!actorRound || !game) return <>Loading...</>;
+  if (!actorRound || !game) return null;
 
   const disabledRangedAttack = !actorRound.attacks.some((a) => a.type === 'ranged');
-  const disabledMovement = pendingActions.some(
-    (a) => a.actorId === actorRound.actorId && a.actionType === 'movement'
-  );
+  const disabledMovement = pendingActions.some((a) => a.actorId === actorRound.actorId && a.actionType === 'movement');
   const disabledMeleeAttack = pendingActions.some(
     (a) => a.actorId === actorRound.actorId && a.actionType === 'melee_attack' && !a.freeAction
   );
   const actions = [
     {
       key: 'free-movement',
-      label: t('Free movement'),
-      shortLabel: t('Free move'),
+      label: t('free-movement'),
+      shortLabel: t('free-move'),
       hidden: disabledMovement,
       onClick: () => onActionDeclaration('movement', true),
     },
     {
       key: 'movement',
-      label: t('Normal movement'),
-      shortLabel: t('Move'),
+      label: t('normal-movement'),
+      shortLabel: t('move'),
       hidden: disabledMovement,
       onClick: () => onActionDeclaration('movement', false),
     },
     {
       key: 'melee-attack',
-      label: t('Melee attack'),
-      shortLabel: t('Melee'),
+      label: t('melee-attack'),
+      shortLabel: t('melee'),
       hidden: disabledMeleeAttack,
       onClick: () => onActionDeclaration('melee_attack', false),
     },
     {
       key: 'ranged-attack',
-      label: t('Ranged attack'),
-      shortLabel: t('Ranged'),
+      label: t('ranged-attack'),
+      shortLabel: t('ranged'),
       hidden: disabledRangedAttack,
       onClick: () => onActionDeclaration('ranged_attack', false),
     },
     {
       key: 'other',
-      label: t('Other actions'),
-      shortLabel: t('Other'),
+      label: t('other-actions'),
+      shortLabel: t('other'),
       hidden: false,
       onClick: () => setDeclareActionDialogOpen(true),
     },
@@ -80,7 +81,7 @@ const ActorRoundDeclarationButtons: FC<{
         setRoundActions([...(roundActions || []), action]);
         setDisplayPhase(game.phase);
       })
-      .catch((err) => showError(err.message));
+      .catch((err) => notify.error(err));
   };
 
   return (
@@ -88,11 +89,11 @@ const ActorRoundDeclarationButtons: FC<{
       <Box
         sx={{
           display: 'grid',
-          gridTemplateColumns: '1fr',
-          gap: 0.5,
+          gridTemplateColumns: isRow ? 'repeat(auto-fit, minmax(88px, 1fr))' : '1fr',
+          gap: isRow ? 1 : 0.5,
           width: '100%',
           minWidth: 0,
-          maxWidth: 132,
+          maxWidth: isRow ? 'none' : 132,
           py: 0.5,
         }}
       >
@@ -108,12 +109,12 @@ const ActorRoundDeclarationButtons: FC<{
               size="small"
               sx={(theme) => ({
                 minWidth: 0,
-                minHeight: 24,
+                minHeight: isRow ? 44 : 24,
                 justifyContent: 'center',
                 px: 1,
                 borderRadius: 1,
                 textTransform: 'none',
-                fontSize: '0.66rem',
+                fontSize: isRow ? '0.8125rem' : '0.66rem',
                 lineHeight: 1.1,
                 whiteSpace: 'nowrap',
                 overflow: 'hidden',

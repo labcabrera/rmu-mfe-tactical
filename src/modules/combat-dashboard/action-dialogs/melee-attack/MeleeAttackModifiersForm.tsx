@@ -1,4 +1,5 @@
 import React, { Dispatch, FC, SetStateAction, useContext } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Grid } from '@mui/material';
 import { CategorySeparator, KeyValue, NumericInput } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../CombatContext';
@@ -6,7 +7,6 @@ import { AttackDeclaration, CalledShot } from '../../../api/action.dto';
 import DialogSelect from '../../../shared/DialogSelect';
 import KeyValueDialogSelect from '../../../shared/KeyValueDialogSelect';
 import AttackTitle from './AttackTitle';
-import { useTranslation } from 'react-i18next';
 
 const POSITIONAL_TARGET_OPTIONS: KeyValue[] = [
   { key: 'none', value: 0 },
@@ -140,7 +140,7 @@ const MeleeAttackModifiersForm: FC<{
       </Grid>
       <Grid size={4}>
         <KeyValueDialogSelect
-          label={t('Positional source')}
+          label={t('positional-source')}
           value={modifiers?.positionalSource}
           options={POSITIONAL_SOURCE_OPTIONS}
           colorDisabledValues={['none']}
@@ -149,7 +149,7 @@ const MeleeAttackModifiersForm: FC<{
       </Grid>
       <Grid size={4}>
         <KeyValueDialogSelect
-          label={t('Restricted quarters')}
+          label={t('restricted-quarters')}
           value={modifiers?.restrictedQuarters}
           options={RESTRICTED_QUARTERS_OPTIONS}
           colorDisabledValues={['none']}
@@ -158,7 +158,7 @@ const MeleeAttackModifiersForm: FC<{
       </Grid>
       <Grid size={4}>
         <KeyValueDialogSelect
-          label={t('Pace')}
+          label={t('pace')}
           value={modifiers?.pace}
           options={PACES_OPTIONS}
           colorDisabledValues={['creep']}
@@ -167,7 +167,7 @@ const MeleeAttackModifiersForm: FC<{
       </Grid>
       <Grid size={4}>
         <DialogSelect
-          label={t('Called shot')}
+          label={t('called-shot')}
           value={modifiers?.calledShot}
           options={CALLED_SHOT_OPTIONS}
           colorDisabledValues={['none']}
@@ -177,7 +177,7 @@ const MeleeAttackModifiersForm: FC<{
       </Grid>
       <Grid size={4}>
         <KeyValueDialogSelect
-          label={t('Higher ground')}
+          label={t('higher-ground')}
           value={modifiers?.higherGround ? 'yes' : 'no'}
           options={HIGHER_GROUND_OPTIONS}
           colorDisabledValues={['no']}
@@ -186,7 +186,7 @@ const MeleeAttackModifiersForm: FC<{
       </Grid>
       <Grid size={4}>
         <KeyValueDialogSelect
-          label={t('Prone')}
+          label={t('prone')}
           value={modifiers?.proneSource ? 'yes' : 'no'}
           options={PRONE_SOURCE_OPTIONS}
           colorDisabledValues={['no']}
@@ -195,7 +195,7 @@ const MeleeAttackModifiersForm: FC<{
       </Grid>
       <Grid size={4}>
         <DialogSelect
-          label={t('Ambush')}
+          label={t('ambush')}
           value={modifiers?.ambush ? 'enabled' : 'disabled'}
           options={ENABLED_OPTIONS}
           colorDisabledValues={['disabled']}
@@ -205,11 +205,11 @@ const MeleeAttackModifiersForm: FC<{
       </Grid>
 
       <Grid size={12}>
-        <CategorySeparator text="Target" />
+        <CategorySeparator text={t('target')} />
       </Grid>
       <Grid size={4}>
         <KeyValueDialogSelect
-          label={t('Positional target')}
+          label={t('positional-target')}
           value={modifiers?.positionalTarget}
           options={POSITIONAL_TARGET_OPTIONS}
           colorDisabledValues={['none']}
@@ -218,7 +218,7 @@ const MeleeAttackModifiersForm: FC<{
       </Grid>
       <Grid size={4}>
         <KeyValueDialogSelect
-          label={t('Cover')}
+          label={t('cover')}
           value={modifiers?.cover}
           options={MELEE_COVER_OPTIONS}
           colorDisabledValues={['none']}
@@ -227,7 +227,7 @@ const MeleeAttackModifiersForm: FC<{
       </Grid>
       <Grid size={4}>
         <DialogSelect
-          label={t('DB')}
+          label={t('db')}
           value={modifiers?.disabledDB ? 'disabled' : 'enabled'}
           options={ENABLED_OPTIONS}
           colorDisabledValues={['enabled']}
@@ -237,7 +237,7 @@ const MeleeAttackModifiersForm: FC<{
       </Grid>
       <Grid size={4}>
         <DialogSelect
-          label={t('Shield')}
+          label={t('shield')}
           value={modifiers?.disabledShield ? 'disabled' : 'enabled'}
           options={ENABLED_OPTIONS}
           colorDisabledValues={['enabled']}
@@ -247,7 +247,7 @@ const MeleeAttackModifiersForm: FC<{
       </Grid>
       <Grid size={4}>
         <DialogSelect
-          label={t('Parry')}
+          label={t('parry')}
           value={modifiers?.disabledParry ? 'disabled' : 'enabled'}
           options={ENABLED_OPTIONS}
           colorDisabledValues={['enabled']}
@@ -257,7 +257,7 @@ const MeleeAttackModifiersForm: FC<{
       </Grid>
       <Grid size={4}>
         <DialogSelect
-          label={t('Parry type')}
+          label={t('parry-type')}
           value={modifiers?.restrictedParry ? 'restricted' : 'normal'}
           options={PARRY_TYPE_OPTIONS}
           colorDisabledValues={['normal']}
@@ -267,7 +267,7 @@ const MeleeAttackModifiersForm: FC<{
       </Grid>
       <Grid size={4}>
         <DialogSelect
-          label={t('Dodge')}
+          label={t('dodge')}
           value={modifiers?.dodge}
           options={DODGE_OPTIONS}
           colorDisabledValues={['none']}
@@ -277,7 +277,7 @@ const MeleeAttackModifiersForm: FC<{
       </Grid>
       <Grid size={4}>
         <KeyValueDialogSelect
-          label={t('Stunned')}
+          label={t('stunned')}
           value={modifiers?.stunnedFoe ? 'yes' : 'no'}
           options={STUNNED_TARGET_OPTIONS}
           colorDisabledValues={['no']}
@@ -286,7 +286,7 @@ const MeleeAttackModifiersForm: FC<{
       </Grid>
       <Grid size={4}>
         <KeyValueDialogSelect
-          label={t('Surprised')}
+          label={t('surprised')}
           value={modifiers?.surprisedFoe ? 'yes' : 'no'}
           options={SURPRISED_TARGET_OPTIONS}
           colorDisabledValues={['no']}
@@ -295,7 +295,7 @@ const MeleeAttackModifiersForm: FC<{
       </Grid>
       <Grid size={4}>
         <KeyValueDialogSelect
-          label={t('Prone')}
+          label={t('prone')}
           value={modifiers?.proneTarget ? 'yes' : 'no'}
           options={PRONE_TARGET_OPTIONS}
           colorDisabledValues={['no']}
@@ -305,7 +305,7 @@ const MeleeAttackModifiersForm: FC<{
       <Grid size={12}></Grid>
       <Grid size={2}>
         <NumericInput
-          label={t('Custom bonus')}
+          label={t('custom-bonus')}
           value={customBonus}
           name="customBonus"
           onChange={onCustomBonusChange}
@@ -315,7 +315,7 @@ const MeleeAttackModifiersForm: FC<{
       <Grid size={2}>
         {modifiers.calledShot && modifiers.calledShot !== 'none' && (
           <NumericInput
-            label={t('Called shot penalty')}
+            label={t('called-shot-penalty')}
             value={modifiers.calledShotPenalty || null}
             onChange={onCalledShotPenaltyChange}
             integer

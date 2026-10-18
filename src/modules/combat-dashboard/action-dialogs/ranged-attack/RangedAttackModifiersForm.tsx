@@ -1,4 +1,5 @@
 import React, { Dispatch, FC, SetStateAction, useContext } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Grid, Typography } from '@mui/material';
 import { CategorySeparator, KeyValue, NumericInput } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../CombatContext';
@@ -8,7 +9,6 @@ import DialogSelect from '../../../shared/DialogSelect';
 import KeyValueDialogSelect from '../../../shared/KeyValueDialogSelect';
 import SelectAttackRange from '../../../shared/selects/SelectAttackRange';
 import AttackTitle from '../melee-attack/AttackTitle';
-import { useTranslation } from 'react-i18next';
 
 const COVER_OPTIONS: KeyValue[] = [
   { key: 'none', value: 0 },
@@ -132,7 +132,7 @@ const RangedAttackModifiersForm: FC<{
         <KeyValueDialogSelect
           value={formDataAttack.modifiers.cover}
           onChange={(e) => handleChange('cover', e!)}
-          label={'Cover'}
+          label={t('cover')}
           colorDisabledValues={['none']}
           options={COVER_OPTIONS}
         />
@@ -141,14 +141,14 @@ const RangedAttackModifiersForm: FC<{
         <KeyValueDialogSelect
           value={formDataAttack.modifiers.restrictedQuarters}
           onChange={(e) => handleChange('restrictedQuarters', e!)}
-          label={'Restricted Quarters'}
+          label={t('restricted-quarters')}
           colorDisabledValues={['none']}
           options={RESTRICTED_QUARTER_OPTIONS}
         />
       </Grid>
       <Grid size={3}>
         <KeyValueDialogSelect
-          label={t('Pace')}
+          label={t('pace')}
           value={modifiers?.pace}
           options={PACES_OPTIONS}
           colorDisabledValues={['creep']}
@@ -159,7 +159,7 @@ const RangedAttackModifiersForm: FC<{
         <DialogSelect
           value={formDataAttack.modifiers.calledShot}
           onChange={(e) => onCalledShotChange(e as CalledShot)}
-          label={'Called shot'}
+          label={t('called-shot')}
           colorDisabledValues={['none']}
           colorSuccessValues={['head', 'chest', 'abdomen', 'arms', 'legs']}
           options={CALLED_SHOT_OPTIONS}
@@ -170,7 +170,7 @@ const RangedAttackModifiersForm: FC<{
         <KeyValueDialogSelect
           value={formDataAttack.modifiers.higherGround ? 'yes' : 'no'}
           onChange={(e) => handleChange('higherGround', e === 'yes')}
-          label={'Higher ground'}
+          label={t('higher-ground')}
           colorDisabledValues={['no']}
           options={HIGHER_GROUND_OPTIONS}
         />
@@ -179,7 +179,7 @@ const RangedAttackModifiersForm: FC<{
         <KeyValueDialogSelect
           value={formDataAttack.modifiers.proneSource ? 'yes' : 'no'}
           onChange={(e) => handleChange('proneSource', e === 'yes')}
-          label={'Prone'}
+          label={t('prone')}
           colorDisabledValues={['no']}
           options={PRONE_SOURCE_OPTIONS}
         />
@@ -188,7 +188,7 @@ const RangedAttackModifiersForm: FC<{
         <KeyValueDialogSelect
           value={formDataAttack.modifiers.attackerInMelee ? 'yes' : 'no'}
           onChange={(e) => handleChange('attackerInMelee', e === 'yes')}
-          label={'In melee'}
+          label={t('in-melee')}
           colorDisabledValues={['no']}
           options={SOURCE_IN_MELEE_OPTIONS}
         />
@@ -197,7 +197,7 @@ const RangedAttackModifiersForm: FC<{
         <DialogSelect
           value={formDataAttack.modifiers.ambush ? 'enabled' : 'disabled'}
           onChange={(e) => handleChange('ambush', e === 'enabled')}
-          label={'Ambush'}
+          label={t('ambush')}
           colorDisabledValues={['disabled']}
           colorSuccessValues={['enabled']}
           options={ENABLED_OPTIONS}
@@ -205,13 +205,13 @@ const RangedAttackModifiersForm: FC<{
       </Grid>
 
       <Grid size={12}>
-        <CategorySeparator text={t('Target')} />
+        <CategorySeparator text={t('target')} />
       </Grid>
       <Grid size={3}>
         <KeyValueDialogSelect
           value={formDataAttack.modifiers.stunnedFoe ? 'yes' : 'no'}
           onChange={(e) => handleChange('stunnedFoe', e === 'yes')}
-          label={'Stunned'}
+          label={t('stunned')}
           colorDisabledValues={['no']}
           options={STUNNED_TARGET_OPTIONS}
         />
@@ -220,7 +220,7 @@ const RangedAttackModifiersForm: FC<{
         <DialogSelect
           value={formDataAttack.modifiers.disabledDB ? 'disabled' : 'enabled'}
           onChange={(e) => handleChange('disabledDB', e === 'disabled')}
-          label={'DB'}
+          label={t('db')}
           colorDisabledValues={['enabled']}
           colorSuccessValues={['disabled']}
           options={ENABLED_OPTIONS}
@@ -230,7 +230,7 @@ const RangedAttackModifiersForm: FC<{
         <DialogSelect
           value={formDataAttack.modifiers.disabledShield ? 'disabled' : 'enabled'}
           onChange={(e) => handleChange('disabledShield', e === 'disabled')}
-          label={'Shield'}
+          label={t('shield')}
           colorDisabledValues={['enabled']}
           colorSuccessValues={['disabled']}
           options={ENABLED_OPTIONS}
@@ -240,7 +240,7 @@ const RangedAttackModifiersForm: FC<{
         <DialogSelect
           value={formDataAttack.modifiers.dodge}
           onChange={(e) => handleChange('dodge', e!)}
-          label={'Dodge'}
+          label={t('dodge')}
           colorDisabledValues={['none']}
           colorErrorValues={['passive', 'partial', 'full']}
           options={DODGE_OPTIONS}
@@ -250,7 +250,7 @@ const RangedAttackModifiersForm: FC<{
         <KeyValueDialogSelect
           value={formDataAttack.modifiers.surprisedFoe ? 'yes' : 'no'}
           onChange={(e) => handleChange('surprisedFoe', e === 'yes')}
-          label={'Surprised'}
+          label={t('surprised')}
           colorDisabledValues={['no']}
           options={SURPRISED_TARGET_OPTIONS}
         />
@@ -259,7 +259,7 @@ const RangedAttackModifiersForm: FC<{
         <KeyValueDialogSelect
           value={formDataAttack.modifiers.proneTarget ? 'yes' : 'no'}
           onChange={(e) => handleChange('proneTarget', e === 'yes')}
-          label={'Prone'}
+          label={t('prone')}
           colorDisabledValues={['no']}
           options={PRONE_TARGET_OPTIONS}
         />
@@ -269,7 +269,7 @@ const RangedAttackModifiersForm: FC<{
 
       <Grid size={2}>
         <NumericInput
-          label={t('Custom bonus')}
+          label={t('custom-bonus')}
           value={customBonus}
           name="customBonus"
           onChange={onCustomBonusChange}
@@ -279,7 +279,7 @@ const RangedAttackModifiersForm: FC<{
       {modifiers.calledShot && modifiers.calledShot !== 'none' && (
         <Grid size={2}>
           <NumericInput
-            label={t('Called shot penalty')}
+            label={t('called-shot-penalty')}
             value={modifiers.calledShotPenalty || null}
             name="calledShotPenalty"
             onChange={onCalledShotPenaltyChange}

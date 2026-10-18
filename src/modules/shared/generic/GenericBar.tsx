@@ -1,6 +1,7 @@
 import React, { FC } from 'react';
 import { Box, LinearProgress, Typography } from '@mui/material';
 
+// Colors are theme palette paths (`info.dark`) or CSS colors.
 type GenericBarProps = {
   width?: number;
   max: number;
@@ -15,10 +16,10 @@ const GenericBar: FC<GenericBarProps> = ({
   width = 600,
   max,
   current,
-  colorOk = '#4caf50',
-  colorKo = '#ffeb3b',
-  borderColor = '#5b6b6d',
-  backgroundColor = '#656d64ff',
+  colorOk = 'success.main',
+  colorKo = 'warning.main',
+  borderColor = 'divider',
+  backgroundColor = 'action.disabledBackground',
 }) => {
   const healthPercentage = (current / max) * 100;
 
@@ -33,8 +34,9 @@ const GenericBar: FC<GenericBarProps> = ({
             width: '100%',
             height: 16,
             borderRadius: 0,
-            border: `1px solid ${borderColor}`,
-            backgroundColor: backgroundColor,
+            border: 1,
+            borderColor,
+            backgroundColor,
             '& .MuiLinearProgress-bar': {
               backgroundColor: healthPercentage > 50 ? colorOk : colorKo,
             },

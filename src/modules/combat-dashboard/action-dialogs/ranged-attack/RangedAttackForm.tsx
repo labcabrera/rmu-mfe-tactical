@@ -49,10 +49,10 @@ const RangedAttackForm: FC<{
     setFormData({ ...formData, attacks: newSelected });
   };
 
-  if (!formData) return <p>Loading...</p>;
+  if (!formData) return null;
 
   if (!actorRound || (!actorRound.attacks && !action.attacks)) {
-    return <Typography>No ranged attacks available</Typography>;
+    return <Typography>{t('no-ranged-attacks-available')}</Typography>;
   }
 
   return (

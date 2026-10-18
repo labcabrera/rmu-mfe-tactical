@@ -1,9 +1,9 @@
 import React, { FC, useContext } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import { Stack, Typography } from '@mui/material';
-import { NumericInput } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { NumericInput, useNotify } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../CombatContext';
-import { useError } from '../../ErrorContext';
 import { addActorRoundFatigueAccumulator, addActorRoundHp } from '../api/actor-rounds';
 import { ActorRound } from '../api/actor-rounds.dto';
 import GenericBar from '../shared/generic/GenericBar';
@@ -13,22 +13,23 @@ const barSize = 160;
 const ActorRoundBars: FC<{
   actorRound: ActorRound;
 }> = ({ actorRound }) => {
+  const { t } = useTranslation();
   const auth = useAuth();
-  const { showError } = useError();
+  const notify = useNotify();
   const { updateActorRound } = useContext(CombatContext)!;
 
   const updateActorRoundHP = (newHp: number) => {
     const diff = (actorRound.hp?.current ?? 0) - newHp;
     addActorRoundHp(actorRound.id, diff, auth)
       .then((updated) => updateActorRound(updated))
-      .catch((err) => showError(err));
+      .catch((err) => notify.error(err));
   };
 
   const updateActorRoundFatigueAccumulator = (newFatigue: number) => {
     const diff = newFatigue - (actorRound.fatigue?.accumulator ?? 0);
     addActorRoundFatigueAccumulator(actorRound.id, diff, auth)
       .then((updated) => updateActorRound(updated))
-      .catch((err) => showError(err));
+      .catch((err) => notify.error(err));
   };
 
   return (
@@ -37,7 +38,7 @@ const ActorRoundBars: FC<{
         <Stack direction="row" spacing={2}>
           <GenericBar current={actorRound.hp?.current ?? 0} max={actorRound.hp?.max ?? 0} width={barSize} />
           <NumericInput
-            label="New hit points"
+            label={t('new-hit-points')}
             value={actorRound.hp?.current ?? null}
             integer
             min={0}
@@ -48,7 +49,7 @@ const ActorRoundBars: FC<{
         <Stack direction="row" spacing={2}>
           <GenericBar current={Math.round(actorRound.fatigue?.accumulator ?? 0)} max={100} width={barSize} />
           <NumericInput
-            label="New fatigue accumulator"
+            label={t('new-fatigue-accumulator')}
             value={actorRound.fatigue?.accumulator ?? null}
             maxFractionDigits={2}
             min={0}
@@ -57,7 +58,7 @@ const ActorRoundBars: FC<{
           />
         </Stack>
       </Stack>
-      <Typography variant="subtitle2">Initiative: {actorRound.initiative?.total ?? 0}</Typography>
+      <Typography variant="subtitle2">{t('initiative-value', { value: actorRound.initiative?.total ?? 0 })}</Typography>
     </Stack>
   );
 };

@@ -11,7 +11,7 @@ const SelectStrategicGame: FC<{
   const { t } = useTranslation();
 
   if (!strategicGames) {
-    return <p>Loading...</p>;
+    return null;
   }
 
   const selectedOption = strategicGames.find((s) => s.id === value) ?? null;

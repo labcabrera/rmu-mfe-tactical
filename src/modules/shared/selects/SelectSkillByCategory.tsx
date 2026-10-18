@@ -1,10 +1,15 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { FC, useEffect, useState } from 'react';
-import { Stack, Button, Grid, FormControl, Divider } from '@mui/material';
-import { SkillCategory, Skill, fetchSkillCategories, fetchSkills } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { useError } from '../../../ErrorContext';
-import { useAuth } from 'react-oidc-context';
 import { useTranslation } from 'react-i18next';
+import { useAuth } from 'react-oidc-context';
+import { Stack, Button, Grid, FormControl, Divider } from '@mui/material';
+import {
+  fetchSkillCategories,
+  fetchSkills,
+  Skill,
+  SkillCategory,
+  useNotify,
+} from '@labcabrera-rmu/rmu-react-shared-lib';
 
 const SelectSkillByCategory: FC<{
   value?: string;
@@ -13,7 +18,7 @@ const SelectSkillByCategory: FC<{
 }> = ({ value, onChange, readOnly = false }) => {
   const { t } = useTranslation();
   const auth = useAuth();
-  const { showError } = useError();
+  const notify = useNotify();
 
   const [categories, setCategories] = useState<SkillCategory[] | undefined>(undefined);
   const [allSkills, setAllSkills] = useState<Skill[] | undefined>(undefined);
@@ -21,13 +26,13 @@ const SelectSkillByCategory: FC<{
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchSkillCategories("", 0, 100, auth)
+    fetchSkillCategories('', 0, 100, auth)
       .then((data) => setCategories(data.content))
-      .catch((err) => showError(err.message));
-    fetchSkills("", 0, 1000, auth)
+      .catch((err) => notify.error(err));
+    fetchSkills('', 0, 1000, auth)
       .then((data) => setAllSkills(data.content))
-      .catch((err) => showError(err.message));
-  }, [showError]);
+      .catch((err) => notify.error(err));
+  }, [notify]);
 
   useEffect(() => {
     if (selectedCategory) {
@@ -47,10 +52,10 @@ const SelectSkillByCategory: FC<{
     onChange(skillId);
   };
 
-  if (!categories || !allSkills) return <div>Loading...</div>;
+  if (!categories || !allSkills) return null;
 
   return (
-    <Grid container spacing={2} sx={{mt:2}}>
+    <Grid container spacing={2} sx={{ mt: 2 }}>
       <Grid size={12}>
         <FormControl component="fieldset" variant="standard" sx={{ width: '100%' }}>
           <Stack direction="row" sx={{ flexWrap: 'wrap', gap: 1 }}>
@@ -72,7 +77,7 @@ const SelectSkillByCategory: FC<{
           </Stack>
         </FormControl>
       </Grid>
-      <Grid size={12} sx={{mt:2}}>
+      <Grid size={12} sx={{ mt: 2 }}>
         <Divider sx={{ width: '100%', my: 1 }} />
       </Grid>
       <Grid size={12}>

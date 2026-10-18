@@ -1,11 +1,11 @@
 import React, { FC, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Chip, Grid, Stack, Typography } from '@mui/material';
 import { Action, ActionManeuver } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
 import useSkillService from '../../../services/skill-service';
 import KeyValueModifiersView from '../../../shared/generic/KeyValueModifiersView';
 import ActionManeuverModifiersForm from './ActionManeuverModifiersForm';
-import { useTranslation } from 'react-i18next';
 
 const ActionManeuverForm: FC<{
   action: Action;
@@ -15,7 +15,7 @@ const ActionManeuverForm: FC<{
   const [formData, setFormData] = useState<ActionManeuver>();
 
   const isSuccess = (): boolean => {
-    return !action.maneuver.result.result.includes('failure');
+    return !action.maneuver?.result?.result.includes('failure');
   };
 
   const { getSkillBonus } = useSkillService();
@@ -33,15 +33,15 @@ const ActionManeuverForm: FC<{
     }
   }, [action]);
 
-  if (!formData) return <div>Loading...</div>;
+  if (!formData) return null;
 
   return (
     <>
       <Grid container spacing={2} sx={{ mt: 1 }}>
         <Grid size={12}>
-          <Stack direction="row" spacing={1} sx={{mb:2}}>
-            <Chip label={`${t(action.maneuver?.modifiers?.skillId)}${getSkillBonusLabel()}`} color="info" />
-            <Chip label={t(action.maneuver?.modifiers?.maneuverType)} color="info" />
+          <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
+            <Chip label={`${t(action.maneuver?.modifiers?.skillId ?? '')}${getSkillBonusLabel()}`} color="info" />
+            <Chip label={t(action.maneuver?.modifiers?.maneuverType ?? '')} color="info" />
             {action.freeAction && <Chip label={t('free-action')} color="info" />}
           </Stack>
         </Grid>
@@ -51,18 +51,18 @@ const ActionManeuverForm: FC<{
         {action.status === 'completed' && (
           <Grid size={12}>
             <Typography variant="h6" gutterBottom>
-              Results
+              {t('results')}
             </Typography>
-            <Chip label={t(action.maneuver.result.result)} color={isSuccess() ? 'success' : 'error'} />
-            <Typography variant="body1" gutterBottom mt={1}>
-              {action.maneuver.result.message}
+            <Chip label={t(action.maneuver?.result?.result ?? '')} color={isSuccess() ? 'success' : 'error'} />
+            <Typography variant="body1" gutterBottom sx={{ mt: 1 }}>
+              {action.maneuver?.result?.message}
             </Typography>
-            <Chip label={`Action Points: ${action.actionPoints}`} />
+            <Chip label={t('action-points-value', { value: action.actionPoints })} />
             <Typography variant="h6" gutterBottom>
-              Modifiers
+              {t('modifiers')}
             </Typography>
-            <Stack direction="row" spacing={1} sx={{mt:1, mb:1}}>
-              <Chip label={`Total: ${action.maneuver.roll.totalRoll}`} />
+            <Stack direction="row" spacing={1} sx={{ mt: 1, mb: 1 }}>
+              <Chip label={t('total-value', { value: action.maneuver?.roll?.totalRoll })} />
             </Stack>
             <KeyValueModifiersView modifiers={action.maneuver?.roll?.modifiers} />
           </Grid>

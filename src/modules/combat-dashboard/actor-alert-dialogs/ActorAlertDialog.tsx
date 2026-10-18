@@ -47,7 +47,7 @@ const ActorAlertDialog: FC<{
       {currentAlert ? (
         <ActorAlertForm actorRound={actorRound} alertId={alertId} onChange={handleChange} />
       ) : (
-        <div>Alert not found</div>
+        <div>{t('alert-not-found')}</div>
       )}
     </RmuDialog>
   );

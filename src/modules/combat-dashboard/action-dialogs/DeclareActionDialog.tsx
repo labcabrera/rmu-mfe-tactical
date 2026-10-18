@@ -7,7 +7,6 @@ import {
   Grid,
   TextField,
   FormControl,
-  Stack,
   Typography,
   ToggleButtonGroup,
   ToggleButton,
@@ -15,9 +14,8 @@ import {
   AccordionSummary,
   AccordionDetails,
 } from '@mui/material';
-import { RmuDialog } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { RmuDialog, useNotify } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
-import { useError } from '../../../ErrorContext';
 import { createAction } from '../../api/action';
 import { ActorRound } from '../../api/actor-rounds.dto';
 import SelectManeuverType from '../../shared/selects/SelectManeuverType';
@@ -28,40 +26,40 @@ const actionOptions = [
     key: 'movement',
     title: 'Movement',
     options: [
-      { key: 'movement', label: 'Movement' },
-      { key: 'stand-up', label: 'Stand up' },
+      { key: 'movement', labelKey: 'movement' },
+      { key: 'stand-up', labelKey: 'stand-up' },
     ],
   },
   {
     key: 'combat',
     title: 'Combat',
     options: [
-      { key: 'melee_attack', label: 'Melee' },
-      { key: 'ranged_attack', label: 'Ranged' },
-      { key: 'draw-and-load', label: 'Load' },
-      { key: 'dodge', label: 'Dodge' },
+      { key: 'melee_attack', labelKey: 'melee' },
+      { key: 'ranged_attack', labelKey: 'ranged' },
+      { key: 'draw-and-load', labelKey: 'draw-and-load' },
+      { key: 'dodge', labelKey: 'dodge' },
     ],
   },
   {
     key: 'maneuvers',
     title: 'Maneuvers',
-    options: [{ key: 'maneuver', label: 'Maneuver' }],
+    options: [{ key: 'maneuver', labelKey: 'maneuver' }],
   },
   {
     key: 'spells',
     title: 'Spells',
     options: [
-      { key: 'cast_spell', label: 'Spell' },
-      { key: 'cast_instant', label: 'Instant' },
+      { key: 'cast_spell', labelKey: 'spell' },
+      { key: 'cast_instant', labelKey: 'instant' },
     ],
   },
   {
     key: 'other',
     title: 'Other',
     options: [
-      { key: 'perception', label: 'Perception' },
-      { key: 'medical', label: 'Medical' },
-      { key: 'other', label: 'Other' },
+      { key: 'perception', labelKey: 'perception' },
+      { key: 'medical', labelKey: 'medical' },
+      { key: 'other', labelKey: 'other' },
     ],
   },
 ];
@@ -74,11 +72,11 @@ const DeclareActionDialog: FC<{
 }> = ({ actorRound, phaseNumber, open, setOpen }) => {
   const auth = useAuth();
   const { t } = useTranslation();
-  const { showError } = useError();
+  const notify = useNotify();
   const [actionForm, setActionForm] = useState({
     gameId: actorRound.gameId,
     actorId: actorRound.actorId,
-    actionType: null,
+    actionType: null as string | null,
     freeAction: false,
     pace: (actorRound as any).movementMode ?? null,
     phaseStart: phaseNumber,
@@ -95,7 +93,7 @@ const DeclareActionDialog: FC<{
     setOpen(false);
   };
 
-  const isActionAttack = (actionType: string) => {
+  const isActionAttack = (actionType: string | null) => {
     return actionType === 'melee_attack' || actionType === 'ranged_attack';
   };
 
@@ -139,13 +137,13 @@ const DeclareActionDialog: FC<{
   const handleDeclare = () => {
     createAction(actionForm, auth)
       .then((action) => {
-        setRoundActions([...roundActions, action]);
+        setRoundActions([...(roundActions ?? []), action]);
         setOpen(false);
       })
-      .catch((err) => showError(err.message));
+      .catch((err) => notify.error(err));
   };
 
-  const filterAttacks = (attacks: any[], actionType: string) => {
+  const filterAttacks = (attacks: any[], actionType: string | null) => {
     if (actionType === 'melee_attack') {
       return attacks.filter((attack) => attack.type === 'melee');
     }
@@ -158,14 +156,14 @@ const DeclareActionDialog: FC<{
   return (
     <RmuDialog
       title={actorRound.actorName}
-      subtitle="Action Declaration"
+      subtitle={t('action-declaration')}
       avatarImg={actorRound.imageUrl}
       open={open}
       onClose={handleClose}
       maxWidth="xl"
       buttons={
         <Button disabled={!actionForm.actionType} onClick={handleDeclare}>
-          Declare
+          {t('declare')}
         </Button>
       }
     >
@@ -185,7 +183,7 @@ const DeclareActionDialog: FC<{
                           sx={{ minWidth: 100 }}
                           size="small"
                         >
-                          {opt.label}
+                          {t(opt.labelKey)}
                         </ToggleButton>
                       </Grid>
                     ))}
@@ -209,10 +207,10 @@ const DeclareActionDialog: FC<{
                 }}
               >
                 <ToggleButton value="normal" size="small" sx={{ minWidth: 100 }}>
-                  Normal
+                  {t('normal')}
                 </ToggleButton>
                 <ToggleButton value="free" size="small" sx={{ minWidth: 100 }}>
-                  Free
+                  {t('free')}
                 </ToggleButton>
               </ToggleButtonGroup>
             </FormControl>
@@ -224,7 +222,7 @@ const DeclareActionDialog: FC<{
                 {actorRound.attacks && actorRound.attacks.length > 0 && (
                   <Grid container spacing={1} sx={{ mt: 1 }}>
                     {filterAttacks(actorRound.attacks, actionForm.actionType).map((atk: any) => {
-                      const selected = actionForm.attackNames && actionForm.attackNames.includes(atk.attackName);
+                      const selected = !!actionForm.attackNames?.includes(atk.attackName);
                       const toggleAttack = (attackName: string) => {
                         const current: string[] = actionForm.attackNames || [];
                         const exists = current.includes(attackName);
@@ -239,7 +237,11 @@ const DeclareActionDialog: FC<{
 
                       return (
                         <Grid key={atk.attackName}>
-                          <ToggleButton value={selected} selected={selected} onClick={() => toggleAttack(atk.attackName)}>
+                          <ToggleButton
+                            value={selected}
+                            selected={selected}
+                            onClick={() => toggleAttack(atk.attackName)}
+                          >
                             {atk.attackName}
                           </ToggleButton>
                         </Grid>
@@ -280,7 +282,7 @@ const DeclareActionDialog: FC<{
 
             {actionForm.actionType === 'other' && (
               <TextField
-                label="Details"
+                label={t('details')}
                 value={otherDetails}
                 onChange={(e) => setOtherDetails(e.target.value)}
                 fullWidth
@@ -294,10 +296,10 @@ const DeclareActionDialog: FC<{
         <Grid size={12}>
           <Accordion sx={{ mt: 2 }}>
             <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1-content" id="panel1-header">
-              <Typography component="span">Details</Typography>
+              <Typography component="span">{t('details')}</Typography>
             </AccordionSummary>
             <AccordionDetails>
-              <pre>actionForm: {JSON.stringify(actionForm, null, 2)}</pre>
+              <pre>{JSON.stringify(actionForm, null, 2)}</pre>
             </AccordionDetails>
           </Accordion>
         </Grid>

@@ -2,9 +2,8 @@ import React, { Dispatch, FC, SetStateAction, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import { Button, Grid } from '@mui/material';
-import { NumericInput, SelectDifficulty } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { NumericInput, SelectDifficulty, useNotify } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../CombatContext';
-import { useError } from '../../../../ErrorContext';
 import { resolveManeuver } from '../../../api/action';
 import { Action, ActionManeuver } from '../../../api/action.dto';
 import SelectLightModifier from '../../../shared/selects/SelectLightModifier';
@@ -13,26 +12,25 @@ import SelectLightType from '../../../shared/selects/SelectLightType';
 const ActionManeuverModifiersForm: FC<{
   action: Action;
   formData: ActionManeuver;
-  setFormData: Dispatch<SetStateAction<ActionManeuver>>;
+  setFormData: Dispatch<SetStateAction<ActionManeuver | undefined>>;
 }> = ({ action, formData, setFormData }) => {
   const auth = useAuth();
   const { t } = useTranslation();
   const { updateAction } = useContext(CombatContext)!;
-  const { showError } = useError();
+  const notify = useNotify();
 
   const readOnly = action.status === 'completed';
 
   type ModifierKey = keyof ActionManeuver['modifiers'];
 
   function setModifier<K extends ModifierKey>(key: K, value: ActionManeuver['modifiers'][K]) {
-    setFormData((prev) => ({
-      ...prev,
-      modifiers: { ...(prev.modifiers as ActionManeuver['modifiers']), [key]: value },
-    }));
+    setFormData((prev) =>
+      prev ? { ...prev, modifiers: { ...(prev.modifiers as ActionManeuver['modifiers']), [key]: value } } : prev
+    );
   }
 
-  function updateRoll(e: number): void {
-    setFormData((prev) => ({ ...prev, roll: { ...(prev.roll || {}), roll: e } }));
+  function updateRoll(e: number | null): void {
+    setFormData((prev) => (prev ? { ...prev, roll: { ...(prev.roll || {}), roll: e } } : prev));
   }
 
   function onResolve(): void {
@@ -40,7 +38,7 @@ const ActionManeuverModifiersForm: FC<{
       .then((result: Action) => {
         updateAction(result);
       })
-      .catch((err: Error) => showError(err.message));
+      .catch((err: Error) => notify.error(err));
   }
 
   return (
@@ -54,7 +52,7 @@ const ActionManeuverModifiersForm: FC<{
       </Grid>
       <Grid size={12}>
         <SelectLightModifier
-          value={formData.modifiers.lightModifier}
+          value={formData.modifiers.lightModifier ?? ''}
           onChange={(value) => setModifier('lightModifier', value)}
           readOnly={readOnly}
         />
@@ -62,8 +60,8 @@ const ActionManeuverModifiersForm: FC<{
       {formData.modifiers?.lightModifier !== 'none' && (
         <Grid size={12}>
           <SelectLightType
-            value={formData.modifiers.light}
-            lightModifier={formData.modifiers.lightModifier}
+            value={formData.modifiers.light ?? ''}
+            lightModifier={formData.modifiers.lightModifier ?? ''}
             onChange={(value) => setModifier('light', value)}
             readOnly={readOnly}
           />
@@ -76,7 +74,7 @@ const ActionManeuverModifiersForm: FC<{
           </Grid>
           <Grid size={12}>
             <Button variant="contained" color="success" size="large" onClick={onResolve}>
-              Resolve
+              {t('resolve')}
             </Button>
           </Grid>
         </>

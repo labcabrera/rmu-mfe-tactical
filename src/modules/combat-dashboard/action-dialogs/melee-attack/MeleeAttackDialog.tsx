@@ -3,9 +3,8 @@ import React, { FC, ReactNode, useContext, useEffect, useMemo, useState } from '
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import { alpha, Box, Button, Card, CardContent, CardMedia, Chip, Divider, Stack, Typography } from '@mui/material';
-import { RmuDialog, TechnicalInfo, resolveAssetUrl } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { resolveAssetUrl, RmuDialog, TechnicalInfo, useNotify } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../CombatContext';
-import { useError } from '../../../../ErrorContext';
 import { applyAttack, declareParry, deleteAction, prepareAttack } from '../../../api/action';
 import { Action, ActionAttack, AttackDeclaration, ParryDeclaration } from '../../../api/action.dto';
 import { ActorRound, ActorRoundAttack } from '../../../api/actor-rounds.dto';
@@ -22,7 +21,7 @@ const MeleeAttackDialog: FC<{
   const [deleting, setDeleting] = useState(false);
   const { game, strategicGame, roundActions, setRoundActions, refreshActorRounds, updateAction } =
     useContext(CombatContext)!;
-  const { showError } = useError();
+  const notify = useNotify();
   const [formData, setFormData] = useState<AttackDeclaration>({ attacks: [], parries: [] });
   const [availableAttacks, setAvailableAttaks] = useState<ActionAttack[]>([]);
   const [activeStep, setActiveStep] = useState<number>(0);
@@ -34,9 +33,9 @@ const MeleeAttackDialog: FC<{
 
   const buttonsDeleting = [
     <Button color="error" onClick={() => onDelete()}>
-      {t('Confirm')}
+      {t('confirm')}
     </Button>,
-    <Button onClick={() => setDeleting(false)}>{t('Cancel')}</Button>,
+    <Button onClick={() => setDeleting(false)}>{t('cancel')}</Button>,
   ];
 
   const loadAction = (action: Action) => {
@@ -56,6 +55,8 @@ const MeleeAttackDialog: FC<{
       case 'parry':
         setActiveStep(2);
         break;
+      case 'pending_attack_roll':
+      case 'critical_or_fumble_roll':
       case 'pending_roll':
       case 'prepared':
       case 'pending_apply':
@@ -63,7 +64,7 @@ const MeleeAttackDialog: FC<{
         setActiveStep(3);
         break;
       default:
-        showError(`Invalid attack status ${action.status}`);
+        notify.error(t('invalid-attack-status', { status: action.status }));
     }
   };
 
@@ -86,7 +87,7 @@ const MeleeAttackDialog: FC<{
         updateAction(response);
         loadAction(response);
       })
-      .catch((err) => showError(err.message));
+      .catch((err) => notify.error(err));
   };
 
   const onParry = () => {
@@ -97,7 +98,7 @@ const MeleeAttackDialog: FC<{
         updateAction(response);
         loadAction(response);
       })
-      .catch((err) => showError(err.message));
+      .catch((err) => notify.error(err));
   };
 
   const onApply = () => {
@@ -108,7 +109,7 @@ const MeleeAttackDialog: FC<{
         loadAction(response);
         onClose();
       })
-      .catch((err) => showError(err.message));
+      .catch((err) => notify.error(err));
   };
 
   const onDelete = () => {
@@ -118,7 +119,7 @@ const MeleeAttackDialog: FC<{
         setRoundActions(newActionList);
         onClose();
       })
-      .catch((err) => showError(err.message));
+      .catch((err) => notify.error(err));
   };
 
   const onStep1 = () => {
@@ -148,21 +149,21 @@ const MeleeAttackDialog: FC<{
   const getButtons = (activeStep: number, action: Action) => {
     const buttons: ReactNode[] = [];
     if (action.status !== 'completed') {
-      pushButton(buttons, 'Delete', 'error', false, () => setDeleting(true));
+      pushButton(buttons, 'delete', 'error', false, () => setDeleting(true));
     }
-    pushButton(buttons, 'Close', undefined, false, () => onClose());
+    pushButton(buttons, 'close', undefined, false, () => onClose());
     if (activeStep === 0) {
       //TODO check disabled
-      pushButton(buttons, 'Next', 'success', !isValidForm, () => onStep1());
+      pushButton(buttons, 'next', 'success', !isValidForm, () => onStep1());
     } else if (activeStep === 1) {
-      pushButton(buttons, 'Back', undefined, false, () => setActiveStep(activeStep - 1));
-      pushButton(buttons, 'Prepare', 'success', false, () => onPrepare());
+      pushButton(buttons, 'back', undefined, false, () => setActiveStep(activeStep - 1));
+      pushButton(buttons, 'prepare', 'success', false, () => onPrepare());
     } else if (activeStep === 2) {
-      pushButton(buttons, 'Back', undefined, false, () => setActiveStep(activeStep - 1));
-      pushButton(buttons, 'Parry', 'success', false, () => onParry());
+      pushButton(buttons, 'back', undefined, false, () => setActiveStep(activeStep - 1));
+      pushButton(buttons, 'parry', 'success', false, () => onParry());
     } else if (activeStep === 3) {
-      pushButton(buttons, 'Back', undefined, false, () => setActiveStep(activeStep - 1));
-      pushButton(buttons, 'Apply', 'success', action.status !== 'pending_apply', () => onApply());
+      pushButton(buttons, 'back', undefined, false, () => setActiveStep(activeStep - 1));
+      pushButton(buttons, 'apply', 'success', action.status !== 'pending_apply', () => onApply());
       // if (action.status === 'pending_apply') {
       // }
       // pushButton(buttons, 'Apply2', 'success', false, () => onApply());
@@ -199,12 +200,12 @@ const MeleeAttackDialog: FC<{
     loadAction(currentAction);
   }, [currentAction, actorRound]);
 
-  if (!actorRound || !roundActions || !formData || !strategicGame || !game) return <p>Loading...</p>;
+  if (!actorRound || !roundActions || !formData || !strategicGame || !game) return null;
 
   return (
     <RmuDialog
       title={actorRound.actorName}
-      subtitle={`${t('Melee attack')} (${currentAction.status})`}
+      subtitle={`${t('melee-attack')} (${t(`action-status-${currentAction.status}`)})`}
       fullScreen={false}
       open={open}
       paperSx={(theme) => ({
@@ -265,7 +266,7 @@ const MeleeAttackDialog: FC<{
                     setFormData={setFormData}
                   />
                 ) : (
-                  <Typography color="text.secondary">Not available action points</Typography>
+                  <Typography color="text.secondary">{t('no-available-action-points')}</Typography>
                 )}
               </Box>
               <Box
@@ -280,11 +281,13 @@ const MeleeAttackDialog: FC<{
                 })}
               >
                 <TechnicalInfo>
-                  <pre>FormData: {JSON.stringify(formData, null, 2)}</pre>
-                  <pre>ActiveStep: {JSON.stringify(activeStep, null, 2)}</pre>
-                  <pre>Action: {JSON.stringify(currentAction, null, 2)}</pre>
-                  <pre>AvailableAttacks: {JSON.stringify(availableAttacks, null, 2)}</pre>
-                  <pre>ActorRound: {JSON.stringify(actorRound, null, 2)}</pre>
+                  <pre>
+                    {JSON.stringify(
+                      { formData, activeStep, action: currentAction, availableAttacks, actorRound },
+                      null,
+                      2
+                    )}
+                  </pre>
                 </TechnicalInfo>
               </Box>
             </Stack>
@@ -299,7 +302,7 @@ const MeleeAttackDialog: FC<{
               bgcolor: alpha(theme.palette.error.dark, 0.12),
             })}
           >
-            <Typography>Are you sure you want to delete this action?</Typography>
+            <Typography>{t('delete-action-confirmation')}</Typography>
           </Box>
         )}
       </Box>
@@ -340,13 +343,13 @@ const AttackerCard: FC<{ actorRound: ActorRound; action: Action }> = ({ actorRou
               {actorRound.actorName}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              {t('Melee attack')}
+              {t('melee-attack')}
             </Typography>
           </Box>
           <Divider />
           <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', rowGap: 1 }}>
             <Chip size="small" label={t(action.status)} color="primary" variant="outlined" />
-            <Chip size="small" label={`${t('Phase')} ${action.phaseStart}`} variant="outlined" />
+            <Chip size="small" label={`${t('phase')} ${action.phaseStart}`} variant="outlined" />
           </Stack>
         </Stack>
       </CardContent>

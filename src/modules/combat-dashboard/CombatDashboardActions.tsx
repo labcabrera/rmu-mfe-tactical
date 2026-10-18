@@ -7,18 +7,19 @@ import {
   BackButton,
   CancelButton,
   fetchTacticalGame,
+  LoadingState,
   NextButton,
   RefreshButton,
   RmuBreadcrumbs,
+  useNotify,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../CombatContext';
-import { useError } from '../../ErrorContext';
 
 const CombatDashboardActions: FC = () => {
   const auth = useAuth();
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { showError } = useError();
+  const notify = useNotify();
   const { displayRound, setDisplayRound, game, setGame } = useContext(CombatContext)!;
   const [breadcrumbs, setBreadcrumbs] = useState<any[]>([]);
 
@@ -33,7 +34,7 @@ const CombatDashboardActions: FC = () => {
   const onRefresh = () => {
     fetchTacticalGame(game!.id, auth)
       .then((data) => setGame(data))
-      .catch((err) => showError(err.message));
+      .catch((err) => notify.error(err));
   };
 
   const onClose = () => {
@@ -44,22 +45,22 @@ const CombatDashboardActions: FC = () => {
     if (game) {
       setBreadcrumbs([
         { name: t('home'), link: '/' },
-        { name: t('tactical-games'), link: '/tactical' },
+        { name: t('tactical-games'), link: '/tactical/games' },
         { name: t('tactical-game'), link: `/tactical/games/view/${game.id}` },
-        { name: `Round ${displayRound} of ${game.round}` },
+        { name: t('round-n-of-total', { round: displayRound, total: game.round }) },
       ]);
     }
   }, [game, displayRound]);
 
-  if (!displayRound || !game) return <p>Loading...</p>;
+  if (!displayRound || !game) return <LoadingState />;
 
   return (
     <RmuBreadcrumbs items={breadcrumbs}>
-      <BackButton onClick={onDisplayPrevRound} disabled={displayRound === 1} tooltip={t('Display previous round')} />
+      <BackButton onClick={onDisplayPrevRound} disabled={displayRound === 1} tooltip={t('display-previous-round')} />
       <NextButton
         onClick={onDisplayNextRound}
         disabled={displayRound === game.round}
-        tooltip={t('Display next round')}
+        tooltip={t('display-next-round')}
       />
       <RefreshButton onClick={onRefresh} />
       <CancelButton onClick={onClose} />

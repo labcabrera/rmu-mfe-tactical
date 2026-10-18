@@ -29,19 +29,19 @@ const ActorRoundAttacks: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
 
   return (
     <Stack spacing={1}>
-      <Typography variant="subtitle2">Attacks</Typography>
+      <Typography variant="subtitle2">{t('attacks')}</Typography>
       {attacks.length > 0 ? (
         <TableContainer component={Paper} variant="outlined">
           <Table size="small">
             <TableHead>
               <TableRow>
-                <TableCell>Attack</TableCell>
-                <TableCell>Type</TableCell>
-                <TableCell>Attack Table</TableCell>
-                <TableCell align="right">Base BO</TableCell>
-                <TableCell align="right">Current BO</TableCell>
-                <TableCell align="right">Fumble</TableCell>
-                <TableCell>Ranges</TableCell>
+                <TableCell>{t('attack-name')}</TableCell>
+                <TableCell>{t('type')}</TableCell>
+                <TableCell>{t('attack-table')}</TableCell>
+                <TableCell align="right">{t('base-ob')}</TableCell>
+                <TableCell align="right">{t('current-ob')}</TableCell>
+                <TableCell align="right">{t('fumble')}</TableCell>
+                <TableCell>{t('ranges')}</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -60,7 +60,7 @@ const ActorRoundAttacks: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
           </Table>
         </TableContainer>
       ) : (
-        <Typography variant="body2">No attacks</Typography>
+        <Typography variant="body2">{t('no-attacks')}</Typography>
       )}
     </Stack>
   );

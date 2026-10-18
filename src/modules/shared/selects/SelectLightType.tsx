@@ -44,7 +44,7 @@ const SelectLightType: FC<{
   return (
     <FormControl component="fieldset" variant="standard" sx={{ width: '100%' }}>
       <FormLabel id={'light'} component="legend" sx={{ mb: 1.5, typography: 'body1' }}>
-        {t('light')}
+        {t('lighting')}
       </FormLabel>
       <ToggleButtonGroup value={value} exclusive>
         {codes.map((option) => (

@@ -2,9 +2,8 @@ import React, { Dispatch, FC, SetStateAction, useContext, useState } from 'react
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import { Grid, Chip, Stack, Typography } from '@mui/material';
-import { CategorySeparator, NumericInput, OpenEndedRollInput } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { CategorySeparator, NumericInput, OpenEndedRollInput, useNotify } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../CombatContext';
-import { useError } from '../../../../ErrorContext';
 import { updateAttackRoll } from '../../../api/action';
 import { Action, ActionAttack, AttackDeclaration } from '../../../api/action.dto';
 import Effect from '../../../shared/generic/Effect';
@@ -22,13 +21,13 @@ const ResolveAttackFormRoll: FC<{
   const auth = useAuth();
   const { t } = useTranslation();
   const { updateAction } = useContext(CombatContext)!;
-  const { showError } = useError();
+  const notify = useNotify();
   const [attackRoll, setAttackRoll] = useState<number | undefined>(attack.roll?.roll || undefined);
   const [locationRoll, setLocationRoll] = useState<number | undefined>(attack.roll?.locationRoll || undefined);
 
-  if (!formData || !formData.attacks || formData.attacks.length <= index) return <div>Loading...</div>;
+  if (!formData || !formData.attacks || formData.attacks.length <= index) return null;
 
-  if (!attack.calculated) return <p>Not calculated attack...</p>;
+  if (!attack.calculated) return <p>{t('attack-not-calculated')}</p>;
 
   const onRollChange = (value: number | undefined) => {
     setAttackRoll(value);
@@ -51,7 +50,7 @@ const ResolveAttackFormRoll: FC<{
         updateAction(updatedAction);
         setFormData(newFormData);
       })
-      .catch((err: Error) => showError(err.message));
+      .catch((err: Error) => notify.error(err));
   };
 
   const isCriticalAttack = (): boolean => {
@@ -64,11 +63,13 @@ const ResolveAttackFormRoll: FC<{
 
   const getCriticalText = (): string => {
     if (!attack.results || !attack.results.criticals || attack.results.criticals.length === 0) return '';
-    return `Critical ${attack.results.attackTableEntry!.criticalSeverity}${attack.results.attackTableEntry!.criticalType}`;
+    return t('critical-code', {
+      code: `${attack.results.attackTableEntry!.criticalSeverity}${attack.results.attackTableEntry!.criticalType}`,
+    });
   };
 
   const getAbsoluteHitText = (totalRoll: number) => {
-    return `Absolute hit: +${Math.ceil((totalRoll - 175) / 5)}`;
+    return t('absolute-hit-bonus', { bonus: Math.ceil((totalRoll - 175) / 5) });
   };
 
   return (
@@ -79,7 +80,7 @@ const ResolveAttackFormRoll: FC<{
       {attack.calculated.requiredLocationRoll && (
         <Grid size={2}>
           <NumericInput
-            label={t('Location roll')}
+            label={t('location-roll')}
             value={attack.roll?.locationRoll || null}
             min={1}
             max={100}
@@ -97,7 +98,7 @@ const ResolveAttackFormRoll: FC<{
         )}
       </Grid>
       <Grid size={12}>
-        <CategorySeparator text="Attack roll" />
+        <CategorySeparator text={t('attack-roll')} />
       </Grid>
       <Grid size={2}>
         <OpenEndedRollInput inputGridSize={12} gridColumns={12} onChange={(e) => onRollChange(e || undefined)} />
@@ -107,7 +108,7 @@ const ResolveAttackFormRoll: FC<{
         <Stack>
           <Typography variant="h6">{attack.calculated.rollTotal}</Typography>
           <Typography variant="body2" color="secondary">
-            Total
+            {t('total')}
           </Typography>
         </Stack>
       </Grid>

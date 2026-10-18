@@ -1,16 +1,15 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { FC, useContext, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useAuth } from 'react-oidc-context';
 import { Button, Typography } from '@mui/material';
-import { RmuDialog, TechnicalInfo } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { RmuDialog, TechnicalInfo, useNotify } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../CombatContext';
-import { useError } from '../../../../ErrorContext';
 import { applyAttack, deleteAction, prepareAttack } from '../../../api/action';
 import { Action, ActionAttack, AttackDeclaration } from '../../../api/action.dto';
 import { ActorRound, ActorRoundAttack } from '../../../api/actor-rounds.dto';
 import { findMaxActorRoundPace } from '../../../services/actor-round-service';
 import RangedAttackForm from './RangedAttackForm';
-import { useTranslation } from 'react-i18next';
-import { useAuth } from 'react-oidc-context';
 
 const RangedAttackDialog: FC<{
   action: Action;
@@ -23,16 +22,16 @@ const RangedAttackDialog: FC<{
   const [deleting, setDeleting] = useState(false);
   const { game, strategicGame, roundActions, setRoundActions, updateAction, refreshActorRounds } =
     useContext(CombatContext)!;
-  const { showError } = useError();
+  const notify = useNotify();
   const [formData, setFormData] = useState<AttackDeclaration>({ attacks: [], parries: [] });
   const [isValidForm, setIsValidForm] = useState<boolean>(false);
   const isCompleted = action.status === 'completed';
 
   const buttonsDeleting = [
     <Button color="error" onClick={() => onDelete()}>
-      {t('Confirm')}
+      {t('confirm')}
     </Button>,
-    <Button onClick={() => setDeleting(false)}>{t('Cancel')}</Button>,
+    <Button onClick={() => setDeleting(false)}>{t('cancel')}</Button>,
   ];
 
   const getButtons = () => {
@@ -40,22 +39,22 @@ const RangedAttackDialog: FC<{
     if (!isCompleted) {
       buttons.push(
         <Button color="error" onClick={() => setDeleting(true)}>
-          {t('Delete')}
+          {t('delete')}
         </Button>
       );
     }
-    buttons.push(<Button onClick={onClose}>{t('Close')}</Button>);
+    buttons.push(<Button onClick={onClose}>{t('close')}</Button>);
     if (action.status === 'declared') {
       buttons.push(
         <Button variant="contained" color="success" onClick={onPrepare} disabled={!isValidForm}>
-          {t('Prepare')}
+          {t('prepare')}
         </Button>
       );
     }
     if (action.status !== 'completed') {
       buttons.push(
         <Button variant="contained" color="success" onClick={onApply}>
-          {t('Apply attack')}
+          {t('apply-attack')}
         </Button>
       );
     }
@@ -112,7 +111,7 @@ const RangedAttackDialog: FC<{
         updateAction(data);
         // setFormData(data);
       })
-      .catch((err) => showError(err.message));
+      .catch((err) => notify.error(err));
   };
 
   const onApply = () => {
@@ -121,7 +120,7 @@ const RangedAttackDialog: FC<{
         updateAction(updatedAction);
         refreshActorRounds();
       })
-      .catch((err) => showError(err.message));
+      .catch((err) => notify.error(err));
   };
 
   const onDelete = () => {
@@ -131,7 +130,7 @@ const RangedAttackDialog: FC<{
         setRoundActions(newActionList);
         onClose();
       })
-      .catch((err) => showError(err.message));
+      .catch((err) => notify.error(err));
   };
 
   useEffect(() => {
@@ -151,12 +150,12 @@ const RangedAttackDialog: FC<{
     loadAction(action);
   }, [action, actorRound]);
 
-  if (!actorRound || !roundActions || !formData || !strategicGame || !game) return <p>Loading...</p>;
+  if (!actorRound || !roundActions || !formData || !strategicGame || !game) return null;
 
   return (
     <RmuDialog
       title={actorRound.actorName}
-      subtitle={`${t('Ranged attack')} (${action.status})`}
+      subtitle={`${t('ranged-attack')} (${t(`action-status-${action.status}`)})`}
       avatarImg={actorRound.imageUrl}
       fullScreen={false}
       open={open}
@@ -168,12 +167,11 @@ const RangedAttackDialog: FC<{
             <RangedAttackForm actorRound={actorRound} action={action} formData={formData} setFormData={setFormData} />
 
             <TechnicalInfo>
-              <pre>FormData: {JSON.stringify(formData, null, 2)}</pre>
-              <pre>Action: {JSON.stringify(action, null, 2)}</pre>
+              <pre>{JSON.stringify({ formData, action }, null, 2)}</pre>
             </TechnicalInfo>
           </>
         ) : (
-          <Typography>Are you sure you want to delete this action?</Typography>
+          <Typography>{t('delete-action-confirmation')}</Typography>
         )}
       </>
     </RmuDialog>

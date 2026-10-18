@@ -4,7 +4,12 @@ import { Grid } from '@mui/material';
 import { NumericInput, TechnicalInfo } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { ActorRoundAlert } from '../../api/actor-rounds.dto';
 
-export default function BreakageForm({ alert, onChange }: { alert: ActorRoundAlert; onChange: (alert: any) => void }) {
+export default function BreakageForm({
+  alert,
+}: {
+  alert: ActorRoundAlert;
+  onChange?: (alert: ActorRoundAlert) => void;
+}) {
   const { t } = useTranslation();
   const [formData, setFormData] = useState<any>({ roll: undefined });
 
@@ -19,8 +24,7 @@ export default function BreakageForm({ alert, onChange }: { alert: ActorRoundAle
       </Grid>
       <Grid size={12}>
         <TechnicalInfo>
-          <pre>FormData: {JSON.stringify(formData, null, 2)}</pre>
-          <pre>Alert: {JSON.stringify(alert, null, 2)}</pre>
+          <pre>{JSON.stringify({ formData, alert }, null, 2)}</pre>
         </TechnicalInfo>
       </Grid>
     </Grid>

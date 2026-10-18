@@ -46,14 +46,19 @@ const AddProtectorDialog: FC<{
 
   return (
     <RmuDialog
-      title={t('Select protector')}
+      title={t('select-protector')}
       open={open}
       onClose={() => onClose && onClose()}
       maxWidth="sm"
-      buttons={<Button onClick={() => onClose()}>{t('Close')}</Button>}
+      buttons={<Button onClick={() => onClose()}>{t('close')}</Button>}
     >
       <FormGroup>
-        <FormControlLabel value={displayAll} control={<Switch />} label="All" onChange={(e, v) => setDisplayAll(v)} />
+        <FormControlLabel
+          value={displayAll}
+          control={<Switch />}
+          label={t('all')}
+          onChange={(e, v) => setDisplayAll(v)}
+        />
       </FormGroup>
       <List>
         {availableActors.map((actor, index) => {
@@ -64,7 +69,7 @@ const AddProtectorDialog: FC<{
                 <ListItemAvatar>
                   <Avatar src={resolveAssetUrl(actor.imageUrl)} alt={actor.actorName} />
                 </ListItemAvatar>
-                <ListItemText primary={actor.actorName} secondary={`${t('Protect')}: ${actor.defense?.protect ?? 0}`} />
+                <ListItemText primary={actor.actorName} secondary={`${t('protect')}: ${actor.defense?.protect ?? 0}`} />
               </ListItemButton>
             </ListItem>
           );

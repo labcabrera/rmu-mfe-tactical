@@ -1,25 +1,21 @@
-import React, { FC, useContext, useState } from 'react';
+import React, { FC, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Stack, Typography, Chip, Box, TextField, IconButton } from '@mui/material';
-import { CombatContext } from '../../CombatContext';
-import { useError } from '../../ErrorContext';
 import { ActorRound, ActorRoundPenaltyModifier } from '../api/actor-rounds.dto';
-import { useTranslation } from 'react-i18next';
 
 const ActorRoundPenalty: FC<{
   actorRound: ActorRound;
 }> = ({ actorRound }) => {
   const { t } = useTranslation();
   const [newPenalty, setNewPenalty] = useState('');
-  const { showError } = useError();
-  const { updateActorRound } = useContext(CombatContext)!;
 
   const addPenalty = () => {
     //TODO
   };
 
-  const removePenalty = (id: string) => {
+  const removePenalty = () => {
     //TODO
   };
 
@@ -29,17 +25,17 @@ const ActorRoundPenalty: FC<{
 
   return (
     <Stack spacing={1}>
-      <Typography variant="subtitle2">Penalties</Typography>
+      <Typography variant="subtitle2">{t('penalties')}</Typography>
 
       {(actorRound.penalty.modifiers || []).length === 0 ? (
-        <Typography variant="body2">No penalties</Typography>
+        <Typography variant="body2">{t('no-penalties')}</Typography>
       ) : (
         <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
           {(actorRound.penalty.modifiers || []).map((s: ActorRoundPenaltyModifier, i: number) => (
             <Chip
               key={`${s.source}-${i}`}
               label={getLabelForState(s)}
-              onDelete={() => removePenalty(s.id)}
+              onDelete={() => removePenalty()}
               deleteIcon={<DeleteIcon />}
               sx={{ m: 0.5 }}
             />
@@ -47,10 +43,10 @@ const ActorRoundPenalty: FC<{
         </Stack>
       )}
 
-      <Box sx={{ mt: 1, display:"flex", alignItems:"center" }}>
+      <Box sx={{ mt: 1, display: 'flex', alignItems: 'center' }}>
         <TextField
           size="small"
-          label="New penalty"
+          label={t('new-penalty')}
           value={newPenalty}
           onChange={(e) => setNewPenalty(e.target.value)}
           sx={{ mr: 1 }}

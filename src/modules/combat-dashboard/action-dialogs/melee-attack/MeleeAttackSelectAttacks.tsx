@@ -117,9 +117,9 @@ const MeleeAttackSelectAttacks: FC<{
     });
   };
 
-  if (!availableAttacks || availableAttacks.length < 1) return <p>No available melee attacks</p>;
+  if (!availableAttacks || availableAttacks.length < 1) return <p>{t('no-melee-attacks-available')}</p>;
 
-  if (!actorRound || !actorRound.attacks) return <Typography>No attacks available</Typography>;
+  if (!actorRound || !actorRound.attacks) return <Typography>{t('no-attacks')}</Typography>;
 
   return (
     <Grid container spacing={1.5} sx={{ mt: 1 }}>
@@ -149,7 +149,7 @@ const MeleeAttackSelectAttacks: FC<{
                       {t(actorRoundAttack.attackTable)}: {actorRoundAttack.currentBo}
                     </Typography>
                     <Typography variant="caption" color="text.secondary">
-                      {t('Base BO')}: {actorRoundAttack.baseBo}
+                      {t('base-ob')}: {actorRoundAttack.baseBo}
                     </Typography>
                   </Stack>
                 </Grid>
@@ -174,8 +174,8 @@ const MeleeAttackSelectAttacks: FC<{
                         color: 'text.secondary',
                       })}
                     >
-                      <Typography variant="body2" fontStyle="italic">
-                        Select target
+                      <Typography variant="body2" sx={{ fontStyle: 'italic' }}>
+                        {t('select-target')}
                       </Typography>
                     </Box>
                   )}
@@ -224,6 +224,7 @@ const MeleeAttackSelectAttacks: FC<{
 const TargetInfo: FC<{
   target: ActorRound;
 }> = ({ target }) => {
+  const { t } = useTranslation();
   const at = target.defense.at
     ? `${target.defense.at}`
     : `${target.defense.headAt}-${target.defense.bodyAt}-${target.defense.armsAt}-${target.defense.legsAt}`;
@@ -231,8 +232,12 @@ const TargetInfo: FC<{
   return (
     <Stack direction={'column'} spacing={1}>
       <Typography>{target.actorName}</Typography>
-      <Typography>BD: {target.defense.bd}</Typography>
-      <Typography>AT: {at}</Typography>
+      <Typography>
+        {t('bd')}: {target.defense.bd}
+      </Typography>
+      <Typography>
+        {t('at')}: {at}
+      </Typography>
     </Stack>
   );
 };
@@ -261,7 +266,7 @@ const ProtectorsList: FC<{
           </IconButton>
         }
       >
-        <ListItemText>{t('Protectors')}</ListItemText>
+        <ListItemText>{t('protectors')}</ListItemText>
       </ListItem>
       {(attack.protectors || []).map((protectorId, index) => {
         const actorRound = actorRounds.find((e) => e.actorId === protectorId)!;

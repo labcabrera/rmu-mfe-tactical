@@ -20,7 +20,7 @@ const SelectDifficulty: FC<{
   onChange: (value: string | null) => void;
 }> = ({ value, readOnly = false, onChange }) => {
   const [open, setOpen] = useState(false);
-  const buttonLabel = value ? `Difficulty: ${t(`difficulty-${value}`)}` : `Difficulty`;
+  const buttonLabel = value ? `${t('difficulty')}: ${t(`difficulty-${value}`)}` : t('difficulty');
 
   const onItemListClick = (code: string) => {
     onChange(code);
@@ -46,7 +46,7 @@ const SelectDifficulty: FC<{
       </Button>
       {!readOnly && (
         <Dialog maxWidth="xs" open={open}>
-          <DialogTitle>{t('Select difficulty')}</DialogTitle>
+          <DialogTitle>{t('select-difficulty')}</DialogTitle>
           <DialogContent dividers>
             <RadioGroup value={value} onChange={(e) => onItemListClick(e.target.value)}>
               {DIFFICULTY_TABLE.map((option, index) => (
@@ -62,10 +62,10 @@ const SelectDifficulty: FC<{
           </DialogContent>
           <DialogActions>
             <Button autoFocus onClick={() => onClear()}>
-              Clear
+              {t('clear')}
             </Button>
             <Button autoFocus onClick={() => setOpen(false)}>
-              Cancel
+              {t('cancel')}
             </Button>
           </DialogActions>
         </Dialog>

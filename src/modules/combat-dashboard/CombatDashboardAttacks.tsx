@@ -16,16 +16,22 @@ import {
   Autocomplete,
   TextField,
 } from '@mui/material';
-import { Character, RmuDialog, TechnicalInfo, resolveAssetUrl } from '@labcabrera-rmu/rmu-react-shared-lib';
+import {
+  Character,
+  LoadingState,
+  resolveAssetUrl,
+  RmuDialog,
+  TechnicalInfo,
+  useNotify,
+} from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../CombatContext';
-import { useError } from '../../ErrorContext';
 import { fetchActions } from '../api/action';
 import { Action, ActionAttack } from '../api/action.dto';
 
 const CombatDashboardAttacks: FC = () => {
   const auth = useAuth();
   const { t } = useTranslation();
-  const { showError } = useError();
+  const notify = useNotify();
   const { characters, game } = useContext(CombatContext)!;
   const [actions, setActions] = useState<Action[]>([]);
   const [openDialog, setOpenDialog] = useState<boolean>(false);
@@ -49,10 +55,10 @@ const CombatDashboardAttacks: FC = () => {
     const rsql = `(actionType==melee_attack,actionType==ranged_attack);gameId==${game?.id};status!=declared`;
     fetchActions(rsql, 0, 1000, auth)
       .then((response) => setActions(response.content))
-      .catch((err) => showError(err.message));
+      .catch((err) => notify.error(err));
   }, [game]);
 
-  if (!characters) return <p>Loading...</p>;
+  if (!characters) return <LoadingState />;
 
   return (
     <>
@@ -63,17 +69,17 @@ const CombatDashboardAttacks: FC = () => {
         <Table size="small">
           <TableHead>
             <TableRow>
-              <TableCell>Attacker</TableCell>
-              <TableCell>Defender</TableCell>
-              <TableCell>Type</TableCell>
+              <TableCell>{t('attacker')}</TableCell>
+              <TableCell>{t('defender')}</TableCell>
+              <TableCell>{t('type')}</TableCell>
               <TableCell>AP</TableCell>
-              <TableCell align="right">Roll</TableCell>
-              <TableCell align="right">Total</TableCell>
-              <TableCell align="right">BO</TableCell>
-              <TableCell align="right">Parry</TableCell>
-              <TableCell align="right">Damage</TableCell>
-              <TableCell align="right">CRoll</TableCell>
-              <TableCell>CText</TableCell>
+              <TableCell align="right">{t('roll')}</TableCell>
+              <TableCell align="right">{t('total')}</TableCell>
+              <TableCell align="right">{t('bo')}</TableCell>
+              <TableCell align="right">{t('parry')}</TableCell>
+              <TableCell align="right">{t('damage')}</TableCell>
+              <TableCell align="right">{t('critical-roll')}</TableCell>
+              <TableCell>{t('critical-text')}</TableCell>
               <TableCell></TableCell>
             </TableRow>
           </TableHead>
@@ -120,7 +126,7 @@ const CombatDashboardAttacks: FC = () => {
                         <Typography variant="body2">{defender?.name || '?'}</Typography>
                       </Stack>
                     </TableCell>
-                    <TableCell>{a.actionType === 'melee_attack' ? 'Melee' : 'Ranged'}</TableCell>
+                    <TableCell>{a.actionType === 'melee_attack' ? t('melee') : t('ranged')}</TableCell>
                     <TableCell>{a.actionPoints}</TableCell>
                     <TableCell align="right">
                       <Typography variant="body2" color={roll < 1 ? 'error' : roll > 100 ? 'success' : undefined}>
@@ -151,7 +157,7 @@ const CombatDashboardAttacks: FC = () => {
       </TableContainer>
       {selectedAction && (
         <AttackShowDialog
-          title={t('Attack info')}
+          title={t('attack-info')}
           attack={selectedAction}
           open={openDialog}
           onClose={() => {
@@ -189,7 +195,7 @@ const SelectActor: FC<{
           </Stack>
         </li>
       )}
-      renderInput={(params) => <TextField {...params} label={t('Actor')} variant="outlined" />}
+      renderInput={(params) => <TextField {...params} label={t('actor')} variant="outlined" />}
       sx={{ width: 220 }}
     />
   );

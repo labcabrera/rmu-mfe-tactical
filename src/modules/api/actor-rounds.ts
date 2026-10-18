@@ -1,6 +1,5 @@
 import { AuthContextProps } from 'react-oidc-context';
-import { callApi, Page } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { apiTacticalUrl } from '../services/config';
+import { apiTacticalUrl, callApi, Page } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { ActorRound, ActorRoundEffect } from './actor-rounds.dto';
 
 export async function fetchActorRound(actorRoundId: string, auth: AuthContextProps): Promise<ActorRound> {

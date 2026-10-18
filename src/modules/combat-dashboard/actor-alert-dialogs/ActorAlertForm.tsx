@@ -1,4 +1,5 @@
 import React, { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ActorRound, ActorRoundAlert } from '../../api/actor-rounds.dto';
 import BreakageForm from './BreakageForm';
 import EnduranceForm from './EnduranceForm';
@@ -8,9 +9,10 @@ const ActorAlertForm: FC<{
   alertId: string;
   onChange?: (updated: ActorRoundAlert) => void;
 }> = ({ actorRound, alertId, onChange }) => {
+  const { t } = useTranslation();
   const alert = actorRound.alerts?.find((a) => a.id === alertId);
 
-  if (!alert) return <div>Alert not found</div>;
+  if (!alert) return <div>{t('alert-not-found')}</div>;
 
   switch (alert.type) {
     case 'endurance':
@@ -20,7 +22,7 @@ const ActorAlertForm: FC<{
     default:
       return (
         <div>
-          <p>Tipo de alerta no soportado: {alert.type}</p>
+          <p>{t('unsupported-alert-type', { type: alert.type })}</p>
         </div>
       );
   }

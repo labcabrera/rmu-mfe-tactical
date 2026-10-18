@@ -1,6 +1,5 @@
 import { AuthContextProps } from 'react-oidc-context';
-import { callApi, Page } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { apiTacticalUrl } from '../services/config';
+import { apiTacticalUrl, callApi, Page } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { Action, AttackDeclaration, ParryDeclaration } from './action.dto';
 
 export async function fetchAction(actionId: string, auth: AuthContextProps): Promise<Action> {

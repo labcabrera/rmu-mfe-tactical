@@ -39,13 +39,13 @@ const MovementPaceTableSelector: FC<{
           <Table size="small">
             <TableHead>
               <TableRow>
-                <TableCell>Pace</TableCell>
-                <TableCell align="right">Multiplier</TableCell>
-                <TableCell align="right">BMR</TableCell>
-                <TableCell align="right">Action points</TableCell>
-                <TableCell align="right">Pace penalty</TableCell>
-                <TableCell align="right">Estimated distance</TableCell>
-                <TableCell align="right">Distance (scaled)</TableCell>
+                <TableCell>{t('pace')}</TableCell>
+                <TableCell align="right">{t('multiplier')}</TableCell>
+                <TableCell align="right">{t('bmr')}</TableCell>
+                <TableCell align="right">{t('action-points')}</TableCell>
+                <TableCell align="right">{t('pace-penalty')}</TableCell>
+                <TableCell align="right">{t('estimated-distance')}</TableCell>
+                <TableCell align="right">{t('scaled-distance')}</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>

@@ -13,13 +13,13 @@ const InitiativeBar: FC<InitiativeBarProps> = ({
   current,
   max = 30,
   width = 240,
-  barColor = '#617274',
-  backgroundColor = 'rgb(28, 31, 34)',
+  barColor = 'secondary.main',
+  backgroundColor = 'action.disabledBackground',
 }) => {
   const percentage = (current / max) * 100;
 
   return (
-    <Box display="flex" alignItems="center" sx={{ gap: 1 }}>
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
       <Box sx={{ width: typeof width === 'number' ? `${width}px` : width, maxWidth: '100%' }}>
         <LinearProgress
           variant="determinate"
@@ -28,8 +28,9 @@ const InitiativeBar: FC<InitiativeBarProps> = ({
             width: '100%',
             height: 16,
             borderRadius: 0,
-            border: '1px solid #6e8688',
-            backgroundColor: backgroundColor,
+            border: 1,
+            borderColor: 'divider',
+            backgroundColor,
             '& .MuiLinearProgress-bar': {
               backgroundColor: barColor,
             },

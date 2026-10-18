@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { FormControl, ToggleButtonGroup, ToggleButton } from '@mui/material';
 

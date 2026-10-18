@@ -1,6 +1,16 @@
 import { KeyValue } from '@labcabrera-rmu/rmu-react-shared-lib';
 
-export type ActionStatus = 'declared' | 'prepared' | 'parry' | 'pending_roll' | 'pending_apply' | 'completed';
+// Same values as rmu-api-tactical (action-status.vo.ts). `pending_roll` is the older name of `pending_attack_roll`,
+// still present in stored actions.
+export type ActionStatus =
+  | 'declared'
+  | 'prepared'
+  | 'parry'
+  | 'pending_attack_roll'
+  | 'critical_or_fumble_roll'
+  | 'pending_roll'
+  | 'pending_apply'
+  | 'completed';
 
 export type ActionType = 'movement' | 'melee_attack' | 'ranged_attack' | 'maneuver' | 'skill' | 'free';
 export type CalledShot = 'none' | 'head' | 'chest' | 'abdomen' | 'arms' | 'legs';
@@ -138,7 +148,7 @@ export type ActionAttack = {
 export type ActionAttackRoll = {
   roll: number | null;
   locationRoll: number | null;
-  criticalRolls?: Map<string, number | null>;
+  criticalRolls?: Record<string, number | null>;
   fumbleRoll?: number | null;
 };
 

@@ -1,9 +1,8 @@
 import React, { FC, useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
-import { DeleteDialog, RmuDialog, TechnicalInfo } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { DeleteDialog, RmuDialog, TechnicalInfo, useNotify } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
-import { useError } from '../../../ErrorContext';
 import { deleteAction } from '../../api/action';
 import { Action } from '../../api/action.dto';
 import { ActorRound } from '../../api/actor-rounds.dto';
@@ -19,9 +18,9 @@ const ActionDialog: FC<{
   const { t } = useTranslation();
   const [deleting, setDeleting] = useState(false);
   const { roundActions, setRoundActions } = useContext(CombatContext)!;
-  const { showError } = useError();
+  const notify = useNotify();
 
-  if (!actorRound) return <p>Loading...</p>;
+  if (!actorRound) return null;
 
   const confirmDelete = () => {
     if (!roundActions) return null;
@@ -31,7 +30,7 @@ const ActionDialog: FC<{
         setRoundActions(newActionList);
         onClose();
       })
-      .catch((err) => showError(err.message));
+      .catch((err) => notify.error(err));
   };
 
   return (
@@ -49,12 +48,12 @@ const ActionDialog: FC<{
           <>
             {action.actionType === 'maneuver' && <ActionManeuverForm action={action} actorRound={actorRound} />}
             <TechnicalInfo>
-              <pre>Action: {JSON.stringify(action, null, 2)}</pre>
+              <pre>{JSON.stringify(action, null, 2)}</pre>
             </TechnicalInfo>
           </>
         ) : (
           <DeleteDialog
-            message={'Are you sure you want to delete this action?'}
+            message={t('delete-action-confirmation')}
             open={true}
             onDelete={() => confirmDelete()}
             onClose={() => setDeleting(false)}

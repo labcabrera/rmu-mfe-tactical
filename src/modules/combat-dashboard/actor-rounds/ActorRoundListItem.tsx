@@ -1,5 +1,6 @@
 import React, { Dispatch, FC, SetStateAction, useContext, useEffect, useState } from 'react';
-import { alpha, Box, Paper, Typography } from '@mui/material';
+import { useTranslation } from 'react-i18next';
+import { alpha, Box, Paper, Stack, Typography } from '@mui/material';
 import { Character } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
 import { Action } from '../../api/action.dto';
@@ -13,8 +14,7 @@ import ActorRoundDeclarationButtons from './ActorRoundDeclarationButtons';
 import ActorRoundEffects from './ActorRoundEffects';
 import ActorRoundResume from './ActorRoundResume';
 import ActorRoundInitiative from './initiative/ActorRoundInitiative';
-
-const ROUND_GRID_COLUMNS = '6fr 2fr 3fr repeat(4, 3fr) 9fr';
+import { phaseNumber, ROUND_GRID_COLUMNS } from './round-grid';
 
 const CombatActorRoundListItem: FC<{
   actorRound: ActorRound;
@@ -22,7 +22,10 @@ const CombatActorRoundListItem: FC<{
   displayPhase: string;
   setDisplayPhase: Dispatch<SetStateAction<string>>;
   onActorRoundView: (actorRound: ActorRound) => void;
-}> = ({ actorRound, index, displayPhase, onActorRoundView, setDisplayPhase }) => {
+  /** Phones: the cells are stacked instead of laid out as a row of the board grid. */
+  compact?: boolean;
+}> = ({ actorRound, index, displayPhase, onActorRoundView, setDisplayPhase, compact = false }) => {
+  const { t } = useTranslation();
   const [character, setCharacter] = useState<Character | undefined>();
   const { characters, game, roundActions } = useContext(CombatContext)!;
   const [resolveDialogOpen, setResolveDialogOpen] = useState(false);
@@ -34,7 +37,29 @@ const CombatActorRoundListItem: FC<{
     }
   }, [actorRound, characters]);
 
-  if (!actorRound || !character || !game) return <p>Loading...</p>;
+  if (!actorRound || !character || !game) return null;
+
+  const isActionPhase = displayPhase.startsWith('phase_');
+  const currentPhase = phaseNumber(displayPhase);
+  const resume = (
+    <ActorRoundResume
+      actorRound={actorRound}
+      compact={compact}
+      onActorRoundView={() => onActorRoundView(actorRound)}
+    />
+  );
+  const initiative = <ActorRoundInitiative actorRound={actorRound} />;
+  const actions = (
+    <ActorActions
+      actorId={actorRound.actorId}
+      currentPhase={currentPhase}
+      onActionClick={(action) => {
+        setSelectedActionId(action.id);
+        setResolveDialogOpen(true);
+      }}
+    />
+  );
+  const effects = <ActorRoundEffects actorRound={actorRound} />;
 
   return (
     <>
@@ -49,66 +74,76 @@ const CombatActorRoundListItem: FC<{
           boxShadow: 'none',
         })}
       >
-        <Box sx={{ display: 'grid', gridTemplateColumns: ROUND_GRID_COLUMNS, columnGap: 1, minHeight: 140 }}>
-          <Box sx={{ minWidth: 0 }}>
-            <Box sx={{ display: 'grid', gridTemplateColumns: '34px minmax(0, 1fr)', height: '100%' }}>
-              <Box
-                sx={(theme) => ({
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  gap: 1,
-                  pt: 1.25,
-                  color: 'text.secondary',
-                  bgcolor: alpha(theme.palette.common.black, 0.18),
-                  borderRight: '1px solid',
-                  borderColor: 'divider',
-                })}
-              >
-                <Typography variant="body2" sx={{ fontWeight: 700 }}>
-                  {index + 1}
-                </Typography>
-              </Box>
-              <ActorRoundResume actorRound={actorRound} onActorRoundView={() => onActorRoundView(actorRound)} />
+        {compact ? (
+          <Stack>
+            <Box sx={{ display: 'grid', gridTemplateColumns: '28px minmax(0, 1fr) 96px' }}>
+              <IndexCell index={index} />
+              {resume}
+              <Box sx={{ minWidth: 0, borderLeft: '1px solid', borderColor: 'divider' }}>{initiative}</Box>
             </Box>
-          </Box>
-          <Box sx={{ minWidth: 0, borderLeft: '1px solid', borderColor: 'divider' }}>
-            <ActorRoundInitiative actorRound={actorRound} />
-          </Box>
-          <Box
-            sx={{
-              minWidth: 0,
-              borderLeft: '1px solid',
-              borderColor: 'divider',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              p: 1,
-              overflow: 'visible',
-            }}
-          >
-            {displayPhase.startsWith('phase_') && (
-              <ActorRoundDeclarationButtons
-                actorRound={actorRound}
-                currentPhase={parseInt(displayPhase.replace('phase_', ''))}
-                setDisplayPhase={setDisplayPhase}
-              />
+            {isActionPhase && (
+              <Box sx={{ p: 1, borderTop: '1px solid', borderColor: 'divider' }}>
+                <ActorRoundDeclarationButtons
+                  actorRound={actorRound}
+                  currentPhase={currentPhase}
+                  setDisplayPhase={setDisplayPhase}
+                  layout="row"
+                />
+              </Box>
             )}
-          </Box>
-          <Box sx={{ gridColumn: 'span 4', minWidth: 0, borderLeft: '1px solid', borderColor: 'divider' }}>
-            <ActorActions
-              actorId={actorRound.actorId}
-              currentPhase={displayPhase.startsWith('phase_') ? parseInt(displayPhase.replace('phase_', '')) : 5}
-              onActionClick={(action) => {
-                setSelectedActionId(action.id);
-                setResolveDialogOpen(true);
+            <Box sx={{ borderTop: '1px solid', borderColor: 'divider' }}>
+              <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '6px', px: 1, pt: 0.75 }}>
+                {[1, 2, 3, 4].map((phase) => (
+                  <Typography
+                    key={phase}
+                    variant="caption"
+                    align="center"
+                    color={phase === currentPhase ? 'primary.light' : 'text.secondary'}
+                    sx={{ fontWeight: phase === currentPhase ? 700 : 400 }}
+                  >
+                    {t('phase-n', { phase })}
+                  </Typography>
+                ))}
+              </Box>
+              {actions}
+            </Box>
+            <Box sx={{ borderTop: '1px solid', borderColor: 'divider' }}>{effects}</Box>
+          </Stack>
+        ) : (
+          <Box sx={{ display: 'grid', gridTemplateColumns: ROUND_GRID_COLUMNS, columnGap: 1, minHeight: 140 }}>
+            <Box sx={{ minWidth: 0 }}>
+              <Box sx={{ display: 'grid', gridTemplateColumns: '34px minmax(0, 1fr)', height: '100%' }}>
+                <IndexCell index={index} />
+                {resume}
+              </Box>
+            </Box>
+            <Box sx={{ minWidth: 0, borderLeft: '1px solid', borderColor: 'divider' }}>{initiative}</Box>
+            <Box
+              sx={{
+                minWidth: 0,
+                borderLeft: '1px solid',
+                borderColor: 'divider',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                p: 1,
+                overflow: 'visible',
               }}
-            />
+            >
+              {isActionPhase && (
+                <ActorRoundDeclarationButtons
+                  actorRound={actorRound}
+                  currentPhase={currentPhase}
+                  setDisplayPhase={setDisplayPhase}
+                />
+              )}
+            </Box>
+            <Box sx={{ gridColumn: 'span 4', minWidth: 0, borderLeft: '1px solid', borderColor: 'divider' }}>
+              {actions}
+            </Box>
+            <Box sx={{ minWidth: 0, borderLeft: '1px solid', borderColor: 'divider' }}>{effects}</Box>
           </Box>
-          <Box sx={{ minWidth: 0, borderLeft: '1px solid', borderColor: 'divider' }}>
-            <ActorRoundEffects actorRound={actorRound} />
-          </Box>
-        </Box>
+        )}
       </Paper>
 
       {selectedActionId &&
@@ -167,5 +202,25 @@ const CombatActorRoundListItem: FC<{
     </>
   );
 };
+
+const IndexCell: FC<{ index: number }> = ({ index }) => (
+  <Box
+    sx={(theme) => ({
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      gap: 1,
+      pt: 1.25,
+      color: 'text.secondary',
+      bgcolor: alpha(theme.palette.common.black, 0.18),
+      borderRight: '1px solid',
+      borderColor: 'divider',
+    })}
+  >
+    <Typography variant="body2" sx={{ fontWeight: 700 }}>
+      {index + 1}
+    </Typography>
+  </Box>
+);
 
 export default CombatActorRoundListItem;

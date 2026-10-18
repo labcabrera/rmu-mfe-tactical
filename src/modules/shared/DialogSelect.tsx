@@ -12,7 +12,7 @@ import {
   Stack,
   Typography,
 } from '@mui/material';
-import { imageBaseUrl } from '../services/config';
+import { imageBaseUrl } from '@labcabrera-rmu/rmu-react-shared-lib';
 
 const DialogSelect: FC<{
   label: string;

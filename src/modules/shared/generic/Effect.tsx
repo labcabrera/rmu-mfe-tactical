@@ -1,7 +1,7 @@
 import React, { FC } from 'react';
 import { Avatar, Chip, Tooltip } from '@mui/material';
+import { imageBaseUrl } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { t } from 'i18next';
-import { imageBaseUrl } from '../../services/config';
 
 const Effect: FC<{
   label: string;

@@ -1,10 +1,9 @@
 import React, { useState, useContext, FC, useEffect } from 'react';
 import { useAuth } from 'react-oidc-context';
 import { Button, Grid, Stack, Typography } from '@mui/material';
-import { CategorySeparator, NumericInput, RmuDialog } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { CategorySeparator, NumericInput, RmuDialog, useNotify } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
-import { useError } from '../../../../ErrorContext';
 import { declareActorRoundInitiative } from '../../../api/actor-rounds';
 import { ActorRound } from '../../../api/actor-rounds.dto';
 
@@ -14,7 +13,7 @@ const DeclareInitiativeDialog: FC<{
   setOpen: (open: boolean) => void;
 }> = ({ actorRound, open, setOpen }) => {
   const auth = useAuth();
-  const { showError } = useError();
+  const notify = useNotify();
   const [roll, setRoll] = useState<number | undefined>(actorRound.initiative?.roll || undefined);
   const { updateActorRound } = useContext(CombatContext)!;
 
@@ -36,7 +35,7 @@ const DeclareInitiativeDialog: FC<{
         setRoll(undefined);
         setOpen(false);
       })
-      .catch((err) => showError(err.message));
+      .catch((err) => notify.error(err));
   };
 
   useEffect(() => {
@@ -49,14 +48,14 @@ const DeclareInitiativeDialog: FC<{
       onClose={handleClose}
       title={t('initiative-declaration')}
       buttons={[
-        <Button onClick={handleClose}>Cancel</Button>,
-        <Button onClick={handleRandomRoll}>Random Roll</Button>,
-        <Button onClick={handleDeclare}>Declare</Button>,
+        <Button onClick={handleClose}>{t('cancel')}</Button>,
+        <Button onClick={handleRandomRoll}>{t('random-roll')}</Button>,
+        <Button onClick={handleDeclare}>{t('declare')}</Button>,
       ]}
     >
       <Grid container spacing={1}>
         <Grid size={12}>
-          <CategorySeparator text={t('Modifiers')} />
+          <CategorySeparator text={t('modifiers')} />
         </Grid>
         <Grid size={6}>
           <Stack>
@@ -79,7 +78,7 @@ const DeclareInitiativeDialog: FC<{
           </Stack>
         </Grid>
         <Grid size={12}>
-          <CategorySeparator text={t('Roll (2D10)')} />
+          <CategorySeparator text={t('roll-2d10')} />
         </Grid>
         <Grid size={6}>
           <NumericInput

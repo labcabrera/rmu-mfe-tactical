@@ -1,4 +1,5 @@
 import React, { FC, useContext, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Box,
   IconButton,
@@ -22,6 +23,7 @@ const TargetSelector: FC<{
   onChange: (actorRoundId: string | null) => void;
   sourceId: string | null;
 }> = ({ value = null, onChange, sourceId }) => {
+  const { t } = useTranslation();
   const { actorRounds } = useContext(CombatContext)!;
   const [open, setOpen] = useState(false);
   const [filter, setFilter] = useState<'distinct' | 'all'>('distinct');
@@ -42,7 +44,7 @@ const TargetSelector: FC<{
   return (
     <Box>
       <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
-        <Tooltip title={selectedActorRound ? selectedActorRound.actorName : 'No target selected'}>
+        <Tooltip title={selectedActorRound ? selectedActorRound.actorName : t('no-target-selected')}>
           <IconButton onClick={() => setOpen((s) => !s)} sx={{ p: 0 }}>
             <ActorRoundAvatar
               actorRound={selectedActorRound || undefined}
@@ -54,18 +56,18 @@ const TargetSelector: FC<{
         </Tooltip>
       </Stack>
 
-      <RmuDialog title="Select target" open={open} onClose={() => setOpen(false)} maxWidth="md">
+      <RmuDialog title={t('select-target')} open={open} onClose={() => setOpen(false)} maxWidth="md">
         <Stack direction="row" spacing={0.5} sx={{ mb: 0.5, alignItems: 'center' }}>
           <RadioGroup row value={filter} onChange={(e) => setFilter(e.target.value as any)}>
             <FormControlLabel
               value="distinct"
               control={<Radio disabled={!actorRounds} />}
-              label={<Typography variant="caption">Distinct faction</Typography>}
+              label={<Typography variant="caption">{t('other-factions')}</Typography>}
             />
             <FormControlLabel
               value="all"
               control={<Radio disabled={!actorRounds} />}
-              label={<Typography variant="caption">All</Typography>}
+              label={<Typography variant="caption">{t('all')}</Typography>}
             />
           </RadioGroup>
         </Stack>

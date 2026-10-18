@@ -1,13 +1,12 @@
 import React, { Dispatch, FC, SetStateAction, useContext } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useAuth } from 'react-oidc-context';
 import { Grid, Stack } from '@mui/material';
-import { NumericInput } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { NumericInput, useNotify } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../CombatContext';
-import { useError } from '../../../../ErrorContext';
 import { fetchAction, updateFumbleRoll } from '../../../api/action';
 import { Action, ActionAttack, AttackDeclaration } from '../../../api/action.dto';
 import Effect from '../../../shared/generic/Effect';
-import { useTranslation } from 'react-i18next';
-import { useAuth } from 'react-oidc-context';
 
 const ResolveAttackFormFumble: FC<{
   formData: AttackDeclaration;
@@ -19,12 +18,12 @@ const ResolveAttackFormFumble: FC<{
   const auth = useAuth();
   const { t } = useTranslation();
   const { updateAction } = useContext(CombatContext)!;
-  const { showError } = useError();
+  const notify = useNotify();
   const fumble = attack.results?.fumble;
 
-  if (!formData || !formData.attacks || formData.attacks.length <= index) return <div>Loading...</div>;
+  if (!formData || !formData.attacks || formData.attacks.length <= index) return null;
 
-  const onUpdateFumbleRoll = (roll: number) => {
+  const onUpdateFumbleRoll = (roll: number | null) => {
     updateFumbleRoll(action.id, attack.attackName, roll, auth)
       .then(() => fetchAction(action.id, auth))
       .then((currentAction) => {
@@ -32,16 +31,11 @@ const ResolveAttackFormFumble: FC<{
         updateAction(currentAction);
         setFormData(newFormData);
       })
-      .catch((err: unknown) => {
-        if (err instanceof Error) showError(err.message);
-        else showError('An unknown error occurred');
-      });
+      .catch(notify.error);
   };
 
-  const getEffectLabel = (effect: any) => {
-    //TODO
-    return `${effect.status} ${effect.value || ''}`;
-  };
+  const getEffectLabel = (effect: { status: string; value?: number | null }) =>
+    effect.value ? `${t(effect.status)} ${effect.value}` : t(effect.status);
 
   return (
     <>
@@ -60,7 +54,7 @@ const ResolveAttackFormFumble: FC<{
           )}
           {fumble.effects &&
             fumble.effects.length > 0 &&
-            fumble.effects.map((effect, index) => (
+            fumble.effects.map((effect: { status: string; value?: number | null }, index: number) => (
               <Effect key={index} status={effect.status} label={getEffectLabel(effect)} color="error" />
             ))}
         </Stack>

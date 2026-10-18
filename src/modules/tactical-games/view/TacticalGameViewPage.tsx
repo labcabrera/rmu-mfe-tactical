@@ -15,80 +15,64 @@ import {
   addTacticalGameFaction,
   CancelButton,
   Character,
-  DeleteButton,
-  DeleteDialog,
   deleteActor,
   deleteTacticalGame,
   deleteTacticalGameFaction,
+  DetailPage,
   EditableAvatar,
-  EditButton,
   Faction,
   fetchCharacters,
   fetchFactions,
   fetchStrategicGame,
   fetchTacticalGame,
-  LayoutBase,
-  RefreshButton,
+  resolveAssetUrl,
   startRound,
   StrategicGame,
   TacticalGame,
-  TechnicalInfo,
   updateTacticalGame,
-  resolveAssetUrl,
+  useEntity,
+  useNotify,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { useError } from '../../../ErrorContext';
 import { defaultFactionImage, defaultTacticalGameImage } from '../../services/image-service';
 import PlayButton from '../../shared/buttons/PlayButton';
 import TacticalGameViewEnvironment from './TacticalGameViewEnvironment';
 
-const TacticalGameView: FC = () => {
+const TacticalGameViewPage: FC = () => {
   const auth = useAuth();
   const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
   const { gameId } = useParams<{ gameId?: string }>();
-  const { showError } = useError();
-  const [tacticalGame, setTacticalGame] = useState<TacticalGame>();
+  const notify = useNotify();
+  const state = useEntity<TacticalGame>(gameId, (id) => fetchTacticalGame(id, auth), {
+    initial: location.state?.tacticalGame,
+    onError: notify.error,
+  });
+  const { entity: tacticalGame, setEntity: setTacticalGame } = state;
   const [strategicGame, setStrategicGame] = useState<StrategicGame>();
   const [characters, setCharacters] = useState<Character[]>([]);
   const [factions, setFactions] = useState<Faction[]>([]);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
   const updateImage = (imageUrl: string) => {
     if (!gameId || !imageUrl) return;
-    const dto = { imageUrl };
-    updateTacticalGame(gameId, dto, auth)
+    updateTacticalGame(gameId, { imageUrl }, auth)
       .then((response) => setTacticalGame(response))
-      .catch((err) => showError(err));
+      .catch(notify.error);
   };
 
-  const onDelete = () => {
-    deleteTacticalGame(tacticalGame!.id, auth)
-      .then(() => {
-        navigate('/tactical/games');
-        setDeleteDialogOpen(false);
-      })
-      .catch((err) => showError(err.message));
-  };
+  const onDelete = (game: TacticalGame) =>
+    deleteTacticalGame(game.id, auth)
+      .then(() => navigate('/tactical/games'))
+      .catch(notify.error);
 
-  const onEdit = () => {
-    navigate(`/tactical/games/edit/${tacticalGame!.id}`, { state: { tacticalGame } });
-  };
-
-  const onPlay = async () => {
-    if (tacticalGame!.status === 'created') {
-      startRound(tacticalGame!.id, auth)
+  const onPlay = (game: TacticalGame) => {
+    if (game.status === 'created') {
+      startRound(game.id, auth)
         .then((data) => navigate(`/tactical/combat/${data.id}`, { state: { tacticalGame: data } }))
-        .catch((err) => showError(err.message));
+        .catch(notify.error);
     } else {
-      navigate(`/tactical/combat/${tacticalGame!.id}`, { state: { tacticalGame } });
+      navigate(`/tactical/combat/${game.id}`, { state: { tacticalGame: game } });
     }
-  };
-
-  const onRefresh = () => {
-    fetchTacticalGame(tacticalGame!.id, auth)
-      .then((response) => setTacticalGame(response))
-      .catch((err) => showError(err.message));
   };
 
   const isFactionSelected = (factionId: string) => tacticalGame?.factions.includes(factionId) || false;
@@ -98,7 +82,7 @@ const TacticalGameView: FC = () => {
     const action = isFactionSelected(faction.id) ? deleteTacticalGameFaction : addTacticalGameFaction;
     action(tacticalGame.id, faction.id, auth)
       .then((updatedGame) => setTacticalGame(updatedGame))
-      .catch((err) => showError(err.message));
+      .catch(notify.error);
   };
 
   const isActorSelected = (characterId: string) => {
@@ -114,12 +98,7 @@ const TacticalGameView: FC = () => {
     const action = isActorSelected(character.id)
       ? deleteActor(tacticalGame.id, character.id, auth)
       : addActor(tacticalGame.id, character.id, 'character', auth);
-    action
-      .then((updatedGame) => setTacticalGame(updatedGame))
-      .catch((err: unknown) => {
-        if (err instanceof Error) showError(err.message);
-        else showError('An unknown error occurred');
-      });
+    action.then((updatedGame) => setTacticalGame(updatedGame)).catch(notify.error);
   };
 
   useEffect(() => {
@@ -127,30 +106,20 @@ const TacticalGameView: FC = () => {
       const rsql = `faction.id=in=(${factions.map((faction) => faction.id).join(',')})`;
       fetchCharacters(rsql, 0, 100, auth)
         .then((response) => setCharacters(response.content))
-        .catch((err) => showError(err.message));
+        .catch(notify.error);
     }
-  }, [factions, showError]);
+  }, [factions]);
 
   useEffect(() => {
     if (tacticalGame) {
       fetchStrategicGame(tacticalGame.strategicGameId, auth)
         .then((data) => setStrategicGame(data))
-        .catch((err) => showError(err.message));
+        .catch(notify.error);
       fetchFactions(`gameId==${tacticalGame.strategicGameId}`, 0, 100, auth)
         .then((response) => setFactions(response.content))
-        .catch((err) => showError(err.message));
+        .catch(notify.error);
     }
-  }, [auth, showError, tacticalGame]);
-
-  useEffect(() => {
-    if (location.state && location.state.realm) {
-      setTacticalGame(location.state.tacticalGame);
-    } else if (gameId && auth) {
-      fetchTacticalGame(gameId, auth)
-        .then((response) => setTacticalGame(response))
-        .catch((err) => showError(err.message));
-    }
-  }, [location.state, gameId]);
+  }, [tacticalGame]);
 
   const selectedFactions = useMemo(() => {
     return factions.filter((faction) => isFactionSelected(faction.id));
@@ -160,129 +129,121 @@ const TacticalGameView: FC = () => {
     return characters.filter((character) => isActorSelected(character.id));
   }, [characters, tacticalGame]);
 
-  if (!tacticalGame) return <p>Loading...</p>;
-
   return (
-    <LayoutBase
+    <DetailPage
       breadcrumbs={[
         { name: t('home'), link: '/' },
         { name: t('tactical-module'), link: '/tactical' },
         { name: t('tactical-games'), link: '/tactical/games' },
         { name: t('view') },
       ]}
-      actions={[
+      entity={state}
+      summaryTitle={(entity) => t(entity.name)}
+      actions={(game) => [
         <CancelButton onClick={() => navigate('/tactical/games')} />,
-        <PlayButton onClick={() => onPlay()} />,
-        <RefreshButton onClick={() => onRefresh()} />,
-        <EditButton onClick={() => onEdit()} />,
-        <DeleteButton onClick={() => setDeleteDialogOpen(true)} />,
+        <PlayButton onClick={() => onPlay(game)} />,
       ]}
-      leftPanel={
+      onEdit={(game) => navigate(`/tactical/games/edit/${game.id}`, { state: { tacticalGame: game } })}
+      onDelete={onDelete}
+      leftPanel={(game) => (
         <Stack spacing={2}>
           <EditableAvatar
-            imageUrl={tacticalGame.imageUrl || defaultTacticalGameImage}
+            imageUrl={game.imageUrl || defaultTacticalGameImage}
             onImageChange={(imageUrl) => updateImage(imageUrl)}
           />
           <Stack spacing={1}>
-            <Typography variant="h6">{tacticalGame.name}</Typography>
+            <Typography variant="h6">{game.name}</Typography>
             <Typography variant="body2" color="text.secondary">
               {strategicGame?.name || t('loading')}
             </Typography>
             <Typography variant="caption" color="text.secondary">
-              {tacticalGame.round < 1 ? t('not_started') : `${t('round')} ${tacticalGame.round}`}
+              {game.round < 1 ? t('not-started') : `${t('round')} ${game.round}`}
             </Typography>
-            <TacticalGameViewEnvironment tacticalGame={tacticalGame} />
+            <TacticalGameViewEnvironment tacticalGame={game} />
           </Stack>
           <Divider />
         </Stack>
-      }
+      )}
     >
-      <Stack spacing={3}>
-        <Box>
-          <Grid container spacing={2} sx={{ alignItems: 'center' }}>
-            <Grid size={{ xs: 12, md: 6 }}>
-              <Typography variant="h5">{t('select-factions-and-characters')}</Typography>
-            </Grid>
-            <Grid size={{ xs: 12, md: 3 }}>
-              <SelectionMetric icon={<GroupsIcon />} value={selectedFactions.length} label={t('selected-factions')} />
-            </Grid>
-            <Grid size={{ xs: 12, md: 3 }}>
-              <SelectionMetric
-                icon={<PersonIcon />}
-                value={selectedCharacters.length}
-                label={t('selected-characters')}
-              />
-            </Grid>
-          </Grid>
-        </Box>
-        <Divider />
-        <Box>
-          <Typography variant="h6" sx={{ mb: 2 }}>
-            {t('factions')}
-          </Typography>
-          <Grid container spacing={2}>
-            {factions.map((faction) => {
-              const factionCharacters = characters.filter((character) => character.faction.id === faction.id);
-              return (
-                <Grid key={faction.id} size={{ xs: 12, sm: 6, lg: 3 }}>
-                  <FactionSelectionCard
-                    faction={faction}
-                    characterCount={factionCharacters.length}
-                    selected={isFactionSelected(faction.id)}
-                    disabled={factionCharacters.length < 1}
-                    onClick={() => toggleFaction(faction)}
-                  />
-                </Grid>
-              );
-            })}
-          </Grid>
-        </Box>
+      {() => (
         <Stack spacing={3}>
-          {selectedFactions.length < 1 ? (
-            <Typography variant="body2" color="text.secondary">
-              {t('select-at-least-one-faction')}
+          <Box>
+            <Grid container spacing={2} sx={{ alignItems: 'center' }}>
+              <Grid size={{ xs: 12, md: 6 }}>
+                <Typography variant="h5">{t('select-factions-and-characters')}</Typography>
+              </Grid>
+              <Grid size={{ xs: 12, md: 3 }}>
+                <SelectionMetric icon={<GroupsIcon />} value={selectedFactions.length} label={t('selected-factions')} />
+              </Grid>
+              <Grid size={{ xs: 12, md: 3 }}>
+                <SelectionMetric
+                  icon={<PersonIcon />}
+                  value={selectedCharacters.length}
+                  label={t('selected-characters')}
+                />
+              </Grid>
+            </Grid>
+          </Box>
+          <Divider />
+          <Box>
+            <Typography variant="h6" sx={{ mb: 2 }}>
+              {t('factions')}
             </Typography>
-          ) : (
-            selectedFactions.map((faction) => {
-              const factionCharacters = characters.filter((character) => character.faction.id === faction.id);
-              return (
-                <Box key={faction.id}>
-                  <Typography variant="h6" sx={{ mb: 2 }}>
-                    {faction.name}
-                  </Typography>
-                  {factionCharacters.length < 1 ? (
-                    <Typography variant="body2" color="text.secondary">
-                      {t('no-characters-available-for-faction')}
+            <Grid container spacing={2}>
+              {factions.map((faction) => {
+                const factionCharacters = characters.filter((character) => character.faction.id === faction.id);
+                return (
+                  <Grid key={faction.id} size={{ xs: 12, sm: 6, lg: 3 }}>
+                    <FactionSelectionCard
+                      faction={faction}
+                      characterCount={factionCharacters.length}
+                      selected={isFactionSelected(faction.id)}
+                      disabled={factionCharacters.length < 1}
+                      onClick={() => toggleFaction(faction)}
+                    />
+                  </Grid>
+                );
+              })}
+            </Grid>
+          </Box>
+          <Stack spacing={3}>
+            {selectedFactions.length < 1 ? (
+              <Typography variant="body2" color="text.secondary">
+                {t('select-at-least-one-faction')}
+              </Typography>
+            ) : (
+              selectedFactions.map((faction) => {
+                const factionCharacters = characters.filter((character) => character.faction.id === faction.id);
+                return (
+                  <Box key={faction.id}>
+                    <Typography variant="h6" sx={{ mb: 2 }}>
+                      {faction.name}
                     </Typography>
-                  ) : (
-                    <Grid container spacing={2}>
-                      {factionCharacters.map((character) => (
-                        <Grid key={character.id} size={{ xs: 12, sm: 6, md: 4, lg: 2.4 }}>
-                          <CharacterSelectionCard
-                            character={character}
-                            selected={isActorSelected(character.id)}
-                            onClick={() => toggleActor(character)}
-                          />
-                        </Grid>
-                      ))}
-                    </Grid>
-                  )}
-                </Box>
-              );
-            })
-          )}
+                    {factionCharacters.length < 1 ? (
+                      <Typography variant="body2" color="text.secondary">
+                        {t('no-characters-available-for-faction')}
+                      </Typography>
+                    ) : (
+                      <Grid container spacing={2}>
+                        {factionCharacters.map((character) => (
+                          <Grid key={character.id} size={{ xs: 12, sm: 6, md: 4, lg: 2.4 }}>
+                            <CharacterSelectionCard
+                              character={character}
+                              selected={isActorSelected(character.id)}
+                              onClick={() => toggleActor(character)}
+                            />
+                          </Grid>
+                        ))}
+                      </Grid>
+                    )}
+                  </Box>
+                );
+              })
+            )}
+          </Stack>
         </Stack>
-      </Stack>
-      <TechnicalInfo>
-        <pre>TacticalGame: {JSON.stringify(tacticalGame, null, 2)}</pre>
-      </TechnicalInfo>
-      <DeleteDialog
-        message={`Are you sure you want to delete ${tacticalGame.name} game? This action cannot be undone.`}
-        onDelete={() => onDelete()}
-        open={deleteDialogOpen}
-        onClose={() => setDeleteDialogOpen(false)}
-      />
-    </LayoutBase>
+      )}
+    </DetailPage>
   );
 };
 
@@ -420,4 +381,4 @@ function IconStat({ icon, value }: { icon: ReactNode; value: number }) {
   );
 }
 
-export default TacticalGameView;
+export default TacticalGameViewPage;

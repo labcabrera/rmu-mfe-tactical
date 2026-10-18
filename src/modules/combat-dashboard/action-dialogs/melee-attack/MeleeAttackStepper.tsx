@@ -1,4 +1,5 @@
 import React, { Dispatch, FC, SetStateAction } from 'react';
+import { useTranslation } from 'react-i18next';
 import { alpha, Box, Step, StepLabel, Stepper } from '@mui/material';
 import { Action, ActionAttack, AttackDeclaration } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
@@ -7,7 +8,7 @@ import MeleeAttackSelectAttacks from './MeleeAttackSelectAttacks';
 import ResolveAttackParry from './ResolveAttackParry';
 import ResolveAttackTabRoll from './ResolveAttackRoll';
 
-const steps = ['Select targets', 'Attack options', 'Parry', 'Resolve'];
+const steps = ['select-targets', 'attack-options', 'parry', 'resolve'];
 
 const MeleeAttackStepper: FC<{
   action: Action;
@@ -17,7 +18,8 @@ const MeleeAttackStepper: FC<{
   availableAttacks: ActionAttack[];
   setFormData: Dispatch<SetStateAction<AttackDeclaration>>;
 }> = ({ action, actorRound, formData, activeStep, availableAttacks, setFormData }) => {
-  if (!actorRound) return <p>Loading... (melee attack stepper)</p>;
+  const { t } = useTranslation();
+  if (!actorRound) return null;
 
   return (
     <Box sx={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', minHeight: 300 }}>
@@ -53,7 +55,7 @@ const MeleeAttackStepper: FC<{
           const labelProps: Record<string, unknown> = {};
           return (
             <Step key={index} {...stepProps}>
-              <StepLabel {...labelProps}>{label}</StepLabel>
+              <StepLabel {...labelProps}>{t(label)}</StepLabel>
             </Step>
           );
         })}

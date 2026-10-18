@@ -1,4 +1,5 @@
 import React, { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
 import { Box, IconButton, Slider, Stack, Typography } from '@mui/material';
@@ -13,6 +14,7 @@ type Props = {
 };
 
 const OffensiveBonusSelector: FC<Props> = ({ value, onChange, min = 0, max, integer = true, disabled = false }) => {
+  const { t } = useTranslation();
   const safeMax = Math.max(min, max ?? min);
   const current = value === null || value === undefined ? min : Math.max(min, Math.min(value, safeMax));
 
@@ -29,9 +31,9 @@ const OffensiveBonusSelector: FC<Props> = ({ value, onChange, min = 0, max, inte
   return (
     <>
       <Typography variant="subtitle2" gutterBottom>
-        Used BO
+        {t('used-bo')}
       </Typography>
-      <Stack direction="row" spacing={2} sx={{ mb: 1,alignItems:"center"  }}>
+      <Stack direction="row" spacing={2} sx={{ mb: 1, alignItems: 'center' }}>
         <Box sx={{ flex: 1, minWidth: 0, alignSelf: 'center' }}>
           <Slider
             value={current}
@@ -44,7 +46,7 @@ const OffensiveBonusSelector: FC<Props> = ({ value, onChange, min = 0, max, inte
               onChange(integer ? Math.round(n) : n);
             }}
             disabled={disabled}
-            aria-label="bo-slider"
+            aria-label={t('offensive-bonus')}
             getAriaValueText={(value: number) => `${value}`}
             valueLabelDisplay="on"
             sx={{ width: '100%' }}
@@ -68,7 +70,7 @@ const OffensiveBonusSelector: FC<Props> = ({ value, onChange, min = 0, max, inte
               onChange(integer ? Math.round(next) : next);
             }}
             disabled={disabled || current <= min}
-            aria-label="decrement-bo"
+            aria-label={t('decrease-bo')}
             sx={{ mt: -3 }}
           >
             <RemoveCircleIcon fontSize="small" />
@@ -81,7 +83,7 @@ const OffensiveBonusSelector: FC<Props> = ({ value, onChange, min = 0, max, inte
               onChange(integer ? Math.round(next) : next);
             }}
             disabled={disabled || current >= safeMax}
-            aria-label="increment-bo"
+            aria-label={t('increase-bo')}
             sx={{ mt: -3 }}
           >
             <AddCircleIcon fontSize="small" />

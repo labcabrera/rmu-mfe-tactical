@@ -1,16 +1,16 @@
 import React, { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Card, CardContent, Box } from '@mui/material';
+import { imageBaseUrl } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { ActorRound, ActorRoundEffect, ActorRoundPenaltyModifier } from '../../api/actor-rounds.dto';
 import { isActorRoundDead } from '../../services/actor-round-service';
-import { imageBaseUrl } from '../../services/config';
 import Effect from '../../shared/generic/Effect';
 import ActorRoundAlerts from './ActorRoundAlerts';
 
 const ActorRoundEffects: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
-  if (!actorRound) return <p>Loading...</p>;
-
   const { t } = useTranslation();
+  if (!actorRound) return null;
+
   const isDead = isActorRoundDead(actorRound);
   const hasEffects = actorRound.effects.length > 0;
   const background = isDead
@@ -25,7 +25,7 @@ const ActorRoundEffects: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
       case 'dmg':
         break;
       case 'penalty':
-        label = t('Penalty');
+        label = t('penalty');
         break;
       default:
         label = t(`${effect.status}`);
@@ -54,7 +54,7 @@ const ActorRoundEffects: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
         backgroundBlendMode: 'normal, color, normal',
         width: '100%',
         height: '100%',
-        color: (theme) => (actorRound.imageUrl ? theme.palette.getContrastText('#000') : undefined),
+        color: (theme) => (actorRound.imageUrl ? theme.palette.getContrastText(theme.palette.common.black) : undefined),
       }}
     >
       <CardContent>
