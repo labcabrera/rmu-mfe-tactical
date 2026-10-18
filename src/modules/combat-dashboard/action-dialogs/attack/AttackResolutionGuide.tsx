@@ -33,7 +33,9 @@ export const AttackResultSummary: FC<{ attack: ActionAttack; targetName?: string
   if (!results || (attack.status !== 'pending_apply' && attack.status !== 'completed')) return null;
 
   const criticals = results.criticals ?? [];
-  const damage = (results.attackTableEntry?.damage ?? 0) + criticals.reduce((sum, critical) => sum + (critical.result?.damage ?? 0), 0);
+  const damage =
+    (results.attackTableEntry?.damage ?? 0) +
+    criticals.reduce((sum, critical) => sum + (critical.result?.damage ?? 0), 0);
   const effects = criticals.flatMap((critical) => critical.result?.effects ?? []);
   const fumble = results.fumble;
 

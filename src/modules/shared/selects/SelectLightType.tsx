@@ -46,14 +46,14 @@ const SelectLightType: FC<{
       <FormLabel id={'light'} component="legend" sx={{ mb: 1.5, typography: 'body1' }}>
         {t('lighting')}
       </FormLabel>
-      <ToggleButtonGroup value={value} exclusive>
+      <ToggleButtonGroup value={value} exclusive fullWidth size="small">
         {codes.map((option) => (
           <Badge badgeContent={getModifier(option)} color="error" key={option.id}>
             <ToggleButton
               value={option.id}
               onClick={() => handleClick(option.id)}
               disabled={readOnly}
-              sx={{ minWidth: 160 }}
+              sx={{ minWidth: 0, flex: 1 }}
             >
               {t(option.id)}
             </ToggleButton>

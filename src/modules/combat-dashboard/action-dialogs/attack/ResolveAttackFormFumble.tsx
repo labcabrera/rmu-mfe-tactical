@@ -2,11 +2,10 @@ import React, { Dispatch, FC, SetStateAction, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import { Grid, Stack, Typography } from '@mui/material';
-import { CategorySeparator, useNotify } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { CategorySeparator, useNotify, ConfirmedRollInput } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../CombatContext';
 import { updateFumbleRoll } from '../../../api/action';
 import { Action, ActionAttack, AttackDeclaration, CriticalEffect } from '../../../api/action.dto';
-import ConfirmedRollInput from '../../../shared/generic/ConfirmedRollInput';
 import Effect from '../../../shared/generic/Effect';
 
 const ResolveAttackFormFumble: FC<{
@@ -46,7 +45,7 @@ const ResolveAttackFormFumble: FC<{
       <Grid size={12}>
         <CategorySeparator text={t('fumble')} />
       </Grid>
-      <Grid size={{ xs: 6, md: 2 }}>
+      <Grid size={6}>
         <ConfirmedRollInput
           label={t('fumble-roll')}
           value={attack.roll?.fumbleRoll}
@@ -54,21 +53,19 @@ const ResolveAttackFormFumble: FC<{
           disabled={action.status === 'completed'}
         />
       </Grid>
-      <Grid size={{ xs: 12, md: 8 }} offset={{ md: 2 }}>
+      <Grid size={12}>
         <Stack direction="row" spacing={1} useFlexGap sx={{ flexWrap: 'wrap' }}>
-          {!!fumble.damage && fumble.damage > 0 && <Effect status={'dmg'} label={`${fumble.damage}`} color="error" />}
+          {!!fumble.damage && fumble.damage > 0 && (
+            <Effect status={'dmg'} label={t('damage-n', { damage: fumble.damage })} color="error" />
+          )}
           {(fumble.effects ?? []).map((effect, effectIndex) => (
             <Effect key={effectIndex} status={effect.status} label={getEffectLabel(effect)} color="error" />
           ))}
         </Stack>
       </Grid>
-      {fumble.text && (
-        <Grid size={{ xs: 12, md: 8 }} offset={{ md: 4 }}>
-          {fumble.text}
-        </Grid>
-      )}
+      {fumble.text && <Grid size={12}>{fumble.text}</Grid>}
       {fumble.additionalDamageText && (
-        <Grid size={{ xs: 12, md: 8 }} offset={{ md: 4 }}>
+        <Grid size={12}>
           <Typography variant="body2" color="text.secondary">
             {t('fumble-additional-damage')}: {fumble.additionalDamageText}
           </Typography>

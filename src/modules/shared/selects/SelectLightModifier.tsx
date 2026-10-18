@@ -20,9 +20,14 @@ const SelectLightModifier: FC<{
       <FormLabel id={'light-modifier'} component="legend" sx={{ mb: 1.5, typography: 'body1' }}>
         {t('light-modifier')}
       </FormLabel>
-      <ToggleButtonGroup value={value} exclusive>
+      <ToggleButtonGroup value={value} exclusive fullWidth size="small">
         {codes.map((option) => (
-          <ToggleButton value={option} onClick={() => handleClick(option)} disabled={readOnly} sx={{ minWidth: 160 }}>
+          <ToggleButton
+            value={option}
+            onClick={() => handleClick(option)}
+            disabled={readOnly}
+            sx={{ minWidth: 0, flex: 1 }}
+          >
             {t(option)}
           </ToggleButton>
         ))}

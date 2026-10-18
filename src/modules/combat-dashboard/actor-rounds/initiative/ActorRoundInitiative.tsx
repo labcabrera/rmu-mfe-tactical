@@ -1,62 +1,88 @@
-import React, { FC, useState } from 'react';
+import React, { FC, KeyboardEvent, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import ElectricBoltIcon from '@mui/icons-material/ElectricBolt';
-import { IconButton, Card, CardContent, Stack, Typography } from '@mui/material';
-import { imageBaseUrl } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { useAuth } from 'react-oidc-context';
+import CasinoIcon from '@mui/icons-material/Casino';
+import { Box, IconButton, Stack, Tooltip, Typography } from '@mui/material';
+import { NumericInput, useNotify } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { CombatContext } from '../../../../CombatContext';
+import { declareActorRoundInitiative } from '../../../api/actor-rounds';
 import { ActorRound } from '../../../api/actor-rounds.dto';
-import InitiativeBar from '../../../shared/generic/InitiativeBar';
-import DeclareInitiativeDialog from './DeclareInitiativeDialog';
 
-const ActorRoundInitiative: FC<{
-  actorRound: ActorRound;
-}> = ({ actorRound }) => {
+/** Initiative is a 2d10 roll. */
+const roll2d10 = () => Math.floor(Math.random() * 10) + 1 + Math.floor(Math.random() * 10) + 1;
+
+/**
+ * Initiative cell: the total, its base and penalty, and, while initiative is declared, the 2d10 roll edited
+ * in place (saved on blur or Enter) with a dice button. Actors that are down have no initiative.
+ */
+const ActorRoundInitiative: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
   const { t } = useTranslation();
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const isDisabled = actorRound.effects.some((e) => e.status === 'dead' || e.status === 'unconcious');
+  const auth = useAuth();
+  const notify = useNotify();
+  const { game, displayRound, updateActorRound } = useContext(CombatContext)!;
+  const isDown = actorRound.effects.some((e) => e.status === 'dead' || e.status === 'unconcious');
+  const editable = !isDown && game?.phase === 'declare_initiative' && displayRound === game?.round;
+  const { base = 0, penalty = 0, roll, total } = actorRound.initiative ?? {};
+  const declared = !!roll;
 
-  const bgUrl = `${imageBaseUrl}images/actions/action-initiative-panoramic-02.png`;
+  const declare = (value: number | null) => {
+    if (!value || value === roll) return;
+    declareActorRoundInitiative(actorRound.id, value, auth)
+      .then(updateActorRound)
+      .catch((err) => notify.error(err));
+  };
+
+  const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === 'Enter' && e.target instanceof HTMLInputElement) {
+      e.preventDefault();
+      e.target.blur();
+    }
+  };
+
+  if (isDown) {
+    return (
+      <Box sx={{ p: 1.25 }}>
+        <Typography variant="h6" color="text.disabled">
+          —
+        </Typography>
+      </Box>
+    );
+  }
 
   return (
-    <Card
-      sx={{
-        width: '100%',
-        height: '100%',
-        display: 'flex',
-        alignItems: 'stretch',
-        backgroundImage: `url(${bgUrl})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-        bgcolor: 'transparent',
-      }}
-      elevation={0}
-    >
-      {!isDisabled && (
-        <CardContent sx={{ width: '100%', minWidth: 0, p: 1.25, '&:last-child': { pb: 1.25 } }}>
-          <Stack direction="column" spacing={0.75} sx={{ width: '100%', minWidth: 0 }}>
-            <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
-              <Typography variant="body1" color="text.primary">
-                {actorRound.initiative.total}
-              </Typography>
-              <IconButton
-                onClick={() => setDialogOpen(true)}
-                size="small"
-                color="primary"
-                aria-label={t('declare-initiative')}
-                sx={{ p: 0.25 }}
-              >
-                <ElectricBoltIcon fontSize="small" />
-              </IconButton>
-            </Stack>
-            {!actorRound.initiative.total && <Typography variant="caption">{t('not-declared')}</Typography>}
-            <DeclareInitiativeDialog open={dialogOpen} setOpen={setDialogOpen} actorRound={actorRound} />
-            {actorRound.initiative?.roll && (
-              <InitiativeBar current={actorRound.initiative.total} max={30} width="100%" />
-            )}
-          </Stack>
-        </CardContent>
+    <Stack sx={{ p: 1.25, gap: 0.75 }}>
+      <Stack direction="row" spacing={1} sx={{ alignItems: 'baseline' }}>
+        <Typography variant="h6" component="span" color={declared ? 'text.primary' : 'text.disabled'}>
+          {declared ? total : '—'}
+        </Typography>
+        {!declared && (
+          <Typography variant="caption" color="warning.main">
+            {t('not-declared')}
+          </Typography>
+        )}
+      </Stack>
+      <Typography variant="caption" color="text.secondary" noWrap>
+        {t('initiative-base-penalty', { base, penalty })}
+      </Typography>
+      {editable && (
+        <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center' }} onKeyDown={onKeyDown}>
+          <NumericInput
+            label={t('initiative-roll')}
+            value={roll || null}
+            onChange={declare}
+            min={2}
+            max={20}
+            integer
+            allowNegatives={false}
+          />
+          <Tooltip title={t('roll-dice')}>
+            <IconButton aria-label={t('roll-dice')} onClick={() => declare(roll2d10())}>
+              <CasinoIcon fontSize="small" />
+            </IconButton>
+          </Tooltip>
+        </Stack>
       )}
-    </Card>
+    </Stack>
   );
 };
 

@@ -145,17 +145,22 @@ export const CombatProvider: FC<{
     );
   };
 
+  // Rounds and actions follow the displayed round; characters, factions and the strategic game only change
+  // with the game. Sorting is done in memory (below) and refetches nothing.
   useEffect(() => {
     if (game && displayRound !== null) {
       bindActorRounds(game.id, displayRound);
       bindActions(game.id, displayRound);
     }
+  }, [game, displayRound]);
+
+  useEffect(() => {
     if (game) {
       bindCharacters(game);
       bindFactions(game);
       bindStrategicGame(game.strategicGameId);
     }
-  }, [game, displayRound, roundActorSort]);
+  }, [game?.id]);
 
   useEffect(() => {
     if (gameId !== null) {

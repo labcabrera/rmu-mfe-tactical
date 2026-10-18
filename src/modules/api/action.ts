@@ -54,6 +54,20 @@ export async function resolveMovement(actionId: string, data: any, auth: AuthCon
   });
 }
 
+/** Completes an action without rolls (stand up, dodge, draw and load, other), with an optional note. */
+export async function completeAction(
+  actionId: string,
+  note: string | undefined,
+  auth: AuthContextProps
+): Promise<Action> {
+  const url = `${apiTacticalUrl}/actions/${actionId}/complete`;
+  return await callApi(auth, url, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ note }),
+  });
+}
+
 export async function resolveManeuver(actionId: string, data: any, auth: AuthContextProps): Promise<Action> {
   const url = `${apiTacticalUrl}/actions/${actionId}/maneuver/resolve`;
   return await callApi(auth, url, {

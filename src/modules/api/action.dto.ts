@@ -24,7 +24,20 @@ export type AttackStatus =
 export type AttackType = 'melee' | 'ranged' | 'thrown';
 export type ChargeSpeed = 'none' | 'jog' | 'sprint';
 
-export type ActionType = 'movement' | 'melee_attack' | 'ranged_attack' | 'maneuver' | 'skill' | 'free';
+export type ActionType =
+  | 'movement'
+  | 'melee_attack'
+  | 'ranged_attack'
+  | 'maneuver'
+  | 'stand_up'
+  | 'dodge'
+  | 'draw_and_load'
+  | 'other'
+  | 'skill'
+  | 'free';
+
+/** Action types completed without rolls (`PATCH /actions/{id}/complete`). */
+export const SIMPLE_ACTION_TYPES: ActionType[] = ['stand_up', 'dodge', 'draw_and_load', 'other'];
 export type CalledShot = 'none' | 'head' | 'chest' | 'abdomen' | 'arms' | 'legs';
 
 export const MOVEMENT_TABLE = [
@@ -143,6 +156,8 @@ export type Action = {
   attacks: ActionAttack[] | null;
   parries: ActionParry[] | null;
   fatigue: number | null;
+  /** Note of the action (what an "other" action was...). */
+  description?: string | null;
 };
 
 export type ResolveMovementDto = {

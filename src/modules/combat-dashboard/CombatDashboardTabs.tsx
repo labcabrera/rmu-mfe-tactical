@@ -1,83 +1,68 @@
-import React, { FC, ReactNode, SyntheticEvent, useState } from 'react';
+import React, { FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Box, Paper, Tab, Tabs } from '@mui/material';
+import KeyboardIcon from '@mui/icons-material/Keyboard';
+import { Box, IconButton, Paper, Stack, Tab, Tabs, Tooltip, useMediaQuery, useTheme } from '@mui/material';
+import { useShortcut } from '../services/shortcuts';
 import CombatDashboardActions from './CombatDashboardActions';
-import CombatDashboardAttacks from './CombatDashboardAttacks';
+import ShortcutsHelp from './ShortcutsHelp';
 import CombatActorRoundList from './actor-rounds/ActorRoundList';
+import CombatRoundHeader from './actor-rounds/CombatRoundHeader';
+import RoundLog, { RoundLogStrip } from './log/RoundLog';
+import CombatPanelProvider from './panel/CombatPanelProvider';
 
-type CustomTabPanelProps = {
-  children?: ReactNode;
-  value: number;
-  index: number;
-};
+type View = 'board' | 'log';
 
-function CustomTabPanel(props: CustomTabPanelProps) {
-  const { children, value, index, ...other } = props;
-
-  return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`simple-tabpanel-${index}`}
-      aria-labelledby={`simple-tab-${index}`}
-      {...other}
-    >
-      {value === index && <Box sx={{ p: 1.5 }}>{children}</Box>}
-    </div>
-  );
-}
-
-function a11yProps(index: number) {
-  return {
-    id: `simple-tab-${index}`,
-    'aria-controls': `simple-tabpanel-${index}`,
-  };
-}
-
+/**
+ * Combat screen: breadcrumbs, the round header, and two views (board and log) next to the side panel where
+ * actors and actions open.
+ */
 const CombatDashboardTabs: FC = () => {
   const { t } = useTranslation();
-  const [value, setValue] = useState<number>(0);
-
-  const handleChange = (_event: SyntheticEvent, newValue: number) => {
-    setValue(newValue);
-  };
+  const theme = useTheme();
+  const wide = useMediaQuery(theme.breakpoints.up('lg'));
+  const [view, setView] = useState<View>('board');
+  const [help, setHelp] = useState(false);
+  useShortcut(['l', 'L'], () => setView((current) => (current === 'board' ? 'log' : 'board')));
+  useShortcut(['?'], () => setHelp(true));
 
   return (
-    <>
+    <Stack spacing={1.5}>
       <CombatDashboardActions />
-      <Paper
-        elevation={0}
-        sx={{
-          width: '100%',
-          bgcolor: 'background.paper',
-          border: '1px solid',
-          borderColor: 'divider',
-          borderRadius: 1,
-          overflow: 'hidden',
-        }}
-      >
-        <Box sx={{ borderBottom: 1, borderColor: 'divider', px: 1.5 }}>
-          <Tabs value={value} onChange={handleChange} aria-label={t('combat-dashboard-tabs')}>
-            <Tab label={t('dashboard')} {...a11yProps(0)} />
-            <Tab label={t('actions')} {...a11yProps(1)} />
-            <Tab label={t('attacks')} {...a11yProps(2)} />
-            <Tab label={t('log')} {...a11yProps(3)} />
-          </Tabs>
-        </Box>
-        <CustomTabPanel value={value} index={0}>
-          <CombatActorRoundList />
-        </CustomTabPanel>
-        <CustomTabPanel value={value} index={1}>
-          {t('under-development')}
-        </CustomTabPanel>
-        <CustomTabPanel value={value} index={2}>
-          <CombatDashboardAttacks />
-        </CustomTabPanel>
-        <CustomTabPanel value={value} index={3}>
-          {t('under-development')}
-        </CustomTabPanel>
-      </Paper>
-    </>
+      <CombatRoundHeader />
+      <CombatPanelProvider>
+        <Stack spacing={1.5}>
+          <Paper sx={{ px: 1.5, display: 'flex', alignItems: 'center' }}>
+            <Tabs
+              value={view}
+              onChange={(_, value: View) => setView(value)}
+              aria-label={t('combat-dashboard-tabs')}
+              sx={{ flex: 1 }}
+            >
+              <Tab value="board" label={t('board')} />
+              <Tab value="log" label={t('log')} />
+            </Tabs>
+            <Tooltip title={t('keyboard-shortcuts')}>
+              <IconButton aria-label={t('keyboard-shortcuts')} onClick={() => setHelp(true)}>
+                <KeyboardIcon />
+              </IconButton>
+            </Tooltip>
+          </Paper>
+          {view === 'board' ? (
+            <>
+              <CombatActorRoundList />
+              {wide && <RoundLogStrip onOpenLog={() => setView('log')} />}
+            </>
+          ) : (
+            <Paper sx={{ p: 2 }}>
+              <Box role="tabpanel">
+                <RoundLog />
+              </Box>
+            </Paper>
+          )}
+        </Stack>
+      </CombatPanelProvider>
+      <ShortcutsHelp open={help} onClose={() => setHelp(false)} />
+    </Stack>
   );
 };
 

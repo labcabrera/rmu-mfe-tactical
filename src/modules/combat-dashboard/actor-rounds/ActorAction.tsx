@@ -1,91 +1,52 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Box, Card, CardActionArea, CardContent, Typography } from '@mui/material';
-import { imageBaseUrl } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { alpha, ButtonBase, Stack, Typography } from '@mui/material';
+import { ActionStateMarker, combatActionInfo, combatColors } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { CombatContext } from '../../../CombatContext';
 import type { Action } from '../../api/action.dto';
+import { actionLabel, actionResult, actionState } from './action-view';
 
-export default function ActorAction({
-  action,
-  completed,
-  onClick,
-}: {
-  action: Action;
-  completed: boolean;
-  onClick: () => void;
-}) {
+/**
+ * An action on the phase timeline: a bar in the color of its type, with its icon, a short label, and its
+ * state (needs input, waiting, resolved or failed) with the result once resolved.
+ */
+export default function ActorAction({ action, onClick }: { action: Action; onClick: () => void }) {
   const { t } = useTranslation();
-  const getActionImage = () => {
-    if (action.actionType === 'ranged_attack') {
-      return `${imageBaseUrl}images/actions/action-ranged-panoramic-01.png`;
-    } else if (action.actionType === 'movement') {
-      return `${imageBaseUrl}images/actions/action-movement-panoramic-02.png`;
-    }
-    return `${imageBaseUrl}images/actions/action-melee-panoramic-01.png`;
-  };
-
-  const getActionName = () => {
-    let name: string;
-    if (action.maneuver) {
-      name = t(action.maneuver?.modifiers?.skillId || 'maneuver');
-    } else if (action.movement) {
-      name = `${t('movement')}${action.movement.calculated?.distanceAdjusted ? `: ${action.movement.calculated.distanceAdjusted}` : ''}`;
-    } else {
-      name = t(action.actionType);
-    }
-    return action.freeAction ? `${t('free')} ${name}` : name;
-  };
-
-  const bg = getActionImage();
-  const actionName = getActionName();
-  const actionOverlay = completed
-    ? 'linear-gradient(90deg, rgba(0,0,0,0.58), rgba(0,0,0,0.16))'
-    : 'linear-gradient(90deg, rgba(15,31,24,0.62), rgba(80,142,103,0.12)), linear-gradient(0deg, rgba(87,145,104,0.08), rgba(87,145,104,0.08))';
+  const { actorRounds } = useContext(CombatContext)!;
+  const info = combatActionInfo(action.actionType);
+  const state = actionState(action);
+  const label = actionLabel(action, t, actorRounds);
+  const done = state === 'resolved' || state === 'failed';
 
   return (
-    <Card
-      sx={{
-        width: '100%',
-        height: '100%',
-        boxShadow: 1,
-        borderRadius: 0.5,
-        border: 1,
-        borderColor: 'black',
-        overflow: 'hidden',
-        backgroundColor: completed ? 'secondary.main' : 'primary.main',
-        backgroundImage: bg ? `${actionOverlay}, url(${bg})` : undefined,
-        backgroundSize: 'cover',
-        backgroundPosition: 'right center',
-        backgroundRepeat: 'no-repeat',
-      }}
+    <ButtonBase
       onClick={onClick}
+      aria-label={label}
+      sx={(theme) => {
+        const color = combatColors(theme)[info.category];
+        return {
+          width: '100%',
+          height: '100%',
+          justifyContent: 'flex-start',
+          gap: 1,
+          px: 1,
+          borderRadius: `${theme.radius.sm}px`,
+          borderLeft: `4px solid ${color}`,
+          bgcolor: alpha(color, done ? 0.06 : 0.14),
+          color: done ? 'text.secondary' : 'text.primary',
+          transition: theme.transitions.create(['background-color', 'transform']),
+          '&:hover': { bgcolor: alpha(color, 0.22) },
+          '& .MuiSvgIcon-root': { fontSize: 18, color },
+        };
+      }}
     >
-      <CardActionArea sx={{ height: '100%' }} onClick={onClick}>
-        <CardContent
-          sx={{
-            height: '100%',
-            display: 'flex',
-            alignItems: 'center',
-            p: 1,
-            bgcolor: 'rgba(0,0,0,0)',
-            '&:last-child': { pb: 1 },
-          }}
-        >
-          <Box sx={{ width: '100%', minWidth: 0 }}>
-            <Typography
-              variant="caption"
-              noWrap
-              sx={{
-                color: completed ? 'secondary' : 'primary',
-                textTransform: 'none',
-                fontWeight: 700,
-              }}
-            >
-              {actionName}
-              {completed ? '' : '...'}
-            </Typography>
-          </Box>
-        </CardContent>
-      </CardActionArea>
-    </Card>
+      {info.icon()}
+      <Typography variant="caption" sx={{ fontWeight: 600, flex: 1, minWidth: 0, textAlign: 'left' }} noWrap>
+        {label}
+      </Typography>
+      <Stack sx={{ flexShrink: 0 }}>
+        <ActionStateMarker state={state} text={actionResult(action, t)} />
+      </Stack>
+    </ButtonBase>
   );
 }

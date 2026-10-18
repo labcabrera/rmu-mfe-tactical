@@ -1,108 +1,101 @@
-import React, { useContext, useState, useEffect, FC } from 'react';
+import React, { FC, ReactNode, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Typography, Card, CardMedia, CardContent, Box } from '@mui/material';
-import { Character, imageBaseUrl, resolveAssetUrl } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { Box, ButtonBase, Chip, Stack, Typography } from '@mui/material';
+import { Character, ResourceBar } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
 import { ActorRound } from '../../api/actor-rounds.dto';
-import { deadFilter } from '../../services/image-filters';
-import GenericBar from '../../shared/generic/GenericBar';
+import { useFactionColor } from '../../services/faction-colors';
+import ActorRoundAvatar from '../../shared/avatars/ActorRoundAvatar';
 
-// Palette paths: hit points in blue while above half, fatigue in red once above half.
-const colorHpOk = 'info.dark';
-const colorEnduranceOk = 'warning.dark';
-const colorKo = 'error.dark';
+const isDown = (actorRound: ActorRound) =>
+  actorRound.effects.find((e) => e.status === 'dead' || e.status === 'unconcious')?.status;
 
+/**
+ * Actor cell of the board: a large miniature (with a ring in the faction color) beside the name, a "down"
+ * chip, profession and level, faction (with its color dot), and hit point and fatigue bars. `extra` adds
+ * content below (the effects, when the board has no effects column).
+ */
 const ActorRoundResume: FC<{
   actorRound: ActorRound;
   onActorRoundView: (actorRound: ActorRound) => void;
-  /** Phones: smaller portrait and bars. */
-  compact?: boolean;
-}> = ({ actorRound, onActorRoundView, compact = false }) => {
-  const imageSize = compact ? 64 : 80;
-  const barSize = compact ? 56 : 72;
+  selected?: boolean;
+  extra?: ReactNode;
+}> = ({ actorRound, onActorRoundView, selected = false, extra }) => {
   const { t } = useTranslation();
   const { characters, factions } = useContext(CombatContext)!;
-  const [character, setCharacter] = useState<Character | null>(null);
-  const isDead = actorRound.effects.some((e) => e.status === 'dead');
-
-  useEffect(() => {
-    if (actorRound && characters && factions) {
-      const check = characters.find((c: Character) => c.id === actorRound.actorId) || null;
-      setCharacter(check);
-    }
-  }, [actorRound, characters, factions]);
-
-  if (!character) return null;
-  const bgUrl = `${(imageBaseUrl ?? '').replace(/\/?$/, '/')}images/backgrounds/bg-03.png`;
+  const factionColor = useFactionColor();
+  const character = characters?.find((c: Character) => c.id === actorRound.actorId);
+  const faction = factions?.find((f) => f.id === actorRound.factionId);
+  const color = factionColor(actorRound.factionId);
+  const down = isDown(actorRound);
 
   return (
-    <Card
-      component="button"
-      type="button"
-      onClick={() => onActorRoundView(actorRound)}
-      aria-label={character.name}
-      sx={{
-        p: 0,
-        border: 0,
-        textAlign: 'left',
-        font: 'inherit',
-        color: 'inherit',
-        width: '100%',
-        height: '100%',
-        cursor: 'pointer',
-        display: 'flex',
-        alignItems: 'stretch',
-        backgroundImage: `linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url(${bgUrl})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-      }}
-      elevation={0}
-    >
-      <CardContent sx={{ width: '100%', minWidth: 0, p: 1.5, '&:last-child': { pb: 1.5 }, display: 'flex', alignItems: 'flex-start' }}>
-        <CardMedia
-          component="img"
-          image={resolveAssetUrl(actorRound.imageUrl) || `${imageBaseUrl}images/races/unknown.png`}
-          sx={{
-            width: imageSize,
-            height: imageSize,
-            flexShrink: 0,
-            objectFit: 'cover',
-            borderRadius: 1,
-            mr: 1.5,
-            filter: isDead ? deadFilter : undefined,
-          }}
-        />
-
-        <Box sx={{ flex: 1, minWidth: 0 }}>
-          <Typography variant="body1" color={isDead ? 'error' : 'primary'} noWrap sx={{ fontWeight: 600 }}>
-            {character.name}
-          </Typography>
-          <Typography variant="body2" color="secondary" noWrap sx={{ fontWeight: 600 }}>
-            {t('profession-level', { profession: t(character.info.professionId), level: character.experience.level })}
-          </Typography>
-          <Typography variant="body2" color="secondary" noWrap sx={{ fontWeight: 600 }}>
-            {`${character.faction?.name || ''}`}
-          </Typography>
-
-          <Box sx={{ mt: 1 }}>
-            <GenericBar
-              current={actorRound.hp.current}
-              max={actorRound.hp.max}
-              width={barSize}
-              colorOk={colorHpOk}
-              colorKo={colorKo}
-            />
-            <GenericBar
+    <Stack sx={{ height: '100%', gap: 1, p: 1.25 }}>
+      <ButtonBase
+        onClick={() => onActorRoundView(actorRound)}
+        aria-pressed={selected}
+        sx={{
+          display: 'flex',
+          alignItems: 'stretch',
+          justifyContent: 'flex-start',
+          gap: 1.25,
+          textAlign: 'left',
+          borderRadius: 1,
+          width: '100%',
+        }}
+      >
+        {/* The miniature takes the height of the name, faction and bars: players find their figure by it. */}
+        <ActorRoundAvatar actorRound={actorRound} size={96} variant="rounded" ringColor={color} dead={!!down} />
+        <Stack sx={{ flex: 1, minWidth: 0, justifyContent: 'space-between', gap: 0.5 }}>
+          <Box sx={{ minWidth: 0 }}>
+            <Stack direction="row" spacing={1} sx={{ alignItems: 'center', minWidth: 0 }}>
+              <Typography
+                variant="subtitle2"
+                sx={{
+                  fontWeight: 700,
+                  flex: 1,
+                  minWidth: 0,
+                  textDecoration: down === 'dead' ? 'line-through' : undefined,
+                }}
+                color={down ? 'text.secondary' : 'text.primary'}
+                noWrap
+              >
+                {actorRound.actorName}
+              </Typography>
+              {down && <Chip size="small" color="error" label={t(down)} />}
+            </Stack>
+            {character && (
+              <Typography variant="caption" color="text.secondary" component="div" noWrap>
+                {t('profession-level', {
+                  profession: t(character.info.professionId),
+                  level: character.experience.level,
+                })}
+              </Typography>
+            )}
+            {faction && (
+              <Stack direction="row" spacing={0.75} sx={{ alignItems: 'center', minWidth: 0 }}>
+                <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: color, flexShrink: 0 }} />
+                <Typography variant="caption" color="text.secondary" noWrap>
+                  {faction.name}
+                </Typography>
+              </Stack>
+            )}
+          </Box>
+          <Stack spacing={0.25}>
+            <ResourceBar label={t('hp')} current={actorRound.hp.current} max={actorRound.hp.max} kind="hp" dense />
+            <ResourceBar
+              label={t('fatigue')}
               current={Math.round(actorRound.fatigue.accumulator)}
               max={100}
-              width={barSize}
-              colorOk={colorKo}
-              colorKo={colorEnduranceOk}
+              kind="fatigue"
+              valueLabel={`${Math.round(actorRound.fatigue.accumulator)}%`}
+              dense
             />
-          </Box>
-        </Box>
-      </CardContent>
-    </Card>
+          </Stack>
+        </Stack>
+      </ButtonBase>
+      {extra}
+    </Stack>
   );
 };
 

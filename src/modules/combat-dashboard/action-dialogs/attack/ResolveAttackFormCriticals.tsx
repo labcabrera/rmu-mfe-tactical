@@ -2,12 +2,11 @@ import React, { Dispatch, FC, Fragment, SetStateAction, useContext } from 'react
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import { Stack, Grid, Typography } from '@mui/material';
-import { CategorySeparator, useNotify } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { CategorySeparator, useNotify, ConfirmedRollInput } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../CombatContext';
 import { updateCriticalRoll } from '../../../api/action';
 import { Action, ActionAttack, AttackDeclaration, CriticalEffect } from '../../../api/action.dto';
 import { criticalCode } from '../../../services/action-service';
-import ConfirmedRollInput from '../../../shared/generic/ConfirmedRollInput';
 import Effect from '../../../shared/generic/Effect';
 
 const ResolveAttackFormCriticals: FC<{
@@ -61,7 +60,7 @@ const ResolveAttackFormCriticals: FC<{
                 text={t('critical-code', { code: criticalCode(critical.criticalType, critical.criticalSeverity) })}
               />
             </Grid>
-            <Grid size={{ xs: 6, md: 2 }}>
+            <Grid size={6}>
               <ConfirmedRollInput
                 label={t('critical-roll')}
                 value={getCriticalRoll(critical.key)}
@@ -69,7 +68,7 @@ const ResolveAttackFormCriticals: FC<{
                 disabled={action.status === 'completed'}
               />
             </Grid>
-            <Grid size={{ xs: 6, md: 2 }} offset={{ md: 2 }}>
+            <Grid size={6}>
               <Stack>
                 <Typography variant="h6">{critical.adjustedRoll}</Typography>
                 <Typography variant="body2" color="secondary">
@@ -77,7 +76,7 @@ const ResolveAttackFormCriticals: FC<{
                 </Typography>
               </Stack>
             </Grid>
-            <Grid size={{ xs: 12, md: 6 }}>
+            <Grid size={12}>
               <Stack
                 direction="row"
                 spacing={1}
@@ -90,7 +89,7 @@ const ResolveAttackFormCriticals: FC<{
                 }}
               >
                 {!!critical.result?.damage && critical.result.damage > 0 && (
-                  <Effect status={'dmg'} label={`${critical.result.damage}`} color="error" />
+                  <Effect status={'dmg'} label={t('damage-n', { damage: critical.result.damage })} color="error" />
                 )}
                 {critical.result &&
                   critical.result.effects &&
@@ -100,9 +99,7 @@ const ResolveAttackFormCriticals: FC<{
                   ))}
               </Stack>
             </Grid>
-            <Grid size={{ xs: 12, md: 6 }} offset={{ md: 6 }}>
-              {critical.result?.text || ''}
-            </Grid>
+            <Grid size={12}>{critical.result?.text || ''}</Grid>
           </Fragment>
         ))}
       </Grid>

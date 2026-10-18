@@ -24,7 +24,7 @@ export default function ActorActions({
   const { placement, rowsCount } = assignRows(actions, phases, currentPhase);
   const isDead = actorRound.effects.some((e) => e.status === 'dead');
 
-  const rowHeight = 58;
+  const rowHeight = 40;
   const gap = 6;
 
   if (isDead) return;
@@ -86,8 +86,6 @@ export default function ActorActions({
             gap: `${gap}px`,
             width: '100%',
             minHeight: `${rowHeight}px`,
-            border: '1px solid rgba(0,0,0,0.06)',
-            borderRadius: 0,
             boxSizing: 'border-box',
             overflow: 'visible',
           }}
@@ -96,8 +94,6 @@ export default function ActorActions({
             const colStart = p.start;
             const colEnd = p.end + 1;
             const row = p.row + 1;
-            const completed = p.action.status === 'completed';
-
             return (
               <Grid
                 key={p.action.id}
@@ -110,7 +106,7 @@ export default function ActorActions({
                   justifyContent: 'center',
                 }}
               >
-                <ActorAction action={p.action} completed={completed} onClick={() => onActionClick(p.action)} />
+                <ActorAction action={p.action} onClick={() => onActionClick(p.action)} />
               </Grid>
             );
           })}

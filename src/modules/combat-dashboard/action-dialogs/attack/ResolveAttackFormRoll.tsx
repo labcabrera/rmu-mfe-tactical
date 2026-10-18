@@ -2,16 +2,20 @@ import React, { Dispatch, FC, SetStateAction, useContext, useState } from 'react
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import { Grid, Chip, Stack, Typography } from '@mui/material';
-import { CategorySeparator, OpenEndedRollInput, useNotify } from '@labcabrera-rmu/rmu-react-shared-lib';
+import {
+  CategorySeparator,
+  OpenEndedRollInput,
+  useNotify,
+  ConfirmedRollInput,
+} from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../CombatContext';
 import { updateAttackRoll } from '../../../api/action';
 import { Action, ActionAttack, AttackDeclaration } from '../../../api/action.dto';
 import { criticalCode } from '../../../services/action-service';
-import ConfirmedRollInput from '../../../shared/generic/ConfirmedRollInput';
 import Effect from '../../../shared/generic/Effect';
+import { AttackNextStep, AttackResultSummary } from './AttackResolutionGuide';
 import ResolveAttackFormCriticals from './ResolveAttackFormCriticals';
 import ResolveAttackFormFumble from './ResolveAttackFormFumble';
-import { AttackNextStep, AttackResultSummary } from './AttackResolutionGuide';
 import ResolveAttackInfo from './ResolveAttackInfo';
 
 const ResolveAttackFormRoll: FC<{
@@ -84,7 +88,7 @@ const ResolveAttackFormRoll: FC<{
         <AttackNextStep attack={attack} />
       </Grid>
       {attack.calculated.requiredLocationRoll && (
-        <Grid size={{ xs: 6, md: 2 }}>
+        <Grid size={6}>
           <ConfirmedRollInput
             label={t('location-roll')}
             value={attack.roll?.locationRoll}
@@ -104,7 +108,7 @@ const ResolveAttackFormRoll: FC<{
       <Grid size={12}>
         <CategorySeparator text={t('attack-roll')} />
       </Grid>
-      <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+      <Grid size={7}>
         <OpenEndedRollInput
           inputGridSize={12}
           gridColumns={12}
@@ -114,7 +118,7 @@ const ResolveAttackFormRoll: FC<{
           onChange={(e) => onRollChange(e ?? undefined)}
         />
       </Grid>
-      <Grid size={{ xs: 12, sm: 6, md: 2 }} offset={{ md: 1 }}>
+      <Grid size={5}>
         <Stack>
           <Typography variant="h6">{attack.calculated.rollTotal}</Typography>
           <Typography variant="body2" color="secondary">
@@ -122,11 +126,15 @@ const ResolveAttackFormRoll: FC<{
           </Typography>
         </Stack>
       </Grid>
-      <Grid size={{ xs: 12, md: 6 }}>
+      <Grid size={12}>
         {attack.results && attack.results.attackTableEntry && (
           <Stack direction="row" spacing={1} useFlexGap sx={{ flexWrap: 'wrap' }}>
             {attack.results.attackTableEntry.damage > 0 ? (
-              <Effect status={'dmg'} label={`${attack.results.attackTableEntry.damage}`} color="error" />
+              <Effect
+                status={'dmg'}
+                label={t('damage-n', { damage: attack.results.attackTableEntry.damage })}
+                color="error"
+              />
             ) : (
               <Typography>{t('no-damage')}</Typography>
             )}
