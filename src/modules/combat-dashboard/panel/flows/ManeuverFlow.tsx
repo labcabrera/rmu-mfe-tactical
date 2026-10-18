@@ -1,13 +1,12 @@
 import React, { FC, useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
-import { Box, Chip, Stack, Typography } from '@mui/material';
+import { Box, Stack } from '@mui/material';
 import {
   FlowStep,
   formatBonus,
   NumericInput,
   OpenEndedRollInput,
-  RollBreakdown,
   useNotify,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../CombatContext';
@@ -18,8 +17,8 @@ import { useSkillService } from '../../../services/skill-service';
 import SelectLightModifier from '../../../shared/selects/SelectLightModifier';
 import SelectLightType from '../../../shared/selects/SelectLightType';
 import ActionFlow from '../ActionFlow';
+import { ManeuverResult } from './ActionResults';
 import DifficultyPicker from './DifficultyPicker';
-import ResultValues from './ResultValues';
 
 /**
  * Static or moving maneuver in the side panel: the skill and type chosen when it was declared, the modifiers
@@ -59,8 +58,6 @@ const ManeuverFlow: FC<{
       .finally(() => setBusy(false));
   };
 
-  const result = action.maneuver?.result;
-  const success = result?.result === 'success';
   const steps: FlowStep[] = [
     {
       id: 'skill',
@@ -123,21 +120,7 @@ const ManeuverFlow: FC<{
     {
       id: 'result',
       label: t('result'),
-      content: result && (
-        <Stack spacing={2}>
-          <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
-            <Chip label={t(result.result)} color={success ? 'success' : 'error'} />
-            {action.maneuver?.roll?.totalRoll !== undefined && (
-              <Typography variant="body2" color="text.secondary">
-                {t('total-value', { value: action.maneuver.roll.totalRoll })}
-              </Typography>
-            )}
-          </Stack>
-          {result.message && <Typography variant="body2">{result.message}</Typography>}
-          <ResultValues values={[{ label: t('fatigue'), value: action.fatigue || 0 }]} />
-          {action.maneuver?.roll?.modifiers && <RollBreakdown modifiers={action.maneuver.roll.modifiers} />}
-        </Stack>
-      ),
+      content: <ManeuverResult action={action} />,
     },
   ];
 

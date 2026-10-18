@@ -1,18 +1,16 @@
-import React, { FC, ReactNode, useContext, useState } from 'react';
+import React, { FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useAuth } from 'react-oidc-context';
-import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
-import { Button, IconButton, Menu, MenuItem, Stack } from '@mui/material';
-import { ConfirmDialog, FlowStep, FlowSteps, useNotify } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { CombatContext } from '../../../CombatContext';
-import { deleteAction } from '../../api/action';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { Button, Stack } from '@mui/material';
+import { FlowStep, FlowSteps } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { Action } from '../../api/action.dto';
+import { useDeleteAction } from './useDeleteAction';
 
 export type FlowButton = { label: string; onClick: () => void; disabled?: boolean };
 
 /**
- * Frame of every action in the side panel: the steps (done ones summarized, the current one open), and a
- * sticky footer with the step's main button, an optional back button and a "…" menu with a confirmed delete.
+ * Frame of every action in the resolution dialog: the steps (done ones summarized, the current one open), and
+ * a sticky footer with a confirmed delete, an optional back button and the step's main button.
  * Once the action is done, the main button moves on to the next pending action.
  */
 const ActionFlow: FC<{
@@ -21,32 +19,15 @@ const ActionFlow: FC<{
   activeIndex: number;
   primary?: FlowButton;
   back?: FlowButton;
-  /** Called after the action is deleted (the panel closes). */
+  /** Called after the action is deleted (the dialog closes). */
   onDeleted: () => void;
   /** Opens the next action waiting for input, if there is one. */
   onNextPending?: () => void;
-  /** Extra entries of the "…" menu. */
-  menu?: ReactNode;
-}> = ({ action, steps, activeIndex, primary, back, onDeleted, onNextPending, menu }) => {
+}> = ({ action, steps, activeIndex, primary, back, onDeleted, onNextPending }) => {
   const { t } = useTranslation();
-  const auth = useAuth();
-  const notify = useNotify();
-  const { roundActions, setRoundActions } = useContext(CombatContext)!;
-  const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null);
-  const [confirmDelete, setConfirmDelete] = useState(false);
+  const { requestDelete, dialog } = useDeleteAction(action, onDeleted);
   const [reviewing, setReviewing] = useState<string | null>(null);
   const done = action.status === 'completed';
-
-  const onDelete = () => {
-    setConfirmDelete(false);
-    deleteAction(action.id, auth)
-      .then(() => {
-        setRoundActions((roundActions ?? []).filter((a) => a.id !== action.id));
-        notify.success(t('action-deleted'));
-        onDeleted();
-      })
-      .catch((err) => notify.error(err));
-  };
 
   const main: FlowButton | undefined =
     done && onNextPending ? { label: t('next-pending-action'), onClick: onNextPending } : primary;
@@ -60,9 +41,9 @@ const ActionFlow: FC<{
         onReview={setReviewing}
         footer={
           <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
-            <IconButton aria-label={t('more-actions')} onClick={(e) => setMenuAnchor(e.currentTarget)}>
-              <MoreHorizIcon />
-            </IconButton>
+            <Button color="error" startIcon={<DeleteIcon />} onClick={requestDelete}>
+              {t('delete')}
+            </Button>
             <Stack direction="row" spacing={1} sx={{ flex: 1, justifyContent: 'flex-end' }}>
               {back && !done && (
                 <Button onClick={back.onClick} disabled={back.disabled}>
@@ -78,27 +59,7 @@ const ActionFlow: FC<{
           </Stack>
         }
       />
-      <Menu anchorEl={menuAnchor} open={Boolean(menuAnchor)} onClose={() => setMenuAnchor(null)}>
-        {menu}
-        <MenuItem
-          sx={{ color: 'error.main' }}
-          onClick={() => {
-            setMenuAnchor(null);
-            setConfirmDelete(true);
-          }}
-        >
-          {t('delete')}
-        </MenuItem>
-      </Menu>
-      <ConfirmDialog
-        open={confirmDelete}
-        title={t('delete-action')}
-        message={t('delete-action-confirmation')}
-        confirmLabel={t('delete')}
-        destructive
-        onClose={() => setConfirmDelete(false)}
-        onConfirm={onDelete}
-      />
+      {dialog}
     </>
   );
 };

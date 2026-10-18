@@ -36,7 +36,14 @@ const AttackTargetsStep: FC<{
   }
 
   return (
-    <Stack spacing={1.5}>
+    // Two weapons side by side on wide screens.
+    <Box
+      sx={{
+        display: 'grid',
+        gridTemplateColumns: { xs: '1fr', lg: attacks.length > 1 ? 'repeat(2, minmax(0, 1fr))' : '1fr' },
+        gap: 2,
+      }}
+    >
       {attacks.map((attack) => {
         const weapon = actorRound.attacks.find((a) => a.attackName === attack.attackName);
         const targetId = attack.modifiers.targetId;
@@ -48,7 +55,7 @@ const AttackTargetsStep: FC<{
             <CardContent>
               <Stack spacing={1.5}>
                 <Box>
-                  <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
                     {t(attack.attackName)}
                   </Typography>
                   <Typography variant="caption" color="text.secondary">
@@ -122,7 +129,7 @@ const AttackTargetsStep: FC<{
           </Card>
         );
       })}
-    </Stack>
+    </Box>
   );
 };
 

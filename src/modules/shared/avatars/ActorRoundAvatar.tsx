@@ -13,15 +13,14 @@ const initials = (name: string | undefined) =>
 
 /**
  * Avatar of an actor: its miniature image (the players need it to find the figure on the table), or its
- * initials when it has none. `ringColor` draws a ring around it (the faction color).
+ * initials when it has none.
  */
 const ActorRoundAvatar: FC<{
   actorRound?: ActorRound;
   size?: number;
   dead?: boolean;
   variant?: 'circular' | 'rounded' | 'square';
-  ringColor?: string;
-}> = ({ actorRound, dead = false, variant = 'circular', size = 40, ringColor }) => (
+}> = ({ actorRound, dead = false, variant = 'circular', size = 40 }) => (
   <Avatar
     src={actorRound?.imageUrl ? resolveAssetUrl(actorRound.imageUrl) : undefined}
     variant={variant}
@@ -34,8 +33,8 @@ const ActorRoundAvatar: FC<{
       fontWeight: 700,
       bgcolor: 'background.light',
       color: dead ? 'text.disabled' : 'text.primary',
-      border: ringColor ? `2px solid ${ringColor}` : 1,
-      borderColor: ringColor ? undefined : 'divider',
+      border: 1,
+      borderColor: 'divider',
       filter: dead ? 'grayscale(1)' : undefined,
       opacity: dead ? 0.6 : 1,
     }}

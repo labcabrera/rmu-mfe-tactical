@@ -1,6 +1,7 @@
 import React, { FC, useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button, Stack } from '@mui/material';
+import { ActionStateMarker } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
 import { ActorRound, ActorRoundAlert } from '../../api/actor-rounds.dto';
 import ActorAlertDialog from '../actor-alert-dialogs/ActorAlertDialog';
@@ -40,10 +41,12 @@ const ActorRoundAlerts: FC<{
             {actorRound.alerts.map((alert) => (
               <Button
                 key={alert.id}
-                variant="contained"
-                color="error"
+                // Neutral, not red: the marker alone says it has to be resolved, as for the pending actions.
+                variant="outlined"
+                color="inherit"
                 size="small"
                 onClick={() => handleAlertClick(alert.id)}
+                startIcon={<ActionStateMarker state="pending" />}
                 sx={{ mr: 0.5, mb: 0.5 }}
               >
                 {t(`alert-${alert.type}`)}

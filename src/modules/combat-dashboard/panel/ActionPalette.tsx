@@ -1,13 +1,10 @@
 import React, { FC, KeyboardEvent, useContext, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import SearchIcon from '@mui/icons-material/Search';
 import {
   Box,
-  Button,
   Drawer,
-  IconButton,
   InputAdornment,
   ListItemIcon,
   ListItemText,
@@ -15,7 +12,6 @@ import {
   MenuItem,
   MenuList,
   Popover,
-  Stack,
   TextField,
   Typography,
 } from '@mui/material';
@@ -30,9 +26,7 @@ import { CombatContext } from '../../../CombatContext';
 import { createAction } from '../../api/action';
 import { Action } from '../../api/action.dto';
 import { ActorRound } from '../../api/actor-rounds.dto';
-import { isPhaseTaken } from '../../services/action-service';
-import SelectManeuverType from '../../shared/selects/SelectManeuverType';
-import SelectSkillByCategory from '../../shared/selects/SelectSkillByCategory';
+import ManeuverDeclareDialog from './ManeuverDeclareDialog';
 
 type PaletteEntry = {
   key: string;
@@ -56,10 +50,16 @@ const usePaletteGroups = (actorRound: ActorRound, phase: number): PaletteGroup[]
   const { t } = useTranslation();
   const { roundActions } = useContext(CombatContext)!;
   const actions = roundActions ?? [];
-  const pending = actions.filter((a) => a.actorId === actorRound.actorId && a.status !== 'completed');
-  const phaseTaken = isPhaseTaken(actorRound.actorId, phase, actions);
-  const moving = pending.some((a) => a.actionType === 'movement');
-  const attacking = pending.some((a) => a.actionType === 'melee_attack' && !a.freeAction);
+  const own = actions.filter((a) => a.actorId === actorRound.actorId);
+  // A movement is declared only once per phase: none of the actor's movements may cover it (one not finished
+  // yet covers up to the current phase, as in the API).
+  const moving = own.some(
+    (a) => a.actionType === 'movement' && a.phaseStart <= phase && phase <= (a.phaseEnd ?? phase)
+  );
+  // One attack at a time, melee or ranged: not while another one is still unresolved.
+  const attacking = own.some(
+    (a) => (a.actionType === 'melee_attack' || a.actionType === 'ranged_attack') && a.status !== 'completed'
+  );
 
   const entry = (type: CombatActionType, extra: Partial<PaletteEntry> = {}): PaletteEntry => ({
     key: extra.key ?? type,
@@ -83,7 +83,6 @@ const usePaletteGroups = (actorRound: ActorRound, phase: number): PaletteGroup[]
           freeAction: true,
           unavailable: moving ? 'already-moving' : undefined,
         }),
-        entry('stand_up', { unavailable: phaseTaken ? 'phase-taken' : undefined }),
       ],
     },
     {
@@ -91,104 +90,35 @@ const usePaletteGroups = (actorRound: ActorRound, phase: number): PaletteGroup[]
       label: t('combat'),
       entries: [
         entry('melee_attack', {
-          unavailable: phaseTaken
-            ? 'phase-taken'
-            : attacking
-              ? 'already-attacking'
-              : !melee
-                ? 'no-melee-attacks'
-                : undefined,
+          unavailable: attacking ? 'already-attacking' : !melee ? 'no-melee-attacks' : undefined,
         }),
         entry('ranged_attack', {
-          unavailable: phaseTaken ? 'phase-taken' : !ranged ? 'no-ranged-attacks' : undefined,
+          unavailable: attacking ? 'already-attacking' : !ranged ? 'no-ranged-attacks' : undefined,
         }),
-        entry('dodge', { unavailable: phaseTaken ? 'phase-taken' : undefined }),
-        entry('draw_and_load', { unavailable: phaseTaken ? 'phase-taken' : undefined }),
+        entry('dodge'),
+        entry('draw_and_load'),
       ],
     },
     {
       key: 'maneuvers',
       label: t('maneuvers'),
-      entries: [
-        entry('maneuver', { unavailable: phaseTaken ? 'phase-taken' : undefined }),
-        entry('perception', { unavailable: phaseTaken ? 'phase-taken' : undefined }),
-        entry('medical', { unavailable: phaseTaken ? 'phase-taken' : undefined }),
-      ],
+      entries: [entry('maneuver'), entry('perception'), entry('medical')],
     },
     { key: 'magic', label: t('magic'), entries: [entry('cast_spell'), entry('cast_instant')] },
     { key: 'other', label: t('other'), entries: [entry('other')] },
   ];
 };
 
-/**
- * Action palette of an actor: the action types grouped, filterable by typing (Enter picks the first match),
- * with the reason of the ones that cannot be declared now. Choosing one creates the action; maneuvers first
- * ask for the skill and the maneuver type in the same view. A popover, or a bottom sheet on phones.
- */
-const ActionPalette: FC<{
-  actorRound: ActorRound | null;
-  phase: number;
-  anchorEl: HTMLElement | null;
-  onClose: () => void;
-  onCreated: (action: Action) => void;
-}> = ({ actorRound, phase, anchorEl, onClose, onCreated }) => {
-  const isPhone = usePhone();
-  const open = Boolean(actorRound);
-  const content = actorRound && (
-    <PaletteContent actorRound={actorRound} phase={phase} onClose={onClose} onCreated={onCreated} />
-  );
-  if (isPhone) {
-    return (
-      <Drawer anchor="bottom" open={open} onClose={onClose} slotProps={{ paper: { sx: { maxHeight: '85dvh' } } }}>
-        {content}
-      </Drawer>
-    );
-  }
-  return (
-    <Popover
-      open={open}
-      anchorEl={anchorEl}
-      onClose={onClose}
-      // Opened from the keyboard there is no button to anchor to: show it at the top center.
-      anchorReference={anchorEl ? 'anchorEl' : 'anchorPosition'}
-      anchorPosition={{ top: 120, left: typeof window === 'undefined' ? 0 : window.innerWidth / 2 }}
-      transformOrigin={anchorEl ? undefined : { vertical: 'top', horizontal: 'center' }}
-      anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
-      slotProps={{ paper: { sx: { width: 340, maxHeight: '70vh' } } }}
-    >
-      {content}
-    </Popover>
-  );
-};
-
-const PaletteContent: FC<{
-  actorRound: ActorRound;
-  phase: number;
-  onClose: () => void;
-  onCreated: (action: Action) => void;
-}> = ({ actorRound, phase, onClose, onCreated }) => {
+/** Creates an action of an actor in a phase and adds it to the round. */
+const useCreateAction = (actorRound: ActorRound | null, phase: number, onCreated: (action: Action) => void) => {
   const { t } = useTranslation();
   const auth = useAuth();
   const notify = useNotify();
   const { game, roundActions, setRoundActions } = useContext(CombatContext)!;
-  const groups = usePaletteGroups(actorRound, phase);
-  const [filter, setFilter] = useState('');
-  const [maneuver, setManeuver] = useState<{ skillId: string | null; maneuverType: string } | null>(null);
   const [busy, setBusy] = useState(false);
-  const listRef = useRef<HTMLUListElement>(null);
-
-  const visible = useMemo(() => {
-    const term = filter.trim().toLowerCase();
-    return groups
-      .map((group) => ({
-        ...group,
-        entries: group.entries.filter((e) => !term || e.label.toLowerCase().includes(term)),
-      }))
-      .filter((group) => group.entries.length > 0);
-  }, [groups, filter]);
 
   const create = (entry: PaletteEntry, extra: Record<string, unknown> = {}) => {
-    if (!game || busy) return;
+    if (!game || !actorRound || busy) return;
     setBusy(true);
     createAction(
       {
@@ -209,13 +139,115 @@ const PaletteContent: FC<{
       .catch((err) => notify.error(err))
       .finally(() => setBusy(false));
   };
+  return { create, busy };
+};
+
+type ManeuverChoice = { entry: PaletteEntry; skillId: string | null };
+
+/**
+ * Action palette of an actor: the action types grouped, filterable by typing (Enter picks the first match),
+ * with the reason of the ones that cannot be declared now. Choosing one declares the action; maneuvers first
+ * ask for their skill and type in a dialog. A popover, or a bottom sheet on phones.
+ */
+const ActionPalette: FC<{
+  actorRound: ActorRound | null;
+  phase: number;
+  anchorEl: HTMLElement | null;
+  onClose: () => void;
+  onCreated: (action: Action) => void;
+}> = ({ actorRound, phase, anchorEl, onClose, onCreated }) => {
+  const isPhone = usePhone();
+  const [maneuver, setManeuver] = useState<ManeuverChoice | null>(null);
+  const { create, busy } = useCreateAction(actorRound, phase, (action) => {
+    setManeuver(null);
+    onCreated(action);
+  });
+  const close = () => {
+    setManeuver(null);
+    onClose();
+  };
+  // The palette hides while the maneuver dialog is open.
+  const open = Boolean(actorRound) && !maneuver;
+  const content = actorRound && (
+    <PaletteContent
+      actorRound={actorRound}
+      phase={phase}
+      busy={busy}
+      onClose={close}
+      onCreate={create}
+      onManeuver={setManeuver}
+    />
+  );
+  const dialog = (
+    <ManeuverDeclareDialog
+      open={Boolean(actorRound && maneuver)}
+      actorRound={actorRound}
+      initialSkillId={maneuver?.skillId}
+      busy={busy}
+      onClose={close}
+      onDeclare={(declared) => maneuver && create(maneuver.entry, { maneuver: declared })}
+    />
+  );
+  if (isPhone) {
+    return (
+      <>
+        <Drawer anchor="bottom" open={open} onClose={close} slotProps={{ paper: { sx: { maxHeight: '85dvh' } } }}>
+          {content}
+        </Drawer>
+        {dialog}
+      </>
+    );
+  }
+  return (
+    <>
+      <Popover
+        open={open}
+        anchorEl={anchorEl}
+        onClose={close}
+        // Opened from the keyboard there is no button to anchor to: show it at the top center.
+        anchorReference={anchorEl ? 'anchorEl' : 'anchorPosition'}
+        anchorPosition={{ top: 120, left: typeof window === 'undefined' ? 0 : window.innerWidth / 2 }}
+        transformOrigin={anchorEl ? undefined : { vertical: 'top', horizontal: 'center' }}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+        slotProps={{ paper: { sx: { width: 460, maxWidth: 'calc(100vw - 32px)', maxHeight: '70vh' } } }}
+      >
+        {content}
+      </Popover>
+      {dialog}
+    </>
+  );
+};
+
+const PaletteContent: FC<{
+  actorRound: ActorRound;
+  phase: number;
+  busy: boolean;
+  onClose: () => void;
+  onCreate: (entry: PaletteEntry) => void;
+  onManeuver: (choice: ManeuverChoice) => void;
+}> = ({ actorRound, phase, busy, onClose, onCreate, onManeuver }) => {
+  const { t } = useTranslation();
+  const groups = usePaletteGroups(actorRound, phase);
+  const [filter, setFilter] = useState('');
+  const listRef = useRef<HTMLUListElement>(null);
+
+  const visible = useMemo(() => {
+    const term = filter.trim().toLowerCase();
+    return groups
+      .map((group) => ({
+        ...group,
+        entries: group.entries.filter((e) => !term || e.label.toLowerCase().includes(term)),
+      }))
+      .filter((group) => group.entries.length > 0);
+  }, [groups, filter]);
 
   const choose = (entry: PaletteEntry) => {
     if (entry.unavailable) return;
-    if (entry.type === 'maneuver') setManeuver({ skillId: null, maneuverType: 'absolute' });
-    else if (SKILL_MANEUVERS[entry.type])
-      setManeuver({ skillId: SKILL_MANEUVERS[entry.type]!, maneuverType: 'absolute' });
-    else create(entry);
+    // Perception and medical are maneuvers with their skill already chosen.
+    const maneuverEntry = groups.flatMap((g) => g.entries).find((e) => e.type === 'maneuver')!;
+    if (entry.type === 'maneuver') onManeuver({ entry, skillId: null });
+    else if (SKILL_MANEUVERS[entry.type]) onManeuver({ entry: maneuverEntry, skillId: SKILL_MANEUVERS[entry.type]! });
+    else onCreate(entry);
   };
 
   const onFilterKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
@@ -227,44 +259,6 @@ const PaletteContent: FC<{
       listRef.current?.querySelector<HTMLElement>('[role="menuitem"]:not([aria-disabled="true"])')?.focus();
     }
   };
-
-  if (maneuver) {
-    // Perception and medical are maneuvers with their skill already chosen.
-    const entry = groups.flatMap((g) => g.entries).find((e) => e.type === 'maneuver')!;
-    return (
-      <Stack spacing={2} sx={{ p: 2 }}>
-        <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
-          <IconButton aria-label={t('back')} onClick={() => setManeuver(null)}>
-            <ArrowBackIcon />
-          </IconButton>
-          <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-            {entry.label}
-          </Typography>
-        </Stack>
-        <Box>
-          <Typography variant="caption" color="text.secondary" component="div" sx={{ mb: 0.5 }}>
-            {t('maneuver-type')}
-          </Typography>
-          <SelectManeuverType
-            value={maneuver.maneuverType}
-            onChange={(maneuverType) => setManeuver({ ...maneuver, maneuverType })}
-          />
-        </Box>
-        <SelectSkillByCategory
-          value={maneuver.skillId ?? undefined}
-          onChange={(skillId) => setManeuver({ ...maneuver, skillId })}
-        />
-        <Button
-          variant="contained"
-          disabled={!maneuver.skillId || busy}
-          onClick={() => create(entry, { maneuver })}
-          sx={{ alignSelf: 'flex-end' }}
-        >
-          {t('declare')}
-        </Button>
-      </Stack>
-    );
-  }
 
   return (
     <Box>

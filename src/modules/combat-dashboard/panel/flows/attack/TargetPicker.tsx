@@ -11,7 +11,18 @@ const armor = (target: ActorRound) =>
   target.defense.at ??
   [target.defense.headAt, target.defense.bodyAt, target.defense.armsAt, target.defense.legsAt].join('/');
 
-/** One actor as a target: miniature, name, DB, AT, hit points and state. */
+const Stat: FC<{ label: string; value: string | number }> = ({ label, value }) => (
+  <Box sx={{ textAlign: 'center', minWidth: 40 }}>
+    <Typography variant="subtitle2" sx={{ fontWeight: 700, lineHeight: 1.1 }}>
+      {value}
+    </Typography>
+    <Typography variant="caption" color="text.secondary">
+      {label}
+    </Typography>
+  </Box>
+);
+
+/** One actor as a target card: faction stripe, miniature, name and state, and its DB, AT and hit points. */
 export const TargetRow: FC<{ target: ActorRound; selected?: boolean; onClick?: () => void }> = ({
   target,
   selected = false,
@@ -25,22 +36,27 @@ export const TargetRow: FC<{ target: ActorRound; selected?: boolean; onClick?: (
     isActorRoundStunned(target) && t('stunned'),
   ].filter(Boolean) as string[];
   const content = (
-    <Stack direction="row" spacing={1.25} sx={{ alignItems: 'center', width: '100%', minWidth: 0 }}>
-      <ActorRoundAvatar actorRound={target} size={40} variant="rounded" ringColor={factionColor(target.factionId)} />
+    <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center', width: '100%', minWidth: 0 }}>
+      <Box sx={{ width: 4, alignSelf: 'stretch', borderRadius: 1, bgcolor: factionColor(target.factionId) }} />
+      <ActorRoundAvatar actorRound={target} size={56} variant="rounded" />
       <Box sx={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
-        <Typography variant="body2" sx={{ fontWeight: 600 }} noWrap>
+        <Typography variant="subtitle2" sx={{ fontWeight: 700 }} noWrap>
           {target.actorName}
         </Typography>
-        <Typography variant="caption" color="text.secondary" component="div" noWrap>
-          {`${t('bd')} ${target.defense.bd} · ${t('at')} ${armor(target)} · ${t('hp')} ${target.hp.current}/${target.hp.max}`}
-        </Typography>
+        <Stack direction="row" sx={{ flexWrap: 'wrap', gap: 0.5, mt: 0.25 }}>
+          {states.map((state) => (
+            <Chip key={state} size="small" color="warning" label={state} />
+          ))}
+        </Stack>
       </Box>
-      {states.map((state) => (
-        <Chip key={state} size="small" color="warning" variant="outlined" label={state} />
-      ))}
+      <Stack direction="row" spacing={1}>
+        <Stat label={t('bd')} value={target.defense.bd} />
+        <Stat label={t('at-short')} value={armor(target)} />
+        <Stat label={t('hp')} value={`${target.hp.current}/${target.hp.max}`} />
+      </Stack>
     </Stack>
   );
-  if (!onClick) return <Box sx={{ px: 1, py: 0.75 }}>{content}</Box>;
+  if (!onClick) return <Box sx={{ px: 1.25, py: 1 }}>{content}</Box>;
   return (
     <ButtonBase
       role="radio"
@@ -48,12 +64,12 @@ export const TargetRow: FC<{ target: ActorRound; selected?: boolean; onClick?: (
       onClick={onClick}
       sx={(theme) => ({
         width: '100%',
-        px: 1,
-        py: 0.75,
+        px: 1.25,
+        py: 1,
         borderRadius: `${theme.radius.sm}px`,
         border: 1,
         borderColor: selected ? 'primary.main' : 'divider',
-        bgcolor: selected ? alpha(theme.palette.primary.main, 0.12) : 'transparent',
+        bgcolor: selected ? alpha(theme.palette.primary.main, 0.12) : 'background.light',
       })}
     >
       {content}
@@ -93,22 +109,24 @@ const TargetPicker: FC<{
     (ar) => ar.actorId !== sourceActorRound.actorId && (all || ar.factionId !== sourceActorRound.factionId)
   );
   return (
-    <Stack spacing={0.75} role="radiogroup" aria-label={t('target')}>
+    <Stack spacing={1} role="radiogroup" aria-label={t('target')}>
       <FormControlLabel
         control={<Switch size="small" checked={all} onChange={(e) => setAll(e.target.checked)} />}
         label={<Typography variant="caption">{t('show-all-actors')}</Typography>}
       />
-      {candidates.map((target) => (
-        <TargetRow
-          key={target.actorId}
-          target={target}
-          selected={target.actorId === value}
-          onClick={() => {
-            onChange(target.actorId);
-            setChanging(false);
-          }}
-        />
-      ))}
+      <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 1 }}>
+        {candidates.map((target) => (
+          <TargetRow
+            key={target.actorId}
+            target={target}
+            selected={target.actorId === value}
+            onClick={() => {
+              onChange(target.actorId);
+              setChanging(false);
+            }}
+          />
+        ))}
+      </Box>
     </Stack>
   );
 };

@@ -13,8 +13,8 @@ type ActionViewProps = {
   onNextPending?: () => void;
 };
 
-/** An action in the side panel, with the flow of its type. */
-const ActionPanelView: FC<ActionViewProps> = (props) => {
+/** Guided resolution of an action, with the flow of its type (shown in the resolution dialog). */
+const ActionResolutionFlow: FC<ActionViewProps> = (props) => {
   if (props.action.actionType === 'movement') return <MovementFlow {...props} />;
   if (props.action.actionType === 'maneuver') return <ManeuverFlow {...props} />;
   if (SIMPLE_ACTION_TYPES.includes(props.action.actionType)) return <SimpleActionFlow {...props} />;
@@ -22,4 +22,4 @@ const ActionPanelView: FC<ActionViewProps> = (props) => {
   return <AttackFlow kind="melee" {...props} />;
 };
 
-export default ActionPanelView;
+export default ActionResolutionFlow;

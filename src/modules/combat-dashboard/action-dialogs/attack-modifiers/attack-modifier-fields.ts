@@ -2,6 +2,12 @@ import { ActionAttackModifiers } from '../../../api/action.dto';
 
 export type AttackKind = 'melee' | 'ranged';
 export type ModifierFieldGroup = 'offense' | 'defense' | 'situation';
+/**
+ * Where the form shows a field: `roll` adds to or subtracts from the attack roll; `defender` changes how the
+ * target defends (DB, shield, parry, dodge) without a roll bonus; `special` changes other rules (ambush,
+ * charge) and has no fixed value.
+ */
+export type ModifierSection = 'roll' | 'defender' | 'special';
 export type ModifierOption = { key: string; value: number | null };
 
 type Base = {
@@ -9,6 +15,7 @@ type Base = {
   /** i18n key of the label. */
   label: string;
   group: ModifierFieldGroup;
+  section: ModifierSection;
   /** Attack kinds it applies to (both when omitted). */
   appliesTo?: AttackKind[];
 };
@@ -18,7 +25,11 @@ type Base = {
  * real value); `null` when it has no fixed value, as with the DB or shield disables.
  */
 export type FlagField = Base & { kind: 'flag'; bonus: (kind: AttackKind) => number | null };
-export type ChoiceField = Base & { kind: 'choice'; options: (kind: AttackKind) => ModifierOption[]; defaultValue: string };
+export type ChoiceField = Base & {
+  kind: 'choice';
+  options: (kind: AttackKind) => ModifierOption[];
+  defaultValue: string;
+};
 export type NumberField = Base & { kind: 'number'; visible?: (modifiers: ActionAttackModifiers) => boolean };
 export type ModifierField = FlagField | ChoiceField | NumberField;
 
@@ -56,6 +67,7 @@ export const ATTACK_MODIFIER_FIELDS: ModifierField[] = [
     name: 'pace',
     label: 'pace',
     group: 'offense',
+    section: 'roll',
     defaultValue: 'creep',
     options: () =>
       opts([
@@ -70,6 +82,7 @@ export const ATTACK_MODIFIER_FIELDS: ModifierField[] = [
     name: 'chargeSpeed',
     label: 'charge-speed',
     group: 'offense',
+    section: 'special',
     appliesTo: ['melee'],
     defaultValue: 'none',
     options: () =>
@@ -84,27 +97,75 @@ export const ATTACK_MODIFIER_FIELDS: ModifierField[] = [
     name: 'calledShot',
     label: 'called-shot',
     group: 'offense',
+    section: 'roll',
     defaultValue: 'none',
-    options: () => opts(['none', 'head', 'chest', 'abdomen', 'arms', 'legs'].map((key) => [key, key === 'none' ? 0 : -25])),
+    options: () =>
+      opts(['none', 'head', 'chest', 'abdomen', 'arms', 'legs'].map((key) => [key, key === 'none' ? 0 : -25])),
   },
-  { kind: 'number', name: 'calledShotPenalty', label: 'called-shot-penalty', group: 'offense', visible: (m) => !!m.calledShot && m.calledShot !== 'none' },
-  { kind: 'flag', name: 'proneSource', label: 'attacker-prone', group: 'offense', bonus: () => -50 },
-  { kind: 'flag', name: 'attackerInMelee', label: 'in-melee', group: 'offense', appliesTo: ['ranged'], bonus: () => -20 },
-  { kind: 'flag', name: 'ambush', label: 'ambush', group: 'offense', bonus: () => null },
-  { kind: 'number', name: 'customBonus', label: 'custom-bonus', group: 'offense' },
+  {
+    kind: 'number',
+    name: 'calledShotPenalty',
+    label: 'called-shot-penalty',
+    group: 'offense',
+    section: 'roll',
+    visible: (m) => !!m.calledShot && m.calledShot !== 'none',
+  },
+  { kind: 'flag', name: 'proneSource', label: 'attacker-prone', group: 'offense', section: 'roll', bonus: () => -50 },
+  {
+    kind: 'flag',
+    name: 'attackerInMelee',
+    label: 'in-melee',
+    group: 'offense',
+    section: 'roll',
+    appliesTo: ['ranged'],
+    bonus: () => -20,
+  },
+  { kind: 'flag', name: 'ambush', label: 'ambush', group: 'offense', section: 'special', bonus: () => null },
+  { kind: 'number', name: 'customBonus', label: 'custom-bonus', group: 'offense', section: 'roll' },
   // Target
-  { kind: 'flag', name: 'stunnedFoe', label: 'target-stunned', group: 'defense', bonus: () => 20 },
-  { kind: 'flag', name: 'surprisedFoe', label: 'target-surprised', group: 'defense', bonus: () => 25 },
-  { kind: 'flag', name: 'proneTarget', label: 'target-prone', group: 'defense', bonus: (kind) => (kind === 'melee' ? 30 : -30) },
-  { kind: 'flag', name: 'disabledDB', label: 'ignore-db', group: 'defense', bonus: () => null },
-  { kind: 'flag', name: 'disabledShield', label: 'ignore-shield', group: 'defense', bonus: () => null },
-  { kind: 'flag', name: 'disabledParry', label: 'no-parry', group: 'defense', appliesTo: ['melee'], bonus: () => null },
-  { kind: 'flag', name: 'restrictedParry', label: 'restricted-parry', group: 'defense', appliesTo: ['melee'], bonus: () => null },
+  { kind: 'flag', name: 'stunnedFoe', label: 'target-stunned', group: 'defense', section: 'roll', bonus: () => 20 },
+  { kind: 'flag', name: 'surprisedFoe', label: 'target-surprised', group: 'defense', section: 'roll', bonus: () => 25 },
+  {
+    kind: 'flag',
+    name: 'proneTarget',
+    label: 'target-prone',
+    group: 'defense',
+    section: 'roll',
+    bonus: (kind) => (kind === 'melee' ? 30 : -30),
+  },
+  { kind: 'flag', name: 'disabledDB', label: 'ignore-db', group: 'defense', section: 'defender', bonus: () => null },
+  {
+    kind: 'flag',
+    name: 'disabledShield',
+    label: 'ignore-shield',
+    group: 'defense',
+    section: 'defender',
+    bonus: () => null,
+  },
+  {
+    kind: 'flag',
+    name: 'disabledParry',
+    label: 'no-parry',
+    group: 'defense',
+    section: 'defender',
+    appliesTo: ['melee'],
+    bonus: () => null,
+  },
+  {
+    kind: 'flag',
+    name: 'restrictedParry',
+    label: 'restricted-parry',
+    group: 'defense',
+    section: 'defender',
+    appliesTo: ['melee'],
+    bonus: () => null,
+  },
   {
     kind: 'choice',
     name: 'dodge',
     label: 'dodge',
     group: 'defense',
+    section: 'defender',
     defaultValue: 'none',
     options: () => opts(['none', 'passive', 'partial', 'full'].map((key) => [key, null])),
   },
@@ -114,6 +175,7 @@ export const ATTACK_MODIFIER_FIELDS: ModifierField[] = [
     name: 'positionalSource',
     label: 'positional-source',
     group: 'situation',
+    section: 'roll',
     appliesTo: ['melee'],
     defaultValue: 'none',
     options: () =>
@@ -128,6 +190,7 @@ export const ATTACK_MODIFIER_FIELDS: ModifierField[] = [
     name: 'positionalTarget',
     label: 'positional-target',
     group: 'situation',
+    section: 'roll',
     appliesTo: ['melee'],
     defaultValue: 'none',
     options: () =>
@@ -137,12 +200,21 @@ export const ATTACK_MODIFIER_FIELDS: ModifierField[] = [
         ['rear', 35],
       ]),
   },
-  { kind: 'choice', name: 'cover', label: 'cover', group: 'situation', defaultValue: 'none', options: (kind) => COVER[kind] },
+  {
+    kind: 'choice',
+    name: 'cover',
+    label: 'cover',
+    group: 'situation',
+    section: 'roll',
+    defaultValue: 'none',
+    options: (kind) => COVER[kind],
+  },
   {
     kind: 'choice',
     name: 'restrictedQuarters',
     label: 'restricted-quarters',
     group: 'situation',
+    section: 'roll',
     defaultValue: 'none',
     options: () =>
       opts([
@@ -153,10 +225,13 @@ export const ATTACK_MODIFIER_FIELDS: ModifierField[] = [
         ['confined', -100],
       ]),
   },
-  { kind: 'flag', name: 'higherGround', label: 'higher-ground', group: 'situation', bonus: () => 10 },
+  { kind: 'flag', name: 'higherGround', label: 'higher-ground', group: 'situation', section: 'roll', bonus: () => 10 },
 ];
 
-export const fieldsFor = (kind: AttackKind) => ATTACK_MODIFIER_FIELDS.filter((field) => !field.appliesTo || field.appliesTo.includes(kind));
+export const MODIFIER_SECTIONS: ModifierSection[] = ['roll', 'defender', 'special'];
+
+export const fieldsFor = (kind: AttackKind) =>
+  ATTACK_MODIFIER_FIELDS.filter((field) => !field.appliesTo || field.appliesTo.includes(kind));
 
 /** Whether a field has a value other than its default (shown in the summary). */
 export const isDeclared = (field: ModifierField, modifiers: ActionAttackModifiers): boolean => {
@@ -167,7 +242,11 @@ export const isDeclared = (field: ModifierField, modifiers: ActionAttackModifier
 };
 
 /** Hint value of a declared field, when it has a fixed one. */
-export const declaredValue = (field: ModifierField, modifiers: ActionAttackModifiers, kind: AttackKind): number | null => {
+export const declaredValue = (
+  field: ModifierField,
+  modifiers: ActionAttackModifiers,
+  kind: AttackKind
+): number | null => {
   const value = modifiers[field.name];
   if (field.kind === 'flag') return field.bonus(kind);
   if (field.kind === 'choice') {

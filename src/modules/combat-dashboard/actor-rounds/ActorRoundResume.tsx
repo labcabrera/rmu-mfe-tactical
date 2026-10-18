@@ -11,7 +11,7 @@ const isDown = (actorRound: ActorRound) =>
   actorRound.effects.find((e) => e.status === 'dead' || e.status === 'unconcious')?.status;
 
 /**
- * Actor cell of the board: a large miniature (with a ring in the faction color) beside the name, a "down"
+ * Actor cell of the board: a large miniature beside the name, a "down"
  * chip, profession and level, faction (with its color dot), and hit point and fatigue bars. `extra` adds
  * content below (the effects, when the board has no effects column).
  */
@@ -45,7 +45,7 @@ const ActorRoundResume: FC<{
         }}
       >
         {/* The miniature takes the height of the name, faction and bars: players find their figure by it. */}
-        <ActorRoundAvatar actorRound={actorRound} size={96} variant="rounded" ringColor={color} dead={!!down} />
+        <ActorRoundAvatar actorRound={actorRound} size={112} variant="rounded" dead={!!down} />
         <Stack sx={{ flex: 1, minWidth: 0, justifyContent: 'space-between', gap: 0.5 }}>
           <Box sx={{ minWidth: 0 }}>
             <Stack direction="row" spacing={1} sx={{ alignItems: 'center', minWidth: 0 }}>

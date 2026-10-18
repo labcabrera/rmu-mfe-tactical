@@ -3,16 +3,28 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import CasinoIcon from '@mui/icons-material/Casino';
 import { Box, IconButton, Stack, Tooltip, Typography } from '@mui/material';
-import { NumericInput, useNotify } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { formatBonus, NumericInput, useNotify } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../CombatContext';
 import { declareActorRoundInitiative } from '../../../api/actor-rounds';
 import { ActorRound } from '../../../api/actor-rounds.dto';
+
+/** One modifier of the initiative: its name on the left, its value on the right. */
+const Modifier: FC<{ label: string; value: string }> = ({ label, value }) => (
+  <Stack direction="row" spacing={1} sx={{ justifyContent: 'space-between' }}>
+    <Typography variant="caption" color="text.secondary" noWrap>
+      {label}
+    </Typography>
+    <Typography variant="caption" sx={{ fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}>
+      {value}
+    </Typography>
+  </Stack>
+);
 
 /** Initiative is a 2d10 roll. */
 const roll2d10 = () => Math.floor(Math.random() * 10) + 1 + Math.floor(Math.random() * 10) + 1;
 
 /**
- * Initiative cell: the total, its base and penalty, and, while initiative is declared, the 2d10 roll edited
+ * Initiative cell: the total, its modifiers one per line (base, penalty and roll), and, while initiative is declared, the 2d10 roll edited
  * in place (saved on blur or Enter) with a dice button. Actors that are down have no initiative.
  */
 const ActorRoundInitiative: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
@@ -61,9 +73,12 @@ const ActorRoundInitiative: FC<{ actorRound: ActorRound }> = ({ actorRound }) =>
           </Typography>
         )}
       </Stack>
-      <Typography variant="caption" color="text.secondary" noWrap>
-        {t('initiative-base-penalty', { base, penalty })}
-      </Typography>
+      {/* One per line: side by side they did not fit in the column. */}
+      <Stack>
+        <Modifier label={t('base')} value={formatBonus(base)} />
+        <Modifier label={t('penalty')} value={formatBonus(penalty)} />
+        {declared && !editable && <Modifier label={t('roll')} value={String(roll)} />}
+      </Stack>
       {editable && (
         <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center' }} onKeyDown={onKeyDown}>
           <NumericInput

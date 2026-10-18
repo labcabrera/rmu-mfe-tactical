@@ -9,10 +9,9 @@ import { Action, ParryDeclaration } from '../../../../api/action.dto';
 import { ActorRound } from '../../../../api/actor-rounds.dto';
 import { attackActionPoints } from '../../../../services/action-service';
 import AttackModifiersForm from '../../../action-dialogs/attack-modifiers/AttackModifiersForm';
-import { AttackResultSummary } from '../../../action-dialogs/attack/AttackResolutionGuide';
 import ResolveAttackFormRoll from '../../../action-dialogs/attack/ResolveAttackFormRoll';
-import ResolveAttackInfo from '../../../action-dialogs/attack/ResolveAttackInfo';
 import ActionFlow from '../../ActionFlow';
+import { AttackResults } from '../ActionResults';
 import AttackTargetsStep from './AttackTargetsStep';
 import ParryStep from './ParryStep';
 import { AttackKind, useAttackDeclaration } from './useAttackDeclaration';
@@ -124,16 +123,7 @@ const AttackFlow: FC<{
     </Stack>
   );
 
-  const result = (
-    <Stack spacing={1.5}>
-      {formData.attacks.map((attack) => (
-        <Stack key={attack.attackName} spacing={1}>
-          <AttackResultSummary attack={attack} targetName={targetName(attack.modifiers.targetId)} />
-          <ResolveAttackInfo attack={attack} />
-        </Stack>
-      ))}
-    </Stack>
-  );
+  const result = <AttackResults attacks={formData.attacks} />;
 
   const steps: FlowStep[] = [
     {

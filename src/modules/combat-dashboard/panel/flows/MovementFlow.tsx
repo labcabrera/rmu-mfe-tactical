@@ -7,7 +7,6 @@ import {
   formatBonus,
   NumericInput,
   OpenEndedRollInput,
-  RollBreakdown,
   useNotify,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../CombatContext';
@@ -16,8 +15,8 @@ import { Action, ActionMovement, MOVEMENT_TABLE } from '../../../api/action.dto'
 import { ActorRound } from '../../../api/actor-rounds.dto';
 import { useSkillService } from '../../../services/skill-service';
 import ActionFlow from '../ActionFlow';
+import { MovementResult } from './ActionResults';
 import DifficultyPicker from './DifficultyPicker';
-import ResultValues from './ResultValues';
 
 const MOVEMENT_SKILLS = ['running', 'swimming', 'climbing', 'flying'];
 
@@ -200,27 +199,7 @@ const MovementFlow: FC<{
     />
   );
 
-  const calculated = action.movement?.calculated;
-  const result = calculated ? (
-    <Stack spacing={2}>
-      <ResultValues
-        values={[
-          { label: t('distance'), value: `${calculated.distance}'` },
-          ...(scale !== 1 ? [{ label: t('adjusted-distance'), value: calculated.distanceAdjusted }] : []),
-          {
-            label: t('percent'),
-            value: `${calculated.percent}%`,
-            tone: calculated.percent < 100 ? 'negative' : undefined,
-          },
-          { label: t('fatigue'), value: action.fatigue || 0 },
-          ...(calculated.critical
-            ? [{ label: t('received-critical'), value: `${calculated.critical}K`, tone: 'negative' as const }]
-            : []),
-        ]}
-      />
-      {action.movement?.roll?.modifiers && <RollBreakdown modifiers={action.movement.roll.modifiers} />}
-    </Stack>
-  ) : null;
+  const result = <MovementResult action={action} />;
 
   const steps: FlowStep[] = [
     {

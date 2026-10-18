@@ -8,7 +8,8 @@ import { useShortcut } from '../../services/shortcuts';
 import { actionState } from '../actor-rounds/action-view';
 import { phaseNumber } from '../actor-rounds/round-grid';
 import ActionPalette from './ActionPalette';
-import ActionPanelView from './ActionPanelView';
+import ActionResolutionDialog from './ActionResolutionDialog';
+import ActionSummaryView from './ActionSummaryView';
 import ActorPanelView from './ActorPanelView';
 
 type PanelState = { kind: 'actor'; actorRoundId: string } | { kind: 'action'; actionId: string } | null;
@@ -18,6 +19,8 @@ type CombatPanelValue = {
   selectedActorRoundId: string | null;
   openActor: (actorRound: ActorRound) => void;
   openAction: (action: Action) => void;
+  /** Opens the resolution dialog of an action (and shows it in the panel). */
+  resolveAction: (action: Action) => void;
   /** Set while actions can be declared (an action phase of the current round). */
   openDeclare?: (actorRound: ActorRound, anchor: HTMLElement | null) => void;
 };
@@ -31,13 +34,15 @@ export const useCombatPanel = (): CombatPanelValue => {
 };
 
 /**
- * Side panel of the combat screen and the action palette, shared by the board and the log: whatever opens an
- * actor or an action shows it next to the current view.
+ * Side panel of the combat screen, the action palette and the resolution dialog, shared by the board and the
+ * log. The panel only shows actors and actions (their state and results); actions are resolved in the dialog,
+ * whose forms need more room.
  */
 const CombatPanelProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const { game, actorRounds, roundActions, displayRound } = useContext(CombatContext)!;
   const [panel, setPanel] = useState<PanelState>(null);
   const [palette, setPalette] = useState<{ actorRound: ActorRound; anchor: HTMLElement | null } | null>(null);
+  const [resolvingId, setResolvingId] = useState<string | null>(null);
 
   const history = !!game && displayRound !== game.round;
   const currentPhase = game ? phaseNumber(game.phase) : 1;
@@ -51,6 +56,12 @@ const CombatPanelProvider: FC<{ children: ReactNode }> = ({ children }) => {
 
   const openAction = (action: Action) => setPanel({ kind: 'action', actionId: action.id });
   const openActor = (actorRound: ActorRound) => setPanel({ kind: 'actor', actorRoundId: actorRound.id });
+  const resolveAction = (action: Action) => {
+    openAction(action);
+    setResolvingId(action.id);
+  };
+  const resolving = resolvingId ? roundActions?.find((a) => a.id === resolvingId) : undefined;
+  const resolvingActorRound = actorRounds?.find((ar) => ar.actorId === resolving?.actorId);
   const openDeclare = canDeclare
     ? (actorRound: ActorRound, anchor: HTMLElement | null) => setPalette({ actorRound, anchor })
     : undefined;
@@ -64,10 +75,10 @@ const CombatPanelProvider: FC<{ children: ReactNode }> = ({ children }) => {
     const from = order.indexOf(current.actorId);
     return pending.find((a) => order.indexOf(a.actorId) >= from) ?? pending[0];
   };
-  const next = panelAction ? nextPending(panelAction) : undefined;
+  const nextAfterResolving = resolving ? nextPending(resolving) : undefined;
 
-  // Keyboard: J/K (or the arrows once an actor is selected) move between actors, Enter opens the selected
-  // actor's action waiting for input (or its first action), A opens its action palette.
+  // Keyboard: J/K (or the arrows once an actor is selected) move between actors, Enter resolves the
+  // selected actor's action waiting for input (or opens its first action), A opens its action palette.
   const order = actorRounds ?? [];
   const selectedIndex = panelActorRound ? order.findIndex((ar) => ar.id === panelActorRound.id) : -1;
   const moveSelection = (step: number) => {
@@ -86,7 +97,7 @@ const CombatPanelProvider: FC<{ children: ReactNode }> = ({ children }) => {
     const own = (roundActions ?? []).filter((a) => a.actorId === panelActorRound.actorId);
     const target = own.find((a) => actionState(a) === 'pending') ?? own[0];
     if (!target) return false;
-    openAction(target);
+    resolveAction(target);
   });
   useShortcut(['a', 'A'], () => {
     if (!panelActorRound || !openDeclare) return false;
@@ -96,12 +107,11 @@ const CombatPanelProvider: FC<{ children: ReactNode }> = ({ children }) => {
   let content: ReactNode = null;
   if (panelAction && panelActorRound) {
     content = (
-      <ActionPanelView
+      <ActionSummaryView
         key={panelAction.id}
         action={panelAction}
-        actorRound={panelActorRound}
+        onResolve={() => resolveAction(panelAction)}
         onDeleted={() => openActor(panelActorRound)}
-        onNextPending={next ? () => openAction(next) : undefined}
       />
     );
   } else if (panel?.kind === 'actor' && panelActorRound) {
@@ -126,7 +136,7 @@ const CombatPanelProvider: FC<{ children: ReactNode }> = ({ children }) => {
 
   return (
     <CombatPanelContext.Provider
-      value={{ selectedActorRoundId: panelActorRound?.id ?? null, openActor, openAction, openDeclare }}
+      value={{ selectedActorRoundId: panelActorRound?.id ?? null, openActor, openAction, resolveAction, openDeclare }}
     >
       <SidePanelLayout open={!!content} onClose={() => setPanel(null)} title={title} panel={content}>
         {children}
@@ -136,10 +146,21 @@ const CombatPanelProvider: FC<{ children: ReactNode }> = ({ children }) => {
         phase={currentPhase}
         anchorEl={palette?.anchor ?? null}
         onClose={() => setPalette(null)}
+        // Declared, not resolved: actions are usually resolved later, often in another phase.
         onCreated={(action) => {
           setPalette(null);
           openAction(action);
         }}
+      />
+      <ActionResolutionDialog
+        action={resolving}
+        actorRound={resolvingActorRound}
+        onClose={() => setResolvingId(null)}
+        onDeleted={() => {
+          setResolvingId(null);
+          if (resolvingActorRound) openActor(resolvingActorRound);
+        }}
+        onNextPending={nextAfterResolving ? () => resolveAction(nextAfterResolving) : undefined}
       />
     </CombatPanelContext.Provider>
   );
