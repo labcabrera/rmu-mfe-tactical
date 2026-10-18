@@ -36,7 +36,7 @@ const ActorRoundAlerts: FC<{
     <>
       {actorRound.alerts && actorRound.alerts.length > 0 && (
         <>
-          <Stack spacing={1} sx={{ direction: 'row', mt: 1 }}>
+          <Stack direction="row" sx={{ flexWrap: 'wrap', gap: 1 }}>
             {actorRound.alerts.map((alert) => (
               <Button
                 key={alert.id}

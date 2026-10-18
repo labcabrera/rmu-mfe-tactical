@@ -2,10 +2,12 @@ import React, { Dispatch, FC, Fragment, SetStateAction, useContext } from 'react
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import { Stack, Grid, Typography } from '@mui/material';
-import { CategorySeparator, NumericInput, useNotify } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { CategorySeparator, useNotify } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../CombatContext';
-import { fetchAction, updateCriticalRoll } from '../../../api/action';
-import { Action, ActionAttack, AttackDeclaration } from '../../../api/action.dto';
+import { updateCriticalRoll } from '../../../api/action';
+import { Action, ActionAttack, AttackDeclaration, CriticalEffect } from '../../../api/action.dto';
+import { criticalCode } from '../../../services/action-service';
+import ConfirmedRollInput from '../../../shared/generic/ConfirmedRollInput';
 import Effect from '../../../shared/generic/Effect';
 
 const ResolveAttackFormCriticals: FC<{
@@ -22,21 +24,11 @@ const ResolveAttackFormCriticals: FC<{
 
   if (!formData || !formData.attacks || formData.attacks.length <= index) return null;
 
-  if (!attack.roll || !attack.roll.criticalRolls) return <pre>{t('error')}</pre>;
-
-  const getCriticalRoll = (criticalKey: string): number | null | undefined => {
-    let roll: number | null | undefined;
-    try {
-      roll = attack.roll!.criticalRolls![criticalKey];
-    } catch (e) {
-      console.error(e);
-    }
-    return roll;
-  };
+  // Critical rolls are absent until the first one is stored.
+  const getCriticalRoll = (criticalKey: string): number | null | undefined => attack.roll?.criticalRolls?.[criticalKey];
 
   const onUpdateCriticalRoll = (criticalKey: string, roll: number) => {
     updateCriticalRoll(action.id, attack.attackName, criticalKey, roll, auth)
-      .then(() => fetchAction(action.id, auth))
       .then((currentAction) => {
         const newFormData = { attacks: currentAction.attacks || [], parries: currentAction.parries || [] };
         updateAction(currentAction);
@@ -45,7 +37,7 @@ const ResolveAttackFormCriticals: FC<{
       .catch((err) => notify.error(err));
   };
 
-  const getStatusLabel = (effect: any) => {
+  const getStatusLabel = (effect: CriticalEffect) => {
     const labels = [];
     if (effect.value) {
       labels.push(`${t(effect.status)} ${effect.value}`);
@@ -55,30 +47,29 @@ const ResolveAttackFormCriticals: FC<{
     if (effect.rounds) {
       labels.push(`${effect.rounds} ${effect.rounds === 1 ? t('round') : t('rounds')}`);
     }
-    if (effect.deplay) labels.push(`${effect.rounds} ${t('delay')}`);
+    if (effect.delay) labels.push(`${t('delay')} ${effect.delay}`);
     return labels.join(', ');
   };
 
   return (
     <>
       <Grid container spacing={1} sx={{ mt: 1 }}>
-        {attack.results!.criticals.map((critical, index) => (
+        {(attack.results?.criticals ?? []).map((critical, index) => (
           <Fragment key={index}>
             <Grid size={12}>
               <CategorySeparator
-                text={t('critical-code', { code: `${critical.criticalType}${critical.criticalSeverity}` })}
+                text={t('critical-code', { code: criticalCode(critical.criticalType, critical.criticalSeverity) })}
               />
             </Grid>
-            <Grid size={2}>
-              <NumericInput
+            <Grid size={{ xs: 6, md: 2 }}>
+              <ConfirmedRollInput
                 label={t('critical-roll')}
-                value={getCriticalRoll(critical.key) || null}
-                onChange={(e) => onUpdateCriticalRoll(critical.key, e || 1)}
+                value={getCriticalRoll(critical.key)}
+                onConfirm={(roll) => onUpdateCriticalRoll(critical.key, roll)}
                 disabled={action.status === 'completed'}
               />
             </Grid>
-            <Grid size={2}></Grid>
-            <Grid size={2}>
+            <Grid size={{ xs: 6, md: 2 }} offset={{ md: 2 }}>
               <Stack>
                 <Typography variant="h6">{critical.adjustedRoll}</Typography>
                 <Typography variant="body2" color="secondary">
@@ -86,7 +77,7 @@ const ResolveAttackFormCriticals: FC<{
                 </Typography>
               </Stack>
             </Grid>
-            <Grid size={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <Stack
                 direction="row"
                 spacing={1}
@@ -98,7 +89,7 @@ const ResolveAttackFormCriticals: FC<{
                   alignItems: 'flex-start',
                 }}
               >
-                {critical.result && critical.result.damage && critical.result.damage > 0 && (
+                {!!critical.result?.damage && critical.result.damage > 0 && (
                   <Effect status={'dmg'} label={`${critical.result.damage}`} color="error" />
                 )}
                 {critical.result &&
@@ -109,8 +100,9 @@ const ResolveAttackFormCriticals: FC<{
                   ))}
               </Stack>
             </Grid>
-            <Grid size={6}></Grid>
-            <Grid size={6}>{critical.result?.text || ''}</Grid>
+            <Grid size={{ xs: 12, md: 6 }} offset={{ md: 6 }}>
+              {critical.result?.text || ''}
+            </Grid>
           </Fragment>
         ))}
       </Grid>

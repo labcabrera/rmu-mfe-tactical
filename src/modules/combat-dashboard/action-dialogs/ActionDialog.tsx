@@ -6,6 +6,7 @@ import { CombatContext } from '../../../CombatContext';
 import { deleteAction } from '../../api/action';
 import { Action } from '../../api/action.dto';
 import { ActorRound } from '../../api/actor-rounds.dto';
+import { isDevelopment } from '../../services/action-service';
 import ActionManeuverForm from './maneuver/ActionManeuverForm';
 
 const ActionDialog: FC<{
@@ -47,9 +48,11 @@ const ActionDialog: FC<{
         {!deleting ? (
           <>
             {action.actionType === 'maneuver' && <ActionManeuverForm action={action} actorRound={actorRound} />}
-            <TechnicalInfo>
-              <pre>{JSON.stringify(action, null, 2)}</pre>
-            </TechnicalInfo>
+            {isDevelopment && (
+              <TechnicalInfo>
+                <pre>{JSON.stringify(action, null, 2)}</pre>
+              </TechnicalInfo>
+            )}
           </>
         ) : (
           <DeleteDialog

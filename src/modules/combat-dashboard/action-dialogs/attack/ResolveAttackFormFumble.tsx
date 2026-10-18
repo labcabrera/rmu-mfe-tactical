@@ -1,11 +1,12 @@
 import React, { Dispatch, FC, SetStateAction, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
-import { Grid, Stack } from '@mui/material';
-import { NumericInput, useNotify } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { Grid, Stack, Typography } from '@mui/material';
+import { CategorySeparator, useNotify } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../CombatContext';
-import { fetchAction, updateFumbleRoll } from '../../../api/action';
-import { Action, ActionAttack, AttackDeclaration } from '../../../api/action.dto';
+import { updateFumbleRoll } from '../../../api/action';
+import { Action, ActionAttack, AttackDeclaration, CriticalEffect } from '../../../api/action.dto';
+import ConfirmedRollInput from '../../../shared/generic/ConfirmedRollInput';
 import Effect from '../../../shared/generic/Effect';
 
 const ResolveAttackFormFumble: FC<{
@@ -21,48 +22,59 @@ const ResolveAttackFormFumble: FC<{
   const notify = useNotify();
   const fumble = attack.results?.fumble;
 
-  if (!formData || !formData.attacks || formData.attacks.length <= index) return null;
+  if (!formData || !formData.attacks || formData.attacks.length <= index || !fumble) return null;
 
-  const onUpdateFumbleRoll = (roll: number | null) => {
+  const onUpdateFumbleRoll = (roll: number) => {
     updateFumbleRoll(action.id, attack.attackName, roll, auth)
-      .then(() => fetchAction(action.id, auth))
       .then((currentAction) => {
         const newFormData = { attacks: currentAction.attacks || [], parries: currentAction.parries || [] };
         updateAction(currentAction);
         setFormData(newFormData);
       })
-      .catch(notify.error);
+      .catch((err) => notify.error(err));
   };
 
-  const getEffectLabel = (effect: { status: string; value?: number | null }) =>
-    effect.value ? `${t(effect.status)} ${effect.value}` : t(effect.status);
+  const getEffectLabel = (effect: CriticalEffect) => {
+    const labels = [effect.value ? `${t(effect.status)} ${effect.value}` : t(effect.status)];
+    if (effect.rounds) labels.push(`${effect.rounds} ${effect.rounds === 1 ? t('round') : t('rounds')}`);
+    if (effect.delay) labels.push(`${t('delay')} ${effect.delay}`);
+    return labels.join(', ');
+  };
 
   return (
-    <>
-      <Grid size={2} offset={2}>
-        <NumericInput
+    <Grid container spacing={1} sx={{ mt: 1 }}>
+      <Grid size={12}>
+        <CategorySeparator text={t('fumble')} />
+      </Grid>
+      <Grid size={{ xs: 6, md: 2 }}>
+        <ConfirmedRollInput
           label={t('fumble-roll')}
-          value={attack.roll!.fumbleRoll || null}
-          onChange={(e) => onUpdateFumbleRoll(e)}
+          value={attack.roll?.fumbleRoll}
+          onConfirm={onUpdateFumbleRoll}
           disabled={action.status === 'completed'}
         />
       </Grid>
-      <Grid size={8}>
-        <Stack direction="row" spacing={1}>
-          {fumble.result && fumble.result.damage && fumble.result.damage > 0 && (
-            <Effect status={'dmg'} label={`${fumble.result.damage}`} color="error" />
-          )}
-          {fumble.effects &&
-            fumble.effects.length > 0 &&
-            fumble.effects.map((effect: { status: string; value?: number | null }, index: number) => (
-              <Effect key={index} status={effect.status} label={getEffectLabel(effect)} color="error" />
-            ))}
+      <Grid size={{ xs: 12, md: 8 }} offset={{ md: 2 }}>
+        <Stack direction="row" spacing={1} useFlexGap sx={{ flexWrap: 'wrap' }}>
+          {!!fumble.damage && fumble.damage > 0 && <Effect status={'dmg'} label={`${fumble.damage}`} color="error" />}
+          {(fumble.effects ?? []).map((effect, effectIndex) => (
+            <Effect key={effectIndex} status={effect.status} label={getEffectLabel(effect)} color="error" />
+          ))}
         </Stack>
       </Grid>
-      <Grid size={8} offset={4}>
-        {fumble?.text || ''}
-      </Grid>
-    </>
+      {fumble.text && (
+        <Grid size={{ xs: 12, md: 8 }} offset={{ md: 4 }}>
+          {fumble.text}
+        </Grid>
+      )}
+      {fumble.additionalDamageText && (
+        <Grid size={{ xs: 12, md: 8 }} offset={{ md: 4 }}>
+          <Typography variant="body2" color="text.secondary">
+            {t('fumble-additional-damage')}: {fumble.additionalDamageText}
+          </Typography>
+        </Grid>
+      )}
+    </Grid>
   );
 };
 

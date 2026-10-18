@@ -1,12 +1,13 @@
 import React, { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 import { FormControl, FormLabel, ToggleButton, ToggleButtonGroup } from '@mui/material';
-import { t } from 'i18next';
 
 const SelectLightModifier: FC<{
   value: string;
   onChange: (value: string) => void;
   readOnly?: boolean;
 }> = ({ value, onChange, readOnly = false }) => {
+  const { t } = useTranslation();
   const codes: string[] = ['none', 'helpful', 'required'];
 
   const handleClick = (option: string) => {

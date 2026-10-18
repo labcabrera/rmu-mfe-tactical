@@ -1,4 +1,5 @@
 import React, { FC, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import ErrorOutlineOutlinedIcon from '@mui/icons-material/ErrorOutlineOutlined';
 import TaskAltIcon from '@mui/icons-material/TaskAlt';
 import {
@@ -11,7 +12,6 @@ import {
   FormControlLabel,
   Radio,
 } from '@mui/material';
-import { t } from 'i18next';
 import { DIFFICULTY_TABLE } from '../api/action.dto';
 
 const SelectDifficulty: FC<{
@@ -19,6 +19,7 @@ const SelectDifficulty: FC<{
   readOnly?: boolean;
   onChange: (value: string | null) => void;
 }> = ({ value, readOnly = false, onChange }) => {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const buttonLabel = value ? `${t('difficulty')}: ${t(`difficulty-${value}`)}` : t('difficulty');
 

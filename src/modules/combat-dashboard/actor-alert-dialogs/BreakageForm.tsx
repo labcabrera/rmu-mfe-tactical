@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Grid } from '@mui/material';
 import { NumericInput, TechnicalInfo } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { ActorRoundAlert } from '../../api/actor-rounds.dto';
+import { isDevelopment } from '../../services/action-service';
 
 export default function BreakageForm({
   alert,
@@ -22,11 +23,13 @@ export default function BreakageForm({
           onChange={(e) => setFormData({ ...formData, roll: e })}
         />
       </Grid>
-      <Grid size={12}>
-        <TechnicalInfo>
-          <pre>{JSON.stringify({ formData, alert }, null, 2)}</pre>
-        </TechnicalInfo>
-      </Grid>
+      {isDevelopment && (
+        <Grid size={12}>
+          <TechnicalInfo>
+            <pre>{JSON.stringify({ formData, alert }, null, 2)}</pre>
+          </TechnicalInfo>
+        </Grid>
+      )}
     </Grid>
   );
 }

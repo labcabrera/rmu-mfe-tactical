@@ -1,16 +1,28 @@
 import { KeyValue } from '@labcabrera-rmu/rmu-react-shared-lib';
 
-// Same values as rmu-api-tactical (action-status.vo.ts). `pending_roll` is the older name of `pending_attack_roll`,
-// still present in stored actions.
+// Same values as rmu-api-tactical (action-status.vo.ts). `pending_roll` is the current status while the attack,
+// critical or fumble rolls are pending: each attack's `status` says which roll it waits for.
+// `pending_attack_roll` and `critical_or_fumble_roll` are the older statuses, still present in stored actions.
 export type ActionStatus =
   | 'declared'
   | 'prepared'
   | 'parry'
+  | 'pending_roll'
   | 'pending_attack_roll'
   | 'critical_or_fumble_roll'
-  | 'pending_roll'
   | 'pending_apply'
   | 'completed';
+
+/** Per-attack status (rmu-api-tactical attack-status.vo.ts): the roll the attack is waiting for. */
+export type AttackStatus =
+  | 'pending_attack_roll'
+  | 'pending_critical_roll'
+  | 'pending_fumble_roll'
+  | 'pending_apply'
+  | 'completed';
+
+export type AttackType = 'melee' | 'ranged' | 'thrown';
+export type ChargeSpeed = 'none' | 'jog' | 'sprint';
 
 export type ActionType = 'movement' | 'melee_attack' | 'ranged_attack' | 'maneuver' | 'skill' | 'free';
 export type CalledShot = 'none' | 'head' | 'chest' | 'abdomen' | 'arms' | 'legs';
@@ -71,9 +83,16 @@ export type ActionMovementCalculated = {
   critical: string | null;
 };
 
+/** Who a modifier favours, or which stage of the resolution adds it. */
+export type ModifierGroup = 'offense' | 'defense' | 'situation' | 'critical' | 'resolution';
+
 export type KeyValueModifier = {
   key: string;
   value: number;
+  /** Breakdown group of the combat plugin that added it. */
+  group?: ModifierGroup;
+  /** Id of the combat plugin that added it. */
+  source?: string;
 };
 
 export type ActionRoll = {
@@ -137,11 +156,14 @@ export type ResolveMovementDto = {
 
 export type ActionAttack = {
   attackName: string;
+  /** Set by the API; absent in attacks built by the UI before prepare. */
+  type?: AttackType;
   modifiers: ActionAttackModifiers;
   roll: ActionAttackRoll | null;
   calculated: AttackCalculationsDto | null;
   results: ActionAttackResults | null;
-  status: string;
+  /** Set by the API; absent in attacks built by the UI before prepare and in actions stored before the per-attack status. */
+  status?: AttackStatus;
   protectors: string[] | null;
 };
 
@@ -154,18 +176,17 @@ export type ActionAttackRoll = {
 
 export type ActionAttackResults = {
   attackTableEntry: AttackTableEntry | null;
-  criticals: Critical[];
-  fumble: any;
-  attackTableResult: string;
+  criticals?: Critical[];
+  fumble?: ActionAttackFumbleResult;
 };
 
 export type Critical = {
   key: string;
   status: string;
   criticalType: string;
-  criticalSeverity: number;
-  adjustedRoll: number;
-  result: CriticalResult;
+  criticalSeverity: string;
+  adjustedRoll?: number;
+  result?: CriticalResult;
 };
 
 export type CriticalResult = {
@@ -177,24 +198,26 @@ export type CriticalResult = {
 
 export type CriticalEffect = {
   status: string;
-  value: number | null;
-  rounds: number | null;
-  delay: boolean | null;
+  value?: number | null;
+  rounds?: number | null;
+  /** Rounds before the effect starts. */
+  delay?: number | null;
+  condition?: string | null;
 };
 
 export type AttackTableEntry = {
   damage: number;
   text: string;
-  criticalType: string;
-  criticalSeverity: string;
+  criticalType?: string | null;
+  criticalSeverity?: string | null;
 };
 
 export type ActionAttackFumbleResult = {
   status: string;
-  text: string | null;
-  additionalDamageText: string | null;
-  damage: number | null;
-  effects: any[] | undefined;
+  text?: string | null;
+  additionalDamageText?: string | null;
+  damage?: number | null;
+  effects?: CriticalEffect[];
 };
 
 export type ActionAttackModifiers = {
@@ -222,6 +245,7 @@ export type ActionAttackModifiers = {
   disabledParry: boolean | null;
   restrictedParry: boolean | null;
   customBonus: number | null;
+  chargeSpeed?: ChargeSpeed;
 };
 
 export type AttackCalculationsDto = {
@@ -229,6 +253,12 @@ export type AttackCalculationsDto = {
   rollTotal: number;
   requiredLocationRoll: boolean;
   location: string | null;
+  /** Modifiers applied to the critical rolls (size difference, absolute hit...). */
+  criticalModifiers?: KeyValueModifier[];
+  /** Sum of `criticalModifiers`. */
+  criticalAdjustment?: number | null;
+  /** The attack roll triggered a weapon breakage check. */
+  breakageRoll?: boolean | null;
 };
 
 export type ActionParry = {
@@ -238,15 +268,5 @@ export type ActionParry = {
   parryType: 'parry' | 'protect' | undefined;
   targetAttackName: string | undefined;
   parryAvailable: number;
-  parry: number;
-};
-
-export type DeclareParryDto = {
-  parries: DeclareParryItemDto[];
-};
-
-export type DeclareParryItemDto = {
-  parryActorId: string;
-  targetId: string;
   parry: number;
 };

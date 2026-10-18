@@ -8,6 +8,7 @@ import { CombatContext } from '../../../../CombatContext';
 import { applyAttack, deleteAction, prepareAttack } from '../../../api/action';
 import { Action, ActionAttack, AttackDeclaration } from '../../../api/action.dto';
 import { ActorRound, ActorRoundAttack } from '../../../api/actor-rounds.dto';
+import { isDevelopment } from '../../../services/action-service';
 import { findMaxActorRoundPace } from '../../../services/actor-round-service';
 import RangedAttackForm from './RangedAttackForm';
 
@@ -51,9 +52,9 @@ const RangedAttackDialog: FC<{
         </Button>
       );
     }
-    if (action.status !== 'completed') {
+    if (action.status !== 'completed' && action.status !== 'declared') {
       buttons.push(
-        <Button variant="contained" color="success" onClick={onApply}>
+        <Button variant="contained" color="success" onClick={onApply} disabled={action.status !== 'pending_apply'}>
           {t('apply-attack')}
         </Button>
       );
@@ -96,21 +97,19 @@ const RangedAttackDialog: FC<{
     } as ActionAttack;
   };
 
+  // Only the attacks with a target are declared.
+  const targetedAttacks = (data: AttackDeclaration) => (data.attacks || []).filter((a) => !!a.modifiers?.targetId);
+
   const validateForm = () => {
-    if (!formData || !formData.attacks || formData.attacks.length < 1) return false;
-    const attack = formData.attacks[0];
-    if (!attack.modifiers) return false;
-    if (!attack.modifiers.targetId) return false;
-    if (!attack.modifiers.range) return false;
-    return true;
+    if (!formData) return false;
+    const attacks = targetedAttacks(formData);
+    if (attacks.length < 1) return false;
+    return attacks.every((attack) => !!attack.modifiers.range);
   };
 
   const onPrepare = () => {
-    prepareAttack(action.id, formData, auth)
-      .then((data) => {
-        updateAction(data);
-        // setFormData(data);
-      })
+    prepareAttack(action.id, { ...formData, attacks: targetedAttacks(formData) }, auth)
+      .then((data) => updateAction(data))
       .catch((err) => notify.error(err));
   };
 
@@ -138,14 +137,6 @@ const RangedAttackDialog: FC<{
   }, [formData]);
 
   useEffect(() => {
-    if (action && action.attacks) {
-      if (action.attacks.length > 0) {
-        setFormData({ attacks: action.attacks, parries: [] });
-      }
-    }
-  }, [action]);
-
-  useEffect(() => {
     if (!action || !actorRound) return;
     loadAction(action);
   }, [action, actorRound]);
@@ -157,7 +148,6 @@ const RangedAttackDialog: FC<{
       title={actorRound.actorName}
       subtitle={`${t('ranged-attack')} (${t(`action-status-${action.status}`)})`}
       avatarImg={actorRound.imageUrl}
-      fullScreen={false}
       open={open}
       buttons={deleting ? buttonsDeleting : getButtons()}
     >
@@ -166,9 +156,11 @@ const RangedAttackDialog: FC<{
           <>
             <RangedAttackForm actorRound={actorRound} action={action} formData={formData} setFormData={setFormData} />
 
-            <TechnicalInfo>
-              <pre>{JSON.stringify({ formData, action }, null, 2)}</pre>
-            </TechnicalInfo>
+            {isDevelopment && (
+              <TechnicalInfo>
+                <pre>{JSON.stringify({ formData, action }, null, 2)}</pre>
+              </TechnicalInfo>
+            )}
           </>
         ) : (
           <Typography>{t('delete-action-confirmation')}</Typography>

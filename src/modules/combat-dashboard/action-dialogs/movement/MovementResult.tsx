@@ -1,9 +1,8 @@
 import React, { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Grid, Stack, Typography } from '@mui/material';
-import { CategorySeparator, gridSizeCard } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { CategorySeparator, gridSizeCard, RollBreakdown } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { Action } from '../../../api/action.dto';
-import ModifierDualList from '../../../shared/ModifierDualList';
 
 export default function MovementResult({ action }: { action: Action }) {
   const { t } = useTranslation();
@@ -32,7 +31,7 @@ export default function MovementResult({ action }: { action: Action }) {
         {action.movement.roll && action.movement.roll.modifiers && (
           <Grid size={12}>
             <CategorySeparator text={t('roll-modifiers')} />
-            <ModifierDualList modifiers={action.movement.roll.modifiers} />
+            <RollBreakdown modifiers={action.movement.roll.modifiers} />
           </Grid>
         )}
       </Grid>

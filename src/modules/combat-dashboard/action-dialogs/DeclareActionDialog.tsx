@@ -18,6 +18,7 @@ import { RmuDialog, useNotify } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
 import { createAction } from '../../api/action';
 import { ActorRound } from '../../api/actor-rounds.dto';
+import { isDevelopment } from '../../services/action-service';
 import SelectManeuverType from '../../shared/selects/SelectManeuverType';
 import SelectSkillByCategory from '../../shared/selects/SelectSkillByCategory';
 
@@ -293,16 +294,18 @@ const DeclareActionDialog: FC<{
             )}
           </div>
         </Grid>
-        <Grid size={12}>
-          <Accordion sx={{ mt: 2 }}>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1-content" id="panel1-header">
-              <Typography component="span">{t('details')}</Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <pre>{JSON.stringify(actionForm, null, 2)}</pre>
-            </AccordionDetails>
-          </Accordion>
-        </Grid>
+        {isDevelopment && (
+          <Grid size={12}>
+            <Accordion sx={{ mt: 2 }}>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1-content" id="panel1-header">
+                <Typography component="span">{t('details')}</Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <pre>{JSON.stringify(actionForm, null, 2)}</pre>
+              </AccordionDetails>
+            </Accordion>
+          </Grid>
+        )}
       </Grid>
     </RmuDialog>
   );

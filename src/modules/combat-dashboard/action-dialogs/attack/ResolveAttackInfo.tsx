@@ -1,8 +1,8 @@
 import React, { FC, useContext } from 'react';
 import { Grid } from '@mui/material';
+import { RollBreakdown } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../CombatContext';
 import { ActionAttack } from '../../../api/action.dto';
-import ModifierDualList from '../../../shared/ModifierDualList';
 import AttackTitle from '../melee-attack/AttackTitle';
 
 const ResolveAttackFormModifiers: FC<{
@@ -21,7 +21,11 @@ const ResolveAttackFormModifiers: FC<{
       </Grid>
       {attack.calculated.rollModifiers && (
         <Grid size={12}>
-          <ModifierDualList modifiers={attack.calculated.rollModifiers} />
+          <RollBreakdown
+            modifiers={attack.calculated.rollModifiers}
+            roll={attack.roll?.roll}
+            total={attack.calculated.rollTotal}
+          />
         </Grid>
       )}
     </Grid>

@@ -27,6 +27,7 @@ import {
 import { CombatContext } from '../../CombatContext';
 import { fetchActions } from '../api/action';
 import { Action, ActionAttack } from '../api/action.dto';
+import { isDevelopment } from '../services/action-service';
 
 const CombatDashboardAttacks: FC = () => {
   const auth = useAuth();
@@ -101,18 +102,23 @@ const CombatDashboardAttacks: FC = () => {
                         .join(', ') || '0'
                     : '-';
                 const damage = at.results?.attackTableEntry?.text || '0';
-                const criticalResults = at.results?.criticals.map((c) => c.result);
-                const criticalRolls = at.results?.criticals.map((c) => c.adjustedRoll) || [];
-                const criticalTexts = criticalResults ? criticalResults.map((e) => e.text) : [];
+                const criticals = at.results?.criticals ?? [];
+                const criticalRolls = criticals.map((c) => c.adjustedRoll ?? '');
+                const criticalTexts = criticals.map((c) => c.result?.text ?? '');
                 return (
                   <TableRow
                     key={`${a.id || ''}-${idx}`}
                     hover
-                    onClick={() => {
-                      setSelectedAction(a);
-                      setOpenDialog(true);
-                    }}
-                    sx={{ cursor: 'pointer' }}
+                    // The detail dialog only shows the raw attack, so it is a development aid.
+                    onClick={
+                      isDevelopment
+                        ? () => {
+                            setSelectedAction(a);
+                            setOpenDialog(true);
+                          }
+                        : undefined
+                    }
+                    sx={{ cursor: isDevelopment ? 'pointer' : undefined }}
                   >
                     <TableCell>
                       <Stack direction="row" spacing={1}>
@@ -145,8 +151,8 @@ const CombatDashboardAttacks: FC = () => {
                         {damage}
                       </Typography>
                     </TableCell>
-                    <TableCell>{criticalRolls ? criticalRolls.join(', ') : ''}</TableCell>
-                    <TableCell>{criticalTexts ? criticalTexts.join(', ') : ''}</TableCell>
+                    <TableCell>{criticalRolls.join(', ')}</TableCell>
+                    <TableCell>{criticalTexts.join(', ')}</TableCell>
                     <TableCell></TableCell>
                   </TableRow>
                 );
@@ -155,7 +161,7 @@ const CombatDashboardAttacks: FC = () => {
           </TableBody>
         </Table>
       </TableContainer>
-      {selectedAction && (
+      {isDevelopment && selectedAction && (
         <AttackShowDialog
           title={t('attack-info')}
           attack={selectedAction}

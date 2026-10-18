@@ -1,8 +1,8 @@
 import React, { useState, useContext, FC, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import { Button, Grid, Stack, Typography } from '@mui/material';
 import { CategorySeparator, NumericInput, RmuDialog, useNotify } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { t } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { declareActorRoundInitiative } from '../../../api/actor-rounds';
 import { ActorRound } from '../../../api/actor-rounds.dto';
@@ -12,6 +12,7 @@ const DeclareInitiativeDialog: FC<{
   open: boolean;
   setOpen: (open: boolean) => void;
 }> = ({ actorRound, open, setOpen }) => {
+  const { t } = useTranslation();
   const auth = useAuth();
   const notify = useNotify();
   const [roll, setRoll] = useState<number | undefined>(actorRound.initiative?.roll || undefined);

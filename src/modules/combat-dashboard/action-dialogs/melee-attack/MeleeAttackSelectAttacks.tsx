@@ -37,6 +37,8 @@ const MeleeAttackSelectAttacks: FC<{
   availableAttacks: ActionAttack[];
 }> = ({ formData, actorRound, availableAttacks, setFormData }) => {
   const { t } = useTranslation();
+  // Applied to the attack roll, not to the OB to spend (the API adds them when the attack is resolved).
+  const penaltySum = (actorRound.penalty?.modifiers || []).reduce((sum, modifier) => sum + modifier.value, 0);
   const { actorRounds, roundActions } = useContext(CombatContext)!;
   const [selectedAttack, setSelectedAttack] = useState<ActionAttack>();
   const [openProtectorDialog, setOpenProtectorDialog] = useState<boolean>(false);
@@ -50,15 +52,16 @@ const MeleeAttackSelectAttacks: FC<{
     const available = availableAttacks.find((e) => e.attackName === attackName)!;
     const maxPace = findMaxActorRoundPace(actorRound.actorId, roundActions || []);
 
-    const isTargetDisabled = isActorRoundDisabled(actorRound);
+    // The target's state comes from the target's actor round, not the attacker's.
+    const isTargetDisabled = isActorRoundDisabled(targetActorRound);
 
     const modifiersUpdate = {
       targetId,
       disabledShield: !targetActorRound.defense.shield || isTargetDisabled,
       disabledDB: isTargetDisabled,
       pace: maxPace,
-      proneTarget: isActorRoundProne(actorRound),
-      stunnedFoe: isActorRoundStunned(actorRound),
+      proneTarget: isActorRoundProne(targetActorRound),
+      stunnedFoe: isActorRoundStunned(targetActorRound),
       surprisedFoe: hasStatus(targetActorRound, ['surprised']),
       positionalSource: 'none',
       positionalTarget: 'none',
@@ -151,6 +154,11 @@ const MeleeAttackSelectAttacks: FC<{
                     <Typography variant="caption" color="text.secondary">
                       {t('base-ob')}: {actorRoundAttack.baseBo}
                     </Typography>
+                    {penaltySum !== 0 && (
+                      <Typography variant="caption" color="warning.main">
+                        {t('penalties-on-roll', { value: penaltySum })}
+                      </Typography>
+                    )}
                   </Stack>
                 </Grid>
                 <Grid size={{ xs: 12, md: 2 }}>

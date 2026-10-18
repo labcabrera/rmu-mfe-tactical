@@ -28,7 +28,8 @@ const RangedAttackForm: FC<{
   const handleTargetChange = (attackName: string, targetId: string) => {
     if (!targetId) return;
     const targetActorRound = actorRounds!.find((e) => e.actorId === targetId)!;
-    const isTargetDisabled = isActorRoundDisabled(actorRound);
+    // The target's state comes from the target's actor round, not the attacker's.
+    const isTargetDisabled = isActorRoundDisabled(targetActorRound);
     const newSelected = selected.map((a) =>
       a.attackName === attackName
         ? {

@@ -1,5 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { Dispatch, FC, SetStateAction, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Chip, Grid, Stack } from '@mui/material';
 import {
   CategorySeparator,
@@ -8,7 +9,6 @@ import {
   StrategicGame,
   TacticalGame,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { t } from 'i18next';
 import { Action, ActionMovement } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
 import { useSkillService } from '../../../services/skill-service';
@@ -24,6 +24,7 @@ const MovementModifiersForm: FC<{
   strategicGame: StrategicGame;
   action: Action;
 }> = ({ formData, setFormData, actorRound, game, strategicGame, action }) => {
+  const { t } = useTranslation();
   const [skillBonus, setSkillBonus] = useState<number>();
   const { getSkillBonus } = useSkillService();
   const isCompleted = action.status === 'completed';

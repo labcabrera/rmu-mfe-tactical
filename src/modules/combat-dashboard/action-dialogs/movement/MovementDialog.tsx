@@ -8,6 +8,7 @@ import { CombatContext } from '../../../../CombatContext';
 import { deleteAction, resolveMovement } from '../../../api/action';
 import { Action, ActionMovement, ActionRoll } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
+import { isDevelopment } from '../../../services/action-service';
 import MovementModifiersForm from './MovementModifiersForm';
 import MovementResult from './MovementResult';
 
@@ -115,7 +116,6 @@ const MovementDialog: FC<{
       title={actorRound.actorName}
       subtitle={t('movement')}
       avatarImg={actorRound.imageUrl}
-      fullScreen={false}
       open={open}
       buttons={deleting ? buttonsDeleting : getButtons()}
     >
@@ -131,9 +131,11 @@ const MovementDialog: FC<{
               game={game}
             />
             <MovementResult action={action} />
-            <TechnicalInfo>
-              <pre>{JSON.stringify({ formData, action }, null, 2)}</pre>
-            </TechnicalInfo>
+            {isDevelopment && (
+              <TechnicalInfo>
+                <pre>{JSON.stringify({ formData, action }, null, 2)}</pre>
+              </TechnicalInfo>
+            )}
           </>
         ) : (
           <Typography>{t('delete-action-confirmation')}</Typography>

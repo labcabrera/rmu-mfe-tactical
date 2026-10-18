@@ -6,6 +6,7 @@ import { useNotify } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
 import { createAction } from '../../api/action';
 import { ActorRound } from '../../api/actor-rounds.dto';
+import { isPhaseTaken } from '../../services/action-service';
 import DeclareActionDialog from '../action-dialogs/DeclareActionDialog';
 
 const ActorRoundDeclarationButtons: FC<{
@@ -25,11 +26,14 @@ const ActorRoundDeclarationButtons: FC<{
 
   if (!actorRound || !game) return null;
 
-  const disabledRangedAttack = !actorRound.attacks.some((a) => a.type === 'ranged');
+  // One action point per phase: an attack needs the phase free of the actor's other (non-free) actions, e.g. an
+  // attack declared in phase 1 and finished in phase 3 spends phases 1 to 3.
+  const noActionPoints = isPhaseTaken(actorRound.actorId, currentPhase, roundActions || []);
+  const disabledRangedAttack = noActionPoints || !actorRound.attacks.some((a) => a.type === 'ranged');
   const disabledMovement = pendingActions.some((a) => a.actorId === actorRound.actorId && a.actionType === 'movement');
-  const disabledMeleeAttack = pendingActions.some(
-    (a) => a.actorId === actorRound.actorId && a.actionType === 'melee_attack' && !a.freeAction
-  );
+  const disabledMeleeAttack =
+    noActionPoints ||
+    pendingActions.some((a) => a.actorId === actorRound.actorId && a.actionType === 'melee_attack' && !a.freeAction);
   const actions = [
     {
       key: 'free-movement',

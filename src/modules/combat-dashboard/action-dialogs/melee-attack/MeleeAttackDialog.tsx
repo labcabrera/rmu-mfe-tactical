@@ -8,6 +8,7 @@ import { CombatContext } from '../../../../CombatContext';
 import { applyAttack, declareParry, deleteAction, prepareAttack } from '../../../api/action';
 import { Action, ActionAttack, AttackDeclaration, ParryDeclaration } from '../../../api/action.dto';
 import { ActorRound, ActorRoundAttack } from '../../../api/actor-rounds.dto';
+import { attackActionPoints, isDevelopment, meleeStepForStatus } from '../../../services/action-service';
 import MeleeAttackStepper from './MeleeAttackStepper';
 
 const MeleeAttackDialog: FC<{
@@ -24,12 +25,17 @@ const MeleeAttackDialog: FC<{
   const notify = useNotify();
   const [formData, setFormData] = useState<AttackDeclaration>({ attacks: [], parries: [] });
   const [availableAttacks, setAvailableAttaks] = useState<ActionAttack[]>([]);
-  const [activeStep, setActiveStep] = useState<number>(0);
+  // Steps the user moves to by hand (next/back). `null` follows the action status.
+  const [manualStep, setManualStep] = useState<number | null>(null);
   const [isValidForm, setIsValidForm] = useState<boolean>(false);
-  const currentAction = useMemo(
-    () => roundActions?.find((roundAction: Action) => roundAction.id === action.id) || action,
-    [action, roundActions]
-  );
+  // Last action returned by the API from this dialog, so the dialog moves on without waiting for the board's state.
+  const [responseAction, setResponseAction] = useState<Action | null>(null);
+  const currentAction = useMemo(() => {
+    const roundAction = roundActions?.find((a: Action) => a.id === action.id) || action;
+    return responseAction && responseAction.id === roundAction.id ? responseAction : roundAction;
+  }, [action, roundActions, responseAction]);
+  const activeStep = manualStep ?? meleeStepForStatus(currentAction.status);
+  const setActiveStep = (step: number) => setManualStep(step);
 
   const buttonsDeleting = [
     <Button color="error" onClick={() => onDelete()}>
@@ -47,25 +53,27 @@ const MeleeAttackDialog: FC<{
       setAvailableAttaks(attacks);
       setFormData({ attacks: attacks || [], parries: action.parries || [] });
     }
-    switch (action.status) {
-      case 'declared': {
-        setActiveStep(0);
-        break;
-      }
-      case 'parry':
-        setActiveStep(2);
-        break;
-      case 'pending_attack_roll':
-      case 'critical_or_fumble_roll':
-      case 'pending_roll':
-      case 'prepared':
-      case 'pending_apply':
-      case 'completed':
-        setActiveStep(3);
-        break;
-      default:
-        notify.error(t('invalid-attack-status', { status: action.status }));
+    const knownStatuses = [
+      'declared',
+      'prepared',
+      'parry',
+      'pending_roll',
+      'pending_attack_roll',
+      'critical_or_fumble_roll',
+      'pending_apply',
+      'completed',
+    ];
+    if (!knownStatuses.includes(action.status)) {
+      notify.error(t('invalid-attack-status', { status: action.status }));
     }
+  };
+
+  /** Refreshes the dialog from an API response: the step is recomputed from the new status. */
+  const onActionResponse = (response: Action) => {
+    updateAction(response);
+    setResponseAction(response);
+    setManualStep(null);
+    loadAction(response);
   };
 
   const validateForm = () => {
@@ -83,10 +91,7 @@ const MeleeAttackDialog: FC<{
 
   const onPrepare = () => {
     prepareAttack(currentAction.id, formData, auth)
-      .then((response) => {
-        updateAction(response);
-        loadAction(response);
-      })
+      .then(onActionResponse)
       .catch((err) => notify.error(err));
   };
 
@@ -94,10 +99,7 @@ const MeleeAttackDialog: FC<{
     const parries = formData.parries?.map((e) => ({ parryId: e.id, parry: e.parry }));
     const parryDeclaration = { parries } as ParryDeclaration;
     declareParry(currentAction.id, parryDeclaration, auth)
-      .then((response) => {
-        updateAction(response);
-        loadAction(response);
-      })
+      .then(onActionResponse)
       .catch((err) => notify.error(err));
   };
 
@@ -105,8 +107,7 @@ const MeleeAttackDialog: FC<{
     applyAttack(currentAction.id, auth)
       .then((response) => {
         refreshActorRounds();
-        updateAction(response);
-        loadAction(response);
+        onActionResponse(response);
         onClose();
       })
       .catch((err) => notify.error(err));
@@ -185,10 +186,10 @@ const MeleeAttackDialog: FC<{
     );
   };
 
+  // Once prepared, the action points are fixed. Before that, they come from the game phase (as in the API's prepare).
   const availableActionPoints = () => {
-    //TODO pendiente de refactor de phase string -> number
-    const ap = activeStep - currentAction.phaseStart + 3;
-    return ap > 1;
+    if (currentAction.status !== 'declared' || currentAction.freeAction) return true;
+    return attackActionPoints(currentAction, game!) > 0;
   };
 
   useEffect(() => {
@@ -200,13 +201,22 @@ const MeleeAttackDialog: FC<{
     loadAction(currentAction);
   }, [currentAction, actorRound]);
 
+  // The board's state caught up (or changed elsewhere, e.g. a roll): follow it again.
+  useEffect(() => {
+    if (roundActions?.some((a) => a.id === action.id)) setResponseAction(null);
+  }, [roundActions]);
+
+  // A new status (from any form of the dialog) moves the stepper to its step.
+  useEffect(() => {
+    setManualStep(null);
+  }, [currentAction.status]);
+
   if (!actorRound || !roundActions || !formData || !strategicGame || !game) return null;
 
   return (
     <RmuDialog
       title={actorRound.actorName}
       subtitle={`${t('melee-attack')} (${t(`action-status-${currentAction.status}`)})`}
-      fullScreen={false}
       open={open}
       paperSx={(theme) => ({
         bgcolor: alpha(theme.palette.background.default, 0.98),
@@ -280,15 +290,17 @@ const MeleeAttackDialog: FC<{
                   },
                 })}
               >
-                <TechnicalInfo>
-                  <pre>
-                    {JSON.stringify(
-                      { formData, activeStep, action: currentAction, availableAttacks, actorRound },
-                      null,
-                      2
-                    )}
-                  </pre>
-                </TechnicalInfo>
+                {isDevelopment && (
+                  <TechnicalInfo>
+                    <pre>
+                      {JSON.stringify(
+                        { formData, activeStep, action: currentAction, availableAttacks, actorRound },
+                        null,
+                        2
+                      )}
+                    </pre>
+                  </TechnicalInfo>
+                )}
               </Box>
             </Stack>
           </Stack>
@@ -348,7 +360,7 @@ const AttackerCard: FC<{ actorRound: ActorRound; action: Action }> = ({ actorRou
           </Box>
           <Divider />
           <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', rowGap: 1 }}>
-            <Chip size="small" label={t(action.status)} color="primary" variant="outlined" />
+            <Chip size="small" label={t(`action-status-${action.status}`)} color="primary" variant="outlined" />
             <Chip size="small" label={`${t('phase')} ${action.phaseStart}`} variant="outlined" />
           </Stack>
         </Stack>

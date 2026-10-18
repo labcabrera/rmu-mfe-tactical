@@ -18,6 +18,16 @@ const ResolveAttackFormModifiers: FC<{
     return actorRounds!.find((a) => a.actorId === id)?.actorName || '';
   };
 
+  // The parries of one actor share its available parry: each field can take what the others leave.
+  const remainingParry = (index: number) => {
+    const parry = formData.parries![index];
+    const others = formData.parries!.reduce(
+      (sum, other, i) => (i !== index && other.actorId === parry.actorId ? sum + (other.parry || 0) : sum),
+      0
+    );
+    return Math.max(0, parry.parryAvailable - others);
+  };
+
   return (
     <Grid container spacing={1}>
       {formData.parries && (
@@ -62,9 +72,13 @@ const ResolveAttackFormModifiers: FC<{
                   }}
                   integer
                   allowNegatives={false}
-                  max={parry.parryAvailable}
+                  max={remainingParry(index)}
                   min={0}
+                  error={(parry.parry || 0) > remainingParry(index)}
                 />
+                <Typography variant="caption" color="text.secondary">
+                  {t('parry-max', { max: remainingParry(index) })}
+                </Typography>
               </Grid>
               <Grid size={12}></Grid>
             </Fragment>

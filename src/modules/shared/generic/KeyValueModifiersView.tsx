@@ -1,9 +1,10 @@
 import React, { FC } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Stack, Chip } from '@mui/material';
-import { t } from 'i18next';
 import { KeyValueModifier } from '../../api/action.dto';
 
 const KeyValueModifiersView: FC<{ modifiers?: KeyValueModifier[] | null }> = ({ modifiers }) => {
+  const { t } = useTranslation();
   if (!modifiers || modifiers.length === 0) return <div />;
 
   const getModifierColor = (value: number) => {
