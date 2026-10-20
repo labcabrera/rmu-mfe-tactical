@@ -2,10 +2,11 @@ import React, { Dispatch, FC, SetStateAction, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import { Grid, Stack, Typography } from '@mui/material';
-import { CategorySeparator, useNotify, ConfirmedRollInput } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { CategorySeparator, ConfirmedRollInput } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../CombatContext';
 import { updateFumbleRoll } from '../../../api/action';
 import { Action, ActionAttack, AttackDeclaration, CriticalEffect } from '../../../api/action.dto';
+import { useTacticalNotify } from '../../../services/notify-service';
 import Effect from '../../../shared/generic/Effect';
 
 const ResolveAttackFormFumble: FC<{
@@ -18,7 +19,7 @@ const ResolveAttackFormFumble: FC<{
   const auth = useAuth();
   const { t } = useTranslation();
   const { updateAction } = useContext(CombatContext)!;
-  const notify = useNotify();
+  const notify = useTacticalNotify();
   const fumble = attack.results?.fumble;
 
   if (!formData || !formData.attacks || formData.attacks.length <= index || !fumble) return null;

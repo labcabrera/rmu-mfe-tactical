@@ -26,17 +26,21 @@ import {
   startPhase,
   startRound,
   TacticalGame,
-  useNotify,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
 import type { Action } from '../../api/action.dto';
 import type { ActorRound } from '../../api/actor-rounds.dto';
+import { isActorRoundFlatfooted } from '../../services/actor-round-service';
+import { useTacticalNotify } from '../../services/notify-service';
 import { useShortcut } from '../../services/shortcuts';
 import { actionLabel } from './action-view';
 import { PHASES } from './round-grid';
 
 const isDown = (actorRound: ActorRound) =>
   actorRound.effects?.some((e) => e.status === 'dead' || e.status === 'unconcious');
+
+/** Flatfooted actors do not roll initiative (§8.3 Surprise), like the ones that are down. */
+const rollsInitiative = (actorRound: ActorRound) => !isDown(actorRound) && !isActorRoundFlatfooted(actorRound);
 
 /** Name of a phase in the stepper. */
 const usePhaseLabel = () => {
@@ -78,7 +82,7 @@ const pendingActions = (game: TacticalGame, actions: Action[], actorRounds: Acto
 const CombatRoundHeader: FC = () => {
   const { t } = useTranslation();
   const auth = useAuth();
-  const notify = useNotify();
+  const notify = useTacticalNotify();
   const phaseLabel = usePhaseLabel();
   const nextStepLabel = useNextStepLabel();
   const {
@@ -98,7 +102,7 @@ const CombatRoundHeader: FC = () => {
   // N does what the main button does: start the next phase or round, asking first when something is pending.
   useShortcut(['n', 'N'], () => {
     if (!game || !actorRounds || displayRound !== game.round) return false;
-    const missingInitiative = actorRounds.some((ar) => !isDown(ar) && !ar.initiative?.roll);
+    const missingInitiative = actorRounds.some((ar) => rollsInitiative(ar) && !ar.initiative?.roll);
     if (game.phase === 'declare_initiative' && missingInitiative) return false;
     if (pendingActions(game, roundActions ?? [], actorRounds, t).length > 0) setConfirm('next');
     else advanceRef.current();
@@ -107,7 +111,7 @@ const CombatRoundHeader: FC = () => {
   if (!game || !actorRounds || displayRound === null) return null;
 
   const history = displayRound !== game.round;
-  const active = actorRounds.filter((ar) => !isDown(ar));
+  const active = actorRounds.filter(rollsInitiative);
   const undeclared = active.filter((ar) => !ar.initiative?.roll);
   const pending = pendingActions(game, roundActions ?? [], actorRounds, t);
   const blocked = game.phase === 'declare_initiative' && undeclared.length > 0;

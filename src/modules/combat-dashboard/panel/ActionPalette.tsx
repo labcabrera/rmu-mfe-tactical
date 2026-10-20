@@ -15,17 +15,12 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import {
-  combatActionInfo,
-  CombatActionType,
-  combatColors,
-  useNotify,
-  usePhone,
-} from '@labcabrera-rmu/rmu-react-shared-lib';
+import { combatActionInfo, CombatActionType, combatColors, usePhone } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
 import { createAction } from '../../api/action';
 import { Action } from '../../api/action.dto';
 import { ActorRound } from '../../api/actor-rounds.dto';
+import { useTacticalNotify } from '../../services/notify-service';
 import ManeuverDeclareDialog from './ManeuverDeclareDialog';
 
 type PaletteEntry = {
@@ -61,12 +56,19 @@ const usePaletteGroups = (actorRound: ActorRound, phase: number): PaletteGroup[]
     (a) => (a.actionType === 'melee_attack' || a.actionType === 'ranged_attack') && a.status !== 'completed'
   );
 
+  // §8.3 Surprise: a flatfooted actor declares nothing this round, and a surprised one loses its first phases (the
+  // effect's value, 2 by default). The reasons reuse the messages of the API errors.
+  const flatfooted = actorRound.effects?.some((e) => e.status === 'flatfooted');
+  const surprise = actorRound.effects?.find((e) => e.status === 'surprised');
+  const surprisedPhase = !!surprise && phase <= (surprise.value ?? 2);
+  const roundReason = flatfooted ? 'err-action-flatfooted' : surprisedPhase ? 'err-action-surprised-phase' : undefined;
+
   const entry = (type: CombatActionType, extra: Partial<PaletteEntry> = {}): PaletteEntry => ({
     key: extra.key ?? type,
     type,
     label: extra.label ?? t(combatActionInfo(type).labelKey),
     ...extra,
-    unavailable: NOT_SUPPORTED.includes(type) ? 'coming-soon' : extra.unavailable,
+    unavailable: NOT_SUPPORTED.includes(type) ? 'coming-soon' : (roundReason ?? extra.unavailable),
   });
 
   const melee = actorRound.attacks.some((a) => a.type === 'melee');
@@ -95,7 +97,8 @@ const usePaletteGroups = (actorRound: ActorRound, phase: number): PaletteGroup[]
         entry('ranged_attack', {
           unavailable: attacking ? 'already-attacking' : !ranged ? 'no-ranged-attacks' : undefined,
         }),
-        entry('dodge'),
+        // A full dodge or block takes the 4 AP of the round (§9.6): it can only start in phase 1.
+        entry('dodge', { unavailable: phase > 1 ? 'err-full-defense-action-points' : undefined }),
         entry('draw_and_load'),
       ],
     },
@@ -113,7 +116,7 @@ const usePaletteGroups = (actorRound: ActorRound, phase: number): PaletteGroup[]
 const useCreateAction = (actorRound: ActorRound | null, phase: number, onCreated: (action: Action) => void) => {
   const { t } = useTranslation();
   const auth = useAuth();
-  const notify = useNotify();
+  const notify = useTacticalNotify();
   const { game, roundActions, setRoundActions } = useContext(CombatContext)!;
   const [busy, setBusy] = useState(false);
 

@@ -1,6 +1,6 @@
 import { AuthContextProps } from 'react-oidc-context';
 import { apiTacticalUrl, callApi, Page } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { ActorRound, ActorRoundEffect } from './actor-rounds.dto';
+import { ActorRound, ActorRoundEffect, DefenseLevel } from './actor-rounds.dto';
 
 export async function fetchActorRound(actorRoundId: string, auth: AuthContextProps): Promise<ActorRound> {
   const url = `${apiTacticalUrl}/actor-rounds/${actorRoundId}`;
@@ -20,13 +20,28 @@ export async function fetchActorRounds(
 export async function declareActorRoundInitiative(
   actorRoundId: string,
   roll: number,
-  auth: AuthContextProps
+  auth: AuthContextProps,
+  strikeReflex?: boolean
 ): Promise<ActorRound> {
   const url = `${apiTacticalUrl}/actor-rounds/${actorRoundId}/initiative`;
   return await callApi(auth, url, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ roll }),
+    body: JSON.stringify(strikeReflex === undefined ? { roll } : { roll, strikeReflex }),
+  });
+}
+
+/** Declares the passive or partial dodge and block of the round (`full` comes from a dodge action); a missing one is kept. */
+export async function declareActorRoundDefenseMode(
+  actorRoundId: string,
+  mode: { dodge?: DefenseLevel; block?: DefenseLevel },
+  auth: AuthContextProps
+): Promise<ActorRound> {
+  const url = `${apiTacticalUrl}/actor-rounds/${actorRoundId}/defense-mode`;
+  return await callApi(auth, url, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(mode),
   });
 }
 

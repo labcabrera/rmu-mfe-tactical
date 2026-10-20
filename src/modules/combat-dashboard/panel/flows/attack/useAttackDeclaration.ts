@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 import { CombatContext } from '../../../../../CombatContext';
-import { Action, ActionAttack, AttackDeclaration } from '../../../../api/action.dto';
+import { Action, ActionAttack, AttackDeclaration, ProtectPosition } from '../../../../api/action.dto';
 import { ActorRound, ActorRoundAttack } from '../../../../api/actor-rounds.dto';
 import {
   actorRoundHasEffect,
@@ -16,7 +16,6 @@ const NEUTRAL = {
   positionalSource: 'none',
   positionalTarget: 'none',
   cover: 'none',
-  dodge: 'none',
   restrictedQuarters: 'none',
   calledShot: 'none',
 };
@@ -69,11 +68,13 @@ export const useAttackDeclaration = (action: Action, actorRound: ActorRound, kin
   const selectTarget = (attackName: string, targetId: string) => {
     const target = actorRounds?.find((ar) => ar.actorId === targetId);
     updateAttack(attackName, (attack) => {
-      if (!target) return { ...attack, modifiers: { ...attack.modifiers, targetId: '' }, protectors: [] };
+      if (!target)
+        return { ...attack, modifiers: { ...attack.modifiers, targetId: '' }, protectors: [], protectorPositions: {} };
       const disabled = isActorRoundDisabled(target);
       return {
         ...attack,
         protectors: [],
+        protectorPositions: {},
         modifiers: {
           ...attack.modifiers,
           targetId,
@@ -93,16 +94,29 @@ export const useAttackDeclaration = (action: Action, actorRound: ActorRound, kin
   const setRange = (attackName: string, range: number | null) =>
     updateAttack(attackName, (a) => ({ ...a, modifiers: { ...a.modifiers, range } }));
 
+  /** Adds or removes a protector; a new one stands in no particular place (`other`) until its position is set. */
   const toggleProtector = (attackName: string, actorId: string) =>
     updateAttack(attackName, (a) => {
       const protectors = a.protectors ?? [];
+      const positions = { ...(a.protectorPositions ?? {}) };
+      const removing = protectors.includes(actorId);
+      if (removing) delete positions[actorId];
+      else positions[actorId] = 'other';
       return {
         ...a,
-        protectors: protectors.includes(actorId) ? protectors.filter((p) => p !== actorId) : [...protectors, actorId],
+        protectors: removing ? protectors.filter((p) => p !== actorId) : [...protectors, actorId],
+        protectorPositions: positions,
       };
     });
 
+  /** Where a protector stands (Table 9-7c), which sets the OB it loses to protect. */
+  const setProtectorPosition = (attackName: string, actorId: string, position: ProtectPosition) =>
+    updateAttack(attackName, (a) => ({
+      ...a,
+      protectorPositions: { ...(a.protectorPositions ?? {}), [actorId]: position },
+    }));
+
   const targeted = formData.attacks.filter((a) => !!a.modifiers?.targetId);
 
-  return { formData, setFormData, targeted, selectTarget, setBo, setRange, toggleProtector };
+  return { formData, setFormData, targeted, selectTarget, setBo, setRange, toggleProtector, setProtectorPosition };
 };

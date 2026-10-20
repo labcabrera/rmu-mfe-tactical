@@ -4,7 +4,7 @@ export type AttackKind = 'melee' | 'ranged';
 export type ModifierFieldGroup = 'offense' | 'defense' | 'situation';
 /**
  * Where the form shows a field: `roll` adds to or subtracts from the attack roll; `defender` changes how the
- * target defends (DB, shield, parry, dodge) without a roll bonus; `special` changes other rules (ambush,
+ * target defends (DB, shield, parry) without a roll bonus; `special` changes other rules (ambush,
  * charge) and has no fixed value.
  */
 export type ModifierSection = 'roll' | 'defender' | 'special';
@@ -58,7 +58,9 @@ const COVER = {
 
 /**
  * Every modifier the attacker can declare, in display order. The values mirror the combat plugins of
- * rmu-api-tactical and are only hints: the breakdown returned by the API after Prepare is the reference.
+ * rmu-api-tactical and are only hints: the breakdown returned by the API after Prepare is the reference. The API
+ * works out on its own what no longer has a control here: the target's dodge and block (its declared defence mode),
+ * a two-handed weapon and a flatfooted target.
  */
 export const ATTACK_MODIFIER_FIELDS: ModifierField[] = [
   // Attacker
@@ -159,15 +161,6 @@ export const ATTACK_MODIFIER_FIELDS: ModifierField[] = [
     section: 'defender',
     appliesTo: ['melee'],
     bonus: () => null,
-  },
-  {
-    kind: 'choice',
-    name: 'dodge',
-    label: 'dodge',
-    group: 'defense',
-    section: 'defender',
-    defaultValue: 'none',
-    options: () => opts(['none', 'passive', 'partial', 'full'].map((key) => [key, null])),
   },
   // Situation
   {

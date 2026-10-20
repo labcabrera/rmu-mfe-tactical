@@ -22,9 +22,9 @@ import {
   RmuDialog,
   Skill,
   SkillCategory,
-  useNotify,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { ActorRound } from '../../api/actor-rounds.dto';
+import { useTacticalNotify } from '../../services/notify-service';
 import { useSkillService } from '../../services/skill-service';
 
 const MANEUVER_TYPES = ['absolute', 'percent'];
@@ -46,7 +46,7 @@ const ManeuverDeclareDialog: FC<{
 }> = ({ open, actorRound, initialSkillId, busy, onClose, onDeclare }) => {
   const { t } = useTranslation();
   const auth = useAuth();
-  const notify = useNotify();
+  const notify = useTacticalNotify();
   const { getSkillBonus } = useSkillService();
   const [categories, setCategories] = useState<SkillCategory[]>([]);
   const [skills, setSkills] = useState<Skill[]>([]);

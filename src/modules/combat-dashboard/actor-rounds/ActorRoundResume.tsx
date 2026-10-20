@@ -4,15 +4,13 @@ import { Box, ButtonBase, Chip, Stack, Typography } from '@mui/material';
 import { Character, ResourceBar } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
 import { ActorRound } from '../../api/actor-rounds.dto';
+import { actorRoundDownState } from '../../services/actor-round-service';
 import { useFactionColor } from '../../services/faction-colors';
 import ActorRoundAvatar from '../../shared/avatars/ActorRoundAvatar';
 
-const isDown = (actorRound: ActorRound) =>
-  actorRound.effects.find((e) => e.status === 'dead' || e.status === 'unconcious')?.status;
-
 /**
- * Actor cell of the board: a large miniature beside the name, a "down"
- * chip, profession and level, faction (with its color dot), and hit point and fatigue bars. `extra` adds
+ * Actor cell of the board: a large miniature beside the name, a "down" chip (dead in red with the name struck
+ * through and the miniature greyed; unconscious in amber), profession and level, faction (with its color dot), and hit point and fatigue bars. `extra` adds
  * content below (the effects, when the board has no effects column).
  */
 const ActorRoundResume: FC<{
@@ -27,7 +25,7 @@ const ActorRoundResume: FC<{
   const character = characters?.find((c: Character) => c.id === actorRound.actorId);
   const faction = factions?.find((f) => f.id === actorRound.factionId);
   const color = factionColor(actorRound.factionId);
-  const down = isDown(actorRound);
+  const down = actorRoundDownState(actorRound);
 
   return (
     <Stack sx={{ height: '100%', gap: 1, p: 1.25 }}>
@@ -45,7 +43,7 @@ const ActorRoundResume: FC<{
         }}
       >
         {/* The miniature takes the height of the name, faction and bars: players find their figure by it. */}
-        <ActorRoundAvatar actorRound={actorRound} size={112} variant="rounded" dead={!!down} />
+        <ActorRoundAvatar actorRound={actorRound} size={112} variant="rounded" dead={down === 'dead'} />
         <Stack sx={{ flex: 1, minWidth: 0, justifyContent: 'space-between', gap: 0.5 }}>
           <Box sx={{ minWidth: 0 }}>
             <Stack direction="row" spacing={1} sx={{ alignItems: 'center', minWidth: 0 }}>
@@ -62,7 +60,7 @@ const ActorRoundResume: FC<{
               >
                 {actorRound.actorName}
               </Typography>
-              {down && <Chip size="small" color="error" label={t(down)} />}
+              {down && <Chip size="small" color={down === 'dead' ? 'error' : 'warning'} label={t(down)} />}
             </Stack>
             {character && (
               <Typography variant="caption" color="text.secondary" component="div" noWrap>

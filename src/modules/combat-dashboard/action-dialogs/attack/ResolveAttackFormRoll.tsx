@@ -1,17 +1,13 @@
-import React, { Dispatch, FC, SetStateAction, useContext, useState } from 'react';
+import React, { Dispatch, FC, SetStateAction, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import { Grid, Chip, Stack, Typography } from '@mui/material';
-import {
-  CategorySeparator,
-  OpenEndedRollInput,
-  useNotify,
-  ConfirmedRollInput,
-} from '@labcabrera-rmu/rmu-react-shared-lib';
+import { CategorySeparator, OpenEndedRollInput } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../CombatContext';
 import { updateAttackRoll } from '../../../api/action';
 import { Action, ActionAttack, AttackDeclaration } from '../../../api/action.dto';
 import { criticalCode } from '../../../services/action-service';
+import { useTacticalNotify } from '../../../services/notify-service';
 import Effect from '../../../shared/generic/Effect';
 import { AttackNextStep, AttackResultSummary } from './AttackResolutionGuide';
 import ResolveAttackFormCriticals from './ResolveAttackFormCriticals';
@@ -28,33 +24,19 @@ const ResolveAttackFormRoll: FC<{
   const auth = useAuth();
   const { t } = useTranslation();
   const { updateAction, actorRounds } = useContext(CombatContext)!;
-  const notify = useNotify();
-  const [attackRoll, setAttackRoll] = useState<number | undefined>(attack.roll?.roll ?? undefined);
-  const [locationRoll, setLocationRoll] = useState<number | undefined>(attack.roll?.locationRoll ?? undefined);
+  const notify = useTacticalNotify();
   const isCompleted = action.status === 'completed';
 
   if (!formData || !formData.attacks || formData.attacks.length <= index) return null;
 
   if (!attack.calculated) return <p>{t('attack-not-calculated')}</p>;
 
-  const onRollChange = (value: number | undefined) => {
-    setAttackRoll(value);
-    handleRollChange(value, locationRoll);
-  };
-
-  const onLocationRollChange = (value: number | undefined) => {
-    setLocationRoll(value);
-    handleRollChange(attackRoll, value);
-  };
-
-  const handleRollChange = (newAttackRoll?: number | undefined, newLocationRoll?: number | undefined) => {
-    const roll = newAttackRoll !== undefined ? newAttackRoll : attackRoll;
-    const loc = newLocationRoll !== undefined ? newLocationRoll : locationRoll;
+  // Without a called shot there is no location roll: the AT is the torso's (§9.5 Mixed armour).
+  const onRollChange = (roll: number | undefined) => {
     if (roll === undefined || roll === null) return;
-    if (attack.calculated!.requiredLocationRoll && (loc === undefined || loc === null)) return;
     // Nothing changed since the last stored roll.
-    if (roll === attack.roll?.roll && (loc ?? null) === (attack.roll?.locationRoll ?? null)) return;
-    updateAttackRoll(action.id, attack.attackName, roll, loc, auth)
+    if (roll === attack.roll?.roll) return;
+    updateAttackRoll(action.id, attack.attackName, roll, auth)
       .then((updatedAction) => {
         const newFormData = { attacks: updatedAction.attacks, parries: updatedAction.parries } as AttackDeclaration;
         updateAction(updatedAction);
@@ -87,17 +69,6 @@ const ResolveAttackFormRoll: FC<{
       <Grid size={12}>
         <AttackNextStep attack={attack} />
       </Grid>
-      {attack.calculated.requiredLocationRoll && (
-        <Grid size={6}>
-          <ConfirmedRollInput
-            label={t('location-roll')}
-            value={attack.roll?.locationRoll}
-            onConfirm={onLocationRollChange}
-            disabled={isCompleted}
-            error={!locationRoll}
-          />
-        </Grid>
-      )}
       <Grid size={12}>
         {attack.calculated.location && (
           <Grid size={8}>
@@ -124,6 +95,11 @@ const ResolveAttackFormRoll: FC<{
           <Typography variant="body2" color="secondary">
             {t('total')}
           </Typography>
+          {attack.calculated.fumble !== undefined && (
+            <Typography variant="caption" color="text.secondary">
+              {t('fumble-range-n', { fumble: attack.calculated.fumble })}
+            </Typography>
+          )}
         </Stack>
       </Grid>
       <Grid size={12}>

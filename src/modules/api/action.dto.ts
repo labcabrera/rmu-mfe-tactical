@@ -180,11 +180,20 @@ export type ActionAttack = {
   /** Set by the API; absent in attacks built by the UI before prepare and in actions stored before the per-attack status. */
   status?: AttackStatus;
   protectors: string[] | null;
+  /** Where each protector stands (Table 9-7c), by actor id; `other` when not given. Sent on prepare. */
+  protectorPositions?: Record<string, ProtectPosition>;
 };
+
+/** Where a protector stands (Table 9-7c): between attacker and defender, behind the defender, or anywhere else. */
+export type ProtectPosition = 'protector_between' | 'defender_between' | 'other';
+export const PROTECT_POSITIONS: ProtectPosition[] = ['protector_between', 'defender_between', 'other'];
+
+/** Full defence of a completed dodge action (4 AP): a full dodge or a full block. */
+export type FullDefenseType = 'dodge' | 'block';
 
 export type ActionAttackRoll = {
   roll: number | null;
-  locationRoll: number | null;
+  /** The criticals of an attack share one roll (§9.8): the API stores it under every critical key. */
   criticalRolls?: Record<string, number | null>;
   fumbleRoll?: number | null;
 };
@@ -253,7 +262,6 @@ export type ActionAttackModifiers = {
   proneTarget?: boolean;
   attackerInMelee?: boolean;
   ambush?: boolean;
-  dodge?: string;
   range?: number | null;
   disabledDB: boolean | null;
   disabledShield: boolean | null;
@@ -266,7 +274,9 @@ export type ActionAttackModifiers = {
 export type AttackCalculationsDto = {
   rollModifiers: KeyValueModifier[];
   rollTotal: number;
-  requiredLocationRoll: boolean;
+  /** Fumble range used for the roll (weapon fumble plus traits such as Foiler). */
+  fumble?: number;
+  /** Location hit by a called shot; without one no location is rolled (the AT is the torso's). */
   location: string | null;
   /** Modifiers applied to the critical rolls (size difference, absolute hit...). */
   criticalModifiers?: KeyValueModifier[];
@@ -284,4 +294,9 @@ export type ActionParry = {
   targetAttackName: string | undefined;
   parryAvailable: number;
   parry: number;
+  /** Protect penalty left after the Protect skill (0 or negative), spent from the protector's OB when it protects. */
+  penalty?: number;
+  protectPosition?: ProtectPosition;
+  /** Parry declared against this attacker in an earlier action of the round: fixed, its OB is not spent again. */
+  carriedOver?: boolean;
 };

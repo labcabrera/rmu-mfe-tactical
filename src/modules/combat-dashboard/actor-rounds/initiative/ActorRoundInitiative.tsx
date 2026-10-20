@@ -1,12 +1,14 @@
-import React, { FC, KeyboardEvent, useContext } from 'react';
+import React, { FC, KeyboardEvent, useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import CasinoIcon from '@mui/icons-material/Casino';
-import { Box, IconButton, Stack, Tooltip, Typography } from '@mui/material';
-import { formatBonus, NumericInput, useNotify } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { Box, Checkbox, FormControlLabel, IconButton, Stack, Tooltip, Typography } from '@mui/material';
+import { formatBonus, NumericInput } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../CombatContext';
 import { declareActorRoundInitiative } from '../../../api/actor-rounds';
 import { ActorRound } from '../../../api/actor-rounds.dto';
+import { isActorRoundFlatfooted } from '../../../services/actor-round-service';
+import { useTacticalNotify } from '../../../services/notify-service';
 
 /** One modifier of the initiative: its name on the left, its value on the right. */
 const Modifier: FC<{ label: string; value: string }> = ({ label, value }) => (
@@ -20,6 +22,9 @@ const Modifier: FC<{ label: string; value: string }> = ({ label, value }) => (
   </Stack>
 );
 
+/** Trait that lets the actor add a bonus to its initiative when it declares it (spec 008). */
+const STRIKE_REFLEX = 'strike-reflex';
+
 /** Initiative is a 2d10 roll. */
 const roll2d10 = () => Math.floor(Math.random() * 10) + 1 + Math.floor(Math.random() * 10) + 1;
 
@@ -30,18 +35,33 @@ const roll2d10 = () => Math.floor(Math.random() * 10) + 1 + Math.floor(Math.rand
 const ActorRoundInitiative: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
   const { t } = useTranslation();
   const auth = useAuth();
-  const notify = useNotify();
+  const notify = useTacticalNotify();
   const { game, displayRound, updateActorRound } = useContext(CombatContext)!;
   const isDown = actorRound.effects.some((e) => e.status === 'dead' || e.status === 'unconcious');
-  const editable = !isDown && game?.phase === 'declare_initiative' && displayRound === game?.round;
-  const { base = 0, penalty = 0, roll, total } = actorRound.initiative ?? {};
+  const flatfooted = isActorRoundFlatfooted(actorRound);
+  const editable = !isDown && !flatfooted && game?.phase === 'declare_initiative' && displayRound === game?.round;
+  const { base = 0, penalty = 0, roll, total, strikeReflex: strikeReflexBonus } = actorRound.initiative ?? {};
   const declared = !!roll;
+  const hasStrikeReflex = (actorRound.traits ?? []).some((trait) => trait.traitId === STRIKE_REFLEX);
+  const [strikeReflex, setStrikeReflex] = useState(!!strikeReflexBonus);
+
+  useEffect(() => setStrikeReflex(!!strikeReflexBonus), [strikeReflexBonus]);
+
+  const send = (value: number, useStrikeReflex: boolean) => {
+    declareActorRoundInitiative(actorRound.id, value, auth, hasStrikeReflex ? useStrikeReflex : undefined)
+      .then(updateActorRound)
+      .catch((err) => notify.error(err));
+  };
 
   const declare = (value: number | null) => {
     if (!value || value === roll) return;
-    declareActorRoundInitiative(actorRound.id, value, auth)
-      .then(updateActorRound)
-      .catch((err) => notify.error(err));
+    send(value, strikeReflex);
+  };
+
+  /** The choice is sent with the roll; once the roll is declared, changing it declares the same roll again. */
+  const toggleStrikeReflex = (checked: boolean) => {
+    setStrikeReflex(checked);
+    if (roll) send(roll, checked);
   };
 
   const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
@@ -51,12 +71,17 @@ const ActorRoundInitiative: FC<{ actorRound: ActorRound }> = ({ actorRound }) =>
     }
   };
 
-  if (isDown) {
+  if (isDown || (flatfooted && !declared)) {
     return (
       <Box sx={{ p: 1.25 }}>
         <Typography variant="h6" color="text.disabled">
           —
         </Typography>
+        {flatfooted && !isDown && (
+          <Typography variant="caption" color="warning.main">
+            {t('flatfooted-no-initiative')}
+          </Typography>
+        )}
       </Box>
     );
   }
@@ -77,6 +102,7 @@ const ActorRoundInitiative: FC<{ actorRound: ActorRound }> = ({ actorRound }) =>
       <Stack>
         <Modifier label={t('base')} value={formatBonus(base)} />
         <Modifier label={t('penalty')} value={formatBonus(penalty)} />
+        {!!strikeReflexBonus && <Modifier label={t('strike-reflex')} value={formatBonus(strikeReflexBonus)} />}
         {declared && !editable && <Modifier label={t('roll')} value={String(roll)} />}
       </Stack>
       {editable && (
@@ -96,6 +122,14 @@ const ActorRoundInitiative: FC<{ actorRound: ActorRound }> = ({ actorRound }) =>
             </IconButton>
           </Tooltip>
         </Stack>
+      )}
+      {editable && hasStrikeReflex && (
+        <FormControlLabel
+          control={
+            <Checkbox size="small" checked={strikeReflex} onChange={(e) => toggleStrikeReflex(e.target.checked)} />
+          }
+          label={<Typography variant="caption">{t('strike-reflex')}</Typography>}
+        />
       )}
     </Stack>
   );
