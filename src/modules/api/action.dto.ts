@@ -274,6 +274,8 @@ export type ActionAttackModifiers = {
 export type AttackCalculationsDto = {
   rollModifiers: KeyValueModifier[];
   rollTotal: number;
+  /** Fumble range used for the roll (weapon fumble plus traits such as Foiler). */
+  fumble?: number;
   /** Location hit by a called shot; without one no location is rolled (the AT is the torso's). */
   location: string | null;
   /** Modifiers applied to the critical rolls (size difference, absolute hit...). */

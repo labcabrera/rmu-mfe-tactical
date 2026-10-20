@@ -13,6 +13,8 @@ export type ActorRound = {
   penalty: ActorRoundPenalty;
   attacks: ActorRoundAttack[];
   effects: ActorRoundEffect[];
+  /** Combat traits of the actor (talents and flaws) copied from its character (absent in older actor rounds). */
+  traits?: ActorRoundTrait[];
   defense: ActorRoundDefense;
   /** Dodge and shield block declared this round (absent in actor rounds stored before them). */
   defenseMode?: ActorRoundDefenseMode;
@@ -43,7 +45,15 @@ export type ActorRoundInitiative = {
   base: number;
   penalty: number;
   roll: number;
+  /** Strike Reflex bonus declared with the roll, already included in the total. */
+  strikeReflex?: number;
   total: number;
+};
+
+export type ActorRoundTrait = {
+  traitId: string;
+  tier: number;
+  specialization: string | null;
 };
 
 export type ActorRoundHp = {
@@ -101,6 +111,8 @@ export type ActorRoundEffect = {
   status: string;
   value: number | undefined;
   rounds: number | undefined;
+  /** Foe the effect refers to (the target of `pressing-advantage`). */
+  targetActorId?: string;
   /** Round and phase the effect was applied in, and the AP the actor had spent before it (set by the API). */
   appliedRound?: number;
   appliedPhase?: number;

@@ -20,13 +20,14 @@ export async function fetchActorRounds(
 export async function declareActorRoundInitiative(
   actorRoundId: string,
   roll: number,
-  auth: AuthContextProps
+  auth: AuthContextProps,
+  strikeReflex?: boolean
 ): Promise<ActorRound> {
   const url = `${apiTacticalUrl}/actor-rounds/${actorRoundId}/initiative`;
   return await callApi(auth, url, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ roll }),
+    body: JSON.stringify(strikeReflex === undefined ? { roll } : { roll, strikeReflex }),
   });
 }
 

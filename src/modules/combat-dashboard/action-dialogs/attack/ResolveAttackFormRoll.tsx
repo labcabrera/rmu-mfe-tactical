@@ -95,6 +95,11 @@ const ResolveAttackFormRoll: FC<{
           <Typography variant="body2" color="secondary">
             {t('total')}
           </Typography>
+          {attack.calculated.fumble !== undefined && (
+            <Typography variant="caption" color="text.secondary">
+              {t('fumble-range-n', { fumble: attack.calculated.fumble })}
+            </Typography>
+          )}
         </Stack>
       </Grid>
       <Grid size={12}>
