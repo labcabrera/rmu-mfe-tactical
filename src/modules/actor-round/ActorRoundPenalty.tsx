@@ -20,7 +20,7 @@ const ActorRoundPenalty: FC<{
   };
 
   const getLabelForState = (state: ActorRoundPenaltyModifier) => {
-    return `${t(`effect-${state.source}`)}${state.value ? ` ${state.value}` : ''}`;
+    return `${t(`penalty-${state.source}`, { defaultValue: t(state.source) })}${state.value ? ` ${state.value}` : ''}`;
   };
 
   return (

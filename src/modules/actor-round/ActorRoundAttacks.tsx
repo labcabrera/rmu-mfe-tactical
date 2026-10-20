@@ -48,7 +48,15 @@ const ActorRoundAttacks: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
               {attacks.map((a: ActorRoundAttack, i: number) => (
                 <TableRow key={`${a.attackName}-${i}`} hover>
                   <TableCell>{t(a.attackName)}</TableCell>
-                  <TableCell>{t(a.type)}</TableCell>
+                  <TableCell>
+                    {[
+                      t(a.type),
+                      a.twoHanded && t('two-handed-weapon'),
+                      a.weaponCategory && a.weaponCategory !== 'standard' && t(`weapon-category-${a.weaponCategory}`),
+                    ]
+                      .filter(Boolean)
+                      .join(' · ')}
+                  </TableCell>
                   <TableCell>{getAttackTableLabel(a)}</TableCell>
                   <TableCell align="right">{a.baseBo}</TableCell>
                   <TableCell align="right">{a.currentBo}</TableCell>

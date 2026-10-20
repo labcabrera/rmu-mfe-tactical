@@ -14,6 +14,10 @@ export type ActorRound = {
   attacks: ActorRoundAttack[];
   effects: ActorRoundEffect[];
   defense: ActorRoundDefense;
+  /** Dodge and shield block declared this round (absent in actor rounds stored before them). */
+  defenseMode?: ActorRoundDefenseMode;
+  /** Action points spent in each action phase that has ended. */
+  phaseLog?: ActorRoundPhaseLog[];
   alerts: ActorRoundAlert[];
   imageUrl: string | undefined;
 };
@@ -45,6 +49,24 @@ export type ActorRoundInitiative = {
 export type ActorRoundHp = {
   max: number;
   current: number;
+  /** Hits below zero the actor survives (Body Development bonus); `max` when missing. */
+  deathThreshold?: number;
+};
+
+/** Dodge or shield block level (§9.6). `full` is only set by completing a 4 AP dodge action. */
+export type DefenseLevel = 'none' | 'passive' | 'partial' | 'full';
+/** Levels the game master declares directly. */
+export const DECLARABLE_DEFENSE_LEVELS: DefenseLevel[] = ['none', 'passive', 'partial'];
+
+export type ActorRoundDefenseMode = {
+  dodge: DefenseLevel;
+  block: DefenseLevel;
+};
+
+export type ActorRoundPhaseLog = {
+  phase: number;
+  spentAp: number;
+  totalSpentAp: number;
 };
 
 export type ActorRoundAlert = {
@@ -79,6 +101,10 @@ export type ActorRoundEffect = {
   status: string;
   value: number | undefined;
   rounds: number | undefined;
+  /** Round and phase the effect was applied in, and the AP the actor had spent before it (set by the API). */
+  appliedRound?: number;
+  appliedPhase?: number;
+  spentApBefore?: number;
 };
 
 export type ActorRoundAttack = {
@@ -92,7 +118,12 @@ export type ActorRoundAttack = {
   fumble: number;
   canThrow: boolean;
   ranges: ActorRoundAttackRange[] | undefined;
+  twoHanded?: boolean;
+  weaponCategory?: WeaponCategory;
 };
+
+/** Weapon kind for the multiple attacks bonuses (Table 9-7b). */
+export type WeaponCategory = 'standard' | 'light' | 'dagger' | 'natural';
 
 export type ActorRoundAttackRange = {
   from: number;

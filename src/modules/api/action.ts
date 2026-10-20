@@ -1,6 +1,6 @@
 import { AuthContextProps } from 'react-oidc-context';
 import { apiTacticalUrl, callApi, Page } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { Action, AttackDeclaration, ParryDeclaration } from './action.dto';
+import { Action, AttackDeclaration, FullDefenseType, ParryDeclaration } from './action.dto';
 
 export async function fetchAction(actionId: string, auth: AuthContextProps): Promise<Action> {
   const url = `${apiTacticalUrl}/actions/${actionId}`;
@@ -54,17 +54,21 @@ export async function resolveMovement(actionId: string, data: any, auth: AuthCon
   });
 }
 
-/** Completes an action without rolls (stand up, dodge, draw and load, other), with an optional note. */
+/**
+ * Completes an action without rolls (stand up, dodge, draw and load, other), with an optional note. A dodge is the
+ * 4 AP full defence of the round: `defenseType` says whether it is a full dodge or a full block.
+ */
 export async function completeAction(
   actionId: string,
   note: string | undefined,
-  auth: AuthContextProps
+  auth: AuthContextProps,
+  defenseType?: FullDefenseType
 ): Promise<Action> {
   const url = `${apiTacticalUrl}/actions/${actionId}/complete`;
   return await callApi(auth, url, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ note }),
+    body: JSON.stringify({ note, defenseType }),
   });
 }
 
@@ -103,17 +107,17 @@ export async function updateAttackRoll(
   actionId: string,
   attackName: string,
   roll: number,
-  locationRoll: number | undefined,
   auth: AuthContextProps
 ): Promise<Action> {
   const url = `${apiTacticalUrl}/actions/${actionId}/attack/roll`;
   return await callApi(auth, url, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ attackName, roll, locationRoll }),
+    body: JSON.stringify({ attackName, roll }),
   });
 }
 
+/** Critical roll of an attack: every critical of the attack shares it (§9.8), so one call resolves them all. */
 export async function updateCriticalRoll(
   actionId: string,
   attackName: string,

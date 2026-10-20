@@ -3,7 +3,13 @@ import { useTranslation } from 'react-i18next';
 import { alpha, Box, Button, ButtonBase, Chip, FormControlLabel, Stack, Switch, Typography } from '@mui/material';
 import { CombatContext } from '../../../../../CombatContext';
 import { ActorRound } from '../../../../api/actor-rounds.dto';
-import { isActorRoundDisabled, isActorRoundProne, isActorRoundStunned } from '../../../../services/actor-round-service';
+import {
+  actorRoundHasEffect,
+  isActorRoundDisabled,
+  isActorRoundFlatfooted,
+  isActorRoundProne,
+  isActorRoundStunned,
+} from '../../../../services/actor-round-service';
 import { useFactionColor } from '../../../../services/faction-colors';
 import ActorRoundAvatar from '../../../../shared/avatars/ActorRoundAvatar';
 
@@ -34,6 +40,8 @@ export const TargetRow: FC<{ target: ActorRound; selected?: boolean; onClick?: (
     isActorRoundDisabled(target) && t('down'),
     isActorRoundProne(target) && t('prone'),
     isActorRoundStunned(target) && t('stunned'),
+    isActorRoundFlatfooted(target) && t('flatfooted'),
+    actorRoundHasEffect(target, ['surprised']) && t('surprised'),
   ].filter(Boolean) as string[];
   const content = (
     <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center', width: '100%', minWidth: 0 }}>

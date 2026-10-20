@@ -9,15 +9,15 @@ import {
   LoadingState,
   RefreshButton,
   RmuBreadcrumbs,
-  useNotify,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../CombatContext';
+import { useTacticalNotify } from '../services/notify-service';
 
 const CombatDashboardActions: FC = () => {
   const auth = useAuth();
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const notify = useNotify();
+  const notify = useTacticalNotify();
   const { displayRound, game, setGame } = useContext(CombatContext)!;
   const [breadcrumbs, setBreadcrumbs] = useState<any[]>([]);
 

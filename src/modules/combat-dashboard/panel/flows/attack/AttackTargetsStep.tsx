@@ -1,17 +1,17 @@
 import React, { FC, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Box, Card, CardContent, Chip, Stack, Typography } from '@mui/material';
+import { Box, Card, CardContent, Chip, MenuItem, Stack, TextField, Typography } from '@mui/material';
 import { formatBonus, NumericInput } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../../CombatContext';
-import { ActionAttack } from '../../../../api/action.dto';
+import { ActionAttack, PROTECT_POSITIONS, ProtectPosition } from '../../../../api/action.dto';
 import { ActorRound } from '../../../../api/actor-rounds.dto';
 import SelectAttackRange from '../../../../shared/selects/SelectAttackRange';
 import TargetPicker from './TargetPicker';
 import { AttackKind } from './useAttackDeclaration';
 
 /**
- * First step of an attack: for each weapon, its target (inline), the OB it uses, and its protectors (melee)
- * or its range (ranged). Weapons without a target are not declared.
+ * First step of an attack: for each weapon, its target (inline), the OB it uses, and its protectors (melee), each
+ * with where it stands (Table 9-7c), or its range (ranged). Weapons without a target are not declared.
  */
 const AttackTargetsStep: FC<{
   kind: AttackKind;
@@ -21,7 +21,8 @@ const AttackTargetsStep: FC<{
   onBo: (attackName: string, bo: number) => void;
   onRange: (attackName: string, range: number | null) => void;
   onProtector: (attackName: string, actorId: string) => void;
-}> = ({ kind, actorRound, attacks, onTarget, onBo, onRange, onProtector }) => {
+  onProtectorPosition: (attackName: string, actorId: string, position: ProtectPosition) => void;
+}> = ({ kind, actorRound, attacks, onTarget, onBo, onRange, onProtector, onProtectorPosition }) => {
   const { t } = useTranslation();
   const { actorRounds } = useContext(CombatContext)!;
   // Penalties apply to the roll (the API adds them), not to the OB to spend.
@@ -120,6 +121,34 @@ const AttackTargetsStep: FC<{
                             );
                           })}
                         </Stack>
+                        {(attack.protectors ?? []).map((protectorId) => (
+                          <Stack
+                            key={protectorId}
+                            direction="row"
+                            spacing={1}
+                            sx={{ alignItems: 'center', mt: 1, maxWidth: 420 }}
+                          >
+                            <Typography variant="body2" sx={{ flex: 1, minWidth: 0 }} noWrap>
+                              {actorRounds?.find((ar) => ar.actorId === protectorId)?.actorName ?? protectorId}
+                            </Typography>
+                            <TextField
+                              select
+                              size="small"
+                              label={t('protect-position')}
+                              value={attack.protectorPositions?.[protectorId] ?? 'other'}
+                              onChange={(e) =>
+                                onProtectorPosition(attack.attackName, protectorId, e.target.value as ProtectPosition)
+                              }
+                              sx={{ minWidth: 220 }}
+                            >
+                              {PROTECT_POSITIONS.map((position) => (
+                                <MenuItem key={position} value={position}>
+                                  {t(`protect-position-${position}`)}
+                                </MenuItem>
+                              ))}
+                            </TextField>
+                          </Stack>
+                        ))}
                       </Box>
                     )}
                   </>

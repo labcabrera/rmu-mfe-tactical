@@ -1,10 +1,11 @@
 import React, { ReactNode, useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
-import { ConfirmDialog, useNotify } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { ConfirmDialog } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
 import { deleteAction } from '../../api/action';
 import { Action } from '../../api/action.dto';
+import { useTacticalNotify } from '../../services/notify-service';
 
 /**
  * Confirmed delete of an action: `requestDelete` opens the confirmation and `dialog` has to be rendered.
@@ -16,7 +17,7 @@ export const useDeleteAction = (
 ): { requestDelete: () => void; dialog: ReactNode } => {
   const { t } = useTranslation();
   const auth = useAuth();
-  const notify = useNotify();
+  const notify = useTacticalNotify();
   const { roundActions, setRoundActions } = useContext(CombatContext)!;
   const [confirming, setConfirming] = useState(false);
 

@@ -2,17 +2,12 @@ import React, { FC, useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import { alpha, Box, ButtonBase, Chip, FormControlLabel, Stack, Switch, Typography } from '@mui/material';
-import {
-  FlowStep,
-  formatBonus,
-  NumericInput,
-  OpenEndedRollInput,
-  useNotify,
-} from '@labcabrera-rmu/rmu-react-shared-lib';
+import { FlowStep, formatBonus, NumericInput, OpenEndedRollInput } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../CombatContext';
 import { resolveMovement } from '../../../api/action';
 import { Action, ActionMovement, MOVEMENT_TABLE } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
+import { useTacticalNotify } from '../../../services/notify-service';
 import { useSkillService } from '../../../services/skill-service';
 import ActionFlow from '../ActionFlow';
 import { MovementResult } from './ActionResults';
@@ -46,7 +41,7 @@ const MovementFlow: FC<{
 }> = ({ action, actorRound, onDeleted, onNextPending }) => {
   const { t } = useTranslation();
   const auth = useAuth();
-  const notify = useNotify();
+  const notify = useTacticalNotify();
   const { game, strategicGame, updateAction, refreshActorRounds } = useContext(CombatContext)!;
   const { getSkillBonus } = useSkillService();
   const [form, setForm] = useState<ActionMovement>(() => initialForm(action, actorRound));

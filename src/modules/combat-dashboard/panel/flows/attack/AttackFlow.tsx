@@ -2,12 +2,13 @@ import React, { FC, useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import { Stack, Tab, Tabs } from '@mui/material';
-import { FlowStep, useNotify } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { FlowStep } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../../CombatContext';
 import { applyAttack, declareParry, prepareAttack } from '../../../../api/action';
 import { Action, ParryDeclaration } from '../../../../api/action.dto';
 import { ActorRound } from '../../../../api/actor-rounds.dto';
 import { attackActionPoints } from '../../../../services/action-service';
+import { useTacticalNotify } from '../../../../services/notify-service';
 import AttackModifiersForm from '../../../action-dialogs/attack-modifiers/AttackModifiersForm';
 import ResolveAttackFormRoll from '../../../action-dialogs/attack/ResolveAttackFormRoll';
 import ActionFlow from '../../ActionFlow';
@@ -33,7 +34,7 @@ const stepOf = (action: Action, kind: AttackKind, localStep: number) => {
 
 /**
  * Melee or ranged attack in the side panel: targets (with OB, protectors or range) → modifiers (one tab per
- * weapon) → parry (melee) → rolls (attack, location, criticals, fumble) → result. The step follows the action
+ * weapon) → parry (melee) → rolls (attack, criticals, fumble) → result. The step follows the action
  * status from the API; before "Prepare" the user moves between targets and modifiers.
  */
 const AttackFlow: FC<{
@@ -45,7 +46,7 @@ const AttackFlow: FC<{
 }> = ({ kind, action, actorRound, onDeleted, onNextPending }) => {
   const { t } = useTranslation();
   const auth = useAuth();
-  const notify = useNotify();
+  const notify = useTacticalNotify();
   const { game, actorRounds, updateAction, refreshActorRounds } = useContext(CombatContext)!;
   const declaration = useAttackDeclaration(action, actorRound, kind);
   const { formData, setFormData, targeted } = declaration;
@@ -139,6 +140,7 @@ const AttackFlow: FC<{
           onBo={declaration.setBo}
           onRange={declaration.setRange}
           onProtector={declaration.toggleProtector}
+          onProtectorPosition={declaration.setProtectorPosition}
         />
       ),
     },

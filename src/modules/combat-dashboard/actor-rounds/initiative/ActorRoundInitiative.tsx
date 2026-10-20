@@ -3,10 +3,12 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import CasinoIcon from '@mui/icons-material/Casino';
 import { Box, IconButton, Stack, Tooltip, Typography } from '@mui/material';
-import { formatBonus, NumericInput, useNotify } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { formatBonus, NumericInput } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../CombatContext';
 import { declareActorRoundInitiative } from '../../../api/actor-rounds';
 import { ActorRound } from '../../../api/actor-rounds.dto';
+import { isActorRoundFlatfooted } from '../../../services/actor-round-service';
+import { useTacticalNotify } from '../../../services/notify-service';
 
 /** One modifier of the initiative: its name on the left, its value on the right. */
 const Modifier: FC<{ label: string; value: string }> = ({ label, value }) => (
@@ -30,10 +32,11 @@ const roll2d10 = () => Math.floor(Math.random() * 10) + 1 + Math.floor(Math.rand
 const ActorRoundInitiative: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
   const { t } = useTranslation();
   const auth = useAuth();
-  const notify = useNotify();
+  const notify = useTacticalNotify();
   const { game, displayRound, updateActorRound } = useContext(CombatContext)!;
   const isDown = actorRound.effects.some((e) => e.status === 'dead' || e.status === 'unconcious');
-  const editable = !isDown && game?.phase === 'declare_initiative' && displayRound === game?.round;
+  const flatfooted = isActorRoundFlatfooted(actorRound);
+  const editable = !isDown && !flatfooted && game?.phase === 'declare_initiative' && displayRound === game?.round;
   const { base = 0, penalty = 0, roll, total } = actorRound.initiative ?? {};
   const declared = !!roll;
 
@@ -51,12 +54,17 @@ const ActorRoundInitiative: FC<{ actorRound: ActorRound }> = ({ actorRound }) =>
     }
   };
 
-  if (isDown) {
+  if (isDown || (flatfooted && !declared)) {
     return (
       <Box sx={{ p: 1.25 }}>
         <Typography variant="h6" color="text.disabled">
           —
         </Typography>
+        {flatfooted && !isDown && (
+          <Typography variant="caption" color="warning.main">
+            {t('flatfooted-no-initiative')}
+          </Typography>
+        )}
       </Box>
     );
   }

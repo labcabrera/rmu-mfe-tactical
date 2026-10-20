@@ -2,10 +2,11 @@ import React, { FC, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import { Stack, Typography } from '@mui/material';
-import { NumericInput, useNotify } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { NumericInput } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../CombatContext';
 import { addActorRoundFatigueAccumulator, addActorRoundHp } from '../api/actor-rounds';
 import { ActorRound } from '../api/actor-rounds.dto';
+import { useTacticalNotify } from '../services/notify-service';
 import GenericBar from '../shared/generic/GenericBar';
 
 const barSize = 160;
@@ -15,8 +16,9 @@ const ActorRoundBars: FC<{
 }> = ({ actorRound }) => {
   const { t } = useTranslation();
   const auth = useAuth();
-  const notify = useNotify();
+  const notify = useTacticalNotify();
   const { updateActorRound } = useContext(CombatContext)!;
+  const deathThreshold = actorRound.hp?.deathThreshold ?? actorRound.hp?.max ?? 0;
 
   const updateActorRoundHP = (newHp: number) => {
     const diff = (actorRound.hp?.current ?? 0) - newHp;
@@ -41,11 +43,15 @@ const ActorRoundBars: FC<{
             label={t('new-hit-points')}
             value={actorRound.hp?.current ?? null}
             integer
-            min={0}
+            // Below 0 the actor is down; it dies past its Body Development bonus (§9.8 Hits).
+            min={-deathThreshold - 1}
             max={actorRound.hp?.max}
             onChange={(e) => updateActorRoundHP(e!)}
           />
         </Stack>
+        <Typography variant="caption" color="text.secondary">
+          {t('death-threshold', { value: -deathThreshold })}
+        </Typography>
         <Stack direction="row" spacing={2}>
           <GenericBar current={Math.round(actorRound.fatigue?.accumulator ?? 0)} max={100} width={barSize} />
           <NumericInput
