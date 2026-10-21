@@ -11,7 +11,9 @@ const OptionTiles: FC<{
   value: string;
   onChange: (key: string) => void;
   minTileWidth?: number;
-}> = ({ label, options, value, onChange, minTileWidth = 120 }) => {
+  /** Label of an option; defaults to the translation of its key. */
+  optionLabel?: (option: ModifierOption) => string;
+}> = ({ label, options, value, onChange, minTileWidth = 120, optionLabel }) => {
   const { t } = useTranslation();
   return (
     <Box role="radiogroup" aria-label={label}>
@@ -23,7 +25,7 @@ const OptionTiles: FC<{
           <ModifierTile
             key={option.key}
             role="radio"
-            label={t(option.key)}
+            label={optionLabel ? optionLabel(option) : t(option.key)}
             value={option.value}
             selected={option.key === value}
             onClick={() => onChange(option.key)}

@@ -45,6 +45,23 @@ export async function declareActorRoundDefenseMode(
   });
 }
 
+/**
+ * Endurance roll of an actor (§5.5): the API adds the modifiers to the roll, reads the endurance table and applies
+ * the fatigue and hits of the result. With `alertId`, it also resolves the endurance alert.
+ */
+export async function resolveEnduranceCheck(
+  actorRoundId: string,
+  data: { roll: number; alertId?: string; modifiers?: { key: string; value: number }[] },
+  auth: AuthContextProps
+): Promise<ActorRound> {
+  const url = `${apiTacticalUrl}/actor-rounds/${actorRoundId}/endurance-check`;
+  return await callApi(auth, url, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+}
+
 export async function addActorRoundHp(actorRoundId: string, hp: number, auth: AuthContextProps): Promise<ActorRound> {
   const url = `${apiTacticalUrl}/actor-rounds/${actorRoundId}/hp`;
   return await callApi(auth, url, {

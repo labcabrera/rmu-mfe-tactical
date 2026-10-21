@@ -2,8 +2,8 @@ import React, { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ActorRound, ActorRoundAlert } from '../../api/actor-rounds.dto';
 import BreakageForm from './BreakageForm';
-import EnduranceForm from './EnduranceForm';
 
+/** Form of an alert resolved locally (breakage). Endurance alerts have their own roll in `ActorAlertDialog`. */
 const ActorAlertForm: FC<{
   actorRound: ActorRound;
   alertId: string;
@@ -15,8 +15,6 @@ const ActorAlertForm: FC<{
   if (!alert) return <div>{t('alert-not-found')}</div>;
 
   switch (alert.type) {
-    case 'endurance':
-      return <EnduranceForm actorRound={actorRound} alert={alert} />;
     case 'breakage':
       return <BreakageForm alert={alert} onChange={onChange} />;
     default:

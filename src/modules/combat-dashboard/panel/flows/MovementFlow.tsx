@@ -5,17 +5,19 @@ import { alpha, Box, ButtonBase, Chip, FormControlLabel, Stack, Switch, Typograp
 import { FlowStep, formatBonus, NumericInput, OpenEndedRollInput } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../CombatContext';
 import { resolveMovement } from '../../../api/action';
-import { Action, ActionMovement, MOVEMENT_TABLE } from '../../../api/action.dto';
+import { Action, ActionMovement, MOVEMENT_LIGHT_OPTIONS, MOVEMENT_TABLE } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
 import { useTacticalNotify } from '../../../services/notify-service';
 import { useSkillService } from '../../../services/skill-service';
+import OptionTiles from '../../action-dialogs/attack-modifiers/pickers/OptionTiles';
 import ActionFlow from '../ActionFlow';
 import { MovementResult } from './ActionResults';
 import DifficultyPicker from './DifficultyPicker';
+import { rememberedLight, rememberLight } from './maneuver/maneuver-form';
 
 const MOVEMENT_SKILLS = ['running', 'swimming', 'climbing', 'flying'];
 
-const initialForm = (action: Action, actorRound: ActorRound): ActionMovement =>
+const initialForm = (action: Action, actorRound: ActorRound, light: string | null): ActionMovement =>
   action.movement
     ? { modifiers: action.movement.modifiers, roll: action.movement.roll ?? { roll: null } }
     : {
@@ -25,6 +27,7 @@ const initialForm = (action: Action, actorRound: ActorRound): ActionMovement =>
           skillId: 'running',
           difficulty: actorRound.movement?.baseDifficulty || null,
           customBonus: null,
+          light,
         },
         roll: { roll: null },
       };
@@ -44,7 +47,9 @@ const MovementFlow: FC<{
   const notify = useTacticalNotify();
   const { game, strategicGame, updateAction, refreshActorRounds } = useContext(CombatContext)!;
   const { getSkillBonus } = useSkillService();
-  const [form, setForm] = useState<ActionMovement>(() => initialForm(action, actorRound));
+  const [form, setForm] = useState<ActionMovement>(() =>
+    initialForm(action, actorRound, rememberedLight(action.gameId))
+  );
   const [step, setStep] = useState(0);
   const [busy, setBusy] = useState(false);
   const done = action.status === 'completed';
@@ -80,6 +85,19 @@ const MovementFlow: FC<{
           variant="outlined"
           label={`${t('maneuver-penalty')}: ${formatBonus(actorRound.movement.penalty)}`}
         />
+        {/* The movement roll also takes the actor's penalties (`penalty-<source>` in its breakdown). */}
+        {modifiers.requiredManeuver &&
+          (actorRound.penalty?.modifiers ?? [])
+            .filter((penalty) => penalty.value !== 0)
+            .map((penalty) => (
+              <Chip
+                key={penalty.id}
+                size="small"
+                variant="outlined"
+                color={penalty.value < 0 ? 'error' : 'default'}
+                label={`${t(`penalty-${penalty.source}`, { defaultValue: penalty.source })}: ${formatBonus(penalty.value)}`}
+              />
+            ))}
       </Stack>
       <Box>
         <Typography variant="caption" color="text.secondary" component="div" sx={{ mb: 0.5 }}>
@@ -117,6 +135,17 @@ const MovementFlow: FC<{
             value={modifiers.difficulty}
             base={actorRound.movement.baseDifficulty}
             onChange={(difficulty) => setModifiers({ difficulty })}
+          />
+          <OptionTiles
+            label={`${t('lighting')} · ${t('light-usage-helpful')}`}
+            options={MOVEMENT_LIGHT_OPTIONS}
+            value={modifiers.light ?? ''}
+            onChange={(key) => {
+              const light = key === modifiers.light ? null : key;
+              rememberLight(action.gameId, light);
+              setModifiers({ light });
+            }}
+            minTileWidth={110}
           />
           <Box sx={{ maxWidth: 200 }}>
             <NumericInput
@@ -225,7 +254,7 @@ const MovementFlow: FC<{
   const canContinue =
     (steps[current].id === 'setup' && (!modifiers.requiredManeuver || !!modifiers.difficulty)) ||
     (steps[current].id === 'pace' && !!modifiers.pace) ||
-    (steps[current].id === 'roll' && !!form.roll?.roll);
+    (steps[current].id === 'roll' && form.roll?.roll !== null && form.roll?.roll !== undefined);
 
   return (
     <ActionFlow
