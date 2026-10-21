@@ -19,7 +19,8 @@ export const attackDamage = (action: Action): number =>
 export const actionState = (action: Action): CombatActionState => {
   if (action.status === 'completed') {
     if (hasFumble(action)) return 'failed';
-    if (action.maneuver?.result?.result === 'failure') return 'failed';
+    const result = action.maneuver?.result?.result;
+    if (result === 'failure' || result === 'absolute-failure') return 'failed';
     return 'resolved';
   }
   // Parry: the attack waits for the defenders.
@@ -50,6 +51,10 @@ export const actionResult = (action: Action, t: TFunction): string | undefined =
   if (action.movement?.calculated?.distanceAdjusted !== undefined) {
     return `${action.movement.calculated.distanceAdjusted}'`;
   }
-  if (action.maneuver?.result) return t(action.maneuver.result.result);
+  const maneuverResult = action.maneuver?.result;
+  if (maneuverResult?.result) return t(maneuverResult.result);
+  if (maneuverResult?.percent !== undefined && maneuverResult.percent !== null) {
+    return `${action.maneuver?.progress ?? maneuverResult.percent}%`;
+  }
   return undefined;
 };

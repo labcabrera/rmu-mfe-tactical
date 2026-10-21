@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useMemo, useState } from 'react';
+import React, { FC, useContext, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import SearchIcon from '@mui/icons-material/Search';
@@ -19,17 +19,40 @@ import {
   fetchSkillCategories,
   fetchSkills,
   formatBonus,
+  ManeuverType,
   RmuDialog,
   Skill,
   SkillCategory,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { CombatContext } from '../../../CombatContext';
+import { fetchActions } from '../../api/action';
+import { Action } from '../../api/action.dto';
 import { ActorRound } from '../../api/actor-rounds.dto';
 import { useTacticalNotify } from '../../services/notify-service';
 import { useSkillService } from '../../services/skill-service';
 
-const MANEUVER_TYPES = ['absolute', 'percent'];
+const MANEUVER_TYPES: ManeuverType[] = ['absolute', 'percent'];
 
-export type ManeuverDeclaration = { skillId: string; maneuverType: string };
+export type ManeuverDeclaration = { skillId: string; maneuverType: ManeuverType; continuesActionId?: string };
+
+/**
+ * Percent maneuvers of an actor that can go on in a new action (spec 010 §4.4): resolved, not completed and not
+ * continued yet by another action.
+ */
+export const unfinishedPercentManeuvers = (actions: Action[], actorId: string): Action[] => {
+  const continued = new Set(actions.map((a) => a.maneuver?.continuesActionId).filter(Boolean));
+  return actions
+    .filter(
+      (a) =>
+        a.actorId === actorId &&
+        a.status === 'completed' &&
+        a.maneuver?.modifiers.maneuverType === 'percent' &&
+        a.maneuver.result &&
+        !a.maneuver.result.completed &&
+        !continued.has(a.id)
+    )
+    .sort((a, b) => b.round - a.round || b.phaseStart - a.phaseStart);
+};
 
 /**
  * Declaration of a maneuver: its type and its skill, searched by name or browsed by category, with the
@@ -48,13 +71,18 @@ const ManeuverDeclareDialog: FC<{
   const auth = useAuth();
   const notify = useTacticalNotify();
   const { getSkillBonus } = useSkillService();
+  const { roundActions } = useContext(CombatContext)!;
   const [categories, setCategories] = useState<SkillCategory[]>([]);
   const [skills, setSkills] = useState<Skill[]>([]);
   const [category, setCategory] = useState<string | null>(null);
   const [filter, setFilter] = useState('');
   const [onlyDeveloped, setOnlyDeveloped] = useState(true);
   const [skillId, setSkillId] = useState<string | null>(null);
-  const [maneuverType, setManeuverType] = useState('absolute');
+  const [maneuverType, setManeuverType] = useState<ManeuverType>('absolute');
+  // The type was chosen by hand: choosing a skill no longer proposes its profile's type.
+  const [typeChosen, setTypeChosen] = useState(false);
+  const [actorActions, setActorActions] = useState<Action[]>([]);
+  const [continuesActionId, setContinuesActionId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!open || skills.length > 0) return;
@@ -72,9 +100,54 @@ const ManeuverDeclareDialog: FC<{
     if (!open) return;
     setSkillId(initialSkillId ?? null);
     setManeuverType('absolute');
+    setTypeChosen(false);
+    setContinuesActionId(null);
     setFilter('');
     setCategory(null);
   }, [open, initialSkillId]);
+
+  // The actor's maneuvers of every round, to offer continuing an unfinished percent one.
+  useEffect(() => {
+    if (!open || !actorRound) return;
+    setActorActions([]);
+    fetchActions(`gameId==${actorRound.gameId};actorId==${actorRound.actorId}`, 0, 200, auth)
+      .then((page) => setActorActions(page.content ?? []))
+      .catch(() => setActorActions([]));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, actorRound?.id]);
+
+  const unfinished = useMemo(() => {
+    if (!actorRound) return [];
+    const byId = new Map<string, Action>();
+    [...actorActions, ...(roundActions ?? [])].forEach((a) => byId.set(a.id, a));
+    return unfinishedPercentManeuvers([...byId.values()], actorRound.actorId);
+  }, [actorActions, roundActions, actorRound]);
+
+  const chooseSkill = (id: string) => {
+    setSkillId(id);
+    const continued = unfinished.find((a) => a.id === continuesActionId);
+    if (continued && continued.maneuver?.modifiers.skillId !== id) setContinuesActionId(null);
+    const defaultType = skills.find((s) => s.id === id)?.maneuver?.defaultType;
+    if (!typeChosen && !continued && defaultType) setManeuverType(defaultType);
+  };
+
+  const chooseContinuation = (action: Action) => {
+    if (continuesActionId === action.id) {
+      setContinuesActionId(null);
+      return;
+    }
+    setContinuesActionId(action.id);
+    setSkillId(action.maneuver?.modifiers.skillId ?? null);
+    setManeuverType('percent');
+  };
+
+  // A continuation keeps the skill of the maneuver it continues.
+  const declaration = (id: string): ManeuverDeclaration => {
+    const continued = unfinished.find((a) => a.id === continuesActionId);
+    return continued && maneuverType === 'percent' && continued.maneuver?.modifiers.skillId === id
+      ? { skillId: id, maneuverType, continuesActionId: continued.id }
+      : { skillId: id, maneuverType };
+  };
 
   const bonus = (id: string) => (actorRound ? getSkillBonus(id, actorRound) : undefined);
   const developed = useMemo(() => skills.filter((s) => bonus(s.id) !== undefined), [skills, actorRound]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -103,7 +176,7 @@ const ManeuverDeclareDialog: FC<{
           <Button
             variant="contained"
             disabled={!skillId || busy}
-            onClick={() => skillId && onDeclare({ skillId, maneuverType })}
+            onClick={() => skillId && onDeclare(declaration(skillId))}
           >
             {t('declare')}
           </Button>
@@ -121,7 +194,12 @@ const ManeuverDeclareDialog: FC<{
               size="small"
               exclusive
               value={maneuverType}
-              onChange={(_, value) => value && setManeuverType(value)}
+              onChange={(_, value: ManeuverType | null) => {
+                if (!value) return;
+                setManeuverType(value);
+                setTypeChosen(true);
+                if (value !== 'percent') setContinuesActionId(null);
+              }}
             >
               {MANEUVER_TYPES.map((type) => (
                 <ToggleButton key={type} value={type} sx={{ minWidth: 100 }}>
@@ -149,6 +227,35 @@ const ManeuverDeclareDialog: FC<{
             }}
           />
         </Stack>
+
+        {unfinished.length > 0 && (
+          <Box>
+            <Typography variant="caption" color="text.secondary" component="div" sx={{ mb: 0.5 }}>
+              {t('continue-maneuver')}
+            </Typography>
+            <Stack direction="row" sx={{ flexWrap: 'wrap', gap: 0.75 }} role="radiogroup" aria-label={t('continue-maneuver')}>
+              {unfinished.map((action) => {
+                const selected = action.id === continuesActionId;
+                const id = action.maneuver?.modifiers.skillId ?? '';
+                return (
+                  <Chip
+                    key={action.id}
+                    role="radio"
+                    aria-checked={selected}
+                    color={selected ? 'primary' : 'default'}
+                    variant={selected ? 'filled' : 'outlined'}
+                    label={[
+                      t(id, { defaultValue: id }),
+                      `${action.maneuver?.progress ?? action.maneuver?.result?.percent ?? 0}%`,
+                      t('round-n', { round: action.round }),
+                    ].join(' · ')}
+                    onClick={() => chooseContinuation(action)}
+                  />
+                );
+              })}
+            </Stack>
+          </Box>
+        )}
 
         <Stack direction="row" sx={{ flexWrap: 'wrap', gap: 0.75 }}>
           {developed.length > 0 && (
@@ -190,8 +297,8 @@ const ManeuverDeclareDialog: FC<{
                 key={skill.id}
                 role="radio"
                 aria-checked={selected}
-                onClick={() => setSkillId(skill.id)}
-                onDoubleClick={() => !busy && onDeclare({ skillId: skill.id, maneuverType })}
+                onClick={() => chooseSkill(skill.id)}
+                onDoubleClick={() => !busy && onDeclare(declaration(skill.id))}
                 sx={(theme) => ({
                   justifyContent: 'space-between',
                   gap: 1,

@@ -1,6 +1,13 @@
 import { AuthContextProps } from 'react-oidc-context';
 import { apiTacticalUrl, callApi, Page } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { Action, AttackDeclaration, FullDefenseType, ParryDeclaration } from './action.dto';
+import {
+  Action,
+  AttackDeclaration,
+  FullDefenseType,
+  ManeuverModifiersListing,
+  ParryDeclaration,
+  ResolveManeuverDto,
+} from './action.dto';
 
 export async function fetchAction(actionId: string, auth: AuthContextProps): Promise<Action> {
   const url = `${apiTacticalUrl}/actions/${actionId}`;
@@ -72,7 +79,26 @@ export async function completeAction(
   });
 }
 
-export async function resolveManeuver(actionId: string, data: any, auth: AuthContextProps): Promise<Action> {
+/** Modifiers a declared maneuver can take, optionally for another skill than the declared one. */
+export async function fetchActionManeuverModifiers(
+  actionId: string,
+  auth: AuthContextProps,
+  skillId?: string,
+  specialization?: string
+): Promise<ManeuverModifiersListing> {
+  const params = new URLSearchParams();
+  if (skillId) params.set('skillId', skillId);
+  if (specialization) params.set('specialization', specialization);
+  const query = params.toString();
+  const url = `${apiTacticalUrl}/actions/${actionId}/maneuver/modifiers${query ? `?${query}` : ''}`;
+  return await callApi(auth, url, { method: 'GET' });
+}
+
+export async function resolveManeuver(
+  actionId: string,
+  data: ResolveManeuverDto,
+  auth: AuthContextProps
+): Promise<Action> {
   const url = `${apiTacticalUrl}/actions/${actionId}/maneuver/resolve`;
   return await callApi(auth, url, {
     method: 'PATCH',

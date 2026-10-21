@@ -1,4 +1,4 @@
-import { KeyValue } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { KeyValue, ManeuverModifier, ManeuverModifierOption, ManeuverType } from '@labcabrera-rmu/rmu-react-shared-lib';
 
 // Same values as rmu-api-tactical (action-status.vo.ts). `pending_roll` is the current status while the attack,
 // critical or fumble rolls are pending: each attack's `status` says which roll it waits for.
@@ -84,7 +84,19 @@ export type ActionMovementModifiers = {
   skillId: string;
   difficulty: string | null;
   customBonus: number | null;
+  light?: string | null;
 };
+
+/** Table 5-1: light helps movement maneuvers (the helpful column); the API applies the same values. */
+export const MOVEMENT_LIGHT_OPTIONS: { key: string; value: number }[] = [
+  { key: 'no_shadows', value: 0 },
+  { key: 'light_shadows', value: -5 },
+  { key: 'medium_shadows', value: -10 },
+  { key: 'heavy_shadows', value: -15 },
+  { key: 'dark', value: -25 },
+  { key: 'extremely_dark', value: -35 },
+  { key: 'pitch_black', value: -50 },
+];
 
 export type ActionMovementCalculated = {
   bmr: number;
@@ -120,24 +132,98 @@ export type ActionMovement = {
   calculated?: ActionMovementCalculated;
 };
 
+/** Choice for a catalog modifier of the skill: the option key, the flag, or the number of units. */
+export type ManeuverSelection = string | boolean | number;
+
 export type ActionManeuverModifiers = {
   skillId: string | null;
-  maneuverType: string | null;
+  specialization?: string | null;
+  maneuverType: ManeuverType | string | null;
   difficulty: string | null;
-  lightModifier: string | null;
+  /** @deprecated Light usage sent before spec 010; the skill's maneuver profile says it now. */
+  lightModifier?: string | null;
   light: string | null;
   customBonus: number | null;
+  selections?: Record<string, ManeuverSelection>;
+  /** Conflicting maneuver: total of the passive side. */
+  passiveTotal?: number | null;
 };
 
+/** Effect of an absolute maneuver result (core's table). */
+export type ActionManeuverEffect = {
+  status: string;
+  value?: number;
+  modifier?: string;
+  rounds?: number;
+  roundDelay?: number;
+};
+
+/** Absolute results carry `result`; percent ones `percent` (and `completed` when the task reaches 100). */
 export type ActionManeuverResult = {
-  result: string;
-  message: string;
+  result?: string;
+  message?: string;
+  effects?: ActionManeuverEffect[];
+  /** The unmodified roll was a 66: the message ends with the table's unusual event. */
+  unusualEvent?: boolean;
+  percent?: number;
+  critical?: string | null;
+  completed?: boolean;
 };
 
 export type ActionManeuver = {
   modifiers: ActionManeuverModifiers;
   roll: ActionRoll | undefined;
   result: ActionManeuverResult | undefined;
+  /** Percent maneuvers: percent accumulated, including the earlier rounds of the task. */
+  progress?: number;
+  /** Percent maneuver this one continues (spec 010 §4.4). */
+  continuesActionId?: string;
+};
+
+/** Where a base modifier of a maneuver comes from. */
+export type ManeuverBaseSource = 'actor-round' | 'equipment' | 'movement' | 'action';
+
+/** Modifier the API applies by itself (penalties, armor, encumbrance, pace, AP). Read-only in the UI. */
+export type ManeuverBaseModifier = { key: string; value: number; source: ManeuverBaseSource | string };
+
+/** Skill modifier of core's catalog, as the listing returns it. */
+export type ManeuverSkillModifier = Omit<ManeuverModifier, 'accessType' | 'owner'>;
+
+/** `GET /actions/{id}/maneuver/modifiers`: what a maneuver roll can take (spec 010 §3). */
+export type ManeuverModifiersListing = {
+  skill: { skillId: string; specialization: string | null; bonus: number; ranks: number; unskilled: boolean };
+  maneuverType: ManeuverType;
+  resultTable: string;
+  base: ManeuverBaseModifier[];
+  difficulty: { default: string; options: ManeuverModifierOption[] };
+  /** Only for skills that use light; the values already take the usage into account. */
+  light?: { usage: 'helpful' | 'required' | 'hiding'; options: ManeuverModifierOption[] };
+  skillModifiers: ManeuverSkillModifier[];
+  /** An absolute maneuver may take the passive side's total. */
+  conflicting: boolean;
+  /** Percent maneuvers: progress accumulated before this roll. */
+  progress?: number;
+};
+
+/** `PATCH /actions/{id}/maneuver/resolve` (spec 010 §4.1). */
+export type ResolveManeuverDto = {
+  skillId?: string;
+  specialization?: string;
+  maneuverType?: ManeuverType;
+  difficulty?: string;
+  light?: string;
+  selections?: Record<string, ManeuverSelection>;
+  customBonus?: number;
+  passiveTotal?: number;
+  roll: { roll: number; unmodified?: number };
+};
+
+/** Maneuver part of `POST /actions`. */
+export type ManeuverDeclarationDto = {
+  skillId: string;
+  maneuverType?: ManeuverType;
+  specialization?: string;
+  continuesActionId?: string;
 };
 
 export type Action = {
