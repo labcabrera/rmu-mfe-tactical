@@ -18,8 +18,9 @@ import {
 import { ActionStateMarker, combatActionInfo, combatColors, EffectList } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
 import { Action } from '../../api/action.dto';
+import { useOpenRounds } from '../../services/ap-service';
 import { useFactionColor } from '../../services/faction-colors';
-import { actionLabel, actionResult, actionState } from '../actor-rounds/action-view';
+import { actionLabel, actionResult, actionState, actionStateTooltip } from '../actor-rounds/action-view';
 import { useCombatPanel } from '../panel/CombatPanelProvider';
 
 type TypeFilter = 'all' | 'attacks' | 'movement' | 'maneuvers';
@@ -48,6 +49,7 @@ const LogEntry: FC<{ action: Action }> = ({ action }) => {
   const { actorRounds } = useContext(CombatContext)!;
   const { openAction } = useCombatPanel();
   const factionColor = useFactionColor();
+  const openRounds = useOpenRounds();
   const actorRound = actorRounds?.find((ar) => ar.actorId === action.actorId);
   const info = combatActionInfo(action.actionType);
   const effects = action.status === 'completed' ? attackEffects(action) : [];
@@ -101,7 +103,11 @@ const LogEntry: FC<{ action: Action }> = ({ action }) => {
           </Box>
         )}
       </Box>
-      <ActionStateMarker state={actionState(action)} text={actionResult(action, t)} />
+      <ActionStateMarker
+        state={actionState(action)}
+        text={actionResult(action, t)}
+        tooltip={actionStateTooltip(action, t, openRounds)}
+      />
     </ButtonBase>
   );
 };

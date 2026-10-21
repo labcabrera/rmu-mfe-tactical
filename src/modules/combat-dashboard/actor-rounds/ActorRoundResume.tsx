@@ -1,10 +1,11 @@
 import React, { FC, ReactNode, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Box, ButtonBase, Chip, Stack, Typography } from '@mui/material';
+import { Box, ButtonBase, Chip, Stack, Tooltip, Typography } from '@mui/material';
 import { Character, ResourceBar } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
 import { ActorRound } from '../../api/actor-rounds.dto';
 import { actorRoundDownState } from '../../services/actor-round-service';
+import { apModifierLabel, apTotals } from '../../services/ap-service';
 import { useFactionColor } from '../../services/faction-colors';
 import ActorRoundAvatar from '../../shared/avatars/ActorRoundAvatar';
 
@@ -26,6 +27,17 @@ const ActorRoundResume: FC<{
   const faction = factions?.find((f) => f.id === actorRound.factionId);
   const color = factionColor(actorRound.factionId);
   const down = actorRoundDownState(actorRound);
+  const ap = apTotals(actorRound);
+  const apModifiers = actorRound.apModifiers ?? [];
+  // Breakdown of the capacity: 4 base AP and the modifiers of the effects (Haste +2, Staggered −1...).
+  const apBreakdown = (
+    <Stack>
+      <span>{t('ap-base-n', { count: 4 })}</span>
+      {apModifiers.map((modifier, index) => (
+        <span key={`${modifier.source}-${index}`}>{apModifierLabel(modifier, t)}</span>
+      ))}
+    </Stack>
+  );
 
   return (
     <Stack sx={{ height: '100%', gap: 1, p: 1.25 }}>
@@ -89,6 +101,16 @@ const ActorRoundResume: FC<{
               valueLabel={`${Math.round(actorRound.fatigue.accumulator)}%`}
               dense
             />
+            <Tooltip title={apBreakdown}>
+              <Typography
+                variant="caption"
+                color={apModifiers.length > 0 ? 'text.primary' : 'text.secondary'}
+                sx={{ fontWeight: 600, alignSelf: 'flex-start' }}
+                aria-label={t('ap-spent-of-capacity', { spent: ap.spent, capacity: ap.capacity })}
+              >
+                {`${t('action-points-short')} ${ap.spent}/${ap.capacity}`}
+              </Typography>
+            </Tooltip>
           </Stack>
         </Stack>
       </ButtonBase>

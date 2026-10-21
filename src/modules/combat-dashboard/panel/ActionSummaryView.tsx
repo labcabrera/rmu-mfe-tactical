@@ -6,7 +6,8 @@ import { Box, Button, Chip, Divider, Stack, Typography } from '@mui/material';
 import { ActionStateMarker, combatActionInfo, formatBonus } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
 import { Action, SIMPLE_ACTION_TYPES } from '../../api/action.dto';
-import { actionResult, actionState } from '../actor-rounds/action-view';
+import { apProfileLabel, isActionClosed, useOpenRounds } from '../../services/ap-service';
+import { actionApText, actionResult, actionState, actionStateTooltip } from '../actor-rounds/action-view';
 import { AttackResults, ManeuverResult, MovementResult } from './flows/ActionResults';
 import { useDeleteAction } from './useDeleteAction';
 
@@ -34,7 +35,10 @@ const ActionSummaryView: FC<{ action: Action; onResolve: () => void; onDeleted: 
   const { t } = useTranslation();
   const { requestDelete, dialog } = useDeleteAction(action, onDeleted);
   const { actorRounds } = useContext(CombatContext)!;
-  const done = action.status === 'completed';
+  const openRounds = useOpenRounds();
+  const done = isActionClosed(action);
+  const ap = actionApText(action, t);
+  const forced = action.resolution?.mode === 'forced' ? action.resolution : undefined;
   const targetName = (id: string) => actorRounds?.find((ar) => ar.actorId === id)?.actorName ?? '—';
   const phases =
     action.phaseEnd && action.phaseEnd !== action.phaseStart
@@ -51,9 +55,32 @@ const ActionSummaryView: FC<{ action: Action; onResolve: () => void; onDeleted: 
           <ActionStateMarker
             state={actionState(action)}
             text={actionResult(action, t) ?? t(`action-status-${action.status}`)}
+            tooltip={actionStateTooltip(action, t, openRounds)}
           />
         </Field>
+        {!done && action.readiness && <Field label={t('readiness')}>{t(`action-readiness-${action.readiness}`)}</Field>}
         <Field label={t('phase')}>{phases}</Field>
+        {ap && (
+          <Field label={t('action-points')}>
+            {[
+              ap,
+              action.apProfile && `(${apProfileLabel(action.apProfile, t)})`,
+              !done && action.readiness === 'ready' && action.readinessPenalty
+                ? formatBonus(action.readinessPenalty)
+                : null,
+            ]
+              .filter(Boolean)
+              .join(' ')}
+          </Field>
+        )}
+        {action.continuesActionId && (
+          <Field label={t('continuation')}>{t('continues-previous-round', { count: action.carriedAp ?? 0 })}</Field>
+        )}
+        {forced && (
+          <Field label={t('forced-resolution')}>
+            {[t(`force-reason-${forced.reason ?? 'gm'}`), forced.note].filter(Boolean).join(' · ')}
+          </Field>
+        )}
         {action.freeAction && (
           <Box>
             <Chip size="small" label={t('free-action')} />

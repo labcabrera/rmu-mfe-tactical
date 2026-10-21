@@ -7,7 +7,6 @@ import { CombatContext } from '../../../../../CombatContext';
 import { applyAttack, declareParry, prepareAttack } from '../../../../api/action';
 import { Action, ParryDeclaration } from '../../../../api/action.dto';
 import { ActorRound } from '../../../../api/actor-rounds.dto';
-import { attackActionPoints } from '../../../../services/action-service';
 import { useTacticalNotify } from '../../../../services/notify-service';
 import AttackModifiersForm from '../../../action-dialogs/attack-modifiers/AttackModifiersForm';
 import ResolveAttackFormRoll from '../../../action-dialogs/attack/ResolveAttackFormRoll';
@@ -22,6 +21,7 @@ const stepOf = (action: Action, kind: AttackKind, localStep: number) => {
   const parry = kind === 'melee';
   switch (action.status) {
     case 'declared':
+    case 'held':
       return localStep;
     case 'parry':
       return 2;
@@ -47,7 +47,7 @@ const AttackFlow: FC<{
   const { t } = useTranslation();
   const auth = useAuth();
   const notify = useTacticalNotify();
-  const { game, actorRounds, updateAction, refreshActorRounds } = useContext(CombatContext)!;
+  const { actorRounds, updateAction, refreshActorRounds } = useContext(CombatContext)!;
   const declaration = useAttackDeclaration(action, actorRound, kind);
   const { formData, setFormData, targeted } = declaration;
   const [localStep, setLocalStep] = useState(0);
@@ -81,12 +81,10 @@ const AttackFlow: FC<{
     );
   const apply = () => call(applyAttack(action.id, auth), t('attack-applied'), refreshActorRounds);
 
-  // Before prepare the action points come from the game phase (as in the API); without any, it cannot be prepared.
-  const noActionPoints =
-    action.status === 'declared' && !action.freeAction && !!game && attackActionPoints(action, game) <= 0;
-  const targetsReady =
-    targeted.length > 0 && (kind === 'melee' || targeted.every((a) => !!a.modifiers.range)) && !noActionPoints;
-  const attacksShown = action.status === 'declared' ? targeted : formData.attacks;
+  // Targets and modifiers can be chosen at any time; "Prepare" fixes the AP of the attack, so it waits for the
+  // minimum AP of its profile (readiness from the API), unless the attack is forced.
+  const targetsReady = targeted.length > 0 && (kind === 'melee' || targeted.every((a) => !!a.modifiers.range));
+  const attacksShown = action.status === 'declared' || action.status === 'held' ? targeted : formData.attacks;
   const shownTab = Math.min(tab, Math.max(0, attacksShown.length - 1));
 
   const modifiers =
@@ -160,13 +158,9 @@ const AttackFlow: FC<{
 
   const rollsStep = withParry ? 3 : 2;
   let primary;
-  if (step === 0)
-    primary = {
-      label: noActionPoints ? t('no-available-action-points') : t('next'),
-      disabled: !targetsReady,
-      onClick: () => setLocalStep(1),
-    };
-  else if (step === 1) primary = { label: t('prepare'), disabled: busy || targeted.length === 0, onClick: prepare };
+  if (step === 0) primary = { label: t('next'), disabled: !targetsReady, onClick: () => setLocalStep(1) };
+  else if (step === 1)
+    primary = { label: t('prepare'), disabled: busy || targeted.length === 0, onClick: prepare, resolves: true };
   else if (withParry && step === 2) primary = { label: t('parry'), disabled: busy, onClick: parry };
   else if (step === rollsStep)
     primary = { label: t('apply'), disabled: busy || action.status !== 'pending_apply', onClick: apply };
@@ -178,7 +172,9 @@ const AttackFlow: FC<{
       activeIndex={step}
       primary={primary}
       back={
-        step === 1 && action.status === 'declared' ? { label: t('back'), onClick: () => setLocalStep(0) } : undefined
+        step === 1 && (action.status === 'declared' || action.status === 'held')
+          ? { label: t('back'), onClick: () => setLocalStep(0) }
+          : undefined
       }
       onDeleted={onDeleted}
       onNextPending={onNextPending}

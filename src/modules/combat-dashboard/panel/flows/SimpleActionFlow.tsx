@@ -7,6 +7,7 @@ import { CombatContext } from '../../../../CombatContext';
 import { completeAction } from '../../../api/action';
 import { Action, FullDefenseType } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
+import { isActionClosed } from '../../../services/ap-service';
 import { useTacticalNotify } from '../../../services/notify-service';
 import ActionFlow from '../ActionFlow';
 
@@ -30,7 +31,8 @@ const SimpleActionFlow: FC<{
   const [defenseType, setDefenseType] = useState<FullDefenseType>('dodge');
   const isDodge = action.actionType === 'dodge';
   const hasShield = !!actorRound.defense?.shield;
-  const done = action.status === 'completed';
+  // Completed, or ended without being resolved (interrupted, expired, carried to the next round).
+  const done = isActionClosed(action);
   const name = t(combatActionInfo(action.actionType).labelKey);
 
   const complete = () => {
@@ -104,7 +106,7 @@ const SimpleActionFlow: FC<{
       action={action}
       steps={steps}
       activeIndex={done ? 2 : 1}
-      primary={done ? undefined : { label: t('complete'), disabled: busy, onClick: complete }}
+      primary={done ? undefined : { label: t('complete'), disabled: busy, onClick: complete, resolves: true }}
       onDeleted={onDeleted}
       onNextPending={onNextPending}
     />

@@ -12,15 +12,25 @@ import {
   MenuItem,
   MenuList,
   Popover,
+  Stack,
   TextField,
   Typography,
 } from '@mui/material';
 import { combatActionInfo, CombatActionType, combatColors, usePhone } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
 import { createAction } from '../../api/action';
-import { Action } from '../../api/action.dto';
+import { Action, ActionType, ForceReason } from '../../api/action.dto';
 import { ActorRound } from '../../api/actor-rounds.dto';
+import {
+  apCapacity,
+  apProfileLabel,
+  apRemaining,
+  DECLARE_AP_PROFILES,
+  isActionOpen,
+  useOpenRounds,
+} from '../../services/ap-service';
 import { useTacticalNotify } from '../../services/notify-service';
+import { actionLabel } from '../actor-rounds/action-view';
 import ManeuverDeclareDialog from './ManeuverDeclareDialog';
 
 type PaletteEntry = {
@@ -28,8 +38,14 @@ type PaletteEntry = {
   type: CombatActionType;
   label: string;
   freeAction?: boolean;
+  /** Declared already forced (spec 011, §6): an immediate attack granted by an effect, out of turn and without AP. */
+  forced?: ForceReason;
   /** Translation key of the reason why it cannot be declared now. */
   unavailable?: string;
+  /** AP range of the entry ("2-4 AP"), shown under its name. */
+  profile?: string;
+  /** What declaring it does that the user should know: it will not reach its minimum AP, or interrupts an action. */
+  warnings?: string[];
 };
 
 type PaletteGroup = { key: string; label: string; entries: PaletteEntry[] };
@@ -43,7 +59,8 @@ const SKILL_MANEUVERS: Partial<Record<CombatActionType, string>> = { perception:
 /** Entries of the palette for an actor in a phase, with the reason of the ones that are not available. */
 const usePaletteGroups = (actorRound: ActorRound, phase: number): PaletteGroup[] => {
   const { t } = useTranslation();
-  const { roundActions } = useContext(CombatContext)!;
+  const { roundActions, actorRounds } = useContext(CombatContext)!;
+  const openRounds = useOpenRounds();
   const actions = roundActions ?? [];
   const own = actions.filter((a) => a.actorId === actorRound.actorId);
   // A movement is declared only once per phase: none of the actor's movements may cover it (one not finished
@@ -51,28 +68,55 @@ const usePaletteGroups = (actorRound: ActorRound, phase: number): PaletteGroup[]
   const moving = own.some(
     (a) => a.actionType === 'movement' && a.phaseStart <= phase && phase <= (a.phaseEnd ?? phase)
   );
-  // One attack at a time, melee or ranged: not while another one is still unresolved.
-  const attacking = own.some(
-    (a) => (a.actionType === 'melee_attack' || a.actionType === 'ranged_attack') && a.status !== 'completed'
-  );
+  // Declaring a new action interrupts the open one (spec 011, §5.5): its AP stay spent. Moving at the same time
+  // interrupts nothing, nor do free actions.
+  const interrupted = own.filter((a) => isActionOpen(a) && a.actionType !== 'movement' && !a.freeAction);
 
-  // §8.3 Surprise: a flatfooted actor declares nothing this round, and a surprised one loses its first phases (the
-  // effect's value, 2 by default). The reasons reuse the messages of the API errors.
+  // §8.3 Surprise: a flatfooted actor declares nothing this round, and one without AP in this phase (a surprised one
+  // loses its first phases) declares nothing in it. The reasons reuse the messages of the API errors.
   const flatfooted = actorRound.effects?.some((e) => e.status === 'flatfooted');
   const surprise = actorRound.effects?.find((e) => e.status === 'surprised');
-  const surprisedPhase = !!surprise && phase <= (surprise.value ?? 2);
-  const roundReason = flatfooted ? 'err-action-flatfooted' : surprisedPhase ? 'err-action-surprised-phase' : undefined;
+  const noCapacity = actorRound.apCapacity
+    ? apCapacity(actorRound)[phase - 1] === 0
+    : !!surprise && phase <= (surprise.value ?? 2);
+  const roundReason = flatfooted
+    ? 'err-action-flatfooted'
+    : noCapacity
+      ? surprise
+        ? 'err-action-surprised-phase'
+        : 'no-ap-in-phase'
+      : undefined;
+  // AP the actor can still spend this round: the open action gives back the AP of this phase when interrupted.
+  const remaining = apRemaining(actorRound, phase) + (interrupted.length > 0 ? 1 : 0);
 
-  const entry = (type: CombatActionType, extra: Partial<PaletteEntry> = {}): PaletteEntry => ({
-    key: extra.key ?? type,
-    type,
-    label: extra.label ?? t(combatActionInfo(type).labelKey),
-    ...extra,
-    unavailable: NOT_SUPPORTED.includes(type) ? 'coming-soon' : (roundReason ?? extra.unavailable),
-  });
+  const entry = (type: CombatActionType, extra: Partial<PaletteEntry> = {}): PaletteEntry => {
+    const profile = extra.freeAction || extra.forced ? { min: 0, max: 0 } : DECLARE_AP_PROFILES[type as ActionType];
+    const warnings: string[] = [];
+    if (profile && profile.min > remaining)
+      warnings.push(
+        `${t('declare-warning-unreachable', { min: profile.min })} ${t(openRounds ? 'continues-next-round' : 'expires-at-round-end')}`
+      );
+    if (!extra.freeAction && !extra.forced && type !== 'movement')
+      interrupted.forEach((open) =>
+        warnings.push(t('declare-warning-interrupts', { action: actionLabel(open, t, actorRounds) }))
+      );
+    return {
+      key: extra.key ?? type,
+      type,
+      label: extra.label ?? t(combatActionInfo(type).labelKey),
+      profile: profile ? apProfileLabel(profile, t) : t('ap-profile-by-skill'),
+      warnings,
+      ...extra,
+      // A forced attack takes no AP: only a flatfooted actor cannot make it.
+      unavailable: NOT_SUPPORTED.includes(type)
+        ? 'coming-soon'
+        : ((extra.forced ? (flatfooted ? 'err-action-flatfooted' : undefined) : roundReason) ?? extra.unavailable),
+    };
+  };
 
   const melee = actorRound.attacks.some((a) => a.type === 'melee');
   const ranged = actorRound.attacks.some((a) => a.type === 'ranged');
+  // Attacks are never free (spec 011, §6): an immediate attack granted by an effect is a forced action.
   return [
     {
       key: 'movement',
@@ -91,11 +135,19 @@ const usePaletteGroups = (actorRound: ActorRound, phase: number): PaletteGroup[]
       key: 'combat',
       label: t('combat'),
       entries: [
+        entry('melee_attack', { unavailable: !melee ? 'no-melee-attacks' : undefined }),
+        entry('ranged_attack', { unavailable: !ranged ? 'no-ranged-attacks' : undefined }),
         entry('melee_attack', {
-          unavailable: attacking ? 'already-attacking' : !melee ? 'no-melee-attacks' : undefined,
+          key: 'forced-melee-attack',
+          label: t('immediate-melee-attack'),
+          forced: 'effect',
+          unavailable: !melee ? 'no-melee-attacks' : undefined,
         }),
         entry('ranged_attack', {
-          unavailable: attacking ? 'already-attacking' : !ranged ? 'no-ranged-attacks' : undefined,
+          key: 'forced-ranged-attack',
+          label: t('immediate-ranged-attack'),
+          forced: 'effect',
+          unavailable: !ranged ? 'no-ranged-attacks' : undefined,
         }),
         // A full dodge or block takes the 4 AP of the round (§9.6): it can only start in phase 1.
         entry('dodge', { unavailable: phase > 1 ? 'err-full-defense-action-points' : undefined }),
@@ -130,6 +182,7 @@ const useCreateAction = (actorRound: ActorRound | null, phase: number, onCreated
         actionType: entry.type,
         phaseStart: phase,
         freeAction: !!entry.freeAction,
+        ...(entry.forced ? { forced: { reason: entry.forced } } : {}),
         ...extra,
       },
       auth
@@ -306,7 +359,27 @@ const PaletteContent: FC<{
                 <ListItemIcon sx={(theme) => ({ color: combatColors(theme)[info.category] })}>
                   {info.icon()}
                 </ListItemIcon>
-                <ListItemText primary={entry.label} secondary={entry.unavailable ? t(entry.unavailable) : undefined} />
+                <ListItemText
+                  primary={
+                    <Stack direction="row" spacing={1} sx={{ alignItems: 'baseline', justifyContent: 'space-between' }}>
+                      <span>{entry.label}</span>
+                      {entry.profile && (
+                        <Typography variant="caption" color="text.secondary" noWrap>
+                          {entry.profile}
+                        </Typography>
+                      )}
+                    </Stack>
+                  }
+                  secondary={
+                    entry.unavailable ? (
+                      t(entry.unavailable)
+                    ) : entry.warnings && entry.warnings.length > 0 ? (
+                      <Box component="span" sx={{ color: 'warning.main', display: 'block' }}>
+                        {entry.warnings.join(' · ')}
+                      </Box>
+                    ) : undefined
+                  }
+                />
               </MenuItem>
             );
           }),

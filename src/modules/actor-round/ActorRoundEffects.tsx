@@ -3,10 +3,11 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { Stack, Typography, Chip, Box, TextField, IconButton, Button } from '@mui/material';
+import { Stack, Typography, Chip, Box, TextField, IconButton, Button, MenuItem } from '@mui/material';
+import { NumericInput } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../CombatContext';
 import { addActorRoundEffect, deleteActorRoundEffect } from '../api/actor-rounds';
-import { ActorRound, ActorRoundEffect } from '../api/actor-rounds.dto';
+import { ActorRound, ActorRoundEffect, AP_EFFECTS } from '../api/actor-rounds.dto';
 import { useTacticalNotify } from '../services/notify-service';
 
 const ActorRoundEffects: FC<{
@@ -15,6 +16,15 @@ const ActorRoundEffects: FC<{
   const auth = useAuth();
   const { t } = useTranslation();
   const [newState, setNewState] = useState('');
+  const [apEffect, setApEffect] = useState(AP_EFFECTS[0].status);
+  const [apValue, setApValue] = useState<number | null>(AP_EFFECTS[0].defaultValue);
+  const apDefinition = AP_EFFECTS.find((e) => e.status === apEffect)!;
+  const apValueValid =
+    apValue !== null &&
+    Number.isInteger(apValue) &&
+    apValue >= apDefinition.min &&
+    apValue <= apDefinition.max &&
+    (apEffect !== 'manual' || apValue !== 0);
   const notify = useTacticalNotify();
   const { game, displayRound, updateActorRound } = useContext(CombatContext)!;
   const currentRound = !!game && game.status === 'in_progress' && displayRound === game.round;
@@ -38,7 +48,10 @@ const ActorRoundEffects: FC<{
   // A stun shows its penalty and rounds: there is one per severity (§9.8 Stun). A surprise shows the AP it takes.
   const getLabelForState = (state: ActorRoundEffect) => {
     const parts = [t(state.status)];
+    const apDefinition = AP_EFFECTS.find((e) => e.status === state.status);
     if (state.status === 'surprised') parts.push(t('surprised-lost-ap', { count: state.value ?? 2 }));
+    else if (apDefinition && state.value !== undefined && state.value !== null)
+      parts.push(t(`ap-effect-value-${state.status}`, { count: state.value }));
     else if (state.value) parts.push(`${state.value}`);
     if (state.rounds && state.status !== 'surprised' && state.status !== 'flatfooted')
       parts.push(t('rounds-short', { count: state.rounds }));
@@ -84,6 +97,59 @@ const ActorRoundEffects: FC<{
           </Stack>
           <Typography variant="caption" color="text.secondary">
             {t('surprise-declaration-help')}
+          </Typography>
+        </Stack>
+      )}
+
+      {currentRound && (
+        // Spec 011: effects that change the action points of the round. The API recomputes the capacity.
+        <Stack spacing={0.5}>
+          <Typography variant="caption" color="text.secondary">
+            {t('ap-effects')}
+          </Typography>
+          <Stack direction="row" sx={{ flexWrap: 'wrap', gap: 1, alignItems: 'center' }}>
+            <TextField
+              select
+              size="small"
+              label={t('effect')}
+              value={apEffect}
+              onChange={(e) => {
+                const definition = AP_EFFECTS.find((d) => d.status === e.target.value)!;
+                setApEffect(definition.status);
+                setApValue(definition.defaultValue);
+              }}
+              sx={{ minWidth: 180 }}
+            >
+              {AP_EFFECTS.map((definition) => (
+                <MenuItem key={definition.status} value={definition.status}>
+                  {t(definition.status)}
+                </MenuItem>
+              ))}
+            </TextField>
+            <Box sx={{ width: 110 }}>
+              <NumericInput
+                label={t('value')}
+                value={apValue}
+                onChange={setApValue}
+                integer
+                allowNegatives={apDefinition.min < 0}
+                min={apDefinition.min}
+                max={apDefinition.max}
+                error={!apValueValid}
+              />
+            </Box>
+            <Button
+              size="small"
+              variant="outlined"
+              startIcon={<AddIcon />}
+              disabled={!apValueValid}
+              onClick={() => addEffect(apEffect, apValue ?? undefined)}
+            >
+              {t('add')}
+            </Button>
+          </Stack>
+          <Typography variant="caption" color="text.secondary">
+            {t(`effect-${apEffect}-help`)}
           </Typography>
         </Stack>
       )}
