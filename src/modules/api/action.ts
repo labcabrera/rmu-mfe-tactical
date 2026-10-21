@@ -3,6 +3,7 @@ import { apiTacticalUrl, callApi, Page } from '@labcabrera-rmu/rmu-react-shared-
 import {
   Action,
   AttackDeclaration,
+  ForceReason,
   FullDefenseType,
   ManeuverModifiersListing,
   ParryDeclaration,
@@ -176,4 +177,31 @@ export async function updateFumbleRoll(
 export async function applyAttack(actionId: string, auth: AuthContextProps): Promise<Action> {
   const url = `${apiTacticalUrl}/actions/${actionId}/attack/apply`;
   return await callApi(auth, url, { method: 'PATCH' });
+}
+
+/** Spends the next free AP of the current phase on a declared action (spec 011, §2). */
+export async function spendActionPoint(actionId: string, auth: AuthContextProps): Promise<Action> {
+  const url = `${apiTacticalUrl}/actions/${actionId}/spend-ap`;
+  return await callApi(auth, url, { method: 'PATCH' });
+}
+
+/** Holds a declared action that has its maximum AP, to resolve it later (spec 011, §4). */
+export async function holdAction(actionId: string, auth: AuthContextProps): Promise<Action> {
+  const url = `${apiTacticalUrl}/actions/${actionId}/hold`;
+  return await callApi(auth, url, { method: 'PATCH' });
+}
+
+/** Marks an open action to be resolved out of turn, skipping the minimum AP and phase checks (spec 011, §6). */
+export async function forceAction(
+  actionId: string,
+  reason: ForceReason,
+  note: string | undefined,
+  auth: AuthContextProps
+): Promise<Action> {
+  const url = `${apiTacticalUrl}/actions/${actionId}/force`;
+  return await callApi(auth, url, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ reason, note }),
+  });
 }

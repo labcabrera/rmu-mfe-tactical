@@ -3,6 +3,8 @@ import { KeyValue, ManeuverModifier, ManeuverModifierOption, ManeuverType } from
 // Same values as rmu-api-tactical (action-status.vo.ts). `pending_roll` is the current status while the attack,
 // critical or fumble rolls are pending: each attack's `status` says which roll it waits for.
 // `pending_attack_roll` and `critical_or_fumble_roll` are the older statuses, still present in stored actions.
+// Spec 011: `interrupted` (another action replaced it or the actor could not act), `expired` (the round ended),
+// `carried` (it goes on in a continuation action of the next round) and `held` (held by the game master).
 export type ActionStatus =
   | 'declared'
   | 'prepared'
@@ -11,7 +13,40 @@ export type ActionStatus =
   | 'pending_attack_roll'
   | 'critical_or_fumble_roll'
   | 'pending_apply'
-  | 'completed';
+  | 'completed'
+  | 'interrupted'
+  | 'expired'
+  | 'carried'
+  | 'held';
+
+/** Statuses of an action that is over: it takes no more action points nor resolution steps. */
+export const CLOSED_ACTION_STATUSES: ActionStatus[] = ['completed', 'interrupted', 'expired', 'carried'];
+
+/**
+ * How close an action is to being resolved (spec 011, §4), computed by the API: below its minimum AP and able to
+ * reach it this round (`blocked`) or not (`unreachable`), resolvable with a penalty (`ready`) or without one
+ * (`optimal`), held, with resolution steps under way, or over.
+ */
+export type ActionReadiness = 'blocked' | 'unreachable' | 'ready' | 'optimal' | 'held' | 'in-resolution' | 'done';
+
+/** AP range of an action type (spec 011, §3). */
+export type ActionApProfile = { min: number; max: number };
+
+/** Why an action is resolved out of turn (spec 011, §6). */
+export type ForceReason = 'withdrawal' | 'pass-through' | 'effect' | 'gm';
+export const FORCE_REASONS: ForceReason[] = ['withdrawal', 'pass-through', 'effect', 'gm'];
+/** Reasons that can declare a new action already forced (`POST /actions` with `forced`). */
+export const NEW_ACTION_FORCE_REASONS: ForceReason[] = ['effect', 'gm'];
+
+/** Where the AP of a forced action come from: the actor's next free AP, none, or the ones already spent. */
+export type ForcedApSource = 'next-phase' | 'none' | 'as-spent';
+
+export type ActionResolution = {
+  mode: 'normal' | 'forced';
+  reason?: ForceReason;
+  apSource?: ForcedApSource;
+  note?: string;
+};
 
 /** Per-attack status (rmu-api-tactical attack-status.vo.ts): the roll the attack is waiting for. */
 export type AttackStatus =
@@ -236,7 +271,18 @@ export type Action = {
   phaseStart: number;
   phaseEnd: number | null;
   status: ActionStatus;
+  /** AP spent on the action, from the AP ledger of its actor round. */
   actionPoints: number | null;
+  /** AP range of the action (absent in responses of older APIs). */
+  apProfile?: ActionApProfile;
+  readiness?: ActionReadiness | null;
+  /** Penalty of resolving the action with its AP now (0 or negative). */
+  readinessPenalty?: number | null;
+  resolution?: ActionResolution;
+  /** Action of the previous round this one continues (open rounds). */
+  continuesActionId?: string;
+  /** AP the continued action had spent, counted in this one. */
+  carriedAp?: number;
   movement: ActionMovement | null;
   maneuver: ActionManeuver | null;
   attacks: ActionAttack[] | null;

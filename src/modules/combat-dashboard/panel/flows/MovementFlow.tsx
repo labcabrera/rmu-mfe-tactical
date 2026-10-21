@@ -7,6 +7,7 @@ import { CombatContext } from '../../../../CombatContext';
 import { resolveMovement } from '../../../api/action';
 import { Action, ActionMovement, MOVEMENT_LIGHT_OPTIONS, MOVEMENT_TABLE } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
+import { isActionClosed } from '../../../services/ap-service';
 import { useTacticalNotify } from '../../../services/notify-service';
 import { useSkillService } from '../../../services/skill-service';
 import OptionTiles from '../../action-dialogs/attack-modifiers/pickers/OptionTiles';
@@ -45,20 +46,21 @@ const MovementFlow: FC<{
   const { t } = useTranslation();
   const auth = useAuth();
   const notify = useTacticalNotify();
-  const { game, strategicGame, updateAction, refreshActorRounds } = useContext(CombatContext)!;
+  const { strategicGame, updateAction, refreshActorRounds } = useContext(CombatContext)!;
   const { getSkillBonus } = useSkillService();
   const [form, setForm] = useState<ActionMovement>(() =>
     initialForm(action, actorRound, rememberedLight(action.gameId))
   );
   const [step, setStep] = useState(0);
   const [busy, setBusy] = useState(false);
-  const done = action.status === 'completed';
+  // Completed, or ended without being resolved (interrupted, expired, carried to the next round).
+  const done = isActionClosed(action);
   const { modifiers } = form;
   const setModifiers = (change: Partial<ActionMovement['modifiers']>) =>
     setForm((prev) => ({ ...prev, modifiers: { ...prev.modifiers, ...change } }));
 
-  const gamePhase = parseInt((game?.phase ?? '').replace('phase_', '')) || action.phaseStart;
-  const actionPoints = Math.max(1, gamePhase - action.phaseStart + 1);
+  // The distance of each pace is per AP: the API counts the AP of the movement in its ledger.
+  const actionPoints = Math.max(1, action.actionPoints ?? 1);
   const scale = strategicGame?.options?.boardScaleMultiplier || 1;
   const maxPaceIndex = MOVEMENT_TABLE.findIndex((p) => p.id === actorRound.movement.maxPace);
   const skillBonus = (skillId: string) => getSkillBonus(skillId, actorRound);
@@ -268,6 +270,7 @@ const MovementFlow: FC<{
               label: onLastInput ? t('resolve') : t('next'),
               disabled: !canContinue || busy,
               onClick: () => (onLastInput ? resolve() : setStep(current + 1)),
+              resolves: onLastInput,
             }
       }
       back={current > 0 ? { label: t('back'), onClick: () => setStep(current - 1) } : undefined}

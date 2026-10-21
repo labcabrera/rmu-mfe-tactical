@@ -7,6 +7,7 @@ import { CombatContext } from '../../../../CombatContext';
 import { fetchActionManeuverModifiers, resolveManeuver } from '../../../api/action';
 import { Action, ManeuverModifiersListing } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
+import { isActionClosed } from '../../../services/ap-service';
 import { apiErrorCode, useTacticalNotify } from '../../../services/notify-service';
 import { useSkillService } from '../../../services/skill-service';
 import ActionFlow from '../ActionFlow';
@@ -37,7 +38,8 @@ const ManeuverFlow: FC<{
   const notify = useTacticalNotify();
   const { gameId, updateAction, refreshActorRounds } = useContext(CombatContext)!;
   const { getSkillBonus } = useSkillService();
-  const done = action.status === 'completed';
+  // Completed, or ended without being resolved (interrupted, expired, carried to the next round).
+  const done = isActionClosed(action);
   const [listing, setListing] = useState<ManeuverModifiersListing | null>(null);
   const [listingError, setListingError] = useState<string | null>(null);
   const [form, setForm] = useState<ManeuverForm>(() =>
@@ -173,7 +175,12 @@ const ManeuverFlow: FC<{
           ? undefined
           : current === 1
             ? { label: t('next'), disabled: !listing || !form.difficulty, onClick: () => setStep(2) }
-            : { label: t('resolve'), disabled: !listing || form.roll === null || busy, onClick: resolve }
+            : {
+                label: t('resolve'),
+                disabled: !listing || form.roll === null || busy,
+                onClick: resolve,
+                resolves: true,
+              }
       }
       back={current === 2 ? { label: t('back'), onClick: () => setStep(1) } : undefined}
       onDeleted={onDeleted}

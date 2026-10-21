@@ -4,8 +4,8 @@ import { ActionTypeChip, SidePanelLayout } from '@labcabrera-rmu/rmu-react-share
 import { CombatContext } from '../../../CombatContext';
 import { Action } from '../../api/action.dto';
 import { ActorRound } from '../../api/actor-rounds.dto';
+import { isActionActionable } from '../../services/ap-service';
 import { useShortcut } from '../../services/shortcuts';
-import { actionState } from '../actor-rounds/action-view';
 import { phaseNumber } from '../actor-rounds/round-grid';
 import ActionPalette from './ActionPalette';
 import ActionResolutionDialog from './ActionResolutionDialog';
@@ -66,11 +66,12 @@ const CombatPanelProvider: FC<{ children: ReactNode }> = ({ children }) => {
     ? (actorRound: ActorRound, anchor: HTMLElement | null) => setPalette({ actorRound, anchor })
     : undefined;
 
-  // The next action waiting for input, in board order, after the open one.
+  // The next action waiting for input, in board order, after the open one: only those that can be resolved now
+  // (ready, optimal) or whose resolution is under way, never the ones still below their minimum AP.
   const nextPending = (current: Action) => {
     const order = (actorRounds ?? []).map((ar) => ar.actorId);
     const pending = (roundActions ?? [])
-      .filter((a) => a.id !== current.id && actionState(a) === 'pending')
+      .filter((a) => a.id !== current.id && isActionActionable(a))
       .sort((a, b) => order.indexOf(a.actorId) - order.indexOf(b.actorId) || a.phaseStart - b.phaseStart);
     const from = order.indexOf(current.actorId);
     return pending.find((a) => order.indexOf(a.actorId) >= from) ?? pending[0];
@@ -95,7 +96,7 @@ const CombatPanelProvider: FC<{ children: ReactNode }> = ({ children }) => {
   useShortcut(['Enter'], () => {
     if (!panelActorRound || panelAction) return false;
     const own = (roundActions ?? []).filter((a) => a.actorId === panelActorRound.actorId);
-    const target = own.find((a) => actionState(a) === 'pending') ?? own[0];
+    const target = own.find(isActionActionable) ?? own[0];
     if (!target) return false;
     resolveAction(target);
   });

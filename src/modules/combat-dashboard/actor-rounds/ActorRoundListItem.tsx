@@ -2,9 +2,11 @@ import React, { FC, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import AddIcon from '@mui/icons-material/Add';
 import { alpha, Box, Button, Paper, Stack, Typography } from '@mui/material';
+import { ApPips } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
 import { Action } from '../../api/action.dto';
 import { ActorRound } from '../../api/actor-rounds.dto';
+import { apCapacity } from '../../services/ap-service';
 import { useFactionColor } from '../../services/faction-colors';
 import ActorAction from './ActorAction';
 import ActorActions from './ActorActions';
@@ -71,6 +73,14 @@ const CombatActorRoundListItem: FC<{
     </Button>
   );
   const cellSx = { minWidth: 0, borderLeft: 1, borderColor: 'divider' };
+  // Action points of each phase (spec 011, §8.1): earlier rounds show them as they ended.
+  const pips = (
+    <ApPips
+      capacity={apCapacity(actorRound)}
+      ledger={actorRound.apLedger}
+      currentPhase={currentPhase <= 4 ? currentPhase : 0}
+    />
+  );
 
   if (compact) {
     return (
@@ -87,6 +97,7 @@ const CombatActorRoundListItem: FC<{
           <Box sx={cellSx}>{initiative}</Box>
         </Box>
         {declaration && <Box sx={{ p: 1, borderTop: 1, borderColor: 'divider' }}>{declaration}</Box>}
+        <Box sx={{ px: 1, py: 0.75, borderTop: 1, borderColor: 'divider' }}>{pips}</Box>
         <PhaseActions
           actorId={actorRound.actorId}
           phase={phonePhase}
@@ -127,8 +138,12 @@ const CombatActorRoundListItem: FC<{
       <Box sx={{ ...cellSx, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', p: 1 }}>
         {declaration}
       </Box>
-      <Box sx={{ ...cellSx, gridColumn: 'span 4' }}>
-        <ActorActions actorId={actorRound.actorId} currentPhase={currentPhase} onActionClick={onOpenAction} />
+      <Box sx={{ ...cellSx, gridColumn: 'span 4', display: 'flex', flexDirection: 'column' }}>
+        <Box sx={{ flex: 1 }}>
+          <ActorActions actorId={actorRound.actorId} currentPhase={currentPhase} onActionClick={onOpenAction} />
+        </Box>
+        {/* Same padding and gap as the action grid, so each phase's points sit under its column. */}
+        <Box sx={{ px: 1, pb: 1 }}>{pips}</Box>
       </Box>
       {withEffects && <Box sx={cellSx}>{effects}</Box>}
     </Box>

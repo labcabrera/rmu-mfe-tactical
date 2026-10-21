@@ -27,14 +27,16 @@ import {
   startRound,
   TacticalGame,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
+import type { TFunction } from 'i18next';
 import { CombatContext } from '../../../CombatContext';
 import type { Action } from '../../api/action.dto';
 import type { ActorRound } from '../../api/actor-rounds.dto';
 import { isActorRoundFlatfooted } from '../../services/actor-round-service';
+import { ActionDestiny, actionDestiny, isActionClosed, useOpenRounds } from '../../services/ap-service';
 import { useTacticalNotify } from '../../services/notify-service';
 import { useShortcut } from '../../services/shortcuts';
 import { actionLabel } from './action-view';
-import { PHASES } from './round-grid';
+import { phaseNumber, PHASES } from './round-grid';
 
 const isDown = (actorRound: ActorRound) =>
   actorRound.effects?.some((e) => e.status === 'dead' || e.status === 'unconcious');
@@ -63,14 +65,30 @@ const useNextStepLabel = () => {
   };
 };
 
-/** Unresolved actions that the next step leaves behind, as "Actor: action" lines. */
-const pendingActions = (game: TacticalGame, actions: Action[], actorRounds: ActorRound[], t: (k: string) => string) => {
-  const phase = game.phase.startsWith('phase_') ? parseInt(game.phase.replace('phase_', '')) : 5;
+type PendingAction = { key: string; line: string; destiny: ActionDestiny };
+
+/**
+ * Open and held actions that the next step leaves behind, as "Actor: action" lines with what will happen to them
+ * (spec 011, §5): they go on with 1 AP more, are interrupted when the actor cannot act, stay open into the upkeep,
+ * and at the end of the round go on in the next one (open rounds) or expire. The API does it on its own.
+ */
+const pendingActions = (
+  game: TacticalGame,
+  actions: Action[],
+  actorRounds: ActorRound[],
+  t: TFunction,
+  openRounds: boolean
+): PendingAction[] => {
+  const phase = game.phase === 'declare_initiative' ? 0 : phaseNumber(game.phase);
   return actions
-    .filter((action) => action.status !== 'completed' && action.phaseStart <= phase)
+    .filter((action) => !isActionClosed(action) && action.phaseStart <= Math.max(phase, 1))
     .map((action) => {
-      const actor = actorRounds.find((ar) => ar.actorId === action.actorId)?.actorName ?? '';
-      return `${actor}: ${actionLabel(action, t as never, actorRounds)}`;
+      const actorRound = actorRounds.find((ar) => ar.actorId === action.actorId);
+      return {
+        key: action.id,
+        line: `${actorRound?.actorName ?? ''}: ${actionLabel(action, t, actorRounds)}`,
+        destiny: actionDestiny(action, actorRound, phase, openRounds),
+      };
     });
 };
 
@@ -96,6 +114,7 @@ const CombatRoundHeader: FC = () => {
     setRoundActorSort,
     refreshActorRounds,
   } = useContext(CombatContext)!;
+  const openRounds = useOpenRounds();
   const [confirm, setConfirm] = useState<'next' | 'initiatives' | null>(null);
   const advanceRef = useRef<() => void>(() => undefined);
 
@@ -104,7 +123,7 @@ const CombatRoundHeader: FC = () => {
     if (!game || !actorRounds || displayRound !== game.round) return false;
     const missingInitiative = actorRounds.some((ar) => rollsInitiative(ar) && !ar.initiative?.roll);
     if (game.phase === 'declare_initiative' && missingInitiative) return false;
-    if (pendingActions(game, roundActions ?? [], actorRounds, t).length > 0) setConfirm('next');
+    if (pendingActions(game, roundActions ?? [], actorRounds, t, openRounds).length > 0) setConfirm('next');
     else advanceRef.current();
   });
 
@@ -113,7 +132,7 @@ const CombatRoundHeader: FC = () => {
   const history = displayRound !== game.round;
   const active = actorRounds.filter(rollsInitiative);
   const undeclared = active.filter((ar) => !ar.initiative?.roll);
-  const pending = pendingActions(game, roundActions ?? [], actorRounds, t);
+  const pending = pendingActions(game, roundActions ?? [], actorRounds, t, openRounds);
   const blocked = game.phase === 'declare_initiative' && undeclared.length > 0;
 
   const advance = () => {
@@ -246,14 +265,27 @@ const CombatRoundHeader: FC = () => {
         title={nextStepLabel(game)}
         message={
           <Stack spacing={1}>
-            <Typography>{t('unresolved-actions-n', { count: pending.length })}</Typography>
+            <Typography>{t('open-actions-n', { count: pending.length })}</Typography>
             <Box component="ul" sx={{ m: 0, pl: 2.5 }}>
-              {pending.map((line) => (
-                <Typography component="li" variant="body2" key={line}>
-                  {line}
+              {pending.map((item) => (
+                <Typography component="li" variant="body2" key={item.key}>
+                  {item.line}
+                  <Typography
+                    component="span"
+                    variant="body2"
+                    sx={{ fontWeight: 600 }}
+                    color={
+                      item.destiny === 'interrupted' || item.destiny === 'expires' ? 'warning.main' : 'text.secondary'
+                    }
+                  >
+                    {` → ${t(`action-destiny-${item.destiny}`)}`}
+                  </Typography>
                 </Typography>
               ))}
             </Box>
+            <Typography variant="caption" color="text.secondary">
+              {t('action-destiny-help')}
+            </Typography>
           </Stack>
         }
         confirmLabel={nextStepLabel(game)}
