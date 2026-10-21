@@ -6,6 +6,7 @@ import { NumericInput } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../CombatContext';
 import { addActorRoundFatigueAccumulator, addActorRoundHp } from '../api/actor-rounds';
 import { ActorRound } from '../api/actor-rounds.dto';
+import { isGameFinished } from '../services/game-service';
 import { useTacticalNotify } from '../services/notify-service';
 import GenericBar from '../shared/generic/GenericBar';
 
@@ -17,7 +18,9 @@ const ActorRoundBars: FC<{
   const { t } = useTranslation();
   const auth = useAuth();
   const notify = useTacticalNotify();
-  const { updateActorRound } = useContext(CombatContext)!;
+  const { game, updateActorRound } = useContext(CombatContext)!;
+  // A finished game is read-only (spec 013).
+  const readOnly = isGameFinished(game);
   const deathThreshold = actorRound.hp?.deathThreshold ?? actorRound.hp?.max ?? 0;
 
   const updateActorRoundHP = (newHp: number) => {
@@ -45,8 +48,10 @@ const ActorRoundBars: FC<{
             integer
             // Below 0 the actor is down; it dies past its Body Development bonus (§9.8 Hits).
             min={-deathThreshold - 1}
+            // The API caps the hit points at the maximum and wakes the actor up when they go over 0.
             max={actorRound.hp?.max}
-            onChange={(e) => updateActorRoundHP(e!)}
+            disabled={readOnly}
+            onChange={(e) => e !== null && updateActorRoundHP(Math.min(e, actorRound.hp?.max ?? e))}
           />
         </Stack>
         <Typography variant="caption" color="text.secondary">
@@ -60,7 +65,8 @@ const ActorRoundBars: FC<{
             maxFractionDigits={2}
             min={0}
             max={1000}
-            onChange={(e) => updateActorRoundFatigueAccumulator(e!)}
+            disabled={readOnly}
+            onChange={(e) => e !== null && updateActorRoundFatigueAccumulator(e)}
           />
         </Stack>
       </Stack>

@@ -4,12 +4,24 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import CasinoIcon from '@mui/icons-material/Casino';
+import GridViewIcon from '@mui/icons-material/GridView';
 import GroupsIcon from '@mui/icons-material/Groups';
 import HeartBrokenIcon from '@mui/icons-material/HeartBroken';
 import LockIcon from '@mui/icons-material/Lock';
 import PersonIcon from '@mui/icons-material/Person';
 import ShieldIcon from '@mui/icons-material/Shield';
-import { Box, Card, CardActionArea, CardContent, CardMedia, Divider, Grid, Stack, Typography } from '@mui/material';
+import {
+  Box,
+  Button,
+  Card,
+  CardActionArea,
+  CardContent,
+  CardMedia,
+  Divider,
+  Grid,
+  Stack,
+  Typography,
+} from '@mui/material';
 import {
   addActor,
   addTacticalGameFaction,
@@ -35,6 +47,8 @@ import {
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { defaultFactionImage, defaultTacticalGameImage } from '../../services/image-service';
 import PlayButton from '../../shared/buttons/PlayButton';
+import GameOutcomePanel from '../outcome/GameOutcomePanel';
+import { FinishGameButton } from '../outcome/GameLifecycleButtons';
 import TacticalGameViewEnvironment from './TacticalGameViewEnvironment';
 
 const TacticalGameViewPage: FC = () => {
@@ -75,10 +89,13 @@ const TacticalGameViewPage: FC = () => {
     }
   };
 
+  // A finished game is read-only (spec 013): factions and characters can no longer change.
+  const finished = tacticalGame?.status === 'finished';
+
   const isFactionSelected = (factionId: string) => tacticalGame?.factions.includes(factionId) || false;
 
   const toggleFaction = (faction: Faction) => {
-    if (!tacticalGame) return;
+    if (!tacticalGame || finished) return;
     const action = isFactionSelected(faction.id) ? deleteTacticalGameFaction : addTacticalGameFaction;
     action(tacticalGame.id, faction.id, auth)
       .then((updatedGame) => setTacticalGame(updatedGame))
@@ -94,7 +111,7 @@ const TacticalGameViewPage: FC = () => {
   };
 
   const toggleActor = (character: Character) => {
-    if (!tacticalGame) return;
+    if (!tacticalGame || finished) return;
     const action = isActorSelected(character.id)
       ? deleteActor(tacticalGame.id, character.id, auth)
       : addActor(tacticalGame.id, character.id, 'character', auth);
@@ -141,7 +158,17 @@ const TacticalGameViewPage: FC = () => {
       summaryTitle={(entity) => t(entity.name)}
       actions={(game) => [
         <CancelButton onClick={() => navigate('/tactical/games')} />,
-        <PlayButton onClick={() => onPlay(game)} />,
+        game.status === 'finished' ? (
+          <Button
+            startIcon={<GridViewIcon />}
+            onClick={() => navigate(`/tactical/combat/${game.id}`, { state: { tacticalGame: game } })}
+          >
+            {t('view-combat')}
+          </Button>
+        ) : (
+          <PlayButton onClick={() => onPlay(game)} />
+        ),
+        <FinishGameButton game={game} onFinished={setTacticalGame} />,
       ]}
       onEdit={(game) => navigate(`/tactical/games/edit/${game.id}`, { state: { tacticalGame: game } })}
       onDelete={onDelete}
@@ -165,8 +192,9 @@ const TacticalGameViewPage: FC = () => {
         </Stack>
       )}
     >
-      {() => (
+      {(game) => (
         <Stack spacing={3}>
+          <GameOutcomePanel game={game} onApplied={setTacticalGame} />
           <Box>
             <Grid container spacing={2} sx={{ alignItems: 'center' }}>
               <Grid size={{ xs: 12, md: 6 }}>
@@ -199,6 +227,7 @@ const TacticalGameViewPage: FC = () => {
                       characterCount={factionCharacters.length}
                       selected={isFactionSelected(faction.id)}
                       disabled={factionCharacters.length < 1}
+                      readOnly={finished}
                       onClick={() => toggleFaction(faction)}
                     />
                   </Grid>
@@ -229,6 +258,7 @@ const TacticalGameViewPage: FC = () => {
                           <Grid key={character.id} size={{ xs: 12, sm: 6, md: 4, lg: 2.4 }}>
                             <CharacterSelectionCard
                               character={character}
+                              disabled={finished}
                               selected={isActorSelected(character.id)}
                               onClick={() => toggleActor(character)}
                             />
@@ -279,12 +309,14 @@ function FactionSelectionCard({
   characterCount,
   selected,
   disabled,
+  readOnly = false,
   onClick,
 }: {
   faction: Faction;
   characterCount: number;
   selected: boolean;
   disabled: boolean;
+  readOnly?: boolean;
   onClick: () => void;
 }) {
   const { t } = useTranslation();
@@ -300,7 +332,7 @@ function FactionSelectionCard({
         position: 'relative',
       }}
     >
-      <CardActionArea disabled={disabled} onClick={onClick}>
+      <CardActionArea disabled={disabled || readOnly} onClick={onClick}>
         <CardMedia
           component="img"
           image={resolveAssetUrl(faction.imageUrl) || defaultFactionImage}
@@ -329,10 +361,12 @@ function FactionSelectionCard({
 function CharacterSelectionCard({
   character,
   selected,
+  disabled = false,
   onClick,
 }: {
   character: Character;
   selected: boolean;
+  disabled?: boolean;
   onClick: () => void;
 }) {
   const { t } = useTranslation();
@@ -347,7 +381,7 @@ function CharacterSelectionCard({
         position: 'relative',
       }}
     >
-      <CardActionArea onClick={onClick}>
+      <CardActionArea onClick={onClick} disabled={disabled}>
         <CardMedia
           component="img"
           image={resolveAssetUrl(character.imageUrl) || defaultTacticalGameImage}

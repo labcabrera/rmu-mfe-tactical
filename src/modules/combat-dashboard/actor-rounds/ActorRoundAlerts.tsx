@@ -4,6 +4,7 @@ import { Button, Stack } from '@mui/material';
 import { ActionStateMarker } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
 import { ActorRound, ActorRoundAlert } from '../../api/actor-rounds.dto';
+import { isGameFinished } from '../../services/game-service';
 import ActorAlertDialog from '../actor-alert-dialogs/ActorAlertDialog';
 
 const ActorRoundAlerts: FC<{
@@ -14,7 +15,8 @@ const ActorRoundAlerts: FC<{
   const [selectedAlertId, setSelectedAlertId] = useState<string | null>(null);
   const combat = useContext(CombatContext);
 
-  if (!actorRound) return null;
+  // Alerts open forms that change the actor: a finished game is read-only (spec 013).
+  if (!actorRound || isGameFinished(combat?.game)) return null;
 
   const handleAlertClick = (alertId: string) => {
     setSelectedAlertId(alertId);

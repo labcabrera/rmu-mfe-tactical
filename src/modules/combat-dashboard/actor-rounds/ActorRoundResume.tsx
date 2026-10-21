@@ -1,10 +1,11 @@
 import React, { FC, ReactNode, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
+import WaterDropIcon from '@mui/icons-material/WaterDrop';
 import { Box, ButtonBase, Chip, Stack, Tooltip, Typography } from '@mui/material';
 import { Character, ResourceBar } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
 import { ActorRound } from '../../api/actor-rounds.dto';
-import { actorRoundDownState } from '../../services/actor-round-service';
+import { actorRoundBleeding, actorRoundDownState } from '../../services/actor-round-service';
 import { apModifierLabel, apTotals } from '../../services/ap-service';
 import { useFactionColor } from '../../services/faction-colors';
 import ActorRoundAvatar from '../../shared/avatars/ActorRoundAvatar';
@@ -27,6 +28,7 @@ const ActorRoundResume: FC<{
   const faction = factions?.find((f) => f.id === actorRound.factionId);
   const color = factionColor(actorRound.factionId);
   const down = actorRoundDownState(actorRound);
+  const bleeding = down === 'dead' ? 0 : actorRoundBleeding(actorRound);
   const ap = apTotals(actorRound);
   const apModifiers = actorRound.apModifiers ?? [];
   // Breakdown of the capacity: 4 base AP and the modifiers of the effects (Haste +2, Staggered −1...).
@@ -72,6 +74,16 @@ const ActorRoundResume: FC<{
               >
                 {actorRound.actorName}
               </Typography>
+              {/* Active bleeding (spec 013): hit points lost every round until it is treated. */}
+              {bleeding > 0 && (
+                <Tooltip title={t('injury-bleeding-per-round', { value: bleeding })}>
+                  <WaterDropIcon
+                    fontSize="small"
+                    color="error"
+                    aria-label={t('injury-bleeding-per-round', { value: bleeding })}
+                  />
+                </Tooltip>
+              )}
               {down && <Chip size="small" color={down === 'dead' ? 'error' : 'warning'} label={t(down)} />}
             </Stack>
             {character && (

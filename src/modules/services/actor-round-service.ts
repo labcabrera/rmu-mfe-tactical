@@ -3,8 +3,21 @@ import { ActorRound } from '../api/actor-rounds.dto';
 
 const PACE_ORDER = ['creep', 'walk', 'jog', 'run', 'sprint', 'dash'];
 
-/** The API spells it `unconcious`; the correct spelling is also accepted. */
-const UNCONSCIOUS = ['unconcious', 'unconscious'];
+/** `unconscious` since spec 013; actor rounds stored before it may still have the legacy `unconcious`. */
+const UNCONSCIOUS = ['unconscious', 'unconcious'];
+
+/** Dead or unconscious: out of the fight, it neither rolls initiative nor declares actions. */
+export function isActorRoundDown(actorRound: ActorRound): boolean {
+  return actorRoundHasEffect(actorRound, ['dead', ...UNCONSCIOUS]);
+}
+
+/** Hit points per round the actor loses through its injuries (the API total, or the sum of the injuries). */
+export function actorRoundBleeding(actorRound: ActorRound): number {
+  if (typeof actorRound.bleeding === 'number') return actorRound.bleeding;
+  return (actorRound.injuries ?? [])
+    .filter((injury) => injury.status !== 'healed')
+    .reduce((sum, injury) => sum + Math.max(0, injury.bleeding ?? 0), 0);
+}
 
 export function isActorRoundDead(actorRound: ActorRound): boolean {
   return actorRoundHasEffect(actorRound, ['dead', ...UNCONSCIOUS]);

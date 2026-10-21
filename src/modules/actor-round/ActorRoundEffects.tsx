@@ -3,12 +3,15 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { Stack, Typography, Chip, Box, TextField, IconButton, Button, MenuItem } from '@mui/material';
-import { NumericInput } from '@labcabrera-rmu/rmu-react-shared-lib';
+import HealingIcon from '@mui/icons-material/Healing';
+import { Stack, Typography, Chip, Box, TextField, IconButton, Button, MenuItem, Tooltip } from '@mui/material';
+import { InjurySourceLine, normalizeEffectStatus, NumericInput } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../CombatContext';
 import { addActorRoundEffect, deleteActorRoundEffect } from '../api/actor-rounds';
 import { ActorRound, ActorRoundEffect, AP_EFFECTS } from '../api/actor-rounds.dto';
+import { isGameFinished } from '../services/game-service';
 import { useTacticalNotify } from '../services/notify-service';
+import MedicalRollDialog, { MedicalTarget } from './medical/MedicalRollDialog';
 
 const ActorRoundEffects: FC<{
   actorRound: ActorRound;
@@ -28,6 +31,9 @@ const ActorRoundEffects: FC<{
   const notify = useTacticalNotify();
   const { game, displayRound, updateActorRound } = useContext(CombatContext)!;
   const currentRound = !!game && game.status === 'in_progress' && displayRound === game.round;
+  // A finished game is read-only (spec 013): effects are neither added nor removed.
+  const readOnly = isGameFinished(game);
+  const [stabilizing, setStabilizing] = useState<MedicalTarget | null>(null);
   const surprise = actorRound.effects?.find((e) => e.status === 'surprised' || e.status === 'flatfooted');
 
   const addEffect = (status: string, value?: number) => {
@@ -47,7 +53,7 @@ const ActorRoundEffects: FC<{
 
   // A stun shows its penalty and rounds: there is one per severity (§9.8 Stun). A surprise shows the AP it takes.
   const getLabelForState = (state: ActorRoundEffect) => {
-    const parts = [t(state.status)];
+    const parts = [t(normalizeEffectStatus(state.status))];
     const apDefinition = AP_EFFECTS.find((e) => e.status === state.status);
     if (state.status === 'surprised') parts.push(t('surprised-lost-ap', { count: state.value ?? 2 }));
     else if (apDefinition && state.value !== undefined && state.value !== null)
@@ -66,15 +72,37 @@ const ActorRoundEffects: FC<{
         <Typography variant="body2">{t('no-states')}</Typography>
       ) : (
         <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
-          {(actorRound.effects || []).map((s: ActorRoundEffect, i: number) => (
-            <Chip
-              key={`${s.status}-${i}`}
-              label={getLabelForState(s)}
-              onDelete={() => removeState(s.id)}
-              deleteIcon={<DeleteIcon />}
-              sx={{ m: 0.5 }}
-            />
-          ))}
+          {(actorRound.effects || []).map((s: ActorRoundEffect, i: number) => {
+            const chip = (
+              <Chip
+                label={getLabelForState(s)}
+                onDelete={readOnly ? undefined : () => removeState(s.id)}
+                deleteIcon={<DeleteIcon />}
+                sx={{ m: 0.5 }}
+              />
+            );
+            return (
+              <Stack key={`${s.status}-${i}`} direction="row" sx={{ alignItems: 'center' }}>
+                {/* Where the effect comes from (the critical, its attacker and round), when the API knows it. */}
+                {s.source ? (
+                  <Tooltip title={<InjurySourceLine source={s.source} />}>
+                    <span>{chip}</span>
+                  </Tooltip>
+                ) : (
+                  chip
+                )}
+                {s.status === 'dying' && currentRound && (
+                  <Button
+                    size="small"
+                    startIcon={<HealingIcon />}
+                    onClick={() => setStabilizing({ kind: 'stabilize', effect: s })}
+                  >
+                    {t('stabilize')}
+                  </Button>
+                )}
+              </Stack>
+            );
+          })}
         </Stack>
       )}
 
@@ -154,6 +182,7 @@ const ActorRoundEffects: FC<{
         </Stack>
       )}
 
+      {!readOnly && (
       <Box sx={{ mt: 1, display: 'flex', alignItems: 'center' }}>
         <TextField
           size="small"
@@ -166,6 +195,8 @@ const ActorRoundEffects: FC<{
           <AddIcon />
         </IconButton>
       </Box>
+      )}
+      <MedicalRollDialog actorRound={actorRound} target={stabilizing} onClose={() => setStabilizing(null)} />
     </Stack>
   );
 };

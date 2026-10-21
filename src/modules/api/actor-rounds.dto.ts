@@ -1,3 +1,5 @@
+import type { HpLogEntry, Injury, InjurySource } from '@labcabrera-rmu/rmu-react-shared-lib';
+
 export type ActorRound = {
   id: string;
   gameId: string;
@@ -27,7 +29,25 @@ export type ActorRound = {
   /** AP spent, lost or used by instantaneous actions, by phase and action (spec 011, §2). */
   apLedger?: ActorRoundApLedgerEntry[];
   alerts: ActorRoundAlert[];
+  /** Injuries of the actor (spec 013): brought from its character and taken in the game. */
+  injuries?: Injury[];
+  /** Changes of the hit points in this round, with their origin (spec 013, §1.1; absent in older actor rounds). */
+  hpLog?: HpLogEntry[];
+  /** Strategic character of a character actor. */
+  characterId?: string;
+  /** `character` or `npc`. */
+  actorType?: string;
+  /** What the character brought into the game (only in the actor round built from it). */
+  snapshot?: ActorRoundSnapshot;
+  /** Hit points per round lost by the injuries that still bleed. */
+  bleeding?: number;
   imageUrl: string | undefined;
+};
+
+export type ActorRoundSnapshot = {
+  hp: number;
+  injuryIds: string[];
+  conditionIds: string[];
 };
 
 export type ActorRoundMovement = {
@@ -39,6 +59,7 @@ export type ActorRoundMovement = {
 
 export type ActorRoundPenaltyModifier = {
   id: string;
+  /** `injury` (the sum of the injuries, spec 013), `endurance`, `stunned`, `hp`, `fatigue`... `critical` is legacy. */
   source: string;
   value: number;
 };
@@ -159,6 +180,8 @@ export type ActorRoundEffect = {
   appliedRound?: number;
   appliedPhase?: number;
   spentApBefore?: number;
+  /** Where the effect comes from: the critical or fumble, or the strategic condition it was copied from (spec 013). */
+  source?: InjurySource;
 };
 
 export type ActorRoundAttack = {
@@ -183,4 +206,60 @@ export type ActorRoundAttackRange = {
   from: number;
   to: number;
   bonus: number;
+};
+
+/** Procedures that can be done on an injury during a tactical game (spec 013, §3). */
+export const TACTICAL_PROCEDURES = ['pressure', 'stitches', 'tourniquet', 'cauterize', 'dress', 'magic'] as const;
+export type TacticalProcedure = (typeof TACTICAL_PROCEDURES)[number];
+
+/** Healer and roll of a medical maneuver: an actor of the game (`healerActorId`) or an external healer. */
+export type MedicalRollDto = {
+  healerActorId?: string;
+  healer?: { name: string; bonus: number };
+  /** Open-ended roll. */
+  roll: number;
+  /** Difficulty modifier; the API uses the one of the procedure when it is missing. */
+  difficulty?: number;
+};
+
+export type TreatInjuryDto = MedicalRollDto & { procedure: TacticalProcedure };
+
+/** `PATCH v1/actor-rounds/:id/injuries/:injuryId` (game master). */
+export type UpdateActorInjuryDto = Partial<
+  Pick<
+    Injury,
+    | 'type'
+    | 'severity'
+    | 'location'
+    | 'side'
+    | 'penalty'
+    | 'bleeding'
+    | 'bleedingControl'
+    | 'flags'
+    | 'description'
+    | 'status'
+  >
+>;
+
+export type MedicalResult = 'absolute-failure' | 'failure' | 'partial-success' | 'success' | 'absolute-success';
+
+/** Result of a treatment or a stabilization in a tactical game. */
+export type MedicalResultDto = {
+  actorRound: ActorRound;
+  result: MedicalResult;
+  roll: number;
+  /** Medicine bonus of the healer. */
+  bonus: number;
+  /** Penalties of the healer actor (0 or negative). */
+  healerPenalty: number;
+  difficulty: number;
+  /** roll + bonus + difficulty + healer penalty. */
+  total: number;
+  message?: string;
+  recoveryModifier: number;
+  treatment?: unknown;
+  /** Severity of the heat critical the game master has to resolve (cauterize). */
+  heatCritical?: string;
+  /** Rounds the dying effect gained (stabilize). */
+  roundsGained?: number;
 };

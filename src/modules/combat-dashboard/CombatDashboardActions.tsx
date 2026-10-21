@@ -11,6 +11,7 @@ import {
   RmuBreadcrumbs,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../CombatContext';
+import { ApplyOutcomeButton, FinishGameButton } from '../tactical-games/outcome/GameLifecycleButtons';
 import { useTacticalNotify } from '../services/notify-service';
 
 const CombatDashboardActions: FC = () => {
@@ -46,6 +47,8 @@ const CombatDashboardActions: FC = () => {
 
   return (
     <RmuBreadcrumbs items={breadcrumbs}>
+      <FinishGameButton game={game} onFinished={setGame} />
+      <ApplyOutcomeButton game={game} onApplied={setGame} />
       <RefreshButton onClick={onRefresh} />
       <CancelButton onClick={onClose} />
     </RmuBreadcrumbs>

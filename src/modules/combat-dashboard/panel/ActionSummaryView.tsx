@@ -7,6 +7,7 @@ import { ActionStateMarker, combatActionInfo, formatBonus } from '@labcabrera-rm
 import { CombatContext } from '../../../CombatContext';
 import { Action, SIMPLE_ACTION_TYPES } from '../../api/action.dto';
 import { apProfileLabel, isActionClosed, useOpenRounds } from '../../services/ap-service';
+import { isGameFinished } from '../../services/game-service';
 import { actionApText, actionResult, actionState, actionStateTooltip } from '../actor-rounds/action-view';
 import { AttackResults, ManeuverResult, MovementResult } from './flows/ActionResults';
 import { useDeleteAction } from './useDeleteAction';
@@ -34,7 +35,9 @@ const ActionSummaryView: FC<{ action: Action; onResolve: () => void; onDeleted: 
 }) => {
   const { t } = useTranslation();
   const { requestDelete, dialog } = useDeleteAction(action, onDeleted);
-  const { actorRounds } = useContext(CombatContext)!;
+  const { actorRounds, game } = useContext(CombatContext)!;
+  // A finished game is read-only (spec 013): its resolutions can be viewed, not changed.
+  const finished = isGameFinished(game);
   const openRounds = useOpenRounds();
   const done = isActionClosed(action);
   const ap = actionApText(action, t);
@@ -104,21 +107,25 @@ const ActionSummaryView: FC<{ action: Action; onResolve: () => void; onDeleted: 
         )}
       </Stack>
 
-      <Stack direction="row" spacing={1}>
-        <Button
-          variant={done ? 'outlined' : 'contained'}
-          startIcon={<OpenInFullIcon />}
-          onClick={onResolve}
-          sx={{ flex: 1 }}
-        >
-          {done
-            ? t('view-resolution')
-            : t('resolve-action', { action: t(combatActionInfo(action.actionType).labelKey) })}
-        </Button>
-        <Button color="error" variant="outlined" startIcon={<DeleteIcon />} onClick={requestDelete}>
-          {t('delete')}
-        </Button>
-      </Stack>
+      {(!finished || done) && (
+        <Stack direction="row" spacing={1}>
+          <Button
+            variant={done ? 'outlined' : 'contained'}
+            startIcon={<OpenInFullIcon />}
+            onClick={onResolve}
+            sx={{ flex: 1 }}
+          >
+            {done
+              ? t('view-resolution')
+              : t('resolve-action', { action: t(combatActionInfo(action.actionType).labelKey) })}
+          </Button>
+          {!finished && (
+            <Button color="error" variant="outlined" startIcon={<DeleteIcon />} onClick={requestDelete}>
+              {t('delete')}
+            </Button>
+          )}
+        </Stack>
+      )}
       {dialog}
 
       {(action.attacks?.some((a) => a.calculated) || action.movement?.calculated || action.maneuver?.result) && (

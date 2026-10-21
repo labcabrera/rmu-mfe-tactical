@@ -4,6 +4,7 @@ import { useAuth } from 'react-oidc-context';
 import CasinoIcon from '@mui/icons-material/Casino';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
+import FlagIcon from '@mui/icons-material/Flag';
 import HistoryIcon from '@mui/icons-material/History';
 import SortIcon from '@mui/icons-material/Sort';
 import SortByAlphaIcon from '@mui/icons-material/SortByAlpha';
@@ -31,18 +32,18 @@ import type { TFunction } from 'i18next';
 import { CombatContext } from '../../../CombatContext';
 import type { Action } from '../../api/action.dto';
 import type { ActorRound } from '../../api/actor-rounds.dto';
-import { isActorRoundFlatfooted } from '../../services/actor-round-service';
+import { isActorRoundDown, isActorRoundFlatfooted } from '../../services/actor-round-service';
 import { ActionDestiny, actionDestiny, isActionClosed, useOpenRounds } from '../../services/ap-service';
+import { isGameFinished } from '../../services/game-service';
 import { useTacticalNotify } from '../../services/notify-service';
 import { useShortcut } from '../../services/shortcuts';
 import { actionLabel } from './action-view';
 import { phaseNumber, PHASES } from './round-grid';
 
-const isDown = (actorRound: ActorRound) =>
-  actorRound.effects?.some((e) => e.status === 'dead' || e.status === 'unconcious');
 
 /** Flatfooted actors do not roll initiative (§8.3 Surprise), like the ones that are down. */
-const rollsInitiative = (actorRound: ActorRound) => !isDown(actorRound) && !isActorRoundFlatfooted(actorRound);
+const rollsInitiative = (actorRound: ActorRound) =>
+  !isActorRoundDown(actorRound) && !isActorRoundFlatfooted(actorRound);
 
 /** Name of a phase in the stepper. */
 const usePhaseLabel = () => {
@@ -120,7 +121,7 @@ const CombatRoundHeader: FC = () => {
 
   // N does what the main button does: start the next phase or round, asking first when something is pending.
   useShortcut(['n', 'N'], () => {
-    if (!game || !actorRounds || displayRound !== game.round) return false;
+    if (!game || !actorRounds || displayRound !== game.round || isGameFinished(game)) return false;
     const missingInitiative = actorRounds.some((ar) => rollsInitiative(ar) && !ar.initiative?.roll);
     if (game.phase === 'declare_initiative' && missingInitiative) return false;
     if (pendingActions(game, roundActions ?? [], actorRounds, t, openRounds).length > 0) setConfirm('next');
@@ -130,6 +131,9 @@ const CombatRoundHeader: FC = () => {
   if (!game || !actorRounds || displayRound === null) return null;
 
   const history = displayRound !== game.round;
+  // A finished game is read-only (spec 013): no phase to advance, no initiative to roll.
+  const finished = isGameFinished(game);
+  const playing = !history && !finished;
   const active = actorRounds.filter(rollsInitiative);
   const undeclared = active.filter((ar) => !ar.initiative?.roll);
   const pending = pendingActions(game, roundActions ?? [], actorRounds, t, openRounds);
@@ -199,7 +203,7 @@ const CombatRoundHeader: FC = () => {
             </Tooltip>
           </Stack>
 
-          {!history && (
+          {playing && (
             <Box sx={{ flex: 1, minWidth: 0, overflowX: 'auto' }}>
               <Stepper activeStep={PHASES.indexOf(game.phase)} alternativeLabel sx={{ minWidth: 420 }}>
                 {PHASES.map((phase) => (
@@ -220,7 +224,7 @@ const CombatRoundHeader: FC = () => {
                 {roundActorSort === 'initiative' ? <SortIcon /> : <SortByAlphaIcon />}
               </IconButton>
             </Tooltip>
-            {!history && game.phase === 'declare_initiative' && (
+            {playing && game.phase === 'declare_initiative' && (
               <Button
                 variant="outlined"
                 startIcon={<CasinoIcon />}
@@ -229,7 +233,7 @@ const CombatRoundHeader: FC = () => {
                 {t('roll-all-initiatives')}
               </Button>
             )}
-            {!history && (
+            {playing && (
               <Tooltip title={blocked ? t('pending-initiatives-n', { count: undeclared.length }) : ''}>
                 <span>
                   <Button
@@ -245,6 +249,11 @@ const CombatRoundHeader: FC = () => {
           </Stack>
         </Stack>
 
+        {finished && (
+          <Alert severity="info" icon={<FlagIcon />}>
+            {t('tactical-game-finished-read-only')}
+          </Alert>
+        )}
         {history && (
           <Alert
             severity="info"

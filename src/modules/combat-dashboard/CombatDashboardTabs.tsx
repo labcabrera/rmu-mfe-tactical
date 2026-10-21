@@ -1,8 +1,10 @@
-import React, { FC, useState } from 'react';
+import React, { FC, useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import KeyboardIcon from '@mui/icons-material/Keyboard';
 import { Box, IconButton, Paper, Stack, Tab, Tabs, Tooltip, useMediaQuery, useTheme } from '@mui/material';
+import { CombatContext } from '../../CombatContext';
 import { useShortcut } from '../services/shortcuts';
+import GameOutcomePanel from '../tactical-games/outcome/GameOutcomePanel';
 import CombatDashboardActions from './CombatDashboardActions';
 import ShortcutsHelp from './ShortcutsHelp';
 import CombatActorRoundList from './actor-rounds/ActorRoundList';
@@ -22,6 +24,7 @@ const CombatDashboardTabs: FC = () => {
   const wide = useMediaQuery(theme.breakpoints.up('lg'));
   const [view, setView] = useState<View>('board');
   const [help, setHelp] = useState(false);
+  const { game, setGame } = useContext(CombatContext)!;
   useShortcut(['l', 'L'], () => setView((current) => (current === 'board' ? 'log' : 'board')));
   useShortcut(['?'], () => setHelp(true));
 
@@ -29,6 +32,7 @@ const CombatDashboardTabs: FC = () => {
     <Stack spacing={1.5}>
       <CombatDashboardActions />
       <CombatRoundHeader />
+      {game?.status === 'finished' && <GameOutcomePanel game={game} onApplied={setGame} />}
       <CombatPanelProvider>
         <Stack spacing={1.5}>
           <Paper sx={{ px: 1.5, display: 'flex', alignItems: 'center' }}>
