@@ -6,6 +6,7 @@ import { ApPips } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
 import { Action } from '../../api/action.dto';
 import { ActorRound } from '../../api/actor-rounds.dto';
+import { isActorRoundDown } from '../../services/actor-round-service';
 import { apCapacity } from '../../services/ap-service';
 import { useFactionColor } from '../../services/faction-colors';
 import ActorAction from './ActorAction';
@@ -50,7 +51,7 @@ const CombatActorRoundListItem: FC<{
   if (!actorRound || !game) return null;
 
   const currentPhase = phaseNumber(displayPhase);
-  const down = actorRound.effects.some((e) => e.status === 'dead' || e.status === 'unconcious');
+  const down = isActorRoundDown(actorRound);
   const effects = <ActorRoundEffects actorRound={actorRound} />;
   const resume = (
     <ActorRoundResume

@@ -79,7 +79,7 @@ export const isActionActionable = (action: Action): boolean =>
 
 /** The actor cannot act: down, or without capacity in the whole round. Its open actions are interrupted. */
 export const actorCannotAct = (actorRound: ActorRound): boolean =>
-  actorRoundHasEffect(actorRound, ['dead', 'dying', 'unconcious', 'unconscious']) ||
+  actorRoundHasEffect(actorRound, ['dead', 'dying', 'unconscious', 'unconcious']) ||
   apTotals(actorRound).capacity === 0;
 
 /**

@@ -1,15 +1,20 @@
-import React, { FC, useState } from 'react';
+import React, { FC, useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Stack, Typography, Chip, Box, TextField, IconButton } from '@mui/material';
+import { CombatContext } from '../../CombatContext';
 import { ActorRound, ActorRoundPenaltyModifier } from '../api/actor-rounds.dto';
+import { isGameFinished } from '../services/game-service';
 
 const ActorRoundPenalty: FC<{
   actorRound: ActorRound;
 }> = ({ actorRound }) => {
   const { t } = useTranslation();
   const [newPenalty, setNewPenalty] = useState('');
+  const { game } = useContext(CombatContext)!;
+  // A finished game is read-only (spec 013). The injury penalty is the sum of the injuries: it changes with them.
+  const readOnly = isGameFinished(game);
 
   const addPenalty = () => {
     //TODO
@@ -35,7 +40,7 @@ const ActorRoundPenalty: FC<{
             <Chip
               key={`${s.source}-${i}`}
               label={getLabelForState(s)}
-              onDelete={() => removePenalty()}
+              onDelete={readOnly || s.source === 'injury' ? undefined : () => removePenalty()}
               deleteIcon={<DeleteIcon />}
               sx={{ m: 0.5 }}
             />
@@ -43,6 +48,7 @@ const ActorRoundPenalty: FC<{
         </Stack>
       )}
 
+      {!readOnly && (
       <Box sx={{ mt: 1, display: 'flex', alignItems: 'center' }}>
         <TextField
           size="small"
@@ -55,6 +61,7 @@ const ActorRoundPenalty: FC<{
           <AddIcon />
         </IconButton>
       </Box>
+      )}
     </Stack>
   );
 };

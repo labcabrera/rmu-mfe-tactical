@@ -7,7 +7,8 @@ import { formatBonus, NumericInput } from '@labcabrera-rmu/rmu-react-shared-lib'
 import { CombatContext } from '../../../../CombatContext';
 import { declareActorRoundInitiative } from '../../../api/actor-rounds';
 import { ActorRound } from '../../../api/actor-rounds.dto';
-import { isActorRoundFlatfooted } from '../../../services/actor-round-service';
+import { isActorRoundDown, isActorRoundFlatfooted } from '../../../services/actor-round-service';
+import { isRoundEditable } from '../../../services/game-service';
 import { useTacticalNotify } from '../../../services/notify-service';
 
 /** One modifier of the initiative: its name on the left, its value on the right. */
@@ -37,9 +38,10 @@ const ActorRoundInitiative: FC<{ actorRound: ActorRound }> = ({ actorRound }) =>
   const auth = useAuth();
   const notify = useTacticalNotify();
   const { game, displayRound, updateActorRound } = useContext(CombatContext)!;
-  const isDown = actorRound.effects.some((e) => e.status === 'dead' || e.status === 'unconcious');
+  const isDown = isActorRoundDown(actorRound);
   const flatfooted = isActorRoundFlatfooted(actorRound);
-  const editable = !isDown && !flatfooted && game?.phase === 'declare_initiative' && displayRound === game?.round;
+  const editable =
+    !isDown && !flatfooted && isRoundEditable(game, displayRound) && game?.phase === 'declare_initiative';
   const { base = 0, penalty = 0, roll, total, strikeReflex: strikeReflexBonus } = actorRound.initiative ?? {};
   const declared = !!roll;
   const hasStrikeReflex = (actorRound.traits ?? []).some((trait) => trait.traitId === STRIKE_REFLEX);

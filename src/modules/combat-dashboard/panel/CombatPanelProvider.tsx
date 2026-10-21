@@ -5,6 +5,7 @@ import { CombatContext } from '../../../CombatContext';
 import { Action } from '../../api/action.dto';
 import { ActorRound } from '../../api/actor-rounds.dto';
 import { isActionActionable } from '../../services/ap-service';
+import { isGameFinished } from '../../services/game-service';
 import { useShortcut } from '../../services/shortcuts';
 import { phaseNumber } from '../actor-rounds/round-grid';
 import ActionPalette from './ActionPalette';
@@ -46,7 +47,9 @@ const CombatPanelProvider: FC<{ children: ReactNode }> = ({ children }) => {
 
   const history = !!game && displayRound !== game.round;
   const currentPhase = game ? phaseNumber(game.phase) : 1;
-  const canDeclare = !!game && !history && game.phase.startsWith('phase_');
+  // A finished game is read-only (spec 013): nothing is declared or resolved any more.
+  const finished = isGameFinished(game);
+  const canDeclare = !!game && !history && !finished && game.phase.startsWith('phase_');
 
   const panelAction = panel?.kind === 'action' ? roundActions?.find((a) => a.id === panel.actionId) : undefined;
   const panelActorRound =
@@ -94,7 +97,7 @@ const CombatPanelProvider: FC<{ children: ReactNode }> = ({ children }) => {
     moveSelection(event.key === 'ArrowDown' ? 1 : -1);
   });
   useShortcut(['Enter'], () => {
-    if (!panelActorRound || panelAction) return false;
+    if (!panelActorRound || panelAction || finished) return false;
     const own = (roundActions ?? []).filter((a) => a.actorId === panelActorRound.actorId);
     const target = own.find(isActionActionable) ?? own[0];
     if (!target) return false;

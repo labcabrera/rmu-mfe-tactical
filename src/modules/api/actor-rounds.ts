@@ -1,6 +1,14 @@
 import { AuthContextProps } from 'react-oidc-context';
 import { apiTacticalUrl, callApi, Page } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { ActorRound, ActorRoundEffect, DefenseLevel } from './actor-rounds.dto';
+import {
+  ActorRound,
+  ActorRoundEffect,
+  DefenseLevel,
+  MedicalResultDto,
+  MedicalRollDto,
+  TreatInjuryDto,
+  UpdateActorInjuryDto,
+} from './actor-rounds.dto';
 
 export async function fetchActorRound(actorRoundId: string, auth: AuthContextProps): Promise<ActorRound> {
   const url = `${apiTacticalUrl}/actor-rounds/${actorRoundId}`;
@@ -103,5 +111,58 @@ export async function deleteActorRoundEffect(
   auth: AuthContextProps
 ): Promise<ActorRound> {
   const url = `${apiTacticalUrl}/actor-rounds/${actorRoundId}/effects/${effectId}`;
+  return await callApi(auth, url, { method: 'DELETE' });
+}
+
+/** Treats an injury with a Medicine roll of a healer (spec 013, §3). */
+export async function treatActorRoundInjury(
+  actorRoundId: string,
+  injuryId: string,
+  dto: TreatInjuryDto,
+  auth: AuthContextProps
+): Promise<MedicalResultDto> {
+  const url = `${apiTacticalUrl}/actor-rounds/${actorRoundId}/injuries/${injuryId}/treatments`;
+  return await callApi(auth, url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(dto),
+  });
+}
+
+/** Stabilizes a dying actor: on a success the `dying` effect gains 1 round (2 on an absolute success). */
+export async function stabilizeActorRoundEffect(
+  actorRoundId: string,
+  effectId: string,
+  dto: MedicalRollDto,
+  auth: AuthContextProps
+): Promise<MedicalResultDto> {
+  const url = `${apiTacticalUrl}/actor-rounds/${actorRoundId}/effects/${effectId}/stabilize`;
+  return await callApi(auth, url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(dto),
+  });
+}
+
+export async function updateActorRoundInjury(
+  actorRoundId: string,
+  injuryId: string,
+  dto: UpdateActorInjuryDto,
+  auth: AuthContextProps
+): Promise<ActorRound> {
+  const url = `${apiTacticalUrl}/actor-rounds/${actorRoundId}/injuries/${injuryId}`;
+  return await callApi(auth, url, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(dto),
+  });
+}
+
+export async function deleteActorRoundInjury(
+  actorRoundId: string,
+  injuryId: string,
+  auth: AuthContextProps
+): Promise<ActorRound> {
+  const url = `${apiTacticalUrl}/actor-rounds/${actorRoundId}/injuries/${injuryId}`;
   return await callApi(auth, url, { method: 'DELETE' });
 }
