@@ -52,20 +52,28 @@ const effectLabel = (effect: ActionManeuverEffect, t: TFunction) =>
 
 /**
  * Result of a maneuver: an absolute one as a chip (green for any success, red for a failure) with its message,
- * unusual event and effects; a percent one as its percent and the task progress over the rounds.
+ * unusual event and effects; a percent one as its percent and the task progress over the rounds; Trading as the
+ * price, and Leadership with the outcome of the morale table and its modifier to later morale rolls.
  */
 export const ManeuverResult: FC<{ action: Action }> = ({ action }) => {
   const { t } = useTranslation();
+  const { actorRounds } = useContext(CombatContext)!;
+  const targetId = action.maneuver?.modifiers.targetActorId;
+  const targetName = targetId ? actorRounds?.find((each) => each.actorId === targetId)?.actorName : undefined;
   const maneuver = action.maneuver;
   const result = maneuver?.result;
   if (!result) return null;
-  const percent = isPercentResult(result);
+  // Trading gives a price instead of progress (spec 022, decision 11).
+  const price = result.price !== undefined && result.price !== null;
+  const percent = isPercentResult(result) && !price;
   const progress = maneuver?.progress ?? result.percent ?? 0;
   const tone = isSuccessResult(result.result) ? 'success' : isFailureResult(result.result) ? 'error' : 'warning';
   return (
     <Stack spacing={2}>
       <Stack direction="row" sx={{ alignItems: 'center', flexWrap: 'wrap', gap: 1 }}>
-        {percent ? (
+        {price ? (
+          <Chip label={t('trading-price', { value: result.price })} color="primary" />
+        ) : percent ? (
           <Chip
             label={`${result.percent}%`}
             color={result.completed ? 'success' : (result.percent ?? 0) > 0 ? 'primary' : 'error'}
@@ -75,6 +83,7 @@ export const ManeuverResult: FC<{ action: Action }> = ({ action }) => {
         )}
         {result.unusualEvent && <Chip label={t('unusual-event')} color="warning" variant="outlined" />}
         {result.critical && <Chip label={`${t('critical')} ${result.critical}`} color="error" variant="outlined" />}
+        {targetName && <Chip label={t('maneuver-against', { name: targetName })} variant="outlined" />}
         {maneuver?.roll?.totalRoll !== undefined && (
           <Typography variant="body2" color="text.secondary">
             {t('total-value', { value: maneuver.roll.totalRoll })}
@@ -98,6 +107,24 @@ export const ManeuverResult: FC<{ action: Action }> = ({ action }) => {
           />
         </Stack>
       )}
+      {price && (
+        <Typography variant="body2" color="text.secondary">
+          {t('trading-price-help', { percent: result.percent ?? 0, value: result.price })}
+        </Typography>
+      )}
+      {result.outcome && (
+        <Typography variant="body2" sx={{ fontWeight: 600 }}>
+          {t(`morale-outcome-${result.outcome}`)}
+        </Typography>
+      )}
+      {result.moraleModifier ? (
+        <Typography variant="body2" color="warning.main">
+          {t('morale-modifier-warning', {
+            value: formatBonus(result.moraleModifier),
+            count: result.moraleModifierDays ?? 0,
+          })}
+        </Typography>
+      ) : null}
       {result.message && (
         <Typography variant="body2" sx={{ whiteSpace: 'pre-line' }}>
           {result.message}

@@ -29,6 +29,7 @@ import {
   isActionOpen,
   useOpenRounds,
 } from '../../services/ap-service';
+import { isActorRoundFearBlocked } from '../../services/actor-round-service';
 import { useTacticalNotify } from '../../services/notify-service';
 import { actionLabel } from '../actor-rounds/action-view';
 import ManeuverDeclareDialog from './ManeuverDeclareDialog';
@@ -116,6 +117,7 @@ const usePaletteGroups = (actorRound: ActorRound, phase: number): PaletteGroup[]
 
   const melee = actorRound.attacks.some((a) => a.type === 'melee');
   const ranged = actorRound.attacks.some((a) => a.type === 'ranged');
+  const afraid = isActorRoundFearBlocked(actorRound) ? 'err-action-fear' : undefined;
   // Attacks are never free (spec 011, §6): an immediate attack granted by an effect is a forced action.
   return [
     {
@@ -135,19 +137,19 @@ const usePaletteGroups = (actorRound: ActorRound, phase: number): PaletteGroup[]
       key: 'combat',
       label: t('combat'),
       entries: [
-        entry('melee_attack', { unavailable: !melee ? 'no-melee-attacks' : undefined }),
-        entry('ranged_attack', { unavailable: !ranged ? 'no-ranged-attacks' : undefined }),
+        entry('melee_attack', { unavailable: !melee ? 'no-melee-attacks' : afraid }),
+        entry('ranged_attack', { unavailable: !ranged ? 'no-ranged-attacks' : afraid }),
         entry('melee_attack', {
           key: 'forced-melee-attack',
           label: t('immediate-melee-attack'),
           forced: 'effect',
-          unavailable: !melee ? 'no-melee-attacks' : undefined,
+          unavailable: !melee ? 'no-melee-attacks' : afraid,
         }),
         entry('ranged_attack', {
           key: 'forced-ranged-attack',
           label: t('immediate-ranged-attack'),
           forced: 'effect',
-          unavailable: !ranged ? 'no-ranged-attacks' : undefined,
+          unavailable: !ranged ? 'no-ranged-attacks' : afraid,
         }),
         // A full dodge or block takes the 4 AP of the round (§9.6): it can only start in phase 1.
         entry('dodge', { unavailable: phase > 1 ? 'err-full-defense-action-points' : undefined }),

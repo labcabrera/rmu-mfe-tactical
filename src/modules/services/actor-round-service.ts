@@ -35,6 +35,11 @@ export function isActorRoundFlatfooted(actorRound: ActorRound): boolean {
   return actorRoundHasEffect(actorRound, ['flatfooted']);
 }
 
+/** Routed or broken by fear (§14.3, spec 022): the API rejects its attacks (`err-action-fear`). */
+export function isActorRoundFearBlocked(actorRound: ActorRound): boolean {
+  return actorRoundHasEffect(actorRound, ['fear-routed', 'fear-broken']);
+}
+
 export function actorRoundHasEffect(actorRound: ActorRound, statuses: string[]): boolean {
   return actorRound.effects?.some((se) => statuses.includes(se.status)) || false;
 }

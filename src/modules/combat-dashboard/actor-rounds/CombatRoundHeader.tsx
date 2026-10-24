@@ -6,6 +6,7 @@ import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import FlagIcon from '@mui/icons-material/Flag';
 import HistoryIcon from '@mui/icons-material/History';
+import PsychologyIcon from '@mui/icons-material/Psychology';
 import SortIcon from '@mui/icons-material/Sort';
 import SortByAlphaIcon from '@mui/icons-material/SortByAlpha';
 import {
@@ -37,6 +38,7 @@ import { ActionDestiny, actionDestiny, isActionClosed, useOpenRounds } from '../
 import { isGameFinished } from '../../services/game-service';
 import { useTacticalNotify } from '../../services/notify-service';
 import { useShortcut } from '../../services/shortcuts';
+import GroupCheckDialog from '../psychology/GroupCheckDialog';
 import { actionLabel } from './action-view';
 import { phaseNumber, PHASES } from './round-grid';
 
@@ -116,6 +118,7 @@ const CombatRoundHeader: FC = () => {
   } = useContext(CombatContext)!;
   const openRounds = useOpenRounds();
   const [confirm, setConfirm] = useState<'next' | 'initiatives' | null>(null);
+  const [groupChecks, setGroupChecks] = useState(false);
   const advanceRef = useRef<() => void>(() => undefined);
 
   // N does what the main button does: start the next phase or round, asking first when something is pending.
@@ -224,6 +227,14 @@ const CombatRoundHeader: FC = () => {
                 {roundActorSort === 'initiative' ? <SortIcon /> : <SortByAlphaIcon />}
               </IconButton>
             </Tooltip>
+            {playing && (
+              // Spec 022: fear, morale and rally checks of a group, for the game master.
+              <Tooltip title={t('group-checks')}>
+                <IconButton aria-label={t('group-checks')} onClick={() => setGroupChecks(true)}>
+                  <PsychologyIcon />
+                </IconButton>
+              </Tooltip>
+            )}
             {playing && game.phase === 'declare_initiative' && (
               <Button
                 variant="outlined"
@@ -301,6 +312,7 @@ const CombatRoundHeader: FC = () => {
         onClose={() => setConfirm(null)}
         onConfirm={advance}
       />
+      <GroupCheckDialog open={groupChecks} onClose={() => setGroupChecks(false)} />
       <ConfirmDialog
         open={confirm === 'initiatives'}
         title={t('roll-all-initiatives')}

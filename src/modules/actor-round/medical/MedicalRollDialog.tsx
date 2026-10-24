@@ -23,11 +23,13 @@ import {
   TacticalProcedure,
 } from '../../api/actor-rounds.dto';
 import { useTacticalNotify } from '../../services/notify-service';
+import { useHealingTables } from '../../services/core-tables';
 import {
   DEFAULT_STABILIZE_DIFFICULTY,
-  defaultTreatmentDifficulty,
+  DifficultyPreview,
   healerCandidates,
   isProcedureAvailable,
+  previewTreatmentDifficulty,
 } from './medical';
 
 /** What the medical roll is for: treating an injury, or stabilizing a dying actor. */
@@ -44,9 +46,10 @@ const RESULT_SEVERITY: Record<MedicalResultDto['result'], 'error' | 'warning' | 
 /**
  * Medical roll of the tactical game (spec 013, §3): the healer (an actor of the round, the patient itself included,
  * or an external healer with a name and a Medicine bonus), the procedure (when treating an injury), an optional
- * difficulty (the API applies the one of the procedure otherwise) and the open-ended roll. The API resolves it with
- * the medical maneuver table and the dialog shows the result: the bleeding and penalty change, the heat critical to
- * resolve after cauterizing, or the rounds a dying actor gains.
+ * difficulty (by default the API takes it from core's treatment table, spec 022 D4, and the dialog previews it) and
+ * the open-ended roll; a cauterization may take the dice of its extra hits and heat critical (Table 13-1c). The API
+ * resolves it with the medical maneuver table and the dialog shows the result: the bleeding and penalty change, the
+ * heat critical and hits of a cauterization, or the rounds a dying actor gains.
  */
 const MedicalRollDialog: FC<{
   actorRound: ActorRound;
@@ -68,6 +71,10 @@ const MedicalRollDialog: FC<{
   const [procedure, setProcedure] = useState<TacticalProcedure>('pressure');
   const [difficulty, setDifficulty] = useState<number | null>(null);
   const [roll, setRoll] = useState<number | null>(null);
+  const [unmodified, setUnmodified] = useState<number | null>(null);
+  const [heatHitsRoll, setHeatHitsRoll] = useState<number | null>(null);
+  const [heatCriticalRoll, setHeatCriticalRoll] = useState<number | null>(null);
+  const healingTables = useHealingTables();
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<MedicalResultDto | null>(null);
 
@@ -78,6 +85,9 @@ const MedicalRollDialog: FC<{
     setProcedure(target.kind === 'treat' && (target.injury.bleeding ?? 0) === 0 ? 'dress' : 'pressure');
     setDifficulty(null);
     setRoll(null);
+    setUnmodified(null);
+    setHeatHitsRoll(null);
+    setHeatCriticalRoll(null);
     setResult(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [target]);
@@ -85,9 +95,16 @@ const MedicalRollDialog: FC<{
   if (!target) return null;
 
   const resolved = resolveHealer(healer, candidates, actorRound.actorId);
-  const defaultDifficulty =
-    target.kind === 'treat' ? defaultTreatmentDifficulty(procedure, target.injury) : DEFAULT_STABILIZE_DIFFICULTY;
-  const valid = !!resolved && roll !== null && Number.isFinite(roll);
+  const preview: DifficultyPreview =
+    target.kind === 'treat'
+      ? previewTreatmentDifficulty(procedure, target.injury, healingTables)
+      : { kind: 'value', value: DEFAULT_STABILIZE_DIFFICULTY, source: 'legacy', head: false, bleeding: 0 };
+  // Without a row of the table the API rejects the treatment unless the game master sets the difficulty.
+  const needsDifficulty = preview.kind !== 'value' && difficulty === null;
+  const valid = !!resolved && roll !== null && Number.isFinite(roll) && !needsDifficulty;
+  const cauterize = target.kind === 'treat' && procedure === 'cauterize';
+  // Stabilizing needs no table; a treatment without core's tables leaves the difficulty to the API.
+  const knownTables = target.kind === 'stabilize' || !!healingTables;
 
   const submit = () => {
     if (!resolved || roll === null) return;
@@ -101,7 +118,18 @@ const MedicalRollDialog: FC<{
     setBusy(true);
     const call =
       target.kind === 'treat'
-        ? treatActorRoundInjury(actorRound.id, target.injury.id, { ...dto, procedure }, auth)
+        ? treatActorRoundInjury(
+            actorRound.id,
+            target.injury.id,
+            {
+              ...dto,
+              procedure,
+              ...(unmodified !== null && unmodified !== roll ? { unmodifiedRoll: unmodified } : {}),
+              ...(cauterize && heatHitsRoll !== null ? { heatHitsRoll } : {}),
+              ...(cauterize && heatCriticalRoll !== null ? { heatCriticalRoll } : {}),
+            },
+            auth
+          )
         : stabilizeActorRoundEffect(actorRound.id, target.effect.id, dto, auth);
     call
       .then((response) => {
@@ -177,19 +205,91 @@ const MedicalRollDialog: FC<{
               label={t('difficulty')}
               value={difficulty}
               onChange={setDifficulty}
-              placeholder={formatBonus(defaultDifficulty)}
+              placeholder={preview.kind === 'value' && knownTables ? formatBonus(preview.value) : undefined}
               integer
               allowNegatives
               disabled={busy}
             />
-            <RollInput value={roll} onChange={(value) => setRoll(value)} openEnded disabled={busy} />
+            <RollInput
+              value={roll}
+              onChange={(value, generated) => {
+                setRoll(value);
+                setUnmodified(generated?.rolls[0] ?? value);
+              }}
+              openEnded
+              disabled={busy}
+            />
           </Stack>
-          <Typography variant="caption" color="text.secondary">
-            {t('medical-default-difficulty', { value: formatBonus(defaultDifficulty) })}
-          </Typography>
+          <DifficultyHint preview={preview} override={difficulty !== null} tables={knownTables} />
+          {cauterize && (
+            <Stack spacing={1}>
+              <Typography variant="caption" color="text.secondary">
+                {t('cauterize-heat-help')}
+              </Typography>
+              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+                <NumericInput
+                  label={t('cauterize-heat-hits-roll')}
+                  value={heatHitsRoll}
+                  onChange={setHeatHitsRoll}
+                  integer
+                  min={0}
+                  disabled={busy}
+                />
+                <NumericInput
+                  label={t('cauterize-heat-critical-roll')}
+                  value={heatCriticalRoll}
+                  onChange={setHeatCriticalRoll}
+                  integer
+                  min={1}
+                  max={100}
+                  disabled={busy}
+                />
+              </Stack>
+            </Stack>
+          )}
         </Stack>
       )}
     </RmuDialog>
+  );
+};
+
+/** Where the difficulty comes from when the game master sets none, or why there is none. */
+const DifficultyHint: FC<{ preview: DifficultyPreview; override: boolean; tables: boolean }> = ({
+  preview,
+  override,
+  tables,
+}) => {
+  const { t } = useTranslation();
+  if (override) {
+    return (
+      <Typography variant="caption" color="text.secondary">
+        {t('treatment-difficulty-override')}
+      </Typography>
+    );
+  }
+  if (preview.kind !== 'value') {
+    return (
+      <Alert severity="warning">
+        {t(preview.kind === 'type-required' ? 'err-injury-type-required-treatment' : 'err-treatment-not-applicable')}
+      </Alert>
+    );
+  }
+  if (!tables) {
+    return (
+      <Typography variant="caption" color="text.secondary">
+        {t('treatment-difficulty-unavailable')}
+      </Typography>
+    );
+  }
+  const lines = [
+    preview.source === 'table' ? t('treatment-difficulty-table') : null,
+    preview.head ? t('treatment-head-harder') : null,
+    preview.bleeding ? t('treatment-cauterize-extra', { value: formatBonus(preview.bleeding) }) : null,
+  ].filter(Boolean);
+  return (
+    <Typography variant="caption" color="text.secondary" component="div">
+      {`${t('difficulty')} ${formatBonus(preview.value)} · ${lines.join(' ')}`}
+    </Typography>
   );
 };
 
@@ -243,9 +343,33 @@ const MedicalResultView: FC<{ result: MedicalResultDto; target: MedicalTarget }>
           )}
         </Stack>
       )}
-      {result.heatCritical && (
-        <Alert severity="warning">{t('cauterize-heat-critical', { severity: result.heatCritical })}</Alert>
+      {result.heat ? (
+        <Alert severity="warning">
+          <Typography variant="body2">
+            {t('cauterize-heat-result', { severity: result.heat.critical, hits: result.heat.hits })}
+          </Typography>
+          {result.heat.criticalRoll !== undefined ? (
+            <Typography variant="body2" sx={{ mt: 0.5 }}>
+              {t('cauterize-heat-critical-resolved', {
+                roll: result.heat.criticalRoll,
+                hits: result.heat.criticalDamage ?? 0,
+              })}
+              {result.heat.criticalText ? ` ${result.heat.criticalText}` : ''}
+            </Typography>
+          ) : (
+            result.heat.alertId && (
+              <Typography variant="body2" sx={{ mt: 0.5 }}>
+                {t('cauterize-heat-critical-alert')}
+              </Typography>
+            )
+          )}
+        </Alert>
+      ) : (
+        result.heatCritical && (
+          <Alert severity="warning">{t('cauterize-heat-critical', { severity: result.heatCritical })}</Alert>
+        )
       )}
+      {result.unusualEvent && <Alert severity="error">{t('cauterize-unusual-event')}</Alert>}
       {target.kind === 'stabilize' && (
         <Typography variant="body2">
           {result.roundsGained

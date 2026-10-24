@@ -4,14 +4,17 @@ import {
   Box,
   Chip,
   LinearProgress,
+  MenuItem,
   Stack,
+  TextField,
   ToggleButton,
   ToggleButtonGroup,
   Tooltip,
   Typography,
 } from '@mui/material';
-import { formatBonus, ManeuverType, NumericInput } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { formatBonus, ManeuverType, NumericInput, RollInput } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { ManeuverModifiersListing, ManeuverSkillModifier } from '../../../../api/action.dto';
+import { ActorRound } from '../../../../api/actor-rounds.dto';
 import ModifierTile from '../../../action-dialogs/attack-modifiers/pickers/ModifierTile';
 import OptionTiles from '../../../action-dialogs/attack-modifiers/pickers/OptionTiles';
 import DifficultyPicker from '../DifficultyPicker';
@@ -28,13 +31,16 @@ const Caption: FC<{ children: React.ReactNode }> = ({ children }) => (
 /**
  * Modifiers step of a maneuver, drawn from the API's listing (spec 010 §6): the type, the base modifiers the API
  * applies by itself (read-only), the difficulty, the light when the skill uses it, the skill's catalog modifiers,
- * the passive total of a conflicting maneuver, a custom bonus and the predicted total before the roll.
+ * the passive side of a conflicting maneuver (a target actor of the game with its roll, spec 022 decision 12, or
+ * its total by hand), a custom bonus and the predicted total before the roll.
  */
 const ManeuverModifiersStep: FC<{
   listing: ManeuverModifiersListing;
   form: ManeuverForm;
   onChange: (change: Partial<ManeuverForm>) => void;
-}> = ({ listing, form, onChange }) => {
+  /** Actors the maneuver can be against: the others of the round. */
+  targets?: ActorRound[];
+}> = ({ listing, form, onChange, targets = [] }) => {
   const { t } = useTranslation();
   const label = (key: string) => t(key, { defaultValue: key });
   const select = (key: string, value: ManeuverForm['selections'][string] | null) => {
@@ -44,6 +50,7 @@ const ManeuverModifiersStep: FC<{
     onChange({ selections });
   };
   const conflicting = isConflicting(listing, form.maneuverType);
+  const target = targets.find((each) => each.actorId === form.targetActorId);
   const total = predictedTotal(listing, form);
   const progress = listing.progress ?? 0;
 
@@ -184,8 +191,59 @@ const ManeuverModifiersStep: FC<{
         </Box>
       )}
 
+      {conflicting && targets.length > 0 && (
+        <Box>
+          <Caption>{t('maneuver-target-help')}</Caption>
+          <Stack direction="row" sx={{ flexWrap: 'wrap', gap: 2, alignItems: 'center' }}>
+            <TextField
+              select
+              size="small"
+              label={t('maneuver-target')}
+              value={form.targetActorId ?? ''}
+              onChange={(event) =>
+                onChange({ targetActorId: event.target.value || null, passiveRoll: null, passiveBonus: null })
+              }
+              sx={{ minWidth: 200 }}
+            >
+              <MenuItem value="">{t('none')}</MenuItem>
+              {targets.map((target) => (
+                <MenuItem key={target.actorId} value={target.actorId}>
+                  {target.actorName}
+                </MenuItem>
+              ))}
+            </TextField>
+            {target && (
+              <Box sx={{ width: 200 }}>
+                <RollInput
+                  label={t('passive-roll')}
+                  value={form.passiveRoll}
+                  onChange={(passiveRoll) => onChange({ passiveRoll })}
+                  openEnded
+                />
+              </Box>
+            )}
+            {target && target.actorType !== 'character' && (
+              <Box sx={{ width: 200 }}>
+                <NumericInput
+                  label={t('passive-bonus')}
+                  value={form.passiveBonus}
+                  onChange={(passiveBonus) => onChange({ passiveBonus })}
+                  integer
+                  allowNegatives
+                />
+              </Box>
+            )}
+          </Stack>
+          {target && (
+            <Typography variant="caption" color="text.secondary" component="div" sx={{ mt: 0.5 }}>
+              {t(listing.maneuverType === 'percent' ? 'maneuver-target-trading' : 'maneuver-target-awareness')}
+            </Typography>
+          )}
+        </Box>
+      )}
+
       <Stack direction="row" sx={{ flexWrap: 'wrap', gap: 2, alignItems: 'center' }}>
-        {conflicting && (
+        {conflicting && !target && (
           <Tooltip title={t('passive-total-help')}>
             <Box sx={{ width: 200 }}>
               <NumericInput

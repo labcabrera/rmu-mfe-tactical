@@ -15,6 +15,7 @@ import { ManeuverResult } from './ActionResults';
 import {
   initialForm,
   ManeuverForm,
+  passiveSideReady,
   predictedModifiers,
   rememberedLight,
   rememberLight,
@@ -36,7 +37,8 @@ const ManeuverFlow: FC<{
   const { t, i18n } = useTranslation();
   const auth = useAuth();
   const notify = useTacticalNotify();
-  const { gameId, updateAction, refreshActorRounds } = useContext(CombatContext)!;
+  const { gameId, actorRounds, updateAction, refreshActorRounds } = useContext(CombatContext)!;
+  const targets = (actorRounds ?? []).filter((each) => each.actorId !== actorRound.actorId);
   const { getSkillBonus } = useSkillService();
   // Completed, or ended without being resolved (interrupted, expired, carried to the next round).
   const done = isActionClosed(action);
@@ -109,7 +111,7 @@ const ManeuverFlow: FC<{
       {listingError}
     </Alert>
   ) : listing ? (
-    <ManeuverModifiersStep listing={listing} form={form} onChange={change} />
+    <ManeuverModifiersStep listing={listing} form={form} onChange={change} targets={targets} />
   ) : (
     <CircularProgress size={24} />
   );
@@ -177,7 +179,7 @@ const ManeuverFlow: FC<{
             ? { label: t('next'), disabled: !listing || !form.difficulty, onClick: () => setStep(2) }
             : {
                 label: t('resolve'),
-                disabled: !listing || form.roll === null || busy,
+                disabled: !listing || form.roll === null || !passiveSideReady(listing, form) || busy,
                 onClick: resolve,
                 resolves: true,
               }

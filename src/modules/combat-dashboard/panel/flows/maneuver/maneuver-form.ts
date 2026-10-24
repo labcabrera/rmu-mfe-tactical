@@ -18,6 +18,11 @@ export type ManeuverForm = {
   selections: Record<string, ManeuverSelection>;
   customBonus: number | null;
   passiveTotal: number | null;
+  /** Actor of the game the maneuver is against (spec 022): its roll and bonus replace the passive total. */
+  targetActorId: string | null;
+  passiveRoll: number | null;
+  /** Skill bonus of a target without a sheet (NPC). */
+  passiveBonus: number | null;
   roll: number | null;
   /** First die of the open-ended roll (unusual event on 66). */
   unmodified: number | null;
@@ -66,7 +71,7 @@ export const predictedModifiers = (
     modifiers.push({ key: modifier.key, value: selectionValue(modifier, form.selections[modifier.key]) })
   );
   if (form.customBonus) modifiers.push({ key: 'custom-bonus', value: form.customBonus });
-  if (isConflicting(listing, form.maneuverType) && form.passiveTotal !== null) {
+  if (isConflicting(listing, form.maneuverType) && !form.targetActorId && form.passiveTotal !== null) {
     modifiers.push({ key: 'conflict', value: 100 - form.passiveTotal });
   }
   return modifiers.filter((modifier, index) => index < 2 || modifier.value !== 0);
@@ -90,11 +95,30 @@ export const initialForm = (
     light: light && (!listing || lightKeys.includes(light)) ? light : null,
     selections: modifiers?.selections ?? {},
     customBonus: modifiers?.customBonus ?? null,
-    passiveTotal: modifiers?.passiveTotal ?? null,
+    passiveTotal: modifiers?.targetActorId ? null : (modifiers?.passiveTotal ?? null),
+    targetActorId: modifiers?.targetActorId ?? null,
+    passiveRoll: null,
+    passiveBonus: null,
     roll: maneuver?.roll?.roll ?? null,
     unmodified: null,
   };
 };
+
+/** The passive side of a conflicting maneuver: a target actor with its roll, or the total typed by hand. */
+const passiveSide = (form: ManeuverForm): Partial<ResolveManeuverDto> => {
+  if (form.targetActorId) {
+    return {
+      targetActorId: form.targetActorId,
+      ...(form.passiveRoll !== null ? { passiveRoll: form.passiveRoll } : {}),
+      ...(form.passiveBonus !== null ? { passiveBonus: form.passiveBonus } : {}),
+    };
+  }
+  return form.passiveTotal !== null ? { passiveTotal: form.passiveTotal } : {};
+};
+
+/** A target actor needs its roll before the maneuver is resolved. */
+export const passiveSideReady = (listing: ManeuverModifiersListing, form: ManeuverForm): boolean =>
+  !isConflicting(listing, form.maneuverType) || !form.targetActorId || form.passiveRoll !== null;
 
 /** Body of `PATCH /actions/{id}/maneuver/resolve`; unset choices are left out. */
 export const toResolveRequest = (listing: ManeuverModifiersListing, form: ManeuverForm): ResolveManeuverDto => {
@@ -108,9 +132,7 @@ export const toResolveRequest = (listing: ManeuverModifiersListing, form: Maneuv
     ...(listing.light && form.light ? { light: form.light } : {}),
     ...(Object.keys(selections).length > 0 ? { selections } : {}),
     ...(form.customBonus ? { customBonus: form.customBonus } : {}),
-    ...(isConflicting(listing, form.maneuverType) && form.passiveTotal !== null
-      ? { passiveTotal: form.passiveTotal }
-      : {}),
+    ...(isConflicting(listing, form.maneuverType) ? passiveSide(form) : {}),
     roll: { roll: form.roll as number, ...(form.unmodified !== null ? { unmodified: form.unmodified } : {}) },
   };
 };
