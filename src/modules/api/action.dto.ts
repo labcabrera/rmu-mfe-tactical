@@ -182,6 +182,9 @@ export type ActionManeuverModifiers = {
   selections?: Record<string, ManeuverSelection>;
   /** Conflicting maneuver: total of the passive side. */
   passiveTotal?: number | null;
+  /** Actor the maneuver is against, and the skill its sheet gave the passive total with (spec 022). */
+  targetActorId?: string | null;
+  passiveSkillId?: string | null;
 };
 
 /** Effect of an absolute maneuver result (core's table). */
@@ -203,6 +206,12 @@ export type ActionManeuverResult = {
   percent?: number;
   critical?: string | null;
   completed?: boolean;
+  /** Trading: price as a percent of the asked one, 50 to 200 (spec 022). */
+  price?: number;
+  /** Leadership: outcome of the morale table (refuses, obeys...), and the modifier to later morale rolls. */
+  outcome?: string;
+  moraleModifier?: number;
+  moraleModifierDays?: number;
 };
 
 export type ActionManeuver = {
@@ -250,6 +259,10 @@ export type ResolveManeuverDto = {
   selections?: Record<string, ManeuverSelection>;
   customBonus?: number;
   passiveTotal?: number;
+  /** Actor the maneuver is against: its roll and skill bonus (from its sheet, typed for an NPC) give the passive total. */
+  targetActorId?: string;
+  passiveRoll?: number;
+  passiveBonus?: number;
   roll: { roll: number; unmodified?: number };
 };
 

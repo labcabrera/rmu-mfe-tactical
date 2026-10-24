@@ -51,8 +51,12 @@ export type ActorRound = {
   snapshot?: ActorRoundSnapshot;
   /** Hit points per round lost by the injuries that still bleed. */
   bleeding?: number;
+  /** RR bonuses copied from the character (`fear`, `essence`...); absent in older actor rounds and for NPCs. */
+  resistances?: ActorRoundResistance[];
   imageUrl: string | undefined;
 };
+
+export type ActorRoundResistance = { resistance: string; totalBonus: number };
 
 export type ActorRoundSnapshot = {
   hp: number;
@@ -273,11 +277,30 @@ export type MedicalRollDto = {
   healer?: { name: string; bonus: number };
   /** Open-ended roll. */
   roll: number;
-  /** Difficulty modifier; the API uses the one of the procedure when it is missing. */
+  /** Difficulty modifier chosen by the game master; the API takes it from core's treatment table when missing. */
   difficulty?: number;
 };
 
-export type TreatInjuryDto = MedicalRollDto & { procedure: TacticalProcedure };
+export type TreatInjuryDto = MedicalRollDto & {
+  procedure: TacticalProcedure;
+  /** First die of the open-ended roll, when it is not `roll` (66: unusual event of a cauterization). */
+  unmodifiedRoll?: number;
+  /** Cauterize: sum of the d10 of extra hits; rolled by the API when missing. */
+  heatHitsRoll?: number;
+  /** Cauterize: roll (1-100) of the heat critical; an alert for the game master when missing. */
+  heatCriticalRoll?: number;
+};
+
+/** What a cauterization did besides the bleeding (Table 13-1c). */
+export type HeatResult = {
+  critical: string;
+  hitsDice: number;
+  hits: number;
+  criticalRoll?: number;
+  criticalDamage?: number;
+  criticalText?: string;
+  alertId?: string;
+};
 
 /** `PATCH v1/actor-rounds/:id/injuries/:injuryId` (game master). */
 export type UpdateActorInjuryDto = Partial<
@@ -315,6 +338,10 @@ export type MedicalResultDto = {
   treatment?: unknown;
   /** Severity of the heat critical the game master has to resolve (cauterize). */
   heatCritical?: string;
+  /** Cauterize: extra hits and heat critical (workspace spec 022). */
+  heat?: HeatResult;
+  /** Cauterize: unmodified 66, the patient catches fire (game master). */
+  unusualEvent?: boolean;
   /** Rounds the dying effect gained (stabilize). */
   roundsGained?: number;
 };

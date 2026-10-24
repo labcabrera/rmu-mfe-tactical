@@ -20,6 +20,7 @@ import ActorRoundHpLog from './ActorRoundHpLog';
 import ActorRoundInjuries from './ActorRoundInjuries';
 import ActorRoundItems from './ActorRoundItems';
 import ActorRoundPenalty from './ActorRoundPenalty';
+import ActorRoundResistances from './ActorRoundResistances';
 
 const ActorRoundView: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
   const { t } = useTranslation();
@@ -49,6 +50,9 @@ const ActorRoundView: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
       <Divider sx={{ my: 1 }} />
 
       <ActorRoundEffects actorRound={actorRound} />
+      <Divider sx={{ my: 1 }} />
+
+      <ActorRoundResistances actorRound={actorRound} />
       <Divider sx={{ my: 1 }} />
 
       {isDevelopment && (
