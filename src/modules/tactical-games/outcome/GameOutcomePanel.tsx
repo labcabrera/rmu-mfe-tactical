@@ -8,6 +8,7 @@ import { ApplyOutcomeButton } from './GameLifecycleButtons';
 import {
   OutcomeApplyStatus,
   OutcomeConditions,
+  OutcomeItems,
   OutcomeHp,
   OutcomeInjuries,
   pendingOutcomeCharacters,
@@ -92,6 +93,11 @@ const GameOutcomePanel: FC<{ game: TacticalGame; onApplied: (game: TacticalGame)
                     key: 'conditions',
                     header: t('conditions'),
                     render: (character) => <OutcomeConditions character={character} />,
+                  },
+                  {
+                    key: 'items',
+                    header: t('outcome-items'),
+                    render: (character) => <OutcomeItems character={character} />,
                   },
                   {
                     key: 'status',

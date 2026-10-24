@@ -3,6 +3,7 @@ import { apiTacticalUrl, callApi, Page } from '@labcabrera-rmu/rmu-react-shared-
 import {
   ActorRound,
   ActorRoundEffect,
+  BreakageCheckDto,
   DefenseLevel,
   MedicalResultDto,
   MedicalRollDto,
@@ -65,6 +66,20 @@ export async function resolveEnduranceCheck(
   const url = `${apiTacticalUrl}/actor-rounds/${actorRoundId}/endurance-check`;
   return await callApi(auth, url, {
     method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+}
+
+/** Breakage check of an item of the actor (spec 019): the answer carries the result in `lastBreakageCheck`. */
+export async function resolveBreakageCheck(
+  actorRoundId: string,
+  data: BreakageCheckDto,
+  auth: AuthContextProps
+): Promise<ActorRound> {
+  const url = `${apiTacticalUrl}/actor-rounds/${actorRoundId}/breakage-checks`;
+  return await callApi(auth, url, {
+    method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
   });

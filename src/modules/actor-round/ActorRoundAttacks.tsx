@@ -11,6 +11,7 @@ import {
   Paper,
   TableContainer,
 } from '@mui/material';
+import { ItemConditionChip } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { ActorRound, ActorRoundAttack } from '../api/actor-rounds.dto';
 
 const ActorRoundAttacks: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
@@ -47,7 +48,16 @@ const ActorRoundAttacks: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
             <TableBody>
               {attacks.map((a: ActorRoundAttack, i: number) => (
                 <TableRow key={`${a.attackName}-${i}`} hover>
-                  <TableCell>{t(a.attackName)}</TableCell>
+                  <TableCell>
+                    <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
+                      <span>{t(a.attackName)}</span>
+                      {(a.broken || (a.breakagePenalty ?? 0) < 0) && (
+                        <ItemConditionChip
+                          condition={{ breakagePenalty: a.breakagePenalty ?? 0, broken: !!a.broken }}
+                        />
+                      )}
+                    </Stack>
+                  </TableCell>
                   <TableCell>
                     {[
                       t(a.type),

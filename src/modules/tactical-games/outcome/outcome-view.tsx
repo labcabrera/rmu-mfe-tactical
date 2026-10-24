@@ -7,6 +7,8 @@ import {
   formatBonus,
   HpBreakdown,
   InjuryTypeChip,
+  itemCondition,
+  ItemConditionChip,
   TacticalGameCharacterOutcome,
   TacticalGameOutcome,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
@@ -108,6 +110,36 @@ export const OutcomeConditions: FC<{ character: TacticalGameCharacterOutcome }> 
           label={t(`condition-${status}`)}
           variant={status === character.fate ? 'filled' : 'outlined'}
         />
+      ))}
+    </Stack>
+  );
+};
+
+/** Breakage the items of the character got in the game (spec 019): what applying it adds to its strategic items. */
+export const OutcomeItems: FC<{ character: TacticalGameCharacterOutcome }> = ({ character }) => {
+  const { t } = useTranslation();
+  const items = character.items ?? [];
+  if (items.length === 0) {
+    return (
+      <Typography variant="body2" color="text.secondary">
+        —
+      </Typography>
+    );
+  }
+  return (
+    <Stack spacing={0.5}>
+      {items.map((item) => (
+        <Stack key={item.itemId} direction="row" spacing={1} sx={{ alignItems: 'center' }}>
+          <Typography variant="body2">{item.name}</Typography>
+          <ItemConditionChip condition={itemCondition(item.modifiers)} />
+          {item.modifiers.some((modifier) => modifier.value > 0) && (
+            <Typography variant="caption" color="success.main">
+              {t('breakage-repaired', {
+                value: item.modifiers.filter((m) => m.value > 0).reduce((sum, m) => sum + m.value, 0),
+              })}
+            </Typography>
+          )}
+        </Stack>
       ))}
     </Stack>
   );

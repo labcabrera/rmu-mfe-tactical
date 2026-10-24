@@ -24,7 +24,7 @@ import {
   TacticalGameCharacterOutcome,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { useTacticalNotify } from '../../services/notify-service';
-import { OutcomeConditions, OutcomeHp, OutcomeInjuries } from './outcome-view';
+import { OutcomeConditions, OutcomeHp, OutcomeInjuries, OutcomeItems } from './outcome-view';
 
 const FATES: CharacterFate[] = ['dead', 'permanent-unconscious'];
 
@@ -71,7 +71,9 @@ const FinishGameDialog: FC<{
   const confirm = () => {
     if (!preview) return;
     setBusy(true);
-    const dto = { fates: preview.atRisk.map((actor) => ({ actorId: actor.actorId, fate: fates[actor.actorId] ?? 'dead' })) };
+    const dto = {
+      fates: preview.atRisk.map((actor) => ({ actorId: actor.actorId, fate: fates[actor.actorId] ?? 'dead' })),
+    };
     finishTacticalGame(game.id, dto, auth)
       .then((finished) => {
         notify.success(t('tactical-game-finished'));
@@ -179,6 +181,11 @@ const FinishGameDialog: FC<{
                   key: 'conditions',
                   header: t('conditions'),
                   render: (character) => <OutcomeConditions character={character} />,
+                },
+                {
+                  key: 'items',
+                  header: t('outcome-items'),
+                  render: (character) => <OutcomeItems character={character} />,
                 },
               ]}
             />

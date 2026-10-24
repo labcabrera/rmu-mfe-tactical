@@ -1,4 +1,10 @@
-import type { HpLogEntry, Injury, InjurySource } from '@labcabrera-rmu/rmu-react-shared-lib';
+import type {
+  HpLogEntry,
+  Injury,
+  InjurySource,
+  ItemCondition,
+  StrategicItemModifier,
+} from '@labcabrera-rmu/rmu-react-shared-lib';
 
 export type ActorRound = {
   id: string;
@@ -35,6 +41,10 @@ export type ActorRound = {
   hpLog?: HpLogEntry[];
   /** Strategic character of a character actor. */
   characterId?: string;
+  /** Items of the actor, with their breakage (spec 019; absent in older actor rounds). */
+  items?: ActorRoundItem[];
+  /** Result of the breakage check, only in the answer of the check. */
+  lastBreakageCheck?: BreakageCheckResult;
   /** `character` or `npc`. */
   actorType?: string;
   /** What the character brought into the game (only in the actor round built from it). */
@@ -142,10 +152,49 @@ export type ActorRoundPhaseLog = {
   totalSpentAp: number;
 };
 
+export type ActorRoundAlertModifier = { key: string; value: number | null; modifier: string | null };
+
 export type ActorRoundAlert = {
   id: string;
   type: string;
-  value: string;
+  message?: string;
+  modifiers?: ActorRoundAlertModifier[] | null;
+  status?: 'pending' | 'resolved';
+};
+
+/** An item of the actor in the game (spec 019): its strategic item with the modifiers it brought and the game ones. */
+export type ActorRoundItem = {
+  itemId: string;
+  name: string;
+  itemTypeId?: string;
+  kind: 'weapon' | 'shield' | 'armor' | 'other';
+  slot?: string;
+  strength: number | null;
+  modifiers: StrategicItemModifier[];
+  startModifierIds: string[];
+  condition: ItemCondition;
+};
+
+export type BreakageResult = 'absolute-failure' | 'failure' | 'partial-success' | 'success' | 'absolute-success';
+
+export type BreakageCheckResult = {
+  itemId: string;
+  roll: number;
+  unmodified66: boolean;
+  total: number;
+  breakdown: { key: string; value: number }[];
+  result: BreakageResult;
+  modifier?: StrategicItemModifier;
+};
+
+/** `POST /actor-rounds/:id/breakage-checks`. */
+export type BreakageCheckDto = {
+  itemId: string;
+  roll: number;
+  unmodifiedRoll?: number;
+  alertId?: string;
+  strength?: number;
+  modifiers?: { key: string; value: number }[];
 };
 
 export type ActorRoundFatigue = {
@@ -197,6 +246,12 @@ export type ActorRoundAttack = {
   ranges: ActorRoundAttackRange[] | undefined;
   twoHanded?: boolean;
   weaponCategory?: WeaponCategory;
+  /** Item of the attack (spec 019). */
+  itemId?: string | null;
+  /** Breakage damage of its item in the game, already in `currentBo`. */
+  breakagePenalty?: number;
+  /** Its item broke in the game: it cannot be declared. */
+  broken?: boolean;
 };
 
 /** Weapon kind for the multiple attacks bonuses (Table 9-7b). */

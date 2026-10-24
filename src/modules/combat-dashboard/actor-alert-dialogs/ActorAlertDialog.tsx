@@ -8,11 +8,13 @@ import { resolveEnduranceCheck } from '../../api/actor-rounds';
 import { ActorRound, ActorRoundAlert } from '../../api/actor-rounds.dto';
 import { useTacticalNotify } from '../../services/notify-service';
 import ActorAlertForm from './ActorAlertForm';
+import BreakageCheckDialog from './BreakageCheckDialog';
 import EnduranceForm, { emptyEnduranceForm, EnduranceFormValue, enduranceModifiers } from './EnduranceForm';
 
 /**
  * Dialog of an actor's alert. An endurance alert is resolved with its roll (`PATCH /actor-rounds/{id}/endurance-check`,
- * which applies the fatigue and hits and clears the alert); the others are edited and saved locally.
+ * which applies the fatigue and hits and clears the alert) and a breakage alert with its check (spec 019); the others
+ * are edited and saved locally.
  */
 const ActorAlertDialog: FC<{
   actorRound: ActorRound;
@@ -71,6 +73,10 @@ const ActorAlertDialog: FC<{
     if (currentAlert) onSave?.(currentAlert);
     onClose();
   };
+
+  if (currentAlert?.type === 'breakage') {
+    return <BreakageCheckDialog actorRound={actorRound} alert={currentAlert} open={open} onClose={onClose} />;
+  }
 
   return (
     <RmuDialog
