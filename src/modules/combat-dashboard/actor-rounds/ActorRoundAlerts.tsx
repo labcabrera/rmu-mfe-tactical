@@ -18,6 +18,9 @@ const ActorRoundAlerts: FC<{
   // Alerts open forms that change the actor: a finished game is read-only (spec 013).
   if (!actorRound || isGameFinished(combat?.game)) return null;
 
+  // A resolved breakage alert keeps its result (spec 019): only the pending ones are shown.
+  const pending = (actorRound.alerts || []).filter((alert) => alert.status !== 'resolved');
+
   const handleAlertClick = (alertId: string) => {
     setSelectedAlertId(alertId);
     setDialogOpen(true);
@@ -37,10 +40,10 @@ const ActorRoundAlerts: FC<{
 
   return (
     <>
-      {actorRound.alerts && actorRound.alerts.length > 0 && (
+      {pending.length > 0 && (
         <>
           <Stack direction="row" sx={{ flexWrap: 'wrap', gap: 1 }}>
-            {actorRound.alerts.map((alert) => (
+            {pending.map((alert) => (
               <Button
                 key={alert.id}
                 // Neutral, not red: the marker alone says it has to be resolved, as for the pending actions.

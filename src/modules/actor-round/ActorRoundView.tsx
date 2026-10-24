@@ -18,6 +18,7 @@ import ActorRoundDefenseMode from './ActorRoundDefenseMode';
 import ActorRoundEffects from './ActorRoundEffects';
 import ActorRoundHpLog from './ActorRoundHpLog';
 import ActorRoundInjuries from './ActorRoundInjuries';
+import ActorRoundItems from './ActorRoundItems';
 import ActorRoundPenalty from './ActorRoundPenalty';
 
 const ActorRoundView: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
@@ -33,6 +34,9 @@ const ActorRoundView: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
       <Divider sx={{ my: 1 }} />
 
       <ActorRoundDefenseMode actorRound={actorRound} />
+      <Divider sx={{ my: 1 }} />
+
+      <ActorRoundItems actorRound={actorRound} />
       <Divider sx={{ my: 1 }} />
 
       <ActorRoundInjuries actorRound={actorRound} />

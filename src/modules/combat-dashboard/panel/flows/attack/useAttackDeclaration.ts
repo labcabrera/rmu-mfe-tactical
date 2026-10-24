@@ -47,7 +47,8 @@ export const useAttackDeclaration = (action: Action, actorRound: ActorRound, kin
     if (action.attacks?.length) return { attacks: action.attacks, parries: action.parries ?? [] };
     const pace = findMaxActorRoundPace(actorRound.actorId, roundActions ?? []);
     return {
-      attacks: actorRound.attacks.filter((a) => a.type === kind).map((a) => newAttack(a, kind, pace)),
+      // A weapon broken in the game cannot attack (spec 019): the API rejects it.
+      attacks: actorRound.attacks.filter((a) => a.type === kind && !a.broken).map((a) => newAttack(a, kind, pace)),
       parries: action.parries ?? [],
     };
   };
