@@ -1,8 +1,8 @@
 import React, { FC, ReactNode, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import WaterDropIcon from '@mui/icons-material/WaterDrop';
-import { Box, ButtonBase, Chip, Stack, Tooltip, Typography } from '@mui/material';
-import { Character, ResourceBar } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { Box, ButtonBase, Stack, Tooltip, Typography } from '@mui/material';
+import { Character, effectColor, effectIcon, ResourceBar, StatusBadge } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
 import { ActorRound } from '../../api/actor-rounds.dto';
 import { actorRoundBleeding, actorRoundDownState } from '../../services/actor-round-service';
@@ -11,9 +11,10 @@ import { useFactionColor } from '../../services/faction-colors';
 import ActorRoundAvatar from '../../shared/avatars/ActorRoundAvatar';
 
 /**
- * Actor cell of the board: a large miniature beside the name, a "down" chip (dead in red with the name struck
- * through and the miniature greyed; unconscious in amber), profession and level, faction (with its color dot), and hit point and fatigue bars. `extra` adds
- * content below (the effects, when the board has no effects column).
+ * Actor cell of the board: a large miniature beside the name, a compact "down" badge (dead with the name struck
+ * through and the miniature greyed, or unconscious; both in the color the effects use), profession and level,
+ * faction (with its color dot), and hit point and fatigue bars. `extra` adds content below (the effects, when the
+ * board has no effects column).
  */
 const ActorRoundResume: FC<{
   actorRound: ActorRound;
@@ -84,7 +85,17 @@ const ActorRoundResume: FC<{
                   />
                 </Tooltip>
               )}
-              {down && <Chip size="small" color={down === 'dead' ? 'error' : 'warning'} label={t(down)} />}
+              {down && (
+                // Icon only: the name needs the width, and the effects (beside or below) spell the state out.
+                <StatusBadge
+                  status={down}
+                  label={t(down)}
+                  abbr=""
+                  detail={t(`effect-${down}-help`, { defaultValue: '' }) || undefined}
+                  color={effectColor(down)}
+                  avatar={effectIcon(down)}
+                />
+              )}
             </Stack>
             {character && (
               <Typography variant="caption" color="text.secondary" component="div" noWrap>

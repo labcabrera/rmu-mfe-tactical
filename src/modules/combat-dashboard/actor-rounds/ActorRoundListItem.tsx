@@ -26,7 +26,7 @@ const CombatActorRoundListItem: FC<{
   onDeclare?: (actorRound: ActorRound, anchor: HTMLElement) => void;
   /** Below `md`: a card with the actions of one phase instead of a row of the board grid. */
   compact?: boolean;
-  /** The board has an effects column (from `lg`); otherwise the effects go into the actor cell. */
+  /** The board has an effects column (when it is wide enough); otherwise compact effects go into the actor cell. */
   withEffects?: boolean;
   columns: string;
   /** Phase whose actions the compact card shows. */
@@ -53,12 +53,18 @@ const CombatActorRoundListItem: FC<{
   const currentPhase = phaseNumber(displayPhase);
   const down = isActorRoundDown(actorRound);
   const effects = <ActorRoundEffects actorRound={actorRound} />;
+  // The phone card has room for the full chips; the narrow actor cell of the grid gets compact badges.
+  const actorCellEffects = compact ? (
+    effects
+  ) : withEffects ? undefined : (
+    <ActorRoundEffects actorRound={actorRound} compact />
+  );
   const resume = (
     <ActorRoundResume
       actorRound={actorRound}
       selected={selected}
       onActorRoundView={() => onActorRoundView(actorRound)}
-      extra={withEffects && !compact ? undefined : effects}
+      extra={actorCellEffects}
     />
   );
   const initiative = <ActorRoundInitiative actorRound={actorRound} />;

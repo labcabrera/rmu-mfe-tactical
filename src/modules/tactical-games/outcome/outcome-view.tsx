@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { Chip, IconButton, Stack, Tooltip, Typography } from '@mui/material';
 import {
+  effectColor,
   formatBonus,
   HpBreakdown,
   InjuryTypeChip,
@@ -103,7 +104,7 @@ export const OutcomeConditions: FC<{ character: TacticalGameCharacterOutcome }> 
         <Chip
           key={status}
           size="small"
-          color={status === 'dead' ? 'error' : 'warning'}
+          color={effectColor(status)}
           label={t(`condition-${status}`)}
           variant={status === character.fate ? 'filled' : 'outlined'}
         />

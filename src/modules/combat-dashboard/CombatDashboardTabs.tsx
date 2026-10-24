@@ -32,7 +32,7 @@ const CombatDashboardTabs: FC = () => {
     <Stack spacing={1.5}>
       <CombatDashboardActions />
       <CombatRoundHeader />
-      {game?.status === 'finished' && <GameOutcomePanel game={game} onApplied={setGame} />}
+      {game?.status === 'finished' && <GameOutcomePanel game={game} onApplied={setGame} collapsible />}
       <CombatPanelProvider>
         <Stack spacing={1.5}>
           <Paper sx={{ px: 1.5, display: 'flex', alignItems: 'center' }}>

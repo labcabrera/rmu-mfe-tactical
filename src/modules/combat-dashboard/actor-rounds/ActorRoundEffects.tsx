@@ -7,16 +7,18 @@ import ActorRoundAlerts from './ActorRoundAlerts';
 
 /**
  * Effects, penalties and pending alerts of an actor, and its declared dodge and block. The API keeps one stun per
- * severity, so each one is its own chip with its penalty and rounds.
+ * severity, so each one is its own chip with its penalty and rounds. `compact` shows them as badges (abbreviation
+ * and value, full text on hover or tap) for the narrow actor cell.
  */
-const ActorRoundEffects: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
+const ActorRoundEffects: FC<{ actorRound: ActorRound; compact?: boolean }> = ({ actorRound, compact = false }) => {
   const { t } = useTranslation();
   if (!actorRound) return null;
   const mode = actorRound.defenseMode;
   const defenses = (['dodge', 'block'] as const).filter((kind) => mode && mode[kind] !== 'none');
   return (
-    <Stack spacing={1} sx={{ p: 1.25 }}>
+    <Stack spacing={1} sx={{ p: compact ? 0 : 1.25 }}>
       <EffectList
+        variant={compact ? 'compact' : 'full'}
         effects={actorRound.effects}
         penalties={(actorRound.penalty?.modifiers || []).map((modifier) => ({
           source: modifier.source,
