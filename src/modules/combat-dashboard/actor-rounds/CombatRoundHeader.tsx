@@ -40,7 +40,6 @@ import { useShortcut } from '../../services/shortcuts';
 import { actionLabel } from './action-view';
 import { phaseNumber, PHASES } from './round-grid';
 
-
 /** Flatfooted actors do not roll initiative (§8.3 Surprise), like the ones that are down. */
 const rollsInitiative = (actorRound: ActorRound) =>
   !isActorRoundDown(actorRound) && !isActorRoundFlatfooted(actorRound);
@@ -170,10 +169,11 @@ const CombatRoundHeader: FC = () => {
   return (
     <Paper sx={{ p: 1.5 }}>
       <Stack spacing={1.5}>
+        {/* Without the stepper (history, finished game) the round and the buttons share one line on every screen. */}
         <Stack
-          direction={{ xs: 'column', md: 'row' }}
+          direction={playing ? { xs: 'column', md: 'row' } : 'row'}
           spacing={1.5}
-          sx={{ alignItems: { md: 'center' }, justifyContent: 'space-between' }}
+          sx={{ alignItems: playing ? { md: 'center' } : 'center', justifyContent: 'space-between' }}
         >
           <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center' }}>
             <Tooltip title={t('display-previous-round')}>
