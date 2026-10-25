@@ -2,7 +2,7 @@ import React, { Dispatch, FC, Fragment, SetStateAction, useContext } from 'react
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import { Stack, Grid, Typography } from '@mui/material';
-import { CategorySeparator, ConfirmedRollInput } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { CategorySeparator, D100, RollField } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../CombatContext';
 import { updateCriticalRoll } from '../../../api/action';
 import { Action, ActionAttack, AttackDeclaration, CriticalEffect } from '../../../api/action.dto';
@@ -63,10 +63,11 @@ const ResolveAttackFormCriticals: FC<{
           <CategorySeparator text={t('critical-roll')} />
         </Grid>
         <Grid size={6}>
-          <ConfirmedRollInput
+          <RollField
+            spec={D100}
             label={t('critical-roll')}
             value={sharedRoll}
-            onConfirm={onUpdateCriticalRoll}
+            onChange={(roll) => onUpdateCriticalRoll(roll.total)}
             // Once stored it resolves every critical: it is not changed afterwards.
             disabled={action.status === 'completed' || sharedRoll !== undefined}
           />

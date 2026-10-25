@@ -1,9 +1,8 @@
-import React, { FC, KeyboardEvent, useContext, useEffect, useState } from 'react';
+import React, { FC, useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
-import CasinoIcon from '@mui/icons-material/Casino';
-import { Box, Checkbox, FormControlLabel, IconButton, Stack, Tooltip, Typography } from '@mui/material';
-import { formatBonus, NumericInput } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { Box, Checkbox, FormControlLabel, Stack, Typography } from '@mui/material';
+import { formatBonus, RollField, TWO_D10 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../CombatContext';
 import { declareActorRoundInitiative } from '../../../api/actor-rounds';
 import { ActorRound } from '../../../api/actor-rounds.dto';
@@ -26,12 +25,9 @@ const Modifier: FC<{ label: string; value: string }> = ({ label, value }) => (
 /** Trait that lets the actor add a bonus to its initiative when it declares it (spec 008). */
 const STRIKE_REFLEX = 'strike-reflex';
 
-/** Initiative is a 2d10 roll. */
-const roll2d10 = () => Math.floor(Math.random() * 10) + 1 + Math.floor(Math.random() * 10) + 1;
-
 /**
- * Initiative cell: the total, its modifiers one per line (base, penalty and roll), and, while initiative is declared, the 2d10 roll edited
- * in place (saved on blur or Enter) with a dice button. Actors that are down have no initiative.
+ * Initiative cell: the total, its modifiers one per line (base, penalty and roll), and, while initiative is declared, the 2d10 roll entered
+ * with the roll keypad or its dice button (spec 025). Actors that are down have no initiative.
  */
 const ActorRoundInitiative: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
   const { t } = useTranslation();
@@ -64,13 +60,6 @@ const ActorRoundInitiative: FC<{ actorRound: ActorRound }> = ({ actorRound }) =>
   const toggleStrikeReflex = (checked: boolean) => {
     setStrikeReflex(checked);
     if (roll) send(roll, checked);
-  };
-
-  const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
-    if (e.key === 'Enter' && e.target instanceof HTMLInputElement) {
-      e.preventDefault();
-      e.target.blur();
-    }
   };
 
   if (isDown || (flatfooted && !declared)) {
@@ -108,22 +97,13 @@ const ActorRoundInitiative: FC<{ actorRound: ActorRound }> = ({ actorRound }) =>
         {declared && !editable && <Modifier label={t('roll')} value={String(roll)} />}
       </Stack>
       {editable && (
-        <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center' }} onKeyDown={onKeyDown}>
-          <NumericInput
-            label={t('initiative-roll')}
-            value={roll || null}
-            onChange={declare}
-            min={2}
-            max={20}
-            integer
-            allowNegatives={false}
-          />
-          <Tooltip title={t('roll-dice')}>
-            <IconButton aria-label={t('roll-dice')} onClick={() => declare(roll2d10())}>
-              <CasinoIcon fontSize="small" />
-            </IconButton>
-          </Tooltip>
-        </Stack>
+        <RollField
+          spec={TWO_D10}
+          label={t('initiative-roll')}
+          value={roll || null}
+          onChange={(value) => declare(value.total)}
+          compact
+        />
       )}
       {editable && hasStrikeReflex && (
         <FormControlLabel
