@@ -1,6 +1,7 @@
 import React, { FC, useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
   Accordion,
   AccordionDetails,
@@ -17,16 +18,16 @@ import {
   ToggleButtonGroup,
   Typography,
 } from '@mui/material';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { formatBonus, NumericInput, RmuDialog, RollInput } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { formatBonus, NumericInput, OPEN_D100, RmuDialog, RollField } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
+import FrightLevelInput from '../../actor-round/psychology/FrightLevelInput';
+import { fearBonus } from '../../actor-round/psychology/ResistanceRollDialog';
 import { ActorRound } from '../../api/actor-rounds.dto';
 import { groupCheck } from '../../api/psychology';
 import { GroupCheckKind, GroupCheckResult } from '../../api/psychology.dto';
-import FrightLevelInput from '../../actor-round/psychology/FrightLevelInput';
-import { fearBonus } from '../../actor-round/psychology/ResistanceRollDialog';
 import { useTacticalNotify } from '../../services/notify-service';
 import DifficultyPicker from '../panel/flows/DifficultyPicker';
+import GroupCheckResultView from './GroupCheckResultView';
 import {
   GroupCheckForm,
   groupCheckProblem,
@@ -35,7 +36,6 @@ import {
   isNpc,
   toGroupCheckRequest,
 } from './group-check';
-import GroupCheckResultView from './GroupCheckResultView';
 
 const KINDS: GroupCheckKind[] = ['fear', 'morale', 'rally'];
 
@@ -232,11 +232,13 @@ const GroupCheckDialog: FC<{ open: boolean; onClose: () => void }> = ({ open, on
 
       <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
         {form.kind !== 'fear' && (
-          <RollInput
+          <RollField
+            spec={OPEN_D100}
             label={t('leader-roll')}
             value={form.roll}
-            onChange={(roll, generated) => change({ roll, unmodified: generated?.rolls[0] ?? roll })}
-            openEnded
+            onChange={(roll) => change({ roll: roll.total, unmodified: roll.unmodified })}
+            onClear={() => change({ roll: null, unmodified: null })}
+            placeholder={t('roll-by-server')}
             disabled={busy}
           />
         )}
@@ -341,13 +343,13 @@ const MemberRolls: FC<{
                   <Typography variant="body2">{member.actorName}</Typography>
                 </Box>
                 {form.kind === 'fear' && (
-                  <NumericInput
+                  <RollField
+                    spec={OPEN_D100}
                     label={t('roll')}
                     value={form.rolls[member.actorId] ?? null}
-                    onChange={(value) => onChange({ rolls: { ...form.rolls, [member.actorId]: value } })}
+                    onChange={(value) => onChange({ rolls: { ...form.rolls, [member.actorId]: value.total } })}
+                    onClear={() => onChange({ rolls: { ...form.rolls, [member.actorId]: null } })}
                     placeholder={t('roll-by-server')}
-                    integer
-                    allowNegatives
                     disabled={disabled}
                   />
                 )}

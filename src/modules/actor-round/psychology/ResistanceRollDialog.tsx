@@ -2,7 +2,14 @@ import React, { FC, useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import { Alert, Button, Stack, Typography } from '@mui/material';
-import { formatBonus, NumericInput, RmuDialog, RollBreakdown, RollInput } from '@labcabrera-rmu/rmu-react-shared-lib';
+import {
+  formatBonus,
+  NumericInput,
+  OPEN_D100,
+  RmuDialog,
+  RollBreakdown,
+  RollField,
+} from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
 import { addActorRoundEffect } from '../../api/actor-rounds';
 import { ActorRound } from '../../api/actor-rounds.dto';
@@ -143,7 +150,7 @@ const ResistanceRollDialog: FC<{ actorRound: ActorRound; open: boolean; onClose:
         <Stack spacing={2}>
           <FrightLevelInput value={attackLevel} onChange={setAttackLevel} disabled={busy} />
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-            <RollInput value={roll} onChange={(value) => setRoll(value)} openEnded disabled={busy} />
+            <RollField spec={OPEN_D100} value={roll} onChange={(value) => setRoll(value.total)} disabled={busy} />
             <NumericInput
               label={t('fear-rr-bonus')}
               value={bonus}

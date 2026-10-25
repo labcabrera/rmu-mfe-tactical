@@ -2,7 +2,7 @@ import React, { Dispatch, FC, SetStateAction, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import { Grid, Stack, Typography } from '@mui/material';
-import { CategorySeparator, ConfirmedRollInput } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { CategorySeparator, D100, RollField } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../CombatContext';
 import { updateFumbleRoll } from '../../../api/action';
 import { Action, ActionAttack, AttackDeclaration, CriticalEffect } from '../../../api/action.dto';
@@ -47,10 +47,11 @@ const ResolveAttackFormFumble: FC<{
         <CategorySeparator text={t('fumble')} />
       </Grid>
       <Grid size={6}>
-        <ConfirmedRollInput
+        <RollField
+          spec={D100}
           label={t('fumble-roll')}
           value={attack.roll?.fumbleRoll}
-          onConfirm={onUpdateFumbleRoll}
+          onChange={(roll) => onUpdateFumbleRoll(roll.total)}
           disabled={action.status === 'completed'}
         />
       </Grid>
