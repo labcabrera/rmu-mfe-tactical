@@ -1,7 +1,7 @@
 import React, { FC, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Box, Grid, Stack, Typography } from '@mui/material';
-import { NumericInput, OpenEndedRollInput, RollBreakdown, TacticalGame } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { NumericInput, OPEN_D100, RollBreakdown, RollField, TacticalGame } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
 import { ActorRound } from '../../api/actor-rounds.dto';
 
@@ -88,11 +88,11 @@ const EnduranceForm: FC<{
             <Typography variant="subtitle2" gutterBottom>
               {t('roll')}
             </Typography>
-            <OpenEndedRollInput
-              inputGridSize={6}
+            <RollField
+              spec={OPEN_D100}
               label={t('endurance-roll')}
               value={value.roll}
-              onChange={(roll) => onChange({ ...value, roll })}
+              onChange={(roll) => onChange({ ...value, roll: roll.total })}
             />
           </Box>
           <RollBreakdown

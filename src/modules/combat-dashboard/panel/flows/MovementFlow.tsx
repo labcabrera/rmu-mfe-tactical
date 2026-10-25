@@ -2,7 +2,7 @@ import React, { FC, useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import { alpha, Box, ButtonBase, Chip, FormControlLabel, Stack, Switch, Typography } from '@mui/material';
-import { FlowStep, formatBonus, NumericInput, OpenEndedRollInput } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { FlowStep, formatBonus, NumericInput, OPEN_D100, RollField } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../CombatContext';
 import { resolveMovement } from '../../../api/action';
 import { Action, ActionMovement, MOVEMENT_LIGHT_OPTIONS, MOVEMENT_TABLE } from '../../../api/action.dto';
@@ -217,11 +217,11 @@ const MovementFlow: FC<{
   );
 
   const roll = (
-    <OpenEndedRollInput
-      inputGridSize={6}
+    <RollField
+      spec={OPEN_D100}
       label={t('maneuver-roll')}
       value={form.roll?.roll ?? null}
-      onChange={(value) => setForm((prev) => ({ ...prev, roll: { ...prev.roll, roll: value } }))}
+      onChange={(value) => setForm((prev) => ({ ...prev, roll: { ...prev.roll, roll: value.total } }))}
     />
   );
 

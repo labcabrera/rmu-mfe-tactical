@@ -4,8 +4,9 @@ import { Alert, Box, Grid, MenuItem, Stack, TextField, Typography } from '@mui/m
 import {
   ItemConditionChip,
   NumericInput,
-  OpenEndedRollInput,
+  OPEN_D100,
   RollBreakdown,
+  RollField,
   TechnicalInfo,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { ActorRound, ActorRoundAlert, ActorRoundItem, BreakageCheckDto } from '../../api/actor-rounds.dto';
@@ -155,11 +156,11 @@ export default function BreakageForm({
       </Grid>
       <Grid size={{ xs: 12, md: 6 }}>
         <Stack spacing={2}>
-          <OpenEndedRollInput
-            inputGridSize={6}
+          <RollField
+            spec={OPEN_D100}
             label={t('breakage-roll')}
             value={value.roll}
-            onChange={(roll, details) => onChange({ ...value, roll, unmodifiedRoll: details?.unmodified ?? null })}
+            onChange={(roll) => onChange({ ...value, roll: roll.total, unmodifiedRoll: roll.unmodified })}
           />
           <RollBreakdown
             modifiers={modifiers}

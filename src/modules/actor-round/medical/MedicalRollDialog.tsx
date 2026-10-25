@@ -3,14 +3,16 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import { Alert, Button, MenuItem, Stack, TextField, Typography } from '@mui/material';
 import {
+  D100,
   formatBonus,
   HealerPicker,
   HealerSelection,
   Injury,
   NumericInput,
+  OPEN_D100,
   resolveHealer,
   RmuDialog,
-  RollInput,
+  RollField,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
 import { stabilizeActorRoundEffect, treatActorRoundInjury } from '../../api/actor-rounds';
@@ -22,8 +24,8 @@ import {
   TACTICAL_PROCEDURES,
   TacticalProcedure,
 } from '../../api/actor-rounds.dto';
-import { useTacticalNotify } from '../../services/notify-service';
 import { useHealingTables } from '../../services/core-tables';
+import { useTacticalNotify } from '../../services/notify-service';
 import {
   DEFAULT_STABILIZE_DIFFICULTY,
   DifficultyPreview,
@@ -143,7 +145,11 @@ const MedicalRollDialog: FC<{
   const title = target.kind === 'treat' ? t('treat-injury') : t('stabilize-dying');
   const subtitle =
     target.kind === 'treat'
-      ? [actorRound.actorName, t(`injury-type-${target.injury.type}`), target.injury.location && t(target.injury.location)]
+      ? [
+          actorRound.actorName,
+          t(`injury-type-${target.injury.type}`),
+          target.injury.location && t(target.injury.location),
+        ]
           .filter(Boolean)
           .join(' · ')
       : actorRound.actorName;
@@ -210,13 +216,13 @@ const MedicalRollDialog: FC<{
               allowNegatives
               disabled={busy}
             />
-            <RollInput
+            <RollField
+              spec={OPEN_D100}
               value={roll}
-              onChange={(value, generated) => {
-                setRoll(value);
-                setUnmodified(generated?.rolls[0] ?? value);
+              onChange={(value) => {
+                setRoll(value.total);
+                setUnmodified(value.unmodified);
               }}
-              openEnded
               disabled={busy}
             />
           </Stack>
@@ -235,13 +241,12 @@ const MedicalRollDialog: FC<{
                   min={0}
                   disabled={busy}
                 />
-                <NumericInput
+                <RollField
+                  spec={D100}
                   label={t('cauterize-heat-critical-roll')}
                   value={heatCriticalRoll}
-                  onChange={setHeatCriticalRoll}
-                  integer
-                  min={1}
-                  max={100}
+                  onChange={(value) => setHeatCriticalRoll(value.total)}
+                  onClear={() => setHeatCriticalRoll(null)}
                   disabled={busy}
                 />
               </Stack>

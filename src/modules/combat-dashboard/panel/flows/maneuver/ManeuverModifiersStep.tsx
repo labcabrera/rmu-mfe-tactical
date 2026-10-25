@@ -12,7 +12,7 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import { formatBonus, ManeuverType, NumericInput, RollInput } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { formatBonus, ManeuverType, NumericInput, OPEN_D100, RollField } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { ManeuverModifiersListing, ManeuverSkillModifier } from '../../../../api/action.dto';
 import { ActorRound } from '../../../../api/actor-rounds.dto';
 import ModifierTile from '../../../action-dialogs/attack-modifiers/pickers/ModifierTile';
@@ -151,7 +151,10 @@ const ManeuverModifiersStep: FC<{
           />
           {listing.skill.unskilled && <Chip size="small" color="warning" variant="outlined" label={t('unskilled')} />}
           {listing.base.map((modifier) => (
-            <Tooltip key={modifier.key} title={t(`modifier-source-${modifier.source}`, { defaultValue: modifier.source })}>
+            <Tooltip
+              key={modifier.key}
+              title={t(`modifier-source-${modifier.source}`, { defaultValue: modifier.source })}
+            >
               <Chip
                 size="small"
                 variant="outlined"
@@ -214,11 +217,12 @@ const ManeuverModifiersStep: FC<{
             </TextField>
             {target && (
               <Box sx={{ width: 200 }}>
-                <RollInput
+                <RollField
+                  spec={OPEN_D100}
                   label={t('passive-roll')}
                   value={form.passiveRoll}
-                  onChange={(passiveRoll) => onChange({ passiveRoll })}
-                  openEnded
+                  onChange={(passiveRoll) => onChange({ passiveRoll: passiveRoll.total })}
+                  onClear={() => onChange({ passiveRoll: null })}
                 />
               </Box>
             )}
