@@ -2,7 +2,7 @@ import React, { FC, useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import { Alert, Button, CircularProgress, Stack } from '@mui/material';
-import { FlowStep, formatBonus, OpenEndedRollInput, RollBreakdown } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { FlowStep, formatBonus, OPEN_D100, RollBreakdown, RollField } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../CombatContext';
 import { fetchActionManeuverModifiers, resolveManeuver } from '../../../api/action';
 import { Action, ManeuverModifiersListing } from '../../../api/action.dto';
@@ -143,11 +143,11 @@ const ManeuverFlow: FC<{
       summary: action.maneuver?.roll?.roll ?? form.roll ?? undefined,
       content: (
         <Stack spacing={2}>
-          <OpenEndedRollInput
-            inputGridSize={6}
+          <RollField
+            spec={OPEN_D100}
             label={t('maneuver-roll')}
             value={form.roll}
-            onChange={(roll, details) => change({ roll, unmodified: details?.unmodified ?? null })}
+            onChange={(roll) => change({ roll: roll.total, unmodified: roll.unmodified })}
           />
           {listing && (
             <RollBreakdown

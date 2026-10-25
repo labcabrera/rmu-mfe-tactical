@@ -2,7 +2,7 @@ import React, { Dispatch, FC, SetStateAction, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import { Grid, Chip, Stack, Typography } from '@mui/material';
-import { CategorySeparator, OpenEndedRollInput } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { CategorySeparator, OPEN_D100, RollField } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../CombatContext';
 import { updateAttackRoll } from '../../../api/action';
 import { Action, ActionAttack, AttackDeclaration } from '../../../api/action.dto';
@@ -80,13 +80,12 @@ const ResolveAttackFormRoll: FC<{
         <CategorySeparator text={t('attack-roll')} />
       </Grid>
       <Grid size={7}>
-        <OpenEndedRollInput
-          inputGridSize={12}
-          gridColumns={12}
+        <RollField
+          spec={OPEN_D100}
           label={t('attack-roll')}
           value={attack.roll?.roll ?? null}
           disabled={isCompleted}
-          onChange={(e) => onRollChange(e ?? undefined)}
+          onChange={(roll) => onRollChange(roll.total)}
         />
       </Grid>
       <Grid size={5}>
