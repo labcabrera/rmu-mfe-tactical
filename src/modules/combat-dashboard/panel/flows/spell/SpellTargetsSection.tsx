@@ -1,6 +1,6 @@
 import React, { FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Box, Button, Checkbox, FormControlLabel, MenuItem, Stack, TextField, Typography } from '@mui/material';
+import { Box, Button, Checkbox, FormControlLabel, MenuItem, Stack, TextField } from '@mui/material';
 import { OPEN_D100, RollField } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { ActionSpell, SpellTargetConditions, SpellTargetRoll } from '../../../../api/action.dto';
 import { ActorRound } from '../../../../api/actor-rounds.dto';
@@ -76,7 +76,6 @@ const SpellTargetsSection: FC<{
 
   return (
     <Stack spacing={1.5}>
-      <Typography variant="subtitle2">{t('spell-resistance-rolls')}</Typography>
       {candidates.map((candidate) => {
         const form = forms[candidate.actorId];
         const willing = allowsWilling && !!form?.conditions.willing;

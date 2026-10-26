@@ -4,9 +4,10 @@ import { Box, Card, CardContent, Chip, MenuItem, Stack, TextField, Typography } 
 import { formatBonus, NumericInput } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../../CombatContext';
 import { ActionAttack, PROTECT_POSITIONS, ProtectPosition } from '../../../../api/action.dto';
-import { ActorRound } from '../../../../api/actor-rounds.dto';
+import { ActorRound, ActorRoundAttack } from '../../../../api/actor-rounds.dto';
 import SelectAttackRange from '../../../../shared/selects/SelectAttackRange';
 import TargetPicker from './TargetPicker';
+import { attackLabel } from './attack-label';
 import { AttackKind } from './useAttackDeclaration';
 
 /**
@@ -16,13 +17,15 @@ import { AttackKind } from './useAttackDeclaration';
 const AttackTargetsStep: FC<{
   kind: AttackKind;
   actorRound: ActorRound;
+  /** What each attack strikes with: the actor's weapons or a spell's attack. */
+  sourceAttacks: ActorRoundAttack[];
   attacks: ActionAttack[];
   onTarget: (attackName: string, targetId: string) => void;
   onBo: (attackName: string, bo: number) => void;
   onRange: (attackName: string, range: number | null) => void;
   onProtector: (attackName: string, actorId: string) => void;
   onProtectorPosition: (attackName: string, actorId: string, position: ProtectPosition) => void;
-}> = ({ kind, actorRound, attacks, onTarget, onBo, onRange, onProtector, onProtectorPosition }) => {
+}> = ({ kind, actorRound, sourceAttacks, attacks, onTarget, onBo, onRange, onProtector, onProtectorPosition }) => {
   const { t } = useTranslation();
   const { actorRounds } = useContext(CombatContext)!;
   // Penalties apply to the roll (the API adds them), not to the OB to spend.
@@ -46,7 +49,7 @@ const AttackTargetsStep: FC<{
       }}
     >
       {attacks.map((attack) => {
-        const weapon = actorRound.attacks.find((a) => a.attackName === attack.attackName);
+        const weapon = sourceAttacks.find((a) => a.attackName === attack.attackName);
         const targetId = attack.modifiers.targetId;
         const protectorCandidates = (actorRounds ?? []).filter(
           (ar) => ar.actorId !== actorRound.actorId && ar.actorId !== targetId && ar.factionId !== actorRound.factionId
@@ -57,11 +60,11 @@ const AttackTargetsStep: FC<{
               <Stack spacing={1.5}>
                 <Box>
                   <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
-                    {t(attack.attackName)}
+                    {attackLabel(attack.attackName, t)}
                   </Typography>
                   <Typography variant="caption" color="text.secondary">
                     {[
-                      weapon && `${t(weapon.attackTable)} ${formatBonus(weapon.currentBo)}`,
+                      weapon && `${attackLabel(weapon.attackTable, t)} ${formatBonus(weapon.currentBo)}`,
                       penalty !== 0 && t('penalties-on-roll', { value: penalty }),
                     ]
                       .filter(Boolean)

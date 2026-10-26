@@ -39,16 +39,24 @@ const newAttack = (attack: ActorRoundAttack, kind: AttackKind, pace: string): Ac
 
 /**
  * Attack declaration of an action (targets, OB, protectors, range and modifiers) until it is prepared; then it
- * follows the action returned by the API (rolls, parries, results).
+ * follows the action returned by the API (rolls, parries, results). The attacks come from the actor's weapons, or
+ * from `sourceAttacks` (the attack of a spell).
  */
-export const useAttackDeclaration = (action: Action, actorRound: ActorRound, kind: AttackKind) => {
+export const useAttackDeclaration = (
+  action: Action,
+  actorRound: ActorRound,
+  kind: AttackKind,
+  sourceAttacks?: ActorRoundAttack[]
+) => {
   const { actorRounds, roundActions } = useContext(CombatContext)!;
   const initial = (): AttackDeclaration => {
     if (action.attacks?.length) return { attacks: action.attacks, parries: action.parries ?? [] };
     const pace = findMaxActorRoundPace(actorRound.actorId, roundActions ?? []);
     return {
       // A weapon broken in the game cannot attack (spec 019): the API rejects it.
-      attacks: actorRound.attacks.filter((a) => a.type === kind && !a.broken).map((a) => newAttack(a, kind, pace)),
+      attacks: (sourceAttacks ?? actorRound.attacks.filter((a) => a.type === kind && !a.broken)).map((a) =>
+        newAttack(a, kind, pace)
+      ),
       parries: action.parries ?? [],
     };
   };

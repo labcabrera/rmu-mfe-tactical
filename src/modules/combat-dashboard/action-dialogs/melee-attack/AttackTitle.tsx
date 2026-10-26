@@ -4,6 +4,7 @@ import { Typography } from '@mui/material';
 import { CategorySeparator } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { ActionAttack } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
+import { attackLabel } from '../../panel/flows/attack/attack-label';
 
 const AttackTitle: FC<{
   attack: ActionAttack;
@@ -24,7 +25,7 @@ const AttackTitle: FC<{
 
   return (
     <>
-      <CategorySeparator text={`${t(attack.attackName)} → ${target?.actorName}`} />
+      <CategorySeparator text={`${attackLabel(attack.attackName, t)} → ${target?.actorName}`} />
       <Typography variant="body2" color="primary">
         {getAttackDetail()}
       </Typography>
