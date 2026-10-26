@@ -54,6 +54,20 @@ export async function declareActorRoundDefenseMode(
   });
 }
 
+/** Declares the fighting style of the round (spec 032); without a style, the actor fights without one. */
+export async function declareActorRoundFightingStyle(
+  actorRoundId: string,
+  style: { skillId?: string; styleId?: string; options?: string[] },
+  auth: AuthContextProps
+): Promise<ActorRound> {
+  const url = `${apiTacticalUrl}/actor-rounds/${actorRoundId}/fighting-style`;
+  return await callApi(auth, url, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(style),
+  });
+}
+
 /**
  * Endurance roll of an actor (§5.5): the API adds the modifiers to the roll, reads the endurance table and applies
  * the fatigue and hits of the result. With `alertId`, it also resolves the endurance alert.

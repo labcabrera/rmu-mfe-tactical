@@ -381,11 +381,25 @@ export type ActionSpell = {
     duration: Record<string, unknown> | null;
     effects: Record<string, unknown>[];
   };
-  caster: { realms: SpellRealm[]; realmStatBonus: number; level: number; listSkillId: string; ranks: number; listTypeModifier: number };
+  caster: {
+    realms: SpellRealm[];
+    realmStatBonus: number;
+    level: number;
+    listSkillId: string;
+    ranks: number;
+    listTypeModifier: number;
+  };
   options?: SpellOptions;
   roll?: { modifiers: SpellRollModifier[]; roll: number; totalRoll: number };
   result?: SpellCastResult;
-  failure?: { realm: SpellRealm; roll: number; modifier: number; total: number; text: string; suggestedPp: SpellFailurePp };
+  failure?: {
+    realm: SpellRealm;
+    roll: number;
+    modifier: number;
+    total: number;
+    text: string;
+    suggestedPp: SpellFailurePp;
+  };
   targets?: ActionSpellTarget[];
   powerPointsSpent?: number | null;
   /** Attack of a bolt or ball spell, resolved with the attack flow (spec 030, phase 4). */
@@ -406,7 +420,12 @@ export type ActionSpellAttack = {
   radius: number | null;
 };
 
-export type SpellPreview = { modifiers: SpellRollModifier[]; bonus: number; needsPreparation: boolean; actionPoints: number };
+export type SpellPreview = {
+  modifiers: SpellRollModifier[];
+  bonus: number;
+  needsPreparation: boolean;
+  actionPoints: number;
+};
 
 export type SpellTargetRoll = { actorId: string; roll?: number; conditions?: SpellTargetConditions; bonus?: number };
 
@@ -461,7 +480,11 @@ export type Critical = {
   criticalSeverity: string;
   adjustedRoll?: number;
   result?: CriticalResult;
+  /** Fighting style ability that changed the critical before the roll (spec 032). */
+  styleOption?: CriticalStyleOption;
 };
+
+export type CriticalStyleOption = { abilityId: string; originalType: string; originalSeverity: string };
 
 export type CriticalResult = {
   text: string;
@@ -519,6 +542,8 @@ export type ActionAttackModifiers = {
   restrictedParry: boolean | null;
   customBonus: number | null;
   chargeSpeed?: ChargeSpeed;
+  /** Fighting style ability that changes the critical (spec 032). */
+  styleCriticalOption?: string | null;
 };
 
 export type AttackCalculationsDto = {
