@@ -26,6 +26,9 @@ import { alpha, SxProps, Theme } from '@mui/material/styles';
 import { Character, Faction, resolveAssetUrl, TacticalGame } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { defaultFactionImage, defaultTacticalGameImage } from '../../services/image-service';
 
+/** Width of a faction or character cell: both grids share it, so their columns line up at every width. */
+const ROSTER_CELL = { xs: 12, sm: 6, md: 4, xl: 3 };
+
 /** Key of the element whose change is being saved: a faction id, a character id or `group:<factionId>`. */
 export type RosterPending = string | null;
 
@@ -111,7 +114,7 @@ export default function TacticalGameRoster({
             const locked = selected && !canRemove;
             const selectedInFaction = factionCharacters.filter((c) => isCharacterSelected(c.id)).length;
             return (
-              <Grid key={faction.id} size={{ xs: 12, sm: 6, lg: 4 }}>
+              <Grid key={faction.id} size={ROSTER_CELL}>
                 <FactionRow
                   faction={faction}
                   count={
@@ -219,7 +222,7 @@ export default function TacticalGameRoster({
                         const locked = selected && !canRemove;
                         const unavailable = selected ? undefined : notAbleReason(character);
                         return (
-                          <Grid key={character.id} size={{ xs: 12, sm: 6, md: 4, xl: 3 }}>
+                          <Grid key={character.id} size={ROSTER_CELL}>
                             <CharacterRow
                               character={character}
                               selected={selected}
