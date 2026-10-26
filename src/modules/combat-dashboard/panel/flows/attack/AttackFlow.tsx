@@ -9,6 +9,7 @@ import { Action, ParryDeclaration } from '../../../../api/action.dto';
 import { ActorRound, ActorRoundAttack } from '../../../../api/actor-rounds.dto';
 import { useTacticalNotify } from '../../../../services/notify-service';
 import AttackModifiersForm from '../../../action-dialogs/attack-modifiers/AttackModifiersForm';
+import StyleCriticalOptionPicker from '../../../action-dialogs/attack-modifiers/StyleCriticalOptionPicker';
 import ResolveAttackFormRoll from '../../../action-dialogs/attack/ResolveAttackFormRoll';
 import ActionFlow from '../../ActionFlow';
 import { AttackResults } from '../ActionResults';
@@ -125,6 +126,14 @@ const AttackFlow: FC<{
           kind={kind}
           target={actorRounds?.find((ar) => ar.actorId === attacksShown[shownTab].modifiers.targetId)}
         />
+        {unprepared && (
+          <StyleCriticalOptionPicker
+            actorRound={actorRound}
+            formData={formData}
+            setFormData={setFormData}
+            attackName={attacksShown[shownTab].attackName}
+          />
+        )}
       </Stack>
     ) : null;
 

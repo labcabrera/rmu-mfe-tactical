@@ -154,13 +154,14 @@ export async function updateCriticalRoll(
   attackName: string,
   criticalKey: string,
   roll: number,
-  auth: AuthContextProps
+  auth: AuthContextProps,
+  styleOption?: string
 ): Promise<Action> {
   const url = `${apiTacticalUrl}/actions/${actionId}/attack/critical-roll`;
   return await callApi(auth, url, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ attackName, criticalKey, roll }),
+    body: JSON.stringify({ attackName, criticalKey, roll, styleOption }),
   });
 }
 
@@ -216,7 +217,11 @@ const patchJson = (auth: AuthContextProps, url: string, body: unknown) =>
   callApi(auth, url, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
 
 /** Spellcasting Roll modifiers of some choices (nothing stored). */
-export async function previewSpell(actionId: string, options: SpellOptions, auth: AuthContextProps): Promise<SpellPreview> {
+export async function previewSpell(
+  actionId: string,
+  options: SpellOptions,
+  auth: AuthContextProps
+): Promise<SpellPreview> {
   const url = `${apiTacticalUrl}/actions/${actionId}/spell/preview`;
   return await callApi(auth, url, {
     method: 'POST',
@@ -225,7 +230,12 @@ export async function previewSpell(actionId: string, options: SpellOptions, auth
   });
 }
 
-export async function rollSpell(actionId: string, options: SpellOptions, roll: number, auth: AuthContextProps): Promise<Action> {
+export async function rollSpell(
+  actionId: string,
+  options: SpellOptions,
+  roll: number,
+  auth: AuthContextProps
+): Promise<Action> {
   return await patchJson(auth, `${apiTacticalUrl}/actions/${actionId}/spell/roll`, { options, roll });
 }
 
@@ -238,10 +248,18 @@ export async function rollSpellFailure(
   return await patchJson(auth, `${apiTacticalUrl}/actions/${actionId}/spell/failure-roll`, { roll, realm });
 }
 
-export async function resolveSpellResistance(actionId: string, targets: SpellTargetRoll[], auth: AuthContextProps): Promise<Action> {
+export async function resolveSpellResistance(
+  actionId: string,
+  targets: SpellTargetRoll[],
+  auth: AuthContextProps
+): Promise<Action> {
   return await patchJson(auth, `${apiTacticalUrl}/actions/${actionId}/spell/resistance-rolls`, { targets });
 }
 
-export async function applySpell(actionId: string, powerPoints: number | undefined, auth: AuthContextProps): Promise<Action> {
+export async function applySpell(
+  actionId: string,
+  powerPoints: number | undefined,
+  auth: AuthContextProps
+): Promise<Action> {
   return await patchJson(auth, `${apiTacticalUrl}/actions/${actionId}/spell/apply`, { powerPoints });
 }

@@ -1,7 +1,7 @@
-import React, { Dispatch, FC, Fragment, SetStateAction, useContext } from 'react';
+import React, { Dispatch, FC, Fragment, SetStateAction, useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
-import { Stack, Grid, Typography } from '@mui/material';
+import { Alert, Stack, Grid, Typography } from '@mui/material';
 import { CategorySeparator, D100, RollField } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../CombatContext';
 import { updateCriticalRoll } from '../../../api/action';
@@ -9,6 +9,10 @@ import { Action, ActionAttack, AttackDeclaration, CriticalEffect } from '../../.
 import { criticalCode } from '../../../services/action-service';
 import { useTacticalNotify } from '../../../services/notify-service';
 import Effect from '../../../shared/generic/Effect';
+import OptionTiles from '../attack-modifiers/pickers/OptionTiles';
+import { CRITICAL_STYLE_OPTIONS, severityFeet, styleOptionsFor } from './style-critical-options';
+
+const NO_OPTION = 'none';
 
 const ResolveAttackFormCriticals: FC<{
   formData: AttackDeclaration;
@@ -19,8 +23,9 @@ const ResolveAttackFormCriticals: FC<{
 }> = ({ formData, action, index, attack, setFormData }) => {
   const auth = useAuth();
   const { t } = useTranslation();
-  const { updateAction } = useContext(CombatContext)!;
+  const { updateAction, actorRounds } = useContext(CombatContext)!;
   const notify = useTacticalNotify();
+  const [styleOption, setStyleOption] = useState(NO_OPTION);
 
   if (!formData || !formData.attacks || formData.attacks.length <= index) return null;
 
@@ -30,10 +35,19 @@ const ResolveAttackFormCriticals: FC<{
   const sharedRoll = Object.values(attack.roll?.criticalRolls ?? {}).find(
     (roll): roll is number => roll !== null && roll !== undefined
   );
+  // Spec 032, group C: an option of the attacker's style can still change the criticals before the roll, unless
+  // one was declared with the attack.
+  const source = actorRounds?.find((ar) => ar.actorId === action.actorId);
+  const declaredOption = attack.modifiers.styleCriticalOption;
+  const styleOptions =
+    sharedRoll === undefined && !declaredOption && criticals.length > 0
+      ? styleOptionsFor(source, attack.attackName, CRITICAL_STYLE_OPTIONS)
+      : [];
 
   const onUpdateCriticalRoll = (roll: number) => {
     if (criticals.length === 0) return;
-    updateCriticalRoll(action.id, attack.attackName, criticals[0].key, roll, auth)
+    const option = styleOptions.includes(styleOption) ? styleOption : undefined;
+    updateCriticalRoll(action.id, attack.attackName, criticals[0].key, roll, auth, option)
       .then((currentAction) => {
         const newFormData = { attacks: currentAction.attacks || [], parries: currentAction.parries || [] };
         updateAction(currentAction);
@@ -62,6 +76,24 @@ const ResolveAttackFormCriticals: FC<{
         <Grid size={12}>
           <CategorySeparator text={t('critical-roll')} />
         </Grid>
+        {declaredOption && sharedRoll === undefined && (
+          <Grid size={12}>
+            <Typography variant="body2" color="text.secondary">
+              {t('style-critical-option-declared', { ability: t(`style-ability-${declaredOption}`) })}
+            </Typography>
+          </Grid>
+        )}
+        {styleOptions.length > 0 && (
+          <Grid size={12}>
+            <OptionTiles
+              label={t('style-critical-option')}
+              options={[NO_OPTION, ...styleOptions].map((key) => ({ key, value: null }))}
+              value={styleOption}
+              optionLabel={(option) => (option.key === NO_OPTION ? t('none') : t(`style-ability-${option.key}`))}
+              onChange={setStyleOption}
+            />
+          </Grid>
+        )}
         <Grid size={6}>
           <RollField
             spec={D100}
@@ -86,6 +118,18 @@ const ResolveAttackFormCriticals: FC<{
                 text={t('critical-code', { code: criticalCode(critical.criticalType, critical.criticalSeverity) })}
               />
             </Grid>
+            {critical.styleOption && (
+              <Grid size={12}>
+                <Alert severity="info" variant="outlined">
+                  {t(`style-critical-effect-${critical.styleOption.abilityId}`, {
+                    type: critical.styleOption.originalType,
+                    severity: critical.styleOption.originalSeverity,
+                    feet: severityFeet(critical.styleOption.originalSeverity),
+                    roll: attack.calculated?.rollTotal ?? '-',
+                  })}
+                </Alert>
+              </Grid>
+            )}
             <Grid size={12}>
               <Stack>
                 <Typography variant="h6">{critical.adjustedRoll}</Typography>
