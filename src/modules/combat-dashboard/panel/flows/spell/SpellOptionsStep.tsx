@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, FormControlLabel, MenuItem, Stack, Switch, TextField } from '@mui/material';
+import { Alert, Box, FormControlLabel, MenuItem, Stack, Switch, TextField } from '@mui/material';
 import { NumericInput } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { SPELL_ARMORS, SPELL_HANDS, SPELL_HELMETS, SPELL_VOICES, SpellOptions } from '../../../../api/action.dto';
 
@@ -74,30 +74,36 @@ const SpellOptionsStep: FC<{
       </Stack>
       <Stack direction="row" sx={{ flexWrap: 'wrap', gap: 2 }}>
         {options.armor !== 'none' && (
+          <Box sx={{ width: 200 }}>
+            <NumericInput
+              label={t('spell-armor-encumbrance')}
+              value={options.armorEncumbrance}
+              onChange={(value) => onChange({ armorEncumbrance: value ?? 0 })}
+              integer
+              allowNegatives={false}
+              min={0}
+            />
+          </Box>
+        )}
+        <Box sx={{ width: 200 }}>
           <NumericInput
-            label={t('spell-armor-encumbrance')}
-            value={options.armorEncumbrance}
-            onChange={(value) => onChange({ armorEncumbrance: value ?? 0 })}
+            label={t('spell-preparation-rounds')}
+            value={options.preparationRounds}
+            onChange={(value) => onChange({ preparationRounds: Math.min(MAX_PREPARATION_ROUNDS, value ?? 0) })}
             integer
             allowNegatives={false}
             min={0}
+            max={MAX_PREPARATION_ROUNDS}
           />
-        )}
-        <NumericInput
-          label={t('spell-preparation-rounds')}
-          value={options.preparationRounds}
-          onChange={(value) => onChange({ preparationRounds: Math.min(MAX_PREPARATION_ROUNDS, value ?? 0) })}
-          integer
-          allowNegatives={false}
-          min={0}
-          max={MAX_PREPARATION_ROUNDS}
-        />
-        <NumericInput
-          label={t('custom-bonus')}
-          value={options.customBonus}
-          onChange={(value) => onChange({ customBonus: value ?? 0 })}
-          integer
-        />
+        </Box>
+        <Box sx={{ width: 200 }}>
+          <NumericInput
+            label={t('custom-bonus')}
+            value={options.customBonus}
+            onChange={(value) => onChange({ customBonus: value ?? 0 })}
+            integer
+          />
+        </Box>
       </Stack>
       {needsPreparation && options.preparationRounds < 1 && (
         <Alert severity="warning">{t('err-overcast-needs-preparation')}</Alert>

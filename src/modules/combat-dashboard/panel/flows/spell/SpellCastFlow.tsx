@@ -201,7 +201,7 @@ const SpellCastFlow: FC<{
     {
       id: 'modifiers',
       label: t('modifiers'),
-      summary: preview ? `${t('spell-scr')} ${formatBonus(preview.bonus)}` : undefined,
+      summary: preview ? formatBonus(preview.bonus) : undefined,
       content: <SpellOptionsStep options={options} needsPreparation={!!preview?.needsPreparation} onChange={(patch) => setOptions((prev) => ({ ...prev, ...patch }))} />,
     },
     {
