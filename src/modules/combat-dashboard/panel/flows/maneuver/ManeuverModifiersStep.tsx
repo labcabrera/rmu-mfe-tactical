@@ -12,12 +12,19 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import { formatBonus, ManeuverType, NumericInput, OPEN_D100, RollField } from '@labcabrera-rmu/rmu-react-shared-lib';
+import {
+  DifficultyPicker,
+  formatBonus,
+  ManeuverType,
+  NumericInput,
+  OPEN_D100,
+  RollField,
+} from '@labcabrera-rmu/rmu-react-shared-lib';
 import { ManeuverModifiersListing, ManeuverSkillModifier } from '../../../../api/action.dto';
 import { ActorRound } from '../../../../api/actor-rounds.dto';
 import ModifierTile from '../../../action-dialogs/attack-modifiers/pickers/ModifierTile';
 import OptionTiles from '../../../action-dialogs/attack-modifiers/pickers/OptionTiles';
-import DifficultyPicker from '../DifficultyPicker';
+import { useSkillDifficultyGuide } from '../useSkillDifficultyGuide';
 import { isConflicting, ManeuverForm, optionLabelKey, predictedTotal, selectionValue } from './maneuver-form';
 
 const MANEUVER_TYPES: ManeuverType[] = ['absolute', 'percent'];
@@ -53,6 +60,7 @@ const ManeuverModifiersStep: FC<{
   const target = targets.find((each) => each.actorId === form.targetActorId);
   const total = predictedTotal(listing, form);
   const progress = listing.progress ?? 0;
+  const guide = useSkillDifficultyGuide(listing.skill.skillId);
 
   const skillModifier = (modifier: ManeuverSkillModifier) => {
     const selection = form.selections[modifier.key];
@@ -174,6 +182,7 @@ const ManeuverModifiersStep: FC<{
       <DifficultyPicker
         value={form.difficulty}
         options={listing.difficulty.options}
+        guide={guide}
         onChange={(difficulty) => onChange({ difficulty })}
       />
 

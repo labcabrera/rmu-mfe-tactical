@@ -18,7 +18,14 @@ import {
   ToggleButtonGroup,
   Typography,
 } from '@mui/material';
-import { formatBonus, NumericInput, OPEN_D100, RmuDialog, RollField } from '@labcabrera-rmu/rmu-react-shared-lib';
+import {
+  DifficultyPicker,
+  formatBonus,
+  NumericInput,
+  OPEN_D100,
+  RmuDialog,
+  RollField,
+} from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
 import FrightLevelInput from '../../actor-round/psychology/FrightLevelInput';
 import { fearBonus } from '../../actor-round/psychology/ResistanceRollDialog';
@@ -26,7 +33,6 @@ import { ActorRound } from '../../api/actor-rounds.dto';
 import { groupCheck } from '../../api/psychology';
 import { GroupCheckKind, GroupCheckResult } from '../../api/psychology.dto';
 import { useTacticalNotify } from '../../services/notify-service';
-import DifficultyPicker from '../panel/flows/DifficultyPicker';
 import GroupCheckResultView from './GroupCheckResultView';
 import {
   GroupCheckForm,
