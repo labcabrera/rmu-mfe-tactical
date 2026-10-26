@@ -14,6 +14,7 @@ import ActionFlow from '../../ActionFlow';
 import { AttackResults } from '../ActionResults';
 import AttackTargetsStep from './AttackTargetsStep';
 import ParryStep from './ParryStep';
+import { attackLabel } from './attack-label';
 import { AttackKind, useAttackDeclaration } from './useAttackDeclaration';
 
 /**
@@ -52,25 +53,14 @@ const AttackFlow: FC<{
   onNextPending?: () => void;
   sourceAttacks?: ActorRoundAttack[];
   leadingSteps?: FlowStep[];
-  attackLabel?: (attackName: string) => string;
   onApplied?: () => void;
-}> = ({
-  kind,
-  action,
-  actorRound,
-  onDeleted,
-  onNextPending,
-  sourceAttacks,
-  leadingSteps = [],
-  attackLabel,
-  onApplied,
-}) => {
+}> = ({ kind, action, actorRound, onDeleted, onNextPending, sourceAttacks, leadingSteps = [], onApplied }) => {
   const { t } = useTranslation();
   const auth = useAuth();
   const notify = useTacticalNotify();
   const { actorRounds, updateAction, refreshActorRounds } = useContext(CombatContext)!;
   const declaration = useAttackDeclaration(action, actorRound, kind, sourceAttacks);
-  const labelOf = attackLabel ?? ((attackName: string) => t(attackName));
+  const labelOf = (attackName: string) => attackLabel(attackName, t);
   const weapons = sourceAttacks ?? actorRound.attacks;
   const { formData, setFormData, targeted } = declaration;
   const [localStep, setLocalStep] = useState(0);
@@ -166,7 +156,6 @@ const AttackFlow: FC<{
           actorRound={actorRound}
           sourceAttacks={weapons}
           attacks={formData.attacks}
-          attackLabel={labelOf}
           onTarget={declaration.selectTarget}
           onBo={declaration.setBo}
           onRange={declaration.setRange}

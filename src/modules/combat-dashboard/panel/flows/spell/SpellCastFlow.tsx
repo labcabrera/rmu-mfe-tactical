@@ -57,13 +57,13 @@ const failurePowerPoints = (kind: SpellFailurePp, spellPp: number, current: numb
 
 /**
  * The attack of a bolt or ball spell read as ranged weapons (spec 030, phase 4): a bolt strikes one target, a ball
- * makes one attack per target in its area (`fire-ball`, `fire-ball-2`…), up to the other actors of the round.
+ * makes one attack per target in its area (`fire-ball-1`, `fire-ball-2`…), up to the other actors of the round.
  */
 const spellSourceAttacks = (spell: ActionSpell, others: number): ActorRoundAttack[] => {
   const attack = spell.attack!;
   const count = attack.kind === 'ball' ? Math.max(1, others) : 1;
   return Array.from({ length: count }, (_, i) => ({
-    attackName: i === 0 ? attack.attackName : `${attack.attackName}-${i + 1}`,
+    attackName: attack.kind === 'ball' ? `${attack.attackName}-${i + 1}` : attack.attackName,
     baseBo: attack.bo,
     currentBo: attack.bo,
     type: 'ranged',
@@ -327,15 +327,6 @@ const SpellCastFlow: FC<{
   const attackSpell =
     spell.result === 'success' && !!spell.attack && (!!action.attacks?.length || action.status === 'pending_apply');
   if (attackSpell) {
-    const baseName = spell.attack!.attackName;
-    const tableName = t(`spell-attack-table-${spell.attack!.attackTable}`);
-    const attackLabel = (attackName: string) =>
-      spell.attack!.kind === 'ball'
-        ? t('spell-ball-attack', {
-            name: tableName,
-            index: attackName === baseName ? 1 : Number(attackName.slice(baseName.length + 1)),
-          })
-        : tableName;
     return (
       <AttackFlow
         kind="ranged"
@@ -345,7 +336,6 @@ const SpellCastFlow: FC<{
         onNextPending={onNextPending}
         sourceAttacks={spellSourceAttacks(spell, candidates.length - 1)}
         leadingSteps={steps.slice(0, 4)}
-        attackLabel={attackLabel}
         onApplied={refreshCaster}
       />
     );

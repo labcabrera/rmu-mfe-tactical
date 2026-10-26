@@ -7,6 +7,7 @@ import { ActionAttack, PROTECT_POSITIONS, ProtectPosition } from '../../../../ap
 import { ActorRound, ActorRoundAttack } from '../../../../api/actor-rounds.dto';
 import SelectAttackRange from '../../../../shared/selects/SelectAttackRange';
 import TargetPicker from './TargetPicker';
+import { attackLabel } from './attack-label';
 import { AttackKind } from './useAttackDeclaration';
 
 /**
@@ -19,24 +20,12 @@ const AttackTargetsStep: FC<{
   /** What each attack strikes with: the actor's weapons or a spell's attack. */
   sourceAttacks: ActorRoundAttack[];
   attacks: ActionAttack[];
-  attackLabel: (attackName: string) => string;
   onTarget: (attackName: string, targetId: string) => void;
   onBo: (attackName: string, bo: number) => void;
   onRange: (attackName: string, range: number | null) => void;
   onProtector: (attackName: string, actorId: string) => void;
   onProtectorPosition: (attackName: string, actorId: string, position: ProtectPosition) => void;
-}> = ({
-  kind,
-  actorRound,
-  sourceAttacks,
-  attacks,
-  attackLabel,
-  onTarget,
-  onBo,
-  onRange,
-  onProtector,
-  onProtectorPosition,
-}) => {
+}> = ({ kind, actorRound, sourceAttacks, attacks, onTarget, onBo, onRange, onProtector, onProtectorPosition }) => {
   const { t } = useTranslation();
   const { actorRounds } = useContext(CombatContext)!;
   // Penalties apply to the roll (the API adds them), not to the OB to spend.
@@ -71,11 +60,11 @@ const AttackTargetsStep: FC<{
               <Stack spacing={1.5}>
                 <Box>
                   <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
-                    {attackLabel(attack.attackName)}
+                    {attackLabel(attack.attackName, t)}
                   </Typography>
                   <Typography variant="caption" color="text.secondary">
                     {[
-                      weapon && `${t(weapon.attackTable)} ${formatBonus(weapon.currentBo)}`,
+                      weapon && `${attackLabel(weapon.attackTable, t)} ${formatBonus(weapon.currentBo)}`,
                       penalty !== 0 && t('penalties-on-roll', { value: penalty }),
                     ]
                       .filter(Boolean)
