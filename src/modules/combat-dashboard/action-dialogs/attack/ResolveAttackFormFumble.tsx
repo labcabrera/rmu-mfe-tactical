@@ -2,12 +2,22 @@ import React, { Dispatch, FC, SetStateAction, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import { Grid, Stack, Typography } from '@mui/material';
-import { CategorySeparator, D100, RollField } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { CategorySeparator, D100, RollField, RollSpec } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../CombatContext';
 import { updateFumbleRoll } from '../../../api/action';
 import { Action, ActionAttack, AttackDeclaration, CriticalEffect } from '../../../api/action.dto';
 import { useTacticalNotify } from '../../../services/notify-service';
 import Effect from '../../../shared/generic/Effect';
+import { criticalEffectLabel } from './critical-effect-label';
+
+/** The dice of the hits of a fumble entry (`2d10`) as a roll, undefined when its hits are fixed or it has none. */
+const hitsSpec = (effects: CriticalEffect[] | undefined): { dice: string; spec: RollSpec } | undefined => {
+  const dice = effects?.find((effect) => effect.status === 'hits' && effect.dice)?.dice;
+  const match = dice ? /^(\d+)d(\d+)$/.exec(dice) : null;
+  return match
+    ? { dice: dice!, spec: { dice: Number(match[1]), sides: Number(match[2]), openEnded: 'none' } }
+    : undefined;
+};
 
 const ResolveAttackFormFumble: FC<{
   formData: AttackDeclaration;
@@ -24,21 +34,17 @@ const ResolveAttackFormFumble: FC<{
 
   if (!formData || !formData.attacks || formData.attacks.length <= index || !fumble) return null;
 
-  const onUpdateFumbleRoll = (roll: number) => {
-    updateFumbleRoll(action.id, attack.attackName, roll, auth)
+  // Spec 034: the API rolls the dice of the hits; the game master can give the sum of a roll of their own instead.
+  const hits = hitsSpec(fumble.effects);
+
+  const onUpdateFumbleRoll = (roll: number, fumbleHits?: number) => {
+    updateFumbleRoll(action.id, attack.attackName, roll, auth, fumbleHits)
       .then((currentAction) => {
         const newFormData = { attacks: currentAction.attacks || [], parries: currentAction.parries || [] };
         updateAction(currentAction);
         setFormData(newFormData);
       })
       .catch((err) => notify.error(err));
-  };
-
-  const getEffectLabel = (effect: CriticalEffect) => {
-    const labels = [effect.value ? `${t(effect.status)} ${effect.value}` : t(effect.status)];
-    if (effect.rounds) labels.push(`${effect.rounds} ${effect.rounds === 1 ? t('round') : t('rounds')}`);
-    if (effect.delay) labels.push(`${t('delay')} ${effect.delay}`);
-    return labels.join(', ');
   };
 
   return (
@@ -55,13 +61,24 @@ const ResolveAttackFormFumble: FC<{
           disabled={action.status === 'completed'}
         />
       </Grid>
+      {hits && attack.roll?.fumbleRoll && (
+        <Grid size={6}>
+          <RollField
+            spec={hits.spec}
+            label={t('fumble-hits-dice', { dice: hits.dice })}
+            value={fumble.damage}
+            onChange={(roll) => onUpdateFumbleRoll(attack.roll!.fumbleRoll!, roll.total)}
+            disabled={action.status === 'completed'}
+          />
+        </Grid>
+      )}
       <Grid size={12}>
         <Stack direction="row" spacing={1} useFlexGap sx={{ flexWrap: 'wrap' }}>
           {!!fumble.damage && fumble.damage > 0 && (
             <Effect status={'dmg'} label={t('damage-n', { damage: fumble.damage })} color="error" />
           )}
           {(fumble.effects ?? []).map((effect, effectIndex) => (
-            <Effect key={effectIndex} status={effect.status} label={getEffectLabel(effect)} color="error" />
+            <Effect key={effectIndex} status={effect.status} label={criticalEffectLabel(effect, t)} color="error" />
           ))}
         </Stack>
       </Grid>

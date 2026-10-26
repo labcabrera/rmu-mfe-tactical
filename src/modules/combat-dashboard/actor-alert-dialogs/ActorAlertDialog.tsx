@@ -4,7 +4,7 @@ import { useAuth } from 'react-oidc-context';
 import Button from '@mui/material/Button';
 import { RmuDialog } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
-import { resolveEnduranceCheck } from '../../api/actor-rounds';
+import { resolveAlert, resolveEnduranceCheck } from '../../api/actor-rounds';
 import { ActorRound, ActorRoundAlert } from '../../api/actor-rounds.dto';
 import { useTacticalNotify } from '../../services/notify-service';
 import ActorAlertForm from './ActorAlertForm';
@@ -65,9 +65,25 @@ const ActorAlertDialog: FC<{
       .finally(() => setBusy(false));
   };
 
+  // Spec 034: the critical of a fumble is rolled by hand; applying the alert resolves it.
+  const resolveCritical = () => {
+    setBusy(true);
+    resolveAlert(actorRound.id, alertId, auth)
+      .then((updated) => {
+        updateActorRound(updated);
+        onClose();
+      })
+      .catch((err) => notify.error(err))
+      .finally(() => setBusy(false));
+  };
+
   const handleSave = () => {
     if (isEndurance) {
       resolveEndurance();
+      return;
+    }
+    if (currentAlert?.type === 'critical') {
+      resolveCritical();
       return;
     }
     if (currentAlert) onSave?.(currentAlert);

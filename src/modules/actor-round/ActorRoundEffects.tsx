@@ -61,6 +61,9 @@ const ActorRoundEffects: FC<{
     else if (state.value) parts.push(`${state.value}`);
     if (state.rounds && state.status !== 'surprised' && state.status !== 'flatfooted')
       parts.push(t('rounds-short', { count: state.rounds }));
+    // Spec 034: a delayed effect of a critical text says the round it starts in.
+    if (state.fromRound && state.fromRound > actorRound.round)
+      parts.push(t('effect-from-round', { round: state.fromRound }));
     return parts.join(' ');
   };
 
@@ -183,18 +186,18 @@ const ActorRoundEffects: FC<{
       )}
 
       {!readOnly && (
-      <Box sx={{ mt: 1, display: 'flex', alignItems: 'center' }}>
-        <TextField
-          size="small"
-          label={t('new-state')}
-          value={newState}
-          onChange={(e) => setNewState(e.target.value)}
-          sx={{ mr: 1 }}
-        />
-        <IconButton color="primary" onClick={addState} disabled={!newState}>
-          <AddIcon />
-        </IconButton>
-      </Box>
+        <Box sx={{ mt: 1, display: 'flex', alignItems: 'center' }}>
+          <TextField
+            size="small"
+            label={t('new-state')}
+            value={newState}
+            onChange={(e) => setNewState(e.target.value)}
+            sx={{ mr: 1 }}
+          />
+          <IconButton color="primary" onClick={addState} disabled={!newState}>
+            <AddIcon />
+          </IconButton>
+        </Box>
       )}
       <MedicalRollDialog actorRound={actorRound} target={stabilizing} onClose={() => setStabilizing(null)} />
     </Stack>

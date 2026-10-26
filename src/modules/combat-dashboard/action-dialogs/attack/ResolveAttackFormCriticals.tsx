@@ -10,6 +10,7 @@ import { criticalCode } from '../../../services/action-service';
 import { useTacticalNotify } from '../../../services/notify-service';
 import Effect from '../../../shared/generic/Effect';
 import OptionTiles from '../attack-modifiers/pickers/OptionTiles';
+import { criticalEffectLabel } from './critical-effect-label';
 import { CRITICAL_STYLE_OPTIONS, severityFeet, styleOptionsFor } from './style-critical-options';
 
 const NO_OPTION = 'none';
@@ -56,19 +57,7 @@ const ResolveAttackFormCriticals: FC<{
       .catch((err) => notify.error(err));
   };
 
-  const getStatusLabel = (effect: CriticalEffect) => {
-    const labels = [];
-    if (effect.value) {
-      labels.push(`${t(effect.status)} ${effect.value}`);
-    } else {
-      labels.push(t(effect.status));
-    }
-    if (effect.rounds) {
-      labels.push(`${effect.rounds} ${effect.rounds === 1 ? t('round') : t('rounds')}`);
-    }
-    if (effect.delay) labels.push(`${t('delay')} ${effect.delay}`);
-    return labels.join(', ');
-  };
+  const getStatusLabel = (effect: CriticalEffect) => criticalEffectLabel(effect, t);
 
   return (
     <>
