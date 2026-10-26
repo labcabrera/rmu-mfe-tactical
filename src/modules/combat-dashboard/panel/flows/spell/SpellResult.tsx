@@ -69,7 +69,9 @@ export const SpellResistanceHelp: FC<{ spell: ActionSpell }> = ({ spell }) => {
         realm: spell.spell.listRealms.map((realm) => t(realm)).join(' / '),
         level: spell.caster.level,
         levelModifier: formatBonus(-2 * spell.caster.level),
-        spellModifier: formatBonus(spell.spell.resistance?.modifier ?? 0),
+        spellPart: spell.spell.resistance?.modifier
+          ? t('spell-rr-help-spell', { modifier: formatBonus(spell.spell.resistance.modifier) })
+          : '',
         scr: spell.roll?.totalRoll ?? 0,
       })}
     </Typography>
