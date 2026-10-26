@@ -500,6 +500,12 @@ export type CriticalEffect = {
   /** Rounds before the effect starts. */
   delay?: number | null;
   condition?: string | null;
+  /** Limb of a `limb_useless` effect (`arm`, `leg`), spec 034. */
+  location?: string | null;
+  /** Severity of the `additional_critical` of a fumble, spec 034. */
+  severity?: string | null;
+  /** Dice of the value (`2d10`): the hits of a fumble, the distance of a knock back (spec 034). */
+  dice?: string | null;
 };
 
 export type AttackTableEntry = {

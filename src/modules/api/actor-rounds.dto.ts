@@ -276,6 +276,8 @@ export type ActorRoundEffect = {
   spentApBefore?: number;
   /** Where the effect comes from: the critical or fumble, or the strategic condition it was copied from (spec 013). */
   source?: InjurySource;
+  /** First round a delayed effect counts in (spec 034). */
+  fromRound?: number;
 };
 
 export type ActorRoundAttack = {

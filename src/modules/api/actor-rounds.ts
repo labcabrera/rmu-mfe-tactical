@@ -72,6 +72,12 @@ export async function declareActorRoundFightingStyle(
  * Endurance roll of an actor (§5.5): the API adds the modifiers to the roll, reads the endurance table and applies
  * the fatigue and hits of the result. With `alertId`, it also resolves the endurance alert.
  */
+/** Marks as resolved an alert handled by hand, such as the critical of a fumble (spec 034). */
+export async function resolveAlert(actorRoundId: string, alertId: string, auth: AuthContextProps): Promise<ActorRound> {
+  const url = `${apiTacticalUrl}/actor-rounds/${actorRoundId}/alerts/${alertId}/resolve`;
+  return await callApi(auth, url, { method: 'POST' });
+}
+
 export async function resolveEnduranceCheck(
   actorRoundId: string,
   data: { roll: number; alertId?: string; modifiers?: { key: string; value: number }[] },

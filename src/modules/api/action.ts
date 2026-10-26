@@ -169,13 +169,15 @@ export async function updateFumbleRoll(
   actionId: string,
   attackName: string,
   roll: number | null,
-  auth: AuthContextProps
+  auth: AuthContextProps,
+  /** Sum of the dice of the fumble hits (spec 034); the API rolls them when left out. */
+  fumbleHits?: number
 ): Promise<Action> {
   const url = `${apiTacticalUrl}/actions/${actionId}/attack/fumble-roll`;
   return await callApi(auth, url, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ attackName, fumbleRoll: roll }),
+    body: JSON.stringify({ attackName, fumbleRoll: roll, fumbleHits }),
   });
 }
 
