@@ -15,6 +15,7 @@ import { CombatContext } from '../../../../../CombatContext';
 import { applySpell, previewSpell, resolveSpellResistance, rollSpell, rollSpellFailure } from '../../../../api/action';
 import {
   Action,
+  ActionSpell,
   DEFAULT_SPELL_OPTIONS,
   SpellFailurePp,
   SpellOptions,
@@ -22,11 +23,12 @@ import {
   SpellRealm,
   SpellTargetRoll,
 } from '../../../../api/action.dto';
-import { ActorRound } from '../../../../api/actor-rounds.dto';
+import { ActorRound, ActorRoundAttack } from '../../../../api/actor-rounds.dto';
 import { isActionClosed } from '../../../../services/ap-service';
 import { useTacticalNotify } from '../../../../services/notify-service';
 import ActionFlow from '../../ActionFlow';
 import { actorCharacter } from '../../SpellDeclareDialog';
+import AttackFlow from '../attack/AttackFlow';
 import SpellOptionsStep from './SpellOptionsStep';
 import {
   SpellCastingResult,
@@ -54,9 +56,32 @@ const failurePowerPoints = (kind: SpellFailurePp, spellPp: number, current: numb
 };
 
 /**
+ * The attack of a bolt or ball spell read as ranged weapons (spec 030, phase 4): a bolt strikes one target, a ball
+ * makes one attack per target in its area (`fire-ball`, `fire-ball-2`…), up to the other actors of the round.
+ */
+const spellSourceAttacks = (spell: ActionSpell, others: number): ActorRoundAttack[] => {
+  const attack = spell.attack!;
+  const count = attack.kind === 'ball' ? Math.max(1, others) : 1;
+  return Array.from({ length: count }, (_, i) => ({
+    attackName: i === 0 ? attack.attackName : `${attack.attackName}-${i + 1}`,
+    baseBo: attack.bo,
+    currentBo: attack.bo,
+    type: 'ranged',
+    attackTable: attack.attackTable,
+    fumbleTable: attack.fumbleTable,
+    attackSize: attack.attackSize,
+    fumble: attack.fumble,
+    canThrow: false,
+    ranges: attack.ranges,
+  }));
+};
+
+/**
  * A spell cast in the side panel (spec 030): the spell chosen when it was declared, the choices of Table 4-2 with the
  * predicted SCR, the open-ended roll, then the spell failure roll of a failed cast, the resistance rolls of the
  * targets of a successful one and the power points to spend (the spell's, or what the failure result suggests).
+ * A successful bolt or ball goes on with the attack flow: targets and range, attack rolls and criticals; applying the
+ * attack spends the spell's power points.
  */
 const SpellCastFlow: FC<{
   action: Action;
@@ -125,7 +150,10 @@ const SpellCastFlow: FC<{
       rollSpellFailure(action.id, failureRoll, spell.spell.listRealms.length > 1 ? failureRealm : undefined, auth)
     );
   const resolveResistance = (targets: SpellTargetRoll[]) =>
-    run(() => resolveSpellResistance(action.id, targets, auth), () => setEditRr(false));
+    run(
+      () => resolveSpellResistance(action.id, targets, auth),
+      () => setEditRr(false)
+    );
   const apply = () =>
     run(
       () => applySpell(action.id, powerPoints ?? undefined, auth),
@@ -147,6 +175,15 @@ const SpellCastFlow: FC<{
   const castingContent = (
     <Stack spacing={2}>
       <SpellCastingResult spell={spell} />
+      {spell.result === 'success' && spell.attack && (
+        <Alert severity="info">
+          {t(`spell-attack-next-${spell.attack.kind}`, {
+            table: t(`spell-attack-table-${spell.attack.attackTable}`),
+            bo: formatBonus(spell.attack.bo),
+            fumble: spell.attack.fumble,
+          })}
+        </Alert>
+      )}
       {action.status === 'pending_roll' && (
         <>
           {spell.spell.listRealms.length > 1 && (
@@ -218,9 +255,7 @@ const SpellCastFlow: FC<{
   );
 
   const castingSummary =
-    scr === undefined || !spell.result
-      ? undefined
-      : `${t('spell-scr')} ${scr} · ${t(`spell-result-${spell.result}`)}`;
+    scr === undefined || !spell.result ? undefined : `${t('spell-scr')} ${scr} · ${t(`spell-result-${spell.result}`)}`;
   const steps: FlowStep[] = [
     {
       id: 'spell',
@@ -287,6 +322,34 @@ const SpellCastFlow: FC<{
       : []),
     { id: 'outcome', label: t('spell-step-outcome'), content: outcomeContent },
   ];
+
+  // A successful attack spell resolves its attack with the attack flow, unless it was applied without one.
+  const attackSpell =
+    spell.result === 'success' && !!spell.attack && (!!action.attacks?.length || action.status === 'pending_apply');
+  if (attackSpell) {
+    const baseName = spell.attack!.attackName;
+    const tableName = t(`spell-attack-table-${spell.attack!.attackTable}`);
+    const attackLabel = (attackName: string) =>
+      spell.attack!.kind === 'ball'
+        ? t('spell-ball-attack', {
+            name: tableName,
+            index: attackName === baseName ? 1 : Number(attackName.slice(baseName.length + 1)),
+          })
+        : tableName;
+    return (
+      <AttackFlow
+        kind="ranged"
+        action={action}
+        actorRound={actorRound}
+        onDeleted={onDeleted}
+        onNextPending={onNextPending}
+        sourceAttacks={spellSourceAttacks(spell, candidates.length - 1)}
+        leadingSteps={steps.slice(0, 4)}
+        attackLabel={attackLabel}
+        onApplied={refreshCaster}
+      />
+    );
+  }
 
   const last = steps.length - 1;
   const declared = action.status === 'declared' && !done;

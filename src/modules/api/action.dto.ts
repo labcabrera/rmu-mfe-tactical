@@ -388,6 +388,22 @@ export type ActionSpell = {
   failure?: { realm: SpellRealm; roll: number; modifier: number; total: number; text: string; suggestedPp: SpellFailurePp };
   targets?: ActionSpellTarget[];
   powerPointsSpent?: number | null;
+  /** Attack of a bolt or ball spell, resolved with the attack flow (spec 030, phase 4). */
+  attack?: ActionSpellAttack | null;
+};
+
+export type ActionSpellAttack = {
+  kind: 'bolt' | 'ball';
+  attackName: string;
+  attackTable: string;
+  attackSize: number;
+  criticalType: string;
+  fumbleTable: string;
+  fumble: number;
+  bo: number;
+  skillId: string | null;
+  ranges: { from: number; to: number; bonus: number }[];
+  radius: number | null;
 };
 
 export type SpellPreview = { modifiers: SpellRollModifier[]; bonus: number; needsPreparation: boolean; actionPoints: number };
