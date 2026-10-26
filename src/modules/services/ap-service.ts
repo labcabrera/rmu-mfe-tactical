@@ -92,6 +92,7 @@ export const DECLARE_AP_PROFILES: Partial<Record<ActionType, ActionApProfile>> =
   movement: { min: 1, max: 1 },
   stand_up: { min: 2, max: 2 },
   dodge: { min: 4, max: 4 },
+  cast_spell: { min: 2, max: 4 },
   draw_and_load: { min: 1, max: 1 },
   other: { min: 1, max: 1 },
 };

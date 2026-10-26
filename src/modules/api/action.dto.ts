@@ -67,6 +67,7 @@ export type ActionType =
   | 'stand_up'
   | 'dodge'
   | 'draw_and_load'
+  | 'cast_spell'
   | 'other'
   | 'skill'
   | 'free';
@@ -303,7 +304,95 @@ export type Action = {
   fatigue: number | null;
   /** Note of the action (what an "other" action was...). */
   description?: string | null;
+  /** Spell of a `cast_spell` action (spec 030). */
+  spell?: ActionSpell | null;
 };
+
+// --- Spell casting (spec 030) ---
+
+export type SpellRealm = 'channeling' | 'essence' | 'mentalism';
+export type SpellCastResult = 'success' | 'no-effect' | 'failure';
+export type SpellFailurePp = 'none' | 'one' | 'half-down' | 'half-up' | 'normal' | 'double' | 'triple' | 'all';
+export const SPELL_HANDS = ['none', 'one', 'two'] as const;
+export const SPELL_VOICES = ['none', 'whisper', 'normal', 'shout'] as const;
+export const SPELL_HELMETS = ['none', 'light', 'medium', 'heavy'] as const;
+export const SPELL_ARMORS = ['none', 'leather', 'metal'] as const;
+
+export type SpellOptions = {
+  subtle: boolean;
+  hands: (typeof SPELL_HANDS)[number];
+  voice: (typeof SPELL_VOICES)[number];
+  helmet: (typeof SPELL_HELMETS)[number];
+  armor: (typeof SPELL_ARMORS)[number];
+  armorEncumbrance: number;
+  preparationRounds: number;
+  customBonus: number;
+};
+
+export const DEFAULT_SPELL_OPTIONS: SpellOptions = {
+  subtle: false,
+  hands: 'two',
+  voice: 'normal',
+  helmet: 'none',
+  armor: 'none',
+  armorEncumbrance: 0,
+  preparationRounds: 0,
+  customBonus: 0,
+};
+
+export type SpellRollModifier = { key: string; value: number };
+
+export type SpellTargetConditions = {
+  willing?: boolean;
+  surprisedOrStunned?: boolean;
+  cover?: 'none' | 'partial' | 'full';
+  armor?: 'none' | 'organic' | 'metal';
+  helmet?: 'none' | 'organic' | 'metal';
+  range?: 'touch' | 'close' | 'normal' | 'far';
+};
+
+export type ActionSpellTarget = {
+  actorId: string;
+  actorName?: string | null;
+  rolled: boolean;
+  roll: number | null;
+  conditions: SpellTargetConditions;
+  breakdown: SpellRollModifier[];
+  total: number | null;
+  required: number;
+  resisted: boolean;
+  failure: number;
+};
+
+export type ActionSpell = {
+  spell: {
+    spellId: string;
+    name: string;
+    level: number;
+    typeCode: string | null;
+    type: 'elemental' | 'force' | 'informational' | 'utility';
+    subtype: string | null;
+    instant: boolean;
+    powerPoints: number;
+    listCode: string;
+    listName: string | null;
+    listRealms: SpellRealm[];
+    resistance: { kind: string; modifier: number | null; scaling: string | null } | null;
+    duration: Record<string, unknown> | null;
+    effects: Record<string, unknown>[];
+  };
+  caster: { realms: SpellRealm[]; realmStatBonus: number; level: number; listSkillId: string; ranks: number; listTypeModifier: number };
+  options?: SpellOptions;
+  roll?: { modifiers: SpellRollModifier[]; roll: number; totalRoll: number };
+  result?: SpellCastResult;
+  failure?: { realm: SpellRealm; roll: number; modifier: number; total: number; text: string; suggestedPp: SpellFailurePp };
+  targets?: ActionSpellTarget[];
+  powerPointsSpent?: number | null;
+};
+
+export type SpellPreview = { modifiers: SpellRollModifier[]; bonus: number; needsPreparation: boolean; actionPoints: number };
+
+export type SpellTargetRoll = { actorId: string; roll?: number; conditions?: SpellTargetConditions; bonus?: number };
 
 export type ResolveMovementDto = {
   phase: number;

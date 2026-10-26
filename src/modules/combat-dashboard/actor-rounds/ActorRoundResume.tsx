@@ -116,6 +116,9 @@ const ActorRoundResume: FC<{
           </Box>
           <Stack spacing={0.25}>
             <ResourceBar label={t('hp')} current={actorRound.hp.current} max={actorRound.hp.max} kind="hp" dense />
+            {character?.power && character.power.max > 0 && (
+              <ResourceBar label={t('power-points')} current={character.power.current} max={character.power.max} kind="pp" dense />
+            )}
             <ResourceBar
               label={t('fatigue')}
               current={Math.round(actorRound.fatigue.accumulator)}

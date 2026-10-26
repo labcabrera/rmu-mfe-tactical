@@ -8,6 +8,10 @@ import {
   ManeuverModifiersListing,
   ParryDeclaration,
   ResolveManeuverDto,
+  SpellOptions,
+  SpellPreview,
+  SpellRealm,
+  SpellTargetRoll,
 } from './action.dto';
 
 export async function fetchAction(actionId: string, auth: AuthContextProps): Promise<Action> {
@@ -204,4 +208,40 @@ export async function forceAction(
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ reason, note }),
   });
+}
+
+// --- Spell casting (spec 030) ---
+
+const patchJson = (auth: AuthContextProps, url: string, body: unknown) =>
+  callApi(auth, url, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+
+/** Spellcasting Roll modifiers of some choices (nothing stored). */
+export async function previewSpell(actionId: string, options: SpellOptions, auth: AuthContextProps): Promise<SpellPreview> {
+  const url = `${apiTacticalUrl}/actions/${actionId}/spell/preview`;
+  return await callApi(auth, url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ options }),
+  });
+}
+
+export async function rollSpell(actionId: string, options: SpellOptions, roll: number, auth: AuthContextProps): Promise<Action> {
+  return await patchJson(auth, `${apiTacticalUrl}/actions/${actionId}/spell/roll`, { options, roll });
+}
+
+export async function rollSpellFailure(
+  actionId: string,
+  roll: number,
+  realm: SpellRealm | undefined,
+  auth: AuthContextProps
+): Promise<Action> {
+  return await patchJson(auth, `${apiTacticalUrl}/actions/${actionId}/spell/failure-roll`, { roll, realm });
+}
+
+export async function resolveSpellResistance(actionId: string, targets: SpellTargetRoll[], auth: AuthContextProps): Promise<Action> {
+  return await patchJson(auth, `${apiTacticalUrl}/actions/${actionId}/spell/resistance-rolls`, { targets });
+}
+
+export async function applySpell(actionId: string, powerPoints: number | undefined, auth: AuthContextProps): Promise<Action> {
+  return await patchJson(auth, `${apiTacticalUrl}/actions/${actionId}/spell/apply`, { powerPoints });
 }

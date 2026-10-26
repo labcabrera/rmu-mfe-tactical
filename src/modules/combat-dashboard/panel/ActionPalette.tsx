@@ -33,6 +33,7 @@ import { isActorRoundFearBlocked } from '../../services/actor-round-service';
 import { useTacticalNotify } from '../../services/notify-service';
 import { actionLabel } from '../actor-rounds/action-view';
 import ManeuverDeclareDialog from './ManeuverDeclareDialog';
+import SpellDeclareDialog, { actorCharacter, isCaster } from './SpellDeclareDialog';
 
 type PaletteEntry = {
   key: string;
@@ -51,16 +52,13 @@ type PaletteEntry = {
 
 type PaletteGroup = { key: string; label: string; entries: PaletteEntry[] };
 
-/** Action types the tactical API cannot create yet (spec 005, phase 8). */
-const NOT_SUPPORTED: CombatActionType[] = ['cast_spell', 'cast_instant'];
-
 /** Palette entries declared as a maneuver with a fixed skill (the API resolves them as maneuvers). */
 const SKILL_MANEUVERS: Partial<Record<CombatActionType, string>> = { perception: 'perception', medical: 'medicine' };
 
 /** Entries of the palette for an actor in a phase, with the reason of the ones that are not available. */
 const usePaletteGroups = (actorRound: ActorRound, phase: number): PaletteGroup[] => {
   const { t } = useTranslation();
-  const { roundActions, actorRounds } = useContext(CombatContext)!;
+  const { roundActions, actorRounds, characters } = useContext(CombatContext)!;
   const openRounds = useOpenRounds();
   const actions = roundActions ?? [];
   const own = actions.filter((a) => a.actorId === actorRound.actorId);
@@ -109,15 +107,15 @@ const usePaletteGroups = (actorRound: ActorRound, phase: number): PaletteGroup[]
       warnings,
       ...extra,
       // A forced attack takes no AP: only a flatfooted actor cannot make it.
-      unavailable: NOT_SUPPORTED.includes(type)
-        ? 'coming-soon'
-        : ((extra.forced ? (flatfooted ? 'err-action-flatfooted' : undefined) : roundReason) ?? extra.unavailable),
+      unavailable: (extra.forced ? (flatfooted ? 'err-action-flatfooted' : undefined) : roundReason) ?? extra.unavailable,
     };
   };
 
   const melee = actorRound.attacks.some((a) => a.type === 'melee');
   const ranged = actorRound.attacks.some((a) => a.type === 'ranged');
   const afraid = isActorRoundFearBlocked(actorRound) ? 'err-action-fear' : undefined;
+  // Spells come from the spellbook of a strategic character (spec 030): NPCs cast none yet.
+  const caster = isCaster(actorCharacter(actorRound, characters));
   // Attacks are never free (spec 011, §6): an immediate attack granted by an effect is a forced action.
   return [
     {
@@ -161,7 +159,14 @@ const usePaletteGroups = (actorRound: ActorRound, phase: number): PaletteGroup[]
       label: t('maneuvers'),
       entries: [entry('maneuver'), entry('perception'), entry('medical')],
     },
-    { key: 'magic', label: t('magic'), entries: [entry('cast_spell'), entry('cast_instant')] },
+    {
+      key: 'magic',
+      label: t('magic'),
+      entries: [
+        entry('cast_spell', { unavailable: caster ? undefined : 'no-spellbook' }),
+        entry('cast_instant', { freeAction: true, unavailable: caster ? undefined : 'no-spellbook' }),
+      ],
+    },
     { key: 'other', label: t('other'), entries: [entry('other')] },
   ];
 };
@@ -202,6 +207,9 @@ const useCreateAction = (actorRound: ActorRound | null, phase: number, onCreated
 
 type ManeuverChoice = { entry: PaletteEntry; skillId: string | null };
 
+/** Spell casts are `cast_spell` actions; the instantaneous entry declares one as a free action. */
+const SPELL_ENTRIES: CombatActionType[] = ['cast_spell', 'cast_instant'];
+
 /**
  * Action palette of an actor: the action types grouped, filterable by typing (Enter picks the first match),
  * with the reason of the ones that cannot be declared now. Choosing one declares the action; maneuvers first
@@ -216,16 +224,19 @@ const ActionPalette: FC<{
 }> = ({ actorRound, phase, anchorEl, onClose, onCreated }) => {
   const isPhone = usePhone();
   const [maneuver, setManeuver] = useState<ManeuverChoice | null>(null);
+  const [spellEntry, setSpellEntry] = useState<PaletteEntry | null>(null);
   const { create, busy } = useCreateAction(actorRound, phase, (action) => {
     setManeuver(null);
+    setSpellEntry(null);
     onCreated(action);
   });
   const close = () => {
     setManeuver(null);
+    setSpellEntry(null);
     onClose();
   };
-  // The palette hides while the maneuver dialog is open.
-  const open = Boolean(actorRound) && !maneuver;
+  // The palette hides while the maneuver or spell dialog is open.
+  const open = Boolean(actorRound) && !maneuver && !spellEntry;
   const content = actorRound && (
     <PaletteContent
       actorRound={actorRound}
@@ -234,6 +245,7 @@ const ActionPalette: FC<{
       onClose={close}
       onCreate={create}
       onManeuver={setManeuver}
+      onSpell={setSpellEntry}
     />
   );
   const dialog = (
@@ -246,6 +258,16 @@ const ActionPalette: FC<{
       onDeclare={(declared) => maneuver && create(maneuver.entry, { maneuver: declared })}
     />
   );
+  const spellDialog = (
+    <SpellDeclareDialog
+      open={Boolean(actorRound && spellEntry)}
+      actorRound={actorRound}
+      instant={!!spellEntry?.freeAction}
+      busy={busy}
+      onClose={close}
+      onDeclare={(spell) => spellEntry && create(spellEntry, { actionType: 'cast_spell', spell })}
+    />
+  );
   if (isPhone) {
     return (
       <>
@@ -253,6 +275,7 @@ const ActionPalette: FC<{
           {content}
         </Drawer>
         {dialog}
+        {spellDialog}
       </>
     );
   }
@@ -272,6 +295,7 @@ const ActionPalette: FC<{
         {content}
       </Popover>
       {dialog}
+      {spellDialog}
     </>
   );
 };
@@ -283,7 +307,8 @@ const PaletteContent: FC<{
   onClose: () => void;
   onCreate: (entry: PaletteEntry) => void;
   onManeuver: (choice: ManeuverChoice) => void;
-}> = ({ actorRound, phase, busy, onClose, onCreate, onManeuver }) => {
+  onSpell: (entry: PaletteEntry) => void;
+}> = ({ actorRound, phase, busy, onClose, onCreate, onManeuver, onSpell }) => {
   const { t } = useTranslation();
   const groups = usePaletteGroups(actorRound, phase);
   const [filter, setFilter] = useState('');
@@ -304,6 +329,7 @@ const PaletteContent: FC<{
     // Perception and medical are maneuvers with their skill already chosen.
     const maneuverEntry = groups.flatMap((g) => g.entries).find((e) => e.type === 'maneuver')!;
     if (entry.type === 'maneuver') onManeuver({ entry, skillId: null });
+    else if (SPELL_ENTRIES.includes(entry.type)) onSpell(entry);
     else if (SKILL_MANEUVERS[entry.type]) onManeuver({ entry: maneuverEntry, skillId: SKILL_MANEUVERS[entry.type]! });
     else onCreate(entry);
   };

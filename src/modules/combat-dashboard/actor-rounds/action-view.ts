@@ -27,6 +27,7 @@ export const actionState = (action: Action): CombatActionState => {
     if (hasFumble(action)) return 'failed';
     const result = action.maneuver?.result?.result;
     if (result === 'failure' || result === 'absolute-failure') return 'failed';
+    if (action.spell?.result && action.spell.result !== 'success') return 'failed';
     return 'resolved';
   }
   if (action.status === 'interrupted' || action.status === 'expired') return 'failed';
@@ -85,20 +86,22 @@ export const actionStateTooltip = (action: Action, t: TFunction, openRounds: boo
   return parts.join(' · ');
 };
 
-/** Short label: the type (or maneuver skill), and the targets of an attack. */
+/** Short label: the type (or maneuver skill, or spell), and the targets of an attack or a spell. */
 export const actionLabel = (action: Action, t: TFunction, actorRounds: ActorRound[] | null): string => {
   let name: string;
   if (action.maneuver) name = t(action.maneuver.modifiers?.skillId || 'maneuver');
+  else if (action.spell) name = action.spell.spell.name;
   else name = t(combatActionInfo(action.actionType).labelKey);
   const targets = (action.attacks ?? [])
     .map((attack) => actorRounds?.find((ar) => ar.actorId === attack.modifiers?.targetId)?.actorName)
+    .concat((action.spell?.targets ?? []).map((target) => target.actorName ?? undefined))
     .filter((targetName): targetName is string => !!targetName);
   const label = targets.length > 0 ? `${name} → ${[...new Set(targets)].join(', ')}` : name;
   if (action.resolution?.mode === 'forced' && !action.freeAction) return `${t('forced')} · ${label}`;
   return action.freeAction ? `${t('free')} · ${label}` : label;
 };
 
-/** One-word result of a completed action (damage, distance, maneuver result), if there is one. */
+/** One-word result of a completed action (damage, distance, maneuver or spell result), if there is one. */
 export const actionResult = (action: Action, t: TFunction): string | undefined => {
   // Interrupted, expired, carried or held: the status says it.
   if (action.status !== 'completed' && (CLOSED_STATUSES.includes(action.status) || action.status === 'held'))
@@ -112,6 +115,7 @@ export const actionResult = (action: Action, t: TFunction): string | undefined =
   if (action.movement?.calculated?.distanceAdjusted !== undefined) {
     return `${action.movement.calculated.distanceAdjusted}'`;
   }
+  if (action.spell?.result) return t(`spell-result-${action.spell.result}`);
   const maneuverResult = action.maneuver?.result;
   if (maneuverResult?.result) return t(maneuverResult.result);
   if (maneuverResult?.percent !== undefined && maneuverResult.percent !== null) {
