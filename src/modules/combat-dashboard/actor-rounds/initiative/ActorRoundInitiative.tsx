@@ -38,7 +38,7 @@ const ActorRoundInitiative: FC<{ actorRound: ActorRound }> = ({ actorRound }) =>
   const flatfooted = isActorRoundFlatfooted(actorRound);
   const editable =
     !isDown && !flatfooted && isRoundEditable(game, displayRound) && game?.phase === 'declare_initiative';
-  const { base = 0, penalty = 0, roll, total, strikeReflex: strikeReflexBonus } = actorRound.initiative ?? {};
+  const { base = 0, penalty = 0, roll, total, strikeReflex: strikeReflexBonus, style } = actorRound.initiative ?? {};
   const declared = !!roll;
   const hasStrikeReflex = (actorRound.traits ?? []).some((trait) => trait.traitId === STRIKE_REFLEX);
   const [strikeReflex, setStrikeReflex] = useState(!!strikeReflexBonus);
@@ -94,6 +94,7 @@ const ActorRoundInitiative: FC<{ actorRound: ActorRound }> = ({ actorRound }) =>
         <Modifier label={t('base')} value={formatBonus(base)} />
         <Modifier label={t('penalty')} value={formatBonus(penalty)} />
         {!!strikeReflexBonus && <Modifier label={t('strike-reflex')} value={formatBonus(strikeReflexBonus)} />}
+        {!!style && <Modifier label={t('style-ability-lightning-reflexes')} value={formatBonus(style)} />}
         {declared && !editable && <Modifier label={t('roll')} value={String(roll)} />}
       </Stack>
       {editable && (

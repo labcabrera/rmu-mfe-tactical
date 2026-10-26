@@ -53,8 +53,47 @@ export type ActorRound = {
   bleeding?: number;
   /** RR bonuses copied from the character (`fear`, `essence`...); absent in older actor rounds and for NPCs. */
   resistances?: ActorRoundResistance[];
+  /** Fighting styles of the character (spec 032); absent in older actor rounds and for NPCs. */
+  fightingStyles?: ActorRoundFightingStyle[];
+  /** Style declared for the round; kept in the next rounds until changed. */
+  activeStyle?: ActorRoundActiveStyle | null;
   imageUrl: string | undefined;
 };
+
+export type ActorRoundStyleAbility = { abilityId: string; times: number };
+
+export type ActorRoundFightingStyle = {
+  skillId: string;
+  styleId: string;
+  ranks: number;
+  freeRanks: number;
+  abilities: ActorRoundStyleAbility[];
+};
+
+export type ActiveStyleAbility = ActorRoundStyleAbility & {
+  /** The equipment the ability needs is there. */
+  met: boolean;
+  /** Attacks it works with; null is any. */
+  attackNames: string[] | null;
+};
+
+export type ActorRoundActiveStyle = {
+  skillId: string;
+  styleId: string;
+  /** The equipment of the style is there; otherwise the style gives nothing. */
+  met: boolean;
+  attackNames: string[] | null;
+  /** OB of the free ranks (+2 each, at most +10). */
+  freeRanksBonus: number;
+  abilities: ActiveStyleAbility[];
+  /** Requirements the game can't check (mounted, leadership...). */
+  warnings: string[];
+  /** Optional abilities used this round (killing-strike). */
+  options: string[];
+};
+
+/** Optional abilities declared each round (spec 032). */
+export const OPTIONAL_STYLE_ABILITIES = ['killing-strike'];
 
 export type ActorRoundResistance = { resistance: string; totalBonus: number };
 
@@ -90,6 +129,8 @@ export type ActorRoundInitiative = {
   strikeReflex?: number;
   /** Reflexes bonus (spec 011), already included in the total. */
   reflexes?: number;
+  /** Fighting style bonus (Lightning Reflexes, spec 032), already included in the total. */
+  style?: number;
   total: number;
 };
 
