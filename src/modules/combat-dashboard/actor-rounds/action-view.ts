@@ -115,7 +115,13 @@ export const actionResult = (action: Action, t: TFunction): string | undefined =
   if (action.movement?.calculated?.distanceAdjusted !== undefined) {
     return `${action.movement.calculated.distanceAdjusted}'`;
   }
-  if (action.spell?.result) return t(`spell-result-${action.spell.result}`);
+  if (action.spell?.result) {
+    // A cast says whether the spell went off, and then how many targets it affected (their RR failed).
+    const targets = action.spell.targets ?? [];
+    if (action.spell.result !== 'success' || targets.length === 0) return t(`spell-result-${action.spell.result}`);
+    const affected = targets.filter((target) => !target.resisted).length;
+    return t('spell-log-affected', { affected, total: targets.length });
+  }
   const maneuverResult = action.maneuver?.result;
   if (maneuverResult?.result) return t(maneuverResult.result);
   if (maneuverResult?.percent !== undefined && maneuverResult.percent !== null) {

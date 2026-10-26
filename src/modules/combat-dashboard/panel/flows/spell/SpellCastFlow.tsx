@@ -28,11 +28,15 @@ import { useTacticalNotify } from '../../../../services/notify-service';
 import ActionFlow from '../../ActionFlow';
 import { actorCharacter } from '../../SpellDeclareDialog';
 import SpellOptionsStep from './SpellOptionsStep';
-import SpellResult from './SpellResult';
+import {
+  SpellCastingResult,
+  spellAllowsRr,
+  SpellOutcome,
+  SpellResistanceHelp,
+  SpellResistanceResults,
+  targetOutcome,
+} from './SpellResult';
 import SpellTargetsSection from './SpellTargetsSection';
-
-/** Spells whose targets take a resistance roll (spec 028 `resistance.kind`), as the API decides. */
-const RR_KINDS = ['realm', 'informational', 'willing'];
 
 /** Power points a spell failure result suggests (the API applies the same rule when none is given). */
 const failurePowerPoints = (kind: SpellFailurePp, spellPp: number, current: number): number => {
@@ -76,6 +80,8 @@ const SpellCastFlow: FC<{
   const [powerPoints, setPowerPoints] = useState<number | null>(null);
   const [step, setStep] = useState(1);
   const [busy, setBusy] = useState(false);
+  const [skipRr, setSkipRr] = useState(false);
+  const [editRr, setEditRr] = useState(false);
 
   useEffect(() => {
     if (action.status !== 'declared') return;
@@ -118,7 +124,8 @@ const SpellCastFlow: FC<{
     run(() =>
       rollSpellFailure(action.id, failureRoll, spell.spell.listRealms.length > 1 ? failureRealm : undefined, auth)
     );
-  const resolveResistance = (targets: SpellTargetRoll[]) => run(() => resolveSpellResistance(action.id, targets, auth));
+  const resolveResistance = (targets: SpellTargetRoll[]) =>
+    run(() => resolveSpellResistance(action.id, targets, auth), () => setEditRr(false));
   const apply = () =>
     run(
       () => applySpell(action.id, powerPoints ?? undefined, auth),
@@ -131,44 +138,70 @@ const SpellCastFlow: FC<{
   const suggestedPower = spell.failure
     ? failurePowerPoints(spell.failure.suggestedPp, spell.spell.powerPoints, currentPower)
     : spell.spell.powerPoints;
-  const allowsRr = spell.result === 'success' && RR_KINDS.includes(spell.spell.resistance?.kind ?? '');
+  const allowsRr = spellAllowsRr(spell);
+  const rolledTargets = (spell.targets ?? []).length > 0;
   const candidates = (actorRounds ?? []).filter((each) => each.round === actorRound.round);
   const missingPreparation = !!preview?.needsPreparation && options.preparationRounds < 1;
+  const scr = spell.roll?.totalRoll;
 
-  const resultContent =
-    action.status === 'pending_roll' ? (
-      <Stack spacing={2}>
-        <SpellResult spell={spell} />
-        {spell.spell.listRealms.length > 1 && (
-          <TextField
-            select
-            size="small"
-            label={t('realm')}
-            value={failureRealm}
-            onChange={(e) => setFailureRealm(e.target.value as SpellRealm)}
-            sx={{ maxWidth: 220 }}
-          >
-            {spell.spell.listRealms.map((realm) => (
-              <MenuItem key={realm} value={realm}>
-                {t(realm)}
-              </MenuItem>
-            ))}
-          </TextField>
-        )}
-        <Box sx={{ maxWidth: 260 }}>
-          <RollField
-            spec={OPEN_D100}
-            label={t('spell-failure-roll')}
-            value={failureRoll}
-            onChange={(value) => setFailureRoll(value.total)}
-            onClear={() => setFailureRoll(null)}
-          />
-        </Box>
-      </Stack>
-    ) : action.status === 'pending_apply' ? (
-      <Stack spacing={2}>
-        <SpellResult spell={spell} />
-        {allowsRr && <SpellTargetsSection spell={spell} candidates={candidates} busy={busy} onResolve={resolveResistance} />}
+  const castingContent = (
+    <Stack spacing={2}>
+      <SpellCastingResult spell={spell} />
+      {action.status === 'pending_roll' && (
+        <>
+          {spell.spell.listRealms.length > 1 && (
+            <TextField
+              select
+              size="small"
+              label={t('realm')}
+              value={failureRealm}
+              onChange={(e) => setFailureRealm(e.target.value as SpellRealm)}
+              sx={{ maxWidth: 220 }}
+            >
+              {spell.spell.listRealms.map((realm) => (
+                <MenuItem key={realm} value={realm}>
+                  {t(realm)}
+                </MenuItem>
+              ))}
+            </TextField>
+          )}
+          <Box sx={{ maxWidth: 260 }}>
+            <RollField
+              spec={OPEN_D100}
+              label={t('spell-failure-roll')}
+              value={failureRoll}
+              onChange={(value) => setFailureRoll(value.total)}
+              onClear={() => setFailureRoll(null)}
+            />
+          </Box>
+        </>
+      )}
+    </Stack>
+  );
+
+  const resistanceContent = (
+    <Stack spacing={2}>
+      <SpellResistanceHelp spell={spell} />
+      <SpellResistanceResults spell={spell} />
+      {action.status === 'pending_apply' && (
+        <SpellTargetsSection
+          key={(spell.targets ?? []).map((target) => target.actorId).join()}
+          spell={spell}
+          candidates={candidates}
+          busy={busy}
+          onResolve={(targets) => {
+            setSkipRr(false);
+            resolveResistance(targets);
+          }}
+        />
+      )}
+    </Stack>
+  );
+
+  const outcomeContent = (
+    <Stack spacing={2}>
+      <SpellOutcome spell={spell} />
+      {action.status === 'pending_apply' && (
         <Box sx={{ maxWidth: 260 }}>
           <NumericInput
             label={t('spell-power-points-to-spend')}
@@ -180,11 +213,14 @@ const SpellCastFlow: FC<{
             min={0}
           />
         </Box>
-      </Stack>
-    ) : (
-      <SpellResult spell={spell} />
-    );
+      )}
+    </Stack>
+  );
 
+  const castingSummary =
+    scr === undefined || !spell.result
+      ? undefined
+      : `${t('spell-scr')} ${scr} · ${t(`spell-result-${spell.result}`)}`;
   const steps: FlowStep[] = [
     {
       id: 'spell',
@@ -202,11 +238,17 @@ const SpellCastFlow: FC<{
       id: 'modifiers',
       label: t('modifiers'),
       summary: preview ? formatBonus(preview.bonus) : undefined,
-      content: <SpellOptionsStep options={options} needsPreparation={!!preview?.needsPreparation} onChange={(patch) => setOptions((prev) => ({ ...prev, ...patch }))} />,
+      content: (
+        <SpellOptionsStep
+          options={options}
+          needsPreparation={!!preview?.needsPreparation}
+          onChange={(patch) => setOptions((prev) => ({ ...prev, ...patch }))}
+        />
+      ),
     },
     {
       id: 'roll',
-      label: t('roll'),
+      label: t('spell-roll'),
       summary: spell.roll?.roll ?? roll ?? undefined,
       content: (
         <Stack spacing={2}>
@@ -230,11 +272,27 @@ const SpellCastFlow: FC<{
         </Stack>
       ),
     },
-    { id: 'result', label: t('result'), content: resultContent },
+    { id: 'casting', label: t('spell-step-casting'), summary: castingSummary, content: castingContent },
+    ...(allowsRr
+      ? [
+          {
+            id: 'resistance',
+            label: t('spell-step-resistance'),
+            summary: rolledTargets
+              ? (spell.targets ?? []).map((target) => targetOutcome(target, t)).join(' · ')
+              : t('spell-rr-skipped'),
+            content: resistanceContent,
+          },
+        ]
+      : []),
+    { id: 'outcome', label: t('spell-step-outcome'), content: outcomeContent },
   ];
 
+  const last = steps.length - 1;
   const declared = action.status === 'declared' && !done;
-  const current = declared ? step : 3;
+  // Resistance rolls come before applying: skipping them is an explicit choice of the game master.
+  const atResistance = action.status === 'pending_apply' && allowsRr && (!rolledTargets || editRr) && !skipRr;
+  const current = declared ? step : action.status === 'pending_roll' ? 3 : atResistance ? 4 : last;
   const primary = done
     ? undefined
     : action.status === 'declared'
@@ -248,7 +306,23 @@ const SpellCastFlow: FC<{
           }
       : action.status === 'pending_roll'
         ? { label: t('spell-roll-failure'), disabled: failureRoll === null || busy, onClick: castFailure }
-        : { label: t('spell-apply'), disabled: busy, onClick: apply };
+        : atResistance
+          ? rolledTargets
+            ? { label: t('next'), disabled: busy, onClick: () => setEditRr(false) }
+            : { label: t('spell-skip-resistance'), disabled: busy, onClick: () => setSkipRr(true) }
+          : { label: t('spell-apply'), disabled: busy, onClick: apply };
+  const back =
+    declared && current === 2
+      ? { label: t('back'), onClick: () => setStep(1) }
+      : action.status === 'pending_apply' && allowsRr && current === last
+        ? {
+            label: t('spell-step-resistance'),
+            onClick: () => {
+              setSkipRr(false);
+              setEditRr(true);
+            },
+          }
+        : undefined;
 
   return (
     <ActionFlow
@@ -256,7 +330,7 @@ const SpellCastFlow: FC<{
       steps={steps}
       activeIndex={current}
       primary={primary}
-      back={declared && current === 2 ? { label: t('back'), onClick: () => setStep(1) } : undefined}
+      back={back}
       onDeleted={onDeleted}
       onNextPending={onNextPending}
     />
