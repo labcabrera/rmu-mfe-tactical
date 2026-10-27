@@ -22,6 +22,7 @@ import ActorRoundInjuries from './ActorRoundInjuries';
 import ActorRoundItems from './ActorRoundItems';
 import ActorRoundPenalty from './ActorRoundPenalty';
 import ActorRoundResistances from './ActorRoundResistances';
+import ActorRoundPoisons from './poison/ActorRoundPoisons';
 
 const ActorRoundView: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
   const { t } = useTranslation();
@@ -48,6 +49,7 @@ const ActorRoundView: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
       <ActorRoundItems actorRound={actorRound} />
       <Divider sx={{ my: 1 }} />
 
+      <ActorRoundPoisons actorRound={actorRound} />
       <ActorRoundInjuries actorRound={actorRound} />
       <Divider sx={{ my: 1 }} />
 

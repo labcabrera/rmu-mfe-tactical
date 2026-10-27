@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import DeleteIcon from '@mui/icons-material/Delete';
 import HealingIcon from '@mui/icons-material/Healing';
+import ScienceIcon from '@mui/icons-material/Science';
 import { Button, IconButton, Stack, Tooltip, Typography } from '@mui/material';
 import { ConfirmDialog, Injury, InjuryList } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../CombatContext';
@@ -13,11 +14,12 @@ import { isRoundEditable } from '../services/game-service';
 import { useTacticalNotify } from '../services/notify-service';
 import InjuryEditDialog from './medical/InjuryEditDialog';
 import MedicalRollDialog, { MedicalTarget } from './medical/MedicalRollDialog';
+import ActorAntidoteDialog from './poison/ActorAntidoteDialog';
 
 /**
  * Injuries of the actor (spec 013): type, severity, location, bleeding, penalty and origin (attacker, round,
  * critical). In the current round of a game in progress, each one can be treated (a Medicine roll of a healer), and
- * the game master can edit or remove it.
+ * the game master can edit or remove it. A running poisoning takes an antidote instead (spec 042).
  */
 const ActorRoundInjuries: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
   const { t } = useTranslation();
@@ -28,6 +30,7 @@ const ActorRoundInjuries: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
   const [target, setTarget] = useState<MedicalTarget | null>(null);
   const [editing, setEditing] = useState<Injury | null>(null);
   const [deleting, setDeleting] = useState<Injury | null>(null);
+  const [antidoteFor, setAntidoteFor] = useState<Injury | null>(null);
   const injuries = actorRound.injuries ?? [];
   const bleeding = actorRoundBleeding(actorRound);
 
@@ -58,8 +61,17 @@ const ActorRoundInjuries: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
           editable
             ? (injury) => (
                 <>
-                  {injury.status !== 'healed' && (
-                    <Button size="small" startIcon={<HealingIcon />} onClick={() => setTarget({ kind: 'treat', injury })}>
+                  {injury.poison && !injury.poison.finished && (
+                    <Button size="small" startIcon={<ScienceIcon />} onClick={() => setAntidoteFor(injury)}>
+                      {t('antidote')}
+                    </Button>
+                  )}
+                  {injury.status !== 'healed' && !(injury.poison && !injury.poison.finished) && (
+                    <Button
+                      size="small"
+                      startIcon={<HealingIcon />}
+                      onClick={() => setTarget({ kind: 'treat', injury })}
+                    >
                       {t('treat')}
                     </Button>
                   )}
@@ -74,6 +86,7 @@ const ActorRoundInjuries: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
         }
       />
       <MedicalRollDialog actorRound={actorRound} target={target} onClose={() => setTarget(null)} />
+      <ActorAntidoteDialog actorRound={actorRound} injury={antidoteFor} onClose={() => setAntidoteFor(null)} />
       <InjuryEditDialog
         actorRound={actorRound}
         injury={editing}
