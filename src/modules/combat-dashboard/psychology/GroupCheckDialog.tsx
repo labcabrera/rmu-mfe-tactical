@@ -11,7 +11,6 @@ import {
   Button,
   Checkbox,
   FormControlLabel,
-  MenuItem,
   Stack,
   TextField,
   ToggleButton,
@@ -19,6 +18,7 @@ import {
   Typography,
 } from '@mui/material';
 import {
+  CharacterPicker,
   DifficultyPicker,
   formatBonus,
   NumericInput,
@@ -32,6 +32,7 @@ import { fearBonus } from '../../actor-round/psychology/ResistanceRollDialog';
 import { ActorRound } from '../../api/actor-rounds.dto';
 import { groupCheck } from '../../api/psychology';
 import { GroupCheckKind, GroupCheckResult } from '../../api/psychology.dto';
+import { useActorRoundOption } from '../../services/actor-round-option';
 import { useTacticalNotify } from '../../services/notify-service';
 import GroupCheckResultView from './GroupCheckResultView';
 import {
@@ -61,6 +62,7 @@ const GroupCheckDialog: FC<{ open: boolean; onClose: () => void }> = ({ open, on
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<GroupCheckResult | null>(null);
   const rounds = actorRounds ?? [];
+  const toOption = useActorRoundOption();
 
   useEffect(() => {
     if (!open) return;
@@ -90,24 +92,20 @@ const GroupCheckDialog: FC<{ open: boolean; onClose: () => void }> = ({ open, on
       .finally(() => setBusy(false));
   };
 
-  const actorSelect = (label: string, value: string | null, onChange: (id: string | null) => void, help?: string) => (
-    <TextField
-      select
-      size="small"
-      label={label}
-      value={value ?? ''}
-      onChange={(event) => onChange(event.target.value || null)}
-      helperText={help}
-      disabled={busy}
-      sx={{ minWidth: 220 }}
-    >
-      <MenuItem value="">{t('none')}</MenuItem>
-      {rounds.map((actorRound) => (
-        <MenuItem key={actorRound.actorId} value={actorRound.actorId}>
-          {`${actorRound.actorName} · ${factionName(actorRound.factionId)}`}
-        </MenuItem>
-      ))}
-    </TextField>
+  const actorOptions = rounds.map((actorRound) => toOption(actorRound));
+  const actorSelect = (label: string, value: string | null, onChange: (id: string | null) => void) => (
+    <Box sx={{ minWidth: 260 }}>
+      <CharacterPicker
+        variant="compact"
+        clearable
+        label={label}
+        options={actorOptions}
+        groupByFaction
+        value={value}
+        onChange={onChange}
+        disabled={busy}
+      />
+    </Box>
   );
 
   const content = (
@@ -141,14 +139,14 @@ const GroupCheckDialog: FC<{ open: boolean; onClose: () => void }> = ({ open, on
           renderInput={(params) => <TextField {...params} label={t('factions')} />}
           disabled={busy}
         />
-        <Autocomplete
-          multiple
-          size="small"
-          options={rounds.map((actorRound) => actorRound.actorId)}
+        <CharacterPicker
+          mode="multiple"
+          variant="compact"
+          label={t('actors')}
+          options={actorOptions}
+          groupByFaction
           value={form.actorIds}
-          getOptionLabel={(id) => actorById(id)?.actorName ?? id}
-          onChange={(_, value) => change({ actorIds: value })}
-          renderInput={(params) => <TextField {...params} label={t('actors')} />}
+          onChange={(actorIds) => change({ actorIds })}
           disabled={busy}
         />
         <Typography variant="caption" color="text.secondary">

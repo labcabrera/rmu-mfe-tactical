@@ -1,9 +1,10 @@
 import React, { FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Box, Button, Checkbox, FormControlLabel, MenuItem, Stack, TextField } from '@mui/material';
-import { OPEN_D100, RollField } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { Box, Button, Checkbox, FormControlLabel, MenuItem, Stack, TextField, Typography } from '@mui/material';
+import { CharacterAvatar, CharacterPicker, OPEN_D100, RollField } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { ActionSpell, SpellTargetConditions, SpellTargetRoll } from '../../../../api/action.dto';
 import { ActorRound } from '../../../../api/actor-rounds.dto';
+import { useActorRoundOption } from '../../../../services/actor-round-option';
 
 const COVERS = ['none', 'partial', 'full'] as const;
 const RANGES = ['touch', 'close', 'normal', 'far'] as const;
@@ -49,13 +50,10 @@ const SpellTargetsSection: FC<{
   const realms = spell.spell.listRealms;
   const allowsWilling = spell.spell.resistance?.kind === 'willing';
 
-  const toggle = (actorId: string, checked: boolean) =>
-    setForms((prev) => {
-      const next = { ...prev };
-      if (checked) next[actorId] = { roll: null, conditions: {} };
-      else delete next[actorId];
-      return next;
-    });
+  const toOption = useActorRoundOption();
+
+  const choose = (actorIds: string[]) =>
+    setForms((prev) => Object.fromEntries(actorIds.map((id) => [id, prev[id] ?? { roll: null, conditions: {} }])));
   const change = (actorId: string, patch: Partial<TargetForm>) =>
     setForms((prev) => ({ ...prev, [actorId]: { ...prev[actorId], ...patch } }));
   const changeConditions = (actorId: string, patch: Partial<SpellTargetConditions>) =>
@@ -76,88 +74,95 @@ const SpellTargetsSection: FC<{
 
   return (
     <Stack spacing={1.5}>
+      <CharacterPicker
+        mode="multiple"
+        label={t('targets')}
+        options={candidates.map((candidate) => toOption(candidate))}
+        groupByFaction
+        value={Object.keys(forms)}
+        onChange={choose}
+      />
       {candidates.map((candidate) => {
         const form = forms[candidate.actorId];
-        const willing = allowsWilling && !!form?.conditions.willing;
+        if (!form) return null;
+        const willing = allowsWilling && !!form.conditions.willing;
         return (
           <Box key={candidate.actorId}>
-            <FormControlLabel
-              control={<Checkbox checked={!!form} onChange={(e) => toggle(candidate.actorId, e.target.checked)} />}
-              label={candidate.actorName}
-            />
-            {form && (
-              <Stack direction="row" sx={{ flexWrap: 'wrap', gap: 2, alignItems: 'center', pl: 4 }}>
-                {allowsWilling && (
+            <Stack direction="row" spacing={1} sx={{ alignItems: 'center', mb: 1 }}>
+              <CharacterAvatar option={{ name: candidate.actorName, imageUrl: candidate.imageUrl }} size={28} />
+              <Typography variant="subtitle2">{candidate.actorName}</Typography>
+            </Stack>
+            <Stack direction="row" sx={{ flexWrap: 'wrap', gap: 2, alignItems: 'center', pl: 4.5 }}>
+              {allowsWilling && (
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={willing}
+                      onChange={(e) => changeConditions(candidate.actorId, { willing: e.target.checked })}
+                    />
+                  }
+                  label={t('spell-willing')}
+                />
+              )}
+              {!willing && (
+                <>
+                  <Box sx={{ width: 180 }}>
+                    <RollField
+                      spec={OPEN_D100}
+                      label={t('resistance-roll')}
+                      value={form.roll}
+                      onChange={(roll) => change(candidate.actorId, { roll: roll.total })}
+                      onClear={() => change(candidate.actorId, { roll: null })}
+                    />
+                  </Box>
                   <FormControlLabel
                     control={
                       <Checkbox
-                        checked={willing}
-                        onChange={(e) => changeConditions(candidate.actorId, { willing: e.target.checked })}
+                        checked={!!form.conditions.surprisedOrStunned}
+                        onChange={(e) => changeConditions(candidate.actorId, { surprisedOrStunned: e.target.checked })}
                       />
                     }
-                    label={t('spell-willing')}
+                    label={t('spell-surprised-stunned')}
                   />
-                )}
-                {!willing && (
-                  <>
-                    <Box sx={{ width: 180 }}>
-                      <RollField
-                        spec={OPEN_D100}
-                        label={t('resistance-roll')}
-                        value={form.roll}
-                        onChange={(roll) => change(candidate.actorId, { roll: roll.total })}
-                        onClear={() => change(candidate.actorId, { roll: null })}
-                      />
-                    </Box>
-                    <FormControlLabel
-                      control={
-                        <Checkbox
-                          checked={!!form.conditions.surprisedOrStunned}
-                          onChange={(e) => changeConditions(candidate.actorId, { surprisedOrStunned: e.target.checked })}
-                        />
+                  <Condition
+                    label={t('spell-cover')}
+                    value={form.conditions.cover ?? 'none'}
+                    values={COVERS}
+                    prefix="spell-cover"
+                    onChange={(cover) => changeConditions(candidate.actorId, { cover: cover as SpellTargetConditions['cover'] })}
+                  />
+                  <Condition
+                    label={t('spell-range')}
+                    value={form.conditions.range ?? 'normal'}
+                    values={RANGES}
+                    prefix="spell-range"
+                    onChange={(range) => changeConditions(candidate.actorId, { range: range as SpellTargetConditions['range'] })}
+                  />
+                  {realms.some((realm) => realm !== 'mentalism') && (
+                    <Condition
+                      label={t('spell-armor')}
+                      value={form.conditions.armor ?? 'none'}
+                      values={PROTECTIONS}
+                      prefix="spell-protection"
+                      onChange={(armor) =>
+                        changeConditions(candidate.actorId, { armor: armor as SpellTargetConditions['armor'] })
                       }
-                      label={t('spell-surprised-stunned')}
                     />
+                  )}
+                  {realms.includes('mentalism') && (
                     <Condition
-                      label={t('spell-cover')}
-                      value={form.conditions.cover ?? 'none'}
-                      values={COVERS}
-                      prefix="spell-cover"
-                      onChange={(cover) => changeConditions(candidate.actorId, { cover: cover as SpellTargetConditions['cover'] })}
+                      label={t('spell-helmet')}
+                      value={form.conditions.helmet ?? 'none'}
+                      values={PROTECTIONS}
+                      prefix="spell-protection"
+                      onChange={(helmet) =>
+                        changeConditions(candidate.actorId, { helmet: helmet as SpellTargetConditions['helmet'] })
+                      }
                     />
-                    <Condition
-                      label={t('spell-range')}
-                      value={form.conditions.range ?? 'normal'}
-                      values={RANGES}
-                      prefix="spell-range"
-                      onChange={(range) => changeConditions(candidate.actorId, { range: range as SpellTargetConditions['range'] })}
-                    />
-                    {realms.some((realm) => realm !== 'mentalism') && (
-                      <Condition
-                        label={t('spell-armor')}
-                        value={form.conditions.armor ?? 'none'}
-                        values={PROTECTIONS}
-                        prefix="spell-protection"
-                        onChange={(armor) =>
-                          changeConditions(candidate.actorId, { armor: armor as SpellTargetConditions['armor'] })
-                        }
-                      />
-                    )}
-                    {realms.includes('mentalism') && (
-                      <Condition
-                        label={t('spell-helmet')}
-                        value={form.conditions.helmet ?? 'none'}
-                        values={PROTECTIONS}
-                        prefix="spell-protection"
-                        onChange={(helmet) =>
-                          changeConditions(candidate.actorId, { helmet: helmet as SpellTargetConditions['helmet'] })
-                        }
-                      />
-                    )}
-                  </>
-                )}
-              </Stack>
-            )}
+                  )}
+                </>
+              )}
+            </Stack>
           </Box>
         );
       })}

@@ -104,5 +104,11 @@ export const healerCandidates = (actorRounds: ActorRound[], characters: Characte
     .map((actorRound) => {
       const character = characters.find((c) => c.id === (actorRound.characterId ?? actorRound.actorId));
       const medicine = character?.skills?.find((skill) => skill.skillId === MEDICINE_SKILL_ID)?.totalBonus;
-      return { id: actorRound.actorId, name: actorRound.actorName, medicine: medicine ?? 0 };
+      return {
+        id: actorRound.actorId,
+        name: actorRound.actorName,
+        medicine: medicine ?? 0,
+        imageUrl: actorRound.imageUrl,
+        factionId: actorRound.factionId,
+      };
     });
