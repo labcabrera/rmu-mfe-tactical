@@ -7,6 +7,8 @@ import type {
   ManeuverSkillModifier,
   ResolveManeuverDto,
 } from '../../../../api/action.dto';
+import type { ActorRound } from '../../../../api/actor-rounds.dto';
+import { FrenzyPurpose, frenzyManeuverModifiers } from '../../../../services/frenzy-service';
 
 // Client side of a maneuver roll (spec 010 §6): the choices of the modifiers step, the predicted total built from the
 // listing values, and the request sent to resolve it. The API recalculates every value from its catalog.
@@ -26,6 +28,8 @@ export type ManeuverForm = {
   roll: number | null;
   /** First die of the open-ended roll (unusual event on 66). */
   unmodified: number | null;
+  /** Adrenal Focus maneuver to enter or leave the frenzy (spec 040). */
+  purpose: FrenzyPurpose | null;
 };
 
 /**
@@ -54,10 +58,14 @@ export const selectionValue = (modifier: ManeuverSkillModifier, selection: Maneu
 export const isConflicting = (listing: ManeuverModifiersListing, maneuverType: ManeuverType): boolean =>
   listing.maneuverType === maneuverType ? listing.conflicting : maneuverType === 'absolute';
 
-/** The predicted breakdown, without the roll, in the order and with the keys of the API's breakdown. */
+/**
+ * The predicted breakdown, without the roll, in the order and with the keys of the API's breakdown. The actor gives the
+ * modifiers of a frenzy maneuver (spec 040).
+ */
 export const predictedModifiers = (
   listing: ManeuverModifiersListing,
-  form: ManeuverForm
+  form: ManeuverForm,
+  actorRound?: ActorRound
 ): { key: string; value: number }[] => {
   const modifiers: { key: string; value: number }[] = [
     { key: listing.skill.skillId, value: listing.skill.bonus },
@@ -70,6 +78,7 @@ export const predictedModifiers = (
   listing.skillModifiers.forEach((modifier) =>
     modifiers.push({ key: modifier.key, value: selectionValue(modifier, form.selections[modifier.key]) })
   );
+  if (actorRound) modifiers.push(...frenzyManeuverModifiers(actorRound, form.purpose));
   if (form.customBonus) modifiers.push({ key: 'custom-bonus', value: form.customBonus });
   if (isConflicting(listing, form.maneuverType) && !form.targetActorId && form.passiveTotal !== null) {
     modifiers.push({ key: 'conflict', value: 100 - form.passiveTotal });
@@ -77,8 +86,8 @@ export const predictedModifiers = (
   return modifiers.filter((modifier, index) => index < 2 || modifier.value !== 0);
 };
 
-export const predictedTotal = (listing: ManeuverModifiersListing, form: ManeuverForm): number =>
-  predictedModifiers(listing, form).reduce((sum, modifier) => sum + modifier.value, 0);
+export const predictedTotal = (listing: ManeuverModifiersListing, form: ManeuverForm, actorRound?: ActorRound): number =>
+  predictedModifiers(listing, form, actorRound).reduce((sum, modifier) => sum + modifier.value, 0);
 
 /** Choices of a maneuver: the stored ones of the action, or the listing's defaults and the remembered light. */
 export const initialForm = (
@@ -101,6 +110,7 @@ export const initialForm = (
     passiveBonus: null,
     roll: maneuver?.roll?.roll ?? null,
     unmodified: null,
+    purpose: modifiers?.purpose ?? null,
   };
 };
 
@@ -133,6 +143,7 @@ export const toResolveRequest = (listing: ManeuverModifiersListing, form: Maneuv
     ...(Object.keys(selections).length > 0 ? { selections } : {}),
     ...(form.customBonus ? { customBonus: form.customBonus } : {}),
     ...(isConflicting(listing, form.maneuverType) ? passiveSide(form) : {}),
+    ...(form.purpose ? { purpose: form.purpose } : {}),
     roll: { roll: form.roll as number, ...(form.unmodified !== null ? { unmodified: form.unmodified } : {}) },
   };
 };

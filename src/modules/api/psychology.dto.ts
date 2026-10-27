@@ -14,7 +14,10 @@ export const FEAR_EFFECTS = ['fear-balk', 'fear-retreat', 'fear-routed', 'fear-b
 
 /** `POST /v1/actor-rounds/{id}/resistance-rolls`. */
 export type ResistanceRollDto = {
-  kind: 'fear';
+  /** `physical` only for an actor dying in frenzy (spec 040). */
+  kind: 'fear' | 'physical';
+  /** Spec 040: the RR of a frenzy-dying actor, at attack level 0; the API kills it when it fails. */
+  reason?: 'frenzy-dying';
   /** Attack level: the fright level for fear. */
   attackLevel: number;
   /** Open-ended roll. */

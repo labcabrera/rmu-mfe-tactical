@@ -9,6 +9,7 @@ import { ActorRound, ActorRoundAlert } from '../../api/actor-rounds.dto';
 import { useTacticalNotify } from '../../services/notify-service';
 import ActorAlertForm from './ActorAlertForm';
 import BreakageCheckDialog from './BreakageCheckDialog';
+import FrenzyDyingRrDialog from './FrenzyDyingRrDialog';
 import EnduranceForm, { emptyEnduranceForm, EnduranceFormValue, enduranceModifiers } from './EnduranceForm';
 
 /**
@@ -92,6 +93,9 @@ const ActorAlertDialog: FC<{
 
   if (currentAlert?.type === 'breakage') {
     return <BreakageCheckDialog actorRound={actorRound} alert={currentAlert} open={open} onClose={onClose} />;
+  }
+  if (currentAlert?.type === 'frenzy-dying') {
+    return <FrenzyDyingRrDialog actorRound={actorRound} open={open} onClose={onClose} />;
   }
 
   return (
