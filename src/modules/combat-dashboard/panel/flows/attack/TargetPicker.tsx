@@ -5,6 +5,7 @@ import { CharacterPicker } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../../CombatContext';
 import { ActorRound } from '../../../../api/actor-rounds.dto';
 import { useActorRoundOption } from '../../../../services/actor-round-option';
+import { frenzyLevel } from '../../../../services/frenzy-service';
 
 const armor = (target: ActorRound) =>
   target.defense.at ??
@@ -35,7 +36,8 @@ const TargetStats: FC<{ target: ActorRound }> = ({ target }) => {
 
 /**
  * Inline target choice (spec 038): the actors of the other factions (or everyone, with the switch) as cards with
- * their DB, AT and hit points. Once a target is chosen it collapses to that card with a "change" button.
+ * their DB, AT and hit points. Once a target is chosen it collapses to that card with a "change" button. An attacker
+ * in frenzy sees everyone (spec 040, decision 15): it attacks the nearest creature, friend or foe.
  */
 const TargetPicker: FC<{
   sourceActorRound: ActorRound;
@@ -50,7 +52,7 @@ const TargetPicker: FC<{
     <CharacterPicker
       label={t('target')}
       options={rounds.map((actorRound) => toOption(actorRound))}
-      relation="enemies"
+      relation={frenzyLevel(sourceActorRound) > 0 ? 'all' : 'enemies'}
       factionId={sourceActorRound.factionId}
       exclude={[sourceActorRound.actorId]}
       allowShowAll

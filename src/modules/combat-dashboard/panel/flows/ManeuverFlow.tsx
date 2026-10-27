@@ -97,7 +97,7 @@ const ManeuverFlow: FC<{
   const type = done ? stored?.maneuverType : form.maneuverType;
   const difficulty = done ? stored?.difficulty : form.difficulty;
   const customBonus = done ? stored?.customBonus : form.customBonus;
-  const predicted = listing ? predictedModifiers(listing, form) : [];
+  const predicted = listing ? predictedModifiers(listing, form, actorRound) : [];
 
   const modifiersContent = listingError ? (
     <Alert
@@ -111,7 +111,7 @@ const ManeuverFlow: FC<{
       {listingError}
     </Alert>
   ) : listing ? (
-    <ManeuverModifiersStep listing={listing} form={form} onChange={change} targets={targets} />
+    <ManeuverModifiersStep listing={listing} form={form} onChange={change} targets={targets} actorRound={actorRound} />
   ) : (
     <CircularProgress size={24} />
   );
@@ -123,6 +123,7 @@ const ManeuverFlow: FC<{
       summary: [
         `${t(skillId, { defaultValue: skillId })} ${bonus === undefined ? '' : formatBonus(bonus)}`.trim(),
         type ? t(type) : null,
+        (done ? stored?.purpose : form.purpose) ? t((done ? stored?.purpose : form.purpose) as string) : null,
         action.maneuver?.continuesActionId ? t('continued-maneuver') : null,
         action.freeAction ? t('free') : null,
       ]

@@ -2,11 +2,12 @@ import React, { FC, MouseEvent, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import AddIcon from '@mui/icons-material/Add';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-import { Box, Button, Divider, Stack, Typography } from '@mui/material';
+import { Alert, Box, Button, Divider, Stack, Typography } from '@mui/material';
 import { CombatContext } from '../../../CombatContext';
 import ActorRoundView from '../../actor-round/ActorRoundView';
 import { Action } from '../../api/action.dto';
 import { ActorRound } from '../../api/actor-rounds.dto';
+import { frenzyLevel, isFrenzyDying } from '../../services/frenzy-service';
 import ActorAction from '../actor-rounds/ActorAction';
 
 /**
@@ -22,6 +23,7 @@ const ActorPanelView: FC<{
   const { t } = useTranslation();
   const { roundActions } = useContext(CombatContext)!;
   const actions = (roundActions ?? []).filter((a) => a.actorId === actorRound.actorId);
+  const frenzy = frenzyLevel(actorRound);
 
   return (
     <Stack spacing={2} sx={{ p: 2 }}>
@@ -40,6 +42,13 @@ const ActorPanelView: FC<{
           {t('view-character')}
         </Button>
       </Stack>
+      {/* Spec 040, decision 15: the frenzied actor attacks the nearest creature; the board only reminds it. */}
+      {frenzy > 0 && (
+        <Alert severity="warning">
+          {t(frenzy === 2 ? 'frenzy-greater' : 'frenzy')} · {t('frenzy-attack-nearest')}
+        </Alert>
+      )}
+      {isFrenzyDying(actorRound) && <Alert severity="error">{t('frenzy-dying')}</Alert>}
       <Box>
         <Typography variant="overline" color="text.secondary">
           {t('round-actions')}

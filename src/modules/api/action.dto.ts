@@ -1,3 +1,4 @@
+import type { FrenzyPurpose } from '../services/frenzy-service';
 import { KeyValue, ManeuverModifier, ManeuverModifierOption, ManeuverType } from '@labcabrera-rmu/rmu-react-shared-lib';
 
 // Same values as rmu-api-tactical (action-status.vo.ts). `pending_roll` is the current status while the attack,
@@ -186,6 +187,8 @@ export type ActionManeuverModifiers = {
   /** Actor the maneuver is against, and the skill its sheet gave the passive total with (spec 022). */
   targetActorId?: string | null;
   passiveSkillId?: string | null;
+  /** Adrenal Focus maneuver to enter or leave the frenzy (spec 040). */
+  purpose?: FrenzyPurpose | null;
 };
 
 /** Effect of an absolute maneuver result (core's table). */
@@ -264,6 +267,8 @@ export type ResolveManeuverDto = {
   targetActorId?: string;
   passiveRoll?: number;
   passiveBonus?: number;
+  /** Spec 040: enter or leave the frenzy on a success. */
+  purpose?: FrenzyPurpose;
   roll: { roll: number; unmodified?: number };
 };
 

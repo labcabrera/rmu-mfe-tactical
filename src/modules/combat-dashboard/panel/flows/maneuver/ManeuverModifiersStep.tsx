@@ -24,6 +24,7 @@ import { ManeuverModifiersListing, ManeuverSkillModifier } from '../../../../api
 import { ActorRound } from '../../../../api/actor-rounds.dto';
 import ModifierTile from '../../../action-dialogs/attack-modifiers/pickers/ModifierTile';
 import OptionTiles from '../../../action-dialogs/attack-modifiers/pickers/OptionTiles';
+import { FrenzyPurpose, frenzyManeuverModifiers, frenzyPurposes } from '../../../../services/frenzy-service';
 import { useSkillDifficultyGuide } from '../useSkillDifficultyGuide';
 import { isConflicting, ManeuverForm, optionLabelKey, predictedTotal, selectionValue } from './maneuver-form';
 
@@ -47,7 +48,9 @@ const ManeuverModifiersStep: FC<{
   onChange: (change: Partial<ManeuverForm>) => void;
   /** Actors the maneuver can be against: the others of the round. */
   targets?: ActorRound[];
-}> = ({ listing, form, onChange, targets = [] }) => {
+  /** Actor of the maneuver: an Adrenal Focus with the Frenzy talents may enter or leave the frenzy (spec 040). */
+  actorRound?: ActorRound;
+}> = ({ listing, form, onChange, targets = [], actorRound }) => {
   const { t } = useTranslation();
   const label = (key: string) => t(key, { defaultValue: key });
   const select = (key: string, value: ManeuverForm['selections'][string] | null) => {
@@ -58,7 +61,10 @@ const ManeuverModifiersStep: FC<{
   };
   const conflicting = isConflicting(listing, form.maneuverType);
   const target = targets.find((each) => each.actorId === form.targetActorId);
-  const total = predictedTotal(listing, form);
+  const total = predictedTotal(listing, form, actorRound);
+  const purposes = actorRound ? frenzyPurposes(actorRound, listing.skill.skillId) : [];
+  const purposeValue = (purpose: FrenzyPurpose) =>
+    actorRound ? frenzyManeuverModifiers(actorRound, purpose).reduce((sum, modifier) => sum + modifier.value, 0) : 0;
   const progress = listing.progress ?? 0;
   const guide = useSkillDifficultyGuide(listing.skill.skillId);
 
@@ -148,6 +154,16 @@ const ManeuverModifiersStep: FC<{
           </Box>
         )}
       </Box>
+
+      {purposes.length > 0 && (
+        <OptionTiles
+          label={t('frenzy-purpose')}
+          options={purposes.map((purpose) => ({ key: purpose, value: purposeValue(purpose) || null }))}
+          value={form.purpose ?? ''}
+          onChange={(key) => onChange({ purpose: key === form.purpose ? null : (key as FrenzyPurpose) })}
+          minTileWidth={150}
+        />
+      )}
 
       <Box>
         <Caption>{t('base-modifiers')}</Caption>
