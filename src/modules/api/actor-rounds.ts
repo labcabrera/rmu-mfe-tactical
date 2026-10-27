@@ -1,12 +1,22 @@
 import { AuthContextProps } from 'react-oidc-context';
-import { apiTacticalUrl, callApi, Page } from '@labcabrera-rmu/rmu-react-shared-lib';
 import {
+  apiTacticalUrl,
+  callApi,
+  GiveAntidoteDto,
+  Page,
+  PoisonData,
+  PoisonExposure,
+  ResolvePoisoningDto,
+} from '@labcabrera-rmu/rmu-react-shared-lib';
+import {
+  ActorAntidoteResult,
   ActorRound,
   ActorRoundEffect,
   BreakageCheckDto,
   DefenseLevel,
   MedicalResultDto,
   MedicalRollDto,
+  ResolvePoisoningResult,
   TreatInjuryDto,
   UpdateActorInjuryDto,
 } from './actor-rounds.dto';
@@ -200,4 +210,52 @@ export async function deleteActorRoundInjury(
 ): Promise<ActorRound> {
   const url = `${apiTacticalUrl}/actor-rounds/${actorRoundId}/injuries/${injuryId}`;
   return await callApi(auth, url, { method: 'DELETE' });
+}
+
+const jsonPost = (body: unknown): RequestInit => ({
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify(body),
+});
+
+/** A poison reaches the actor: it waits for its RR (spec 042). */
+export async function createActorPoisoning(
+  actorRoundId: string,
+  poison: PoisonData,
+  auth: AuthContextProps
+): Promise<{ actorRound: ActorRound; exposure: PoisonExposure }> {
+  const url = `${apiTacticalUrl}/actor-rounds/${actorRoundId}/poisonings`;
+  return await callApi(auth, url, jsonPost({ poison }));
+}
+
+/** The poison RR of an exposure; without a roll the server rolls it (spec 042). */
+export async function resolveActorPoisoning(
+  actorRoundId: string,
+  exposureId: string,
+  dto: ResolvePoisoningDto,
+  auth: AuthContextProps
+): Promise<ResolvePoisoningResult> {
+  const url = `${apiTacticalUrl}/actor-rounds/${actorRoundId}/poisonings/${exposureId}/resolve`;
+  return await callApi(auth, url, jsonPost(dto));
+}
+
+/** Drops an exposure without its RR (spec 042). */
+export async function dismissActorPoisoning(
+  actorRoundId: string,
+  exposureId: string,
+  auth: AuthContextProps
+): Promise<ActorRound> {
+  const url = `${apiTacticalUrl}/actor-rounds/${actorRoundId}/poisonings/${exposureId}`;
+  return await callApi(auth, url, { method: 'DELETE' });
+}
+
+/** Gives an antidote for a poisoning (spec 042). */
+export async function giveActorAntidote(
+  actorRoundId: string,
+  injuryId: string,
+  dto: GiveAntidoteDto,
+  auth: AuthContextProps
+): Promise<ActorAntidoteResult> {
+  const url = `${apiTacticalUrl}/actor-rounds/${actorRoundId}/injuries/${injuryId}/antidote`;
+  return await callApi(auth, url, jsonPost(dto));
 }

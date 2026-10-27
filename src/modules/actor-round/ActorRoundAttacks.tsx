@@ -1,6 +1,8 @@
 import React, { FC } from 'react';
 import { useTranslation } from 'react-i18next';
+import ScienceIcon from '@mui/icons-material/Science';
 import {
+  Chip,
   Stack,
   Typography,
   Table,
@@ -16,6 +18,9 @@ import { ActorRound, ActorRoundAttack } from '../api/actor-rounds.dto';
 
 const ActorRoundAttacks: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
   const { t } = useTranslation();
+  // Poison on the weapon of the attack (spec 042): the next hit spends it.
+  const coatingOf = (attack: ActorRoundAttack) =>
+    attack.itemId ? actorRound.items?.find((item) => item.itemId === attack.itemId)?.coating : undefined;
   const attacks = actorRound.attacks ?? [];
 
   const getAttackTableLabel = (attack: ActorRoundAttack): string => {
@@ -51,6 +56,15 @@ const ActorRoundAttacks: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
                   <TableCell>
                     <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
                       <span>{t(a.attackName)}</span>
+                      {coatingOf(a) && (
+                        <Chip
+                          size="small"
+                          color="secondary"
+                          variant="outlined"
+                          icon={<ScienceIcon />}
+                          label={t('item-coated', { name: t(coatingOf(a)!.name, coatingOf(a)!.name) })}
+                        />
+                      )}
                       {(a.broken || (a.breakagePenalty ?? 0) < 0) && (
                         <ItemConditionChip
                           condition={{ breakagePenalty: a.breakagePenalty ?? 0, broken: !!a.broken }}

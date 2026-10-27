@@ -1,7 +1,9 @@
 import React, { FC, useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import BuildIcon from '@mui/icons-material/Build';
+import ScienceIcon from '@mui/icons-material/Science';
 import {
+  Chip,
   IconButton,
   Paper,
   Stack,
@@ -50,7 +52,19 @@ const ActorRoundItems: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
             <TableBody>
               {items.map((item) => (
                 <TableRow key={item.itemId} hover>
-                  <TableCell>{item.name}</TableCell>
+                  <TableCell>
+                    {item.name}
+                    {item.coating && (
+                      <Chip
+                        size="small"
+                        color="secondary"
+                        variant="outlined"
+                        icon={<ScienceIcon />}
+                        label={t('item-coated', { name: t(item.coating.name, item.coating.name) })}
+                        sx={{ ml: 1 }}
+                      />
+                    )}
+                  </TableCell>
                   <TableCell>
                     {[t(`item-kind-${item.kind}`), item.slot && t(item.slot)].filter(Boolean).join(' · ')}
                   </TableCell>

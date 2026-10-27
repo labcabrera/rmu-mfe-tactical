@@ -2,7 +2,10 @@ import type {
   HpLogEntry,
   Injury,
   InjurySource,
+  ItemCoating,
   ItemCondition,
+  PoisonExposure,
+  PoisonRrResult,
   StrategicItemModifier,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 
@@ -58,6 +61,8 @@ export type ActorRound = {
   /** Style declared for the round; kept in the next rounds until changed. */
   activeStyle?: ActorRoundActiveStyle | null;
   imageUrl: string | undefined;
+  /** Poisons that reached the actor and wait for their RR (spec 042). */
+  poisonExposures?: PoisonExposure[];
 };
 
 export type ActorRoundStyleAbility = { abilityId: string; times: number };
@@ -218,7 +223,16 @@ export type ActorRoundItem = {
   modifiers: StrategicItemModifier[];
   startModifierIds: string[];
   condition: ItemCondition;
+  /** Poison on the weapon (spec 042): the next hit spends it, a critical exposes the target. */
+  coating?: ItemCoating | null;
+  coatingSpent?: boolean;
 };
+
+/** `POST v1/actor-rounds/:id/poisonings/:exposureId/resolve` (spec 042). */
+export type ResolvePoisoningResult = { actorRound: ActorRound; rr: PoisonRrResult; injuryId?: string };
+
+/** `POST v1/actor-rounds/:id/injuries/:injuryId/antidote` (spec 042). */
+export type ActorAntidoteResult = { actorRound: ActorRound; injuryId: string; neutralized: boolean };
 
 export type BreakageResult = 'absolute-failure' | 'failure' | 'partial-success' | 'success' | 'absolute-success';
 
