@@ -1,10 +1,11 @@
 import React, { FC, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Box, Card, CardContent, Chip, MenuItem, Stack, TextField, Typography } from '@mui/material';
-import { formatBonus, NumericInput } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { Box, Card, CardContent, MenuItem, Stack, TextField, Typography } from '@mui/material';
+import { CharacterPicker, formatBonus, NumericInput } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../../CombatContext';
 import { ActionAttack, PROTECT_POSITIONS, ProtectPosition } from '../../../../api/action.dto';
 import { ActorRound, ActorRoundAttack } from '../../../../api/actor-rounds.dto';
+import { useActorRoundOption } from '../../../../services/actor-round-option';
 import SelectAttackRange from '../../../../shared/selects/SelectAttackRange';
 import TargetPicker from './TargetPicker';
 import { attackLabel } from './attack-label';
@@ -28,6 +29,7 @@ const AttackTargetsStep: FC<{
 }> = ({ kind, actorRound, sourceAttacks, attacks, onTarget, onBo, onRange, onProtector, onProtectorPosition }) => {
   const { t } = useTranslation();
   const { actorRounds } = useContext(CombatContext)!;
+  const toOption = useActorRoundOption();
   // Penalties apply to the roll (the API adds them), not to the OB to spend.
   const penalty = (actorRound.penalty?.modifiers ?? []).reduce((sum, m) => sum + m.value, 0);
 
@@ -106,24 +108,22 @@ const AttackTargetsStep: FC<{
                     )}
                     {kind === 'melee' && protectorCandidates.length > 0 && (
                       <Box>
-                        <Typography variant="caption" color="text.secondary" component="div" sx={{ mb: 0.5 }}>
-                          {t('protectors')}
-                        </Typography>
-                        <Stack direction="row" sx={{ flexWrap: 'wrap', gap: 0.75 }}>
-                          {protectorCandidates.map((ar) => {
-                            const on = (attack.protectors ?? []).includes(ar.actorId);
-                            return (
-                              <Chip
-                                key={ar.actorId}
-                                label={`${ar.actorName} · ${t('protect')} ${ar.defense?.protect ?? 0}`}
-                                color={on ? 'primary' : 'default'}
-                                variant={on ? 'filled' : 'outlined'}
-                                aria-pressed={on}
-                                onClick={() => onProtector(attack.attackName, ar.actorId)}
-                              />
-                            );
-                          })}
-                        </Stack>
+                        <CharacterPicker
+                          mode="multiple"
+                          variant="compact"
+                          label={t('protectors')}
+                          options={protectorCandidates.map((ar) =>
+                            toOption(ar, { secondary: `${t('protect')} ${ar.defense?.protect ?? 0}` })
+                          )}
+                          value={attack.protectors ?? []}
+                          onChange={(ids) => {
+                            const current = attack.protectors ?? [];
+                            [
+                              ...ids.filter((id) => !current.includes(id)),
+                              ...current.filter((id) => !ids.includes(id)),
+                            ].forEach((id) => onProtector(attack.attackName, id));
+                          }}
+                        />
                         {(attack.protectors ?? []).map((protectorId) => (
                           <Stack
                             key={protectorId}

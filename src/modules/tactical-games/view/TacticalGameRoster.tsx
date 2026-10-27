@@ -23,10 +23,17 @@ import {
   Typography,
 } from '@mui/material';
 import { alpha, SxProps, Theme } from '@mui/material/styles';
-import { Character, Faction, resolveAssetUrl, TacticalGame } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { defaultFactionImage, defaultTacticalGameImage } from '../../services/image-service';
+import {
+  Character,
+  CharacterPicker,
+  characterOption,
+  Faction,
+  resolveAssetUrl,
+  TacticalGame,
+} from '@labcabrera-rmu/rmu-react-shared-lib';
+import { defaultFactionImage } from '../../services/image-service';
 
-/** Width of a faction or character cell: both grids share it, so their columns line up at every width. */
+/** Width of a faction cell. */
 const ROSTER_CELL = { xs: 12, sm: 6, md: 4, xl: 3 };
 
 /** Key of the element whose change is being saved: a faction id, a character id or `group:<factionId>`. */
@@ -216,26 +223,32 @@ export default function TacticalGameRoster({
                         : t('no-selected-characters')}
                     </Typography>
                   ) : (
-                    <Grid container spacing={1.5}>
-                      {shown.map((character) => {
+                    <CharacterPicker
+                      mode="multiple"
+                      variant="cards"
+                      options={shown.map((character) => {
                         const selected = isCharacterSelected(character.id);
-                        const locked = selected && !canRemove;
                         const unavailable = selected ? undefined : notAbleReason(character);
-                        return (
-                          <Grid key={character.id} size={ROSTER_CELL}>
-                            <CharacterRow
-                              character={character}
-                              selected={selected}
-                              unavailable={unavailable && t(unavailable)}
-                              disabled={finished || locked || busy || !!unavailable}
-                              pending={pending === character.id}
-                              hint={locked && !finished ? lockedHint : undefined}
-                              onClick={() => onToggleCharacter(character)}
-                            />
-                          </Grid>
-                        );
+                        return characterOption(character, {
+                          secondary: `${t(character.info.professionId)} · ${t('level')} ${character.experience.availableLevel}`,
+                          disabledReason: unavailable && t(unavailable),
+                          disabledHint: selected && !canRemove && !finished ? lockedHint : undefined,
+                        });
                       })}
-                    </Grid>
+                      value={shown.filter((character) => isCharacterSelected(character.id)).map((c) => c.id)}
+                      onChange={(ids) => {
+                        const toggled = shown.find(
+                          (character) => ids.includes(character.id) !== isCharacterSelected(character.id)
+                        );
+                        if (toggled) onToggleCharacter(toggled);
+                      }}
+                      renderDetails={(option) => {
+                        const character = shown.find((each) => each.id === option.id);
+                        return character && <CharacterStats character={character} />;
+                      }}
+                      pendingIds={pending ? [pending] : []}
+                      disabled={finished || busy}
+                    />
                   )}
                 </Box>
               );
@@ -361,87 +374,23 @@ function FactionRow({
   );
 }
 
-function CharacterRow({
-  character,
-  selected,
-  unavailable,
-  disabled,
-  pending,
-  hint,
-  onClick,
-}: {
-  character: Character;
-  selected: boolean;
-  /** Why it cannot join the game; the card is shown faded, with the reason instead of the check. */
-  unavailable?: string;
-  disabled: boolean;
-  pending: boolean;
-  hint?: string;
-  onClick: () => void;
-}) {
+/** Initiative, DB and hit points of a character, on the right of its card. */
+function CharacterStats({ character }: { character: Character }) {
   const { t } = useTranslation();
-  const card = (
-    <Card variant="outlined" sx={{ ...selectableSx(selected), opacity: unavailable ? 0.6 : 1 }}>
-      <CardActionArea
-        role="checkbox"
-        aria-checked={selected}
-        disabled={disabled}
-        onClick={onClick}
-        sx={{ height: '100%' }}
-      >
-        <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center', p: 1 }}>
-          <Avatar
-            variant="rounded"
-            src={resolveAssetUrl(character.imageUrl) || defaultTacticalGameImage}
-            alt={character.name}
-            sx={{ width: 64, height: 64, ...imageSx(selected) }}
-          />
-          <Box sx={{ minWidth: 0, flexGrow: 1 }}>
-            <Typography variant="subtitle2" noWrap color={selected ? 'text.primary' : 'text.secondary'}>
-              {character.name}
-            </Typography>
-            {unavailable ? (
-              <Typography variant="caption" color="error.main" noWrap component="div">
-                {unavailable}
-              </Typography>
-            ) : (
-              <Typography variant="caption" color="text.secondary" noWrap component="div">
-                {`${t(character.info.professionId)} · ${t('level')} ${character.experience.availableLevel}`}
-              </Typography>
-            )}
-            <Stack direction="row" spacing={1.5} sx={{ mt: 0.5 }}>
-              <IconStat
-                icon={<CasinoIcon fontSize="inherit" />}
-                value={character.initiative.totalBonus}
-                label={t('initiative')}
-              />
-              <IconStat
-                icon={<ShieldIcon fontSize="inherit" />}
-                value={character.defense.defensiveBonus}
-                label={t('defensive-bonus')}
-              />
-              <IconStat
-                icon={<HeartBrokenIcon fontSize="inherit" />}
-                value={character.hp.current}
-                label={t('hit-points')}
-              />
-            </Stack>
-          </Box>
-          {!unavailable && (
-            <Box sx={{ alignSelf: 'flex-start' }}>
-              <SelectionMark selected={selected} pending={pending} />
-            </Box>
-          )}
-        </Stack>
-      </CardActionArea>
-    </Card>
-  );
-  return hint ? (
-    <Tooltip title={hint}>
-      <Box sx={{ height: '100%' }}>{card}</Box>
-    </Tooltip>
-  ) : (
-    card
+  return (
+    <Stack spacing={0.5} sx={{ alignSelf: 'center' }}>
+      <IconStat
+        icon={<CasinoIcon fontSize="inherit" />}
+        value={character.initiative.totalBonus}
+        label={t('initiative')}
+      />
+      <IconStat
+        icon={<ShieldIcon fontSize="inherit" />}
+        value={character.defense.defensiveBonus}
+        label={t('defensive-bonus')}
+      />
+      <IconStat icon={<HeartBrokenIcon fontSize="inherit" />} value={character.hp.current} label={t('hit-points')} />
+    </Stack>
   );
 }
 
