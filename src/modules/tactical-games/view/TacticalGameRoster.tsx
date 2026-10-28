@@ -27,11 +27,10 @@ import {
   Character,
   CharacterPicker,
   characterOption,
+  entityImage,
   Faction,
-  resolveAssetUrl,
   TacticalGame,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { defaultFactionImage } from '../../services/image-service';
 
 /** Width of a faction cell. */
 const ROSTER_CELL = { xs: 12, sm: 6, md: 4, xl: 3 };
@@ -178,7 +177,7 @@ export default function TacticalGameRoster({
                 <Box key={faction.id}>
                   <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center', mb: 1.5 }}>
                     <Avatar
-                      src={resolveAssetUrl(faction.imageUrl) || defaultFactionImage}
+                      src={entityImage('faction', faction.imageUrl)}
                       alt={faction.name}
                       sx={{ width: 32, height: 32 }}
                     />
@@ -337,7 +336,7 @@ function FactionRow({
         <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center', p: 1 }}>
           <Avatar
             variant="rounded"
-            src={resolveAssetUrl(faction.imageUrl) || defaultFactionImage}
+            src={entityImage('faction', faction.imageUrl)}
             alt={faction.name}
             sx={{ width: 40, height: 40, ...imageSx(selected) }}
           />
