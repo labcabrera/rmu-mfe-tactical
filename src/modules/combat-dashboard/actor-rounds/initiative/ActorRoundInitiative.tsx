@@ -100,7 +100,7 @@ const ActorRoundInitiative: FC<{ actorRound: ActorRound }> = ({ actorRound }) =>
       {editable && (
         <RollField
           spec={TWO_D10}
-          label={t('initiative-roll')}
+          label={t('initiative-short')}
           value={roll || null}
           onChange={(value) => declare(value.total)}
           compact
