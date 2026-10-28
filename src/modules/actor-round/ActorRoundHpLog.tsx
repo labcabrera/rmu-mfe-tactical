@@ -47,15 +47,23 @@ const HpLogRow: FC<{ entry: HpLogEntry }> = ({ entry }) => {
 
 /**
  * Hit point changes of the displayed round (spec 013, §1.1): amount, origin (attack, critical with its key, bleeding,
- * treatment...), attacker and phase. Collapsed by default.
+ * treatment...), attacker and phase. Collapsed unless `defaultExpanded` (the health tab of the actor sheet).
  */
-const ActorRoundHpLog: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
+const ActorRoundHpLog: FC<{ actorRound: ActorRound; defaultExpanded?: boolean }> = ({
+  actorRound,
+  defaultExpanded = false,
+}) => {
   const { t } = useTranslation();
   const entries = actorRound.hpLog ?? [];
   const total = entries.reduce((sum, entry) => sum + entry.amount, 0);
 
   return (
-    <Accordion disableGutters variant="outlined" sx={{ '&:before': { display: 'none' } }}>
+    <Accordion
+      disableGutters
+      variant="outlined"
+      defaultExpanded={defaultExpanded}
+      sx={{ '&:before': { display: 'none' } }}
+    >
       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
         <Stack direction="row" spacing={1} sx={{ alignItems: 'baseline' }}>
           <Typography variant="subtitle2">{t('hp-log')}</Typography>

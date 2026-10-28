@@ -2,6 +2,8 @@ import React, { createContext, FC, ReactNode, useContext, useState } from 'react
 import { Stack, Typography } from '@mui/material';
 import { ActionTypeChip, SidePanelLayout } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
+import ActorRoundDialog from '../../actor-round/ActorRoundDialog';
+import { ActorRoundTab } from '../../actor-round/tabs/ActorRoundTabs';
 import { Action } from '../../api/action.dto';
 import { ActorRound } from '../../api/actor-rounds.dto';
 import { isActionActionable } from '../../services/ap-service';
@@ -19,6 +21,8 @@ type CombatPanelValue = {
   /** Actor round shown in the panel (its own view, or the actor of the open action). */
   selectedActorRoundId: string | null;
   openActor: (actorRound: ActorRound) => void;
+  /** Opens the full sheet of an actor (spec 045) and selects it in the panel. */
+  openActorDetail: (actorRound: ActorRound) => void;
   openAction: (action: Action) => void;
   /** Opens the resolution dialog of an action (and shows it in the panel). */
   resolveAction: (action: Action) => void;
@@ -35,15 +39,18 @@ export const useCombatPanel = (): CombatPanelValue => {
 };
 
 /**
- * Side panel of the combat screen, the action palette and the resolution dialog, shared by the board and the
- * log. The panel only shows actors and actions (their state and results); actions are resolved in the dialog,
- * whose forms need more room.
+ * Side panel of the combat screen, the action palette, the resolution dialog and the actor sheet, shared by the
+ * board and the log. The panel only shows actors and actions (their state and results); actions are resolved in
+ * the dialog, whose forms need more room, and the whole actor is in its sheet (spec 045).
  */
 const CombatPanelProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const { game, actorRounds, roundActions, displayRound } = useContext(CombatContext)!;
   const [panel, setPanel] = useState<PanelState>(null);
   const [palette, setPalette] = useState<{ actorRound: ActorRound; anchor: HTMLElement | null } | null>(null);
   const [resolvingId, setResolvingId] = useState<string | null>(null);
+  // Spec 045: the actor sheet, and its tab, kept while the dashboard is open (decision 6).
+  const [detailId, setDetailId] = useState<string | null>(null);
+  const [detailTab, setDetailTab] = useState<ActorRoundTab>('summary');
 
   const history = !!game && displayRound !== game.round;
   const currentPhase = game ? phaseNumber(game.phase) : 1;
@@ -63,6 +70,12 @@ const CombatPanelProvider: FC<{ children: ReactNode }> = ({ children }) => {
     openAction(action);
     setResolvingId(action.id);
   };
+  const openActorDetail = (actorRound: ActorRound) => {
+    openActor(actorRound);
+    setDetailId(actorRound.id);
+  };
+  // An actor round of another round is another id: the sheet closes when the displayed round changes.
+  const detailActorRound = detailId ? actorRounds?.find((ar) => ar.id === detailId) : undefined;
   const resolving = resolvingId ? roundActions?.find((a) => a.id === resolvingId) : undefined;
   const resolvingActorRound = actorRounds?.find((ar) => ar.actorId === resolving?.actorId);
   const openDeclare = canDeclare
@@ -82,7 +95,7 @@ const CombatPanelProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const nextAfterResolving = resolving ? nextPending(resolving) : undefined;
 
   // Keyboard: J/K (or the arrows once an actor is selected) move between actors, Enter resolves the
-  // selected actor's action waiting for input (or opens its first action), A opens its action palette.
+  // selected actor's action waiting for input (or opens its first action), A opens its action palette, F its sheet.
   const order = actorRounds ?? [];
   const selectedIndex = panelActorRound ? order.findIndex((ar) => ar.id === panelActorRound.id) : -1;
   const moveSelection = (step: number) => {
@@ -103,6 +116,16 @@ const CombatPanelProvider: FC<{ children: ReactNode }> = ({ children }) => {
     if (!target) return false;
     resolveAction(target);
   });
+  useShortcut(['f', 'F'], () => {
+    if (!panelActorRound) return false;
+    openActorDetail(panelActorRound);
+  });
+  // The sheet moves in board order too, and the panel follows it (decision 5).
+  const moveDetail = (step: number) => {
+    const index = order.findIndex((ar) => ar.id === detailId);
+    if (index < 0 || order.length === 0) return;
+    openActorDetail(order[(index + step + order.length) % order.length]);
+  };
   useShortcut(['a', 'A'], () => {
     if (!panelActorRound || !openDeclare) return false;
     openDeclare(panelActorRound, null);
@@ -124,6 +147,7 @@ const CombatPanelProvider: FC<{ children: ReactNode }> = ({ children }) => {
         key={panelActorRound.id}
         actorRound={panelActorRound}
         onOpenAction={openAction}
+        onOpenDetail={() => openActorDetail(panelActorRound)}
         onDeclare={openDeclare ? (e) => openDeclare(panelActorRound, e.currentTarget) : undefined}
       />
     );
@@ -140,7 +164,14 @@ const CombatPanelProvider: FC<{ children: ReactNode }> = ({ children }) => {
 
   return (
     <CombatPanelContext.Provider
-      value={{ selectedActorRoundId: panelActorRound?.id ?? null, openActor, openAction, resolveAction, openDeclare }}
+      value={{
+        selectedActorRoundId: panelActorRound?.id ?? null,
+        openActor,
+        openActorDetail,
+        openAction,
+        resolveAction,
+        openDeclare,
+      }}
     >
       <SidePanelLayout open={!!content} onClose={() => setPanel(null)} title={title} panel={content}>
         {children}
@@ -155,6 +186,13 @@ const CombatPanelProvider: FC<{ children: ReactNode }> = ({ children }) => {
           setPalette(null);
           openAction(action);
         }}
+      />
+      <ActorRoundDialog
+        actorRound={detailActorRound}
+        tab={detailTab}
+        onTabChange={setDetailTab}
+        onNavigate={moveDetail}
+        onClose={() => setDetailId(null)}
       />
       <ActionResolutionDialog
         action={resolving}

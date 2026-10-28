@@ -1,25 +1,30 @@
 import React, { FC, MouseEvent, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import AddIcon from '@mui/icons-material/Add';
+import OpenInFullIcon from '@mui/icons-material/OpenInFull';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { Alert, Box, Button, Divider, Stack, Typography } from '@mui/material';
 import { CombatContext } from '../../../CombatContext';
-import ActorRoundView from '../../actor-round/ActorRoundView';
+import ActorRoundBars from '../../actor-round/ActorRoundBars';
+import ActorRoundDefenseMode from '../../actor-round/ActorRoundDefenseMode';
 import { Action } from '../../api/action.dto';
 import { ActorRound } from '../../api/actor-rounds.dto';
 import { frenzyLevel, isFrenzyDying } from '../../services/frenzy-service';
 import ActorAction from '../actor-rounds/ActorAction';
+import ActorRoundEffects from '../actor-rounds/ActorRoundEffects';
 
 /**
- * An actor in the side panel: its actions this round (to open them), a button to declare a new one, its bars,
- * attacks, penalties and effects, and a link to its character sheet in a new tab (the combat stays open).
+ * An actor in the side panel, with what changes every round (spec 045): its actions this round (to open them), a
+ * button to declare a new one, its hit points and fatigue, its defense mode and its active effects. The rest is in
+ * the full sheet (a dialog with tabs) and in its character sheet, opened in a new tab (the combat stays open).
  */
 const ActorPanelView: FC<{
   actorRound: ActorRound;
   /** Set while the actor can declare (an action phase of the current round). */
   onDeclare?: (event: MouseEvent<HTMLElement>) => void;
   onOpenAction: (action: Action) => void;
-}> = ({ actorRound, onDeclare, onOpenAction }) => {
+  onOpenDetail: () => void;
+}> = ({ actorRound, onDeclare, onOpenAction, onOpenDetail }) => {
   const { t } = useTranslation();
   const { roundActions } = useContext(CombatContext)!;
   const actions = (roundActions ?? []).filter((a) => a.actorId === actorRound.actorId);
@@ -33,6 +38,9 @@ const ActorPanelView: FC<{
             {t('declare-action')}
           </Button>
         )}
+        <Button variant="outlined" startIcon={<OpenInFullIcon />} onClick={onOpenDetail}>
+          {t('actor-detail')}
+        </Button>
         <Button
           startIcon={<OpenInNewIcon />}
           href={`/strategic/characters/view/${actorRound.actorId}`}
@@ -67,7 +75,16 @@ const ActorPanelView: FC<{
         </Stack>
       </Box>
       <Divider />
-      <ActorRoundView actorRound={actorRound} />
+      <ActorRoundBars actorRound={actorRound} />
+      <Divider />
+      <ActorRoundDefenseMode actorRound={actorRound} />
+      <Divider />
+      <Box>
+        <Typography variant="overline" color="text.secondary">
+          {t('effects-states')}
+        </Typography>
+        <ActorRoundEffects actorRound={actorRound} />
+      </Box>
     </Stack>
   );
 };

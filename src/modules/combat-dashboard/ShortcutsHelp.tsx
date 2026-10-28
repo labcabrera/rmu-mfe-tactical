@@ -8,6 +8,7 @@ const SHORTCUTS: [string[], string][] = [
   [['↑', '↓'], 'shortcut-select-actor-arrows'],
   [['Enter'], 'shortcut-open-action'],
   [['A'], 'shortcut-declare'],
+  [['F'], 'shortcut-actor-detail'],
   [['N'], 'shortcut-next-phase'],
   [['L'], 'shortcut-toggle-log'],
   [['Esc'], 'shortcut-close-panel'],
