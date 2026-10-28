@@ -7,10 +7,10 @@ import {
   fetchStrategicGames,
   NumericInput,
   StrategicGame,
+  StrategicGamePicker,
   TacticalGame,
   useNotify,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
-import SelectStrategicGame from '../../shared/selects/SelectStrategicGame';
 
 const TacticalGameForm: FC<{
   formData: TacticalGame;
@@ -48,10 +48,12 @@ const TacticalGameForm: FC<{
       </Grid>
       {!strategicGame && (
         <Grid size={12}>
-          <SelectStrategicGame
+          <StrategicGamePicker
+            games={strategicGames}
             value={formData.strategicGameId}
-            onChange={(e) => setFormData({ ...formData, strategicGameId: e || '' })}
-            strategicGames={strategicGames}
+            onChange={(id) => setFormData({ ...formData, strategicGameId: id || '' })}
+            required
+            error={!formData.strategicGameId}
           />
         </Grid>
       )}

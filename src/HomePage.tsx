@@ -2,7 +2,7 @@ import React, { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { Grid } from '@mui/material';
-import { gridSizeCard, imageBaseUrl, LayoutBase, RmuTextCard } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { EntityCard, gridSizeShowcase, imageBaseUrl, LayoutBase } from '@labcabrera-rmu/rmu-react-shared-lib';
 
 const OPTIONS = [
   {
@@ -21,8 +21,8 @@ const HomePage: FC = () => {
     <LayoutBase breadcrumbs={[{ name: t('home'), link: '/' }, { name: t('tactical-module') }]}>
       <Grid container spacing={1}>
         {OPTIONS.map((c) => (
-          <Grid size={gridSizeCard} key={c.value}>
-            <RmuTextCard value={t(c.value)} subtitle={t(c.subtitle)} image={c.image} onClick={() => navigate(c.to)} />
+          <Grid size={gridSizeShowcase} key={c.value}>
+            <EntityCard title={t(c.value)} subtitle={t(c.subtitle)} image={c.image} onClick={() => navigate(c.to)} />
           </Grid>
         ))}
       </Grid>
