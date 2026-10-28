@@ -31,8 +31,8 @@ const ResolveAttackFormCriticals: FC<{
   if (!formData || !formData.attacks || formData.attacks.length <= index) return null;
 
   const criticals = attack.results?.criticals ?? [];
-  // §9.8: every critical of the attack uses the same roll (and location). The API resolves them all with the first
-  // one and rejects a different roll, so a single input sends it under the first critical's key.
+  // §9.8: every critical of the attack uses the same roll (and location). The API resolves them all with it, so a
+  // single input sends it under the first critical's key.
   const sharedRoll = Object.values(attack.roll?.criticalRolls ?? {}).find(
     (roll): roll is number => roll !== null && roll !== undefined
   );
@@ -89,8 +89,8 @@ const ResolveAttackFormCriticals: FC<{
             label={t('critical-roll')}
             value={sharedRoll}
             onChange={(roll) => onUpdateCriticalRoll(roll.total)}
-            // Once stored it resolves every critical: it is not changed afterwards.
-            disabled={action.status === 'completed' || sharedRoll !== undefined}
+            // Each roll resolves every critical again; it can change until the attack is applied.
+            disabled={action.status === 'completed'}
           />
         </Grid>
         <Grid size={6}>
