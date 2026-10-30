@@ -21,7 +21,14 @@ const Condition: FC<{
 }> = ({ label, value, values, prefix, onChange }) => {
   const { t } = useTranslation();
   return (
-    <TextField select size="small" label={label} value={value} onChange={(e) => onChange(e.target.value)} sx={{ minWidth: 130 }}>
+    <TextField
+      select
+      size="small"
+      label={label}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      sx={{ minWidth: 130 }}
+    >
       {values.map((each) => (
         <MenuItem key={each} value={each}>
           {t(`${prefix}-${each}`)}
@@ -57,7 +64,10 @@ const SpellTargetsSection: FC<{
   const change = (actorId: string, patch: Partial<TargetForm>) =>
     setForms((prev) => ({ ...prev, [actorId]: { ...prev[actorId], ...patch } }));
   const changeConditions = (actorId: string, patch: Partial<SpellTargetConditions>) =>
-    setForms((prev) => ({ ...prev, [actorId]: { ...prev[actorId], conditions: { ...prev[actorId].conditions, ...patch } } }));
+    setForms((prev) => ({
+      ...prev,
+      [actorId]: { ...prev[actorId], conditions: { ...prev[actorId].conditions, ...patch } },
+    }));
 
   const chosen = Object.entries(forms);
   const ready =
@@ -106,15 +116,13 @@ const SpellTargetsSection: FC<{
               )}
               {!willing && (
                 <>
-                  <Box sx={{ width: 180 }}>
-                    <RollField
-                      spec={OPEN_D100}
-                      label={t('resistance-roll')}
-                      value={form.roll}
-                      onChange={(roll) => change(candidate.actorId, { roll: roll.total })}
-                      onClear={() => change(candidate.actorId, { roll: null })}
-                    />
-                  </Box>
+                  <RollField
+                    spec={OPEN_D100}
+                    label={t('resistance-roll')}
+                    value={form.roll}
+                    onChange={(roll) => change(candidate.actorId, { roll: roll.total })}
+                    onClear={() => change(candidate.actorId, { roll: null })}
+                  />
                   <FormControlLabel
                     control={
                       <Checkbox
@@ -129,14 +137,18 @@ const SpellTargetsSection: FC<{
                     value={form.conditions.cover ?? 'none'}
                     values={COVERS}
                     prefix="spell-cover"
-                    onChange={(cover) => changeConditions(candidate.actorId, { cover: cover as SpellTargetConditions['cover'] })}
+                    onChange={(cover) =>
+                      changeConditions(candidate.actorId, { cover: cover as SpellTargetConditions['cover'] })
+                    }
                   />
                   <Condition
                     label={t('spell-range')}
                     value={form.conditions.range ?? 'normal'}
                     values={RANGES}
                     prefix="spell-range"
-                    onChange={(range) => changeConditions(candidate.actorId, { range: range as SpellTargetConditions['range'] })}
+                    onChange={(range) =>
+                      changeConditions(candidate.actorId, { range: range as SpellTargetConditions['range'] })
+                    }
                   />
                   {realms.some((realm) => realm !== 'mentalism') && (
                     <Condition

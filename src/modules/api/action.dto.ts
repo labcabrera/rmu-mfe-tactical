@@ -1,5 +1,12 @@
+import {
+  KeyValue,
+  ManeuverModifier,
+  ManeuverModifierOption,
+  ManeuverType,
+  RuleParams,
+  SkippedRule,
+} from '@labcabrera-rmu/rmu-react-shared-lib';
 import type { FrenzyPurpose } from '../services/frenzy-service';
-import { KeyValue, ManeuverModifier, ManeuverModifierOption, ManeuverType } from '@labcabrera-rmu/rmu-react-shared-lib';
 
 // Same values as rmu-api-tactical (action-status.vo.ts). `pending_roll` is the current status while the attack,
 // critical or fumble rolls are pending: each attack's `status` says which roll it waits for.
@@ -155,6 +162,10 @@ export type KeyValueModifier = {
   group?: ModifierGroup;
   /** Id of the combat plugin that added it. */
   source?: string;
+  /** Rule reference of the plugin (`§9.6`), for its explanation (spec 051). */
+  rule?: string;
+  /** Inputs of the value, for its explanation. */
+  params?: RuleParams;
 };
 
 export type ActionRoll = {
@@ -306,6 +317,8 @@ export type Action = {
   maneuver: ActionManeuver | null;
   attacks: ActionAttack[] | null;
   parries: ActionParry[] | null;
+  /** Actors who cannot parry or protect, and why (spec 051). */
+  parryExclusions?: ParryExclusion[];
   fatigue: number | null;
   /** Note of the action (what an "other" action was...). */
   description?: string | null;
@@ -560,6 +573,8 @@ export type ActionAttackModifiers = {
 export type AttackCalculationsDto = {
   rollModifiers: KeyValueModifier[];
   rollTotal: number;
+  /** Rules that did not apply, and why (spec 051). */
+  skipped?: SkippedRule[];
   /** Fumble range used for the roll (weapon fumble plus traits such as Foiler). */
   fumble?: number;
   /** Location hit by a called shot; without one no location is rolled (the AT is the torso's). */
@@ -585,4 +600,20 @@ export type ActionParry = {
   protectPosition?: ProtectPosition;
   /** Parry declared against this attacker in an earlier action of the round: fixed, its OB is not spent again. */
   carriedOver?: boolean;
+  /** Where `parryAvailable` comes from: the OB left on the parrying attack and the penalties (spec 051). */
+  breakdown?: ParryBreakdown;
+};
+
+/** The OB left on the melee attack an actor parries with, its penalties and, protecting, the protect penalty. */
+export type ParryBreakdown = { attackName: string; bo: number; penalty: number; protectPenalty?: number };
+
+/** Why an actor cannot parry or protect against the attack (spec 051). */
+export type ParryExclusionReason = 'parry-forbidden' | 'parry-last-action' | 'parry-no-ob';
+
+export type ParryExclusion = {
+  actorId: string;
+  targetActorId: string;
+  parryType: 'parry' | 'protect';
+  reason: ParryExclusionReason;
+  params?: RuleParams;
 };

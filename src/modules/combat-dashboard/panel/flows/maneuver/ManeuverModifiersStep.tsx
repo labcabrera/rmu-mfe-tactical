@@ -241,15 +241,13 @@ const ManeuverModifiersStep: FC<{
               ))}
             </TextField>
             {target && (
-              <Box sx={{ width: 200 }}>
-                <RollField
-                  spec={OPEN_D100}
-                  label={t('passive-roll')}
-                  value={form.passiveRoll}
-                  onChange={(passiveRoll) => onChange({ passiveRoll: passiveRoll.total })}
-                  onClear={() => onChange({ passiveRoll: null })}
-                />
-              </Box>
+              <RollField
+                spec={OPEN_D100}
+                label={t('passive-roll')}
+                value={form.passiveRoll}
+                onChange={(passiveRoll) => onChange({ passiveRoll: passiveRoll.total })}
+                onClear={() => onChange({ passiveRoll: null })}
+              />
             )}
             {target && target.actorType !== 'character' && (
               <Box sx={{ width: 200 }}>
