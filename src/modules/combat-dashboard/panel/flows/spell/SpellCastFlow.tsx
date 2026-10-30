@@ -307,7 +307,14 @@ const SpellCastFlow: FC<{
         </Stack>
       ),
     },
-    { id: 'casting', label: t('spell-step-casting'), summary: castingSummary, content: castingContent },
+    {
+      id: 'casting',
+      label: t('spell-step-casting'),
+      summary: castingSummary,
+      content: castingContent,
+      // Spec 052: once the failure roll is in, the step only shows results, and their explanations stay open
+      reviewInteractive: action.status !== 'pending_roll',
+    },
     ...(allowsRr
       ? [
           {
@@ -317,6 +324,7 @@ const SpellCastFlow: FC<{
               ? (spell.targets ?? []).map((target) => targetOutcome(target, t)).join(' · ')
               : t('spell-rr-skipped'),
             content: resistanceContent,
+            reviewInteractive: action.status !== 'pending_apply',
           },
         ]
       : []),
