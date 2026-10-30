@@ -1,7 +1,14 @@
 import React, { FC, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Box, Grid, Stack, Typography } from '@mui/material';
-import { NumericInput, OPEN_D100, RollBreakdown, RollField, TacticalGame } from '@labcabrera-rmu/rmu-react-shared-lib';
+import {
+  NumericInput,
+  OPEN_D100,
+  RollBreakdown,
+  RollField,
+  RollModifier,
+  TacticalGame,
+} from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
 import { ActorRound } from '../../api/actor-rounds.dto';
 
@@ -32,16 +39,35 @@ export const enduranceModifiers = (
   actorRound: ActorRound,
   game: TacticalGame | null,
   value: EnduranceFormValue
-): { key: string; value: number }[] =>
-  [
-    { key: 'endurance', value: actorRound.fatigue?.endurance ?? 0 },
-    { key: 'penalty-fatigue', value: -(actorRound.fatigue?.fatigue ?? 0) },
-    { key: 'maneuver-penalty', value: actorRound.movement?.penalty ?? 0 },
-    { key: 'temperature-modifier', value: game?.environment?.temperatureFatigueModifier ?? 0 },
-    { key: 'altitude-modifier', value: game?.environment?.altitudeFatigueModifier ?? 0 },
-    ...DEPRIVATION.map((d) => ({ key: d.key, value: (value.deprivation[d.key] ?? 0) * d.perUnit })),
-    { key: 'custom-bonus', value: value.customBonus ?? 0 },
-  ].filter((modifier) => modifier.value !== 0);
+): RollModifier[] =>
+  // Spec 052: the rule each entry comes from (§5.5, Table 5-5)
+  (
+    [
+      { key: 'endurance', value: actorRound.fatigue?.endurance ?? 0, group: 'skill', rule: '§5.5' },
+      { key: 'penalty-fatigue', value: -(actorRound.fatigue?.fatigue ?? 0), group: 'penalty', rule: '§5.5' },
+      { key: 'maneuver-penalty', value: actorRound.movement?.penalty ?? 0, group: 'penalty', rule: '§5.4' },
+      {
+        key: 'temperature-modifier',
+        value: game?.environment?.temperatureFatigueModifier ?? 0,
+        group: 'situation',
+        rule: '§5.5',
+      },
+      {
+        key: 'altitude-modifier',
+        value: game?.environment?.altitudeFatigueModifier ?? 0,
+        group: 'situation',
+        rule: '§5.5',
+      },
+      ...DEPRIVATION.map((d) => ({
+        key: d.key,
+        value: (value.deprivation[d.key] ?? 0) * d.perUnit,
+        group: 'situation',
+        rule: 'Table 5-5',
+        params: { units: value.deprivation[d.key] ?? 0, perUnit: d.perUnit },
+      })),
+      { key: 'custom-bonus', value: value.customBonus ?? 0, group: 'situation' },
+    ] as RollModifier[]
+  ).filter((modifier) => modifier.value !== 0);
 
 /** Endurance roll of an endurance alert: modifiers, the open-ended roll and the predicted total. */
 const EnduranceForm: FC<{
@@ -96,6 +122,7 @@ const EnduranceForm: FC<{
             />
           </Box>
           <RollBreakdown
+            context="endurance"
             modifiers={modifiers}
             roll={value.roll}
             totalLabel={value.roll === null ? t('predicted-total') : t('total')}

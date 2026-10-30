@@ -11,11 +11,11 @@ import {
   RollField,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
+import { resistanceBonus } from '../../actor-round/psychology/ResistanceRollDialog';
 import { fetchActorRound } from '../../api/actor-rounds';
 import { ActorRound } from '../../api/actor-rounds.dto';
 import { rollActorResistance } from '../../api/psychology';
 import { ResistanceRollResult } from '../../api/psychology.dto';
-import { resistanceBonus } from '../../actor-round/psychology/ResistanceRollDialog';
 import { useTacticalNotify } from '../../services/notify-service';
 
 /**
@@ -95,9 +95,11 @@ const FrenzyDyingRrDialog: FC<{ actorRound: ActorRound; open: boolean; onClose: 
                 ? t('rr-resisted', { total: result.total, required: result.required })
                 : t('rr-failed', { total: result.total, required: result.required, failure: result.failure })}
             </Typography>
-            <Typography variant="body2">{t(result.resisted ? 'frenzy-dying-survives' : 'frenzy-dying-dies')}</Typography>
+            <Typography variant="body2">
+              {t(result.resisted ? 'frenzy-dying-survives' : 'frenzy-dying-dies')}
+            </Typography>
           </Alert>
-          <RollBreakdown modifiers={result.breakdown} total={result.total} />
+          <RollBreakdown context="physical-rr" modifiers={result.breakdown} total={result.total} />
         </Stack>
       ) : (
         <Stack spacing={2}>

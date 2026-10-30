@@ -294,7 +294,9 @@ const SpellCastFlow: FC<{
           />
           {preview ? (
             <RollBreakdown
+              context="spell-cast"
               modifiers={preview.modifiers}
+              skipped={preview.skipped}
               roll={roll}
               totalLabel={roll === null ? t('predicted-total') : t('spell-scr')}
             />

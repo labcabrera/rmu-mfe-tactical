@@ -93,7 +93,7 @@ const GroupCheckResultView: FC<{ result: GroupCheckResult; factionName: (id: str
           )}
         </Alert>
       )}
-      {leaderRoll && <RollBreakdown modifiers={leaderRoll.breakdown} total={leaderRoll.total} />}
+      {leaderRoll && <RollBreakdown context="fear-rr" modifiers={leaderRoll.breakdown} total={leaderRoll.total} />}
 
       <TableContainer>
         <Table size="small">
@@ -140,7 +140,13 @@ const GroupCheckResultView: FC<{ result: GroupCheckResult; factionName: (id: str
                 <TableCell>
                   <Stack direction="row" sx={{ flexWrap: 'wrap', gap: 0.5 }}>
                     {actor.restrictions.map((restriction) => (
-                      <Chip key={restriction} size="small" color="error" variant="outlined" label={t(`group-restriction-${restriction}`)} />
+                      <Chip
+                        key={restriction}
+                        size="small"
+                        color="error"
+                        variant="outlined"
+                        label={t(`group-restriction-${restriction}`)}
+                      />
                     ))}
                     {actor.warnings.map((warning) => (
                       <Chip
