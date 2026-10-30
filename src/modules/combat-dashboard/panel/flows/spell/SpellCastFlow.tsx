@@ -202,15 +202,13 @@ const SpellCastFlow: FC<{
               ))}
             </TextField>
           )}
-          <Box sx={{ maxWidth: 260 }}>
-            <RollField
-              spec={OPEN_D100}
-              label={t('spell-failure-roll')}
-              value={failureRoll}
-              onChange={(value) => setFailureRoll(value.total)}
-              onClear={() => setFailureRoll(null)}
-            />
-          </Box>
+          <RollField
+            spec={OPEN_D100}
+            label={t('spell-failure-roll')}
+            value={failureRoll}
+            onChange={(value) => setFailureRoll(value.total)}
+            onClear={() => setFailureRoll(null)}
+          />
         </>
       )}
     </Stack>

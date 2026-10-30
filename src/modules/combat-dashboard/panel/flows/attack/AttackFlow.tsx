@@ -179,7 +179,7 @@ const AttackFlow: FC<{
           {
             id: 'parry',
             label: t('parry'),
-            content: <ParryStep formData={formData} setFormData={setFormData} />,
+            content: <ParryStep formData={formData} setFormData={setFormData} exclusions={action.parryExclusions} />,
           },
         ]
       : []),

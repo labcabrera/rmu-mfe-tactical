@@ -25,6 +25,7 @@ const ResolveAttackFormModifiers: FC<{
             modifiers={attack.calculated.rollModifiers}
             roll={attack.roll?.roll}
             total={attack.calculated.rollTotal}
+            skipped={attack.calculated.skipped}
           />
         </Grid>
       )}
