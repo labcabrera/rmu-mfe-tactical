@@ -41,14 +41,17 @@ const ActorPanelView: FC<{
         <Button variant="outlined" startIcon={<OpenInFullIcon />} onClick={onOpenDetail}>
           {t('actor-detail')}
         </Button>
-        <Button
-          startIcon={<OpenInNewIcon />}
-          href={`/strategic/characters/view/${actorRound.actorId}`}
-          target="_blank"
-          rel="noopener"
-        >
-          {t('view-character')}
-        </Button>
+        {/* An NPC (spec 055) has no character sheet. */}
+        {actorRound.actorType !== 'npc' && (
+          <Button
+            startIcon={<OpenInNewIcon />}
+            href={`/strategic/characters/view/${actorRound.actorId}`}
+            target="_blank"
+            rel="noopener"
+          >
+            {t('view-character')}
+          </Button>
+        )}
       </Stack>
       {/* Spec 040, decision 15: the frenzied actor attacks the nearest creature; the board only reminds it. */}
       {frenzy > 0 && (

@@ -2,7 +2,14 @@ import React, { FC, ReactNode, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import WaterDropIcon from '@mui/icons-material/WaterDrop';
 import { Box, ButtonBase, Stack, Tooltip, Typography } from '@mui/material';
-import { Character, effectColor, effectIcon, ResourceBar, StatusBadge } from '@labcabrera-rmu/rmu-react-shared-lib';
+import {
+  Character,
+  effectColor,
+  effectIcon,
+  npcSummary,
+  ResourceBar,
+  StatusBadge,
+} from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
 import { ActorRound } from '../../api/actor-rounds.dto';
 import { actorRoundBleeding, actorRoundDownState } from '../../services/actor-round-service';
@@ -23,9 +30,10 @@ const ActorRoundResume: FC<{
   extra?: ReactNode;
 }> = ({ actorRound, onActorRoundView, selected = false, extra }) => {
   const { t } = useTranslation();
-  const { characters, factions } = useContext(CombatContext)!;
+  const { characters, factions, npcs } = useContext(CombatContext)!;
   const factionColor = useFactionColor();
   const character = characters?.find((c: Character) => c.id === actorRound.actorId);
+  const npc = actorRound.npcId ? npcs?.find((each) => each.id === actorRound.npcId) : undefined;
   const faction = factions?.find((f) => f.id === actorRound.factionId);
   const color = factionColor(actorRound.factionId);
   const down = actorRoundDownState(actorRound);
@@ -105,6 +113,11 @@ const ActorRoundResume: FC<{
                 })}
               </Typography>
             )}
+            {npc && (
+              <Typography variant="caption" color="text.secondary" component="div" noWrap>
+                {npcSummary(npc, t)}
+              </Typography>
+            )}
             {faction && (
               <Stack direction="row" spacing={0.75} sx={{ alignItems: 'center', minWidth: 0 }}>
                 <Box sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: color, flexShrink: 0 }} />
@@ -117,7 +130,13 @@ const ActorRoundResume: FC<{
           <Stack spacing={0.25}>
             <ResourceBar label={t('hp')} current={actorRound.hp.current} max={actorRound.hp.max} kind="hp" dense />
             {character?.power && character.power.max > 0 && (
-              <ResourceBar label={t('power-points')} current={character.power.current} max={character.power.max} kind="pp" dense />
+              <ResourceBar
+                label={t('power-points')}
+                current={character.power.current}
+                max={character.power.max}
+                kind="pp"
+                dense
+              />
             )}
             <ResourceBar
               label={t('fatigue')}

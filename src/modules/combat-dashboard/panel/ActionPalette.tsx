@@ -21,6 +21,7 @@ import { CombatContext } from '../../../CombatContext';
 import { createAction } from '../../api/action';
 import { Action, ActionType, ForceReason } from '../../api/action.dto';
 import { ActorRound } from '../../api/actor-rounds.dto';
+import { isActorRoundFearBlocked } from '../../services/actor-round-service';
 import {
   apCapacity,
   apProfileLabel,
@@ -29,7 +30,6 @@ import {
   isActionOpen,
   useOpenRounds,
 } from '../../services/ap-service';
-import { isActorRoundFearBlocked } from '../../services/actor-round-service';
 import { useTacticalNotify } from '../../services/notify-service';
 import { actionLabel } from '../actor-rounds/action-view';
 import ManeuverDeclareDialog from './ManeuverDeclareDialog';
@@ -107,7 +107,8 @@ const usePaletteGroups = (actorRound: ActorRound, phase: number): PaletteGroup[]
       warnings,
       ...extra,
       // A forced attack takes no AP: only a flatfooted actor cannot make it.
-      unavailable: (extra.forced ? (flatfooted ? 'err-action-flatfooted' : undefined) : roundReason) ?? extra.unavailable,
+      unavailable:
+        (extra.forced ? (flatfooted ? 'err-action-flatfooted' : undefined) : roundReason) ?? extra.unavailable,
     };
   };
 
@@ -116,6 +117,7 @@ const usePaletteGroups = (actorRound: ActorRound, phase: number): PaletteGroup[]
   const afraid = isActorRoundFearBlocked(actorRound) ? 'err-action-fear' : undefined;
   // Spells come from the spellbook of a strategic character (spec 030): NPCs cast none yet.
   const caster = isCaster(actorCharacter(actorRound, characters));
+  const noSpells = actorRound.actorType === 'npc' ? 'npc-no-spells' : 'no-spellbook';
   // Attacks are never free (spec 011, §6): an immediate attack granted by an effect is a forced action.
   return [
     {
@@ -163,8 +165,8 @@ const usePaletteGroups = (actorRound: ActorRound, phase: number): PaletteGroup[]
       key: 'magic',
       label: t('magic'),
       entries: [
-        entry('cast_spell', { unavailable: caster ? undefined : 'no-spellbook' }),
-        entry('cast_instant', { freeAction: true, unavailable: caster ? undefined : 'no-spellbook' }),
+        entry('cast_spell', { unavailable: caster ? undefined : noSpells }),
+        entry('cast_instant', { freeAction: true, unavailable: caster ? undefined : noSpells }),
       ],
     },
     { key: 'other', label: t('other'), entries: [entry('other')] },

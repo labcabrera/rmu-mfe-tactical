@@ -7,9 +7,13 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { Box, Typography, Accordion, AccordionDetails, AccordionSummary } from '@mui/material';
 import {
   Character,
+  ENVIRONMENT_FACTION_ID,
+  environmentFactionName,
   Faction,
   fetchCharacters,
   fetchFactions,
+  fetchNpcs,
+  Npc,
   fetchStrategicGame,
   fetchTacticalGame,
   StrategicGame,
@@ -36,6 +40,8 @@ type CombatContextType = {
   setCharacters: Dispatch<SetStateAction<Character[] | null>>;
   factions: Faction[] | null;
   setFactions: Dispatch<SetStateAction<Faction[] | null>>;
+  /** NPCs the NPC actors come from (spec 055), for their image, category and stat block. */
+  npcs: Npc[] | null;
   roundActions: Action[] | null;
   setRoundActions: Dispatch<SetStateAction<Action[] | null>>;
   displayRound: number | null;
@@ -71,6 +77,7 @@ export const CombatProvider: FC<{
   const [actorRounds, setActorRounds] = useState<ActorRound[] | null>(null);
   const [characters, setCharacters] = useState<Character[] | null>(null);
   const [factions, setFactions] = useState<Faction[] | null>(null);
+  const [npcs, setNpcs] = useState<Npc[] | null>(null);
   const [roundActions, setRoundActions] = useState<Action[] | null>(null);
   const [displayRound, setDisplayRound] = useState<number | null>(null);
   const [roundActorSort, setRoundActorSort] = useState<RoundActorSort>('name');
@@ -111,17 +118,48 @@ export const CombatProvider: FC<{
   };
 
   const bindCharacters = (game: TacticalGame) => {
-    const characterIds = game.actors.map((e) => e.id);
+    const characterIds = game.actors.filter((actor) => actor.type !== 'npc').map((e) => e.id);
+    if (characterIds.length === 0) {
+      setCharacters([]);
+      return;
+    }
     const rsql = `id=in=(${characterIds.join(',')})`;
     fetchCharacters(rsql, 0, 100, auth)
       .then((data) => setCharacters(data.content))
       .catch((err) => notify.error(err));
   };
 
+  const bindNpcs = (game: TacticalGame) => {
+    const npcIds = [...new Set(game.actors.map((actor) => actor.npcId).filter((id): id is string => !!id))];
+    if (npcIds.length === 0) {
+      setNpcs([]);
+      return;
+    }
+    fetchNpcs(`id=in=(${npcIds.join(',')})`, 0, 100, auth)
+      .then((data) => setNpcs(data.content))
+      .catch((err) => notify.error(err));
+  };
+
+  // The environment (spec 055) is not a strategic faction: it is added here, so the board treats it as any other.
   const bindFactions = (game: TacticalGame) => {
-    const rsql = `id=in=(${game.factions.join(',')})`;
+    const environment: Faction[] = game.factions.includes(ENVIRONMENT_FACTION_ID)
+      ? [
+          {
+            id: ENVIRONMENT_FACTION_ID,
+            gameId: game.strategicGameId,
+            name: environmentFactionName(game.environmentFaction?.name, t),
+            management: { availableGold: 0 },
+          },
+        ]
+      : [];
+    const strategicIds = game.factions.filter((id) => id !== ENVIRONMENT_FACTION_ID);
+    if (strategicIds.length === 0) {
+      setFactions(environment);
+      return;
+    }
+    const rsql = `id=in=(${strategicIds.join(',')})`;
     fetchFactions(rsql, 0, 100, auth)
-      .then((data) => setFactions(data.content))
+      .then((data) => setFactions([...data.content, ...environment]))
       .catch((err) => notify.error(err));
   };
 
@@ -157,6 +195,7 @@ export const CombatProvider: FC<{
   useEffect(() => {
     if (game) {
       bindCharacters(game);
+      bindNpcs(game);
       bindFactions(game);
       bindStrategicGame(game.strategicGameId);
     }
@@ -198,6 +237,7 @@ export const CombatProvider: FC<{
           setCharacters,
           factions,
           setFactions,
+          npcs,
           roundActions,
           setRoundActions,
           displayRound,

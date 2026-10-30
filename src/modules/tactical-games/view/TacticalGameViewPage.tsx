@@ -18,15 +18,19 @@ import {
   fetchFactions,
   fetchStrategicGame,
   fetchTacticalGame,
+  addTacticalGameNpcs,
+  NpcEntry,
+  renameEnvironmentFaction,
   startRound,
   StrategicGame,
   TacticalGame,
   updateTacticalGame,
+  useCampaignNpcs,
   useEntity,
-  useNotify,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { addGameCharacters, deleteGameActors } from '../../api/tactical-game-roster';
 import { defaultTacticalGameImage } from '../../services/image-service';
+import { useTacticalNotify } from '../../services/notify-service';
 import PlayButton from '../../shared/buttons/PlayButton';
 import { FinishGameButton } from '../outcome/GameLifecycleButtons';
 import GameOutcomePanel from '../outcome/GameOutcomePanel';
@@ -39,7 +43,8 @@ const TacticalGameViewPage: FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { gameId } = useParams<{ gameId?: string }>();
-  const notify = useNotify();
+  // The NPC errors of the roster (`err-npc-realm`, `err-game-not-created`...) are shown by their translated code.
+  const notify = useTacticalNotify();
   const state = useEntity<TacticalGame>(gameId, (id) => fetchTacticalGame(id, auth), {
     initial: location.state?.tacticalGame,
     onError: notify.error,
@@ -49,6 +54,7 @@ const TacticalGameViewPage: FC = () => {
   const [characters, setCharacters] = useState<Character[]>([]);
   const [factions, setFactions] = useState<Faction[]>([]);
   const [pending, setPending] = useState<RosterPending>(null);
+  const npcs = useCampaignNpcs(strategicGame?.realmId);
 
   const updateImage = (imageUrl: string) => {
     if (!gameId || !imageUrl) return;
@@ -74,13 +80,8 @@ const TacticalGameViewPage: FC = () => {
 
   const isFactionSelected = (factionId: string) => tacticalGame?.factions.includes(factionId) || false;
 
-  const isActorSelected = (characterId: string) => {
-    return (
-      tacticalGame?.actors.some((actor: { id?: string; actorId?: string }) => {
-        return actor.id === characterId || actor.actorId === characterId;
-      }) || false
-    );
-  };
+  const isActorSelected = (characterId: string) =>
+    tacticalGame?.actors.some((actor) => actor.id === characterId) || false;
 
   // One change at a time: every change writes the same game, so parallel calls would clash on its version.
   const save = (key: string, call: (game: TacticalGame) => Promise<TacticalGame>) => {
@@ -111,6 +112,20 @@ const TacticalGameViewPage: FC = () => {
       selected ? addGameCharacters(game.id, ids, auth) : deleteGameActors(game.id, ids, auth)
     );
   };
+
+  const addNpcs = (factionId: string, entries: NpcEntry[]) =>
+    save(`npcs:${factionId}`, (game) =>
+      addTacticalGameNpcs(
+        game.id,
+        entries.map(({ npcId, count, name }) => ({ npcId, factionId, count, name })),
+        auth
+      )
+    );
+
+  const removeActor = (actorId: string) => save(actorId, (game) => deleteGameActors(game.id, [actorId], auth));
+
+  const renameEnvironment = (name: string) =>
+    save('npcs:environment', (game) => renameEnvironmentFaction(game.id, name, auth));
 
   useEffect(() => {
     if (factions && factions.length > 0) {
@@ -193,6 +208,10 @@ const TacticalGameViewPage: FC = () => {
             onToggleFaction={toggleFaction}
             onToggleCharacter={toggleActor}
             onSelectGroup={selectGroup}
+            npcs={npcs}
+            onAddNpcs={addNpcs}
+            onRemoveActor={removeActor}
+            onRenameEnvironment={renameEnvironment}
           />
         </Stack>
       )}

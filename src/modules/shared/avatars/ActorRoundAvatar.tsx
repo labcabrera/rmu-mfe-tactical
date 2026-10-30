@@ -1,6 +1,7 @@
-import React, { FC } from 'react';
+import React, { FC, useContext } from 'react';
 import Avatar from '@mui/material/Avatar';
-import { resolveAssetUrl } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { npcImage, resolveAssetUrl } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { CombatContext } from '../../../CombatContext';
 import { ActorRound } from '../../api/actor-rounds.dto';
 
 const initials = (name: string | undefined) =>
@@ -10,6 +11,14 @@ const initials = (name: string | undefined) =>
     .slice(0, 2)
     .map((part) => part[0].toUpperCase())
     .join('');
+
+/** Image of an actor: its own, or for an NPC the one of its creature group (spec 055). */
+export const useActorRoundImage = (actorRound: ActorRound | undefined): string | undefined => {
+  const npcs = useContext(CombatContext)?.npcs;
+  if (actorRound?.imageUrl) return resolveAssetUrl(actorRound.imageUrl);
+  const npc = actorRound?.npcId ? npcs?.find((each) => each.id === actorRound.npcId) : undefined;
+  return npc ? resolveAssetUrl(npcImage(npc)) : undefined;
+};
 
 /**
  * Avatar of an actor: its miniature image (the players need it to find the figure on the table), or its
@@ -22,7 +31,7 @@ const ActorRoundAvatar: FC<{
   variant?: 'circular' | 'rounded' | 'square';
 }> = ({ actorRound, dead = false, variant = 'circular', size = 40 }) => (
   <Avatar
-    src={actorRound?.imageUrl ? resolveAssetUrl(actorRound.imageUrl) : undefined}
+    src={useActorRoundImage(actorRound)}
     variant={variant}
     alt={actorRound?.actorName}
     sx={{

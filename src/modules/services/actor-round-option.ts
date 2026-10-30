@@ -1,6 +1,6 @@
 import { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import { CharacterOption } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { CharacterOption, npcImage } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../CombatContext';
 import { ActorRound } from '../api/actor-rounds.dto';
 import {
@@ -18,12 +18,17 @@ import { useFactionColor } from './faction-colors';
  */
 export const useActorRoundOption = () => {
   const { t } = useTranslation();
-  const { factions } = useContext(CombatContext)!;
+  const { factions, npcs } = useContext(CombatContext)!;
   const factionColor = useFactionColor();
+  // An NPC without an image of its own takes the one of its creature group (spec 055).
+  const npcAvatar = (actorRound: ActorRound) => {
+    const npc = actorRound.npcId ? npcs?.find((each) => each.id === actorRound.npcId) : undefined;
+    return npc ? npcImage(npc) : undefined;
+  };
   return (actorRound: ActorRound, extra: Partial<CharacterOption> = {}): CharacterOption => ({
     id: actorRound.actorId,
     name: actorRound.actorName,
-    imageUrl: actorRound.imageUrl,
+    imageUrl: actorRound.imageUrl || npcAvatar(actorRound),
     factionId: actorRound.factionId,
     factionName: factions?.find((faction) => faction.id === actorRound.factionId)?.name ?? actorRound.factionId,
     color: factionColor(actorRound.factionId),
