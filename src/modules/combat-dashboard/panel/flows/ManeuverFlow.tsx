@@ -12,16 +12,17 @@ import { apiErrorCode, useTacticalNotify } from '../../../services/notify-servic
 import { useSkillService } from '../../../services/skill-service';
 import ActionFlow from '../ActionFlow';
 import { ManeuverResult } from './ActionResults';
+import ManeuverModifiersStep from './maneuver/ManeuverModifiersStep';
 import {
   initialForm,
   ManeuverForm,
   passiveSideReady,
   predictedModifiers,
+  predictedSkipped,
   rememberedLight,
   rememberLight,
   toResolveRequest,
 } from './maneuver/maneuver-form';
-import ManeuverModifiersStep from './maneuver/ManeuverModifiersStep';
 
 /**
  * Static or moving maneuver in the side panel (spec 010 §6): the skill chosen when it was declared, the modifiers
@@ -152,7 +153,9 @@ const ManeuverFlow: FC<{
           />
           {listing && (
             <RollBreakdown
+              context="maneuver"
               modifiers={predicted}
+              skipped={predictedSkipped(listing, form)}
               roll={form.roll}
               totalLabel={form.roll === null ? t('predicted-total') : t('total')}
             />

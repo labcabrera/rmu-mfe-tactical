@@ -1,14 +1,14 @@
 import React, { FC, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { TFunction } from 'i18next';
 import { Chip, LinearProgress, Stack, Typography } from '@mui/material';
 import { formatBonus, RollBreakdown } from '@labcabrera-rmu/rmu-react-shared-lib';
+import type { TFunction } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { Action, ActionAttack, ActionManeuverEffect } from '../../../api/action.dto';
 import { AttackResultSummary } from '../../action-dialogs/attack/AttackResolutionGuide';
 import ResolveAttackInfo from '../../action-dialogs/attack/ResolveAttackInfo';
-import { isFailureResult, isPercentResult, isSuccessResult } from './maneuver/maneuver-form';
 import ResultValues from './ResultValues';
+import { isFailureResult, isPercentResult, isSuccessResult } from './maneuver/maneuver-form';
 
 // Results of a resolved (or partly resolved) action, shown in the resolution dialog and in the side panel.
 
@@ -35,7 +35,13 @@ export const MovementResult: FC<{ action: Action }> = ({ action }) => {
             : []),
         ]}
       />
-      {action.movement?.roll?.modifiers && <RollBreakdown modifiers={action.movement.roll.modifiers} />}
+      {action.movement?.roll?.modifiers && (
+        <RollBreakdown
+          context="maneuver"
+          modifiers={action.movement.roll.modifiers}
+          skipped={action.movement.roll.skipped}
+        />
+      )}
     </Stack>
   );
 };
@@ -138,7 +144,9 @@ export const ManeuverResult: FC<{ action: Action }> = ({ action }) => {
         </Stack>
       )}
       <ResultValues values={[{ label: t('fatigue'), value: action.fatigue || 0 }]} />
-      {maneuver?.roll?.modifiers && <RollBreakdown modifiers={maneuver.roll.modifiers} />}
+      {maneuver?.roll?.modifiers && (
+        <RollBreakdown context="maneuver" modifiers={maneuver.roll.modifiers} skipped={maneuver.roll.skipped} />
+      )}
     </Stack>
   );
 };

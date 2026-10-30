@@ -1,4 +1,4 @@
-import type { ManeuverType } from '@labcabrera-rmu/rmu-react-shared-lib';
+import type { ManeuverType, RollModifier, RuleParams, SkippedRule } from '@labcabrera-rmu/rmu-react-shared-lib';
 import type {
   ActionManeuver,
   ActionManeuverResult,
@@ -66,28 +66,106 @@ export const predictedModifiers = (
   listing: ManeuverModifiersListing,
   form: ManeuverForm,
   actorRound?: ActorRound
-): { key: string; value: number }[] => {
-  const modifiers: { key: string; value: number }[] = [
-    { key: listing.skill.skillId, value: listing.skill.bonus },
-    { key: 'difficulty', value: listing.difficulty.options.find((o) => o.key === form.difficulty)?.value ?? 0 },
-    ...listing.base.map((modifier) => ({ key: modifier.key, value: modifier.value })),
+): RollModifier[] => {
+  // Same groups, rules and inputs as the API's breakdown (spec 052), so the prediction explains itself too
+  const { skill } = listing;
+  const specialization: RuleParams = skill.specialization ? { specialization: skill.specialization } : {};
+  const modifiers: RollModifier[] = [
+    skill.unskilled
+      ? {
+          key: 'unskilled',
+          value: skill.bonus,
+          group: 'skill',
+          source: 'skill',
+          rule: MANEUVER_RULES.unskilled,
+          params: { skill: skill.skillId, ...specialization },
+        }
+      : {
+          key: skill.skillId,
+          value: skill.bonus,
+          group: 'skill',
+          source: 'skill',
+          rule: MANEUVER_RULES.skill,
+          params: { ranks: skill.ranks, ...specialization },
+        },
+    {
+      key: 'difficulty',
+      value: listing.difficulty.options.find((o) => o.key === form.difficulty)?.value ?? 0,
+      group: 'situation',
+      source: 'difficulty',
+      rule: MANEUVER_RULES.difficulty,
+      params: { difficulty: form.difficulty },
+    },
+    ...listing.base.map(({ key, value, group, source, rule, params }) => ({ key, value, group, source, rule, params })),
   ];
   if (listing.light && form.light) {
-    modifiers.push({ key: 'light', value: listing.light.options.find((o) => o.key === form.light)?.value ?? 0 });
+    modifiers.push({
+      key: 'light',
+      value: listing.light.options.find((o) => o.key === form.light)?.value ?? 0,
+      group: 'situation',
+      source: 'light',
+      rule: MANEUVER_RULES.light,
+      params: { light: form.light, usage: listing.light.usage },
+    });
   }
   listing.skillModifiers.forEach((modifier) =>
-    modifiers.push({ key: modifier.key, value: selectionValue(modifier, form.selections[modifier.key]) })
+    modifiers.push({
+      key: modifier.key,
+      value: selectionValue(modifier, form.selections[modifier.key]),
+      group: 'situation',
+      source: 'catalog',
+    })
   );
-  if (actorRound) modifiers.push(...frenzyManeuverModifiers(actorRound, form.purpose));
-  if (form.customBonus) modifiers.push({ key: 'custom-bonus', value: form.customBonus });
+  if (actorRound) {
+    frenzyManeuverModifiers(actorRound, form.purpose).forEach((modifier) =>
+      modifiers.push({ ...modifier, group: 'situation', source: 'frenzy' })
+    );
+  }
+  if (form.customBonus)
+    modifiers.push({ key: 'custom-bonus', value: form.customBonus, group: 'situation', source: 'custom' });
   if (isConflicting(listing, form.maneuverType) && !form.targetActorId && form.passiveTotal !== null) {
-    modifiers.push({ key: 'conflict', value: 100 - form.passiveTotal });
+    modifiers.push({
+      key: 'conflict',
+      value: 100 - form.passiveTotal,
+      group: 'situation',
+      source: 'conflict',
+      rule: MANEUVER_RULES.conflict,
+      params: { passive: form.passiveTotal },
+    });
   }
   return modifiers.filter((modifier, index) => index < 2 || modifier.value !== 0);
 };
 
-export const predictedTotal = (listing: ManeuverModifiersListing, form: ManeuverForm, actorRound?: ActorRound): number =>
-  predictedModifiers(listing, form, actorRound).reduce((sum, modifier) => sum + modifier.value, 0);
+/** Rule references of the maneuver modifiers, as the API gives them (spec 052). */
+export const MANEUVER_RULES = {
+  skill: 'Table 3-0b',
+  unskilled: 'Ch. 3, Skill Bonus',
+  difficulty: '§5.1',
+  light: 'Table 15-7',
+  conflict: '§8.2',
+} as const;
+
+/** The rules the prediction does not apply: the listing's, and a light the skill does not use (spec 052). */
+export const predictedSkipped = (listing: ManeuverModifiersListing, form: ManeuverForm): SkippedRule[] => [
+  ...(listing.skipped ?? []),
+  ...(!listing.light && form.light
+    ? [
+        {
+          source: 'light',
+          group: 'situation' as const,
+          reason: 'light-not-needed',
+          rule: MANEUVER_RULES.light,
+          params: { light: form.light },
+        },
+      ]
+    : []),
+];
+
+export const predictedTotal = (
+  listing: ManeuverModifiersListing,
+  form: ManeuverForm,
+  actorRound?: ActorRound
+): number => predictedModifiers(listing, form, actorRound).reduce((sum, modifier) => sum + modifier.value, 0);
 
 /** Choices of a maneuver: the stored ones of the action, or the listing's defaults and the remembered light. */
 export const initialForm = (
@@ -152,8 +230,7 @@ export const toResolveRequest = (listing: ManeuverModifiersListing, form: Maneuv
 const SUCCESS_RESULTS = ['success', 'absolute-success', 'partial-success'];
 
 export const isSuccessResult = (result: string | undefined) => !!result && SUCCESS_RESULTS.includes(result);
-export const isFailureResult = (result: string | undefined) =>
-  result === 'failure' || result === 'absolute-failure';
+export const isFailureResult = (result: string | undefined) => result === 'failure' || result === 'absolute-failure';
 
 /** Percent maneuver result, as opposed to an absolute one. */
 export const isPercentResult = (result: ActionManeuverResult | undefined) =>

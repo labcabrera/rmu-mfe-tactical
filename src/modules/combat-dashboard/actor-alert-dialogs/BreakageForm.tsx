@@ -8,6 +8,7 @@ import {
   RollBreakdown,
   RollField,
   TechnicalInfo,
+  RollModifier,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { ActorRound, ActorRoundAlert, ActorRoundItem, BreakageCheckDto } from '../../api/actor-rounds.dto';
 import { isDevelopment } from '../../services/action-service';
@@ -52,15 +53,16 @@ export const breakageModifiers = (
   item: ActorRoundItem | undefined,
   alert: ActorRoundAlert | undefined,
   value: BreakageFormValue
-): { key: string; value: number }[] => {
+): RollModifier[] => {
   const quality = (item?.modifiers || [])
     .filter((m) => m.type !== 'breakage' && (m.appliesTo === 'all' || m.appliesTo === 'breakage'))
     .reduce((sum, m) => sum + (m.value || 0), 0);
   return [
-    { key: 'breakage-modifier-strength', value: item?.strength ?? value.strength ?? 0 },
-    { key: 'breakage-modifier-quality', value: quality },
-    { key: 'breakage-modifier-item-damage', value: item?.condition?.breakagePenalty ?? 0 },
-    { key: 'breakage-modifier-origin', value: alertModifier(alert, 'penalty')?.value ?? 0 },
+    // Spec 052: the rule each entry comes from (§6.1, Table 6-1)
+    { key: 'breakage-modifier-strength', value: item?.strength ?? value.strength ?? 0, rule: '§6.1' },
+    { key: 'breakage-modifier-quality', value: quality, rule: 'Table 6-1' },
+    { key: 'breakage-modifier-item-damage', value: item?.condition?.breakagePenalty ?? 0, rule: '§6.1' },
+    { key: 'breakage-modifier-origin', value: alertModifier(alert, 'penalty')?.value ?? 0, rule: 'Table 6-1' },
     { key: 'breakage-modifier-gm', value: value.gmModifier ?? 0 },
   ].filter((m) => m.key === 'breakage-modifier-strength' || m.value !== 0);
 };
@@ -163,6 +165,7 @@ export default function BreakageForm({
             onChange={(roll) => onChange({ ...value, roll: roll.total, unmodifiedRoll: roll.unmodified })}
           />
           <RollBreakdown
+            context="breakage"
             modifiers={modifiers}
             roll={value.roll}
             totalLabel={value.roll === null ? t('predicted-total') : t('breakage-total')}

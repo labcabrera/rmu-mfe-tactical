@@ -111,7 +111,7 @@ const PoisonRrDialog: FC<{ actorRound: ActorRound; exposure?: PoisonExposure; on
                     severity: t(`poison-severity-${result.severity ?? 'mild'}`),
                   })}
             </Alert>
-            <RollBreakdown modifiers={result.breakdown} total={result.total} />
+            <RollBreakdown context="poison-rr" modifiers={result.breakdown} total={result.total} />
           </>
         )}
       </Stack>

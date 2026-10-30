@@ -153,7 +153,16 @@ export type ActionMovementCalculated = {
 };
 
 /** Who a modifier favours, or which stage of the resolution adds it. */
-export type ModifierGroup = 'offense' | 'defense' | 'situation' | 'critical' | 'resolution';
+export type ModifierGroup =
+  | 'offense'
+  | 'defense'
+  | 'situation'
+  | 'critical'
+  | 'resolution'
+  | 'skill'
+  | 'casting'
+  | 'target'
+  | 'penalty';
 
 export type KeyValueModifier = {
   key: string;
@@ -169,9 +178,11 @@ export type KeyValueModifier = {
 };
 
 export type ActionRoll = {
-  modifiers?: KeyValue[];
+  modifiers?: KeyValueModifier[];
   roll: number | null;
   totalRoll?: number;
+  /** Rules that did not apply to the roll, and why (spec 052). */
+  skipped?: SkippedRule[];
 };
 
 export type ActionMovement = {
@@ -243,7 +254,15 @@ export type ActionManeuver = {
 export type ManeuverBaseSource = 'actor-round' | 'equipment' | 'movement' | 'action';
 
 /** Modifier the API applies by itself (penalties, armor, encumbrance, pace, AP). Read-only in the UI. */
-export type ManeuverBaseModifier = { key: string; value: number; source: ManeuverBaseSource | string };
+export type ManeuverBaseModifier = {
+  key: string;
+  value: number;
+  source: ManeuverBaseSource | string;
+  /** Breakdown group, rule reference and inputs (spec 052). */
+  group?: ModifierGroup;
+  rule?: string;
+  params?: RuleParams;
+};
 
 /** Skill modifier of core's catalog, as the listing returns it. */
 export type ManeuverSkillModifier = Omit<ManeuverModifier, 'accessType' | 'owner'>;
@@ -262,6 +281,8 @@ export type ManeuverModifiersListing = {
   conflicting: boolean;
   /** Percent maneuvers: progress accumulated before this roll. */
   progress?: number;
+  /** Rules of the base modifiers that do not apply, and why (spec 052). */
+  skipped?: SkippedRule[];
 };
 
 /** `PATCH /actions/{id}/maneuver/resolve` (spec 010 §4.1). */
@@ -358,7 +379,8 @@ export const DEFAULT_SPELL_OPTIONS: SpellOptions = {
   customBonus: 0,
 };
 
-export type SpellRollModifier = { key: string; value: number };
+/** An entry of a spell roll, with its group, rule and inputs since spec 052. */
+export type SpellRollModifier = KeyValueModifier;
 
 export type SpellTargetConditions = {
   willing?: boolean;
@@ -376,6 +398,8 @@ export type ActionSpellTarget = {
   roll: number | null;
   conditions: SpellTargetConditions;
   breakdown: SpellRollModifier[];
+  /** Conditions of the target that do not count against the spell's realm (spec 052). */
+  skipped?: SkippedRule[];
   total: number | null;
   required: number;
   resisted: boolean;
@@ -408,7 +432,7 @@ export type ActionSpell = {
     listTypeModifier: number;
   };
   options?: SpellOptions;
-  roll?: { modifiers: SpellRollModifier[]; roll: number; totalRoll: number };
+  roll?: { modifiers: SpellRollModifier[]; roll: number; totalRoll: number; skipped?: SkippedRule[] };
   result?: SpellCastResult;
   failure?: {
     realm: SpellRealm;
@@ -441,6 +465,8 @@ export type ActionSpellAttack = {
 export type SpellPreview = {
   modifiers: SpellRollModifier[];
   bonus: number;
+  /** Rules of Table 4-2 that do not apply to these choices (spec 052). */
+  skipped?: SkippedRule[];
   needsPreparation: boolean;
   actionPoints: number;
 };

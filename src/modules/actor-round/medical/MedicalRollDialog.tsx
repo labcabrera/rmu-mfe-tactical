@@ -12,7 +12,10 @@ import {
   OPEN_D100,
   resolveHealer,
   RmuDialog,
+  RollBreakdown,
   RollField,
+  RollModifier,
+  RuleHint,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
 import { stabilizeActorRoundEffect, treatActorRoundInjury } from '../../api/actor-rounds';
@@ -305,14 +308,14 @@ const MedicalResultView: FC<{ result: MedicalResultDto; target: MedicalTarget }>
     target.kind === 'treat' ? result.actorRound.injuries?.find((injury) => injury.id === target.injury.id) : undefined;
   const bleedingBefore = target.kind === 'treat' ? Math.max(0, target.injury.bleeding ?? 0) : 0;
   const bleedingAfter = Math.max(0, after?.bleeding ?? 0);
-  const breakdown = [
-    `${t('roll')} ${result.roll}`,
-    `${t('medicine')} ${formatBonus(result.bonus)}`,
-    `${t('difficulty')} ${formatBonus(result.difficulty)}`,
-    result.healerPenalty ? `${t('penalty')} ${formatBonus(result.healerPenalty)}` : undefined,
-  ]
-    .filter(Boolean)
-    .join(' · ');
+  // Spec 052: the API's breakdown, or the same entries from the numbers of an older API
+  const breakdown: RollModifier[] = (
+    result.breakdown ?? [
+      { key: 'medicine', value: result.bonus, group: 'skill' },
+      { key: 'difficulty', value: result.difficulty, group: 'situation' },
+      { key: 'healer-penalty', value: result.healerPenalty, group: 'penalty' },
+    ]
+  ).filter((modifier) => modifier.key !== 'roll' && (modifier.key !== 'healer-penalty' || modifier.value !== 0));
 
   return (
     <Stack spacing={1.5}>
@@ -320,15 +323,22 @@ const MedicalResultView: FC<{ result: MedicalResultDto; target: MedicalTarget }>
         <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
           {`${t(result.result)} · ${t('total')} ${result.total}`}
         </Typography>
-        <Typography variant="caption" component="div">
-          {breakdown}
-        </Typography>
         {result.message && (
           <Typography variant="body2" sx={{ mt: 0.5 }}>
             {result.message}
           </Typography>
         )}
       </Alert>
+      <RuleHint
+        title={t(result.result)}
+        description={t(`medical-result-${result.result}-explanation`)}
+        reference={target.kind === 'treat' ? '§13.1' : '§13.2'}
+      >
+        <Typography variant="body2" color="text.secondary">
+          {t('medical-result-why')}
+        </Typography>
+      </RuleHint>
+      <RollBreakdown context="medical" modifiers={breakdown} roll={result.roll} total={result.total} />
       {target.kind === 'treat' && (
         <Stack spacing={0.5}>
           {bleedingBefore > 0 && (

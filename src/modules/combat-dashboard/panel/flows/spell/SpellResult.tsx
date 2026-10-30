@@ -1,8 +1,8 @@
 import React, { ComponentProps, FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { TFunction } from 'i18next';
 import { Alert, Box, Chip, Stack, Typography } from '@mui/material';
-import { formatBonus, RollBreakdown, SpellEffectList } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { formatBonus, RollBreakdown, RuleHint, SpellEffectList } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { TFunction } from 'i18next';
 import { ActionSpell, ActionSpellTarget } from '../../../../api/action.dto';
 
 /** Spells whose targets take a resistance roll (spec 028 `resistance.kind`), as the API decides. */
@@ -14,7 +14,11 @@ export const spellAllowsRr = (spell: ActionSpell): boolean =>
 /** Short outcome of a target: affected or not, and by how much its RR fell short. */
 export const targetOutcome = (target: ActionSpellTarget, t: TFunction): string =>
   target.resisted
-    ? t('spell-target-resists', { name: target.actorName ?? target.actorId, total: target.total, required: target.required })
+    ? t('spell-target-resists', {
+        name: target.actorName ?? target.actorId,
+        total: target.total,
+        required: target.required,
+      })
     : target.rolled
       ? t('spell-target-affected', {
           name: target.actorName ?? target.actorId,
@@ -35,7 +39,14 @@ export const SpellCastingResult: FC<{ spell: ActionSpell }> = ({ spell }) => {
   const scr = spell.roll.totalRoll;
   return (
     <Stack spacing={2}>
-      <RollBreakdown modifiers={spell.roll.modifiers} roll={spell.roll.roll} total={scr} totalLabel={t('spell-scr')} />
+      <RollBreakdown
+        context="spell-cast"
+        modifiers={spell.roll.modifiers}
+        skipped={spell.roll.skipped}
+        roll={spell.roll.roll}
+        total={scr}
+        totalLabel={t('spell-scr')}
+      />
       {spell.result === 'success' && (
         <Alert severity="success">
           {t(spellAllowsRr(spell) ? 'spell-cast-success-rr' : 'spell-cast-success', { scr })}
@@ -45,6 +56,16 @@ export const SpellCastingResult: FC<{ spell: ActionSpell }> = ({ spell }) => {
       {spell.result === 'failure' && (
         <Alert severity="error">{t(spell.failure ? 'spell-cast-failure' : 'spell-cast-failure-roll', { scr })}</Alert>
       )}
+      {/* Spec 052: what each result means, and why a failure rolls on the spell failure table */}
+      <RuleHint
+        title={t(`spell-result-${spell.result}`)}
+        description={t(`spell-result-${spell.result}-explanation`, { scr })}
+        reference={spell.result === 'failure' ? 'Spell Law §4.4' : 'Spell Law §4.2'}
+      >
+        <Typography variant="body2" color="text.secondary">
+          {t('spell-result-why')}
+        </Typography>
+      </RuleHint>
       {spell.failure && (
         <Box>
           <Typography variant="subtitle2">
@@ -92,7 +113,9 @@ export const SpellResistanceResults: FC<{ spell: ActionSpell }> = ({ spell }) =>
           </Alert>
           {target.rolled && (
             <RollBreakdown
+              context="spell-rr"
               modifiers={target.breakdown.filter((modifier) => modifier.key !== 'roll')}
+              skipped={target.skipped}
               roll={target.roll}
               total={target.total ?? undefined}
               totalLabel={t('spell-rr-total', { required: target.required })}
@@ -123,11 +146,15 @@ export const SpellOutcome: FC<{ spell: ActionSpell }> = ({ spell }) => {
       {spell.result === 'success' && targets.length > 0 && (
         <Alert severity={affected.length > 0 ? 'warning' : 'info'}>
           {affected.length > 0
-            ? t('spell-outcome-affected', { names: affected.map((target) => target.actorName ?? target.actorId).join(', ') })
+            ? t('spell-outcome-affected', {
+                names: affected.map((target) => target.actorName ?? target.actorId).join(', '),
+              })
             : t('spell-outcome-all-resist')}
         </Alert>
       )}
-      {spell.result === 'success' && !spellAllowsRr(spell) && <Alert severity="success">{t('spell-outcome-no-rr-needed')}</Alert>}
+      {spell.result === 'success' && !spellAllowsRr(spell) && (
+        <Alert severity="success">{t('spell-outcome-no-rr-needed')}</Alert>
+      )}
       {spell.result === 'success' && effects && effects.length > 0 && (
         <Box>
           <Typography variant="subtitle2">{t('spell-effects')}</Typography>

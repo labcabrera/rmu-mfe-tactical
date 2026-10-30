@@ -6,6 +6,7 @@ import type {
   ItemCondition,
   PoisonExposure,
   PoisonRrResult,
+  RollModifier,
   StrategicItemModifier,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 
@@ -390,6 +391,8 @@ export type MedicalResultDto = {
   difficulty: number;
   /** roll + bonus + difficulty + healer penalty. */
   total: number;
+  /** The total entry by entry, with the rules (spec 052). */
+  breakdown?: RollModifier[];
   message?: string;
   recoveryModifier: number;
   treatment?: unknown;

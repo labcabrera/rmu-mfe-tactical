@@ -139,7 +139,7 @@ const ResistanceRollDialog: FC<{ actorRound: ActorRound; open: boolean; onClose:
               </Typography>
             )}
           </Alert>
-          <RollBreakdown modifiers={result.breakdown} total={result.total} />
+          <RollBreakdown context="fear-rr" modifiers={result.breakdown} total={result.total} />
           {result.fearState && (
             <Typography variant="caption" color="text.secondary">
               {t('fear-rr-effect-help')}
