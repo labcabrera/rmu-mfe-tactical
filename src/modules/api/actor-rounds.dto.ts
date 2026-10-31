@@ -51,6 +51,8 @@ export type ActorRound = {
   lastBreakageCheck?: BreakageCheckResult;
   /** `character` or `npc`. */
   actorType?: string;
+  /** NPC of rmu-api-npcs an NPC actor comes from (spec 055): it has no character sheet, items, styles or spells. */
+  npcId?: string;
   /** What the character brought into the game (only in the actor round built from it). */
   snapshot?: ActorRoundSnapshot;
   /** Hit points per round lost by the injuries that still bleed. */

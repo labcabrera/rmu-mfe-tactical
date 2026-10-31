@@ -3,16 +3,10 @@ import { useTranslation } from 'react-i18next';
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { Box, IconButton, Stack, Tooltip } from '@mui/material';
-import {
-  enterSx,
-  ResourceBar,
-  resolveAssetUrl,
-  RmuDialog,
-  SectionNav,
-  StatPill,
-} from '@labcabrera-rmu/rmu-react-shared-lib';
+import { enterSx, ResourceBar, RmuDialog, SectionNav, StatPill } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { ActorRound } from '../api/actor-rounds.dto';
-import ActorRoundTabContent, { ACTOR_ROUND_TABS, ActorRoundTab } from './tabs/ActorRoundTabs';
+import { useActorRoundImage } from '../shared/avatars/ActorRoundAvatar';
+import ActorRoundTabContent, { actorRoundTabs, ActorRoundTab } from './tabs/ActorRoundTabs';
 
 /** Where J and K belong to what the user is typing or choosing, not to the actor navigation. */
 const TYPING = 'input, textarea, select, [contenteditable="true"], [role="listbox"], [role="menu"]';
@@ -52,14 +46,16 @@ const ActorRoundDialog: FC<{
   }, [open]);
 
   const penalty = (actorRound?.penalty?.modifiers ?? []).reduce((sum, modifier) => sum + modifier.value, 0);
-  const sections = ACTOR_ROUND_TABS.map((each) => ({ id: each.id, label: t(each.label), icon: each.icon }));
+  const image = useActorRoundImage(actorRound);
+  // An NPC (spec 055) has its stat block instead of the items of a character.
+  const sections = actorRoundTabs(actorRound).map((each) => ({ id: each.id, label: t(each.label), icon: each.icon }));
   const current = sections.some((each) => each.id === tab) ? tab : 'summary';
 
   return (
     <RmuDialog
       title={actorRound?.actorName ?? ''}
       subtitle={t('actor-detail')}
-      avatarImg={actorRound?.imageUrl ? resolveAssetUrl(actorRound.imageUrl) : undefined}
+      avatarImg={image}
       open={open}
       onClose={onClose}
       maxWidth="lg"

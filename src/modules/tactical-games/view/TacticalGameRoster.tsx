@@ -29,13 +29,19 @@ import {
   characterOption,
   entityImage,
   Faction,
+  Npc,
+  NpcEntry,
   TacticalGame,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
+import TacticalGameRosterNpcs from './TacticalGameRosterNpcs';
 
 /** Width of a faction cell. */
 const ROSTER_CELL = { xs: 12, sm: 6, md: 4, xl: 3 };
 
-/** Key of the element whose change is being saved: a faction id, a character id or `group:<factionId>`. */
+/**
+ * Key of the element whose change is being saved: a faction id, a character or actor id, `group:<factionId>` or
+ * `npcs:<factionId>`.
+ */
 export type RosterPending = string | null;
 
 type RosterProps = {
@@ -48,6 +54,11 @@ type RosterProps = {
   onToggleFaction: (faction: Faction) => void;
   onToggleCharacter: (character: Character) => void;
   onSelectGroup: (faction: Faction, characters: Character[], selected: boolean) => void;
+  /** NPCs of the campaign's realm and the generic realms (spec 055). */
+  npcs: Npc[] | undefined;
+  onAddNpcs: (factionId: string, entries: NpcEntry[]) => void;
+  onRemoveActor: (actorId: string) => void;
+  onRenameEnvironment: (name: string) => void;
 };
 
 /** Why a character cannot join the game, as the API decides it (spec 013): dead or permanently unconscious. */
@@ -72,6 +83,10 @@ export default function TacticalGameRoster({
   onToggleFaction,
   onToggleCharacter,
   onSelectGroup,
+  npcs,
+  onAddNpcs,
+  onRemoveActor,
+  onRenameEnvironment,
 }: RosterProps) {
   const { t } = useTranslation();
   const [filter, setFilter] = useState<'all' | 'selected'>('all');
@@ -116,7 +131,8 @@ export default function TacticalGameRoster({
           {visibleFactions.map((faction) => {
             const factionCharacters = eligibleOf(faction);
             const selected = isFactionSelected(faction.id);
-            const empty = factionCharacters.length < 1;
+            // A faction with NPCs (spec 055) can join without characters.
+            const empty = factionCharacters.length < 1 && !faction.npcs?.length;
             const locked = selected && !canRemove;
             const selectedInFaction = factionCharacters.filter((c) => isCharacterSelected(c.id)).length;
             return (
@@ -255,6 +271,16 @@ export default function TacticalGameRoster({
           </Stack>
         )}
       </Box>
+
+      <TacticalGameRosterNpcs
+        game={game}
+        factions={selectedFactions}
+        npcs={npcs}
+        pending={pending}
+        onAddNpcs={onAddNpcs}
+        onRemoveActor={onRemoveActor}
+        onRenameEnvironment={onRenameEnvironment}
+      />
     </Stack>
   );
 }

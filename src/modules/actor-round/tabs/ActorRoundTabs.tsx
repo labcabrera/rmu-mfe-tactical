@@ -4,6 +4,7 @@ import BoltIcon from '@mui/icons-material/Bolt';
 import CodeIcon from '@mui/icons-material/Code';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import HealingIcon from '@mui/icons-material/Healing';
+import PetsIcon from '@mui/icons-material/Pets';
 import SportsMartialArtsIcon from '@mui/icons-material/SportsMartialArts';
 import { Box, Divider, Stack } from '@mui/material';
 import { ActorRound } from '../../api/actor-rounds.dto';
@@ -11,6 +12,7 @@ import BoardActorRoundEffects from '../../combat-dashboard/actor-rounds/ActorRou
 import { isDevelopment } from '../../services/action-service';
 import ActorRoundAttacks from '../ActorRoundAttacks';
 import ActorRoundBars from '../ActorRoundBars';
+import ActorRoundCreature from '../ActorRoundCreature';
 import ActorRoundDefenseMode from '../ActorRoundDefenseMode';
 import ActorRoundEffects from '../ActorRoundEffects';
 import ActorRoundFightingStyle from '../ActorRoundFightingStyle';
@@ -20,7 +22,7 @@ import ActorRoundItems from '../ActorRoundItems';
 import ActorRoundResistances from '../ActorRoundResistances';
 import ActorRoundPoisons from '../poison/ActorRoundPoisons';
 
-export type ActorRoundTab = 'summary' | 'combat' | 'health' | 'status' | 'items' | 'dev';
+export type ActorRoundTab = 'summary' | 'creature' | 'combat' | 'health' | 'status' | 'items' | 'dev';
 
 /** Tabs of the actor sheet (spec 045, decision 3): label key, icon and the existing sections they show. */
 export const ACTOR_ROUND_TABS: { id: ActorRoundTab; label: string; icon: ReactElement }[] = [
@@ -32,6 +34,20 @@ export const ACTOR_ROUND_TABS: { id: ActorRoundTab; label: string; icon: ReactEl
   ...(isDevelopment ? [{ id: 'dev' as const, label: 'details', icon: <CodeIcon /> }] : []),
 ];
 
+/** Whether an actor is an NPC (spec 055): no character sheet, items, fighting styles or spells. */
+export const isNpcActorRound = (actorRound: ActorRound | undefined): boolean => actorRound?.actorType === 'npc';
+
+/** Tabs of an actor: an NPC has its stat block after the summary and no items (spec 055). */
+export const actorRoundTabs = (actorRound: ActorRound | undefined) =>
+  isNpcActorRound(actorRound)
+    ? ACTOR_ROUND_TABS.flatMap((tab) => {
+        if (tab.id === 'items') return [];
+        if (tab.id === 'summary')
+          return [tab, { id: 'creature' as const, label: 'npc-stat-block', icon: <PetsIcon /> }];
+        return [tab];
+      })
+    : ACTOR_ROUND_TABS;
+
 /** The sections of a tab, one under the other. */
 const Sections: FC<{ children: ReactNode }> = ({ children }) => (
   <Stack spacing={2} divider={<Divider flexItem />}>
@@ -42,12 +58,16 @@ const Sections: FC<{ children: ReactNode }> = ({ children }) => (
 /** Content of one tab of the actor sheet. The sections are the same components the side panel used to stack. */
 const ActorRoundTabContent: FC<{ actorRound: ActorRound; tab: ActorRoundTab }> = ({ actorRound, tab }) => {
   switch (tab) {
+    case 'creature':
+      return <ActorRoundCreature actorRound={actorRound} />;
     case 'combat':
       return (
         <Sections>
           <ActorRoundAttacks actorRound={actorRound} />
           <ActorRoundDefenseMode actorRound={actorRound} />
-          {!!actorRound.fightingStyles?.length && <ActorRoundFightingStyle actorRound={actorRound} />}
+          {!isNpcActorRound(actorRound) && !!actorRound.fightingStyles?.length && (
+            <ActorRoundFightingStyle actorRound={actorRound} />
+          )}
         </Sections>
       );
     case 'health':
@@ -69,7 +89,7 @@ const ActorRoundTabContent: FC<{ actorRound: ActorRound; tab: ActorRoundTab }> =
         </Sections>
       );
     case 'items':
-      return <ActorRoundItems actorRound={actorRound} />;
+      return isNpcActorRound(actorRound) ? null : <ActorRoundItems actorRound={actorRound} />;
     case 'dev':
       return (
         <Box component="pre" sx={{ m: 0, fontSize: 12, overflowX: 'auto' }}>
