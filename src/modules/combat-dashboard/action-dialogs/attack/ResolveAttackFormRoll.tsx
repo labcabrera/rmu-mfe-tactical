@@ -36,7 +36,7 @@ const ResolveAttackFormRoll: FC<{
   const onRollChange = (roll: RollValue) => {
     // Nothing changed since the last stored roll.
     if (roll.total === attack.roll?.roll && roll.unmodified === attack.roll?.unmodified) return;
-    updateAttackRoll(action.id, attack.attackName, roll.total, roll.unmodified, auth)
+    updateAttackRoll(action.id, attack.attackName, roll.total, roll.unmodified, roll.rolls, auth)
       .then((updatedAction) => {
         const newFormData = { attacks: updatedAction.attacks, parries: updatedAction.parries } as AttackDeclaration;
         updateAction(updatedAction);
