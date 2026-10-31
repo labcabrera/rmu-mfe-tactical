@@ -228,7 +228,8 @@ export type ActorRoundItem = {
   condition: ItemCondition;
   /** Poison on the weapon (spec 042): the next hit spends it, a critical exposes the target. */
   coating?: ItemCoating | null;
-  coatingSpent?: boolean;
+  /** The coating spent in the game, by its `appliedAt` (spec 044, decision 3). */
+  coatingSpent?: { appliedAt: string };
 };
 
 /** `POST v1/actor-rounds/:id/poisonings/:exposureId/resolve` (spec 042). */
