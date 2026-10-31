@@ -134,17 +134,19 @@ export async function declareParry(actionId: string, data: ParryDeclaration, aut
   });
 }
 
+/** The attack roll: the total of the high open-ended d100 and its first die, which decides the fumble (spec 056). */
 export async function updateAttackRoll(
   actionId: string,
   attackName: string,
   roll: number,
+  unmodified: number,
   auth: AuthContextProps
 ): Promise<Action> {
   const url = `${apiTacticalUrl}/actions/${actionId}/attack/roll`;
   return await callApi(auth, url, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ attackName, roll }),
+    body: JSON.stringify({ attackName, roll, unmodified }),
   });
 }
 

@@ -506,6 +506,8 @@ export type FullDefenseType = 'dodge' | 'block';
 
 export type ActionAttackRoll = {
   roll: number | null;
+  /** First die of the high open-ended roll: it decides the fumble (spec 056). */
+  unmodified?: number | null;
   /** The criticals of an attack share one roll (§9.8): the API stores it under every critical key. */
   criticalRolls?: Record<string, number | null>;
   fumbleRoll?: number | null;
