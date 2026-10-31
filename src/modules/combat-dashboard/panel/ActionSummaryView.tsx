@@ -10,6 +10,7 @@ import { apProfileLabel, isActionClosed, useOpenRounds } from '../../services/ap
 import { isGameFinished } from '../../services/game-service';
 import { actionApText, actionResult, actionState, actionStateTooltip } from '../actor-rounds/action-view';
 import { AttackResults, ManeuverResult, MovementResult } from './flows/ActionResults';
+import { attackLabel } from './flows/attack/attack-label';
 import { useDeleteAction } from './useDeleteAction';
 
 const Field: FC<{ label: string; children: ReactNode }> = ({ label, children }) => (
@@ -90,7 +91,7 @@ const ActionSummaryView: FC<{ action: Action; onResolve: () => void; onDeleted: 
           </Box>
         )}
         {attacks.map((attack) => (
-          <Field key={attack.attackName} label={t(attack.attackName)}>
+          <Field key={attack.attackName} label={attackLabel(attack.attackName, t)}>
             {`${targetName(attack.modifiers.targetId)} · ${t('bo')} ${formatBonus(attack.modifiers.bo ?? 0)}`}
           </Field>
         ))}

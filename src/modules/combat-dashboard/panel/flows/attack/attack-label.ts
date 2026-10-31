@@ -8,5 +8,8 @@ export const attackLabel = (attackName: string, t: TFunction): string => {
   const ball = /^(.+)-(\d+)$/.exec(attackName);
   const ballTable = ball ? t(`spell-attack-table-${ball[1]}`, { defaultValue: '' }) : '';
   if (ball && ballTable) return t('spell-ball-attack', { name: ballTable, index: Number(ball[2]) });
+  // NPC attacks (spec 055) are named after their natural table and their position in the stat block (`bite-2`)
+  const natural = ball ? t(ball[1], { defaultValue: '' }) : '';
+  if (natural) return natural;
   return t([attackName, `spell-attack-table-${attackName}`]);
 };
