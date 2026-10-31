@@ -4,6 +4,7 @@ import { useAuth } from 'react-oidc-context';
 import DeleteIcon from '@mui/icons-material/Delete';
 import HealingIcon from '@mui/icons-material/Healing';
 import ScienceIcon from '@mui/icons-material/Science';
+import SpaIcon from '@mui/icons-material/Spa';
 import { Button, IconButton, Stack, Tooltip, Typography } from '@mui/material';
 import { ConfirmDialog, Injury, InjuryList } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../CombatContext';
@@ -15,11 +16,13 @@ import { useTacticalNotify } from '../services/notify-service';
 import InjuryEditDialog from './medical/InjuryEditDialog';
 import MedicalRollDialog, { MedicalTarget } from './medical/MedicalRollDialog';
 import ActorAntidoteDialog from './poison/ActorAntidoteDialog';
+import ActorUseHerbDialog from './poison/ActorUseHerbDialog';
 
 /**
  * Injuries of the actor (spec 013): type, severity, location, bleeding, penalty and origin (attacker, round,
  * critical). In the current round of a game in progress, each one can be treated (a Medicine roll of a healer), and
- * the game master can edit or remove it. A running poisoning takes an antidote instead (spec 042).
+ * the game master can edit or remove it. A running poisoning takes an antidote instead (spec 042). A character may use
+ * a herb it carries to heal hits or remove stun (spec 062).
  */
 const ActorRoundInjuries: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
   const { t } = useTranslation();
@@ -31,6 +34,7 @@ const ActorRoundInjuries: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
   const [editing, setEditing] = useState<Injury | null>(null);
   const [deleting, setDeleting] = useState<Injury | null>(null);
   const [antidoteFor, setAntidoteFor] = useState<Injury | null>(null);
+  const [herbOpen, setHerbOpen] = useState(false);
   const injuries = actorRound.injuries ?? [];
   const bleeding = actorRoundBleeding(actorRound);
 
@@ -51,6 +55,11 @@ const ActorRoundInjuries: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
           <Typography variant="caption" color="error.main" sx={{ fontWeight: 600 }}>
             {t('injury-bleeding-per-round', { value: bleeding })}
           </Typography>
+        )}
+        {editable && actorRound.characterId && (
+          <Button size="small" startIcon={<SpaIcon />} onClick={() => setHerbOpen(true)} sx={{ ml: 'auto' }}>
+            {t('herb-use')}
+          </Button>
         )}
       </Stack>
       <InjuryList
@@ -87,6 +96,7 @@ const ActorRoundInjuries: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
       />
       <MedicalRollDialog actorRound={actorRound} target={target} onClose={() => setTarget(null)} />
       <ActorAntidoteDialog actorRound={actorRound} injury={antidoteFor} onClose={() => setAntidoteFor(null)} />
+      <ActorUseHerbDialog actorRound={actorRound} open={herbOpen} onClose={() => setHerbOpen(false)} />
       <InjuryEditDialog
         actorRound={actorRound}
         injury={editing}
