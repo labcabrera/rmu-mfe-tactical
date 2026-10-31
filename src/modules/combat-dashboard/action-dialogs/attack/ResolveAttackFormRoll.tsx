@@ -2,7 +2,7 @@ import React, { Dispatch, FC, SetStateAction, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import { Grid, Chip, Stack, Typography } from '@mui/material';
-import { CategorySeparator, OPEN_D100, RollField } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { CategorySeparator, HIGH_OPEN_D100, RollField, RollValue } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../CombatContext';
 import { updateAttackRoll } from '../../../api/action';
 import { Action, ActionAttack, AttackDeclaration } from '../../../api/action.dto';
@@ -32,11 +32,11 @@ const ResolveAttackFormRoll: FC<{
   if (!attack.calculated) return <p>{t('attack-not-calculated')}</p>;
 
   // Without a called shot there is no location roll: the AT is the torso's (§9.5 Mixed armour).
-  const onRollChange = (roll: number | undefined) => {
-    if (roll === undefined || roll === null) return;
+  // The attack is a high open-ended d100, and its first die decides the fumble (spec 056).
+  const onRollChange = (roll: RollValue) => {
     // Nothing changed since the last stored roll.
-    if (roll === attack.roll?.roll) return;
-    updateAttackRoll(action.id, attack.attackName, roll, auth)
+    if (roll.total === attack.roll?.roll && roll.unmodified === attack.roll?.unmodified) return;
+    updateAttackRoll(action.id, attack.attackName, roll.total, roll.unmodified, roll.rolls, auth)
       .then((updatedAction) => {
         const newFormData = { attacks: updatedAction.attacks, parries: updatedAction.parries } as AttackDeclaration;
         updateAction(updatedAction);
@@ -81,11 +81,11 @@ const ResolveAttackFormRoll: FC<{
       </Grid>
       <Grid size={7}>
         <RollField
-          spec={OPEN_D100}
+          spec={HIGH_OPEN_D100}
           label={t('attack-roll')}
           value={attack.roll?.roll ?? null}
           disabled={isCompleted}
-          onChange={(roll) => onRollChange(roll.total)}
+          onChange={onRollChange}
         />
       </Grid>
       <Grid size={5}>
