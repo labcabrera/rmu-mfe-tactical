@@ -6,6 +6,7 @@ import { Alert, MenuItem, Stack, TextField, Typography } from '@mui/material';
 import {
   ALL_STUN_ROUNDS,
   applyActorHerb,
+  discardItem,
   fetchStrategicItems,
   NumericInput,
   RmuDialog,
@@ -23,7 +24,8 @@ const isCombatHerb = (item: StrategicItem): boolean => {
 
 /**
  * Uses a herb the character of the actor carries (spec 062): it heals hits (the roll, or the server rolls the range
- * of the herb) and removes stun rounds. The dose is spent as the antidotes of spec 042 are.
+ * of the herb) and removes stun rounds. The tactical API does not spend the dose, so the dialog discards one unit of
+ * the strategic item afterwards.
  */
 const ActorUseHerbDialog: FC<{ actorRound: ActorRound; open: boolean; onClose: () => void }> = ({
   actorRound,
@@ -63,9 +65,13 @@ const ActorUseHerbDialog: FC<{ actorRound: ActorRound; open: boolean; onClose: (
     applyActorHerb<ActorRound>(actorRound.id, { itemId: selected.id, ...(roll !== null ? { roll } : {}) }, auth)
       .then((result) => {
         updateActorRound(result.actorRound);
-        notify.success(t('herb-use-combat-done', { hits: result.healed ?? 0, rounds: result.stunRemoved ?? 0 }));
-        onClose();
+        notify.success(t('herb-use-combat-done', { hits: result.healed, rounds: result.stunRoundsRemoved }));
+        // Tactical does not spend the dose (like the antidotes of spec 042): one unit of the strategic item goes
+        return discardItem(selected.id, { amount: 1, note: t('herb-use-dose-note') }, auth)
+          .then(() => setHerbs((list) => list.filter((each) => each.id !== selected.id || each.amount > 1)))
+          .catch(notify.error);
       })
+      .then(onClose)
       .catch(notify.error)
       .finally(() => setSaving(false));
   };
