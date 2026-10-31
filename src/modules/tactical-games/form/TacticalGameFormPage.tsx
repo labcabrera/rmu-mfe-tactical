@@ -6,7 +6,7 @@ import { useLocation, useNavigate, useParams, useSearchParams } from 'react-rout
 import {
   createTacticalGame,
   CreateTacticalGameDto,
-  EditableAvatar,
+  EntityImage,
   Faction,
   fetchFactions,
   fetchStrategicGame,
@@ -152,8 +152,8 @@ export default function TacticalGameFormPage({ mode }: { mode: 'create' | 'edit'
       }
       leftPanel={
         formData && (
-          <EditableAvatar
-            imageUrl={formData.imageUrl || (mode === 'create' ? DEFAULT_IMAGE : defaultImage)}
+          <EntityImage
+            image={formData.imageUrl || (mode === 'create' ? DEFAULT_IMAGE : defaultImage)}
             onImageChange={(imageUrl) => setFormData({ ...formData, imageUrl })}
           />
         )

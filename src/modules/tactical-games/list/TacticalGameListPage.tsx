@@ -13,7 +13,6 @@ import {
   fetchTacticalGames,
   FilterBar,
   FilterSchema,
-  gridSizeShowcase,
   ListPage,
   StrategicGame,
   StrategicGamePicker,
@@ -116,7 +115,7 @@ export default function TacticalGameListPage() {
       onAdd={() => navigate('/tactical/games/create')}
       filterState={filters}
       resultsActions={sortControl}
-      collection={{ modes: ['cards'], storageKey: 'tactical.games', cardSize: gridSizeShowcase }}
+      collection={{ modes: ['cards'], storageKey: 'tactical.games' }}
       filters={
         <FilterBar>
           <ClearableTextField

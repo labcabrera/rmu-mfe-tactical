@@ -3,21 +3,12 @@ import { useTranslation } from 'react-i18next';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import GroupAddIcon from '@mui/icons-material/GroupAdd';
+import { Box, Button, Chip, CircularProgress, IconButton, Stack, TextField, Tooltip, Typography } from '@mui/material';
 import {
-  Avatar,
-  Box,
-  Button,
-  Chip,
-  CircularProgress,
-  IconButton,
-  Stack,
-  TextField,
-  Tooltip,
-  Typography,
-} from '@mui/material';
-import {
-  ENVIRONMENT_FACTION_ID,
+  avatarSize,
+  EntityAvatar,
   entityImage,
+  ENVIRONMENT_FACTION_ID,
   environmentFactionName,
   Faction,
   Npc,
@@ -93,7 +84,7 @@ export default function TacticalGameRosterNpcs({
           return (
             <Box key={group.id}>
               <Stack direction="row" spacing={1} sx={{ alignItems: 'center', mb: 1, flexWrap: 'wrap', rowGap: 0.5 }}>
-                <Avatar src={group.image} alt={group.name} sx={{ width: 32, height: 32 }} />
+                <EntityAvatar name={group.name} imageUrl={group.image} size={32} />
                 <Typography variant="subtitle1" sx={{ fontWeight: 600, minWidth: 0 }} noWrap>
                   {group.name}
                 </Typography>
@@ -140,7 +131,14 @@ export default function TacticalGameRosterNpcs({
                       key={actor.id}
                       label={actor.name}
                       variant="outlined"
-                      avatar={<Avatar src={imageOf(actor.npcId)} alt={actor.name} />}
+                      avatar={
+                        <EntityAvatar
+                          name={actor.name}
+                          imageUrl={imageOf(actor.npcId)}
+                          kind="npc"
+                          size={avatarSize.chip}
+                        />
+                      }
                       disabled={pending === actor.id}
                       onDelete={editable && !busy ? () => onRemoveActor(actor.id) : undefined}
                       sx={{ maxWidth: '100%' }}

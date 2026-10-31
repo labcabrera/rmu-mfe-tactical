@@ -14,7 +14,11 @@ const Effect: FC<{
   return (
     <Tooltip title={t(status)}>
       <Chip
-        avatar={image ? <Avatar alt={label} src={resolveAssetUrl(image)} /> : undefined}
+        avatar={
+          image ? (
+            <Avatar variant="rounded" alt={label} src={resolveAssetUrl(image)} sx={{ borderRadius: '4px' }} />
+          ) : undefined
+        }
         label={label}
         color={color}
       />

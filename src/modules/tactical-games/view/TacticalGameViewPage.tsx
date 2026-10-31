@@ -12,7 +12,7 @@ import {
   deleteTacticalGame,
   deleteTacticalGameFaction,
   DetailPage,
-  EditableAvatar,
+  EntityImage,
   Faction,
   fetchCharacters,
   fetchFactions,
@@ -177,8 +177,8 @@ const TacticalGameViewPage: FC = () => {
       onDelete={onDelete}
       leftPanel={(game) => (
         <Stack spacing={2}>
-          <EditableAvatar
-            imageUrl={game.imageUrl || defaultTacticalGameImage}
+          <EntityImage
+            image={game.imageUrl || defaultTacticalGameImage}
             onImageChange={(imageUrl) => updateImage(imageUrl)}
           />
           <Stack spacing={1}>
