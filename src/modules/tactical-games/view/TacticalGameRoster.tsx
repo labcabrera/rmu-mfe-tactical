@@ -25,8 +25,9 @@ import {
 import { alpha, SxProps, Theme } from '@mui/material/styles';
 import {
   Character,
-  CharacterPicker,
   characterOption,
+  CharacterPicker,
+  EntityAvatar,
   entityImage,
   Faction,
   Npc,
@@ -192,11 +193,7 @@ export default function TacticalGameRoster({
               return (
                 <Box key={faction.id}>
                   <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center', mb: 1.5 }}>
-                    <Avatar
-                      src={entityImage('faction', faction.imageUrl)}
-                      alt={faction.name}
-                      sx={{ width: 32, height: 32 }}
-                    />
+                    <EntityAvatar name={faction.name} imageUrl={faction.imageUrl} kind="faction" size={32} />
                     <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
                       {faction.name}
                     </Typography>

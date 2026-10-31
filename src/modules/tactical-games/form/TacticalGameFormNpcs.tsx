@@ -2,7 +2,6 @@ import React, { FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import AddIcon from '@mui/icons-material/Add';
 import {
-  Avatar,
   Box,
   Button,
   Checkbox,
@@ -15,7 +14,9 @@ import {
   Typography,
 } from '@mui/material';
 import {
+  avatarSize,
   CreateTacticalGameDto,
+  EntityAvatar,
   entityImage,
   environmentFactionName,
   Faction,
@@ -176,7 +177,7 @@ const TacticalGameFormNpcs: FC<{
         {groups.map((group) => (
           <Box key={group.key}>
             <Stack direction="row" spacing={1} sx={{ alignItems: 'center', mb: 0.75 }}>
-              <Avatar src={group.image} alt={group.name} sx={{ width: 24, height: 24 }} />
+              <EntityAvatar name={group.name} imageUrl={group.image} size={32} />
               <Typography variant="subtitle2">{group.name}</Typography>
             </Stack>
             <Stack direction="row" sx={{ flexWrap: 'wrap', gap: 0.75 }}>
@@ -187,7 +188,9 @@ const TacticalGameFormNpcs: FC<{
                     size="small"
                     variant="outlined"
                     label={name}
-                    avatar={<Avatar src={imageOf(entry.npcId)} alt={name} />}
+                    avatar={
+                      <EntityAvatar name={name} imageUrl={imageOf(entry.npcId)} kind="npc" size={avatarSize.chip} />
+                    }
                   />
                 ))
               )}
