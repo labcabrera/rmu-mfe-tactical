@@ -1,7 +1,7 @@
 import React, { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  Alert,
+  Box,
   Chip,
   Stack,
   Table,
@@ -13,7 +13,7 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import { formatBonus, RollBreakdown } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { formatBonus, RollBreakdown, RollResultAlert } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { ActorCheckResult, ActorCheckStatus, GroupCheckResult } from '../../api/psychology.dto';
 
 const STATUS_COLOR: Record<ActorCheckStatus, 'default' | 'success' | 'warning' | 'info'> = {
@@ -55,45 +55,41 @@ const GroupCheckResultView: FC<{ result: GroupCheckResult; factionName: (id: str
         </Typography>
       )}
       {leaderRoll && (
-        <Alert severity={result.outcome === 'refuses-hostile' || result.outcome === 'refuses' ? 'warning' : 'info'}>
-          <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
-            {[
-              leaderRoll.result ? t(leaderRoll.result) : null,
-              `${t('total')} ${leaderRoll.total}`,
-              leaderRoll.rolledByServer ? t('rolled-by-server') : null,
-            ]
-              .filter(Boolean)
-              .join(' · ')}
-          </Typography>
-          {result.outcome && <Typography variant="body2">{t(`morale-outcome-${result.outcome}`)}</Typography>}
-          {result.moraleModifier ? (
-            <Typography variant="body2">
-              {t('morale-modifier-warning', {
-                value: formatBonus(result.moraleModifier),
-                count: result.moraleModifierDays ?? 0,
-              })}
-            </Typography>
-          ) : null}
-          {result.fearSeverityChange !== undefined && (
-            <Typography variant="body2">
-              {result.fearSeverityChange < 0
+        <RollResultAlert
+          severity={result.outcome === 'refuses-hostile' || result.outcome === 'refuses' ? 'warning' : 'info'}
+          headline={[
+            leaderRoll.result ? t(leaderRoll.result) : null,
+            `${t('total')} ${leaderRoll.total}`,
+            leaderRoll.rolledByServer ? t('rolled-by-server') : null,
+          ]
+            .filter(Boolean)
+            .join(' · ')}
+          lines={[
+            result.outcome && t(`morale-outcome-${result.outcome}`),
+            result.moraleModifier
+              ? t('morale-modifier-warning', {
+                  value: formatBonus(result.moraleModifier),
+                  count: result.moraleModifierDays ?? 0,
+                })
+              : null,
+            result.fearSeverityChange !== undefined &&
+              (result.fearSeverityChange < 0
                 ? t('rally-calms', { count: -result.fearSeverityChange })
                 : result.fearSeverityChange > 0
                   ? t('rally-worsens', { count: result.fearSeverityChange })
-                  : t('rally-no-change')}
-            </Typography>
-          )}
-          {leaderRoll.unusualEvent && (
-            <Typography variant="body2" sx={{ mt: 0.5, fontWeight: 600 }}>
-              {t(`unusual-${leaderRoll.unusualEvent.outcome}`, {
-                bonus: leaderRoll.unusualEvent.leaderFearRrBonus ?? 0,
-                hits: leaderRoll.unusualEvent.leaderHits ?? 0,
-              })}
-            </Typography>
-          )}
-        </Alert>
+                  : t('rally-no-change')),
+            leaderRoll.unusualEvent && (
+              <Box component="strong" sx={{ fontWeight: 600 }}>
+                {t(`unusual-${leaderRoll.unusualEvent.outcome}`, {
+                  bonus: leaderRoll.unusualEvent.leaderFearRrBonus ?? 0,
+                  hits: leaderRoll.unusualEvent.leaderHits ?? 0,
+                })}
+              </Box>
+            ),
+          ]}
+          breakdown={<RollBreakdown context="fear-rr" modifiers={leaderRoll.breakdown} total={leaderRoll.total} />}
+        />
       )}
-      {leaderRoll && <RollBreakdown context="fear-rr" modifiers={leaderRoll.breakdown} total={leaderRoll.total} />}
 
       <TableContainer>
         <Table size="small">

@@ -1,13 +1,14 @@
 import React, { FC, useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
-import { Alert, Button, Stack, Typography } from '@mui/material';
+import { Button, Stack, Typography } from '@mui/material';
 import {
   formatBonus,
   NumberPadField,
   OPEN_D100,
   RmuDialog,
   RollBreakdown,
+  RollResultAlert,
   RollField,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
@@ -88,19 +89,16 @@ const FrenzyDyingRrDialog: FC<{ actorRound: ActorRound; open: boolean; onClose: 
       }
     >
       {result ? (
-        <Stack spacing={1.5}>
-          <Alert severity={result.resisted ? 'success' : 'error'}>
-            <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
-              {result.resisted
-                ? t('rr-resisted', { total: result.total, required: result.required })
-                : t('rr-failed', { total: result.total, required: result.required, failure: result.failure })}
-            </Typography>
-            <Typography variant="body2">
-              {t(result.resisted ? 'frenzy-dying-survives' : 'frenzy-dying-dies')}
-            </Typography>
-          </Alert>
-          <RollBreakdown context="physical-rr" modifiers={result.breakdown} total={result.total} />
-        </Stack>
+        <RollResultAlert
+          severity={result.resisted ? 'success' : 'error'}
+          headline={
+            result.resisted
+              ? t('rr-resisted', { total: result.total, required: result.required })
+              : t('rr-failed', { total: result.total, required: result.required, failure: result.failure })
+          }
+          lines={[t(result.resisted ? 'frenzy-dying-survives' : 'frenzy-dying-dies')]}
+          breakdown={<RollBreakdown context="physical-rr" modifiers={result.breakdown} total={result.total} />}
+        />
       ) : (
         <Stack spacing={2}>
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>

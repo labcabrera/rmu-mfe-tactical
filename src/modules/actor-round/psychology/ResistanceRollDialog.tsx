@@ -1,13 +1,14 @@
 import React, { FC, useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
-import { Alert, Button, Stack, Typography } from '@mui/material';
+import { Button, Stack, Typography } from '@mui/material';
 import {
   formatBonus,
   NumberPadField,
   OPEN_D100,
   RmuDialog,
   RollBreakdown,
+  RollResultAlert,
   RollField,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
@@ -125,27 +126,22 @@ const ResistanceRollDialog: FC<{ actorRound: ActorRound; open: boolean; onClose:
       }
     >
       {result ? (
-        <Stack spacing={1.5}>
-          <Alert severity={result.resisted ? 'success' : 'warning'}>
-            <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
-              {result.resisted
-                ? t('rr-resisted', { total: result.total, required: result.required })
-                : t('rr-failed', { total: result.total, required: result.required, failure: result.failure })}
-            </Typography>
-            {result.fearState && (
-              <Typography variant="body2">
-                {`${t(`fear-${result.fearState}`)} · ${t(`fear-severity-${result.severity}`)}`}
-                {result.rallyModifier ? ` · ${t('rally-modifier', { value: formatBonus(result.rallyModifier) })}` : ''}
-              </Typography>
-            )}
-          </Alert>
-          <RollBreakdown context="fear-rr" modifiers={result.breakdown} total={result.total} />
-          {result.fearState && (
-            <Typography variant="caption" color="text.secondary">
-              {t('fear-rr-effect-help')}
-            </Typography>
-          )}
-        </Stack>
+        <RollResultAlert
+          severity={result.resisted ? 'success' : 'warning'}
+          headline={
+            result.resisted
+              ? t('rr-resisted', { total: result.total, required: result.required })
+              : t('rr-failed', { total: result.total, required: result.required, failure: result.failure })
+          }
+          lines={[
+            result.fearState &&
+              `${t(`fear-${result.fearState}`)} · ${t(`fear-severity-${result.severity}`)}${
+                result.rallyModifier ? ` · ${t('rally-modifier', { value: formatBonus(result.rallyModifier) })}` : ''
+              }`,
+          ]}
+          breakdown={<RollBreakdown context="fear-rr" modifiers={result.breakdown} total={result.total} />}
+          note={result.fearState ? t('fear-rr-effect-help') : undefined}
+        />
       ) : (
         <Stack spacing={2}>
           <FrightLevelInput value={attackLevel} onChange={setAttackLevel} disabled={busy} />
