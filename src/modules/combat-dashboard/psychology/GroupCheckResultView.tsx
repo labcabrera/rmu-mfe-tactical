@@ -13,7 +13,7 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import { formatBonus, RollBreakdown, RollResultAlert } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { formatBonus, RollBreakdown, RollResultAlert, ChipRow } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { ActorCheckResult, ActorCheckStatus, GroupCheckResult } from '../../api/psychology.dto';
 
 const STATUS_COLOR: Record<ActorCheckStatus, 'default' | 'success' | 'warning' | 'info'> = {
@@ -134,7 +134,7 @@ const GroupCheckResultView: FC<{ result: GroupCheckResult; factionName: (id: str
                     : effect(actor.effect)}
                 </TableCell>
                 <TableCell>
-                  <Stack direction="row" sx={{ flexWrap: 'wrap', gap: 0.5 }}>
+                  <ChipRow>
                     {actor.restrictions.map((restriction) => (
                       <Chip
                         key={restriction}
@@ -152,7 +152,7 @@ const GroupCheckResultView: FC<{ result: GroupCheckResult; factionName: (id: str
                         label={t(`group-warning-${warning}`, { defaultValue: warning })}
                       />
                     ))}
-                  </Stack>
+                  </ChipRow>
                 </TableCell>
               </TableRow>
             ))}

@@ -19,6 +19,7 @@ import {
   NumberPadField,
   OPEN_D100,
   RollField,
+  ChipRow,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { ManeuverModifiersListing, ManeuverSkillModifier } from '../../../../api/action.dto';
 import { ActorRound } from '../../../../api/actor-rounds.dto';
@@ -167,7 +168,7 @@ const ManeuverModifiersStep: FC<{
 
       <Box>
         <Caption>{t('base-modifiers')}</Caption>
-        <Stack direction="row" sx={{ flexWrap: 'wrap', gap: 0.75 }}>
+        <ChipRow>
           <Chip
             size="small"
             variant="outlined"
@@ -192,7 +193,7 @@ const ManeuverModifiersStep: FC<{
               {t('no-base-modifiers')}
             </Typography>
           )}
-        </Stack>
+        </ChipRow>
       </Box>
 
       <DifficultyPicker

@@ -11,6 +11,7 @@ import {
   ItemConditionChip,
   TacticalGameCharacterOutcome,
   TacticalGameOutcome,
+  ChipRow,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 
 /** Where the hit points of the game went (spec 013, §1.1): by kind and by attacker, in a tooltip. */
@@ -61,7 +62,7 @@ export const OutcomeInjuries: FC<{ character: TacticalGameCharacterOutcome }> = 
     );
   }
   return (
-    <Stack direction="row" useFlexGap sx={{ flexWrap: 'wrap', gap: 0.5, alignItems: 'center' }}>
+    <ChipRow>
       {added.map((injury) => (
         <Tooltip
           key={injury.id}
@@ -84,7 +85,7 @@ export const OutcomeInjuries: FC<{ character: TacticalGameCharacterOutcome }> = 
           {t('injuries-healed-n', { count: character.injuriesHealed.length })}
         </Typography>
       )}
-    </Stack>
+    </ChipRow>
   );
 };
 
@@ -101,7 +102,7 @@ export const OutcomeConditions: FC<{ character: TacticalGameCharacterOutcome }> 
     );
   }
   return (
-    <Stack direction="row" useFlexGap sx={{ flexWrap: 'wrap', gap: 0.5 }}>
+    <ChipRow>
       {statuses.map((status) => (
         <Chip
           key={status}
@@ -111,7 +112,7 @@ export const OutcomeConditions: FC<{ character: TacticalGameCharacterOutcome }> 
           variant={status === character.fate ? 'filled' : 'outlined'}
         />
       ))}
-    </Stack>
+    </ChipRow>
   );
 };
 

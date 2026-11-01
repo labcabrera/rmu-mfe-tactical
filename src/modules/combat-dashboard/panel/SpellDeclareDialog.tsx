@@ -1,8 +1,18 @@
 import React, { FC, useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
-import { Alert, alpha, Box, Button, ButtonBase, Chip, CircularProgress, Stack, Typography } from '@mui/material';
-import { Character, fetchCharacterSpells, KnownSpellList, RmuDialog } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { Box, Button, ButtonBase, Chip, Stack, Typography } from '@mui/material';
+import {
+  Character,
+  ChipRow,
+  EmptyState,
+  fetchCharacterSpells,
+  KnownSpellList,
+  LoadingState,
+  RmuDialog,
+  SectionLabel,
+  selectableSx,
+} from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
 import { Action } from '../../api/action.dto';
 import { ActorRound } from '../../api/actor-rounds.dto';
@@ -12,7 +22,13 @@ import { useTacticalNotify } from '../../services/notify-service';
 export type SpellDeclaration = { listCode: string; spellId: string };
 
 /** Skills whose specialization is a spell list (spec 029). */
-const SPELL_LIST_SKILLS = ['base-spell-list', 'open-spell-list', 'closed-spell-list', 'arcane-spell-list', 'restricted-spell-list'];
+const SPELL_LIST_SKILLS = [
+  'base-spell-list',
+  'open-spell-list',
+  'closed-spell-list',
+  'arcane-spell-list',
+  'restricted-spell-list',
+];
 
 /** Strategic character of an actor of the game, when it is a character. */
 export const actorCharacter = (actorRound: ActorRound | null, characters: Character[] | null): Character | undefined =>
@@ -65,7 +81,9 @@ const SpellDeclareDialog: FC<{
 
   const available = (character?.power?.current ?? 0) - committedPower(roundActions ?? [], actorRound?.actorId ?? '');
   const level = character?.experience.level ?? 0;
-  const knownLists = (lists ?? []).filter((list) => list.spells.some((known) => !instant || known.spell.modifiers?.instant));
+  const knownLists = (lists ?? []).filter((list) =>
+    list.spells.some((known) => !instant || known.spell.modifiers?.instant)
+  );
 
   return (
     <RmuDialog
@@ -83,16 +101,24 @@ const SpellDeclareDialog: FC<{
         </>
       }
     >
-      {!lists && <CircularProgress size={24} />}
-      {lists && knownLists.length === 0 && <Alert severity="info">{t(instant ? 'no-instant-spells' : 'no-known-spells')}</Alert>}
+      {!lists && <LoadingState variant="inline" />}
+      {lists && knownLists.length === 0 && (
+        <EmptyState dense title={t(instant ? 'no-instant-spells' : 'no-known-spells')} />
+      )}
       <Stack spacing={2}>
         {knownLists.map((list) => (
           <Box key={list.code}>
-            <Stack direction="row" spacing={1} sx={{ alignItems: 'center', mb: 1, flexWrap: 'wrap', rowGap: 0.5 }}>
-              <Typography variant="subtitle2">{list.name ?? list.code}</Typography>
-              <Chip size="small" label={t(list.skillId)} />
-              <Chip size="small" variant="outlined" label={`${t('ranks')}: ${list.ranks}`} />
-            </Stack>
+            <SectionLabel
+              sx={{ mb: 0.5 }}
+              actions={
+                <ChipRow>
+                  <Chip size="small" label={t(list.skillId)} />
+                  <Chip size="small" variant="outlined" label={`${t('ranks')}: ${list.ranks}`} />
+                </ChipRow>
+              }
+            >
+              {list.name ?? list.code}
+            </SectionLabel>
             <Box
               role="radiogroup"
               aria-label={list.name ?? list.code}
@@ -113,21 +139,17 @@ const SpellDeclareDialog: FC<{
                       disabled={!affordable}
                       onClick={() => setChoice({ listCode: list.code, spellId: spell.id })}
                       onDoubleClick={() => affordable && !busy && onDeclare({ listCode: list.code, spellId: spell.id })}
-                      sx={(theme) => ({
-                        flexDirection: 'column',
-                        alignItems: 'stretch',
-                        px: 1.5,
-                        py: 1,
-                        borderRadius: 1,
-                        textAlign: 'left',
-                        opacity: affordable ? 1 : 0.5,
-                        border: `1px solid ${selected ? theme.palette.primary.main : theme.palette.divider}`,
-                        bgcolor: selected ? alpha(theme.palette.primary.main, 0.16) : 'transparent',
-                        '&:hover': { bgcolor: alpha(theme.palette.primary.main, selected ? 0.22 : 0.06) },
-                      })}
+                      sx={[
+                        selectableSx(selected, !affordable),
+                        { flexDirection: 'column', alignItems: 'stretch', px: 1.5, py: 1, textAlign: 'left' },
+                      ]}
                     >
-                      <Stack direction="row" spacing={1} sx={{ alignItems: 'baseline', justifyContent: 'space-between' }}>
-                        <Typography variant="body2" sx={{ fontWeight: selected ? 700 : 500 }}>
+                      <Stack
+                        direction="row"
+                        spacing={1}
+                        sx={{ alignItems: 'baseline', justifyContent: 'space-between' }}
+                      >
+                        <Typography variant="body2" sx={{ fontWeight: selected ? 600 : 500 }}>
                           {`${spell.level}. ${spell.name}`}
                         </Typography>
                         <Typography variant="caption" color="text.secondary" noWrap>

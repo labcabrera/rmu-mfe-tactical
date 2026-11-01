@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { Stack, Typography, Chip, Box, TextField, IconButton } from '@mui/material';
+import { ChipRow } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../CombatContext';
 import { ActorRound, ActorRoundPenaltyModifier } from '../api/actor-rounds.dto';
 import { isGameFinished } from '../services/game-service';
@@ -35,7 +36,7 @@ const ActorRoundPenalty: FC<{
       {(actorRound.penalty.modifiers || []).length === 0 ? (
         <Typography variant="body2">{t('no-penalties')}</Typography>
       ) : (
-        <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
+        <ChipRow>
           {(actorRound.penalty.modifiers || []).map((s: ActorRoundPenaltyModifier, i: number) => (
             <Chip
               key={`${s.source}-${i}`}
@@ -45,22 +46,22 @@ const ActorRoundPenalty: FC<{
               sx={{ m: 0.5 }}
             />
           ))}
-        </Stack>
+        </ChipRow>
       )}
 
       {!readOnly && (
-      <Box sx={{ mt: 1, display: 'flex', alignItems: 'center' }}>
-        <TextField
-          size="small"
-          label={t('new-penalty')}
-          value={newPenalty}
-          onChange={(e) => setNewPenalty(e.target.value)}
-          sx={{ mr: 1 }}
-        />
-        <IconButton color="primary" onClick={addPenalty} disabled={!newPenalty}>
-          <AddIcon />
-        </IconButton>
-      </Box>
+        <Box sx={{ mt: 1, display: 'flex', alignItems: 'center' }}>
+          <TextField
+            size="small"
+            label={t('new-penalty')}
+            value={newPenalty}
+            onChange={(e) => setNewPenalty(e.target.value)}
+            sx={{ mr: 1 }}
+          />
+          <IconButton color="primary" onClick={addPenalty} disabled={!newPenalty}>
+            <AddIcon />
+          </IconButton>
+        </Box>
       )}
     </Stack>
   );

@@ -1,14 +1,16 @@
 import React, { FC, useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
-import { alpha, Box, ButtonBase, Chip, FormControlLabel, Stack, Switch, Typography } from '@mui/material';
+import { Box, ButtonBase, Chip, FormControlLabel, Stack, Switch, Typography } from '@mui/material';
 import {
   DifficultyPicker,
   FlowStep,
   formatBonus,
   NumberPadField,
+  selectableSx,
   OPEN_D100,
   RollField,
+  ChipRow,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../CombatContext';
 import { resolveMovement } from '../../../api/action';
@@ -88,7 +90,7 @@ const MovementFlow: FC<{
 
   const setup = (
     <Stack spacing={2}>
-      <Stack direction="row" sx={{ flexWrap: 'wrap', gap: 0.75 }}>
+      <ChipRow>
         <Chip size="small" variant="outlined" label={`${t('max-pace')}: ${t(actorRound.movement.maxPace)}`} />
         <Chip
           size="small"
@@ -108,7 +110,7 @@ const MovementFlow: FC<{
                 label={`${t(`penalty-${penalty.source}`, { defaultValue: penalty.source })}: ${formatBonus(penalty.value)}`}
               />
             ))}
-      </Stack>
+      </ChipRow>
       <Box>
         <Typography variant="caption" color="text.secondary" component="div" sx={{ mb: 0.5 }}>
           {t('skill')}
@@ -185,19 +187,17 @@ const MovementFlow: FC<{
             aria-checked={selected}
             disabled={overMax}
             onClick={() => setModifiers({ pace: row.id })}
-            sx={(theme) => ({
-              display: 'grid',
-              gridTemplateColumns: '1fr auto',
-              alignItems: 'center',
-              textAlign: 'left',
-              px: 1.5,
-              py: 1,
-              borderRadius: `${theme.radius.sm}px`,
-              border: 1,
-              borderColor: selected ? 'primary.main' : 'divider',
-              bgcolor: selected ? alpha(theme.palette.primary.main, 0.12) : 'transparent',
-              opacity: overMax ? 0.55 : 1,
-            })}
+            sx={[
+              selectableSx(selected, overMax),
+              {
+                display: 'grid',
+                gridTemplateColumns: '1fr auto',
+                alignItems: 'center',
+                textAlign: 'left',
+                px: 1.5,
+                py: 1,
+              },
+            ]}
           >
             <Box>
               <Typography variant="body2" sx={{ fontWeight: 600 }}>

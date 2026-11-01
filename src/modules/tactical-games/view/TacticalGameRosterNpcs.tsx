@@ -18,6 +18,7 @@ import {
   resolveAssetUrl,
   RmuDialog,
   TacticalGame,
+  ChipRow,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import type { RosterPending } from './TacticalGameRoster';
 
@@ -125,7 +126,7 @@ export default function TacticalGameRosterNpcs({
                   {isEnvironment ? t('environment-npcs-empty') : t('faction-npc-actors-empty')}
                 </Typography>
               ) : (
-                <Stack direction="row" sx={{ flexWrap: 'wrap', gap: 0.75 }}>
+                <ChipRow>
                   {actors.map((actor) => (
                     <Chip
                       key={actor.id}
@@ -144,7 +145,7 @@ export default function TacticalGameRosterNpcs({
                       sx={{ maxWidth: '100%' }}
                     />
                   ))}
-                </Stack>
+                </ChipRow>
               )}
             </Box>
           );

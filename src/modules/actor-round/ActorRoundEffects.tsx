@@ -5,7 +5,7 @@ import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import HealingIcon from '@mui/icons-material/Healing';
 import { Stack, Typography, Chip, Box, TextField, IconButton, Button, MenuItem, Tooltip } from '@mui/material';
-import { InjurySourceLine, normalizeEffectStatus, NumberPadField } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { InjurySourceLine, normalizeEffectStatus, NumberPadField, ChipRow } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../CombatContext';
 import { addActorRoundEffect, deleteActorRoundEffect } from '../api/actor-rounds';
 import { ActorRound, ActorRoundEffect, AP_EFFECTS } from '../api/actor-rounds.dto';
@@ -74,7 +74,7 @@ const ActorRoundEffects: FC<{
       {(actorRound.effects || []).length === 0 ? (
         <Typography variant="body2">{t('no-states')}</Typography>
       ) : (
-        <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
+        <ChipRow>
           {(actorRound.effects || []).map((s: ActorRoundEffect, i: number) => {
             const chip = (
               <Chip
@@ -106,7 +106,7 @@ const ActorRoundEffects: FC<{
               </Stack>
             );
           })}
-        </Stack>
+        </ChipRow>
       )}
 
       {currentRound && !surprise && (

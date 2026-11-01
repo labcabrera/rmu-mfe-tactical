@@ -1,8 +1,8 @@
 import React, { FC, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import AddIcon from '@mui/icons-material/Add';
-import { alpha, Box, Button, Paper, Stack, Typography } from '@mui/material';
-import { ApPips } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { alpha, Box, Button, Stack, Typography } from '@mui/material';
+import { ApPips, selectableSx } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
 import { Action } from '../../api/action.dto';
 import { ActorRound } from '../../api/actor-rounds.dto';
@@ -91,13 +91,15 @@ const CombatActorRoundListItem: FC<{
 
   if (compact) {
     return (
-      <Paper
-        sx={(theme) => ({
-          overflow: 'hidden',
-          borderColor: selected ? 'primary.main' : 'divider',
-          borderLeft: `4px solid ${factionColor(actorRound.factionId)}`,
-          bgcolor: selected ? alpha(theme.palette.primary.main, 0.05) : undefined,
-        })}
+      <Box
+        sx={[
+          selectableSx(selected),
+          {
+            overflow: 'hidden',
+            cursor: 'default',
+            borderLeft: `4px solid ${factionColor(actorRound.factionId)}`,
+          },
+        ]}
       >
         <Box sx={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 132px' }}>
           {resume}
@@ -111,7 +113,7 @@ const CombatActorRoundListItem: FC<{
           currentPhase={currentPhase}
           onClick={onOpenAction}
         />
-      </Paper>
+      </Box>
     );
   }
 
@@ -122,7 +124,7 @@ const CombatActorRoundListItem: FC<{
         gridTemplateColumns: columns,
         borderBottom: 1,
         borderColor: 'divider',
-        bgcolor: selected ? alpha(theme.palette.primary.main, 0.05) : undefined,
+        bgcolor: selected ? alpha(theme.palette.primary.main, 0.12) : undefined,
       })}
     >
       <Box
@@ -133,7 +135,7 @@ const CombatActorRoundListItem: FC<{
           minWidth: 0,
           // Opaque, so the scrolled cells pass under it.
           bgcolor: selected
-            ? `color-mix(in srgb, ${theme.palette.primary.main} 5%, ${theme.palette.background.paper})`
+            ? `color-mix(in srgb, ${theme.palette.primary.main} 12%, ${theme.palette.background.paper})`
             : 'background.paper',
           // A thin stripe in the faction color tells the sides apart without changing the board.
           boxShadow: `inset 4px 0 0 ${factionColor(actorRound.factionId)}`,

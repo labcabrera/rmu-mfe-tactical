@@ -1,7 +1,7 @@
 import React, { Dispatch, FC, ReactNode, SetStateAction } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Box, Card, CardContent, Chip, Divider, Grid, Stack, Typography } from '@mui/material';
-import { NumberPadField } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { NumberPadField, ChipRow } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { ActionAttackModifiers, AttackDeclaration } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
 import {
@@ -243,11 +243,11 @@ const AttackModifiersForm: FC<{
                 <Typography variant="caption" color="text.secondary">
                   {t('other-declared-options')}
                 </Typography>
-                <Stack direction="row" sx={{ flexWrap: 'wrap', gap: 0.5, mt: 0.5 }}>
+                <ChipRow sx={{ mt: 0.5 }}>
                   {otherDeclared.map((field) => (
                     <Chip key={field.name} size="small" label={declaredLabel(field)} />
                   ))}
-                </Stack>
+                </ChipRow>
               </Box>
             )}
             <Typography variant="caption" color="text.secondary" component="p" sx={{ mt: 2 }}>
