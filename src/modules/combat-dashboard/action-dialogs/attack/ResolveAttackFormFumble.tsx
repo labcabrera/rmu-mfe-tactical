@@ -1,13 +1,19 @@
 import React, { Dispatch, FC, SetStateAction, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
-import { Grid, Stack, Typography } from '@mui/material';
-import { CategorySeparator, D100, RollField, RollSpec } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { Chip, Grid, Tooltip, Typography } from '@mui/material';
+import {
+  CategorySeparator,
+  ChipRow,
+  D100,
+  effectIcon,
+  RollField,
+  RollSpec,
+} from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../CombatContext';
 import { updateFumbleRoll } from '../../../api/action';
 import { Action, ActionAttack, AttackDeclaration, CriticalEffect } from '../../../api/action.dto';
 import { useTacticalNotify } from '../../../services/notify-service';
-import Effect from '../../../shared/generic/Effect';
 import { criticalEffectLabel } from './critical-effect-label';
 
 /** The dice of the hits of a fumble entry (`2d10`) as a roll, undefined when its hits are fixed or it has none. */
@@ -73,14 +79,18 @@ const ResolveAttackFormFumble: FC<{
         </Grid>
       )}
       <Grid size={12}>
-        <Stack direction="row" spacing={1} useFlexGap sx={{ flexWrap: 'wrap' }}>
+        <ChipRow>
           {!!fumble.damage && fumble.damage > 0 && (
-            <Effect status={'dmg'} label={t('damage-n', { damage: fumble.damage })} color="error" />
+            <Tooltip title={t('dmg')}>
+              <Chip avatar={effectIcon('dmg')} label={t('damage-n', { damage: fumble.damage })} color="error" />
+            </Tooltip>
           )}
           {(fumble.effects ?? []).map((effect, effectIndex) => (
-            <Effect key={effectIndex} status={effect.status} label={criticalEffectLabel(effect, t)} color="error" />
+            <Tooltip key={effectIndex} title={t(effect.status)}>
+              <Chip avatar={effectIcon(effect.status)} label={criticalEffectLabel(effect, t)} color="error" />
+            </Tooltip>
           ))}
-        </Stack>
+        </ChipRow>
       </Grid>
       {fumble.text && <Grid size={12}>{fumble.text}</Grid>}
       {fumble.additionalDamageText && (

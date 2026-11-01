@@ -5,7 +5,7 @@ import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { Box, IconButton, Stack, Tooltip } from '@mui/material';
 import { enterSx, ResourceBar, RmuDialog, SectionNav, StatPill } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { ActorRound } from '../api/actor-rounds.dto';
-import { useActorRoundImage } from '../shared/avatars/ActorRoundAvatar';
+import { useActorRoundImage } from '../shared/avatars/use-actor-round-image';
 import ActorRoundTabContent, { actorRoundTabs, ActorRoundTab } from './tabs/ActorRoundTabs';
 
 /** Where J and K belong to what the user is typing or choosing, not to the actor navigation. */

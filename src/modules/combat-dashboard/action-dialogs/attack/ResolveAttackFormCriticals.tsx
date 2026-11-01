@@ -1,14 +1,13 @@
 import React, { Dispatch, FC, Fragment, SetStateAction, useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
-import { Alert, Stack, Grid, Typography } from '@mui/material';
-import { CategorySeparator, D100, RollField } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { Alert, Chip, Grid, Stack, Tooltip, Typography } from '@mui/material';
+import { CategorySeparator, ChipRow, D100, effectIcon, RollField } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../CombatContext';
 import { updateCriticalRoll } from '../../../api/action';
 import { Action, ActionAttack, AttackDeclaration, CriticalEffect } from '../../../api/action.dto';
 import { criticalCode } from '../../../services/action-service';
 import { useTacticalNotify } from '../../../services/notify-service';
-import Effect from '../../../shared/generic/Effect';
 import OptionTiles from '../attack-modifiers/pickers/OptionTiles';
 import { criticalEffectLabel } from './critical-effect-label';
 import { CRITICAL_STYLE_OPTIONS, severityFeet, styleOptionsFor } from './style-critical-options';
@@ -128,27 +127,25 @@ const ResolveAttackFormCriticals: FC<{
               </Stack>
             </Grid>
             <Grid size={12}>
-              <Stack
-                direction="row"
-                spacing={1}
-                useFlexGap
-                sx={{
-                  flexWrap: 'wrap',
-                  alignContent: 'flex-start',
-                  justifyContent: 'flex-start',
-                  alignItems: 'flex-start',
-                }}
-              >
+              <ChipRow>
                 {!!critical.result?.damage && critical.result.damage > 0 && (
-                  <Effect status={'dmg'} label={t('damage-n', { damage: critical.result.damage })} color="error" />
+                  <Tooltip title={t('dmg')}>
+                    <Chip
+                      avatar={effectIcon('dmg')}
+                      label={t('damage-n', { damage: critical.result.damage })}
+                      color="error"
+                    />
+                  </Tooltip>
                 )}
                 {critical.result &&
                   critical.result.effects &&
                   critical.result.effects.length > 0 &&
                   critical.result.effects.map((effect, effectIndex) => (
-                    <Effect key={effectIndex} label={getStatusLabel(effect)} color="error" status={effect.status} />
+                    <Tooltip key={effectIndex} title={t(effect.status)}>
+                      <Chip avatar={effectIcon(effect.status)} label={getStatusLabel(effect)} color="error" />
+                    </Tooltip>
                   ))}
-              </Stack>
+              </ChipRow>
             </Grid>
             <Grid size={12}>{critical.result?.text || ''}</Grid>
           </Fragment>

@@ -6,6 +6,7 @@ import {
   Character,
   effectColor,
   effectIcon,
+  EntityAvatar,
   npcSummary,
   ResourceBar,
   StatusBadge,
@@ -15,7 +16,7 @@ import { ActorRound } from '../../api/actor-rounds.dto';
 import { actorRoundBleeding, actorRoundDownState } from '../../services/actor-round-service';
 import { apModifierLabel, apTotals } from '../../services/ap-service';
 import { useFactionColor } from '../../services/faction-colors';
-import ActorRoundAvatar from '../../shared/avatars/ActorRoundAvatar';
+import { useActorRoundImage } from '../../shared/avatars/use-actor-round-image';
 
 /**
  * Actor cell of the board: a large miniature beside the name, a compact "down" badge (dead with the name struck
@@ -37,6 +38,7 @@ const ActorRoundResume: FC<{
   const faction = factions?.find((f) => f.id === actorRound.factionId);
   const color = factionColor(actorRound.factionId);
   const down = actorRoundDownState(actorRound);
+  const image = useActorRoundImage(actorRound);
   const bleeding = down === 'dead' ? 0 : actorRoundBleeding(actorRound);
   const ap = apTotals(actorRound);
   const apModifiers = actorRound.apModifiers ?? [];
@@ -61,12 +63,12 @@ const ActorRoundResume: FC<{
           justifyContent: 'flex-start',
           gap: 1.25,
           textAlign: 'left',
-          borderRadius: 1,
+          borderRadius: (theme) => `${theme.radius.sm}px`,
           width: '100%',
         }}
       >
         {/* The miniature takes the height of the name, faction and bars: players find their figure by it. */}
-        <ActorRoundAvatar actorRound={actorRound} size={112} variant="rounded" dead={down === 'dead'} />
+        <EntityAvatar name={actorRound.actorName} imageUrl={image} size={112} faded={down === 'dead'} />
         <Stack sx={{ flex: 1, minWidth: 0, justifyContent: 'space-between', gap: 0.5 }}>
           <Box sx={{ minWidth: 0 }}>
             <Stack direction="row" spacing={1} sx={{ alignItems: 'center', minWidth: 0 }}>

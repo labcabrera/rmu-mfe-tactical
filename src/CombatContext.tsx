@@ -3,8 +3,6 @@
 import React, { createContext, useEffect, useState, ReactNode, Dispatch, SetStateAction, FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { Box, Typography, Accordion, AccordionDetails, AccordionSummary } from '@mui/material';
 import {
   Character,
   ENVIRONMENT_FACTION_ID,
@@ -18,6 +16,7 @@ import {
   fetchTacticalGame,
   StrategicGame,
   TacticalGame,
+  TechnicalInfo,
   useNotify,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { fetchActionsByGameAndRound } from './modules/api/action';
@@ -253,49 +252,13 @@ export const CombatProvider: FC<{
       </CombatContext.Provider>
 
       {isDebugEnabled() && (
-        <Box sx={{ mt: 4 }}>
-          <Accordion>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1-content" id="panel1-header">
-              <Typography component="span">{t('tactical-game')}</Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <pre>{JSON.stringify(game, null, 2)}</pre>
-            </AccordionDetails>
-          </Accordion>
-          <Accordion>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1-content" id="panel1-header">
-              <Typography component="span">{t('actor-rounds')}</Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <pre>{JSON.stringify(actorRounds, null, 2)}</pre>
-            </AccordionDetails>
-          </Accordion>
-          <Accordion>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1-content" id="panel1-header">
-              <Typography component="span">{t('characters')}</Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <pre>{JSON.stringify(characters, null, 2)}</pre>
-            </AccordionDetails>
-          </Accordion>
-          <Accordion>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1-content" id="panel1-header">
-              <Typography component="span">{t('round-actions')}</Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <pre>{JSON.stringify(roundActions, null, 2)}</pre>
-            </AccordionDetails>
-          </Accordion>
-          <Accordion>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1-content" id="panel1-header">
-              <Typography component="span">{t('strategic-game')}</Typography>
-            </AccordionSummary>
-            <AccordionDetails>
-              <pre>{JSON.stringify(strategicGame, null, 2)}</pre>
-            </AccordionDetails>
-          </Accordion>
-          <pre>{JSON.stringify({ displayRound }, null, 2)}</pre>
-        </Box>
+        <TechnicalInfo>
+          {JSON.stringify(
+            { tacticalGame: game, actorRounds, characters, roundActions, strategicGame, displayRound },
+            null,
+            2
+          )}
+        </TechnicalInfo>
       )}
     </>
   );
