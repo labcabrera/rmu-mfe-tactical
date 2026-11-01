@@ -5,7 +5,7 @@ import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import HealingIcon from '@mui/icons-material/Healing';
 import { Stack, Typography, Chip, Box, TextField, IconButton, Button, MenuItem, Tooltip } from '@mui/material';
-import { InjurySourceLine, normalizeEffectStatus, NumericInput } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { InjurySourceLine, normalizeEffectStatus, NumberPadField } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../CombatContext';
 import { addActorRoundEffect, deleteActorRoundEffect } from '../api/actor-rounds';
 import { ActorRound, ActorRoundEffect, AP_EFFECTS } from '../api/actor-rounds.dto';
@@ -158,7 +158,7 @@ const ActorRoundEffects: FC<{
               ))}
             </TextField>
             <Box sx={{ width: 110 }}>
-              <NumericInput
+              <NumberPadField
                 label={t('value')}
                 value={apValue}
                 onChange={setApValue}

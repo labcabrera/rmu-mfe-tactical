@@ -21,7 +21,7 @@ import {
   CharacterPicker,
   DifficultyPicker,
   formatBonus,
-  NumericInput,
+  NumberPadField,
   OPEN_D100,
   RmuDialog,
   RollField,
@@ -173,7 +173,7 @@ const GroupCheckDialog: FC<{ open: boolean; onClose: () => void }> = ({ open, on
         </Stack>
         {isNpc(leader) && (
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-            <NumericInput
+            <NumberPadField
               label={t('leadership-ranks')}
               value={form.leadershipRanks}
               onChange={(leadershipRanks) => change({ leadershipRanks })}
@@ -182,7 +182,8 @@ const GroupCheckDialog: FC<{ open: boolean; onClose: () => void }> = ({ open, on
               disabled={busy}
             />
             {form.kind !== 'fear' && (
-              <NumericInput
+              <NumberPadField
+                steps={[-10, -5, 5, 10]}
                 label={t('leadership-bonus')}
                 value={form.leadershipBonus}
                 onChange={(leadershipBonus) => change({ leadershipBonus })}
@@ -216,7 +217,7 @@ const GroupCheckDialog: FC<{ open: boolean; onClose: () => void }> = ({ open, on
             <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
               {actorSelect(t('intimidator'), form.intimidatorId, (intimidatorId) => change({ intimidatorId }))}
               {isNpc(intimidator) && (
-                <NumericInput
+                <NumberPadField
                   label={t('intimidation-ranks')}
                   value={form.intimidationRanks}
                   onChange={(intimidationRanks) => change({ intimidationRanks })}
@@ -246,7 +247,8 @@ const GroupCheckDialog: FC<{ open: boolean; onClose: () => void }> = ({ open, on
             disabled={busy}
           />
         )}
-        <NumericInput
+        <NumberPadField
+          steps={[-10, -5, 5, 10]}
           label={t('custom-bonus')}
           value={form.modifier}
           onChange={(modifier) => change({ modifier })}
@@ -357,7 +359,8 @@ const MemberRolls: FC<{
                     disabled={disabled}
                   />
                 )}
-                <NumericInput
+                <NumberPadField
+                  steps={[-10, -5, 5, 10]}
                   label={t('fear-rr-bonus')}
                   value={form.bonuses[member.actorId] ?? null}
                   onChange={(value) => onChange({ bonuses: { ...form.bonuses, [member.actorId]: value } })}

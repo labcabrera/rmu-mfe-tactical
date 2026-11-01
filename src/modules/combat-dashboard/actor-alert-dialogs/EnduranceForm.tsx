@@ -2,7 +2,7 @@ import React, { FC, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Box, Grid, Stack, Typography } from '@mui/material';
 import {
-  NumericInput,
+  NumberPadField,
   OPEN_D100,
   RollBreakdown,
   RollField,
@@ -88,7 +88,7 @@ const EnduranceForm: FC<{
         <Stack spacing={1.5}>
           {DEPRIVATION.map((d) => (
             <Box key={d.key} sx={{ maxWidth: 320 }}>
-              <NumericInput
+              <NumberPadField
                 label={t(d.key, { modifier: d.perUnit })}
                 value={value.deprivation[d.key] ?? null}
                 onChange={(units) => onChange({ ...value, deprivation: { ...value.deprivation, [d.key]: units } })}
@@ -99,7 +99,8 @@ const EnduranceForm: FC<{
             </Box>
           ))}
           <Box sx={{ maxWidth: 320 }}>
-            <NumericInput
+            <NumberPadField
+              steps={[-10, -5, 5, 10]}
               label={t('custom-bonus')}
               value={value.customBonus}
               onChange={(customBonus) => onChange({ ...value, customBonus })}

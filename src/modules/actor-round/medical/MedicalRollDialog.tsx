@@ -8,7 +8,7 @@ import {
   HealerPicker,
   HealerSelection,
   Injury,
-  NumericInput,
+  NumberPadField,
   OPEN_D100,
   resolveHealer,
   RmuDialog,
@@ -210,7 +210,8 @@ const MedicalRollDialog: FC<{
             </TextField>
           )}
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-            <NumericInput
+            <NumberPadField
+              steps={[-10, -5, 5, 10]}
               label={t('difficulty')}
               value={difficulty}
               onChange={setDifficulty}
@@ -236,7 +237,7 @@ const MedicalRollDialog: FC<{
                 {t('cauterize-heat-help')}
               </Typography>
               <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-                <NumericInput
+                <NumberPadField
                   label={t('cauterize-heat-hits-roll')}
                   value={heatHitsRoll}
                   onChange={setHeatHitsRoll}

@@ -6,7 +6,7 @@ import {
   DifficultyPicker,
   FlowStep,
   formatBonus,
-  NumericInput,
+  NumberPadField,
   OPEN_D100,
   RollField,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
@@ -159,7 +159,8 @@ const MovementFlow: FC<{
             minTileWidth={110}
           />
           <Box sx={{ maxWidth: 200 }}>
-            <NumericInput
+            <NumberPadField
+              steps={[-10, -5, 5, 10]}
               label={t('custom-modifier')}
               value={modifiers.customBonus}
               onChange={(value) => setModifiers({ customBonus: value || 0 })}

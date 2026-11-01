@@ -1,7 +1,7 @@
 import React, { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Box, Chip, Stack } from '@mui/material';
-import { NumericInput } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { NumberPadField } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { usePsychologyTables } from '../../services/core-tables';
 
 /**
@@ -18,7 +18,7 @@ const FrightLevelInput: FC<{
   return (
     <Stack spacing={1}>
       <Box sx={{ maxWidth: 200 }}>
-        <NumericInput
+        <NumberPadField
           label={t('fright-level')}
           value={value}
           onChange={onChange}

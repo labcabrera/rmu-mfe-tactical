@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Alert, Box, Grid, MenuItem, Stack, TextField, Typography } from '@mui/material';
 import {
   ItemConditionChip,
-  NumericInput,
+  NumberPadField,
   OPEN_D100,
   RollBreakdown,
   RollField,
@@ -138,7 +138,7 @@ export default function BreakageForm({
           </TextField>
           {item && item.strength === null && (
             <Box sx={{ maxWidth: 320 }}>
-              <NumericInput
+              <NumberPadField
                 label={t('breakage-strength')}
                 value={value.strength}
                 onChange={(strength) => onChange({ ...value, strength })}
@@ -147,7 +147,8 @@ export default function BreakageForm({
             </Box>
           )}
           <Box sx={{ maxWidth: 320 }}>
-            <NumericInput
+            <NumberPadField
+              steps={[-10, -5, 5, 10]}
               label={t('breakage-gm-modifier')}
               value={value.gmModifier}
               onChange={(gmModifier) => onChange({ ...value, gmModifier })}

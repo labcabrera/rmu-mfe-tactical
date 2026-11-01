@@ -4,7 +4,7 @@ import { useAuth } from 'react-oidc-context';
 import { Alert, Button, Stack, Typography } from '@mui/material';
 import {
   formatBonus,
-  NumericInput,
+  NumberPadField,
   OPEN_D100,
   RmuDialog,
   RollBreakdown,
@@ -105,7 +105,8 @@ const FrenzyDyingRrDialog: FC<{ actorRound: ActorRound; open: boolean; onClose: 
         <Stack spacing={2}>
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
             <RollField spec={OPEN_D100} value={roll} onChange={(value) => setRoll(value.total)} disabled={busy} />
-            <NumericInput
+            <NumberPadField
+              steps={[-10, -5, 5, 10]}
               label={t('physical-rr-bonus')}
               value={bonus}
               onChange={setBonus}

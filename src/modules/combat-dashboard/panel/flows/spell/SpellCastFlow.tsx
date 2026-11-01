@@ -6,7 +6,7 @@ import {
   fetchCharacters,
   FlowStep,
   formatBonus,
-  NumericInput,
+  NumberPadField,
   OPEN_D100,
   RollBreakdown,
   RollField,
@@ -238,7 +238,7 @@ const SpellCastFlow: FC<{
       <SpellOutcome spell={spell} />
       {action.status === 'pending_apply' && (
         <Box sx={{ maxWidth: 260 }}>
-          <NumericInput
+          <NumberPadField
             label={t('spell-power-points-to-spend')}
             placeholder={String(suggestedPower)}
             value={powerPoints}

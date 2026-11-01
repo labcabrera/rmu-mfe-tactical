@@ -1,7 +1,7 @@
 import React, { FC, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Box, Card, CardContent, MenuItem, Stack, TextField, Typography } from '@mui/material';
-import { CharacterPicker, formatBonus, NumericInput } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { CharacterPicker, formatBonus, NumberPadField } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../../CombatContext';
 import { ActionAttack, PROTECT_POSITIONS, ProtectPosition } from '../../../../api/action.dto';
 import { ActorRound, ActorRoundAttack } from '../../../../api/actor-rounds.dto';
@@ -81,7 +81,8 @@ const AttackTargetsStep: FC<{
                 {targetId && (
                   <>
                     <Box sx={{ maxWidth: 200 }}>
-                      <NumericInput
+                      <NumberPadField
+                        steps={[-10, -5, 5, 10]}
                         label={t('used-ob')}
                         value={attack.modifiers.bo}
                         onChange={(bo) => onBo(attack.attackName, bo ?? 0)}

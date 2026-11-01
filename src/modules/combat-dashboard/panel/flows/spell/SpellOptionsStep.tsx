@@ -1,7 +1,7 @@
 import React, { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, Box, FormControlLabel, MenuItem, Stack, Switch, TextField } from '@mui/material';
-import { NumericInput } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { NumberPadField } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { SPELL_ARMORS, SPELL_HANDS, SPELL_HELMETS, SPELL_VOICES, SpellOptions } from '../../../../api/action.dto';
 
 /** Maximum preparation rounds that add to the SCR (Spell Law 4.2). */
@@ -16,7 +16,14 @@ const OptionSelect: FC<{
 }> = ({ label, value, values, prefix, onChange }) => {
   const { t } = useTranslation();
   return (
-    <TextField select size="small" label={label} value={value} onChange={(e) => onChange(e.target.value)} sx={{ minWidth: 150 }}>
+    <TextField
+      select
+      size="small"
+      label={label}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      sx={{ minWidth: 150 }}
+    >
       {values.map((each) => (
         <MenuItem key={each} value={each}>
           {t(`${prefix}-${each}`)}
@@ -75,7 +82,7 @@ const SpellOptionsStep: FC<{
       <Stack direction="row" sx={{ flexWrap: 'wrap', gap: 2 }}>
         {options.armor !== 'none' && (
           <Box sx={{ width: 200 }}>
-            <NumericInput
+            <NumberPadField
               label={t('spell-armor-encumbrance')}
               value={options.armorEncumbrance}
               onChange={(value) => onChange({ armorEncumbrance: value ?? 0 })}
@@ -86,7 +93,7 @@ const SpellOptionsStep: FC<{
           </Box>
         )}
         <Box sx={{ width: 200 }}>
-          <NumericInput
+          <NumberPadField
             label={t('spell-preparation-rounds')}
             value={options.preparationRounds}
             onChange={(value) => onChange({ preparationRounds: Math.min(MAX_PREPARATION_ROUNDS, value ?? 0) })}
@@ -97,7 +104,8 @@ const SpellOptionsStep: FC<{
           />
         </Box>
         <Box sx={{ width: 200 }}>
-          <NumericInput
+          <NumberPadField
+            steps={[-10, -5, 5, 10]}
             label={t('custom-bonus')}
             value={options.customBonus}
             onChange={(value) => onChange({ customBonus: value ?? 0 })}

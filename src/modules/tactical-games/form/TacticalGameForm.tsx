@@ -5,7 +5,7 @@ import { useAuth } from 'react-oidc-context';
 import { Grid, TextField } from '@mui/material';
 import {
   fetchStrategicGames,
-  NumericInput,
+  NumberPadField,
   StrategicGame,
   StrategicGamePicker,
   TacticalGame,
@@ -59,7 +59,8 @@ const TacticalGameForm: FC<{
       )}
 
       <Grid size={{ xs: 6, md: 2 }}>
-        <NumericInput
+        <NumberPadField
+          steps={[-10, -5, 5, 10]}
           label={t('temperature-fatigue-modifier')}
           value={formData.environment?.temperatureFatigueModifier || 0}
           onChange={(value) =>
@@ -71,7 +72,8 @@ const TacticalGameForm: FC<{
         />
       </Grid>
       <Grid size={{ xs: 6, md: 2 }}>
-        <NumericInput
+        <NumberPadField
+          steps={[-10, -5, 5, 10]}
           label={t('altitude-fatigue-modifier')}
           value={formData.environment?.altitudeFatigueModifier || 0}
           onChange={(value) =>

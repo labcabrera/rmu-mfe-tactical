@@ -9,7 +9,7 @@ import {
   GiveAntidoteDto,
   Injury,
   Item,
-  NumericInput,
+  NumberPadField,
   POISON_CATEGORIES,
   RmuDialog,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
@@ -121,7 +121,7 @@ const ActorAntidoteDialog: FC<{ actorRound: ActorRound; injury: Injury | null; o
               />
             </Grid>
             <Grid size={{ xs: 12, md: 4 }}>
-              <NumericInput
+              <NumberPadField
                 integer
                 min={0}
                 allowNegatives={false}

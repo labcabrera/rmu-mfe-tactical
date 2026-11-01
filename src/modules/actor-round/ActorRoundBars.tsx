@@ -1,14 +1,13 @@
 import React, { FC, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
-import { Stack, Typography } from '@mui/material';
-import { NumericInput } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { Box, Stack, Typography } from '@mui/material';
+import { NumberPadField, ResourceBar } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../CombatContext';
 import { addActorRoundFatigueAccumulator, addActorRoundHp } from '../api/actor-rounds';
 import { ActorRound } from '../api/actor-rounds.dto';
 import { isGameFinished } from '../services/game-service';
 import { useTacticalNotify } from '../services/notify-service';
-import GenericBar from '../shared/generic/GenericBar';
 
 const barSize = 160;
 
@@ -40,9 +39,16 @@ const ActorRoundBars: FC<{
   return (
     <Stack spacing={1} sx={{ width: '100%' }}>
       <Stack direction="column" spacing={2} sx={{ alignItems: 'flex-start' }}>
-        <Stack direction="row" spacing={2}>
-          <GenericBar current={actorRound.hp?.current ?? 0} max={actorRound.hp?.max ?? 0} width={barSize} />
-          <NumericInput
+        <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
+          <Box sx={{ width: barSize }}>
+            <ResourceBar
+              label={t('hit-points')}
+              kind="hp"
+              current={actorRound.hp?.current ?? 0}
+              max={actorRound.hp?.max ?? 0}
+            />
+          </Box>
+          <NumberPadField
             label={t('new-hit-points')}
             value={actorRound.hp?.current ?? null}
             integer
@@ -50,6 +56,7 @@ const ActorRoundBars: FC<{
             min={-deathThreshold - 1}
             // The API caps the hit points at the maximum and wakes the actor up when they go over 0.
             max={actorRound.hp?.max}
+            steps={[-10, -1, 1, 10]}
             disabled={readOnly}
             onChange={(e) => e !== null && updateActorRoundHP(Math.min(e, actorRound.hp?.max ?? e))}
           />
@@ -57,12 +64,19 @@ const ActorRoundBars: FC<{
         <Typography variant="caption" color="text.secondary">
           {t('death-threshold', { value: -deathThreshold })}
         </Typography>
-        <Stack direction="row" spacing={2}>
-          <GenericBar current={Math.round(actorRound.fatigue?.accumulator ?? 0)} max={100} width={barSize} />
-          <NumericInput
+        <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
+          <Box sx={{ width: barSize }}>
+            <ResourceBar
+              label={t('fatigue')}
+              kind="fatigue"
+              current={Math.round(actorRound.fatigue?.accumulator ?? 0)}
+              max={100}
+            />
+          </Box>
+          <NumberPadField
             label={t('new-fatigue-accumulator')}
             value={actorRound.fatigue?.accumulator ?? null}
-            maxFractionDigits={2}
+            steps={[-10, -5, 5, 10]}
             min={0}
             max={1000}
             disabled={readOnly}

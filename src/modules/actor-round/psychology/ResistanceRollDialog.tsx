@@ -4,7 +4,7 @@ import { useAuth } from 'react-oidc-context';
 import { Alert, Button, Stack, Typography } from '@mui/material';
 import {
   formatBonus,
-  NumericInput,
+  NumberPadField,
   OPEN_D100,
   RmuDialog,
   RollBreakdown,
@@ -151,7 +151,8 @@ const ResistanceRollDialog: FC<{ actorRound: ActorRound; open: boolean; onClose:
           <FrightLevelInput value={attackLevel} onChange={setAttackLevel} disabled={busy} />
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
             <RollField spec={OPEN_D100} value={roll} onChange={(value) => setRoll(value.total)} disabled={busy} />
-            <NumericInput
+            <NumberPadField
+              steps={[-10, -5, 5, 10]}
               label={t('fear-rr-bonus')}
               value={bonus}
               onChange={setBonus}
@@ -161,7 +162,8 @@ const ResistanceRollDialog: FC<{ actorRound: ActorRound; open: boolean; onClose:
               error={sheetBonus === undefined && bonus === null}
               disabled={busy}
             />
-            <NumericInput
+            <NumberPadField
+              steps={[-10, -5, 5, 10]}
               label={t('custom-bonus')}
               value={modifier}
               onChange={setModifier}

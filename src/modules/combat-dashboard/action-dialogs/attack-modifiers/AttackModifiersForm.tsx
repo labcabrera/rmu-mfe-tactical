@@ -1,7 +1,7 @@
 import React, { Dispatch, FC, ReactNode, SetStateAction } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Box, Card, CardContent, Chip, Divider, Grid, Stack, Typography } from '@mui/material';
-import { NumericInput } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { NumberPadField } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { ActionAttackModifiers, AttackDeclaration } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
 import {
@@ -141,7 +141,8 @@ const AttackModifiersForm: FC<{
     if (field.kind === 'number')
       return (
         <Box sx={{ maxWidth: 220 }}>
-          <NumericInput
+          <NumberPadField
+            steps={[-10, -5, 5, 10]}
             label={t(field.label)}
             value={(modifiers[field.name] as number | null) || null}
             integer

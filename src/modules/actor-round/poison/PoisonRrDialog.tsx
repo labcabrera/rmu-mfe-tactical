@@ -5,7 +5,7 @@ import { useAuth } from 'react-oidc-context';
 import { Alert, Stack, Typography } from '@mui/material';
 import {
   formatBonus,
-  NumericInput,
+  NumberPadField,
   OPEN_D100,
   PoisonExposure,
   PoisonRrResult,
@@ -95,9 +95,21 @@ const PoisonRrDialog: FC<{ actorRound: ActorRound; exposure?: PoisonExposure; on
             {sheetBonus !== undefined ? (
               <Typography variant="body2">{t('poison-rr-bonus-value', { value: formatBonus(sheetBonus) })}</Typography>
             ) : (
-              <NumericInput label={t('poison-rr-bonus')} value={bonus} onChange={setBonus} integer />
+              <NumberPadField
+                steps={[-10, -5, 5, 10]}
+                label={t('poison-rr-bonus')}
+                value={bonus}
+                onChange={setBonus}
+                integer
+              />
             )}
-            <NumericInput label={t('poison-rr-modifier')} value={modifier} onChange={setModifier} integer />
+            <NumberPadField
+              steps={[-10, -5, 5, 10]}
+              label={t('poison-rr-modifier')}
+              value={modifier}
+              onChange={setModifier}
+              integer
+            />
           </>
         )}
         {result && (
