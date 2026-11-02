@@ -8,7 +8,7 @@ import {
   applyActorHerb,
   discardItem,
   fetchStrategicItems,
-  NumericInput,
+  NumberPadField,
   RmuDialog,
   StrategicItem,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
@@ -111,7 +111,7 @@ const ActorUseHerbDialog: FC<{ actorRound: ActorRound; open: boolean; onClose: (
         )}
         {effects?.heal && (
           <>
-            <NumericInput
+            <NumberPadField
               integer
               min={0}
               allowNegatives={false}

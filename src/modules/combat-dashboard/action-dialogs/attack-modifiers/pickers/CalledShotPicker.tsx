@@ -1,7 +1,7 @@
 import React, { FC, KeyboardEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { alpha, Box, Stack, Typography, useTheme } from '@mui/material';
-import { NumericInput } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { NumberPadField } from '@labcabrera-rmu/rmu-react-shared-lib';
 import ModifierTile from './ModifierTile';
 
 /** ARIA role of each clickable zone. */
@@ -86,10 +86,16 @@ const CalledShotPicker: FC<{
         <ModifierTile role="radio" label={t('none')} selected={value === 'none'} onClick={() => onChange('none')} />
         {value !== 'none' && (
           <>
-            <Typography variant="body2" sx={{ fontWeight: 700 }}>
+            <Typography variant="body2" sx={{ fontWeight: 600 }}>
               {t(value)}
             </Typography>
-            <NumericInput label={t('called-shot-penalty')} value={penalty ?? null} onChange={onPenalty} integer />
+            <NumberPadField
+              steps={[-10, -5, 5, 10]}
+              label={t('called-shot-penalty')}
+              value={penalty ?? null}
+              onChange={onPenalty}
+              integer
+            />
           </>
         )}
       </Stack>

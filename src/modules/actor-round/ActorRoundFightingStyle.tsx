@@ -2,6 +2,7 @@ import React, { FC, useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import { Checkbox, Chip, FormControlLabel, MenuItem, Stack, TextField, Tooltip, Typography } from '@mui/material';
+import { ChipRow, SectionLabel } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../CombatContext';
 import { declareActorRoundFightingStyle } from '../api/actor-rounds';
 import { ActiveStyleAbility, ActorRound, OPTIONAL_STYLE_ABILITIES } from '../api/actor-rounds.dto';
@@ -86,7 +87,7 @@ const ActorRoundFightingStyle: FC<{ actorRound: ActorRound }> = ({ actorRound })
 
   return (
     <Stack spacing={1}>
-      <Typography variant="subtitle2">{t('fighting-style')}</Typography>
+      <SectionLabel>{t('fighting-style')}</SectionLabel>
       <TextField
         select
         size="small"
@@ -104,7 +105,7 @@ const ActorRoundFightingStyle: FC<{ actorRound: ActorRound }> = ({ actorRound })
       </TextField>
       {active && (
         <>
-          <Stack direction="row" spacing={0.5} sx={{ flexWrap: 'wrap', rowGap: 0.5 }}>
+          <ChipRow>
             {active.met ? (
               <Chip size="small" color="success" label={t('style-free-ranks-ob', { bonus: active.freeRanksBonus })} />
             ) : (
@@ -126,12 +127,8 @@ const ActorRoundFightingStyle: FC<{ actorRound: ActorRound }> = ({ actorRound })
                 label={t(`style-warning-${warning}`)}
               />
             ))}
-          </Stack>
-          {active.abilities.length > 0 && (
-            <Stack direction="row" spacing={0.5} sx={{ flexWrap: 'wrap', rowGap: 0.5 }}>
-              {active.abilities.map(abilityChip)}
-            </Stack>
-          )}
+          </ChipRow>
+          {active.abilities.length > 0 && <ChipRow>{active.abilities.map(abilityChip)}</ChipRow>}
           {active.abilities
             .filter((a) => OPTIONAL_STYLE_ABILITIES.includes(a.abilityId))
             .map((a) => (

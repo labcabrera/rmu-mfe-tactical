@@ -2,16 +2,17 @@
 import React, { FC, useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
-import { Alert, Stack, Typography } from '@mui/material';
+import { Stack, Typography } from '@mui/material';
 import {
   formatBonus,
-  NumericInput,
+  NumberPadField,
   OPEN_D100,
   PoisonExposure,
   PoisonRrResult,
   RmuDialog,
   RollBreakdown,
   RollField,
+  RollResultAlert,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
 import { resolveActorPoisoning } from '../../api/actor-rounds';
@@ -95,24 +96,37 @@ const PoisonRrDialog: FC<{ actorRound: ActorRound; exposure?: PoisonExposure; on
             {sheetBonus !== undefined ? (
               <Typography variant="body2">{t('poison-rr-bonus-value', { value: formatBonus(sheetBonus) })}</Typography>
             ) : (
-              <NumericInput label={t('poison-rr-bonus')} value={bonus} onChange={setBonus} integer />
+              <NumberPadField
+                steps={[-10, -5, 5, 10]}
+                label={t('poison-rr-bonus')}
+                value={bonus}
+                onChange={setBonus}
+                integer
+              />
             )}
-            <NumericInput label={t('poison-rr-modifier')} value={modifier} onChange={setModifier} integer />
+            <NumberPadField
+              steps={[-10, -5, 5, 10]}
+              label={t('poison-rr-modifier')}
+              value={modifier}
+              onChange={setModifier}
+              integer
+            />
           </>
         )}
         {result && (
-          <>
-            <Alert severity={result.resisted ? 'success' : 'warning'}>
-              {result.resisted
+          <RollResultAlert
+            severity={result.resisted ? 'success' : 'warning'}
+            headline={
+              result.resisted
                 ? t('poison-rr-resisted', { total: result.total, required: result.required })
                 : t('poison-rr-failed', {
                     total: result.total,
                     required: result.required,
                     severity: t(`poison-severity-${result.severity ?? 'mild'}`),
-                  })}
-            </Alert>
-            <RollBreakdown context="poison-rr" modifiers={result.breakdown} total={result.total} />
-          </>
+                  })
+            }
+            breakdown={<RollBreakdown context="poison-rr" modifiers={result.breakdown} total={result.total} />}
+          />
         )}
       </Stack>
     </RmuDialog>

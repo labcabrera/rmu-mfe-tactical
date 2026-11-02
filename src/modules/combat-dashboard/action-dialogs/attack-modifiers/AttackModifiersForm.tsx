@@ -1,7 +1,7 @@
 import React, { Dispatch, FC, ReactNode, SetStateAction } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Box, Card, CardContent, Chip, Divider, Grid, Stack, Typography } from '@mui/material';
-import { NumericInput } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { Box, Chip, Divider, Grid, Stack, Typography } from '@mui/material';
+import { ChipRow, NumberPadField, Panel, SectionLabel } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { ActionAttackModifiers, AttackDeclaration } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
 import {
@@ -141,7 +141,8 @@ const AttackModifiersForm: FC<{
     if (field.kind === 'number')
       return (
         <Box sx={{ maxWidth: 220 }}>
-          <NumericInput
+          <NumberPadField
+            steps={[-10, -5, 5, 10]}
             label={t(field.label)}
             value={(modifiers[field.name] as number | null) || null}
             integer
@@ -180,16 +181,13 @@ const AttackModifiersForm: FC<{
             const list = fields.filter((field) => field.section === section);
             if (list.length === 0) return null;
             return (
-              <Card
+              <Box
                 key={section}
                 component="section"
                 aria-label={t(`modifier-section-${section}`)}
                 sx={{ gridColumn: section === 'roll' ? '1 / -1' : undefined }}
               >
-                <CardContent>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
-                    {t(`modifier-section-${section}`)}
-                  </Typography>
+                <Panel title={t(`modifier-section-${section}`)}>
                   <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
                     {t(`modifier-section-${section}-help`)}
                   </Typography>
@@ -201,9 +199,7 @@ const AttackModifiersForm: FC<{
                         if (groupFields.length === 0 && !(group === 'situation' && situationExtra)) return null;
                         return (
                           <Box key={group}>
-                            <Typography variant="overline" color="text.secondary">
-                              {t(`modifier-group-${group}`)}
-                            </Typography>
+                            <SectionLabel>{t(`modifier-group-${group}`)}</SectionLabel>
                             {renderFields(groupFields)}
                             {group === 'situation' && situationExtra && <Box sx={{ mt: 2 }}>{situationExtra}</Box>}
                           </Box>
@@ -213,47 +209,38 @@ const AttackModifiersForm: FC<{
                   ) : (
                     renderFields(list)
                   )}
-                </CardContent>
-              </Card>
+                </Panel>
+              </Box>
             );
           })}
         </Box>
       </Grid>
       <Grid size={{ xs: 12, md: 4, xl: 3 }}>
-        <Card sx={{ position: { md: 'sticky' }, top: { md: 0 } }}>
-          <CardContent>
-            <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
-              {t('roll-preview')}
-            </Typography>
-            <Stack spacing={0.5} sx={{ mt: 1.5 }}>
-              <PreviewRow label={t('used-ob')} value={modifiers.bo ?? 0} plain />
-              {rollDeclared.map((field) => (
-                <PreviewRow
-                  key={field.name}
-                  label={declaredLabel(field)}
-                  value={declaredValue(field, modifiers, kind)}
-                />
-              ))}
-              <Divider sx={{ my: 0.5 }} />
-              <PreviewRow label={t('estimated-total')} value={(modifiers.bo ?? 0) + rollSum} plain strong />
-            </Stack>
-            {otherDeclared.length > 0 && (
-              <Box sx={{ mt: 2 }}>
-                <Typography variant="caption" color="text.secondary">
-                  {t('other-declared-options')}
-                </Typography>
-                <Stack direction="row" sx={{ flexWrap: 'wrap', gap: 0.5, mt: 0.5 }}>
-                  {otherDeclared.map((field) => (
-                    <Chip key={field.name} size="small" label={declaredLabel(field)} />
-                  ))}
-                </Stack>
-              </Box>
-            )}
-            <Typography variant="caption" color="text.secondary" component="p" sx={{ mt: 2 }}>
-              {t('roll-preview-note')}
-            </Typography>
-          </CardContent>
-        </Card>
+        <Panel title={t('roll-preview')} sx={{ height: 'auto', position: { md: 'sticky' }, top: { md: 0 } }}>
+          <Stack spacing={0.5}>
+            <PreviewRow label={t('used-ob')} value={modifiers.bo ?? 0} plain />
+            {rollDeclared.map((field) => (
+              <PreviewRow key={field.name} label={declaredLabel(field)} value={declaredValue(field, modifiers, kind)} />
+            ))}
+            <Divider sx={{ my: 0.5 }} />
+            <PreviewRow label={t('estimated-total')} value={(modifiers.bo ?? 0) + rollSum} plain strong />
+          </Stack>
+          {otherDeclared.length > 0 && (
+            <Box sx={{ mt: 2 }}>
+              <Typography variant="caption" color="text.secondary">
+                {t('other-declared-options')}
+              </Typography>
+              <ChipRow sx={{ mt: 0.5 }}>
+                {otherDeclared.map((field) => (
+                  <Chip key={field.name} size="small" label={declaredLabel(field)} />
+                ))}
+              </ChipRow>
+            </Box>
+          )}
+          <Typography variant="caption" color="text.secondary" component="p" sx={{ mt: 2 }}>
+            {t('roll-preview-note')}
+          </Typography>
+        </Panel>
       </Grid>
     </Grid>
   );
@@ -275,11 +262,11 @@ const PreviewRow: FC<{ label: string; value: number | null; plain?: boolean; str
       <Typography
         variant="body2"
         color={strong ? 'text.primary' : 'text.secondary'}
-        sx={{ fontWeight: strong ? 700 : 400 }}
+        sx={{ fontWeight: strong ? 600 : 400 }}
       >
         {label}
       </Typography>
-      <Typography variant="body2" sx={{ fontWeight: 700, fontVariantNumeric: 'tabular-nums' }} color={color}>
+      <Typography variant="body2" sx={{ fontWeight: 600, fontVariantNumeric: 'tabular-nums' }} color={color}>
         {shown}
       </Typography>
     </Stack>

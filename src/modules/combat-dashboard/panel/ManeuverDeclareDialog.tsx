@@ -1,26 +1,17 @@
 import React, { FC, useContext, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
-import SearchIcon from '@mui/icons-material/Search';
+import { Box, Button, ButtonBase, Chip, Stack, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
 import {
-  alpha,
-  Box,
-  Button,
-  ButtonBase,
-  Chip,
-  InputAdornment,
-  Stack,
-  TextField,
-  ToggleButton,
-  ToggleButtonGroup,
-  Typography,
-} from '@mui/material';
-import {
+  ChipRow,
+  EmptyState,
   fetchSkillCategories,
   fetchSkills,
   formatBonus,
   ManeuverType,
   RmuDialog,
+  SearchField,
+  selectableSx,
   Skill,
   SkillCategory,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
@@ -208,23 +199,14 @@ const ManeuverDeclareDialog: FC<{
               ))}
             </ToggleButtonGroup>
           </Box>
-          <TextField
+          <SearchField
             autoFocus
-            fullWidth
             size="small"
             label={t('skill')}
             placeholder={t('search')}
             value={filter}
-            onChange={(e) => setFilter(e.target.value)}
-            slotProps={{
-              input: {
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon fontSize="small" />
-                  </InputAdornment>
-                ),
-              },
-            }}
+            onChange={setFilter}
+            delay={0}
           />
         </Stack>
 
@@ -233,31 +215,33 @@ const ManeuverDeclareDialog: FC<{
             <Typography variant="caption" color="text.secondary" component="div" sx={{ mb: 0.5 }}>
               {t('continue-maneuver')}
             </Typography>
-            <Stack direction="row" sx={{ flexWrap: 'wrap', gap: 0.75 }} role="radiogroup" aria-label={t('continue-maneuver')}>
-              {unfinished.map((action) => {
-                const selected = action.id === continuesActionId;
-                const id = action.maneuver?.modifiers.skillId ?? '';
-                return (
-                  <Chip
-                    key={action.id}
-                    role="radio"
-                    aria-checked={selected}
-                    color={selected ? 'primary' : 'default'}
-                    variant={selected ? 'filled' : 'outlined'}
-                    label={[
-                      t(id, { defaultValue: id }),
-                      `${action.maneuver?.progress ?? action.maneuver?.result?.percent ?? 0}%`,
-                      t('round-n', { round: action.round }),
-                    ].join(' · ')}
-                    onClick={() => chooseContinuation(action)}
-                  />
-                );
-              })}
-            </Stack>
+            <Box role="radiogroup" aria-label={t('continue-maneuver')}>
+              <ChipRow>
+                {unfinished.map((action) => {
+                  const selected = action.id === continuesActionId;
+                  const id = action.maneuver?.modifiers.skillId ?? '';
+                  return (
+                    <Chip
+                      key={action.id}
+                      role="radio"
+                      aria-checked={selected}
+                      color={selected ? 'primary' : 'default'}
+                      variant={selected ? 'filled' : 'outlined'}
+                      label={[
+                        t(id, { defaultValue: id }),
+                        `${action.maneuver?.progress ?? action.maneuver?.result?.percent ?? 0}%`,
+                        t('round-n', { round: action.round }),
+                      ].join(' · ')}
+                      onClick={() => chooseContinuation(action)}
+                    />
+                  );
+                })}
+              </ChipRow>
+            </Box>
           </Box>
         )}
 
-        <Stack direction="row" sx={{ flexWrap: 'wrap', gap: 0.75 }}>
+        <ChipRow>
           {developed.length > 0 && (
             <Chip
               label={t('only-developed')}
@@ -282,7 +266,7 @@ const ManeuverDeclareDialog: FC<{
               onClick={() => setCategory(category === cat.id ? null : cat.id)}
             />
           ))}
-        </Stack>
+        </ChipRow>
 
         <Box
           role="radiogroup"
@@ -299,26 +283,18 @@ const ManeuverDeclareDialog: FC<{
                 aria-checked={selected}
                 onClick={() => chooseSkill(skill.id)}
                 onDoubleClick={() => !busy && onDeclare(declaration(skill.id))}
-                sx={(theme) => ({
-                  justifyContent: 'space-between',
-                  gap: 1,
-                  px: 1.5,
-                  py: 1,
-                  minHeight: 44,
-                  borderRadius: 1,
-                  textAlign: 'left',
-                  border: `1px solid ${selected ? theme.palette.primary.main : theme.palette.divider}`,
-                  bgcolor: selected ? alpha(theme.palette.primary.main, 0.16) : 'transparent',
-                  '&:hover': { bgcolor: alpha(theme.palette.primary.main, selected ? 0.22 : 0.06) },
-                })}
+                sx={[
+                  selectableSx(selected),
+                  { justifyContent: 'space-between', gap: 1, px: 1.5, py: 1, minHeight: 44, textAlign: 'left' },
+                ]}
               >
-                <Typography variant="body2" sx={{ fontWeight: selected ? 700 : 500 }}>
+                <Typography variant="body2" sx={{ fontWeight: selected ? 600 : 500 }}>
                   {t(skill.id)}
                 </Typography>
                 <Typography
                   variant="body2"
                   color={value === undefined ? 'text.disabled' : 'text.secondary'}
-                  sx={{ fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}
+                  sx={{ fontWeight: 600, fontVariantNumeric: 'tabular-nums' }}
                 >
                   {value === undefined ? '—' : formatBonus(value)}
                 </Typography>
@@ -326,11 +302,7 @@ const ManeuverDeclareDialog: FC<{
             );
           })}
         </Box>
-        {skills.length > 0 && visible.length === 0 && (
-          <Typography variant="body2" color="text.secondary">
-            {t('no-results')}
-          </Typography>
-        )}
+        {skills.length > 0 && visible.length === 0 && <EmptyState dense />}
       </Stack>
     </RmuDialog>
   );

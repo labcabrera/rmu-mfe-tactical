@@ -2,7 +2,7 @@ import React, { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { Accordion, AccordionDetails, AccordionSummary, Stack, Typography } from '@mui/material';
-import { formatHpAmount, HpLogEntry, hpAmountColor } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { EmptyState, formatHpAmount, hpAmountColor, HpLogEntry } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { ActorRound } from '../api/actor-rounds.dto';
 
 /** Phase 5 is the upkeep; 0 is before the action phases. */
@@ -76,9 +76,7 @@ const ActorRoundHpLog: FC<{ actorRound: ActorRound; defaultExpanded?: boolean }>
       </AccordionSummary>
       <AccordionDetails>
         {entries.length === 0 ? (
-          <Typography variant="body2" color="text.secondary">
-            {t('hp-log-empty')}
-          </Typography>
+          <EmptyState dense title={t('hp-log-empty')} />
         ) : (
           <Stack spacing={0.75}>
             {entries.map((entry) => (

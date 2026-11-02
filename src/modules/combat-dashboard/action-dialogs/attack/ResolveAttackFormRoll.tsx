@@ -1,14 +1,20 @@
 import React, { Dispatch, FC, SetStateAction, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
-import { Grid, Chip, Stack, Typography } from '@mui/material';
-import { CategorySeparator, HIGH_OPEN_D100, RollField, RollValue } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { Chip, Grid, Stack, Tooltip, Typography } from '@mui/material';
+import {
+  CategorySeparator,
+  ChipRow,
+  effectIcon,
+  HIGH_OPEN_D100,
+  RollField,
+  RollValue,
+} from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../CombatContext';
 import { updateAttackRoll } from '../../../api/action';
 import { Action, ActionAttack, AttackDeclaration } from '../../../api/action.dto';
 import { criticalCode } from '../../../services/action-service';
 import { useTacticalNotify } from '../../../services/notify-service';
-import Effect from '../../../shared/generic/Effect';
 import { AttackNextStep, AttackResultSummary } from './AttackResolutionGuide';
 import ResolveAttackFormCriticals from './ResolveAttackFormCriticals';
 import ResolveAttackFormFumble from './ResolveAttackFormFumble';
@@ -103,13 +109,15 @@ const ResolveAttackFormRoll: FC<{
       </Grid>
       <Grid size={12}>
         {attack.results && attack.results.attackTableEntry && (
-          <Stack direction="row" spacing={1} useFlexGap sx={{ flexWrap: 'wrap' }}>
+          <ChipRow>
             {attack.results.attackTableEntry.damage > 0 ? (
-              <Effect
-                status={'dmg'}
-                label={t('damage-n', { damage: attack.results.attackTableEntry.damage })}
-                color="error"
-              />
+              <Tooltip title={t('dmg')}>
+                <Chip
+                  avatar={effectIcon('dmg')}
+                  label={t('damage-n', { damage: attack.results.attackTableEntry.damage })}
+                  color="error"
+                />
+              </Tooltip>
             ) : (
               <Typography>{t('no-damage')}</Typography>
             )}
@@ -117,7 +125,7 @@ const ResolveAttackFormRoll: FC<{
             {attack.calculated.rollTotal > 175 && (
               <Chip label={getAbsoluteHitText(attack.calculated.rollTotal)} color="error" />
             )}
-          </Stack>
+          </ChipRow>
         )}
       </Grid>
 

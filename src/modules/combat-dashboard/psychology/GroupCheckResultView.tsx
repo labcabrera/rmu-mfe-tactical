@@ -1,19 +1,7 @@
 import React, { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  Alert,
-  Chip,
-  Stack,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Tooltip,
-  Typography,
-} from '@mui/material';
-import { formatBonus, RollBreakdown } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { Box, Chip, Stack, Tooltip, Typography } from '@mui/material';
+import { ChipRow, DataTable, formatBonus, RollBreakdown, RollResultAlert } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { ActorCheckResult, ActorCheckStatus, GroupCheckResult } from '../../api/psychology.dto';
 
 const STATUS_COLOR: Record<ActorCheckStatus, 'default' | 'success' | 'warning' | 'info'> = {
@@ -55,114 +43,117 @@ const GroupCheckResultView: FC<{ result: GroupCheckResult; factionName: (id: str
         </Typography>
       )}
       {leaderRoll && (
-        <Alert severity={result.outcome === 'refuses-hostile' || result.outcome === 'refuses' ? 'warning' : 'info'}>
-          <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
-            {[
-              leaderRoll.result ? t(leaderRoll.result) : null,
-              `${t('total')} ${leaderRoll.total}`,
-              leaderRoll.rolledByServer ? t('rolled-by-server') : null,
-            ]
-              .filter(Boolean)
-              .join(' · ')}
-          </Typography>
-          {result.outcome && <Typography variant="body2">{t(`morale-outcome-${result.outcome}`)}</Typography>}
-          {result.moraleModifier ? (
-            <Typography variant="body2">
-              {t('morale-modifier-warning', {
-                value: formatBonus(result.moraleModifier),
-                count: result.moraleModifierDays ?? 0,
-              })}
-            </Typography>
-          ) : null}
-          {result.fearSeverityChange !== undefined && (
-            <Typography variant="body2">
-              {result.fearSeverityChange < 0
+        <RollResultAlert
+          severity={result.outcome === 'refuses-hostile' || result.outcome === 'refuses' ? 'warning' : 'info'}
+          headline={[
+            leaderRoll.result ? t(leaderRoll.result) : null,
+            `${t('total')} ${leaderRoll.total}`,
+            leaderRoll.rolledByServer ? t('rolled-by-server') : null,
+          ]
+            .filter(Boolean)
+            .join(' · ')}
+          lines={[
+            result.outcome && t(`morale-outcome-${result.outcome}`),
+            result.moraleModifier
+              ? t('morale-modifier-warning', {
+                  value: formatBonus(result.moraleModifier),
+                  count: result.moraleModifierDays ?? 0,
+                })
+              : null,
+            result.fearSeverityChange !== undefined &&
+              (result.fearSeverityChange < 0
                 ? t('rally-calms', { count: -result.fearSeverityChange })
                 : result.fearSeverityChange > 0
                   ? t('rally-worsens', { count: result.fearSeverityChange })
-                  : t('rally-no-change')}
-            </Typography>
-          )}
-          {leaderRoll.unusualEvent && (
-            <Typography variant="body2" sx={{ mt: 0.5, fontWeight: 600 }}>
-              {t(`unusual-${leaderRoll.unusualEvent.outcome}`, {
-                bonus: leaderRoll.unusualEvent.leaderFearRrBonus ?? 0,
-                hits: leaderRoll.unusualEvent.leaderHits ?? 0,
-              })}
-            </Typography>
-          )}
-        </Alert>
+                  : t('rally-no-change')),
+            leaderRoll.unusualEvent && (
+              <Box component="strong" sx={{ fontWeight: 600 }}>
+                {t(`unusual-${leaderRoll.unusualEvent.outcome}`, {
+                  bonus: leaderRoll.unusualEvent.leaderFearRrBonus ?? 0,
+                  hits: leaderRoll.unusualEvent.leaderHits ?? 0,
+                })}
+              </Box>
+            ),
+          ]}
+          breakdown={<RollBreakdown context="fear-rr" modifiers={leaderRoll.breakdown} total={leaderRoll.total} />}
+        />
       )}
-      {leaderRoll && <RollBreakdown context="fear-rr" modifiers={leaderRoll.breakdown} total={leaderRoll.total} />}
 
-      <TableContainer>
-        <Table size="small">
-          <TableHead>
-            <TableRow>
-              <TableCell>{t('actor')}</TableCell>
-              <TableCell>{t('status')}</TableCell>
-              <TableCell align="right">{t('total')}</TableCell>
-              <TableCell align="right">{t('failure')}</TableCell>
-              <TableCell>{t('effect')}</TableCell>
-              <TableCell>{t('notes')}</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {result.actors.map((actor) => (
-              <TableRow key={actor.actorRoundId}>
-                <TableCell>
-                  <Typography variant="body2">{actor.actorName}</Typography>
-                  <Typography variant="caption" color="text.secondary">
-                    {factionName(actor.factionId)}
-                  </Typography>
-                </TableCell>
-                <TableCell>
-                  <Chip size="small" color={STATUS_COLOR[actor.status]} label={t(`group-status-${actor.status}`)} />
-                </TableCell>
-                <TableCell align="right">
-                  {actor.total !== undefined ? (
-                    <Tooltip title={breakdownText(actor, label)}>
-                      <span>
-                        {`${actor.total} / ${actor.required ?? ''}`}
-                        {actor.rolledByServer ? ' *' : ''}
-                      </span>
-                    </Tooltip>
-                  ) : (
-                    '—'
-                  )}
-                </TableCell>
-                <TableCell align="right">{actor.failure ? actor.failure : '—'}</TableCell>
-                <TableCell>
-                  {actor.previousEffect !== actor.effect
-                    ? `${effect(actor.previousEffect)} → ${effect(actor.effect)}`
-                    : effect(actor.effect)}
-                </TableCell>
-                <TableCell>
-                  <Stack direction="row" sx={{ flexWrap: 'wrap', gap: 0.5 }}>
-                    {actor.restrictions.map((restriction) => (
-                      <Chip
-                        key={restriction}
-                        size="small"
-                        color="error"
-                        variant="outlined"
-                        label={t(`group-restriction-${restriction}`)}
-                      />
-                    ))}
-                    {actor.warnings.map((warning) => (
-                      <Chip
-                        key={warning}
-                        size="small"
-                        variant="outlined"
-                        label={t(`group-warning-${warning}`, { defaultValue: warning })}
-                      />
-                    ))}
-                  </Stack>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+      <DataTable
+        rows={result.actors}
+        getKey={(actor) => actor.actorRoundId}
+        columns={[
+          {
+            key: 'actor',
+            header: t('actor'),
+            render: (actor) => (
+              <>
+                <Typography variant="body2">{actor.actorName}</Typography>
+                <Typography variant="caption" color="text.secondary">
+                  {factionName(actor.factionId)}
+                </Typography>
+              </>
+            ),
+          },
+          {
+            key: 'status',
+            header: t('status'),
+            render: (actor) => (
+              <Chip size="small" color={STATUS_COLOR[actor.status]} label={t(`group-status-${actor.status}`)} />
+            ),
+          },
+          {
+            key: 'total',
+            header: t('total'),
+            align: 'right',
+            render: (actor) =>
+              actor.total !== undefined ? (
+                <Tooltip title={breakdownText(actor, label)}>
+                  <span>
+                    {`${actor.total} / ${actor.required ?? ''}`}
+                    {actor.rolledByServer ? ' *' : ''}
+                  </span>
+                </Tooltip>
+              ) : (
+                '—'
+              ),
+          },
+          { key: 'failure', header: t('failure'), align: 'right', render: (actor) => actor.failure || '—' },
+          {
+            key: 'effect',
+            header: t('effect'),
+            render: (actor) =>
+              actor.previousEffect !== actor.effect
+                ? `${effect(actor.previousEffect)} → ${effect(actor.effect)}`
+                : effect(actor.effect),
+          },
+          {
+            key: 'notes',
+            header: t('notes'),
+            render: (actor) => (
+              <ChipRow>
+                {actor.restrictions.map((restriction) => (
+                  <Chip
+                    key={restriction}
+                    size="small"
+                    color="error"
+                    variant="outlined"
+                    label={t(`group-restriction-${restriction}`)}
+                  />
+                ))}
+                {actor.warnings.map((warning) => (
+                  <Chip
+                    key={warning}
+                    size="small"
+                    variant="outlined"
+                    label={t(`group-warning-${warning}`, { defaultValue: warning })}
+                  />
+                ))}
+              </ChipRow>
+            ),
+          },
+        ]}
+      />
       {result.actors.some((actor) => actor.rolledByServer) && (
         <Typography variant="caption" color="text.secondary">
           {t('rolled-by-server-note')}

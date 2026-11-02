@@ -13,18 +13,20 @@ import {
   Typography,
 } from '@mui/material';
 import {
+  ChipRow,
   DifficultyPicker,
+  EmptyState,
   formatBonus,
   ManeuverType,
-  NumericInput,
+  NumberPadField,
   OPEN_D100,
   RollField,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { ManeuverModifiersListing, ManeuverSkillModifier } from '../../../../api/action.dto';
 import { ActorRound } from '../../../../api/actor-rounds.dto';
+import { FrenzyPurpose, frenzyManeuverModifiers, frenzyPurposes } from '../../../../services/frenzy-service';
 import ModifierTile from '../../../action-dialogs/attack-modifiers/pickers/ModifierTile';
 import OptionTiles from '../../../action-dialogs/attack-modifiers/pickers/OptionTiles';
-import { FrenzyPurpose, frenzyManeuverModifiers, frenzyPurposes } from '../../../../services/frenzy-service';
 import { useSkillDifficultyGuide } from '../useSkillDifficultyGuide';
 import { isConflicting, ManeuverForm, optionLabelKey, predictedTotal, selectionValue } from './maneuver-form';
 
@@ -103,7 +105,7 @@ const ManeuverModifiersStep: FC<{
         return (
           <Stack key={modifier.key} direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
             <Box sx={{ width: 200 }}>
-              <NumericInput
+              <NumberPadField
                 label={label(modifier.key)}
                 value={typeof selection === 'number' ? selection : null}
                 onChange={(units) => select(modifier.key, units)}
@@ -167,7 +169,7 @@ const ManeuverModifiersStep: FC<{
 
       <Box>
         <Caption>{t('base-modifiers')}</Caption>
-        <Stack direction="row" sx={{ flexWrap: 'wrap', gap: 0.75 }}>
+        <ChipRow>
           <Chip
             size="small"
             variant="outlined"
@@ -187,12 +189,8 @@ const ManeuverModifiersStep: FC<{
               />
             </Tooltip>
           ))}
-          {listing.base.length === 0 && (
-            <Typography variant="body2" color="text.secondary">
-              {t('no-base-modifiers')}
-            </Typography>
-          )}
-        </Stack>
+          {listing.base.length === 0 && <EmptyState dense title={t('no-base-modifiers')} />}
+        </ChipRow>
       </Box>
 
       <DifficultyPicker
@@ -251,7 +249,8 @@ const ManeuverModifiersStep: FC<{
             )}
             {target && target.actorType !== 'character' && (
               <Box sx={{ width: 200 }}>
-                <NumericInput
+                <NumberPadField
+                  steps={[-10, -5, 5, 10]}
                   label={t('passive-bonus')}
                   value={form.passiveBonus}
                   onChange={(passiveBonus) => onChange({ passiveBonus })}
@@ -273,7 +272,8 @@ const ManeuverModifiersStep: FC<{
         {conflicting && !target && (
           <Tooltip title={t('passive-total-help')}>
             <Box sx={{ width: 200 }}>
-              <NumericInput
+              <NumberPadField
+                steps={[-10, -5, 5, 10]}
                 label={t('passive-total')}
                 value={form.passiveTotal}
                 onChange={(passiveTotal) => onChange({ passiveTotal })}
@@ -283,7 +283,8 @@ const ManeuverModifiersStep: FC<{
           </Tooltip>
         )}
         <Box sx={{ width: 200 }}>
-          <NumericInput
+          <NumberPadField
+            steps={[-10, -5, 5, 10]}
             label={t('custom-bonus')}
             value={form.customBonus}
             onChange={(customBonus) => onChange({ customBonus })}

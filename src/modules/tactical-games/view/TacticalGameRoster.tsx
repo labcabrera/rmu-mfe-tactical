@@ -12,9 +12,7 @@ import {
   Avatar,
   Box,
   Button,
-  Card,
   CardActionArea,
-  CircularProgress,
   Grid,
   Stack,
   ToggleButton,
@@ -22,16 +20,19 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import { alpha, SxProps, Theme } from '@mui/material/styles';
+import { SxProps, Theme } from '@mui/material/styles';
 import {
   Character,
   characterOption,
   CharacterPicker,
+  EmptyState,
   EntityAvatar,
   entityImage,
   Faction,
+  LoadingState,
   Npc,
   NpcEntry,
+  selectableSx,
   TacticalGame,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import TacticalGameRosterNpcs from './TacticalGameRosterNpcs';
@@ -200,7 +201,7 @@ export default function TacticalGameRoster({
                     <Typography variant="body2" color="text.secondary" sx={{ flexGrow: 1 }}>
                       {`${selectedIds.length} / ${eligible.length}`}
                     </Typography>
-                    {pending === `group:${faction.id}` && <CircularProgress size={18} />}
+                    {pending === `group:${faction.id}` && <LoadingState variant="inline" />}
                     {!finished && (
                       <>
                         <Button
@@ -229,11 +230,14 @@ export default function TacticalGameRoster({
                     )}
                   </Stack>
                   {shown.length < 1 ? (
-                    <Typography variant="body2" color="text.secondary">
-                      {factionCharacters.length < 1
-                        ? t('no-characters-available-for-faction')
-                        : t('no-selected-characters')}
-                    </Typography>
+                    <EmptyState
+                      dense
+                      title={
+                        factionCharacters.length < 1
+                          ? t('no-characters-available-for-faction')
+                          : t('no-selected-characters')
+                      }
+                    />
                   ) : (
                     <CharacterPicker
                       mode="multiple"
@@ -287,7 +291,15 @@ function SelectionMetric({ icon, value, label }: { icon: ReactNode; value: strin
     <Stack
       direction="row"
       spacing={1.25}
-      sx={{ alignItems: 'center', border: 1, borderColor: 'divider', borderRadius: 1, px: 1.5, py: 1, minWidth: 180 }}
+      sx={{
+        alignItems: 'center',
+        border: 1,
+        borderColor: 'divider',
+        borderRadius: (theme) => `${theme.radius.sm}px`,
+        px: 1.5,
+        py: 1,
+        minWidth: 180,
+      }}
     >
       {icon}
       <Box>
@@ -304,21 +316,13 @@ function SelectionMetric({ icon, value, label }: { icon: ReactNode; value: strin
 
 /** Check over the corner: filled when selected, empty when not, a spinner while saving. */
 function SelectionMark({ selected, pending }: { selected: boolean; pending: boolean }) {
-  if (pending) return <CircularProgress size={20} />;
+  if (pending) return <LoadingState variant="inline" />;
   return selected ? (
     <CheckCircleIcon color="primary" sx={{ bgcolor: 'background.paper', borderRadius: '50%' }} />
   ) : (
     <RadioButtonUncheckedIcon sx={{ color: 'text.disabled' }} />
   );
 }
-
-const selectableSx = (selected: boolean): SxProps<Theme> => ({
-  height: '100%',
-  border: 2,
-  borderColor: selected ? 'primary.main' : 'divider',
-  bgcolor: (theme) => (selected ? alpha(theme.palette.primary.main, 0.12) : theme.palette.background.paper),
-  transition: 'border-color 120ms, background-color 120ms',
-});
 
 /** Image of an element: in colour when selected, faded when not. */
 const imageSx = (selected: boolean): SxProps<Theme> => ({
@@ -348,7 +352,7 @@ function FactionRow({
 }) {
   const { t } = useTranslation();
   const card = (
-    <Card variant="outlined" sx={{ ...selectableSx(selected), opacity: dimmed ? 0.5 : 1 }}>
+    <Box sx={[selectableSx(selected, dimmed), { height: '100%', overflow: 'hidden' }]}>
       <CardActionArea
         role="checkbox"
         aria-checked={selected}
@@ -385,7 +389,7 @@ function FactionRow({
           )}
         </Stack>
       </CardActionArea>
-    </Card>
+    </Box>
   );
   return hint ? (
     <Tooltip title={hint}>

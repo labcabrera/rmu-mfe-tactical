@@ -13,7 +13,7 @@ const armor = (target: ActorRound) =>
 
 const Stat: FC<{ label: string; value: string | number }> = ({ label, value }) => (
   <Box sx={{ textAlign: 'center', minWidth: 40 }}>
-    <Typography variant="subtitle2" sx={{ fontWeight: 700, lineHeight: 1.1 }}>
+    <Typography variant="subtitle2" sx={{ fontWeight: 600, lineHeight: 1.1 }}>
       {value}
     </Typography>
     <Typography variant="caption" color="text.secondary">

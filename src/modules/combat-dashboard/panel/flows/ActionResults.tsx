@@ -1,7 +1,7 @@
 import React, { FC, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Chip, LinearProgress, Stack, Typography } from '@mui/material';
-import { formatBonus, RollBreakdown } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { formatBonus, RollBreakdown, ChipRow } from '@labcabrera-rmu/rmu-react-shared-lib';
 import type { TFunction } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { Action, ActionAttack, ActionManeuverEffect } from '../../../api/action.dto';
@@ -76,7 +76,7 @@ export const ManeuverResult: FC<{ action: Action }> = ({ action }) => {
   const tone = isSuccessResult(result.result) ? 'success' : isFailureResult(result.result) ? 'error' : 'warning';
   return (
     <Stack spacing={2}>
-      <Stack direction="row" sx={{ alignItems: 'center', flexWrap: 'wrap', gap: 1 }}>
+      <ChipRow>
         {price ? (
           <Chip label={t('trading-price', { value: result.price })} color="primary" />
         ) : percent ? (
@@ -95,7 +95,7 @@ export const ManeuverResult: FC<{ action: Action }> = ({ action }) => {
             {t('total-value', { value: maneuver.roll.totalRoll })}
           </Typography>
         )}
-      </Stack>
+      </ChipRow>
       {percent && (
         <Stack spacing={0.5} sx={{ maxWidth: 360 }}>
           <Stack direction="row" sx={{ justifyContent: 'space-between' }}>
@@ -137,11 +137,11 @@ export const ManeuverResult: FC<{ action: Action }> = ({ action }) => {
         </Typography>
       )}
       {result.effects && result.effects.length > 0 && (
-        <Stack direction="row" sx={{ flexWrap: 'wrap', gap: 0.75 }}>
+        <ChipRow>
           {result.effects.map((effect, index) => (
             <Chip key={`${effect.status}-${index}`} size="small" variant="outlined" label={effectLabel(effect, t)} />
           ))}
-        </Stack>
+        </ChipRow>
       )}
       <ResultValues values={[{ label: t('fatigue'), value: action.fatigue || 0 }]} />
       {maneuver?.roll?.modifiers && (

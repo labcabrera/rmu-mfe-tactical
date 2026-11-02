@@ -1,7 +1,7 @@
 import React, { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Chip, Stack } from '@mui/material';
-import { EffectList } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { EffectList, ChipRow } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { ActorRound } from '../../api/actor-rounds.dto';
 import ActorRoundAlerts from './ActorRoundAlerts';
 
@@ -26,7 +26,7 @@ const ActorRoundEffects: FC<{ actorRound: ActorRound; compact?: boolean }> = ({ 
         }))}
       />
       {defenses.length > 0 && (
-        <Stack direction="row" sx={{ flexWrap: 'wrap', gap: 0.75 }}>
+        <ChipRow>
           {defenses.map((kind) => (
             <Chip
               key={kind}
@@ -36,7 +36,7 @@ const ActorRoundEffects: FC<{ actorRound: ActorRound; compact?: boolean }> = ({ 
               label={`${t(kind === 'dodge' ? 'dodge' : 'shield-block')}: ${t(`${kind}-level-${mode![kind]}`)}`}
             />
           ))}
-        </Stack>
+        </ChipRow>
       )}
       <ActorRoundAlerts actorRound={actorRound} />
     </Stack>

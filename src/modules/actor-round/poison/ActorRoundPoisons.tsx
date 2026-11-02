@@ -3,8 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ScienceIcon from '@mui/icons-material/Science';
-import { Button, IconButton, Paper, Stack, Tooltip, Typography } from '@mui/material';
-import { PoisonExposure } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { Button, IconButton, Stack, Tooltip, Typography } from '@mui/material';
+import { EmptyState, Panel, PoisonExposure, SectionLabel } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
 import { dismissActorPoisoning } from '../../api/actor-rounds';
 import { ActorRound } from '../../api/actor-rounds.dto';
@@ -33,23 +33,20 @@ const ActorRoundPoisons: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
 
   return (
     <Stack spacing={1}>
-      <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
-        <Typography variant="subtitle2" sx={{ flexGrow: 1 }}>
-          {t('poison-exposures')}
-        </Typography>
-        {editable && (
-          <Button size="small" startIcon={<ScienceIcon />} onClick={() => setCreating(true)}>
-            {t('poison-actor')}
-          </Button>
-        )}
-      </Stack>
-      {exposures.length === 0 && (
-        <Typography variant="body2" color="text.secondary">
-          {t('poison-exposures-none')}
-        </Typography>
-      )}
+      <SectionLabel
+        actions={
+          editable && (
+            <Button size="small" startIcon={<ScienceIcon />} onClick={() => setCreating(true)}>
+              {t('poison-actor')}
+            </Button>
+          )
+        }
+      >
+        {t('poison-exposures')}
+      </SectionLabel>
+      {exposures.length === 0 && <EmptyState dense title={t('poison-exposures-none')} />}
       {exposures.map((exposure) => (
-        <Paper key={exposure.id} variant="outlined" sx={{ p: 1 }}>
+        <Panel key={exposure.id} variant="outlined" dense>
           <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
             <ScienceIcon fontSize="small" color="secondary" />
             <Stack sx={{ flexGrow: 1 }}>
@@ -82,7 +79,7 @@ const ActorRoundPoisons: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
               </>
             )}
           </Stack>
-        </Paper>
+        </Panel>
       ))}
       <PoisonExposureDialog actorRound={actorRound} open={creating} onClose={() => setCreating(false)} />
       <PoisonRrDialog actorRound={actorRound} exposure={resolving} onClose={() => setResolving(undefined)} />

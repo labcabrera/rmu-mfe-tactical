@@ -8,14 +8,16 @@ import {
   HealerPicker,
   HealerSelection,
   Injury,
-  NumericInput,
+  NumberPadField,
   OPEN_D100,
   resolveHealer,
   RmuDialog,
   RollBreakdown,
   RollField,
   RollModifier,
+  RollResultAlert,
   RuleHint,
+  SectionLabel,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
 import { stabilizeActorRoundEffect, treatActorRoundInjury } from '../../api/actor-rounds';
@@ -185,7 +187,7 @@ const MedicalRollDialog: FC<{
         <MedicalResultView result={result} target={target} />
       ) : (
         <Stack spacing={2}>
-          <Typography variant="subtitle2">{t('healer')}</Typography>
+          <SectionLabel>{t('healer')}</SectionLabel>
           <HealerPicker
             characters={candidates}
             value={healer}
@@ -210,7 +212,8 @@ const MedicalRollDialog: FC<{
             </TextField>
           )}
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-            <NumericInput
+            <NumberPadField
+              steps={[-10, -5, 5, 10]}
               label={t('difficulty')}
               value={difficulty}
               onChange={setDifficulty}
@@ -236,7 +239,7 @@ const MedicalRollDialog: FC<{
                 {t('cauterize-heat-help')}
               </Typography>
               <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-                <NumericInput
+                <NumberPadField
                   label={t('cauterize-heat-hits-roll')}
                   value={heatHitsRoll}
                   onChange={setHeatHitsRoll}
@@ -319,16 +322,11 @@ const MedicalResultView: FC<{ result: MedicalResultDto; target: MedicalTarget }>
 
   return (
     <Stack spacing={1.5}>
-      <Alert severity={RESULT_SEVERITY[result.result]}>
-        <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
-          {`${t(result.result)} · ${t('total')} ${result.total}`}
-        </Typography>
-        {result.message && (
-          <Typography variant="body2" sx={{ mt: 0.5 }}>
-            {result.message}
-          </Typography>
-        )}
-      </Alert>
+      <RollResultAlert
+        severity={RESULT_SEVERITY[result.result]}
+        headline={`${t(result.result)} · ${t('total')} ${result.total}`}
+        lines={[result.message]}
+      />
       <RuleHint
         title={t(result.result)}
         description={t(`medical-result-${result.result}-explanation`)}

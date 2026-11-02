@@ -1,12 +1,13 @@
 import React, { FC, useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
-import { Alert, Box, CircularProgress, MenuItem, Stack, TextField } from '@mui/material';
+import { Alert, Box, MenuItem, Stack, TextField } from '@mui/material';
 import {
   fetchCharacters,
   FlowStep,
   formatBonus,
-  NumericInput,
+  LoadingState,
+  NumberPadField,
   OPEN_D100,
   RollBreakdown,
   RollField,
@@ -238,7 +239,7 @@ const SpellCastFlow: FC<{
       <SpellOutcome spell={spell} />
       {action.status === 'pending_apply' && (
         <Box sx={{ maxWidth: 260 }}>
-          <NumericInput
+          <NumberPadField
             label={t('spell-power-points-to-spend')}
             placeholder={String(suggestedPower)}
             value={powerPoints}
@@ -301,7 +302,7 @@ const SpellCastFlow: FC<{
               totalLabel={roll === null ? t('predicted-total') : t('spell-scr')}
             />
           ) : (
-            <CircularProgress size={24} />
+            <LoadingState variant="inline" />
           )}
           {missingPreparation && <Alert severity="warning">{t('err-overcast-needs-preparation')}</Alert>}
         </Stack>

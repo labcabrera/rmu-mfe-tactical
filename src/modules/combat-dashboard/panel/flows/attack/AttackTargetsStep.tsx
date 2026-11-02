@@ -1,7 +1,7 @@
 import React, { FC, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Box, Card, CardContent, MenuItem, Stack, TextField, Typography } from '@mui/material';
-import { CharacterPicker, formatBonus, NumericInput } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { Box, MenuItem, Stack, TextField, Typography } from '@mui/material';
+import { CharacterPicker, formatBonus, NumberPadField, Panel } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../../CombatContext';
 import { ActionAttack, PROTECT_POSITIONS, ProtectPosition } from '../../../../api/action.dto';
 import { ActorRound, ActorRoundAttack } from '../../../../api/actor-rounds.dto';
@@ -57,108 +57,104 @@ const AttackTargetsStep: FC<{
           (ar) => ar.actorId !== actorRound.actorId && ar.actorId !== targetId && ar.factionId !== actorRound.factionId
         );
         return (
-          <Card key={attack.attackName}>
-            <CardContent>
-              <Stack spacing={1.5}>
-                <Box>
-                  <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
-                    {attackLabel(attack.attackName, t)}
-                  </Typography>
-                  <Typography variant="caption" color="text.secondary">
-                    {[
-                      weapon && `${attackLabel(weapon.attackTable, t)} ${formatBonus(weapon.currentBo)}`,
-                      penalty !== 0 && t('penalties-on-roll', { value: penalty }),
-                    ]
-                      .filter(Boolean)
-                      .join(' · ')}
-                  </Typography>
-                </Box>
-                <TargetPicker
-                  sourceActorRound={actorRound}
-                  value={targetId}
-                  onChange={(id) => onTarget(attack.attackName, id)}
-                />
-                {targetId && (
-                  <>
-                    <Box sx={{ maxWidth: 200 }}>
-                      <NumericInput
-                        label={t('used-ob')}
-                        value={attack.modifiers.bo}
-                        onChange={(bo) => onBo(attack.attackName, bo ?? 0)}
-                        min={0}
-                        max={weapon?.currentBo ?? 0}
-                        integer
-                        allowNegatives={false}
-                      />
-                      <Typography variant="caption" color="text.secondary">
-                        {t('parry-max', { max: weapon?.currentBo ?? 0 })}
+          <Panel key={attack.attackName} variant="outlined" title={attackLabel(attack.attackName, t)}>
+            <Stack spacing={1.5}>
+              <Box>
+                <Typography variant="caption" color="text.secondary">
+                  {[
+                    weapon && `${attackLabel(weapon.attackTable, t)} ${formatBonus(weapon.currentBo)}`,
+                    penalty !== 0 && t('penalties-on-roll', { value: penalty }),
+                  ]
+                    .filter(Boolean)
+                    .join(' · ')}
+                </Typography>
+              </Box>
+              <TargetPicker
+                sourceActorRound={actorRound}
+                value={targetId}
+                onChange={(id) => onTarget(attack.attackName, id)}
+              />
+              {targetId && (
+                <>
+                  <Box sx={{ maxWidth: 200 }}>
+                    <NumberPadField
+                      steps={[-10, -5, 5, 10]}
+                      label={t('used-ob')}
+                      value={attack.modifiers.bo}
+                      onChange={(bo) => onBo(attack.attackName, bo ?? 0)}
+                      min={0}
+                      max={weapon?.currentBo ?? 0}
+                      integer
+                      allowNegatives={false}
+                    />
+                    <Typography variant="caption" color="text.secondary">
+                      {t('parry-max', { max: weapon?.currentBo ?? 0 })}
+                    </Typography>
+                  </Box>
+                  {kind === 'ranged' && weapon && (
+                    <Box>
+                      <Typography variant="caption" color="text.secondary" component="div" sx={{ mb: 0.5 }}>
+                        {t('range')}
                       </Typography>
+                      <SelectAttackRange
+                        attack={weapon}
+                        value={attack.modifiers.range ?? null}
+                        onChange={(range) => onRange(attack.attackName, range)}
+                      />
                     </Box>
-                    {kind === 'ranged' && weapon && (
-                      <Box>
-                        <Typography variant="caption" color="text.secondary" component="div" sx={{ mb: 0.5 }}>
-                          {t('range')}
-                        </Typography>
-                        <SelectAttackRange
-                          attack={weapon}
-                          value={attack.modifiers.range ?? null}
-                          onChange={(range) => onRange(attack.attackName, range)}
-                        />
-                      </Box>
-                    )}
-                    {kind === 'melee' && protectorCandidates.length > 0 && (
-                      <Box>
-                        <CharacterPicker
-                          mode="multiple"
-                          variant="compact"
-                          label={t('protectors')}
-                          options={protectorCandidates.map((ar) =>
-                            toOption(ar, { secondary: `${t('protect')} ${ar.defense?.protect ?? 0}` })
-                          )}
-                          value={attack.protectors ?? []}
-                          onChange={(ids) => {
-                            const current = attack.protectors ?? [];
-                            [
-                              ...ids.filter((id) => !current.includes(id)),
-                              ...current.filter((id) => !ids.includes(id)),
-                            ].forEach((id) => onProtector(attack.attackName, id));
-                          }}
-                        />
-                        {(attack.protectors ?? []).map((protectorId) => (
-                          <Stack
-                            key={protectorId}
-                            direction="row"
-                            spacing={1}
-                            sx={{ alignItems: 'center', mt: 1, maxWidth: 420 }}
+                  )}
+                  {kind === 'melee' && protectorCandidates.length > 0 && (
+                    <Box>
+                      <CharacterPicker
+                        mode="multiple"
+                        variant="compact"
+                        label={t('protectors')}
+                        options={protectorCandidates.map((ar) =>
+                          toOption(ar, { secondary: `${t('protect')} ${ar.defense?.protect ?? 0}` })
+                        )}
+                        value={attack.protectors ?? []}
+                        onChange={(ids) => {
+                          const current = attack.protectors ?? [];
+                          [
+                            ...ids.filter((id) => !current.includes(id)),
+                            ...current.filter((id) => !ids.includes(id)),
+                          ].forEach((id) => onProtector(attack.attackName, id));
+                        }}
+                      />
+                      {(attack.protectors ?? []).map((protectorId) => (
+                        <Stack
+                          key={protectorId}
+                          direction="row"
+                          spacing={1}
+                          sx={{ alignItems: 'center', mt: 1, maxWidth: 420 }}
+                        >
+                          <Typography variant="body2" sx={{ flex: 1, minWidth: 0 }} noWrap>
+                            {actorRounds?.find((ar) => ar.actorId === protectorId)?.actorName ?? protectorId}
+                          </Typography>
+                          <TextField
+                            select
+                            size="small"
+                            label={t('protect-position')}
+                            value={attack.protectorPositions?.[protectorId] ?? 'other'}
+                            onChange={(e) =>
+                              onProtectorPosition(attack.attackName, protectorId, e.target.value as ProtectPosition)
+                            }
+                            sx={{ minWidth: 220 }}
                           >
-                            <Typography variant="body2" sx={{ flex: 1, minWidth: 0 }} noWrap>
-                              {actorRounds?.find((ar) => ar.actorId === protectorId)?.actorName ?? protectorId}
-                            </Typography>
-                            <TextField
-                              select
-                              size="small"
-                              label={t('protect-position')}
-                              value={attack.protectorPositions?.[protectorId] ?? 'other'}
-                              onChange={(e) =>
-                                onProtectorPosition(attack.attackName, protectorId, e.target.value as ProtectPosition)
-                              }
-                              sx={{ minWidth: 220 }}
-                            >
-                              {PROTECT_POSITIONS.map((position) => (
-                                <MenuItem key={position} value={position}>
-                                  {t(`protect-position-${position}`)}
-                                </MenuItem>
-                              ))}
-                            </TextField>
-                          </Stack>
-                        ))}
-                      </Box>
-                    )}
-                  </>
-                )}
-              </Stack>
-            </CardContent>
-          </Card>
+                            {PROTECT_POSITIONS.map((position) => (
+                              <MenuItem key={position} value={position}>
+                                {t(`protect-position-${position}`)}
+                              </MenuItem>
+                            ))}
+                          </TextField>
+                        </Stack>
+                      ))}
+                    </Box>
+                  )}
+                </>
+              )}
+            </Stack>
+          </Panel>
         );
       })}
     </Box>

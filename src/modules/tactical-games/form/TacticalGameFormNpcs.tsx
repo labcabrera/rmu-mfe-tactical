@@ -27,6 +27,7 @@ import {
   NpcEntryList,
   npcImage,
   resolveAssetUrl,
+  ChipRow,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 
 /** What a new game brings besides its data (spec 055): factions, their NPCs and the environment. */
@@ -180,7 +181,7 @@ const TacticalGameFormNpcs: FC<{
               <EntityAvatar name={group.name} imageUrl={group.image} size={32} />
               <Typography variant="subtitle2">{group.name}</Typography>
             </Stack>
-            <Stack direction="row" sx={{ flexWrap: 'wrap', gap: 0.75 }}>
+            <ChipRow>
               {group.entries.flatMap((entry, index) =>
                 specimenNames(entry).map((name) => (
                   <Chip
@@ -194,7 +195,7 @@ const TacticalGameFormNpcs: FC<{
                   />
                 ))
               )}
-            </Stack>
+            </ChipRow>
           </Box>
         ))}
       </Stack>

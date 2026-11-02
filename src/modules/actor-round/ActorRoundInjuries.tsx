@@ -6,7 +6,7 @@ import HealingIcon from '@mui/icons-material/Healing';
 import ScienceIcon from '@mui/icons-material/Science';
 import SpaIcon from '@mui/icons-material/Spa';
 import { Button, IconButton, Stack, Tooltip, Typography } from '@mui/material';
-import { ConfirmDialog, Injury, InjuryList } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { ConfirmDialog, Injury, InjuryList, SectionLabel } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../CombatContext';
 import { deleteActorRoundInjury } from '../api/actor-rounds';
 import { ActorRound } from '../api/actor-rounds.dto';
@@ -49,19 +49,24 @@ const ActorRoundInjuries: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
 
   return (
     <Stack spacing={1}>
-      <Stack direction="row" spacing={1} sx={{ alignItems: 'baseline' }}>
-        <Typography variant="subtitle2">{t('injuries')}</Typography>
-        {bleeding > 0 && (
-          <Typography variant="caption" color="error.main" sx={{ fontWeight: 600 }}>
-            {t('injury-bleeding-per-round', { value: bleeding })}
-          </Typography>
-        )}
-        {editable && actorRound.characterId && (
-          <Button size="small" startIcon={<SpaIcon />} onClick={() => setHerbOpen(true)} sx={{ ml: 'auto' }}>
-            {t('herb-use')}
-          </Button>
-        )}
-      </Stack>
+      <SectionLabel
+        actions={
+          <>
+            {bleeding > 0 && (
+              <Typography variant="caption" color="error.main" sx={{ fontWeight: 600 }}>
+                {t('injury-bleeding-per-round', { value: bleeding })}
+              </Typography>
+            )}
+            {editable && actorRound.characterId && (
+              <Button size="small" startIcon={<SpaIcon />} onClick={() => setHerbOpen(true)}>
+                {t('herb-use')}
+              </Button>
+            )}
+          </>
+        }
+      >
+        {t('injuries')}
+      </SectionLabel>
       <InjuryList
         injuries={injuries}
         dense={false}

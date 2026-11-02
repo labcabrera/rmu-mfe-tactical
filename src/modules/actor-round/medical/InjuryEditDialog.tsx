@@ -9,22 +9,14 @@ import {
   InjurySeverity,
   InjuryStatus,
   InjuryType,
-  NumericInput,
+  NumberPadField,
   RmuDialog,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { updateActorRoundInjury } from '../../api/actor-rounds';
 import { ActorRound, UpdateActorInjuryDto } from '../../api/actor-rounds.dto';
 import { useTacticalNotify } from '../../services/notify-service';
 
-const TYPES: InjuryType[] = [
-  'bone',
-  'cut-burn',
-  'muscle-tendon',
-  'organ',
-  'poison-disease',
-  'skin-tissue',
-  'unknown',
-];
+const TYPES: InjuryType[] = ['bone', 'cut-burn', 'muscle-tendon', 'organ', 'poison-disease', 'skin-tissue', 'unknown'];
 const SEVERITIES: InjurySeverity[] = ['light', 'medium', 'severe'];
 const LOCATIONS: BodyLocation[] = ['head', 'chest', 'abdomen', 'arm', 'leg'];
 const SIDES: BodySide[] = ['left', 'right'];
@@ -97,15 +89,44 @@ const InjuryEditDialog: FC<{
     >
       <Stack spacing={2}>
         <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-          <FieldSelect label={t('type')} value={form.type} values={TYPES} labelOf={(value) => t(`injury-type-${value}`)} onChange={(value) => change('type', value)} disabled={busy} />
-          <FieldSelect label={t('injury-severity')} value={form.severity} values={SEVERITIES} labelOf={(value) => t(`injury-severity-${value}`)} onChange={(value) => change('severity', value)} disabled={busy} />
+          <FieldSelect
+            label={t('type')}
+            value={form.type}
+            values={TYPES}
+            labelOf={(value) => t(`injury-type-${value}`)}
+            onChange={(value) => change('type', value)}
+            disabled={busy}
+          />
+          <FieldSelect
+            label={t('injury-severity')}
+            value={form.severity}
+            values={SEVERITIES}
+            labelOf={(value) => t(`injury-severity-${value}`)}
+            onChange={(value) => change('severity', value)}
+            disabled={busy}
+          />
         </Stack>
         <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-          <FieldSelect label={t('location')} value={form.location} values={LOCATIONS} labelOf={(value) => t(value)} onChange={(value) => change('location', value)} disabled={busy} />
-          <FieldSelect label={t('body-side')} value={form.side} values={SIDES} labelOf={(value) => t(`side-${value}`)} onChange={(value) => change('side', value)} disabled={busy} />
+          <FieldSelect
+            label={t('location')}
+            value={form.location}
+            values={LOCATIONS}
+            labelOf={(value) => t(value)}
+            onChange={(value) => change('location', value)}
+            disabled={busy}
+          />
+          <FieldSelect
+            label={t('body-side')}
+            value={form.side}
+            values={SIDES}
+            labelOf={(value) => t(`side-${value}`)}
+            onChange={(value) => change('side', value)}
+            disabled={busy}
+          />
         </Stack>
         <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-          <NumericInput
+          <NumberPadField
+            steps={[-10, -5, 5, 10]}
             label={t('penalty')}
             value={form.penalty ?? null}
             onChange={(value) => change('penalty', value === null ? undefined : Math.min(0, value))}
@@ -114,7 +135,7 @@ const InjuryEditDialog: FC<{
             max={0}
             disabled={busy}
           />
-          <NumericInput
+          <NumberPadField
             label={t('bleeding')}
             value={form.bleeding ?? null}
             onChange={(value) => change('bleeding', value === null ? undefined : Math.max(0, value))}
@@ -122,7 +143,14 @@ const InjuryEditDialog: FC<{
             min={0}
             disabled={busy}
           />
-          <FieldSelect label={t('status')} value={form.status} values={STATUSES} labelOf={(value) => t(`injury-status-${value}`)} onChange={(value) => change('status', value)} disabled={busy} />
+          <FieldSelect
+            label={t('status')}
+            value={form.status}
+            values={STATUSES}
+            labelOf={(value) => t(`injury-status-${value}`)}
+            onChange={(value) => change('status', value)}
+            disabled={busy}
+          />
         </Stack>
         <TextField
           label={t('description')}

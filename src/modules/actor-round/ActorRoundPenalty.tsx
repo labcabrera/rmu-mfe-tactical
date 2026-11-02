@@ -2,7 +2,8 @@ import React, { FC, useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { Stack, Typography, Chip, Box, TextField, IconButton } from '@mui/material';
+import { Stack, Chip, Box, TextField, IconButton } from '@mui/material';
+import { ChipRow, EmptyState, SectionLabel } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../CombatContext';
 import { ActorRound, ActorRoundPenaltyModifier } from '../api/actor-rounds.dto';
 import { isGameFinished } from '../services/game-service';
@@ -30,12 +31,12 @@ const ActorRoundPenalty: FC<{
 
   return (
     <Stack spacing={1}>
-      <Typography variant="subtitle2">{t('penalties')}</Typography>
+      <SectionLabel>{t('penalties')}</SectionLabel>
 
       {(actorRound.penalty.modifiers || []).length === 0 ? (
-        <Typography variant="body2">{t('no-penalties')}</Typography>
+        <EmptyState dense title={t('no-penalties')} />
       ) : (
-        <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap' }}>
+        <ChipRow>
           {(actorRound.penalty.modifiers || []).map((s: ActorRoundPenaltyModifier, i: number) => (
             <Chip
               key={`${s.source}-${i}`}
@@ -45,22 +46,22 @@ const ActorRoundPenalty: FC<{
               sx={{ m: 0.5 }}
             />
           ))}
-        </Stack>
+        </ChipRow>
       )}
 
       {!readOnly && (
-      <Box sx={{ mt: 1, display: 'flex', alignItems: 'center' }}>
-        <TextField
-          size="small"
-          label={t('new-penalty')}
-          value={newPenalty}
-          onChange={(e) => setNewPenalty(e.target.value)}
-          sx={{ mr: 1 }}
-        />
-        <IconButton color="primary" onClick={addPenalty} disabled={!newPenalty}>
-          <AddIcon />
-        </IconButton>
-      </Box>
+        <Box sx={{ mt: 1, display: 'flex', alignItems: 'center' }}>
+          <TextField
+            size="small"
+            label={t('new-penalty')}
+            value={newPenalty}
+            onChange={(e) => setNewPenalty(e.target.value)}
+            sx={{ mr: 1 }}
+          />
+          <IconButton color="primary" onClick={addPenalty} disabled={!newPenalty}>
+            <AddIcon />
+          </IconButton>
+        </Box>
       )}
     </Stack>
   );

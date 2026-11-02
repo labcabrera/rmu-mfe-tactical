@@ -3,14 +3,17 @@ import { useTranslation } from 'react-i18next';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import GroupAddIcon from '@mui/icons-material/GroupAdd';
-import { Box, Button, Chip, CircularProgress, IconButton, Stack, TextField, Tooltip, Typography } from '@mui/material';
+import { Box, Button, Chip, IconButton, Stack, TextField, Tooltip, Typography } from '@mui/material';
 import {
   avatarSize,
+  ChipRow,
+  EmptyState,
   EntityAvatar,
   entityImage,
   ENVIRONMENT_FACTION_ID,
   environmentFactionName,
   Faction,
+  LoadingState,
   Npc,
   NpcEntry,
   NpcEntryDialog,
@@ -103,7 +106,7 @@ export default function TacticalGameRosterNpcs({
                 <Typography variant="body2" color="text.secondary" sx={{ flexGrow: 1 }}>
                   {actors.length}
                 </Typography>
-                {pending === `npcs:${group.id}` && <CircularProgress size={18} />}
+                {pending === `npcs:${group.id}` && <LoadingState variant="inline" />}
                 {editable && factionNpcs.length > 0 && (
                   <Button
                     size="small"
@@ -121,11 +124,9 @@ export default function TacticalGameRosterNpcs({
                 )}
               </Stack>
               {actors.length === 0 ? (
-                <Typography variant="body2" color="text.secondary">
-                  {isEnvironment ? t('environment-npcs-empty') : t('faction-npc-actors-empty')}
-                </Typography>
+                <EmptyState dense title={isEnvironment ? t('environment-npcs-empty') : t('faction-npc-actors-empty')} />
               ) : (
-                <Stack direction="row" sx={{ flexWrap: 'wrap', gap: 0.75 }}>
+                <ChipRow>
                   {actors.map((actor) => (
                     <Chip
                       key={actor.id}
@@ -144,7 +145,7 @@ export default function TacticalGameRosterNpcs({
                       sx={{ maxWidth: '100%' }}
                     />
                   ))}
-                </Stack>
+                </ChipRow>
               )}
             </Box>
           );

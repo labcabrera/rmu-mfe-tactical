@@ -2,6 +2,7 @@ import React, { FC, useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import KeyboardIcon from '@mui/icons-material/Keyboard';
 import { Box, IconButton, Paper, Stack, Tab, Tabs, Tooltip, useMediaQuery, useTheme } from '@mui/material';
+import { Panel } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../CombatContext';
 import { useShortcut } from '../services/shortcuts';
 import GameOutcomePanel from '../tactical-games/outcome/GameOutcomePanel';
@@ -57,11 +58,11 @@ const CombatDashboardTabs: FC = () => {
               {wide && <RoundLogStrip onOpenLog={() => setView('log')} />}
             </>
           ) : (
-            <Paper sx={{ p: 2 }}>
+            <Panel>
               <Box role="tabpanel">
                 <RoundLog />
               </Box>
-            </Paper>
+            </Panel>
           )}
         </Stack>
       </CombatPanelProvider>

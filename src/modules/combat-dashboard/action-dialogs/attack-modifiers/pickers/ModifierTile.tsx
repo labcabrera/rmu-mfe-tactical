@@ -1,7 +1,7 @@
 import React, { FC, ReactNode } from 'react';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
-import { alpha, Box, ButtonBase, Tooltip, Typography } from '@mui/material';
-import { formatBonus } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { Box, ButtonBase, Tooltip, Typography } from '@mui/material';
+import { formatBonus, selectableSx } from '@labcabrera-rmu/rmu-react-shared-lib';
 
 /**
  * One option of the attack form, always the same size: its name and, when it has one, the value it adds to the
@@ -25,27 +25,24 @@ const ModifierTile: FC<{
       aria-checked={selected}
       aria-label={ariaLabel}
       onClick={onClick}
-      sx={(theme) => ({
-        width: '100%',
-        minHeight: 52,
-        px: 1.25,
-        py: 0.75,
-        gap: 1,
-        justifyContent: label ? 'space-between' : 'center',
-        textAlign: 'left',
-        borderRadius: `${theme.radius.sm}px`,
-        border: 1,
-        borderColor: selected ? 'primary.main' : 'divider',
-        bgcolor: selected ? alpha(theme.palette.primary.main, 0.14) : 'background.light',
-        transition: theme.transitions.create(['background-color', 'border-color']),
-        '&:hover': { borderColor: selected ? 'primary.main' : 'text.secondary' },
-      })}
+      sx={[
+        selectableSx(selected),
+        {
+          width: '100%',
+          minHeight: 52,
+          px: 1.25,
+          py: 0.75,
+          gap: 1,
+          justifyContent: label ? 'space-between' : 'center',
+          textAlign: 'left',
+        },
+      ]}
     >
       {label && (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, minWidth: 0 }}>
           {icon}
           {auto && <AutoAwesomeIcon fontSize="small" color="primary" />}
-          <Typography variant="body2" sx={{ fontWeight: selected ? 700 : 500, lineHeight: 1.2 }}>
+          <Typography variant="body2" sx={{ fontWeight: selected ? 600 : 500, lineHeight: 1.2 }}>
             {label}
           </Typography>
         </Box>
@@ -54,10 +51,10 @@ const ModifierTile: FC<{
         <Box
           sx={{
             px: 0.75,
-            borderRadius: 1,
+            borderRadius: (theme) => `${theme.radius.pill}px`,
             flexShrink: 0,
             fontSize: 12,
-            fontWeight: 700,
+            fontWeight: 600,
             fontVariantNumeric: 'tabular-nums',
             color: value > 0 ? 'success.main' : 'error.main',
             border: 1,

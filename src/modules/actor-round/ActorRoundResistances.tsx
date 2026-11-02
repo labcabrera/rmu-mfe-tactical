@@ -1,8 +1,8 @@
 import React, { FC, useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import PsychologyIcon from '@mui/icons-material/Psychology';
-import { Button, Chip, Stack, Typography } from '@mui/material';
-import { formatBonus } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { Button, Chip, Stack } from '@mui/material';
+import { ChipRow, formatBonus, SectionLabel, EmptyState } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../CombatContext';
 import { ActorRound } from '../api/actor-rounds.dto';
 import ResistanceRollDialog from './psychology/ResistanceRollDialog';
@@ -17,12 +17,10 @@ const ActorRoundResistances: FC<{ actorRound: ActorRound }> = ({ actorRound }) =
 
   return (
     <Stack spacing={1}>
-      <Typography variant="subtitle2">{t('resistances')}</Typography>
-      <Stack direction="row" sx={{ flexWrap: 'wrap', gap: 0.75, alignItems: 'center' }}>
+      <SectionLabel>{t('resistances')}</SectionLabel>
+      <ChipRow>
         {resistances.length === 0 ? (
-          <Typography variant="body2" color="text.secondary">
-            {t('no-resistances')}
-          </Typography>
+          <EmptyState dense title={t('no-resistances')} />
         ) : (
           resistances.map((each) => (
             <Chip
@@ -38,7 +36,7 @@ const ActorRoundResistances: FC<{ actorRound: ActorRound }> = ({ actorRound }) =
             {t('fear-rr')}
           </Button>
         )}
-      </Stack>
+      </ChipRow>
       <ResistanceRollDialog actorRound={actorRound} open={open} onClose={() => setOpen(false)} />
     </Stack>
   );
