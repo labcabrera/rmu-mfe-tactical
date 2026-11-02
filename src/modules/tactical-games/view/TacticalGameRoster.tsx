@@ -291,7 +291,15 @@ function SelectionMetric({ icon, value, label }: { icon: ReactNode; value: strin
     <Stack
       direction="row"
       spacing={1.25}
-      sx={{ alignItems: 'center', border: 1, borderColor: 'divider', borderRadius: 1, px: 1.5, py: 1, minWidth: 180 }}
+      sx={{
+        alignItems: 'center',
+        border: 1,
+        borderColor: 'divider',
+        borderRadius: (theme) => `${theme.radius.sm}px`,
+        px: 1.5,
+        py: 1,
+        minWidth: 180,
+      }}
     >
       {icon}
       <Box>

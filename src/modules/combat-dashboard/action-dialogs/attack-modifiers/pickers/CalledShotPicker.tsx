@@ -86,7 +86,7 @@ const CalledShotPicker: FC<{
         <ModifierTile role="radio" label={t('none')} selected={value === 'none'} onClick={() => onChange('none')} />
         {value !== 'none' && (
           <>
-            <Typography variant="body2" sx={{ fontWeight: 700 }}>
+            <Typography variant="body2" sx={{ fontWeight: 600 }}>
               {t(value)}
             </Typography>
             <NumberPadField

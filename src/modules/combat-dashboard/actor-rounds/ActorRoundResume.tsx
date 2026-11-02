@@ -75,7 +75,7 @@ const ActorRoundResume: FC<{
               <Typography
                 variant="subtitle2"
                 sx={{
-                  fontWeight: 700,
+                  fontWeight: 600,
                   flex: 1,
                   minWidth: 0,
                   textDecoration: down === 'dead' ? 'line-through' : undefined,

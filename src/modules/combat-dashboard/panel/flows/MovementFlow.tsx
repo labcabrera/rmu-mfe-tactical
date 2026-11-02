@@ -211,7 +211,7 @@ const MovementFlow: FC<{
               </Typography>
             </Box>
             <Box sx={{ textAlign: 'right' }}>
-              <Typography variant="body2" sx={{ fontWeight: 700 }}>
+              <Typography variant="body2" sx={{ fontWeight: 600 }}>
                 {Number(feet.toFixed(1))}&apos;
               </Typography>
               {scale !== 1 && (

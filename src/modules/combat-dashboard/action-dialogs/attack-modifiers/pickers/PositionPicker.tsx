@@ -115,7 +115,7 @@ const PositionPicker: FC<{ options: ModifierOption[]; value: string; onChange: (
             <Typography
               key={key}
               variant="body2"
-              sx={{ fontWeight: value === key ? 700 : 400 }}
+              sx={{ fontWeight: value === key ? 600 : 400 }}
               color={value === key ? 'primary' : 'text.secondary'}
             >
               {label(key)}

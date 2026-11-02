@@ -262,11 +262,11 @@ const PreviewRow: FC<{ label: string; value: number | null; plain?: boolean; str
       <Typography
         variant="body2"
         color={strong ? 'text.primary' : 'text.secondary'}
-        sx={{ fontWeight: strong ? 700 : 400 }}
+        sx={{ fontWeight: strong ? 600 : 400 }}
       >
         {label}
       </Typography>
-      <Typography variant="body2" sx={{ fontWeight: 700, fontVariantNumeric: 'tabular-nums' }} color={color}>
+      <Typography variant="body2" sx={{ fontWeight: 600, fontVariantNumeric: 'tabular-nums' }} color={color}>
         {shown}
       </Typography>
     </Stack>

@@ -18,6 +18,8 @@ import {
   Stack,
   Step,
   StepLabel,
+  // The round phase indicator is horizontal, not a guided flow: FlowSteps has no such variant (spec 066).
+  // eslint-disable-next-line no-restricted-imports
   Stepper,
   Tooltip,
   Typography,

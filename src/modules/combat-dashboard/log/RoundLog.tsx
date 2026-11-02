@@ -76,7 +76,7 @@ const LogEntry: FC<{ action: Action }> = ({ action }) => {
         textAlign: 'left',
         px: 1,
         py: 0.75,
-        borderRadius: 1,
+        borderRadius: (theme) => `${theme.radius.sm}px`,
         '&:hover': { bgcolor: 'action.hover' },
       }}
     >
@@ -98,7 +98,7 @@ const LogEntry: FC<{ action: Action }> = ({ action }) => {
             }}
           />
           <Typography variant="body2" noWrap>
-            <Box component="span" sx={{ fontWeight: 700 }}>
+            <Box component="span" sx={{ fontWeight: 600 }}>
               {actorRound?.actorName}
             </Box>
             {` · ${actionLabel(action, t, actorRounds)}`}
