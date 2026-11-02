@@ -2,21 +2,8 @@ import React, { FC, useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import BuildIcon from '@mui/icons-material/Build';
 import ScienceIcon from '@mui/icons-material/Science';
-import {
-  Chip,
-  IconButton,
-  Paper,
-  Stack,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Tooltip,
-  Typography,
-} from '@mui/material';
-import { ItemConditionChip } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { Chip, IconButton, Stack, Tooltip } from '@mui/material';
+import { DataTable, ItemConditionChip, SectionLabel } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../CombatContext';
 import { ActorRound, ActorRoundItem } from '../api/actor-rounds.dto';
 import BreakageCheckDialog from '../combat-dashboard/actor-alert-dialogs/BreakageCheckDialog';
@@ -36,63 +23,64 @@ const ActorRoundItems: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
 
   return (
     <Stack spacing={1}>
-      <Typography variant="subtitle2">{t('actor-items')}</Typography>
-      {items.length > 0 ? (
-        <TableContainer component={Paper} variant="outlined">
-          <Table size="small">
-            <TableHead>
-              <TableRow>
-                <TableCell>{t('name')}</TableCell>
-                <TableCell>{t('type')}</TableCell>
-                <TableCell align="right">{t('breakage-strength')}</TableCell>
-                <TableCell>{t('breakage')}</TableCell>
-                {editable && <TableCell />}
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {items.map((item) => (
-                <TableRow key={item.itemId} hover>
-                  <TableCell>
-                    {item.name}
-                    {item.coating && (
-                      <Chip
+      <SectionLabel>{t('actor-items')}</SectionLabel>
+      <DataTable
+        rows={items}
+        getKey={(item) => item.itemId}
+        emptyTitle={t('actor-items-empty')}
+        columns={[
+          {
+            key: 'name',
+            header: t('name'),
+            render: (item) => (
+              <>
+                {item.name}
+                {item.coating && (
+                  <Chip
+                    size="small"
+                    color="secondary"
+                    variant="outlined"
+                    icon={<ScienceIcon />}
+                    label={t('item-coated', { name: t(item.coating.name, item.coating.name) })}
+                    sx={{ ml: 1 }}
+                  />
+                )}
+              </>
+            ),
+          },
+          {
+            key: 'type',
+            header: t('type'),
+            render: (item) => [t(`item-kind-${item.kind}`), item.slot && t(item.slot)].filter(Boolean).join(' · '),
+          },
+          { key: 'strength', header: t('breakage-strength'), align: 'right', render: (item) => item.strength ?? '-' },
+          {
+            key: 'breakage',
+            header: t('breakage'),
+            render: (item) => <ItemConditionChip condition={item.condition} showIntact />,
+          },
+          ...(editable
+            ? [
+                {
+                  key: 'actions',
+                  header: '',
+                  align: 'right' as const,
+                  render: (item: ActorRoundItem) => (
+                    <Tooltip title={t('breakage-check-manual')}>
+                      <IconButton
                         size="small"
-                        color="secondary"
-                        variant="outlined"
-                        icon={<ScienceIcon />}
-                        label={t('item-coated', { name: t(item.coating.name, item.coating.name) })}
-                        sx={{ ml: 1 }}
-                      />
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {[t(`item-kind-${item.kind}`), item.slot && t(item.slot)].filter(Boolean).join(' · ')}
-                  </TableCell>
-                  <TableCell align="right">{item.strength ?? '-'}</TableCell>
-                  <TableCell>
-                    <ItemConditionChip condition={item.condition} showIntact />
-                  </TableCell>
-                  {editable && (
-                    <TableCell align="right">
-                      <Tooltip title={t('breakage-check-manual')}>
-                        <IconButton
-                          size="small"
-                          aria-label={t('breakage-check-manual')}
-                          onClick={() => setChecking(item)}
-                        >
-                          <BuildIcon fontSize="small" />
-                        </IconButton>
-                      </Tooltip>
-                    </TableCell>
-                  )}
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      ) : (
-        <Typography variant="body2">{t('actor-items-empty')}</Typography>
-      )}
+                        aria-label={t('breakage-check-manual')}
+                        onClick={() => setChecking(item)}
+                      >
+                        <BuildIcon fontSize="small" />
+                      </IconButton>
+                    </Tooltip>
+                  ),
+                },
+              ]
+            : []),
+        ]}
+      />
       {checking && (
         <BreakageCheckDialog actorRound={actorRound} itemId={checking.itemId} open onClose={() => setChecking(null)} />
       )}

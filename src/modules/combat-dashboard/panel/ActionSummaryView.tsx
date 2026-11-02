@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import DeleteIcon from '@mui/icons-material/Delete';
 import OpenInFullIcon from '@mui/icons-material/OpenInFull';
 import { Box, Button, Chip, Divider, Stack, Typography } from '@mui/material';
-import { ActionStateMarker, combatActionInfo, formatBonus } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { ActionStateMarker, combatActionInfo, formatBonus, SectionLabel } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
 import { Action, SIMPLE_ACTION_TYPES } from '../../api/action.dto';
 import { apProfileLabel, isActionClosed, useOpenRounds } from '../../services/ap-service';
@@ -132,9 +132,7 @@ const ActionSummaryView: FC<{ action: Action; onResolve: () => void; onDeleted: 
       {(action.attacks?.some((a) => a.calculated) || action.movement?.calculated || action.maneuver?.result) && (
         <>
           <Divider />
-          <Typography variant="overline" color="text.secondary">
-            {t('results')}
-          </Typography>
+          <SectionLabel>{t('results')}</SectionLabel>
           {action.attacks?.some((a) => a.calculated) && <AttackResults attacks={action.attacks ?? []} />}
           <MovementResult action={action} />
           <ManeuverResult action={action} />

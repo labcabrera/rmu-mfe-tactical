@@ -8,14 +8,21 @@ import {
   Collapse,
   IconButton,
   MenuItem,
-  Paper,
   Stack,
   TextField,
   ToggleButton,
   ToggleButtonGroup,
   Typography,
 } from '@mui/material';
-import { ActionStateMarker, combatActionInfo, combatColors, EffectList } from '@labcabrera-rmu/rmu-react-shared-lib';
+import {
+  ActionStateMarker,
+  combatActionInfo,
+  combatColors,
+  EffectList,
+  EmptyState,
+  Panel,
+  SectionLabel,
+} from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
 import { Action } from '../../api/action.dto';
 import { useOpenRounds } from '../../services/ap-service';
@@ -164,16 +171,10 @@ const RoundLog: FC = () => {
           ))}
         </ToggleButtonGroup>
       </Stack>
-      {byPhase.length === 0 && (
-        <Typography variant="body2" color="text.secondary">
-          {t('log-empty', { round: displayRound })}
-        </Typography>
-      )}
+      {byPhase.length === 0 && <EmptyState dense title={t('log-empty', { round: displayRound })} />}
       {byPhase.map((group) => (
         <Box key={group.phase}>
-          <Typography variant="overline" color="text.secondary">
-            {t('phase-n', { phase: group.phase })}
-          </Typography>
+          <SectionLabel>{t('phase-n', { phase: group.phase })}</SectionLabel>
           <Stack>
             {group.actions.map((action) => (
               <LogEntry key={action.id} action={action} />
@@ -213,37 +214,37 @@ export const RoundLogStrip: FC<{ onOpenLog: () => void }> = ({ onOpenLog }) => {
     .slice(0, STRIP_ENTRIES);
 
   return (
-    <Paper sx={{ px: 1.5, py: 1 }}>
-      <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
-        <IconButton
-          size="small"
-          aria-label={t('log')}
-          aria-expanded={open}
-          onClick={toggle}
-          sx={(theme) => ({
-            transform: open ? 'none' : 'rotate(-90deg)',
-            transition: theme.transitions.create('transform'),
-          })}
-        >
-          <ExpandMoreIcon />
-        </IconButton>
-        <Typography variant="overline" color="text.secondary" sx={{ flex: 1 }}>
-          {t('latest-results')}
-        </Typography>
-        <Button size="small" onClick={onOpenLog}>
-          {t('see-all')}
-        </Button>
-      </Stack>
+    <Panel
+      dense
+      title={t('latest-results')}
+      extra={
+        <>
+          <Button size="small" onClick={onOpenLog}>
+            {t('see-all')}
+          </Button>
+          <IconButton
+            size="small"
+            aria-label={t('log')}
+            aria-expanded={open}
+            onClick={toggle}
+            sx={(theme) => ({
+              transform: open ? 'none' : 'rotate(-90deg)',
+              transition: theme.transitions.create('transform'),
+            })}
+          >
+            <ExpandMoreIcon />
+          </IconButton>
+        </>
+      }
+    >
       <Collapse in={open}>
         {latest.length === 0 ? (
-          <Typography variant="body2" color="text.secondary" sx={{ px: 1, pb: 1 }}>
-            {t('no-results-yet')}
-          </Typography>
+          <EmptyState dense title={t('no-results-yet')} />
         ) : (
           latest.map((action) => <LogEntry key={action.id} action={action} />)
         )}
       </Collapse>
-    </Paper>
+    </Panel>
   );
 };
 

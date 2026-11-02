@@ -5,7 +5,14 @@ import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import HealingIcon from '@mui/icons-material/Healing';
 import { Stack, Typography, Chip, Box, TextField, IconButton, Button, MenuItem, Tooltip } from '@mui/material';
-import { InjurySourceLine, normalizeEffectStatus, NumberPadField, ChipRow } from '@labcabrera-rmu/rmu-react-shared-lib';
+import {
+  ChipRow,
+  EmptyState,
+  InjurySourceLine,
+  normalizeEffectStatus,
+  NumberPadField,
+  SectionLabel,
+} from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../CombatContext';
 import { addActorRoundEffect, deleteActorRoundEffect } from '../api/actor-rounds';
 import { ActorRound, ActorRoundEffect, AP_EFFECTS } from '../api/actor-rounds.dto';
@@ -69,10 +76,10 @@ const ActorRoundEffects: FC<{
 
   return (
     <Stack spacing={1}>
-      <Typography variant="subtitle2">{t('effects-states')}</Typography>
+      <SectionLabel>{t('effects-states')}</SectionLabel>
 
       {(actorRound.effects || []).length === 0 ? (
-        <Typography variant="body2">{t('no-states')}</Typography>
+        <EmptyState dense title={t('no-states')} />
       ) : (
         <ChipRow>
           {(actorRound.effects || []).map((s: ActorRoundEffect, i: number) => {

@@ -1,6 +1,7 @@
 import React, { Dispatch, FC, SetStateAction } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Card, CardContent, Typography } from '@mui/material';
+import { Box, Typography } from '@mui/material';
+import { Panel } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { AttackDeclaration } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
 import { ATTACK_STYLE_OPTIONS, CRITICAL_STYLE_OPTIONS, styleOptionsFor } from '../attack/style-critical-options';
@@ -34,11 +35,8 @@ const StyleCriticalOptionPicker: FC<{
     }));
 
   return (
-    <Card component="section" aria-label={t('style-critical-option')}>
-      <CardContent>
-        <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
-          {t('style-critical-option')}
-        </Typography>
+    <Box component="section" aria-label={t('style-critical-option')}>
+      <Panel title={t('style-critical-option')}>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
           {t('style-critical-option-help')}
         </Typography>
@@ -52,8 +50,8 @@ const StyleCriticalOptionPicker: FC<{
           optionLabel={(option) => (option.key === NONE ? t('none') : t(`style-ability-${option.key}`))}
           onChange={change}
         />
-      </CardContent>
-    </Card>
+      </Panel>
+    </Box>
   );
 };
 

@@ -2,7 +2,13 @@ import React, { Dispatch, FC, SetStateAction, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import BlockIcon from '@mui/icons-material/Block';
 import { Alert, Box, Stack, Typography } from '@mui/material';
-import { combatActionInfo, NumberPadField, RuleHint, RuleParams } from '@labcabrera-rmu/rmu-react-shared-lib';
+import {
+  combatActionInfo,
+  NumberPadField,
+  RuleHint,
+  RuleParams,
+  SectionLabel,
+} from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../../CombatContext';
 import { ActionParry, AttackDeclaration, ParryExclusion } from '../../../../api/action.dto';
 import ResolveAttackInfo from '../../../action-dialogs/attack/ResolveAttackInfo';
@@ -159,9 +165,7 @@ const ParryStep: FC<{
       ))}
       {exclusions.length > 0 && (
         <Stack spacing={1}>
-          <Typography variant="overline" color="text.secondary">
-            {t('parry-excluded')}
-          </Typography>
+          <SectionLabel>{t('parry-excluded')}</SectionLabel>
           {exclusions.map((exclusion) => (
             <Stack
               key={`${exclusion.actorId}-${exclusion.targetActorId}-${exclusion.parryType}`}

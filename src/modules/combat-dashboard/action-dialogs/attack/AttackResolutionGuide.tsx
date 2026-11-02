@@ -1,7 +1,7 @@
 import React, { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, Paper, Stack, Typography } from '@mui/material';
-import { EffectList } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { Alert, Stack, Typography } from '@mui/material';
+import { EffectList, Panel } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { ActionAttack, AttackStatus } from '../../../api/action.dto';
 
 const SEVERITY: Record<AttackStatus, 'info' | 'warning' | 'success'> = {
@@ -40,11 +40,12 @@ export const AttackResultSummary: FC<{ attack: ActionAttack; targetName?: string
   const fumble = results.fumble;
 
   return (
-    <Paper variant="outlined" sx={{ p: 1.5 }}>
+    <Panel
+      variant="outlined"
+      dense
+      title={fumble ? t('fumble-result-title') : t('attack-result-title', { target: targetName ?? t('target') })}
+    >
       <Stack spacing={1}>
-        <Typography variant="subtitle2">
-          {fumble ? t('fumble-result-title') : t('attack-result-title', { target: targetName ?? t('target') })}
-        </Typography>
         {!fumble && (
           <Typography variant="h6" color={damage > 0 ? 'error.main' : 'text.secondary'}>
             {damage > 0 ? t('damage-points', { count: damage }) : t('no-damage')}
@@ -52,6 +53,6 @@ export const AttackResultSummary: FC<{ attack: ActionAttack; targetName?: string
         )}
         <EffectList effects={fumble ? (fumble.effects ?? []) : effects} size="medium" />
       </Stack>
-    </Paper>
+    </Panel>
   );
 };

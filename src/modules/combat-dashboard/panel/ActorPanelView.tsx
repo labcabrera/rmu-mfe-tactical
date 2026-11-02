@@ -3,7 +3,8 @@ import { useTranslation } from 'react-i18next';
 import AddIcon from '@mui/icons-material/Add';
 import OpenInFullIcon from '@mui/icons-material/OpenInFull';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-import { Alert, Box, Button, Divider, Stack, Typography } from '@mui/material';
+import { Alert, Box, Button, Divider, Stack } from '@mui/material';
+import { EmptyState, SectionLabel } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
 import ActorRoundBars from '../../actor-round/ActorRoundBars';
 import ActorRoundDefenseMode from '../../actor-round/ActorRoundDefenseMode';
@@ -61,15 +62,9 @@ const ActorPanelView: FC<{
       )}
       {isFrenzyDying(actorRound) && <Alert severity="error">{t('frenzy-dying')}</Alert>}
       <Box>
-        <Typography variant="overline" color="text.secondary">
-          {t('round-actions')}
-        </Typography>
+        <SectionLabel>{t('round-actions')}</SectionLabel>
         <Stack spacing={0.75}>
-          {actions.length === 0 && (
-            <Typography variant="body2" color="text.secondary">
-              {t('no-actions-in-round')}
-            </Typography>
-          )}
+          {actions.length === 0 && <EmptyState dense title={t('no-actions-in-round')} />}
           {actions.map((action) => (
             <Box key={action.id} sx={{ height: 40 }}>
               <ActorAction action={action} onClick={() => onOpenAction(action)} />
@@ -83,9 +78,7 @@ const ActorPanelView: FC<{
       <ActorRoundDefenseMode actorRound={actorRound} />
       <Divider />
       <Box>
-        <Typography variant="overline" color="text.secondary">
-          {t('effects-states')}
-        </Typography>
+        <SectionLabel>{t('effects-states')}</SectionLabel>
         <ActorRoundEffects actorRound={actorRound} />
       </Box>
     </Stack>

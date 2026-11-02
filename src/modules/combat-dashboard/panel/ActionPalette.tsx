@@ -1,11 +1,9 @@
 import React, { FC, KeyboardEvent, useContext, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
-import SearchIcon from '@mui/icons-material/Search';
 import {
   Box,
   Drawer,
-  InputAdornment,
   ListItemIcon,
   ListItemText,
   ListSubheader,
@@ -13,10 +11,16 @@ import {
   MenuList,
   Popover,
   Stack,
-  TextField,
   Typography,
 } from '@mui/material';
-import { combatActionInfo, CombatActionType, combatColors, usePhone } from '@labcabrera-rmu/rmu-react-shared-lib';
+import {
+  combatActionInfo,
+  CombatActionType,
+  combatColors,
+  SearchField,
+  SectionLabel,
+  usePhone,
+} from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
 import { createAction } from '../../api/action';
 import { Action, ActionType, ForceReason } from '../../api/action.dto';
@@ -349,27 +353,11 @@ const PaletteContent: FC<{
   return (
     <Box>
       <Box sx={{ p: 1.5, pb: 0.5 }}>
-        <Typography variant="overline" color="text.secondary">
-          {t('declare-action-for', { actor: actorRound.actorName, phase })}
-        </Typography>
-        <TextField
-          autoFocus
-          fullWidth
-          size="small"
-          placeholder={t('search')}
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
-          onKeyDown={onFilterKeyDown}
-          slotProps={{
-            input: {
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon fontSize="small" />
-                </InputAdornment>
-              ),
-            },
-          }}
-        />
+        <SectionLabel>{t('declare-action-for', { actor: actorRound.actorName, phase })}</SectionLabel>
+        {/* The keys of the search box (Enter, arrow down) bubble up to this box. */}
+        <Box onKeyDown={onFilterKeyDown}>
+          <SearchField autoFocus size="small" value={filter} onChange={setFilter} delay={0} />
+        </Box>
       </Box>
       <MenuList ref={listRef} dense aria-label={t('declare-action')} onKeyDown={(e) => e.key === 'Escape' && onClose()}>
         {visible.map((group) => [

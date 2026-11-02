@@ -2,6 +2,7 @@ import React, { FC, useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import { Stack, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
+import { SectionLabel } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../CombatContext';
 import { declareActorRoundDefenseMode } from '../api/actor-rounds';
 import { ActorRound, DECLARABLE_DEFENSE_LEVELS, DefenseLevel } from '../api/actor-rounds.dto';
@@ -69,7 +70,7 @@ const ActorRoundDefenseMode: FC<{ actorRound: ActorRound }> = ({ actorRound }) =
 
   return (
     <Stack spacing={1}>
-      <Typography variant="subtitle2">{t('defense-mode')}</Typography>
+      <SectionLabel>{t('defense-mode')}</SectionLabel>
       {DEFENSE_KINDS.map(row)}
       {!hasShield && (
         <Typography variant="caption" color="text.secondary">

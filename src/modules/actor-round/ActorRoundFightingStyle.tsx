@@ -2,7 +2,7 @@ import React, { FC, useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import { Checkbox, Chip, FormControlLabel, MenuItem, Stack, TextField, Tooltip, Typography } from '@mui/material';
-import { ChipRow } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { ChipRow, SectionLabel } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../CombatContext';
 import { declareActorRoundFightingStyle } from '../api/actor-rounds';
 import { ActiveStyleAbility, ActorRound, OPTIONAL_STYLE_ABILITIES } from '../api/actor-rounds.dto';
@@ -87,7 +87,7 @@ const ActorRoundFightingStyle: FC<{ actorRound: ActorRound }> = ({ actorRound })
 
   return (
     <Stack spacing={1}>
-      <Typography variant="subtitle2">{t('fighting-style')}</Typography>
+      <SectionLabel>{t('fighting-style')}</SectionLabel>
       <TextField
         select
         size="small"

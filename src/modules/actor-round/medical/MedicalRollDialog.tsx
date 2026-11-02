@@ -13,10 +13,11 @@ import {
   resolveHealer,
   RmuDialog,
   RollBreakdown,
-  RollResultAlert,
   RollField,
   RollModifier,
+  RollResultAlert,
   RuleHint,
+  SectionLabel,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
 import { stabilizeActorRoundEffect, treatActorRoundInjury } from '../../api/actor-rounds';
@@ -186,7 +187,7 @@ const MedicalRollDialog: FC<{
         <MedicalResultView result={result} target={target} />
       ) : (
         <Stack spacing={2}>
-          <Typography variant="subtitle2">{t('healer')}</Typography>
+          <SectionLabel>{t('healer')}</SectionLabel>
           <HealerPicker
             characters={candidates}
             value={healer}
