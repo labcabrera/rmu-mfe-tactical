@@ -1,31 +1,18 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import React, { FC, useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import { Alert, MenuItem, Stack, TextField, Typography } from '@mui/material';
-import {
-  ALL_STUN_ROUNDS,
-  applyActorHerb,
-  discardItem,
-  fetchStrategicItems,
-  NumberPadField,
-  RmuDialog,
-  StrategicItem,
-} from '@labcabrera-rmu/rmu-react-shared-lib';
+import { ALL_STUN_ROUNDS, applyActorHerb, NumberPadField, RmuDialog } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
 import { ActorRound } from '../../api/actor-rounds.dto';
 import { useTacticalNotify } from '../../services/notify-service';
-
-/** The herbs of a character that work in combat: they heal hits or remove stun (spec 062). */
-const isCombatHerb = (item: StrategicItem): boolean => {
-  const effects = item.catalog?.features?.herb?.effects;
-  return item.category === 'herb' && !!(effects?.heal || effects?.stunRelief);
-};
+import { isCombatHerb, useCharacterHerbs } from './combat-herbs';
 
 /**
  * Uses a herb the character of the actor carries (spec 062): it heals hits (the roll, or the server rolls the range
- * of the herb) and removes stun rounds. The tactical API does not spend the dose, so the dialog discards one unit of
- * the strategic item afterwards.
+ * of the herb) and removes stun rounds. Out of an action and without AP (a game master adjustment). Since workspace
+ * spec 068 the actor round records the dose as consumed, and strategic spends it when the outcome of the game is
+ * applied; in combat the same is a `use_item` action of 2 AP.
  */
 const ActorUseHerbDialog: FC<{ actorRound: ActorRound; open: boolean; onClose: () => void }> = ({
   actorRound,
@@ -36,19 +23,16 @@ const ActorUseHerbDialog: FC<{ actorRound: ActorRound; open: boolean; onClose: (
   const auth = useAuth();
   const notify = useTacticalNotify();
   const { updateActorRound } = useContext(CombatContext)!;
-  const [herbs, setHerbs] = useState<StrategicItem[]>([]);
+  const herbs = useCharacterHerbs(actorRound, open).filter(isCombatHerb);
   const [itemId, setItemId] = useState('');
   const [roll, setRoll] = useState<number | null>(null);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    if (!open || !actorRound.characterId) return;
+    if (!open) return;
     setItemId('');
     setRoll(null);
-    fetchStrategicItems(`characterId==${actorRound.characterId}`, 0, 1000, auth)
-      .then((page) => setHerbs(page.content.filter(isCombatHerb)))
-      .catch(notify.error);
-  }, [open, actorRound.characterId]);
+  }, [open]);
 
   const selected = herbs.find((each) => each.id === itemId);
   const effects = selected?.catalog?.features?.herb?.effects;
@@ -66,12 +50,8 @@ const ActorUseHerbDialog: FC<{ actorRound: ActorRound; open: boolean; onClose: (
       .then((result) => {
         updateActorRound(result.actorRound);
         notify.success(t('herb-use-combat-done', { hits: result.healed, rounds: result.stunRoundsRemoved }));
-        // Tactical does not spend the dose (like the antidotes of spec 042): one unit of the strategic item goes
-        return discardItem(selected.id, { amount: 1, note: t('herb-use-dose-note') }, auth)
-          .then(() => setHerbs((list) => list.filter((each) => each.id !== selected.id || each.amount > 1)))
-          .catch(notify.error);
+        onClose();
       })
-      .then(onClose)
       .catch(notify.error)
       .finally(() => setSaving(false));
   };

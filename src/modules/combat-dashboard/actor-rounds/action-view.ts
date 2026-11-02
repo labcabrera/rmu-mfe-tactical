@@ -1,7 +1,8 @@
-import { combatActionInfo, type CombatActionState } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { type CombatActionState } from '@labcabrera-rmu/rmu-react-shared-lib';
 import type { TFunction } from 'i18next';
 import { CLOSED_ACTION_STATUSES as CLOSED_STATUSES, type Action } from '../../api/action.dto';
 import type { ActorRound } from '../../api/actor-rounds.dto';
+import { actionTypeInfo } from './action-type-info';
 
 // How the board shows an action: its state (needs input, waiting, resolved, failed), a short label and a
 // one-word result, derived from what the tactical API returns.
@@ -28,6 +29,13 @@ export const actionState = (action: Action): CombatActionState => {
     const result = action.maneuver?.result?.result;
     if (result === 'failure' || result === 'absolute-failure') return 'failed';
     if (action.spell?.result && action.spell.result !== 'success') return 'failed';
+    // Workspace spec 068: a treatment whose Medicine roll failed
+    const medicalResult = action.medical?.results?.[0]?.result;
+    if (
+      action.medical?.procedure !== 'stabilize' &&
+      (medicalResult === 'failure' || medicalResult === 'absolute-failure')
+    )
+      return 'failed';
     return 'resolved';
   }
   if (action.status === 'interrupted' || action.status === 'expired') return 'failed';
@@ -91,7 +99,8 @@ export const actionLabel = (action: Action, t: TFunction, actorRounds: ActorRoun
   let name: string;
   if (action.maneuver) name = t(action.maneuver.modifiers?.skillId || 'maneuver');
   else if (action.spell) name = action.spell.spell.name;
-  else name = t(combatActionInfo(action.actionType).labelKey);
+  else if (action.medical) name = t(`procedure-${action.medical.procedure}`);
+  else name = t(actionTypeInfo(action.actionType).labelKey);
   const targets = (action.attacks ?? [])
     .map((attack) => actorRounds?.find((ar) => ar.actorId === attack.modifiers?.targetId)?.actorName)
     .concat((action.spell?.targets ?? []).map((target) => target.actorName ?? undefined))
@@ -121,6 +130,12 @@ export const actionResult = (action: Action, t: TFunction): string | undefined =
     if (action.spell.result !== 'success' || targets.length === 0) return t(`spell-result-${action.spell.result}`);
     const affected = targets.filter((target) => !target.resisted).length;
     return t('spell-log-affected', { affected, total: targets.length });
+  }
+  if (action.useItem?.result) return t('hp-healed-short', { hits: action.useItem.result.healed });
+  if (action.medical) {
+    const last = action.medical.results[action.medical.results.length - 1];
+    if (last?.removed) return t('medical-dying-removed-short');
+    if (last?.result) return t(last.result);
   }
   const maneuverResult = action.maneuver?.result;
   if (maneuverResult?.result) return t(maneuverResult.result);

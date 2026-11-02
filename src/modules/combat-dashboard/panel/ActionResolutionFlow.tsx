@@ -2,8 +2,10 @@ import React, { FC } from 'react';
 import { Action, SIMPLE_ACTION_TYPES } from '../../api/action.dto';
 import { ActorRound } from '../../api/actor-rounds.dto';
 import ManeuverFlow from './flows/ManeuverFlow';
+import MedicalFlow from './flows/MedicalFlow';
 import MovementFlow from './flows/MovementFlow';
 import SimpleActionFlow from './flows/SimpleActionFlow';
+import UseItemFlow from './flows/UseItemFlow';
 import AttackFlow from './flows/attack/AttackFlow';
 import SpellCastFlow from './flows/spell/SpellCastFlow';
 
@@ -18,6 +20,8 @@ type ActionViewProps = {
 const ActionResolutionFlow: FC<ActionViewProps> = (props) => {
   if (props.action.actionType === 'movement') return <MovementFlow {...props} />;
   if (props.action.actionType === 'maneuver') return <ManeuverFlow {...props} />;
+  if (props.action.actionType === 'medical') return <MedicalFlow {...props} />;
+  if (props.action.actionType === 'use_item') return <UseItemFlow {...props} />;
   if (props.action.actionType === 'cast_spell' && props.action.spell) return <SpellCastFlow {...props} />;
   if (SIMPLE_ACTION_TYPES.includes(props.action.actionType)) return <SimpleActionFlow {...props} />;
   if (props.action.actionType === 'ranged_attack') return <AttackFlow kind="ranged" {...props} />;

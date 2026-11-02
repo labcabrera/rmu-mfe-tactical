@@ -1,8 +1,11 @@
 import React, { FC, KeyboardEvent, useContext, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
+import BackHandIcon from '@mui/icons-material/BackHand';
 import {
+  Alert,
   Box,
+  Button,
   Drawer,
   ListItemIcon,
   ListItemText,
@@ -14,7 +17,6 @@ import {
   Typography,
 } from '@mui/material';
 import {
-  combatActionInfo,
   CombatActionType,
   combatColors,
   SearchField,
@@ -22,10 +24,13 @@ import {
   usePhone,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
+import { canHeal } from '../../actor-round/medical/medical';
 import { createAction } from '../../api/action';
 import { Action, ActionType, ForceReason } from '../../api/action.dto';
+import { dropActorRoundItems } from '../../api/actor-rounds';
 import { ActorRound } from '../../api/actor-rounds.dto';
-import { isActorRoundFearBlocked } from '../../services/actor-round-service';
+import { useActionConfirm, useNotifyWarnings } from '../../services/action-warnings';
+import { actorRoundHasEffect, isActorRoundFearBlocked } from '../../services/actor-round-service';
 import {
   apCapacity,
   apProfileLabel,
@@ -35,9 +40,12 @@ import {
   useOpenRounds,
 } from '../../services/ap-service';
 import { useTacticalNotify } from '../../services/notify-service';
+import { actionTypeInfo } from '../actor-rounds/action-type-info';
 import { actionLabel } from '../actor-rounds/action-view';
 import ManeuverDeclareDialog from './ManeuverDeclareDialog';
+import MedicalDeclareDialog from './MedicalDeclareDialog';
 import SpellDeclareDialog, { actorCharacter, isCaster } from './SpellDeclareDialog';
+import UseItemDeclareDialog from './UseItemDeclareDialog';
 
 type PaletteEntry = {
   key: string;
@@ -57,7 +65,14 @@ type PaletteEntry = {
 type PaletteGroup = { key: string; label: string; entries: PaletteEntry[] };
 
 /** Palette entries declared as a maneuver with a fixed skill (the API resolves them as maneuvers). */
-const SKILL_MANEUVERS: Partial<Record<CombatActionType, string>> = { perception: 'perception', medical: 'medicine' };
+const SKILL_MANEUVERS: Partial<Record<CombatActionType, string>> = { perception: 'perception' };
+
+/** A healing item of 2 AP (workspace spec 068): a type of the API the shared lib does not list yet. */
+const USE_ITEM = 'use_item' as CombatActionType;
+
+/** The fear state of the actor (§14.3, workspace spec 068), the worst one. */
+export const actorFearState = (actorRound: ActorRound): string | undefined =>
+  ['fear-broken', 'fear-routed', 'fear-retreat', 'fear-balk'].find((state) => actorRoundHasEffect(actorRound, [state]));
 
 /** Entries of the palette for an actor in a phase, with the reason of the ones that are not available. */
 const usePaletteGroups = (actorRound: ActorRound, phase: number): PaletteGroup[] => {
@@ -89,6 +104,15 @@ const usePaletteGroups = (actorRound: ActorRound, phase: number): PaletteGroup[]
         ? 'err-action-surprised-phase'
         : 'no-ap-in-phase'
       : undefined;
+  // Workspace spec 068, decision 14: routed and broken actors only move, dodge or take actions of 0 AP (the first
+  // free action of the round); a retreating one cannot charge and a balking one is warned.
+  const fear = actorFearState(actorRound);
+  const fleeing = fear === 'fear-routed' || fear === 'fear-broken';
+  const firstFree = !own.some((a) => a.freeAction && !a.attacks?.length);
+  const fearReason = (type: CombatActionType, free: boolean): string | undefined => {
+    if (!fleeing || type === 'movement' || type === 'dodge' || (free && firstFree)) return undefined;
+    return `palette-fear-only-flee-${fear}`;
+  };
   // AP the actor can still spend this round: the open action gives back the AP of this phase when interrupted.
   const remaining = apRemaining(actorRound, phase) + (interrupted.length > 0 ? 1 : 0);
 
@@ -101,18 +125,26 @@ const usePaletteGroups = (actorRound: ActorRound, phase: number): PaletteGroup[]
       );
     if (!extra.freeAction && !extra.forced && type !== 'movement')
       interrupted.forEach((open) =>
-        warnings.push(t('declare-warning-interrupts', { action: actionLabel(open, t, actorRounds) }))
+        warnings.push(
+          t(open.actionType === 'medical' ? 'declare-warning-interrupts-treatment' : 'declare-warning-interrupts', {
+            action: actionLabel(open, t, actorRounds),
+          })
+        )
       );
+    if (type === 'melee_attack' && !extra.forced && (fear === 'fear-retreat' || fear === 'fear-balk'))
+      warnings.push(t(`fear-charge-${fear}`));
     return {
       key: extra.key ?? type,
       type,
-      label: extra.label ?? t(combatActionInfo(type).labelKey),
+      label: extra.label ?? t(actionTypeInfo(type).labelKey),
       profile: profile ? apProfileLabel(profile, t) : t('ap-profile-by-skill'),
       warnings,
       ...extra,
       // A forced attack takes no AP: only a flatfooted actor cannot make it.
       unavailable:
-        (extra.forced ? (flatfooted ? 'err-action-flatfooted' : undefined) : roundReason) ?? extra.unavailable,
+        (extra.forced ? (flatfooted ? 'err-action-flatfooted' : undefined) : roundReason) ??
+        extra.unavailable ??
+        (extra.forced ? undefined : fearReason(type, !!extra.freeAction)),
     };
   };
 
@@ -163,7 +195,13 @@ const usePaletteGroups = (actorRound: ActorRound, phase: number): PaletteGroup[]
     {
       key: 'maneuvers',
       label: t('maneuvers'),
-      entries: [entry('maneuver'), entry('perception'), entry('medical')],
+      entries: [
+        entry('maneuver'),
+        entry('perception'),
+        // Workspace spec 068: a medical action on a patient (4 AP a round) and a healing item (2 AP)
+        entry('medical', { unavailable: canHeal(actorRound) ? undefined : 'err-healer-not-able' }),
+        entry(USE_ITEM, { unavailable: actorRound.characterId ? undefined : 'use-item-npc' }),
+      ],
     },
     {
       key: 'magic',
@@ -182,33 +220,41 @@ const useCreateAction = (actorRound: ActorRound | null, phase: number, onCreated
   const { t } = useTranslation();
   const auth = useAuth();
   const notify = useTacticalNotify();
-  const { game, roundActions, setRoundActions } = useContext(CombatContext)!;
+  const notifyWarnings = useNotifyWarnings();
+  const confirm = useActionConfirm();
+  const { game, roundActions, setRoundActions, refreshActorRounds } = useContext(CombatContext)!;
   const [busy, setBusy] = useState(false);
 
   const create = (entry: PaletteEntry, extra: Record<string, unknown> = {}) => {
     if (!game || !actorRound || busy) return;
     setBusy(true);
-    createAction(
-      {
-        gameId: game.id,
-        actorId: actorRound.actorId,
-        actionType: entry.type,
-        phaseStart: phase,
-        freeAction: !!entry.freeAction,
-        ...(entry.forced ? { forced: { reason: entry.forced } } : {}),
-        ...extra,
-      },
-      auth
-    )
+    const body = {
+      gameId: game.id,
+      actorId: actorRound.actorId,
+      actionType: entry.type,
+      phaseStart: phase,
+      freeAction: !!entry.freeAction,
+      ...(entry.forced ? { forced: { reason: entry.forced } } : {}),
+      ...extra,
+    };
+    // Workspace spec 068: interrupting a treatment or exerting with a wound that reopens asks for a confirmation
+    confirm
+      .run((confirmed) => createAction(confirmed ? { ...body, confirm: true } : body, auth))
       .then((action) => {
+        // The interrupted actions closed: read the round again (a reopened wound changed an actor round too)
+        const interrupts = (roundActions ?? []).some(
+          (a) => a.actorId === action.actorId && a.id !== action.id && !a.freeAction
+        );
         setRoundActions([...(roundActions ?? []), action]);
+        if (interrupts || (action.warnings ?? []).length > 0) refreshActorRounds();
         notify.success(t('action-declared', { action: entry.label }));
+        notifyWarnings(action.warnings);
         onCreated(action);
       })
       .catch((err) => notify.error(err))
       .finally(() => setBusy(false));
   };
-  return { create, busy };
+  return { create, busy, confirmDialog: confirm.dialog };
 };
 
 type ManeuverChoice = { entry: PaletteEntry; skillId: string | null };
@@ -231,18 +277,21 @@ const ActionPalette: FC<{
   const isPhone = usePhone();
   const [maneuver, setManeuver] = useState<ManeuverChoice | null>(null);
   const [spellEntry, setSpellEntry] = useState<PaletteEntry | null>(null);
-  const { create, busy } = useCreateAction(actorRound, phase, (action) => {
+  const [healEntry, setHealEntry] = useState<PaletteEntry | null>(null);
+  const { create, busy, confirmDialog } = useCreateAction(actorRound, phase, (action) => {
     setManeuver(null);
     setSpellEntry(null);
+    setHealEntry(null);
     onCreated(action);
   });
   const close = () => {
     setManeuver(null);
     setSpellEntry(null);
+    setHealEntry(null);
     onClose();
   };
-  // The palette hides while the maneuver or spell dialog is open.
-  const open = Boolean(actorRound) && !maneuver && !spellEntry;
+  // The palette hides while the maneuver, spell, medical or item dialog is open.
+  const open = Boolean(actorRound) && !maneuver && !spellEntry && !healEntry;
   const content = actorRound && (
     <PaletteContent
       actorRound={actorRound}
@@ -252,6 +301,8 @@ const ActionPalette: FC<{
       onCreate={create}
       onManeuver={setManeuver}
       onSpell={setSpellEntry}
+      onHeal={setHealEntry}
+      onClosePalette={close}
     />
   );
   const dialog = (
@@ -274,6 +325,25 @@ const ActionPalette: FC<{
       onDeclare={(spell) => spellEntry && create(spellEntry, { actionType: 'cast_spell', spell })}
     />
   );
+  const healDialogs = (
+    <>
+      <MedicalDeclareDialog
+        open={Boolean(actorRound && healEntry?.type === 'medical')}
+        actorRound={actorRound}
+        busy={busy}
+        onClose={close}
+        onDeclare={(medical) => healEntry && create(healEntry, { medical })}
+      />
+      <UseItemDeclareDialog
+        open={Boolean(actorRound && healEntry?.type === USE_ITEM)}
+        actorRound={actorRound}
+        busy={busy}
+        onClose={close}
+        onDeclare={(useItem) => healEntry && create(healEntry, { useItem })}
+      />
+      {confirmDialog}
+    </>
+  );
   if (isPhone) {
     return (
       <>
@@ -282,6 +352,7 @@ const ActionPalette: FC<{
         </Drawer>
         {dialog}
         {spellDialog}
+        {healDialogs}
       </>
     );
   }
@@ -302,6 +373,7 @@ const ActionPalette: FC<{
       </Popover>
       {dialog}
       {spellDialog}
+      {healDialogs}
     </>
   );
 };
@@ -314,9 +386,12 @@ const PaletteContent: FC<{
   onCreate: (entry: PaletteEntry) => void;
   onManeuver: (choice: ManeuverChoice) => void;
   onSpell: (entry: PaletteEntry) => void;
-}> = ({ actorRound, phase, busy, onClose, onCreate, onManeuver, onSpell }) => {
+  onHeal: (entry: PaletteEntry) => void;
+  onClosePalette: () => void;
+}> = ({ actorRound, phase, busy, onClose, onCreate, onManeuver, onSpell, onHeal, onClosePalette }) => {
   const { t } = useTranslation();
   const groups = usePaletteGroups(actorRound, phase);
+  const fear = actorFearState(actorRound);
   const [filter, setFilter] = useState('');
   const listRef = useRef<HTMLUListElement>(null);
 
@@ -336,6 +411,7 @@ const PaletteContent: FC<{
     const maneuverEntry = groups.flatMap((g) => g.entries).find((e) => e.type === 'maneuver')!;
     if (entry.type === 'maneuver') onManeuver({ entry, skillId: null });
     else if (SPELL_ENTRIES.includes(entry.type)) onSpell(entry);
+    else if (entry.type === 'medical' || entry.type === USE_ITEM) onHeal(entry);
     else if (SKILL_MANEUVERS[entry.type]) onManeuver({ entry: maneuverEntry, skillId: SKILL_MANEUVERS[entry.type]! });
     else onCreate(entry);
   };
@@ -354,6 +430,7 @@ const PaletteContent: FC<{
     <Box>
       <Box sx={{ p: 1.5, pb: 0.5 }}>
         <SectionLabel>{t('declare-action-for', { actor: actorRound.actorName, phase })}</SectionLabel>
+        {fear && <FearNotice actorRound={actorRound} fear={fear} onDropped={onClosePalette} />}
         {/* The keys of the search box (Enter, arrow down) bubble up to this box. */}
         <Box onKeyDown={onFilterKeyDown}>
           <SearchField autoFocus size="small" value={filter} onChange={setFilter} delay={0} />
@@ -365,7 +442,7 @@ const PaletteContent: FC<{
             {group.label}
           </ListSubheader>,
           ...group.entries.map((entry) => {
-            const info = combatActionInfo(entry.type);
+            const info = actionTypeInfo(entry.type);
             return (
               <MenuItem
                 key={entry.key}
@@ -409,6 +486,52 @@ const PaletteContent: FC<{
         )}
       </MenuList>
     </Box>
+  );
+};
+
+/**
+ * What the fear of the actor lets it declare (workspace spec 068, decision 14), and the "Drop items" of a broken actor:
+ * what it holds in its hands falls (0 AP) and stays in its inventory.
+ */
+const FearNotice: FC<{ actorRound: ActorRound; fear: string; onDropped: () => void }> = ({
+  actorRound,
+  fear,
+  onDropped,
+}) => {
+  const { t } = useTranslation();
+  const auth = useAuth();
+  const notify = useTacticalNotify();
+  const { updateActorRound } = useContext(CombatContext)!;
+  const [dropping, setDropping] = useState(false);
+  const held = (actorRound.items ?? []).some((item) => !!item.slot && !item.dropped);
+
+  const drop = () => {
+    setDropping(true);
+    dropActorRoundItems(actorRound.id, auth)
+      .then((updated) => {
+        updateActorRound(updated);
+        notify.success(t('drop-items-done'));
+        onDropped();
+      })
+      .catch((err) => notify.error(err))
+      .finally(() => setDropping(false));
+  };
+
+  return (
+    <Alert
+      severity="warning"
+      variant="outlined"
+      sx={{ mb: 1 }}
+      action={
+        fear === 'fear-broken' ? (
+          <Button color="inherit" size="small" startIcon={<BackHandIcon />} onClick={drop} disabled={dropping || !held}>
+            {t('drop-items')}
+          </Button>
+        ) : undefined
+      }
+    >
+      {t(`palette-fear-${fear}`)}
+    </Alert>
   );
 };
 

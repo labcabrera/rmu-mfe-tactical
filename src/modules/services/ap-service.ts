@@ -95,6 +95,9 @@ export const DECLARE_AP_PROFILES: Partial<Record<ActionType, ActionApProfile>> =
   cast_spell: { min: 2, max: 4 },
   draw_and_load: { min: 1, max: 1 },
   other: { min: 1, max: 1 },
+  // Workspace spec 068: 4 AP in each round a medical action lasts; a healing item takes core's `combatItemAp` (2)
+  medical: { min: 4, max: 4 },
+  use_item: { min: 2, max: 2 },
 };
 
 /** "2-4 AP" or "1 AP". */

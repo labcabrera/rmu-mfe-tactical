@@ -76,6 +76,8 @@ export type ActionType =
   | 'dodge'
   | 'draw_and_load'
   | 'cast_spell'
+  | 'medical'
+  | 'use_item'
   | 'other'
   | 'skill'
   | 'free';
@@ -345,6 +347,136 @@ export type Action = {
   description?: string | null;
   /** Spell of a `cast_spell` action (spec 030). */
   spell?: ActionSpell | null;
+  /** Procedure of a `medical` action (workspace spec 068). */
+  medical?: ActionMedical | null;
+  /** Healing item of a `use_item` action (workspace spec 068). */
+  useItem?: ActionUseItem | null;
+  /** Warnings of the request that did not need a confirmation (workspace spec 068). */
+  warnings?: ActionWarning[];
+};
+
+// --- Healing in combat and fear (workspace spec 068) ---
+
+/** A warning of a declaration or resolution; the ones with `requiresConfirm` need the request again with `confirm`. */
+export type ActionWarningCode =
+  | 'treatment-interrupted'
+  | 'exertion-reopens-wound'
+  | 'limb-unusable'
+  | 'fear-balk-pace'
+  | 'fear-balk-charge'
+  | 'fear-retreat-pace';
+
+export type ActionWarning = {
+  code: ActionWarningCode | string;
+  params?: Record<string, string | number | boolean>;
+  requiresConfirm: boolean;
+};
+
+/** 409 code of a request that raised warnings with `requiresConfirm`: `details.warnings` lists them. */
+export const ACTION_CONFIRM_REQUIRED = 'err-action-confirm-required';
+
+/** Procedures of a `medical` action (rmu-api-tactical `MEDICAL_ACTION_PROCEDURES`); surgery is not offered. */
+export const MEDICAL_ACTION_PROCEDURES = [
+  'pressure',
+  'stitches',
+  'tourniquet',
+  'cauterize',
+  'dress',
+  'splint',
+  'cast',
+  'salve',
+  'magic',
+  'stabilize',
+] as const;
+export type MedicalProcedure = (typeof MEDICAL_ACTION_PROCEDURES)[number];
+
+/** AP a `medical` action takes in each round it lasts. */
+export const MEDICAL_AP_PER_ROUND = 4;
+
+export type MedicalActionState = 'pending' | 'in-progress' | 'completed' | 'aborted';
+
+export type CastSupport = 'none' | 'cane' | 'crutches';
+
+/** The Herbalism roll of a herb that helps the treatment: +25 to the Medicine roll on a success. */
+export type MedicalHerbalism = {
+  roll: number | null;
+  itemId?: string | null;
+  total?: number;
+  success?: boolean;
+  bonus?: number;
+};
+
+/** A round of a medical action resolved: the first one (Medicine roll), the last one, or each stabilize roll. */
+export type MedicalStepResult = {
+  round: number;
+  step: number;
+  roll?: number;
+  total?: number;
+  result?: string;
+  breakdown?: KeyValueModifier[];
+  roundsGained?: number;
+  removed?: boolean;
+  completed?: boolean;
+  heatCritical?: string | null;
+  heatHits?: number | null;
+};
+
+export type ActionMedical = {
+  patientActorId: string;
+  injuryId: string | null;
+  effectId: string | null;
+  procedure: MedicalProcedure | string;
+  /** Rounds of 4 AP it takes (core's duration, or the game master's). */
+  rounds: number;
+  roundsOverride?: boolean;
+  roll: number | null;
+  difficulty?: string | null;
+  herbalism?: MedicalHerbalism | null;
+  castSupport?: CastSupport | null;
+  salveModifier?: number | null;
+  /** First action of the procedure: its continuations keep it. */
+  originActionId: string;
+  startedRound: number | null;
+  /** Rounds of 4 AP already resolved. */
+  resolvedSteps: number;
+  state: MedicalActionState;
+  results: MedicalStepResult[];
+};
+
+export type ActionUseItem = {
+  itemId: string;
+  targetActorId: string;
+  roll?: number | null;
+  result?: { itemName: string; roll?: number; healed: number; stunRoundsRemoved: number } | null;
+};
+
+/** `medical` part of `POST /actions`. Rolls left empty are made when the action is resolved. */
+export type MedicalDeclarationDto = {
+  patientActorId: string;
+  injuryId?: string | null;
+  effectId?: string | null;
+  procedure: MedicalProcedure;
+  rounds?: number | null;
+  roll?: number | null;
+  unmodifiedRoll?: number | null;
+  difficulty?: string | null;
+  herbalism?: { roll: number | null; itemId?: string | null } | null;
+  castSupport?: CastSupport;
+  salveModifier?: number | null;
+  heatHitsRoll?: number | null;
+  heatCriticalRoll?: number | null;
+};
+
+/** `useItem` part of `POST /actions`: the target is the actor itself when missing. */
+export type UseItemDeclarationDto = { itemId: string; targetActorId?: string; roll?: number | null };
+
+/** `PATCH /actions/{id}/medical/resolve`: the rolls of the round the declaration did not send. */
+export type ResolveMedicalDto = {
+  roll?: number | null;
+  unmodifiedRoll?: number | null;
+  heatHitsRoll?: number | null;
+  heatCriticalRoll?: number | null;
+  herbalismRoll?: number | null;
 };
 
 // --- Spell casting (spec 030) ---

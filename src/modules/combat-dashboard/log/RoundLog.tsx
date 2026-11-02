@@ -16,7 +16,6 @@ import {
 } from '@mui/material';
 import {
   ActionStateMarker,
-  combatActionInfo,
   combatColors,
   EffectList,
   EmptyState,
@@ -27,6 +26,7 @@ import { CombatContext } from '../../../CombatContext';
 import { Action } from '../../api/action.dto';
 import { useOpenRounds } from '../../services/ap-service';
 import { useFactionColor } from '../../services/faction-colors';
+import { actionTypeInfo } from '../actor-rounds/action-type-info';
 import { actionLabel, actionResult, actionState, actionStateTooltip } from '../actor-rounds/action-view';
 import { useCombatPanel } from '../panel/CombatPanelProvider';
 
@@ -36,7 +36,7 @@ const TYPE_FILTERS: TypeFilter[] = ['all', 'attacks', 'movement', 'maneuvers'];
 
 const matchesType = (action: Action, filter: TypeFilter) => {
   if (filter === 'all') return true;
-  const category = combatActionInfo(action.actionType).category;
+  const category = actionTypeInfo(action.actionType).category;
   if (filter === 'attacks') return category === 'melee' || category === 'ranged';
   if (filter === 'movement') return category === 'movement';
   return category === 'maneuver';
@@ -58,7 +58,7 @@ const LogEntry: FC<{ action: Action }> = ({ action }) => {
   const factionColor = useFactionColor();
   const openRounds = useOpenRounds();
   const actorRound = actorRounds?.find((ar) => ar.actorId === action.actorId);
-  const info = combatActionInfo(action.actionType);
+  const info = actionTypeInfo(action.actionType);
   const effects = action.status === 'completed' ? attackEffects(action) : [];
   const phases =
     action.phaseEnd && action.phaseEnd !== action.phaseStart

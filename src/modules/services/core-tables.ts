@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { AuthContextProps, useAuth } from 'react-oidc-context';
-import { fetchHealingTables, fetchPsychologyTables } from '../api/psychology';
-import { HealingTables, PsychologyTables } from '../api/psychology.dto';
+import { CombatContext } from '../../CombatContext';
+import { fetchFrightLevels, fetchHealingTables } from '../api/psychology';
+import { FrightLevels, HealingTables } from '../api/psychology.dto';
 
 // Tables of rmu-api-core the dialogs read for their hints (spec 022). They change only on an import, so each one is
 // fetched once per page load. They need the rmu-core-law role: without it, or before the import, the hook gives null
@@ -34,4 +35,13 @@ const useCoreTable = <T>(key: string, fetcher: (auth: AuthContextProps) => Promi
 
 export const useHealingTables = () => useCoreTable<HealingTables>('healing-tables', fetchHealingTables);
 
-export const usePsychologyTables = () => useCoreTable<PsychologyTables>('psychology-tables', fetchPsychologyTables);
+/**
+ * Fright levels of Table 14-3a, their modifiers and the thresholds of fallen allies, served by tactical to any
+ * participant of the current game (workspace spec 068, S12 b): no rmu-core-law role needed. Null outside a game.
+ */
+export const useFrightLevels = (): FrightLevels | null => {
+  const gameId = useContext(CombatContext)?.gameId ?? null;
+  return useCoreTable<FrightLevels | null>(`fright-levels:${gameId ?? ''}`, (auth) =>
+    gameId ? fetchFrightLevels(gameId, auth) : Promise.resolve(null)
+  );
+};

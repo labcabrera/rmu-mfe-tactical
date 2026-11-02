@@ -1,4 +1,5 @@
 import React, { createContext, FC, ReactNode, useContext, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Stack, Typography } from '@mui/material';
 import { ActionTypeChip, SidePanelLayout } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
@@ -44,6 +45,7 @@ export const useCombatPanel = (): CombatPanelValue => {
  * the dialog, whose forms need more room, and the whole actor is in its sheet (spec 045).
  */
 const CombatPanelProvider: FC<{ children: ReactNode }> = ({ children }) => {
+  const { t } = useTranslation();
   const { game, actorRounds, roundActions, displayRound } = useContext(CombatContext)!;
   const [panel, setPanel] = useState<PanelState>(null);
   const [palette, setPalette] = useState<{ actorRound: ActorRound; anchor: HTMLElement | null } | null>(null);
@@ -158,7 +160,12 @@ const CombatPanelProvider: FC<{ children: ReactNode }> = ({ children }) => {
       <Typography variant="subtitle1" sx={{ fontWeight: 600 }} noWrap>
         {panelActorRound.actorName}
       </Typography>
-      {panelAction && <ActionTypeChip type={panelAction.actionType} />}
+      {panelAction && (
+        <ActionTypeChip
+          type={panelAction.actionType}
+          label={panelAction.actionType === 'use_item' ? t('use-item') : undefined}
+        />
+      )}
     </Stack>
   );
 

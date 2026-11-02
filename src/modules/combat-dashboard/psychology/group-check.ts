@@ -19,8 +19,12 @@ export type GroupCheckForm = {
   recognized: boolean;
   leadershipRanks: number | null;
   leadershipBonus: number | null;
-  frightSource: 'level' | 'intimidator';
+  /** Workspace spec 068: `npc`, an NPC of the game whose stat block gives the fright level (decision 17). */
+  frightSource: 'level' | 'intimidator' | 'npc';
   frightLevel: number | null;
+  frightSourceId: string | null;
+  /** Added to the fright level of the NPC (+3, +5 for the supernatural). */
+  frightLevelModifier: number;
   intimidatorId: string | null;
   intimidationRanks: number | null;
   difficulty: string;
@@ -32,7 +36,10 @@ export type GroupCheckForm = {
   bonuses: Record<string, number | null>;
 };
 
-export const initialGroupCheckForm = (kind: GroupCheckKind = 'fear'): GroupCheckForm => ({
+export const initialGroupCheckForm = (
+  kind: GroupCheckKind = 'fear',
+  prefill: Partial<GroupCheckForm> = {}
+): GroupCheckForm => ({
   kind,
   factionIds: [],
   actorIds: [],
@@ -42,6 +49,8 @@ export const initialGroupCheckForm = (kind: GroupCheckKind = 'fear'): GroupCheck
   leadershipBonus: null,
   frightSource: 'level',
   frightLevel: null,
+  frightSourceId: null,
+  frightLevelModifier: 0,
   intimidatorId: null,
   intimidationRanks: null,
   difficulty: 'm',
@@ -50,6 +59,7 @@ export const initialGroupCheckForm = (kind: GroupCheckKind = 'fear'): GroupCheck
   modifier: null,
   rolls: {},
   bonuses: {},
+  ...prefill,
 });
 
 /** NPCs have no sheet: their Leadership, Intimidation and RR bonus are typed. */
@@ -74,9 +84,15 @@ const definedEntries = (values: Record<string, number | null>, ids: string[]) =>
 export const groupCheckProblem = (form: GroupCheckForm, actorRounds: ActorRound[]): string | null => {
   const leader = actorRounds.find((actorRound) => actorRound.actorId === form.leaderId);
   if (form.kind !== 'fear' && !leader) return 'err-leader-required';
-  if (groupMembers(form, actorRounds).length === 0) return form.kind === 'fear' ? 'err-group-required' : 'err-group-empty';
+  if (groupMembers(form, actorRounds).length === 0)
+    return form.kind === 'fear' ? 'err-group-required' : 'err-group-empty';
   if (form.kind === 'fear') {
     if (form.frightSource === 'level' && form.frightLevel === null) return 'err-fright-level-required';
+    if (form.frightSource === 'npc') {
+      const source = actorRounds.find((actorRound) => actorRound.actorId === form.frightSourceId);
+      if (!source) return 'err-fright-source-required';
+      if (source.frightLevel === null || source.frightLevel === undefined) return 'err-fright-source-no-level';
+    }
     if (form.frightSource === 'intimidator') {
       const intimidator = actorRounds.find((actorRound) => actorRound.actorId === form.intimidatorId);
       if (!intimidator) return 'err-intimidator-required';
@@ -119,6 +135,12 @@ export const toGroupCheckRequest = (
       ...common,
       ...(leader ? { leader: leaderRequest(form, leader) } : {}),
       ...(form.frightSource === 'level' && form.frightLevel !== null ? { frightLevel: form.frightLevel } : {}),
+      ...(form.frightSource === 'npc' && form.frightSourceId
+        ? {
+            frightSourceActorId: form.frightSourceId,
+            ...(form.frightLevelModifier ? { frightLevelModifier: form.frightLevelModifier } : {}),
+          }
+        : {}),
       ...(form.frightSource === 'intimidator' && intimidator
         ? {
             intimidatorActorId: intimidator.actorId,

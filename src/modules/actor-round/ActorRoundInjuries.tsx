@@ -3,12 +3,24 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import DeleteIcon from '@mui/icons-material/Delete';
 import HealingIcon from '@mui/icons-material/Healing';
+import LinkOffIcon from '@mui/icons-material/LinkOff';
 import ScienceIcon from '@mui/icons-material/Science';
 import SpaIcon from '@mui/icons-material/Spa';
 import { Button, IconButton, Stack, Tooltip, Typography } from '@mui/material';
-import { ConfirmDialog, Injury, InjuryList, SectionLabel } from '@labcabrera-rmu/rmu-react-shared-lib';
+import {
+  ConfirmDialog,
+  Injury,
+  InjuryList,
+  SectionLabel,
+  TemporaryModifier,
+  TemporaryModifierList,
+} from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../CombatContext';
-import { deleteActorRoundInjury } from '../api/actor-rounds';
+import {
+  deleteActorRoundInjury,
+  deleteActorRoundTemporaryModifier,
+  loosenActorRoundTourniquet,
+} from '../api/actor-rounds';
 import { ActorRound } from '../api/actor-rounds.dto';
 import { actorRoundBleeding } from '../services/actor-round-service';
 import { isRoundEditable } from '../services/game-service';
@@ -20,9 +32,11 @@ import ActorUseHerbDialog from './poison/ActorUseHerbDialog';
 
 /**
  * Injuries of the actor (spec 013): type, severity, location, bleeding, penalty and origin (attacker, round,
- * critical). In the current round of a game in progress, each one can be treated (a Medicine roll of a healer), and
- * the game master can edit or remove it. A running poisoning takes an antidote instead (spec 042). A character may use
- * a herb it carries to heal hits or remove stun (spec 062).
+ * critical), with their care (workspace spec 068: treatment in progress, splint or cast limits, tourniquet, what
+ * reopens them). In the current round of a game in progress, the game master can treat one at once (a Medicine roll
+ * of a healer, without AP: in combat a healer declares a medical action), edit or remove it, and loosen a tourniquet
+ * (0 AP). A running poisoning takes an antidote instead (spec 042). A character may use a herb it carries to heal hits
+ * or remove stun (spec 062). The lasting morale and fear RR modifiers of the actor are listed below (decision 19).
  */
 const ActorRoundInjuries: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
   const { t } = useTranslation();
@@ -35,6 +49,8 @@ const ActorRoundInjuries: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
   const [deleting, setDeleting] = useState<Injury | null>(null);
   const [antidoteFor, setAntidoteFor] = useState<Injury | null>(null);
   const [herbOpen, setHerbOpen] = useState(false);
+  const [busyId, setBusyId] = useState<string | null>(null);
+  const modifiers = actorRound.temporaryModifiers ?? [];
   const injuries = actorRound.injuries ?? [];
   const bleeding = actorRoundBleeding(actorRound);
 
@@ -45,6 +61,25 @@ const ActorRoundInjuries: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
     deleteActorRoundInjury(actorRound.id, injury.id, auth)
       .then(updateActorRound)
       .catch((err) => notify.error(err));
+  };
+
+  const loosen = (injury: Injury) => {
+    setBusyId(injury.id);
+    loosenActorRoundTourniquet(actorRound.id, injury.id, auth)
+      .then((updated) => {
+        updateActorRound(updated);
+        notify.success(t('tourniquet-loosened'));
+      })
+      .catch((err) => notify.error(err))
+      .finally(() => setBusyId(null));
+  };
+
+  const removeModifier = (modifier: TemporaryModifier) => {
+    setBusyId(modifier.id);
+    deleteActorRoundTemporaryModifier(actorRound.id, modifier.id, auth)
+      .then(updateActorRound)
+      .catch((err) => notify.error(err))
+      .finally(() => setBusyId(null));
   };
 
   return (
@@ -80,14 +115,29 @@ const ActorRoundInjuries: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
                       {t('antidote')}
                     </Button>
                   )}
+                  {injury.tourniquet &&
+                    injury.status !== 'healed' &&
+                    injury.tourniquet.loosenedAt !== actorRound.round && (
+                      <Button
+                        size="small"
+                        color="warning"
+                        startIcon={<LinkOffIcon />}
+                        disabled={busyId === injury.id}
+                        onClick={() => loosen(injury)}
+                      >
+                        {t('loosen-tourniquet')}
+                      </Button>
+                    )}
                   {injury.status !== 'healed' && !(injury.poison && !injury.poison.finished) && (
-                    <Button
-                      size="small"
-                      startIcon={<HealingIcon />}
-                      onClick={() => setTarget({ kind: 'treat', injury })}
-                    >
-                      {t('treat')}
-                    </Button>
+                    <Tooltip title={t('gm-adjustment-help')}>
+                      <Button
+                        size="small"
+                        startIcon={<HealingIcon />}
+                        onClick={() => setTarget({ kind: 'treat', injury })}
+                      >
+                        {t('treat-gm')}
+                      </Button>
+                    </Tooltip>
                   )}
                   <Tooltip title={t('delete-injury')}>
                     <IconButton size="small" aria-label={t('delete-injury')} onClick={() => setDeleting(injury)}>
@@ -99,6 +149,16 @@ const ActorRoundInjuries: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
             : undefined
         }
       />
+      {modifiers.length > 0 && (
+        <Stack spacing={0.5} sx={{ pt: 1 }}>
+          <SectionLabel>{t('temporary-modifiers')}</SectionLabel>
+          <TemporaryModifierList
+            modifiers={modifiers}
+            onRemove={editable ? removeModifier : undefined}
+            removingId={busyId}
+          />
+        </Stack>
+      )}
       <MedicalRollDialog actorRound={actorRound} target={target} onClose={() => setTarget(null)} />
       <ActorAntidoteDialog actorRound={actorRound} injury={antidoteFor} onClose={() => setAntidoteFor(null)} />
       <ActorUseHerbDialog actorRound={actorRound} open={herbOpen} onClose={() => setHerbOpen(false)} />

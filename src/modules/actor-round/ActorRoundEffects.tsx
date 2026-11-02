@@ -101,14 +101,20 @@ const ActorRoundEffects: FC<{
                 ) : (
                   chip
                 )}
+                {s.status === 'dying' && s.causeTreated && (
+                  <Chip size="small" color="success" variant="outlined" label={t('dying-cause-treated')} />
+                )}
+                {/* Workspace spec 068: a game master adjustment without AP; in combat it is a medical action */}
                 {s.status === 'dying' && currentRound && (
-                  <Button
-                    size="small"
-                    startIcon={<HealingIcon />}
-                    onClick={() => setStabilizing({ kind: 'stabilize', effect: s })}
-                  >
-                    {t('stabilize')}
-                  </Button>
+                  <Tooltip title={t('gm-adjustment-help')}>
+                    <Button
+                      size="small"
+                      startIcon={<HealingIcon />}
+                      onClick={() => setStabilizing({ kind: 'stabilize', effect: s })}
+                    >
+                      {t('stabilize-gm')}
+                    </Button>
+                  </Tooltip>
                 )}
               </Stack>
             );

@@ -33,6 +33,7 @@ import { ActorRound } from '../../api/actor-rounds.dto';
 import { groupCheck } from '../../api/psychology';
 import { GroupCheckKind, GroupCheckResult } from '../../api/psychology.dto';
 import { useActorRoundOption } from '../../services/actor-round-option';
+import { useFrightLevels } from '../../services/core-tables';
 import { useTacticalNotify } from '../../services/notify-service';
 import GroupCheckResultView from './GroupCheckResultView';
 import {
@@ -46,14 +47,23 @@ import {
 
 const KINDS: GroupCheckKind[] = ['fear', 'morale', 'rally'];
 
+/** What a suggested check opens the dialog with (workspace spec 068, decision 16): the faction and its fright level. */
+export type GroupCheckPrefill = { kind?: GroupCheckKind; factionIds?: string[]; frightLevel?: number | null };
+
 /**
  * Fear, morale and rally checks of a group (workspace spec 022, §14.3), for the game master. The group is the
  * factions and actors picked (several allied factions, or a few actors), or the leader's faction when none is. The
  * leader adds its Leadership to the fear RRs of the followers and rolls the morale and rally checks; the fright level
- * comes from Table 14-3a or the Intimidation ranks of an actor. Rolls left empty are rolled by the API. The result
- * lists every actor with its RR and the fear effect it got.
+ * comes from Table 14-3a, the Intimidation ranks of an actor or the stat block of an NPC (workspace spec 068). Rolls
+ * left empty are rolled by the API. The result lists every actor with its RR and the fear effect it got.
  */
-const GroupCheckDialog: FC<{ open: boolean; onClose: () => void }> = ({ open, onClose }) => {
+const GroupCheckDialog: FC<{
+  open: boolean;
+  onClose: () => void;
+  prefill?: GroupCheckPrefill;
+  /** Told once a check was rolled (the suggested-check alert is then done). */
+  onChecked?: (result: GroupCheckResult) => void;
+}> = ({ open, onClose, prefill, onChecked }) => {
   const { t } = useTranslation();
   const auth = useAuth();
   const notify = useTacticalNotify();
@@ -63,11 +73,21 @@ const GroupCheckDialog: FC<{ open: boolean; onClose: () => void }> = ({ open, on
   const [result, setResult] = useState<GroupCheckResult | null>(null);
   const rounds = actorRounds ?? [];
   const toOption = useActorRoundOption();
+  const frightLevels = useFrightLevels();
+
+  const startForm = () =>
+    initialGroupCheckForm(prefill?.kind ?? 'fear', {
+      ...(prefill?.factionIds ? { factionIds: prefill.factionIds } : {}),
+      ...(prefill?.frightLevel !== undefined && prefill.frightLevel !== null
+        ? { frightLevel: prefill.frightLevel }
+        : {}),
+    });
 
   useEffect(() => {
     if (!open) return;
-    setForm(initialGroupCheckForm());
+    setForm(startForm());
     setResult(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
   if (!game) return null;
@@ -78,6 +98,11 @@ const GroupCheckDialog: FC<{ open: boolean; onClose: () => void }> = ({ open, on
   const actorById = (id: string | null) => rounds.find((actorRound) => actorRound.actorId === id);
   const leader = actorById(form.leaderId);
   const intimidator = actorById(form.intimidatorId);
+  const frightSource = actorById(form.frightSourceId);
+  const sourceLevel = frightSource?.frightLevel ?? null;
+  const npcOptions = rounds
+    .filter((actorRound) => actorRound.actorType === 'npc')
+    .map((actorRound) => toOption(actorRound));
   const members = groupMembers(form, rounds);
   const problem = groupCheckProblem(form, rounds);
 
@@ -87,6 +112,7 @@ const GroupCheckDialog: FC<{ open: boolean; onClose: () => void }> = ({ open, on
       .then((response) => {
         response.actorRounds.forEach(updateActorRound);
         setResult(response);
+        onChecked?.(response);
       })
       .catch((err) => notify.error(err))
       .finally(() => setBusy(false));
@@ -210,9 +236,53 @@ const GroupCheckDialog: FC<{ open: boolean; onClose: () => void }> = ({ open, on
           >
             <ToggleButton value="level">{t('fright-source-level')}</ToggleButton>
             <ToggleButton value="intimidator">{t('fright-source-intimidator')}</ToggleButton>
+            <ToggleButton value="npc" disabled={npcOptions.length === 0}>
+              {t('fright-source-npc')}
+            </ToggleButton>
           </ToggleButtonGroup>
           {form.frightSource === 'level' ? (
             <FrightLevelInput value={form.frightLevel} onChange={(frightLevel) => change({ frightLevel })} />
+          ) : form.frightSource === 'npc' ? (
+            <Stack spacing={1}>
+              <Box sx={{ minWidth: 260 }}>
+                <CharacterPicker
+                  variant="compact"
+                  clearable
+                  label={t('fright-source-npc')}
+                  options={npcOptions}
+                  groupByFaction
+                  value={form.frightSourceId}
+                  onChange={(frightSourceId) => change({ frightSourceId })}
+                  disabled={busy}
+                />
+              </Box>
+              {frightSource && (
+                <Typography variant="body2" color={sourceLevel === null ? 'warning.main' : 'text.secondary'}>
+                  {sourceLevel === null
+                    ? t('err-fright-source-no-level')
+                    : t('fright-source-npc-level', {
+                        level: sourceLevel,
+                        total: sourceLevel + form.frightLevelModifier,
+                      })}
+                </Typography>
+              )}
+              <ToggleButtonGroup
+                size="small"
+                exclusive
+                value={form.frightLevelModifier}
+                onChange={(_, frightLevelModifier: number | null) =>
+                  frightLevelModifier !== null && change({ frightLevelModifier })
+                }
+                aria-label={t('fright-level-modifier')}
+              >
+                <ToggleButton value={0}>{t('none')}</ToggleButton>
+                {(frightLevels?.frightLevelModifiers ?? []).map((modifier) => (
+                  <ToggleButton key={modifier.key} value={modifier.level}>
+                    {`${t(`fright-${modifier.key}`, { defaultValue: modifier.key })} +${modifier.level}`}
+                  </ToggleButton>
+                ))}
+              </ToggleButtonGroup>
+            </Stack>
           ) : (
             <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
               {actorSelect(t('intimidator'), form.intimidatorId, (intimidatorId) => change({ intimidatorId }))}

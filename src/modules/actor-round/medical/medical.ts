@@ -1,4 +1,5 @@
 import type { Character, HealerCandidate, Injury } from '@labcabrera-rmu/rmu-react-shared-lib';
+import type { MedicalProcedure } from '../../api/action.dto';
 import { ActorRound, TacticalProcedure } from '../../api/actor-rounds.dto';
 import type { HealingTables } from '../../api/psychology.dto';
 import { actorRoundHasEffect } from '../../services/actor-round-service';
@@ -19,13 +20,19 @@ const DIFFICULTY_LADDER: [string, number][] = [
   ['ni', -100],
 ];
 
+/** A procedure on an injury: the tactical ones and those of a `medical` action (workspace spec 068). */
+export type InjuryProcedure = TacticalProcedure | Exclude<MedicalProcedure, 'stabilize'>;
+
 /** Difficulty of magic (not a Medicine maneuver, no row in core's table) and of every procedure without the table. */
-const LEGACY_PROCEDURE_DIFFICULTY: Record<TacticalProcedure, string> = {
+const LEGACY_PROCEDURE_DIFFICULTY: Record<InjuryProcedure, string> = {
   pressure: 'e',
   stitches: 'm',
   tourniquet: 'vh',
   cauterize: 'r',
   dress: 'r',
+  splint: 'm',
+  cast: 'm',
+  salve: 'r',
   magic: 'm',
 };
 
@@ -46,7 +53,7 @@ export type DifficultyPreview =
  * and harder by the bleeding when cauterizing. Magic, or a core without the table, uses the procedure's own one.
  */
 export const previewTreatmentDifficulty = (
-  procedure: TacticalProcedure,
+  procedure: InjuryProcedure,
   injury: Injury,
   tables: HealingTables | null
 ): DifficultyPreview => {
@@ -69,7 +76,8 @@ export const previewTreatmentDifficulty = (
   }
   const head = injury.location === 'head';
   let index = DIFFICULTY_LADDER.findIndex(([k]) => k === key);
-  if (head) index = Math.min(index + (rules?.headDifficultySteps ?? HEAD_DIFFICULTY_STEPS), DIFFICULTY_LADDER.length - 1);
+  if (head)
+    index = Math.min(index + (rules?.headDifficultySteps ?? HEAD_DIFFICULTY_STEPS), DIFFICULTY_LADDER.length - 1);
   const bleeding =
     procedure === 'cauterize'
       ? (rules?.cauterizePenaltyPerBleeding ?? CAUTERIZE_PENALTY_PER_BLEEDING) * Math.max(0, injury.bleeding ?? 0)
@@ -83,14 +91,67 @@ const STITCHABLE_SEVERITIES = ['light', 'medium'];
 /** A dying actor is stabilized with a medium Medicine roll unless a difficulty is given. */
 export const DEFAULT_STABILIZE_DIFFICULTY = 0;
 
-/** A tourniquet only goes on a limb (or where the location is not known), and stitches not on a severe wound. */
-export const isProcedureAvailable = (procedure: TacticalProcedure, injury: Injury): boolean => {
+const onLimb = (injury: Injury) => !injury.location || injury.location === 'arm' || injury.location === 'leg';
+
+/**
+ * A tourniquet, a splint or a cast only go on a limb (or where the location is not known), and stitches not on a
+ * severe wound.
+ */
+export const isProcedureAvailable = (procedure: InjuryProcedure, injury: Injury): boolean => {
   if (procedure === 'stitches') return STITCHABLE_SEVERITIES.includes(injury.severity);
-  return procedure !== 'tourniquet' || !injury.location || injury.location === 'arm' || injury.location === 'leg';
+  if (procedure === 'tourniquet' || procedure === 'splint' || procedure === 'cast') return onLimb(injury);
+  return true;
+};
+
+/** The injury only admits surgery or magic (workspace spec 068, decision 11), when core's tables say it. */
+export const requiresSurgery = (injury: Injury, tables: HealingTables | null): boolean =>
+  (tables?.surgeryRequired ?? []).some((row) => row.injuryType === injury.type && row.severity === injury.severity);
+
+/**
+ * Why a procedure of a `medical` action does not apply to the injury, as an error key of the API; undefined when it
+ * applies. Surgery is not offered in combat, and an injury that requires it only takes magic.
+ */
+export const medicalProcedureProblem = (
+  procedure: InjuryProcedure,
+  injury: Injury,
+  tables: HealingTables | null
+): string | undefined => {
+  if (injury.status === 'healed') return 'err-injury-healed';
+  if (injury.treatmentInProgress) return 'err-treatment-in-progress';
+  if (procedure !== 'magic' && requiresSurgery(injury, tables)) return 'err-treatment-surgery-required';
+  if (!isProcedureAvailable(procedure, injury))
+    return procedure === 'stitches' ? 'err-treatment-invalid-severity' : 'err-treatment-invalid-location';
+  return undefined;
+};
+
+/**
+ * Rounds a procedure takes in combat (workspace spec 068, decision 2), as rmu-api-tactical works them out from core's
+ * durations: per point of bleeding for pressure and stitches, at least 1. Undefined without core's table (the API
+ * decides), null when core does not offer it in combat.
+ */
+export const medicalDurationRounds = (
+  procedure: MedicalProcedure,
+  injury: Injury | undefined,
+  tables: HealingTables | null
+): number | null | undefined => {
+  const rows = tables?.treatmentDurations;
+  if (!rows || rows.length === 0) return undefined;
+  const row = rows.find((each) => each.procedure === procedure);
+  if (!row) return 1;
+  if (row.rounds === null || row.rounds === undefined) return null;
+  const rounds = row.perBleeding ? row.rounds * Math.max(1, injury?.bleeding ?? 0) : row.rounds;
+  return Math.max(1, rounds);
 };
 
 /** Effects that keep an actor from healing anyone (the API rejects it as a healer). */
 const INCAPACITATED = ['dead', 'dying', 'unconscious', 'unconcious', 'incapacitated', 'paralyzed'];
+
+/**
+ * The actor can declare a `medical` action (workspace spec 068, decision 1): not down, stunned, routed nor broken
+ * (`err-healer-not-able`).
+ */
+export const canHeal = (actorRound: ActorRound): boolean =>
+  !actorRoundHasEffect(actorRound, [...INCAPACITATED, 'stunned', 'fear-routed', 'fear-broken']);
 
 const MEDICINE_SKILL_ID = 'medicine';
 

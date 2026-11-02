@@ -1,12 +1,14 @@
 import React, { FC, useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
-import { Stack, Tab, Tabs } from '@mui/material';
+import { Alert, Stack, Tab, Tabs } from '@mui/material';
 import { FlowStep } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../../CombatContext';
 import { applyAttack, declareParry, prepareAttack } from '../../../../api/action';
 import { Action, ParryDeclaration } from '../../../../api/action.dto';
 import { ActorRound, ActorRoundAttack } from '../../../../api/actor-rounds.dto';
+import { useNotifyWarnings } from '../../../../services/action-warnings';
+import { actorRoundHasEffect } from '../../../../services/actor-round-service';
 import { useTacticalNotify } from '../../../../services/notify-service';
 import AttackModifiersForm from '../../../action-dialogs/attack-modifiers/AttackModifiersForm';
 import StyleCriticalOptionPicker from '../../../action-dialogs/attack-modifiers/StyleCriticalOptionPicker';
@@ -59,6 +61,7 @@ const AttackFlow: FC<{
   const { t } = useTranslation();
   const auth = useAuth();
   const notify = useTacticalNotify();
+  const notifyWarnings = useNotifyWarnings();
   const { actorRounds, updateAction, refreshActorRounds } = useContext(CombatContext)!;
   const declaration = useAttackDeclaration(action, actorRound, kind, sourceAttacks);
   const labelOf = (attackName: string) => attackLabel(attackName, t);
@@ -77,6 +80,8 @@ const AttackFlow: FC<{
       .then((updated) => {
         updateAction(updated);
         notify.success(message);
+        // Workspace spec 068: a balking attacker that charges, an attack with a useless arm
+        notifyWarnings(updated.warnings);
         after?.();
       })
       .catch((err) => notify.error(err))
@@ -108,6 +113,14 @@ const AttackFlow: FC<{
   const targetsReady = targeted.length > 0 && (kind === 'melee' || targeted.every((a) => !!a.modifiers.range));
   const attacksShown = unprepared ? targeted : formData.attacks;
   const shownTab = Math.min(tab, Math.max(0, attacksShown.length - 1));
+  // Workspace spec 068, decision 14: a retreating attacker cannot charge, a balking one is warned
+  const chargeFear = withParry
+    ? actorRoundHasEffect(actorRound, ['fear-retreat'])
+      ? 'fear-retreat'
+      : actorRoundHasEffect(actorRound, ['fear-balk'])
+        ? 'fear-balk'
+        : undefined
+    : undefined;
 
   const modifiers =
     attacksShown.length > 0 ? (
@@ -118,6 +131,11 @@ const AttackFlow: FC<{
               <Tab key={a.attackName} label={labelOf(a.attackName)} />
             ))}
           </Tabs>
+        )}
+        {chargeFear && unprepared && (
+          <Alert severity={chargeFear === 'fear-retreat' ? 'warning' : 'info'} variant="outlined">
+            {t(`fear-charge-${chargeFear}`)}
+          </Alert>
         )}
         <AttackModifiersForm
           formData={formData}

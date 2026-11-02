@@ -1,7 +1,15 @@
 import React, { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Box, Chip, Stack, Tooltip, Typography } from '@mui/material';
-import { ChipRow, DataTable, formatBonus, RollBreakdown, RollResultAlert } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { Alert, Box, Chip, Stack, Tooltip, Typography } from '@mui/material';
+import {
+  ChipRow,
+  DataTable,
+  formatBonus,
+  RollBreakdown,
+  RollResultAlert,
+  SectionLabel,
+  TemporaryModifierList,
+} from '@labcabrera-rmu/rmu-react-shared-lib';
 import { ActorCheckResult, ActorCheckStatus, GroupCheckResult } from '../../api/psychology.dto';
 
 const STATUS_COLOR: Record<ActorCheckStatus, 'default' | 'success' | 'warning' | 'info'> = {
@@ -27,6 +35,16 @@ const GroupCheckResultView: FC<{ result: GroupCheckResult; factionName: (id: str
   const label = (key: string) => t(key, { defaultValue: key });
   const effect = (status: string | undefined) => (status ? t(status) : '—');
   const leaderRoll = result.leaderRoll;
+  // ADR 0007 S3 (workspace spec 068): the followers without a fear RR bonus are left out of the average of a morale
+  // check; the actors down are left out of every check.
+  const withoutBonus =
+    result.kind === 'morale'
+      ? result.actors.filter((actor) => actor.status === 'follower' && actor.warnings.includes('no-fear-rr-bonus'))
+      : [];
+  const skipped = result.actors.filter((actor) => actor.status === 'skipped');
+  const leaderName =
+    result.actorRounds.find((actorRound) => actorRound.actorId === result.leader?.actorId)?.actorName ??
+    result.actors.find((actor) => actor.actorId === result.leader?.actorId)?.actorName;
 
   return (
     <Stack spacing={2}>
@@ -77,6 +95,35 @@ const GroupCheckResultView: FC<{ result: GroupCheckResult; factionName: (id: str
           ]}
           breakdown={<RollBreakdown context="fear-rr" modifiers={leaderRoll.breakdown} total={leaderRoll.total} />}
         />
+      )}
+
+      {(withoutBonus.length > 0 || skipped.length > 0) && (
+        <Alert severity="info" variant="outlined">
+          {withoutBonus.length > 0 && (
+            <Typography variant="body2">
+              {t('morale-average-excluded', {
+                count: withoutBonus.length,
+                names: withoutBonus.map((actor) => actor.actorName).join(', '),
+              })}
+            </Typography>
+          )}
+          {skipped.length > 0 && (
+            <Typography variant="body2">
+              {t('group-check-skipped', {
+                count: skipped.length,
+                names: skipped.map((actor) => actor.actorName).join(', '),
+              })}
+            </Typography>
+          )}
+        </Alert>
+      )}
+      {(result.temporaryModifiers ?? []).length > 0 && (
+        <Stack spacing={0.5}>
+          <SectionLabel>
+            {leaderName ? t('temporary-modifiers-of', { actor: leaderName }) : t('temporary-modifiers')}
+          </SectionLabel>
+          <TemporaryModifierList modifiers={result.temporaryModifiers ?? []} />
+        </Stack>
       )}
 
       <DataTable

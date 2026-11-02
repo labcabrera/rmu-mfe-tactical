@@ -32,10 +32,16 @@ const ActorRoundAlerts: FC<{
   };
 
   const handleSave = (updated: ActorRoundAlert) => {
-    // create updated actorRound with replaced alert
-    const updatedAlerts = (actorRound.alerts || []).map((a) => (a.id === updated.id ? updated : a));
-    const updatedActorRound: ActorRound = { ...actorRound, alerts: updatedAlerts };
-    combat?.updateActorRound(updatedActorRound);
+    // Replace the alert in the latest actor round: the dialog may have changed it meanwhile (a fear check)
+    combat?.setActorRounds((rounds) =>
+      rounds
+        ? rounds.map((round) =>
+            round.id === actorRound.id
+              ? { ...round, alerts: (round.alerts || []).map((a) => (a.id === updated.id ? updated : a)) }
+              : round
+          )
+        : rounds
+    );
   };
 
   return (
@@ -46,9 +52,10 @@ const ActorRoundAlerts: FC<{
             {pending.map((alert) => (
               <Button
                 key={alert.id}
-                // Neutral, not red: the marker alone says it has to be resolved, as for the pending actions.
+                // Neutral, not red: the marker alone says it has to be resolved, as for the pending actions. A wound
+                // that reopened and a limb that may be lost are red (workspace spec 068).
                 variant="outlined"
-                color="inherit"
+                color={alert.type === 'wound-reopened' || alert.type === 'limb-loss' ? 'error' : 'inherit'}
                 size="small"
                 onClick={() => handleAlertClick(alert.id)}
                 startIcon={<ActionStateMarker state="pending" />}

@@ -8,6 +8,7 @@ import {
   ManeuverModifiersListing,
   ParryDeclaration,
   ResolveManeuverDto,
+  ResolveMedicalDto,
   SpellOptions,
   SpellPreview,
   SpellRealm,
@@ -57,6 +58,10 @@ export async function deleteAction(actionId: string, auth: AuthContextProps): Pr
   return await callApi(auth, url, { method: 'DELETE' });
 }
 
+/**
+ * Resolves a movement. Workspace spec 068: a pace that raises warnings with `requiresConfirm` answers 409
+ * `err-action-confirm-required`; send it again with `confirm: true`.
+ */
 export async function resolveMovement(actionId: string, data: any, auth: AuthContextProps): Promise<Action> {
   const url = `${apiTacticalUrl}/actions/${actionId}/movement/resolve`;
   return await callApi(auth, url, {
@@ -270,4 +275,23 @@ export async function applySpell(
   auth: AuthContextProps
 ): Promise<Action> {
   return await patchJson(auth, `${apiTacticalUrl}/actions/${actionId}/spell/apply`, { powerPoints });
+}
+
+// --- Healing in combat (workspace spec 068) ---
+
+/**
+ * Resolves the next round of 4 AP of a `medical` action: the first one rolls Medicine and starts the treatment, the
+ * last one applies it; `stabilize` rolls in every round. Rolls left out are rolled by the API.
+ */
+export async function resolveMedical(
+  actionId: string,
+  data: ResolveMedicalDto,
+  auth: AuthContextProps
+): Promise<Action> {
+  return await patchJson(auth, `${apiTacticalUrl}/actions/${actionId}/medical/resolve`, data);
+}
+
+/** Resolves a `use_item` action: the healing item heals its target; without a roll the API rolls its range. */
+export async function resolveUseItem(actionId: string, roll: number | null, auth: AuthContextProps): Promise<Action> {
+  return await patchJson(auth, `${apiTacticalUrl}/actions/${actionId}/use-item/resolve`, roll === null ? {} : { roll });
 }

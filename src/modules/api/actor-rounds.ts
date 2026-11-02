@@ -259,3 +259,31 @@ export async function giveActorAntidote(
   const url = `${apiTacticalUrl}/actor-rounds/${actorRoundId}/injuries/${injuryId}/antidote`;
   return await callApi(auth, url, jsonPost(dto));
 }
+
+// --- Healing in combat and fear (workspace spec 068) ---
+
+/** Loosens the tourniquet of an injury (0 AP): it bleeds this round and is tight again from the next one. */
+export async function loosenActorRoundTourniquet(
+  actorRoundId: string,
+  injuryId: string,
+  auth: AuthContextProps
+): Promise<ActorRound> {
+  const url = `${apiTacticalUrl}/actor-rounds/${actorRoundId}/injuries/${injuryId}/tourniquet/loosen`;
+  return await callApi(auth, url, { method: 'POST' });
+}
+
+/** A broken actor drops what it holds in its hands (0 AP): it stays in its inventory (`err-action-fear` otherwise). */
+export async function dropActorRoundItems(actorRoundId: string, auth: AuthContextProps): Promise<ActorRound> {
+  const url = `${apiTacticalUrl}/actor-rounds/${actorRoundId}/drop-items`;
+  return await callApi(auth, url, { method: 'POST' });
+}
+
+/** Removes a lasting morale or fear RR modifier of the actor (`err-temporary-modifier-not-found`). */
+export async function deleteActorRoundTemporaryModifier(
+  actorRoundId: string,
+  modifierId: string,
+  auth: AuthContextProps
+): Promise<ActorRound> {
+  const url = `${apiTacticalUrl}/actor-rounds/${actorRoundId}/temporary-modifiers/${modifierId}`;
+  return await callApi(auth, url, { method: 'DELETE' });
+}
