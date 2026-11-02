@@ -1,8 +1,15 @@
 import React, { FC, useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
-import { Alert, Button, CircularProgress, Stack } from '@mui/material';
-import { FlowStep, formatBonus, OPEN_D100, RollBreakdown, RollField } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { Alert, Button, Stack } from '@mui/material';
+import {
+  FlowStep,
+  formatBonus,
+  LoadingState,
+  OPEN_D100,
+  RollBreakdown,
+  RollField,
+} from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../CombatContext';
 import { fetchActionManeuverModifiers, resolveManeuver } from '../../../api/action';
 import { Action, ManeuverModifiersListing } from '../../../api/action.dto';
@@ -114,7 +121,7 @@ const ManeuverFlow: FC<{
   ) : listing ? (
     <ManeuverModifiersStep listing={listing} form={form} onChange={change} targets={targets} actorRound={actorRound} />
   ) : (
-    <CircularProgress size={24} />
+    <LoadingState variant="inline" />
   );
 
   const steps: FlowStep[] = [

@@ -1,19 +1,7 @@
 import React, { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  Box,
-  Chip,
-  Stack,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Tooltip,
-  Typography,
-} from '@mui/material';
-import { formatBonus, RollBreakdown, RollResultAlert, ChipRow } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { Box, Chip, Stack, Tooltip, Typography } from '@mui/material';
+import { ChipRow, DataTable, formatBonus, RollBreakdown, RollResultAlert } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { ActorCheckResult, ActorCheckStatus, GroupCheckResult } from '../../api/psychology.dto';
 
 const STATUS_COLOR: Record<ActorCheckStatus, 'default' | 'success' | 'warning' | 'info'> = {
@@ -91,74 +79,81 @@ const GroupCheckResultView: FC<{ result: GroupCheckResult; factionName: (id: str
         />
       )}
 
-      <TableContainer>
-        <Table size="small">
-          <TableHead>
-            <TableRow>
-              <TableCell>{t('actor')}</TableCell>
-              <TableCell>{t('status')}</TableCell>
-              <TableCell align="right">{t('total')}</TableCell>
-              <TableCell align="right">{t('failure')}</TableCell>
-              <TableCell>{t('effect')}</TableCell>
-              <TableCell>{t('notes')}</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {result.actors.map((actor) => (
-              <TableRow key={actor.actorRoundId}>
-                <TableCell>
-                  <Typography variant="body2">{actor.actorName}</Typography>
-                  <Typography variant="caption" color="text.secondary">
-                    {factionName(actor.factionId)}
-                  </Typography>
-                </TableCell>
-                <TableCell>
-                  <Chip size="small" color={STATUS_COLOR[actor.status]} label={t(`group-status-${actor.status}`)} />
-                </TableCell>
-                <TableCell align="right">
-                  {actor.total !== undefined ? (
-                    <Tooltip title={breakdownText(actor, label)}>
-                      <span>
-                        {`${actor.total} / ${actor.required ?? ''}`}
-                        {actor.rolledByServer ? ' *' : ''}
-                      </span>
-                    </Tooltip>
-                  ) : (
-                    '—'
-                  )}
-                </TableCell>
-                <TableCell align="right">{actor.failure ? actor.failure : '—'}</TableCell>
-                <TableCell>
-                  {actor.previousEffect !== actor.effect
-                    ? `${effect(actor.previousEffect)} → ${effect(actor.effect)}`
-                    : effect(actor.effect)}
-                </TableCell>
-                <TableCell>
-                  <ChipRow>
-                    {actor.restrictions.map((restriction) => (
-                      <Chip
-                        key={restriction}
-                        size="small"
-                        color="error"
-                        variant="outlined"
-                        label={t(`group-restriction-${restriction}`)}
-                      />
-                    ))}
-                    {actor.warnings.map((warning) => (
-                      <Chip
-                        key={warning}
-                        size="small"
-                        variant="outlined"
-                        label={t(`group-warning-${warning}`, { defaultValue: warning })}
-                      />
-                    ))}
-                  </ChipRow>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+      <DataTable
+        rows={result.actors}
+        getKey={(actor) => actor.actorRoundId}
+        columns={[
+          {
+            key: 'actor',
+            header: t('actor'),
+            render: (actor) => (
+              <>
+                <Typography variant="body2">{actor.actorName}</Typography>
+                <Typography variant="caption" color="text.secondary">
+                  {factionName(actor.factionId)}
+                </Typography>
+              </>
+            ),
+          },
+          {
+            key: 'status',
+            header: t('status'),
+            render: (actor) => (
+              <Chip size="small" color={STATUS_COLOR[actor.status]} label={t(`group-status-${actor.status}`)} />
+            ),
+          },
+          {
+            key: 'total',
+            header: t('total'),
+            align: 'right',
+            render: (actor) =>
+              actor.total !== undefined ? (
+                <Tooltip title={breakdownText(actor, label)}>
+                  <span>
+                    {`${actor.total} / ${actor.required ?? ''}`}
+                    {actor.rolledByServer ? ' *' : ''}
+                  </span>
+                </Tooltip>
+              ) : (
+                '—'
+              ),
+          },
+          { key: 'failure', header: t('failure'), align: 'right', render: (actor) => actor.failure || '—' },
+          {
+            key: 'effect',
+            header: t('effect'),
+            render: (actor) =>
+              actor.previousEffect !== actor.effect
+                ? `${effect(actor.previousEffect)} → ${effect(actor.effect)}`
+                : effect(actor.effect),
+          },
+          {
+            key: 'notes',
+            header: t('notes'),
+            render: (actor) => (
+              <ChipRow>
+                {actor.restrictions.map((restriction) => (
+                  <Chip
+                    key={restriction}
+                    size="small"
+                    color="error"
+                    variant="outlined"
+                    label={t(`group-restriction-${restriction}`)}
+                  />
+                ))}
+                {actor.warnings.map((warning) => (
+                  <Chip
+                    key={warning}
+                    size="small"
+                    variant="outlined"
+                    label={t(`group-warning-${warning}`, { defaultValue: warning })}
+                  />
+                ))}
+              </ChipRow>
+            ),
+          },
+        ]}
+      />
       {result.actors.some((actor) => actor.rolledByServer) && (
         <Typography variant="caption" color="text.secondary">
           {t('rolled-by-server-note')}

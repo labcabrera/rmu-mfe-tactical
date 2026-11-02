@@ -1,11 +1,12 @@
 import React, { FC, useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
-import { Alert, Box, CircularProgress, MenuItem, Stack, TextField } from '@mui/material';
+import { Alert, Box, MenuItem, Stack, TextField } from '@mui/material';
 import {
   fetchCharacters,
   FlowStep,
   formatBonus,
+  LoadingState,
   NumberPadField,
   OPEN_D100,
   RollBreakdown,
@@ -301,7 +302,7 @@ const SpellCastFlow: FC<{
               totalLabel={roll === null ? t('predicted-total') : t('spell-scr')}
             />
           ) : (
-            <CircularProgress size={24} />
+            <LoadingState variant="inline" />
           )}
           {missingPreparation && <Alert severity="warning">{t('err-overcast-needs-preparation')}</Alert>}
         </Stack>

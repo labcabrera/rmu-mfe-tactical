@@ -1,24 +1,15 @@
 import React, { FC, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
-import {
-  Alert,
-  AlertTitle,
-  Box,
-  Button,
-  CircularProgress,
-  MenuItem,
-  Stack,
-  TextField,
-  Typography,
-} from '@mui/material';
+import { Alert, AlertTitle, Box, Button, MenuItem, Stack, TextField, Typography } from '@mui/material';
 import {
   AtRiskCharacter,
   CharacterFate,
   DataTable,
   fetchFinishPreview,
-  finishTacticalGame,
   FinishPreview,
+  finishTacticalGame,
+  LoadingState,
   RmuDialog,
   TacticalGame,
   TacticalGameCharacterOutcome,
@@ -116,9 +107,7 @@ const FinishGameDialog: FC<{
       }
     >
       {!preview ? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
-          <CircularProgress />
-        </Box>
+        <LoadingState />
       ) : (
         <Stack spacing={2}>
           <Typography variant="body2" color="text.secondary">

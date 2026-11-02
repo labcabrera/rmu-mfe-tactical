@@ -13,13 +13,14 @@ import {
   Typography,
 } from '@mui/material';
 import {
+  ChipRow,
   DifficultyPicker,
+  EmptyState,
   formatBonus,
   ManeuverType,
   NumberPadField,
   OPEN_D100,
   RollField,
-  ChipRow,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { ManeuverModifiersListing, ManeuverSkillModifier } from '../../../../api/action.dto';
 import { ActorRound } from '../../../../api/actor-rounds.dto';
@@ -188,11 +189,7 @@ const ManeuverModifiersStep: FC<{
               />
             </Tooltip>
           ))}
-          {listing.base.length === 0 && (
-            <Typography variant="body2" color="text.secondary">
-              {t('no-base-modifiers')}
-            </Typography>
-          )}
+          {listing.base.length === 0 && <EmptyState dense title={t('no-base-modifiers')} />}
         </ChipRow>
       </Box>
 

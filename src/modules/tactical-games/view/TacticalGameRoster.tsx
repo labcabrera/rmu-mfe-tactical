@@ -25,6 +25,7 @@ import {
   Character,
   characterOption,
   CharacterPicker,
+  EmptyState,
   EntityAvatar,
   entityImage,
   Faction,
@@ -229,11 +230,14 @@ export default function TacticalGameRoster({
                     )}
                   </Stack>
                   {shown.length < 1 ? (
-                    <Typography variant="body2" color="text.secondary">
-                      {factionCharacters.length < 1
-                        ? t('no-characters-available-for-faction')
-                        : t('no-selected-characters')}
-                    </Typography>
+                    <EmptyState
+                      dense
+                      title={
+                        factionCharacters.length < 1
+                          ? t('no-characters-available-for-faction')
+                          : t('no-selected-characters')
+                      }
+                    />
                   ) : (
                     <CharacterPicker
                       mode="multiple"

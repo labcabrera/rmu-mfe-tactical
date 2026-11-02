@@ -2,13 +2,14 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, Box, Grid, MenuItem, Stack, TextField, Typography } from '@mui/material';
 import {
+  EmptyState,
   ItemConditionChip,
   NumberPadField,
   OPEN_D100,
   RollBreakdown,
   RollField,
-  TechnicalInfo,
   RollModifier,
+  TechnicalInfo,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { ActorRound, ActorRoundAlert, ActorRoundItem, BreakageCheckDto } from '../../api/actor-rounds.dto';
 import { isDevelopment } from '../../services/action-service';
@@ -106,7 +107,7 @@ export default function BreakageForm({
   const modifiers = breakageModifiers(item, alert, value);
 
   if (candidates.length === 0) {
-    return <Alert severity="info">{t('actor-items-empty')}</Alert>;
+    return <EmptyState dense title={t('actor-items-empty')} />;
   }
 
   return (
