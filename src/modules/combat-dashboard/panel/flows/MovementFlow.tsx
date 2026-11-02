@@ -16,6 +16,8 @@ import { CombatContext } from '../../../../CombatContext';
 import { resolveMovement } from '../../../api/action';
 import { Action, ActionMovement, MOVEMENT_LIGHT_OPTIONS, MOVEMENT_TABLE } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
+import { useActionConfirm, useNotifyWarnings } from '../../../services/action-warnings';
+import { actorRoundHasEffect } from '../../../services/actor-round-service';
 import { isActionClosed } from '../../../services/ap-service';
 import { useTacticalNotify } from '../../../services/notify-service';
 import { useSkillService } from '../../../services/skill-service';
@@ -26,6 +28,18 @@ import { rememberedLight, rememberLight } from './maneuver/maneuver-form';
 import { useSkillDifficultyGuide } from './useSkillDifficultyGuide';
 
 const MOVEMENT_SKILLS = ['running', 'swimming', 'climbing', 'flying'];
+
+/** Keeps the height of the caption of a pace without a penalty. */
+const NBSP = '\u00a0';
+
+const paceIndex = (pace: string | null | undefined) => MOVEMENT_TABLE.findIndex((row) => row.id === pace);
+
+/** The fastest pace the splinted or cast legs of the actor allow (workspace spec 068, decision 10), if any. */
+export const injuryPaceLimit = (actorRound: ActorRound): string | undefined =>
+  (actorRound.injuries ?? [])
+    .filter((injury) => injury.status !== 'healed' && injury.limits?.pace)
+    .map((injury) => injury.limits!.pace as string)
+    .sort((a, b) => paceIndex(a) - paceIndex(b))[0];
 
 const initialForm = (action: Action, actorRound: ActorRound, light: string | null): ActionMovement =>
   action.movement
@@ -57,6 +71,8 @@ const MovementFlow: FC<{
   const notify = useTacticalNotify();
   const { strategicGame, updateAction, refreshActorRounds } = useContext(CombatContext)!;
   const { getSkillBonus } = useSkillService();
+  const confirm = useActionConfirm();
+  const notifyWarnings = useNotifyWarnings();
   const [form, setForm] = useState<ActionMovement>(() =>
     initialForm(action, actorRound, rememberedLight(action.gameId))
   );
@@ -71,18 +87,32 @@ const MovementFlow: FC<{
   // The distance of each pace is per AP: the API counts the AP of the movement in its ledger.
   const actionPoints = Math.max(1, action.actionPoints ?? 1);
   const scale = strategicGame?.options?.boardScaleMultiplier || 1;
-  const maxPaceIndex = MOVEMENT_TABLE.findIndex((p) => p.id === actorRound.movement.maxPace);
+  // Workspace spec 068: a splinted or cast leg caps the pace; routed and broken actors flee at running pace or faster
+  const injuryLimit = injuryPaceLimit(actorRound);
+  const maxPaceIndex = Math.min(
+    MOVEMENT_TABLE.findIndex((p) => p.id === actorRound.movement.maxPace),
+    injuryLimit ? paceIndex(injuryLimit) : MOVEMENT_TABLE.length
+  );
+  const fleeing = actorRoundHasEffect(actorRound, ['fear-routed', 'fear-broken']);
+  const fearCap = actorRoundHasEffect(actorRound, ['fear-retreat'])
+    ? { state: 'fear-retreat', index: paceIndex('jog') }
+    : actorRoundHasEffect(actorRound, ['fear-balk'])
+      ? { state: 'fear-balk', index: paceIndex('walk') }
+      : undefined;
   const skillBonus = (skillId: string) => getSkillBonus(skillId, actorRound);
   const guide = useSkillDifficultyGuide(modifiers.requiredManeuver ? modifiers.skillId : null);
   const distance = (multiplier: number) => actorRound.movement.bmr * multiplier * actionPoints;
 
   const resolve = () => {
     setBusy(true);
-    resolveMovement(action.id, form, auth)
+    // Workspace spec 068: exertion with a wound that reopens asks for a confirmation first
+    confirm
+      .run((confirmed) => resolveMovement(action.id, confirmed ? { ...form, confirm: true } : form, auth))
       .then((result: Action) => {
         updateAction(result);
         refreshActorRounds();
         notify.success(t('movement-resolved'));
+        notifyWarnings(result.warnings);
       })
       .catch((err) => notify.error(err))
       .finally(() => setBusy(false));
@@ -178,6 +208,8 @@ const MovementFlow: FC<{
     <Stack spacing={0.75} role="radiogroup" aria-label={t('pace')}>
       {MOVEMENT_TABLE.map((row, index) => {
         const overMax = index > maxPaceIndex;
+        const tooSlow = fleeing && index < paceIndex('run');
+        const fearWarning = !!fearCap && index > fearCap.index;
         const selected = modifiers.pace === row.id;
         const feet = distance(row.multiplier);
         return (
@@ -185,10 +217,10 @@ const MovementFlow: FC<{
             key={row.id}
             role="radio"
             aria-checked={selected}
-            disabled={overMax}
+            disabled={overMax || tooSlow}
             onClick={() => setModifiers({ pace: row.id })}
             sx={[
-              selectableSx(selected, overMax),
+              selectableSx(selected, overMax || tooSlow),
               {
                 display: 'grid',
                 gridTemplateColumns: '1fr auto',
@@ -207,7 +239,17 @@ const MovementFlow: FC<{
                 </Typography>
               </Typography>
               <Typography variant="caption" color="text.secondary">
-                {overMax ? t('over-max-pace') : row.penalty !== '-' ? row.penalty : ' '}
+                {overMax && injuryLimit && index > paceIndex(injuryLimit)
+                  ? t('injury-pace-limit', { pace: t(injuryLimit) })
+                  : overMax
+                    ? t('over-max-pace')
+                    : tooSlow
+                      ? t('fear-flees-at-run')
+                      : fearWarning
+                        ? t(`fear-pace-warning-${fearCap!.state}`)
+                        : row.penalty !== '-'
+                          ? row.penalty
+                          : NBSP}
               </Typography>
             </Box>
             <Box sx={{ textAlign: 'right' }}>
@@ -269,24 +311,27 @@ const MovementFlow: FC<{
     (steps[current].id === 'roll' && form.roll?.roll !== null && form.roll?.roll !== undefined);
 
   return (
-    <ActionFlow
-      action={action}
-      steps={steps}
-      activeIndex={current}
-      primary={
-        done
-          ? undefined
-          : {
-              label: onLastInput ? t('resolve') : t('next'),
-              disabled: !canContinue || busy,
-              onClick: () => (onLastInput ? resolve() : setStep(current + 1)),
-              resolves: onLastInput,
-            }
-      }
-      back={current > 0 ? { label: t('back'), onClick: () => setStep(current - 1) } : undefined}
-      onDeleted={onDeleted}
-      onNextPending={onNextPending}
-    />
+    <>
+      <ActionFlow
+        action={action}
+        steps={steps}
+        activeIndex={current}
+        primary={
+          done
+            ? undefined
+            : {
+                label: onLastInput ? t('resolve') : t('next'),
+                disabled: !canContinue || busy,
+                onClick: () => (onLastInput ? resolve() : setStep(current + 1)),
+                resolves: onLastInput,
+              }
+        }
+        back={current > 0 ? { label: t('back'), onClick: () => setStep(current - 1) } : undefined}
+        onDeleted={onDeleted}
+        onNextPending={onNextPending}
+      />
+      {confirm.dialog}
+    </>
   );
 };
 

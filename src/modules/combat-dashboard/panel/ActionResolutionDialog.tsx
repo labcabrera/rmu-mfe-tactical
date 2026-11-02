@@ -1,8 +1,9 @@
 import React, { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { combatActionInfo, RmuDialog } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { RmuDialog } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { Action } from '../../api/action.dto';
 import { ActorRound } from '../../api/actor-rounds.dto';
+import { actionTypeInfo } from '../actor-rounds/action-type-info';
 import ActionResolutionFlow from './ActionResolutionFlow';
 
 /**
@@ -25,9 +26,7 @@ const ActionResolutionDialog: FC<{
       maxWidth="xl"
       title={actorRound?.actorName ?? ''}
       subtitle={
-        action
-          ? `${t(combatActionInfo(action.actionType).labelKey)} · ${t(`action-status-${action.status}`)}`
-          : undefined
+        action ? `${t(actionTypeInfo(action.actionType).labelKey)} · ${t(`action-status-${action.status}`)}` : undefined
       }
       // The same size for every action type, whatever its form holds; wide, so that the attack modifiers
       // fit in view.

@@ -12,10 +12,9 @@ import {
   RollField,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
-import { addActorRoundEffect } from '../../api/actor-rounds';
 import { ActorRound } from '../../api/actor-rounds.dto';
-import { rollActorResistance } from '../../api/psychology';
-import { FEAR_EFFECTS, ResistanceRollResult } from '../../api/psychology.dto';
+import { applyFearEffect, rollActorResistance } from '../../api/psychology';
+import { ResistanceRollResult } from '../../api/psychology.dto';
 import { useTacticalNotify } from '../../services/notify-service';
 import FrightLevelInput from './FrightLevelInput';
 
@@ -29,21 +28,25 @@ export const fearBonus = (actorRound: ActorRound): number | undefined => resista
 /**
  * Fear RR of one actor (workspace spec 022, decision 8): the fright level as the attack level, the open-ended roll,
  * the RR bonus (from the sheet, or typed for an NPC) and a modifier of the game master. The API resolves it with
- * core's tables and leaves no effect; on a failure the game master may put the fear effect it gives. A group takes
- * its fear check from the round header instead.
+ * core's tables and leaves no effect; on a failure the game master applies the fear effect it gives through
+ * `fear-effects` (workspace spec 068, S11), which keeps the worst state of the actor. A group takes its fear check
+ * from the round header instead. `initialLevel` prefills the fright level (the Revulsion alert), and `onApplied` is
+ * told once the RR was rolled.
  */
-const ResistanceRollDialog: FC<{ actorRound: ActorRound; open: boolean; onClose: () => void }> = ({
-  actorRound,
-  open,
-  onClose,
-}) => {
+const ResistanceRollDialog: FC<{
+  actorRound: ActorRound;
+  open: boolean;
+  onClose: () => void;
+  initialLevel?: number | null;
+  /** Name of what frightens, kept as the source of the fear effect. */
+  sourceName?: string;
+  onRolled?: (result: ResistanceRollResult) => void;
+}> = ({ actorRound, open, onClose, initialLevel = null, sourceName, onRolled }) => {
   const { t } = useTranslation();
   const auth = useAuth();
   const notify = useTacticalNotify();
   const { updateActorRound } = useContext(CombatContext)!;
   const sheetBonus = fearBonus(actorRound);
-  // A fear effect already there is changed by the group checks, which keep the worst one.
-  const afraid = actorRound.effects?.some((effect) => (FEAR_EFFECTS as readonly string[]).includes(effect.status));
   const [attackLevel, setAttackLevel] = useState<number | null>(null);
   const [roll, setRoll] = useState<number | null>(null);
   const [bonus, setBonus] = useState<number | null>(null);
@@ -53,11 +56,12 @@ const ResistanceRollDialog: FC<{ actorRound: ActorRound; open: boolean; onClose:
 
   useEffect(() => {
     if (!open) return;
-    setAttackLevel(null);
+    setAttackLevel(initialLevel);
     setRoll(null);
     setBonus(null);
     setModifier(null);
     setResult(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
   const valid = attackLevel !== null && roll !== null && (sheetBonus !== undefined || bonus !== null);
@@ -76,18 +80,26 @@ const ResistanceRollDialog: FC<{ actorRound: ActorRound; open: boolean; onClose:
       },
       auth
     )
-      .then(setResult)
+      .then((rolled) => {
+        setResult(rolled);
+        onRolled?.(rolled);
+      })
       .catch((err) => notify.error(err))
       .finally(() => setBusy(false));
   };
 
   const applyEffect = () => {
-    if (!result?.fearState) return;
-    const effect = { id: '', status: `fear-${result.fearState}`, value: result.failure, rounds: undefined };
+    if (!result?.severity) return;
     setBusy(true);
-    addActorRoundEffect(actorRound.id, effect, auth)
-      .then((updated) => {
-        updateActorRound(updated);
+    applyFearEffect(
+      actorRound.id,
+      { severity: result.severity, ...(sourceName ? { source: { name: sourceName } } : {}) },
+      auth
+    )
+      .then((applied) => {
+        updateActorRound(applied.actorRound);
+        if (applied.unchanged) notify.info(t('fear-effect-unchanged', { effect: t(applied.effect.status) }));
+        else notify.success(t('fear-effect-applied', { effect: t(applied.effect.status) }));
         onClose();
       })
       .catch((err) => notify.error(err))
@@ -104,7 +116,7 @@ const ResistanceRollDialog: FC<{ actorRound: ActorRound; open: boolean; onClose:
       buttons={
         result ? (
           <>
-            {result.fearState && !afraid && (
+            {result.fearState && result.severity && (
               <Button onClick={applyEffect} disabled={busy} color="warning">
                 {t('apply-fear-effect', { effect: t(`fear-${result.fearState}`) })}
               </Button>

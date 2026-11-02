@@ -1,3 +1,4 @@
+import type { TemporaryModifier } from '@labcabrera-rmu/rmu-react-shared-lib';
 import type { ActorRound } from './actor-rounds.dto';
 
 // Psychology of the tactical game (workspace spec 022, §14.3): the fear RR of an actor, the fear, morale and rally
@@ -64,6 +65,10 @@ export type FearCheckDto = GroupCheckDto & {
   leader?: LeaderRequest;
   /** Fright level (Table 14-3a), or the Intimidation ranks of an actor. */
   frightLevel?: number;
+  /** Workspace spec 068: an NPC of the game whose fright level is the attack level when `frightLevel` is missing. */
+  frightSourceActorId?: string;
+  /** Added to the fright level of `frightSourceActorId` (+3, +5 for the supernatural). */
+  frightLevelModifier?: number;
   intimidatorActorId?: string;
   intimidationRanks?: number;
   /** Rolls and RR bonuses by actor id; a missing roll is rolled by the API. */
@@ -126,7 +131,13 @@ export type GroupCheckResult = {
     breakdown: KeyValueModifier[];
     total: number;
     result?: string;
-    unusualEvent?: { roll: number; outcome: string; leaderFearRrBonus?: number; leaderHits?: number; durationDays?: number };
+    unusualEvent?: {
+      roll: number;
+      outcome: string;
+      leaderFearRrBonus?: number;
+      leaderHits?: number;
+      durationDays?: number;
+    };
   };
   /** Morale: refuses-hostile, refuses, needs-clarification, obeys, inspired, misunderstands-order. */
   outcome?: string;
@@ -134,14 +145,23 @@ export type GroupCheckResult = {
   moraleModifierDays?: number;
   /** Rally: steps of fear severity (negative calms down). */
   fearSeverityChange?: number;
+  /** Workspace spec 068: the lasting modifiers the check gave the leader. */
+  temporaryModifiers?: TemporaryModifier[];
   actors: ActorCheckResult[];
   actorRounds: ActorRound[];
 };
 
-/** `GET /v1/psychology-tables` of rmu-api-core: only what the UI reads. */
-export type PsychologyTables = {
+/** `POST /v1/actor-rounds/{id}/fear-effects` (workspace spec 068): the result of an individual fear RR. */
+export type ApplyFearEffectDto = { severity: FearSeverity; source?: { actorId?: string; name?: string } };
+
+/** A threshold of fallen allies of a faction (Table 14-3a): above (`exclusive`) or at least `minShare`. */
+export type FallenThreshold = { minShare: number; exclusive: boolean; frightLevel: number };
+
+/** `GET /v1/tactical-games/{id}/fright-levels` (workspace spec 068, S12 b): for any participant of the game. */
+export type FrightLevels = {
   frightLevels: { key: string; level: number }[];
   frightLevelModifiers: { key: string; level: number }[];
+  fallenThresholds: FallenThreshold[];
 };
 
 /** A row of the treatment difficulty table of rmu-api-core (`GET /v1/healing-tables`). */
@@ -149,4 +169,14 @@ export type TreatmentDifficultyRow = { procedure: string; injuryType: string; se
 
 export type TreatmentRules = { headDifficultySteps: number; cauterizePenaltyPerBleeding: number };
 
-export type HealingTables = { treatmentDifficulties?: TreatmentDifficultyRow[]; treatmentRules?: TreatmentRules };
+/** Rounds a procedure takes in combat (workspace spec 068); null: not offered in a tactical game. */
+export type TreatmentDuration = { procedure: string; rounds: number | null; perBleeding: boolean };
+
+export type HealingTables = {
+  treatmentDifficulties?: TreatmentDifficultyRow[];
+  treatmentRules?: TreatmentRules;
+  /** Workspace spec 068: rounds of each procedure, the injuries that only admit surgery and the salve range. */
+  treatmentDurations?: TreatmentDuration[] | null;
+  surgeryRequired?: { injuryType: string; severity: string }[] | null;
+  salveModifier?: { min: number; max: number } | null;
+};

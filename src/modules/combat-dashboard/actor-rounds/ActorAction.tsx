@@ -1,10 +1,11 @@
 import React, { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { alpha, ButtonBase, Stack, Tooltip, Typography } from '@mui/material';
-import { ActionStateMarker, combatActionInfo, combatColors } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { ActionStateMarker, combatColors } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
 import type { Action } from '../../api/action.dto';
 import { apProfileLabel, isActionClosed, useOpenRounds } from '../../services/ap-service';
+import { actionTypeInfo } from './action-type-info';
 import { actionApText, actionLabel, actionResult, actionState, actionStateTooltip } from './action-view';
 
 /**
@@ -16,7 +17,7 @@ export default function ActorAction({ action, onClick }: { action: Action; onCli
   const { t } = useTranslation();
   const { actorRounds } = useContext(CombatContext)!;
   const openRounds = useOpenRounds();
-  const info = combatActionInfo(action.actionType);
+  const info = actionTypeInfo(action.actionType);
   const state = actionState(action);
   const label = actionLabel(action, t, actorRounds);
   const done = isActionClosed(action);

@@ -2,12 +2,14 @@ import type {
   HpLogEntry,
   Injury,
   InjurySource,
+  ItemConsumed,
   ItemCoating,
   ItemCondition,
   PoisonExposure,
   PoisonRrResult,
   RollModifier,
   StrategicItemModifier,
+  TemporaryModifier,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 
 export type ActorRound = {
@@ -66,6 +68,12 @@ export type ActorRound = {
   imageUrl: string | undefined;
   /** Poisons that reached the actor and wait for their RR (spec 042). */
   poisonExposures?: PoisonExposure[];
+  /** Strategic items spent in the game, applied by the outcome (workspace spec 068). */
+  itemsConsumed?: ItemConsumed[];
+  /** Lasting morale and fear RR modifiers (workspace spec 068, decision 19). */
+  temporaryModifiers?: TemporaryModifier[];
+  /** Fright level of an NPC, from its stat block (workspace spec 068, decision 17). */
+  frightLevel?: number | null;
 };
 
 export type ActorRoundStyleAbility = { abilityId: string; times: number };
@@ -230,6 +238,8 @@ export type ActorRoundItem = {
   coating?: ItemCoating | null;
   /** The coating spent in the game, by its `appliedAt` (spec 044, decision 3); `true` in rounds stored before it. */
   coatingSpent?: { appliedAt: string } | true;
+  /** Dropped by a broken actor (workspace spec 068): out of its hands, still in its inventory. */
+  dropped?: boolean;
 };
 
 /** `POST v1/actor-rounds/:id/poisonings/:exposureId/resolve` (spec 042). */
@@ -296,6 +306,8 @@ export type ActorRoundEffect = {
   source?: InjurySource;
   /** First round a delayed effect counts in (spec 034). */
   fromRound?: number;
+  /** `dying`: the injury that causes it was treated, the next stabilize success removes it (workspace spec 068). */
+  causeTreated?: boolean;
 };
 
 export type ActorRoundAttack = {
@@ -407,4 +419,15 @@ export type MedicalResultDto = {
   unusualEvent?: boolean;
   /** Rounds the dying effect gained (stabilize). */
   roundsGained?: number;
+  /** Stabilize: its cause was treated and the success removed the dying effect (workspace spec 068). */
+  removed?: boolean;
+};
+
+/** `POST v1/actor-rounds/:id/fear-effects` (workspace spec 068, decision 15). */
+export type FearEffectResult = {
+  fearState: string;
+  effect: { id: string; status: string };
+  /** The actor already had that state or a worse one. */
+  unchanged: boolean;
+  actorRound: ActorRound;
 };

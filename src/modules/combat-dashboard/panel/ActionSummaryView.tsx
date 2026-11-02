@@ -3,13 +3,15 @@ import { useTranslation } from 'react-i18next';
 import DeleteIcon from '@mui/icons-material/Delete';
 import OpenInFullIcon from '@mui/icons-material/OpenInFull';
 import { Box, Button, Chip, Divider, Stack, Typography } from '@mui/material';
-import { ActionStateMarker, combatActionInfo, formatBonus, SectionLabel } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { ActionStateMarker, formatBonus, SectionLabel } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
 import { Action, SIMPLE_ACTION_TYPES } from '../../api/action.dto';
 import { apProfileLabel, isActionClosed, useOpenRounds } from '../../services/ap-service';
 import { isGameFinished } from '../../services/game-service';
+import { actionTypeInfo } from '../actor-rounds/action-type-info';
 import { actionApText, actionResult, actionState, actionStateTooltip } from '../actor-rounds/action-view';
 import { AttackResults, ManeuverResult, MovementResult } from './flows/ActionResults';
+import { medicalProgress } from './flows/MedicalFlow';
 import { attackLabel } from './flows/attack/attack-label';
 import { useDeleteAction } from './useDeleteAction';
 
@@ -103,6 +105,26 @@ const ActionSummaryView: FC<{ action: Action; onResolve: () => void; onDeleted: 
               .join(' · ')}
           </Field>
         )}
+        {action.medical && (
+          <>
+            <Field label={t('patient')}>{targetName(action.medical.patientActorId)}</Field>
+            <Field label={t('treatment-procedure')}>
+              {[
+                t(`procedure-${action.medical.procedure}`),
+                t(`medical-state-${action.medical.state}`),
+                t('medical-rounds-done', {
+                  done: Math.min(medicalProgress(action, action.medical).due, action.medical.rounds),
+                  total: action.medical.rounds,
+                }),
+              ].join(' · ')}
+            </Field>
+          </>
+        )}
+        {action.useItem && (
+          <Field label={t('use-item')}>
+            {[action.useItem.result?.itemName, targetName(action.useItem.targetActorId)].filter(Boolean).join(' → ')}
+          </Field>
+        )}
         {SIMPLE_ACTION_TYPES.includes(action.actionType) && action.description && (
           <Field label={t('note')}>{action.description}</Field>
         )}
@@ -118,7 +140,7 @@ const ActionSummaryView: FC<{ action: Action; onResolve: () => void; onDeleted: 
           >
             {done
               ? t('view-resolution')
-              : t('resolve-action', { action: t(combatActionInfo(action.actionType).labelKey) })}
+              : t('resolve-action', { action: t(actionTypeInfo(action.actionType).labelKey) })}
           </Button>
           {!finished && (
             <Button color="error" variant="outlined" startIcon={<DeleteIcon />} onClick={requestDelete}>
