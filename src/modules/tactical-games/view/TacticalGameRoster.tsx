@@ -35,6 +35,7 @@ import {
   selectableSx,
   TacticalGame,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { canManageTactical } from '../../shared/permissions';
 import TacticalGameRosterNpcs from './TacticalGameRosterNpcs';
 
 /** Width of a faction cell. */
@@ -92,8 +93,9 @@ export default function TacticalGameRoster({
 }: RosterProps) {
   const { t } = useTranslation();
   const [filter, setFilter] = useState<'all' | 'selected'>('all');
-  const finished = game.status === 'finished';
-  const canRemove = game.status === 'created';
+  // Spec 072: only the masters change the roster; the others read it as a finished game.
+  const finished = game.status === 'finished' || !canManageTactical(game);
+  const canRemove = game.status === 'created' && !finished;
   const onlySelected = finished || filter === 'selected';
   const busy = pending !== null;
 

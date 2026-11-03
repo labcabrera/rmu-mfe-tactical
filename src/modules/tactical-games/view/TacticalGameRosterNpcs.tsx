@@ -22,6 +22,7 @@ import {
   RmuDialog,
   TacticalGame,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { canManageTactical } from '../../shared/permissions';
 import type { RosterPending } from './TacticalGameRoster';
 
 type NpcGroup = { id: string; name: string; image: string; faction?: Faction };
@@ -52,7 +53,7 @@ export default function TacticalGameRosterNpcs({
   const { t } = useTranslation();
   const [adding, setAdding] = useState<string | null>(null);
   const [renaming, setRenaming] = useState<string | null>(null);
-  const editable = game.status === 'created';
+  const editable = game.status === 'created' && canManageTactical(game);
   const busy = pending !== null;
   const npcActors = game.actors.filter((actor) => actor.type === 'npc');
   const environmentName = environmentFactionName(game.environmentFaction?.name, t);
