@@ -28,6 +28,7 @@ import {
   useCampaignNpcs,
   useEntity,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { canManageTactical } from '../../shared/permissions';
 import { addGameCharacters, deleteGameActors } from '../../api/tactical-game-roster';
 import { defaultTacticalGameImage } from '../../services/image-service';
 import { useTacticalNotify } from '../../services/notify-service';
@@ -171,15 +172,19 @@ const TacticalGameViewPage: FC = () => {
         ) : (
           <PlayButton onClick={() => onPlay(game)} />
         ),
-        <FinishGameButton game={game} onFinished={setTacticalGame} />,
+        ...(canManageTactical(game) ? [<FinishGameButton game={game} onFinished={setTacticalGame} />] : []),
       ]}
-      onEdit={(game) => navigate(`/tactical/games/edit/${game.id}`, { state: { tacticalGame: game } })}
-      onDelete={onDelete}
+      onEdit={
+        tacticalGame && canManageTactical(tacticalGame)
+          ? (game) => navigate(`/tactical/games/edit/${game.id}`, { state: { tacticalGame: game } })
+          : undefined
+      }
+      onDelete={tacticalGame && canManageTactical(tacticalGame) ? onDelete : undefined}
       leftPanel={(game) => (
         <Stack spacing={2}>
           <EntityImage
             image={game.imageUrl || defaultTacticalGameImage}
-            onImageChange={(imageUrl) => updateImage(imageUrl)}
+            onImageChange={canManageTactical(game) ? (imageUrl) => updateImage(imageUrl) : undefined}
           />
           <Stack spacing={1}>
             <Typography variant="h6">{game.name}</Typography>
@@ -197,7 +202,7 @@ const TacticalGameViewPage: FC = () => {
     >
       {(game) => (
         <Stack spacing={3}>
-          <GameOutcomePanel game={game} onApplied={setTacticalGame} />
+          {canManageTactical(game) && <GameOutcomePanel game={game} onApplied={setTacticalGame} />}
           <TacticalGameRoster
             game={game}
             factions={factions}
