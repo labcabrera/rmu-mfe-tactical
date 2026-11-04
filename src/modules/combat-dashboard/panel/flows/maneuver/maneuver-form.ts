@@ -1,13 +1,30 @@
-import type { ManeuverType, RollModifier, RuleParams, SkippedRule } from '@labcabrera-rmu/rmu-react-shared-lib';
+import {
+  COMBAT_TALENT_PURPOSES,
+  DEFAULT_SENSE,
+  DEFAULT_SENSE_USAGE,
+  type CombatTalentPurpose,
+  type ManeuverSenseModifier,
+  type ManeuverType,
+  type PrecisionPosition,
+  type RollModifier,
+  type RuleParams,
+  type Sense,
+  type SenseSelection,
+  type SenseUsage,
+  type SkippedRule,
+} from '@labcabrera-rmu/rmu-react-shared-lib';
 import type {
   ActionManeuver,
   ActionManeuverResult,
   ManeuverModifiersListing,
+  ManeuverPurpose,
   ManeuverSelection,
   ManeuverSkillModifier,
   ResolveManeuverDto,
 } from '../../../../api/action.dto';
 import type { ActorRound } from '../../../../api/actor-rounds.dto';
+import { breakdownModifiers } from '../../../../services/action-service';
+import { FOE_PURPOSES } from '../../../../services/combat-talents-service';
 import { FrenzyPurpose, frenzyManeuverModifiers } from '../../../../services/frenzy-service';
 
 // Client side of a maneuver roll (spec 010 §6): the choices of the modifiers step, the predicted total built from the
@@ -28,9 +45,105 @@ export type ManeuverForm = {
   roll: number | null;
   /** First die of the open-ended roll (unusual event on 66). */
   unmodified: number | null;
-  /** Adrenal Focus maneuver to enter or leave the frenzy (spec 040). */
-  purpose: FrenzyPurpose | null;
+  /** Every die of the roll: the API checks them with the actor's roll profile (workspace spec 076). */
+  dice: number[] | null;
+  /** Adrenal Focus maneuver to enter or leave the frenzy (spec 040), or a combat talent (workspace spec 076). */
+  purpose: ManeuverPurpose | null;
+  /** Sense Weakness, Study Offense and Precision: the foe (workspace spec 076). */
+  foeActorId: string | null;
+  /** Battle Cry: level of the highest level foe, -2 per level. */
+  foeLevel: number | null;
+  /** Precision: where the attacker stands, and the OB it gives up to make the maneuver easier. */
+  position: PrecisionPosition | null;
+  obPenalty: number | null;
+  /** Perception and Tracking (workspace spec 076): the sense used, its usage and the situations of the talents. */
+  sense: Sense;
+  senseUsage: SenseUsage;
+  senseSelections: SenseSelection[];
+  /** Missing Sense where the sense only helps (-50 to -20) and Heatsense (0 to 20); the listing's value when null. */
+  missingSenseModifier: number | null;
+  heatsenseModifier: number | null;
 };
+
+/** Combat talent maneuvers whose difficulty is fixed by the API: Medium (Battle Cry; Precision has its position). */
+const FIXED_DIFFICULTY_PURPOSES: string[] = ['battle-cry', 'precision'];
+const MEDIUM = 'm';
+
+export const isCombatTalentPurpose = (purpose: ManeuverPurpose | null | undefined): purpose is CombatTalentPurpose =>
+  !!purpose && (COMBAT_TALENT_PURPOSES as readonly string[]).includes(purpose);
+
+/** The difficulty the maneuver is resolved with: Medium for Battle Cry and Precision, else the one chosen. */
+export const effectiveDifficulty = (form: ManeuverForm): string =>
+  form.purpose && FIXED_DIFFICULTY_PURPOSES.includes(form.purpose) ? MEDIUM : form.difficulty;
+
+/** Precision (workspace spec 076, §2.6): the difficulty of each position of the attacker. */
+export const PRECISION_POSITION_VALUES: Record<PrecisionPosition, number> = { rear: -50, flank: -70, front: -100 };
+const BATTLE_CRY_PER_FOE_LEVEL = -2;
+const TALENT_RULE = 'Character Companion';
+
+/** Modifiers the API adds to the maneuver of a combat talent, with its keys (workspace spec 076, §2.6). */
+export const combatTalentModifiers = (form: ManeuverForm): RollModifier[] => {
+  const modifiers: RollModifier[] = [];
+  const source = form.purpose ?? undefined;
+  if (form.purpose === 'battle-cry' && (form.foeLevel ?? 0) > 0) {
+    modifiers.push({
+      key: 'battle-cry-foe-level',
+      value: BATTLE_CRY_PER_FOE_LEVEL * form.foeLevel!,
+      group: 'situation',
+      source,
+      rule: TALENT_RULE,
+      params: { foeLevel: form.foeLevel! },
+    });
+  }
+  if (form.purpose === 'precision' && form.position) {
+    modifiers.push({
+      key: 'precision-position',
+      value: PRECISION_POSITION_VALUES[form.position],
+      group: 'situation',
+      source,
+      rule: TALENT_RULE,
+      params: { position: form.position },
+    });
+    if ((form.obPenalty ?? 0) > 0)
+      modifiers.push({
+        key: 'precision-ob-penalty',
+        value: form.obPenalty!,
+        group: 'situation',
+        source,
+        rule: TALENT_RULE,
+      });
+  }
+  return modifiers;
+};
+
+/** The listing's senses apply to this maneuver and the sense chosen is vision (light only counts then). */
+export const usesLight = (listing: ManeuverModifiersListing, form: ManeuverForm): boolean =>
+  !!listing.light && (!listing.senses || form.sense === 'vision');
+
+/** The sense talent modifiers of the listing that apply to the choices, with the values chosen by the game master. */
+export const activeSenseModifiers = (listing: ManeuverModifiersListing, form: ManeuverForm): ManeuverSenseModifier[] =>
+  (listing.senses?.modifiers ?? [])
+    .filter(
+      (modifier) =>
+        (!modifier.sense || modifier.sense === form.sense) &&
+        (!modifier.usage || modifier.usage === form.senseUsage) &&
+        (!modifier.selection || form.senseSelections.includes(modifier.selection))
+    )
+    .map((modifier) => {
+      if (modifier.key === 'heatsense' && form.heatsenseModifier !== null)
+        return { ...modifier, value: form.heatsenseModifier };
+      if (
+        modifier.usage === 'helpful' &&
+        modifier.key.startsWith('missing-sense-') &&
+        form.missingSenseModifier !== null
+      )
+        return { ...modifier, value: form.missingSenseModifier };
+      return modifier;
+    });
+
+/** The light the maneuver is resolved with: the one chosen, or the ambient light of the game (workspace spec 076). */
+export const effectiveLight = (listing: ManeuverModifiersListing, form: ManeuverForm): string | null =>
+  form.light ?? listing.defaultLight ?? null;
 
 /**
  * Translation key of a choice option of a catalog modifier: `<modifierKey>.<optionKey>` (as in
@@ -90,24 +203,50 @@ export const predictedModifiers = (
         },
     {
       key: 'difficulty',
-      value: listing.difficulty.options.find((o) => o.key === form.difficulty)?.value ?? 0,
+      value: listing.difficulty.options.find((o) => o.key === effectiveDifficulty(form))?.value ?? 0,
       group: 'situation',
       source: 'difficulty',
       rule: MANEUVER_RULES.difficulty,
-      params: { difficulty: form.difficulty },
+      params: { difficulty: effectiveDifficulty(form) },
     },
-    ...listing.base.map(({ key, value, group, source, rule, params }) => ({ key, value, group, source, rule, params })),
+    ...breakdownModifiers(
+      listing.base.map(({ key, value, group, source, rule, params }) => ({ key, value, group, source, rule, params }))
+    ),
   ];
-  if (listing.light && form.light) {
+  const light = effectiveLight(listing, form);
+  if (listing.light && usesLight(listing, form) && light) {
+    const option = listing.light.options.find((o) => o.key === light);
+    // Darkvision within its range sees as in daylight (workspace spec 076); hiding reads the darkness only
+    const darkvision = listing.light.usage !== 'hiding' && form.senseSelections.includes('within-darkvision');
     modifiers.push({
       key: 'light',
-      value: listing.light.options.find((o) => o.key === form.light)?.value ?? 0,
+      value: darkvision ? 0 : (option?.value ?? 0),
       group: 'situation',
       source: 'light',
       rule: MANEUVER_RULES.light,
-      params: { light: form.light, usage: listing.light.usage },
+      params: { light, usage: listing.light.usage },
     });
+    if (option?.sensitivity)
+      modifiers.push({
+        key: 'light-sensitivity',
+        value: option.sensitivity,
+        // The shared breakdown has no senses group: they show with the situation
+        group: 'situation',
+        source: 'senses',
+        rule: MANEUVER_RULES.lightSensitivity,
+        params: { light },
+      });
   }
+  activeSenseModifiers(listing, form).forEach((modifier) =>
+    modifiers.push({
+      key: modifier.key,
+      value: modifier.value,
+      group: 'situation',
+      source: 'senses',
+      rule: modifier.rule,
+      params: { ...modifier.params, sense: form.sense },
+    })
+  );
   listing.skillModifiers.forEach((modifier) =>
     modifiers.push({
       key: modifier.key,
@@ -116,11 +255,12 @@ export const predictedModifiers = (
       source: 'catalog',
     })
   );
-  if (actorRound) {
-    frenzyManeuverModifiers(actorRound, form.purpose).forEach((modifier) =>
+  if (actorRound && form.purpose && !isCombatTalentPurpose(form.purpose)) {
+    frenzyManeuverModifiers(actorRound, form.purpose as FrenzyPurpose).forEach((modifier) =>
       modifiers.push({ ...modifier, group: 'situation', source: 'frenzy' })
     );
   }
+  modifiers.push(...combatTalentModifiers(form));
   if (form.customBonus)
     modifiers.push({ key: 'custom-bonus', value: form.customBonus, group: 'situation', source: 'custom' });
   if (isConflicting(listing, form.maneuverType) && !form.targetActorId && form.passiveTotal !== null) {
@@ -142,13 +282,14 @@ export const MANEUVER_RULES = {
   unskilled: 'Ch. 3, Skill Bonus',
   difficulty: '§5.1',
   light: 'Table 15-7',
+  lightSensitivity: '§4.5',
   conflict: '§8.2',
 } as const;
 
 /** The rules the prediction does not apply: the listing's, and a light the skill does not use (spec 052). */
 export const predictedSkipped = (listing: ManeuverModifiersListing, form: ManeuverForm): SkippedRule[] => [
   ...(listing.skipped ?? []),
-  ...(!listing.light && form.light
+  ...((!listing.light || !usesLight(listing, form)) && form.light
     ? [
         {
           source: 'light',
@@ -167,15 +308,19 @@ export const predictedTotal = (
   actorRound?: ActorRound
 ): number => predictedModifiers(listing, form, actorRound).reduce((sum, modifier) => sum + modifier.value, 0);
 
-/** Choices of a maneuver: the stored ones of the action, or the listing's defaults and the remembered light. */
+/**
+ * Choices of a maneuver: the stored ones of the action, or the listing's defaults: the ambient light of the game
+ * (workspace spec 076), else the remembered light, and the purpose it was declared for.
+ */
 export const initialForm = (
   maneuver: ActionManeuver | null,
   listing: ManeuverModifiersListing | null,
-  rememberedLight: string | null
+  rememberedLight: string | null,
+  declaredPurpose: ManeuverPurpose | null = null
 ): ManeuverForm => {
   const modifiers = maneuver?.modifiers;
   const lightKeys = listing?.light?.options.map((o) => o.key) ?? [];
-  const light = modifiers?.light ?? rememberedLight;
+  const light = modifiers?.light ?? listing?.defaultLight ?? rememberedLight;
   return {
     maneuverType: (modifiers?.maneuverType as ManeuverType) || listing?.maneuverType || 'absolute',
     difficulty: modifiers?.difficulty || listing?.difficulty.default || 'm',
@@ -188,7 +333,52 @@ export const initialForm = (
     passiveBonus: null,
     roll: maneuver?.roll?.roll ?? null,
     unmodified: null,
-    purpose: modifiers?.purpose ?? null,
+    dice: null,
+    purpose: modifiers?.purpose ?? declaredPurpose,
+    foeActorId: modifiers?.foeActorId ?? null,
+    foeLevel: modifiers?.foeLevel ?? null,
+    position: modifiers?.position ?? null,
+    obPenalty: modifiers?.obPenalty ?? null,
+    sense: listing?.senses?.default ?? DEFAULT_SENSE,
+    senseUsage: listing?.senses?.defaultUsage ?? DEFAULT_SENSE_USAGE,
+    senseSelections: [],
+    missingSenseModifier: null,
+    heatsenseModifier: null,
+  };
+};
+
+/** The choices a combat talent maneuver needs are there: its foe, and the position of Precision. */
+export const combatTalentReady = (form: ManeuverForm): boolean =>
+  !isCombatTalentPurpose(form.purpose) ||
+  ((!FOE_PURPOSES.includes(form.purpose) || !!form.foeActorId) && (form.purpose !== 'precision' || !!form.position));
+
+/** Fields of the request for a combat talent maneuver (workspace spec 076). */
+const combatTalentRequest = (form: ManeuverForm): Partial<ResolveManeuverDto> => {
+  if (!isCombatTalentPurpose(form.purpose)) return {};
+  return {
+    ...(FOE_PURPOSES.includes(form.purpose) && form.foeActorId ? { foeActorId: form.foeActorId } : {}),
+    ...(form.purpose === 'battle-cry' && form.foeLevel !== null ? { foeLevel: form.foeLevel } : {}),
+    ...(form.purpose === 'precision' && form.position ? { position: form.position } : {}),
+    ...(form.purpose === 'precision' && (form.obPenalty ?? 0) > 0 ? { obPenalty: form.obPenalty! } : {}),
+  };
+};
+
+/** Fields of the request for the senses of Perception and Tracking (workspace spec 076). */
+const sensesRequest = (listing: ManeuverModifiersListing, form: ManeuverForm): Partial<ResolveManeuverDto> => {
+  if (!listing.senses) return {};
+  const active = activeSenseModifiers(listing, form);
+  const missingHelpful = active.some(
+    (modifier) => modifier.key.startsWith('missing-sense-') && modifier.usage === 'helpful'
+  );
+  const heatsense = active.some((modifier) => modifier.key === 'heatsense');
+  return {
+    sense: form.sense,
+    senseUsage: form.senseUsage,
+    ...(form.senseSelections.length > 0 ? { senseSelections: form.senseSelections } : {}),
+    ...(missingHelpful && form.missingSenseModifier !== null
+      ? { missingSenseModifier: form.missingSenseModifier }
+      : {}),
+    ...(heatsense && form.heatsenseModifier !== null ? { heatsenseModifier: form.heatsenseModifier } : {}),
   };
 };
 
@@ -216,13 +406,19 @@ export const toResolveRequest = (listing: ManeuverModifiersListing, form: Maneuv
   );
   return {
     maneuverType: form.maneuverType,
-    difficulty: form.difficulty,
-    ...(listing.light && form.light ? { light: form.light } : {}),
+    difficulty: effectiveDifficulty(form),
+    ...(usesLight(listing, form) && form.light ? { light: form.light } : {}),
     ...(Object.keys(selections).length > 0 ? { selections } : {}),
     ...(form.customBonus ? { customBonus: form.customBonus } : {}),
     ...(isConflicting(listing, form.maneuverType) ? passiveSide(form) : {}),
     ...(form.purpose ? { purpose: form.purpose } : {}),
-    roll: { roll: form.roll as number, ...(form.unmodified !== null ? { unmodified: form.unmodified } : {}) },
+    ...combatTalentRequest(form),
+    ...sensesRequest(listing, form),
+    roll: {
+      roll: form.roll as number,
+      ...(form.unmodified !== null ? { unmodified: form.unmodified } : {}),
+      ...(form.dice && form.dice.length > 0 ? { dice: form.dice } : {}),
+    },
   };
 };
 

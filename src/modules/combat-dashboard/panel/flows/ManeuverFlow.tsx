@@ -15,12 +15,14 @@ import { fetchActionManeuverModifiers, resolveManeuver } from '../../../api/acti
 import { Action, ManeuverModifiersListing } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
 import { isActionClosed } from '../../../services/ap-service';
+import { actorOpenEnded, combatTalentPurposes, rememberedPurpose } from '../../../services/combat-talents-service';
 import { apiErrorCode, useTacticalNotify } from '../../../services/notify-service';
 import { useSkillService } from '../../../services/skill-service';
 import ActionFlow from '../ActionFlow';
 import { ManeuverResult } from './ActionResults';
 import ManeuverModifiersStep from './maneuver/ManeuverModifiersStep';
 import {
+  combatTalentReady,
   initialForm,
   ManeuverForm,
   passiveSideReady,
@@ -58,6 +60,10 @@ const ManeuverFlow: FC<{
   const [step, setStep] = useState(1);
   const [busy, setBusy] = useState(false);
   const skillId = action.maneuver?.modifiers.skillId ?? '';
+  // Workspace spec 076: a combat talent maneuver declared from the palette starts with its purpose chosen
+  const remembered = rememberedPurpose(action.id);
+  const declaredPurpose =
+    remembered && combatTalentPurposes(actorRound, skillId).includes(remembered) ? remembered : null;
 
   const loadListing = () => {
     setListingError(null);
@@ -66,8 +72,8 @@ const ManeuverFlow: FC<{
         setListing(data);
         // Defaults from the listing, keeping what was already chosen.
         setForm((prev) => ({
-          ...initialForm(action.maneuver, data, rememberedLight(gameId ?? action.gameId)),
-          ...(prev.roll !== null ? { roll: prev.roll, unmodified: prev.unmodified } : {}),
+          ...initialForm(action.maneuver, data, rememberedLight(gameId ?? action.gameId), declaredPurpose),
+          ...(prev.roll !== null ? { roll: prev.roll, unmodified: prev.unmodified, dice: prev.dice } : {}),
         }));
       })
       .catch((err) => {
@@ -156,7 +162,9 @@ const ManeuverFlow: FC<{
             spec={OPEN_D100}
             label={t('maneuver-roll')}
             value={form.roll}
-            onChange={(roll) => change({ roll: roll.total, unmodified: roll.unmodified })}
+            onChange={(roll) => change({ roll: roll.total, unmodified: roll.unmodified, dice: roll.rolls })}
+            // Workspace spec 076: the API checks the dice against the actor's roll profile (luck talents)
+            openEnded={actorOpenEnded(actorRound)}
           />
           {listing && (
             <RollBreakdown
@@ -187,10 +195,19 @@ const ManeuverFlow: FC<{
         done
           ? undefined
           : current === 1
-            ? { label: t('next'), disabled: !listing || !form.difficulty, onClick: () => setStep(2) }
+            ? {
+                label: t('next'),
+                disabled: !listing || !form.difficulty || !combatTalentReady(form),
+                onClick: () => setStep(2),
+              }
             : {
                 label: t('resolve'),
-                disabled: !listing || form.roll === null || !passiveSideReady(listing, form) || busy,
+                disabled:
+                  !listing ||
+                  form.roll === null ||
+                  !passiveSideReady(listing, form) ||
+                  !combatTalentReady(form) ||
+                  busy,
                 onClick: resolve,
                 resolves: true,
               }
