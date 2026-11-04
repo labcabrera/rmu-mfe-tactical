@@ -191,7 +191,7 @@ export type ModifierGroup =
   | 'casting'
   | 'target'
   | 'penalty'
-  /** Sense talents and Light Sensitivity of a maneuver (workspace spec 076); shown with the situation. */
+  /** Sense talents and Light Sensitivity of a maneuver (workspace spec 076), in their own breakdown group. */
   | 'senses';
 
 export type KeyValueModifier = {

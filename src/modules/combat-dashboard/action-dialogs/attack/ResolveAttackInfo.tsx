@@ -3,7 +3,6 @@ import { Grid } from '@mui/material';
 import { RollBreakdown } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../CombatContext';
 import { ActionAttack } from '../../../api/action.dto';
-import { breakdownModifiers } from '../../../services/action-service';
 import { declaredAttackSize } from '../../panel/flows/attack/AttackSizeVsTarget';
 import AttackTitle from '../melee-attack/AttackTitle';
 
@@ -30,7 +29,7 @@ const ResolveAttackFormModifiers: FC<{
       {attack.calculated.rollModifiers && (
         <Grid size={12}>
           <RollBreakdown
-            modifiers={breakdownModifiers(attack.calculated.rollModifiers)}
+            modifiers={attack.calculated.rollModifiers}
             roll={attack.roll?.roll}
             total={attack.calculated.rollTotal}
             skipped={attack.calculated.skipped}

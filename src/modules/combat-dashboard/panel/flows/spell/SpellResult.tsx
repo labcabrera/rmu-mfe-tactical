@@ -4,7 +4,6 @@ import { Alert, Box, Chip, Stack, Typography } from '@mui/material';
 import { formatBonus, RollBreakdown, RuleHint, SpellEffectList } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { TFunction } from 'i18next';
 import { ActionSpell, ActionSpellTarget } from '../../../../api/action.dto';
-import { breakdownModifiers } from '../../../../services/action-service';
 
 /** Spells whose targets take a resistance roll (spec 028 `resistance.kind`), as the API decides. */
 const RR_KINDS = ['realm', 'informational', 'willing'];
@@ -42,7 +41,7 @@ export const SpellCastingResult: FC<{ spell: ActionSpell }> = ({ spell }) => {
     <Stack spacing={2}>
       <RollBreakdown
         context="spell-cast"
-        modifiers={breakdownModifiers(spell.roll.modifiers)}
+        modifiers={spell.roll.modifiers}
         skipped={spell.roll.skipped}
         roll={spell.roll.roll}
         total={scr}
@@ -115,7 +114,7 @@ export const SpellResistanceResults: FC<{ spell: ActionSpell }> = ({ spell }) =>
           {target.rolled && (
             <RollBreakdown
               context="spell-rr"
-              modifiers={breakdownModifiers(target.breakdown.filter((modifier) => modifier.key !== 'roll'))}
+              modifiers={target.breakdown.filter((modifier) => modifier.key !== 'roll')}
               skipped={target.skipped}
               roll={target.roll}
               total={target.total ?? undefined}

@@ -1,6 +1,3 @@
-import type { RollModifier } from '@labcabrera-rmu/rmu-react-shared-lib';
-import type { KeyValueModifier } from '../api/action.dto';
-
 // Webpack replaces `process.env.NODE_ENV` with the build mode. The repo has no Node types, so declare just that.
 declare const process: { env: { NODE_ENV?: string } };
 
@@ -13,10 +10,3 @@ export const isDevelopment = process.env.NODE_ENV !== 'production';
  */
 export const criticalCode = (criticalType?: string | null, criticalSeverity?: string | null): string =>
   `${criticalType || ''}${criticalSeverity || ''}`;
-
-/**
- * A roll breakdown of the API for the shared `RollBreakdown`, which groups by its own groups only: the `senses` group of
- * workspace spec 076 (sense talents, Light Sensitivity) is shown with the situation.
- */
-export const breakdownModifiers = (modifiers: KeyValueModifier[]): RollModifier[] =>
-  modifiers.map((modifier) => ({ ...modifier, group: modifier.group === 'senses' ? 'situation' : modifier.group }));

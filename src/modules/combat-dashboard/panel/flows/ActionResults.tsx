@@ -5,7 +5,6 @@ import { formatBonus, RollBreakdown, ChipRow } from '@labcabrera-rmu/rmu-react-s
 import type { TFunction } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { Action, ActionAttack, ActionManeuverEffect } from '../../../api/action.dto';
-import { breakdownModifiers } from '../../../services/action-service';
 import { AttackResultSummary } from '../../action-dialogs/attack/AttackResolutionGuide';
 import ResolveAttackInfo from '../../action-dialogs/attack/ResolveAttackInfo';
 import ResultValues from './ResultValues';
@@ -39,7 +38,7 @@ export const MovementResult: FC<{ action: Action }> = ({ action }) => {
       {action.movement?.roll?.modifiers && (
         <RollBreakdown
           context="maneuver"
-          modifiers={breakdownModifiers(action.movement.roll.modifiers)}
+          modifiers={action.movement.roll.modifiers}
           skipped={action.movement.roll.skipped}
         />
       )}
@@ -148,7 +147,7 @@ export const ManeuverResult: FC<{ action: Action }> = ({ action }) => {
       {maneuver?.roll?.modifiers && (
         <RollBreakdown
           context="maneuver"
-          modifiers={breakdownModifiers(maneuver.roll.modifiers)}
+          modifiers={maneuver.roll.modifiers}
           skipped={maneuver.roll.skipped}
         />
       )}

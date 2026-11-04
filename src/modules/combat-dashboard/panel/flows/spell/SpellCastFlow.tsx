@@ -25,7 +25,6 @@ import {
   SpellTargetRoll,
 } from '../../../../api/action.dto';
 import { ActorRound, ActorRoundAttack } from '../../../../api/actor-rounds.dto';
-import { breakdownModifiers } from '../../../../services/action-service';
 import { isActionClosed } from '../../../../services/ap-service';
 import { actorOpenEnded } from '../../../../services/combat-talents-service';
 import { useTacticalNotify } from '../../../../services/notify-service';
@@ -307,7 +306,7 @@ const SpellCastFlow: FC<{
           {preview ? (
             <RollBreakdown
               context="spell-cast"
-              modifiers={breakdownModifiers(preview.modifiers)}
+              modifiers={preview.modifiers}
               skipped={preview.skipped}
               roll={roll}
               totalLabel={roll === null ? t('predicted-total') : t('spell-scr')}

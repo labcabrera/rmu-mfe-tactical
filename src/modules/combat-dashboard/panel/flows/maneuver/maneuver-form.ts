@@ -23,7 +23,6 @@ import type {
   ResolveManeuverDto,
 } from '../../../../api/action.dto';
 import type { ActorRound } from '../../../../api/actor-rounds.dto';
-import { breakdownModifiers } from '../../../../services/action-service';
 import { FOE_PURPOSES } from '../../../../services/combat-talents-service';
 import { FrenzyPurpose, frenzyManeuverModifiers } from '../../../../services/frenzy-service';
 
@@ -209,9 +208,7 @@ export const predictedModifiers = (
       rule: MANEUVER_RULES.difficulty,
       params: { difficulty: effectiveDifficulty(form) },
     },
-    ...breakdownModifiers(
-      listing.base.map(({ key, value, group, source, rule, params }) => ({ key, value, group, source, rule, params }))
-    ),
+    ...listing.base.map(({ key, value, group, source, rule, params }) => ({ key, value, group, source, rule, params })),
   ];
   const light = effectiveLight(listing, form);
   if (listing.light && usesLight(listing, form) && light) {
