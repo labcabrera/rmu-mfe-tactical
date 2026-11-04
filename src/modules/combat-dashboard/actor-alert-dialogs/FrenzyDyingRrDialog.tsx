@@ -17,6 +17,7 @@ import { fetchActorRound } from '../../api/actor-rounds';
 import { ActorRound } from '../../api/actor-rounds.dto';
 import { rollActorResistance } from '../../api/psychology';
 import { ResistanceRollResult } from '../../api/psychology.dto';
+import { actorOpenEnded } from '../../services/combat-talents-service';
 import { useTacticalNotify } from '../../services/notify-service';
 
 /**
@@ -102,7 +103,13 @@ const FrenzyDyingRrDialog: FC<{ actorRound: ActorRound; open: boolean; onClose: 
       ) : (
         <Stack spacing={2}>
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-            <RollField spec={OPEN_D100} value={roll} onChange={(value) => setRoll(value.total)} disabled={busy} />
+            <RollField
+              spec={OPEN_D100}
+              value={roll}
+              onChange={(value) => setRoll(value.total)}
+              disabled={busy}
+              openEnded={actorOpenEnded(actorRound)}
+            />
             <NumberPadField
               steps={[-10, -5, 5, 10]}
               label={t('physical-rr-bonus')}

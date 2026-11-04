@@ -1,4 +1,8 @@
 import type {
+  ActorRollProfile,
+  ReactionAlertData,
+  ActorRoundAlertStatus,
+  CombatTalentEffectFields,
   HpLogEntry,
   Injury,
   InjurySource,
@@ -29,6 +33,11 @@ export type ActorRound = {
   effects: ActorRoundEffect[];
   /** Combat traits of the actor (talents and flaws) copied from its character (absent in older actor rounds). */
   traits?: ActorRoundTrait[];
+  /**
+   * How the talents of the actor change its rolls (workspace spec 076): the open-ended thresholds of every open-ended
+   * roll of the actor (pass it to `RollField` as `openEnded`) and the luck talents. Absent before spec 076.
+   */
+  rollProfile?: ActorRollProfile;
   defense: ActorRoundDefense;
   /** Dodge and shield block declared this round (absent in actor rounds stored before them). */
   defenseMode?: ActorRoundDefenseMode;
@@ -226,7 +235,10 @@ export type ActorRoundAlert = {
   type: string;
   message?: string;
   modifiers?: ActorRoundAlertModifier[] | null;
-  status?: 'pending' | 'resolved';
+  /** `expired`: a `reaction-available` alert not taken before its phase ended (workspace spec 076). */
+  status?: ActorRoundAlertStatus;
+  /** The reaction a `reaction-available` alert offers (workspace spec 076). */
+  reaction?: ReactionAlertData;
 };
 
 /** An item of the actor in the game (spec 019): its strategic item with the modifiers it brought and the game ones. */
@@ -314,7 +326,7 @@ export type ActorRoundEffect = {
   fromRound?: number;
   /** `dying`: the injury that causes it was treated, the next stabilize success removes it (workspace spec 068). */
   causeTreated?: boolean;
-};
+} & CombatTalentEffectFields;
 
 export type ActorRoundAttack = {
   attackName: string;
@@ -331,6 +343,8 @@ export type ActorRoundAttack = {
   weaponCategory?: WeaponCategory;
   /** Item of the attack (spec 019). */
   itemId?: string | null;
+  /** Combat skill of the attack (`melee-weapons@sword`): the specialization the talents of the actor match. */
+  skillId?: string | null;
   /** Breakage damage of its item in the game, already in `currentBo`. */
   breakagePenalty?: number;
   /** Its item broke in the game: it cannot be declared. */

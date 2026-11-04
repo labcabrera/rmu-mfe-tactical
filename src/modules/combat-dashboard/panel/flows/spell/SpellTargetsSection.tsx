@@ -5,6 +5,7 @@ import { CharacterAvatar, CharacterPicker, OPEN_D100, RollField } from '@labcabr
 import { ActionSpell, SpellTargetConditions, SpellTargetRoll } from '../../../../api/action.dto';
 import { ActorRound } from '../../../../api/actor-rounds.dto';
 import { useActorRoundOption } from '../../../../services/actor-round-option';
+import { actorOpenEnded } from '../../../../services/combat-talents-service';
 
 const COVERS = ['none', 'partial', 'full'] as const;
 const RANGES = ['touch', 'close', 'normal', 'far'] as const;
@@ -122,6 +123,7 @@ const SpellTargetsSection: FC<{
                     value={form.roll}
                     onChange={(roll) => change(candidate.actorId, { roll: roll.total })}
                     onClear={() => change(candidate.actorId, { roll: null })}
+                    openEnded={actorOpenEnded(candidate)}
                   />
                   <FormControlLabel
                     control={

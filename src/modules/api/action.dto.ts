@@ -1,12 +1,34 @@
 import {
+  ActionAim,
+  ActionAttackReaction,
+  ActionDrawAndLoad,
+  ActionReaction,
+  CombatTalentManeuverFields,
+  CombatTalentPurpose,
+  CriticalRerollFields,
+  ForceReason,
   KeyValue,
+  ManeuverLightOption,
   ManeuverModifier,
   ManeuverModifierOption,
+  ManeuverRollTalent,
+  ManeuverSenseChoices,
+  ManeuverSenses,
   ManeuverType,
   RuleParams,
   SkippedRule,
+  SpasmRoundsField,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import type { FrenzyPurpose } from '../services/frenzy-service';
+
+export type { ForceReason } from '@labcabrera-rmu/rmu-react-shared-lib';
+export { FORCE_REASONS } from '@labcabrera-rmu/rmu-react-shared-lib';
+
+/**
+ * What a maneuver is for: the Adrenal Focus frenzy (spec 040) or the maneuver of a combat talent (workspace spec 076:
+ * Battle Cry, Sense Weakness, Study Offense, Precision).
+ */
+export type ManeuverPurpose = FrenzyPurpose | CombatTalentPurpose;
 
 // Same values as rmu-api-tactical (action-status.vo.ts). `pending_roll` is the current status while the attack,
 // critical or fumble rolls are pending: each attack's `status` says which roll it waits for.
@@ -40,9 +62,11 @@ export type ActionReadiness = 'blocked' | 'unreachable' | 'ready' | 'optimal' | 
 /** AP range of an action type (spec 011, §3). */
 export type ActionApProfile = { min: number; max: number };
 
-/** Why an action is resolved out of turn (spec 011, §6). */
-export type ForceReason = 'withdrawal' | 'pass-through' | 'effect' | 'gm';
-export const FORCE_REASONS: ForceReason[] = ['withdrawal', 'pass-through', 'effect', 'gm'];
+/**
+ * Reasons an open action can be forced with (`PATCH /actions/{id}/force`, spec 011, §6): a reaction (workspace spec
+ * 076) is only declared as a new forced attack, from its alert.
+ */
+export const OPEN_ACTION_FORCE_REASONS: ForceReason[] = ['withdrawal', 'pass-through', 'effect', 'gm'];
 /** Reasons that can declare a new action already forced (`POST /actions` with `forced`). */
 export const NEW_ACTION_FORCE_REASONS: ForceReason[] = ['effect', 'gm'];
 
@@ -78,12 +102,14 @@ export type ActionType =
   | 'cast_spell'
   | 'medical'
   | 'use_item'
+  /** Sharpshooter (workspace spec 076): a full round aiming a ranged weapon at a foe. */
+  | 'aim'
   | 'other'
   | 'skill'
   | 'free';
 
 /** Action types completed without rolls (`PATCH /actions/{id}/complete`). */
-export const SIMPLE_ACTION_TYPES: ActionType[] = ['stand_up', 'dodge', 'draw_and_load', 'other'];
+export const SIMPLE_ACTION_TYPES: ActionType[] = ['stand_up', 'dodge', 'draw_and_load', 'aim', 'other'];
 export type CalledShot = 'none' | 'head' | 'chest' | 'abdomen' | 'arms' | 'legs';
 
 export const MOVEMENT_TABLE = [
@@ -164,7 +190,9 @@ export type ModifierGroup =
   | 'skill'
   | 'casting'
   | 'target'
-  | 'penalty';
+  | 'penalty'
+  /** Sense talents and Light Sensitivity of a maneuver (workspace spec 076); shown with the situation. */
+  | 'senses';
 
 export type KeyValueModifier = {
   key: string;
@@ -211,9 +239,9 @@ export type ActionManeuverModifiers = {
   /** Actor the maneuver is against, and the skill its sheet gave the passive total with (spec 022). */
   targetActorId?: string | null;
   passiveSkillId?: string | null;
-  /** Adrenal Focus maneuver to enter or leave the frenzy (spec 040). */
-  purpose?: FrenzyPurpose | null;
-};
+  /** Adrenal Focus maneuver to enter or leave the frenzy (spec 040), or a combat talent (workspace spec 076). */
+  purpose?: ManeuverPurpose | null;
+} & CombatTalentManeuverFields;
 
 /** Effect of an absolute maneuver result (core's table). */
 export type ActionManeuverEffect = {
@@ -240,6 +268,8 @@ export type ActionManeuverResult = {
   outcome?: string;
   moraleModifier?: number;
   moraleModifierDays?: number;
+  /** Talent that changed the result of the table (workspace spec 076). */
+  rollTalent?: ManeuverRollTalent;
 };
 
 export type ActionManeuver = {
@@ -276,8 +306,15 @@ export type ManeuverModifiersListing = {
   resultTable: string;
   base: ManeuverBaseModifier[];
   difficulty: { default: string; options: ManeuverModifierOption[] };
-  /** Only for skills that use light; the values already take the usage into account. */
-  light?: { usage: 'helpful' | 'required' | 'hiding'; options: ManeuverModifierOption[] };
+  /**
+   * Only for skills that use light; the values already take the usage into account, and the Nightvision of the actor
+   * (workspace spec 076). Perception and Tracking use it only with vision.
+   */
+  light?: { usage: 'helpful' | 'required' | 'hiding'; options: ManeuverLightOption[] };
+  /** Ambient light of the tactical game (workspace spec 076): the default of the light selector. */
+  defaultLight?: string | null;
+  /** Perception and Tracking (workspace spec 076): the senses and the sense talents of the actor. */
+  senses?: ManeuverSenses;
   skillModifiers: ManeuverSkillModifier[];
   /** An absolute maneuver may take the passive side's total. */
   conflicting: boolean;
@@ -301,10 +338,13 @@ export type ResolveManeuverDto = {
   targetActorId?: string;
   passiveRoll?: number;
   passiveBonus?: number;
-  /** Spec 040: enter or leave the frenzy on a success. */
-  purpose?: FrenzyPurpose;
-  roll: { roll: number; unmodified?: number };
-};
+  /** Spec 040: enter or leave the frenzy on a success; spec 076: the maneuver of a combat talent. */
+  purpose?: ManeuverPurpose;
+  /** Every die of the open-ended roll (spec 076): the API checks them with the actor's roll profile. */
+  roll: { roll: number; unmodified?: number; dice?: number[] };
+} & CombatTalentManeuverFields &
+  ManeuverSenseChoices &
+  SpasmRoundsField;
 
 /** Maneuver part of `POST /actions`. */
 export type ManeuverDeclarationDto = {
@@ -353,6 +393,12 @@ export type Action = {
   useItem?: ActionUseItem | null;
   /** Warnings of the request that did not need a confirmation (workspace spec 068). */
   warnings?: ActionWarning[];
+  /** Reaction of an attack forced as `reaction` (workspace spec 076). */
+  reaction?: ActionReaction | null;
+  /** Weapon of a `draw_and_load` action (workspace spec 076). */
+  drawAndLoad?: ActionDrawAndLoad | null;
+  /** Foe and weapon of an `aim` action (workspace spec 076). */
+  aim?: ActionAim | null;
 };
 
 // --- Healing in combat and fear (workspace spec 068) ---
@@ -627,6 +673,8 @@ export type ActionAttack = {
   protectors: string[] | null;
   /** Where each protector stands (Table 9-7c), by actor id; `other` when not given. Sent on prepare. */
   protectorPositions?: Record<string, ProtectPosition>;
+  /** Reaction talent the attack comes from (workspace spec 076). */
+  reaction?: ActionAttackReaction;
 };
 
 /** Where a protector stands (Table 9-7c): between attacker and defender, behind the defender, or anywhere else. */
@@ -673,7 +721,7 @@ export type Critical = {
   result?: CriticalResult;
   /** Fighting style ability that changed the critical before the roll (spec 032). */
   styleOption?: CriticalStyleOption;
-};
+} & CriticalRerollFields;
 
 export type CriticalStyleOption = { abilityId: string; originalType: string; originalSeverity: string };
 

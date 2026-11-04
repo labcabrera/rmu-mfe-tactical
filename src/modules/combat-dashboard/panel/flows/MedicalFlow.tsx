@@ -24,6 +24,7 @@ import {
 } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
 import { isActionClosed } from '../../../services/ap-service';
+import { actorOpenEnded } from '../../../services/combat-talents-service';
 import { useTacticalNotify } from '../../../services/notify-service';
 import ActionFlow from '../ActionFlow';
 
@@ -64,7 +65,7 @@ const MedicalFlow: FC<{
   actorRound: ActorRound;
   onDeleted: () => void;
   onNextPending?: () => void;
-}> = ({ action, onDeleted, onNextPending }) => {
+}> = ({ action, actorRound, onDeleted, onNextPending }) => {
   const { t } = useTranslation();
   const auth = useAuth();
   const notify = useTacticalNotify();
@@ -214,6 +215,7 @@ const MedicalFlow: FC<{
               onClear={() => setRoll(null)}
               placeholder={t('roll-by-server')}
               disabled={busy}
+              openEnded={actorOpenEnded(actorRound)}
             />
           )}
           {askHerbalism && (

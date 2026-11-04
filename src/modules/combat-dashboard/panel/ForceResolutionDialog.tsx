@@ -5,7 +5,7 @@ import { Button, FormControlLabel, Radio, RadioGroup, Stack, TextField, Typograp
 import { RmuDialog } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
 import { forceAction } from '../../api/action';
-import { Action, FORCE_REASONS, ForceReason } from '../../api/action.dto';
+import { Action, ForceReason, OPEN_ACTION_FORCE_REASONS } from '../../api/action.dto';
 import { useTacticalNotify } from '../../services/notify-service';
 
 /** Reasons that spend the actor's next AP: the rule needs at least 1 AP already spent on the action (§8.2). */
@@ -69,7 +69,7 @@ const ForceResolutionDialog: FC<{ action: Action; open: boolean; onClose: () => 
           onChange={(e) => setReason(e.target.value as ForceReason)}
           aria-label={t('force-reason')}
         >
-          {FORCE_REASONS.map((value) => (
+          {OPEN_ACTION_FORCE_REASONS.map((value) => (
             <FormControlLabel
               key={value}
               value={value}

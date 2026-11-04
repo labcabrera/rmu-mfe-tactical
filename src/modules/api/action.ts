@@ -159,20 +159,25 @@ export async function updateAttackRoll(
   });
 }
 
-/** Critical roll of an attack: every critical of the attack shares it (§9.8), so one call resolves them all. */
+/**
+ * Critical roll of an attack: every critical of the attack shares it (§9.8), so one call resolves them all. `reroll`
+ * rolls a critical already rolled again with a `critical-reroll` effect (Sense Weakness, Study Offense; workspace spec
+ * 076): the new roll counts and the API keeps the first one as `originalRoll`.
+ */
 export async function updateCriticalRoll(
   actionId: string,
   attackName: string,
   criticalKey: string,
   roll: number,
   auth: AuthContextProps,
-  styleOption?: string
+  styleOption?: string,
+  reroll?: boolean
 ): Promise<Action> {
   const url = `${apiTacticalUrl}/actions/${actionId}/attack/critical-roll`;
   return await callApi(auth, url, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ attackName, criticalKey, roll, styleOption }),
+    body: JSON.stringify({ attackName, criticalKey, roll, styleOption, ...(reroll ? { reroll: true } : {}) }),
   });
 }
 
@@ -243,13 +248,22 @@ export async function previewSpell(
   });
 }
 
+/**
+ * The Spellcasting Roll. Its first die and every die (workspace spec 076) let the API check the chain against the
+ * caster's roll profile and apply Terrible Luck and Spasm.
+ */
 export async function rollSpell(
   actionId: string,
   options: SpellOptions,
   roll: number,
-  auth: AuthContextProps
+  auth: AuthContextProps,
+  dice?: { unmodified: number; rolls: number[] }
 ): Promise<Action> {
-  return await patchJson(auth, `${apiTacticalUrl}/actions/${actionId}/spell/roll`, { options, roll });
+  return await patchJson(auth, `${apiTacticalUrl}/actions/${actionId}/spell/roll`, {
+    options,
+    roll,
+    ...(dice ? { unmodified: dice.unmodified, dice: dice.rolls } : {}),
+  });
 }
 
 export async function rollSpellFailure(

@@ -4,6 +4,7 @@ import { CombatContext } from '../../CombatContext';
 import { Action, ActionApProfile, ActionType, CLOSED_ACTION_STATUSES } from '../api/action.dto';
 import { ActorRound, ActorRoundApModifier } from '../api/actor-rounds.dto';
 import { actorRoundHasEffect } from './actor-round-service';
+import { QUICK_ACTION, QUICKDRAW, SLOW_ON_THE_DRAW, traitTier, traitTierForSkill } from './combat-talents-service';
 
 // Action points of the board (spec 011). The API computes the capacity, the ledger and the readiness of each action;
 // these helpers only read them to show them.
@@ -98,7 +99,39 @@ export const DECLARE_AP_PROFILES: Partial<Record<ActionType, ActionApProfile>> =
   // Workspace spec 068: 4 AP in each round a medical action lasts; a healing item takes core's `combatItemAp` (2)
   medical: { min: 4, max: 4 },
   use_item: { min: 2, max: 2 },
+  // Workspace spec 076, decision B6: aiming (Sharpshooter) takes the full round
+  aim: { min: 4, max: 4 },
 };
+
+/**
+ * AP of a `draw_and_load` (workspace spec 076, §2.3), as rmu-api-tactical sets them: 0 with Quickdraw for the weapon
+ * drawn (it covers drawing and loading, P3), 2 with Slow on the Draw while surprised, 1 otherwise. Without a weapon
+ * Quickdraw does not apply.
+ */
+export const drawAndLoadApProfile = (actorRound: ActorRound, itemId: string | null | undefined): ActionApProfile => {
+  const skillId = itemId ? actorRound.attacks.find((attack) => attack.itemId === itemId)?.skillId : undefined;
+  if (itemId && traitTierForSkill(actorRound, QUICKDRAW, skillId) > 0) return { min: 0, max: 0 };
+  if (traitTier(actorRound, SLOW_ON_THE_DRAW) > 0 && actorRoundHasEffect(actorRound, ['surprised']))
+    return { min: 2, max: 2 };
+  return { min: 1, max: 1 };
+};
+
+/**
+ * AP of the maneuver of a combat talent (workspace spec 076, §2.6 and P4): Battle Cry 2, Sense Weakness and Study
+ * Offense a full round (4); Precision takes its skill's profile (undefined).
+ */
+export const COMBAT_TALENT_PURPOSE_AP: Partial<Record<string, ActionApProfile>> = {
+  'battle-cry': { min: 2, max: 2 },
+  'sense-weakness': { min: 4, max: 4 },
+  'study-offense': { min: 4, max: 4 },
+};
+
+/**
+ * Instantaneous actions of the round that take no AP (spec 011, §2): the first one, or the first two with Quick Action
+ * (workspace spec 076, decision B5), which does not count for spells nor dodges.
+ */
+export const freeInstantsPerRound = (actorRound: ActorRound, actionType?: string): number =>
+  traitTier(actorRound, QUICK_ACTION) > 0 && actionType !== 'cast_spell' && actionType !== 'dodge' ? 2 : 1;
 
 /** "2-4 AP" or "1 AP". */
 export const apProfileLabel = (profile: ActionApProfile, t: TFunction): string =>
