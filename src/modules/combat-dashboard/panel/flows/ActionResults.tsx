@@ -152,7 +152,7 @@ export const ManeuverResult: FC<{ action: Action }> = ({ action }) => {
 };
 
 /** Per attack: what it does to its target once rolled, and the breakdown of its roll. */
-export const AttackResults: FC<{ attacks: ActionAttack[] }> = ({ attacks }) => {
+export const AttackResults: FC<{ attacks: ActionAttack[]; sourceActorId?: string }> = ({ attacks, sourceActorId }) => {
   const { actorRounds } = useContext(CombatContext)!;
   const targetName = (targetId: string) => actorRounds?.find((ar) => ar.actorId === targetId)?.actorName ?? '';
   return (
@@ -160,7 +160,7 @@ export const AttackResults: FC<{ attacks: ActionAttack[] }> = ({ attacks }) => {
       {attacks.map((attack) => (
         <Stack key={attack.attackName} spacing={1}>
           <AttackResultSummary attack={attack} targetName={targetName(attack.modifiers.targetId)} />
-          <ResolveAttackInfo attack={attack} />
+          <ResolveAttackInfo attack={attack} sourceActorId={sourceActorId} />
         </Stack>
       ))}
     </Stack>

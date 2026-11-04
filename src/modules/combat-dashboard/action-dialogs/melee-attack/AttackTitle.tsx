@@ -4,12 +4,15 @@ import { Typography } from '@mui/material';
 import { CategorySeparator } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { ActionAttack } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
+import AttackSizeVsTarget from '../../panel/flows/attack/AttackSizeVsTarget';
 import { attackLabel } from '../../panel/flows/attack/attack-label';
 
 const AttackTitle: FC<{
   attack: ActionAttack;
   target: ActorRound;
-}> = ({ attack, target }) => {
+  /** Size of the attack in steps from Medium (spec 075): shown against the target's when not 0. */
+  attackSize?: number;
+}> = ({ attack, target, attackSize = 0 }) => {
   const { t } = useTranslation();
   if (!attack || !target) return null;
 
@@ -29,6 +32,7 @@ const AttackTitle: FC<{
       <Typography variant="body2" color="primary">
         {getAttackDetail()}
       </Typography>
+      <AttackSizeVsTarget attackSize={attackSize} target={target} />
     </>
   );
 };

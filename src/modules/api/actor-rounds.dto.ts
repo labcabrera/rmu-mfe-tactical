@@ -74,6 +74,12 @@ export type ActorRound = {
   temporaryModifiers?: TemporaryModifier[];
   /** Fright level of an NPC, from its stat block (workspace spec 068, decision 17). */
   frightLevel?: number | null;
+  /** Size of the actor in steps from Medium (workspace spec 075); absent before it. */
+  size?: number;
+  /** Size of an NPC for the criticals, in steps from Medium, when it differs from its size (spec 075). */
+  criticalSize?: number | null;
+  /** Code I of an NPC (Creature Law T-3.1e): one critical level less, none below A (spec 075). */
+  reduceCriticalSeverity?: boolean;
 };
 
 export type ActorRoundStyleAbility = { abilityId: string; times: number };

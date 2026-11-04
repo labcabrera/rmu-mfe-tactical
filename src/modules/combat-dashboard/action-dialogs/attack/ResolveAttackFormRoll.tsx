@@ -19,6 +19,7 @@ import { AttackNextStep, AttackResultSummary } from './AttackResolutionGuide';
 import ResolveAttackFormCriticals from './ResolveAttackFormCriticals';
 import ResolveAttackFormFumble from './ResolveAttackFormFumble';
 import ResolveAttackInfo from './ResolveAttackInfo';
+import { CriticalRemovedAlert, SeverityShiftChip, severityChanged, useDamageText } from './attack-size-results';
 
 const ResolveAttackFormRoll: FC<{
   formData: AttackDeclaration;
@@ -31,6 +32,7 @@ const ResolveAttackFormRoll: FC<{
   const { t } = useTranslation();
   const { updateAction, actorRounds } = useContext(CombatContext)!;
   const notify = useTacticalNotify();
+  const damageText = useDamageText();
   const isCompleted = action.status === 'completed';
 
   if (!formData || !formData.attacks || formData.attacks.length <= index) return null;
@@ -70,7 +72,7 @@ const ResolveAttackFormRoll: FC<{
   return (
     <Grid container spacing={1}>
       <Grid size={12}>
-        <ResolveAttackInfo attack={formData.attacks[index]} />
+        <ResolveAttackInfo attack={formData.attacks[index]} sourceActorId={action.actorId} />
       </Grid>
       <Grid size={12}>
         <AttackNextStep attack={attack} />
@@ -114,20 +116,36 @@ const ResolveAttackFormRoll: FC<{
               <Tooltip title={t('dmg')}>
                 <Chip
                   avatar={effectIcon('dmg')}
-                  label={t('damage-n', { damage: attack.results.attackTableEntry.damage })}
+                  label={t('damage-n', {
+                    damage: damageText(attack.results.attackTableEntry.damage, attack.results.damageAdjustment),
+                  })}
                   color="error"
                 />
               </Tooltip>
             ) : (
               <Typography>{t('no-damage')}</Typography>
             )}
-            {attack.results.attackTableEntry.criticalType && <Chip label={getCriticalText()} color="error" />}
+            {severityChanged(attack.results.severityAdjustment) ? (
+              <SeverityShiftChip
+                criticalType={
+                  attack.results.attackTableEntry.criticalType ?? attack.results.criticals?.[0]?.criticalType
+                }
+                adjustment={attack.results.severityAdjustment}
+              />
+            ) : (
+              attack.results.attackTableEntry.criticalType && <Chip label={getCriticalText()} color="error" />
+            )}
             {attack.calculated.rollTotal > 175 && (
               <Chip label={getAbsoluteHitText(attack.calculated.rollTotal)} color="error" />
             )}
           </ChipRow>
         )}
       </Grid>
+      {attack.results?.severityAdjustment?.final === null && (
+        <Grid size={12}>
+          <CriticalRemovedAlert adjustment={attack.results.severityAdjustment} />
+        </Grid>
+      )}
 
       {isCriticalAttack() && (
         <Grid size={12}>

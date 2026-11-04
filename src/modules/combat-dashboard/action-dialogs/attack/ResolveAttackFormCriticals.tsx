@@ -9,6 +9,7 @@ import { Action, ActionAttack, AttackDeclaration, CriticalEffect } from '../../.
 import { criticalCode } from '../../../services/action-service';
 import { useTacticalNotify } from '../../../services/notify-service';
 import OptionTiles from '../attack-modifiers/pickers/OptionTiles';
+import { SeverityShiftChip, severityChanged } from './attack-size-results';
 import { criticalEffectLabel } from './critical-effect-label';
 import { CRITICAL_STYLE_OPTIONS, severityFeet, styleOptionsFor } from './style-critical-options';
 
@@ -64,6 +65,15 @@ const ResolveAttackFormCriticals: FC<{
         <Grid size={12}>
           <CategorySeparator text={t('critical-roll')} />
         </Grid>
+        {severityChanged(attack.results?.severityAdjustment) && attack.results.severityAdjustment.final && (
+          // The table's critical moved by the sizes, the charge and the style (spec 075)
+          <Grid size={12}>
+            <SeverityShiftChip
+              criticalType={attack.results.attackTableEntry?.criticalType ?? criticals[0]?.criticalType}
+              adjustment={attack.results.severityAdjustment}
+            />
+          </Grid>
+        )}
         {declaredOption && sharedRoll === undefined && (
           <Grid size={12}>
             <Typography variant="body2" color="text.secondary">

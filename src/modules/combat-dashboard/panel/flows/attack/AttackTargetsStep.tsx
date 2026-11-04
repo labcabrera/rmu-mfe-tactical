@@ -7,6 +7,7 @@ import { ActionAttack, PROTECT_POSITIONS, ProtectPosition } from '../../../../ap
 import { ActorRound, ActorRoundAttack } from '../../../../api/actor-rounds.dto';
 import { useActorRoundOption } from '../../../../services/actor-round-option';
 import SelectAttackRange from '../../../../shared/selects/SelectAttackRange';
+import AttackSizeVsTarget from './AttackSizeVsTarget';
 import TargetPicker from './TargetPicker';
 import { attackLabel } from './attack-label';
 import { AttackKind } from './useAttackDeclaration';
@@ -68,6 +69,12 @@ const AttackTargetsStep: FC<{
                     .filter(Boolean)
                     .join(' · ')}
                 </Typography>
+                {weapon && (
+                  <AttackSizeVsTarget
+                    attackSize={weapon.attackSize ?? 0}
+                    target={targetId ? actorRounds?.find((ar) => ar.actorId === targetId) : undefined}
+                  />
+                )}
               </Box>
               <TargetPicker
                 sourceActorRound={actorRound}

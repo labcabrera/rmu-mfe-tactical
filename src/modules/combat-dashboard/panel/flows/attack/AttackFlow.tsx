@@ -170,7 +170,7 @@ const AttackFlow: FC<{
     </Stack>
   );
 
-  const result = <AttackResults attacks={formData.attacks} />;
+  const result = <AttackResults attacks={formData.attacks} sourceActorId={action.actorId} />;
 
   const steps: FlowStep[] = [
     {
@@ -197,7 +197,14 @@ const AttackFlow: FC<{
           {
             id: 'parry',
             label: t('parry'),
-            content: <ParryStep formData={formData} setFormData={setFormData} exclusions={action.parryExclusions} />,
+            content: (
+              <ParryStep
+                formData={formData}
+                setFormData={setFormData}
+                exclusions={action.parryExclusions}
+                sourceActorId={action.actorId}
+              />
+            ),
           },
         ]
       : []),
