@@ -1,12 +1,14 @@
 import React, { Dispatch, FC, Fragment, SetStateAction, useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
-import { Alert, Chip, Grid, Stack, Tooltip, Typography } from '@mui/material';
+import ReplayIcon from '@mui/icons-material/Replay';
+import { Alert, Button, Chip, Grid, Stack, Tooltip, Typography } from '@mui/material';
 import { CategorySeparator, ChipRow, D100, effectIcon, RollField } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../CombatContext';
 import { updateCriticalRoll } from '../../../api/action';
 import { Action, ActionAttack, AttackDeclaration, CriticalEffect } from '../../../api/action.dto';
 import { criticalCode } from '../../../services/action-service';
+import { criticalRerollKind } from '../../../services/combat-talents-service';
 import { useTacticalNotify } from '../../../services/notify-service';
 import OptionTiles from '../attack-modifiers/pickers/OptionTiles';
 import { SeverityShiftChip, severityChanged } from './attack-size-results';
@@ -24,9 +26,10 @@ const ResolveAttackFormCriticals: FC<{
 }> = ({ formData, action, index, attack, setFormData }) => {
   const auth = useAuth();
   const { t } = useTranslation();
-  const { updateAction, actorRounds } = useContext(CombatContext)!;
+  const { updateAction, actorRounds, refreshActorRounds } = useContext(CombatContext)!;
   const notify = useTacticalNotify();
   const [styleOption, setStyleOption] = useState(NO_OPTION);
+  const [rerolling, setRerolling] = useState(false);
 
   if (!formData || !formData.attacks || formData.attacks.length <= index) return null;
 
@@ -45,14 +48,28 @@ const ResolveAttackFormCriticals: FC<{
       ? styleOptionsFor(source, attack.attackName, CRITICAL_STYLE_OPTIONS)
       : [];
 
-  const onUpdateCriticalRoll = (roll: number) => {
+  // Workspace spec 076, decision B8: a critical already rolled can be rolled again once, before the attack is applied,
+  // by an attacker with Sense Weakness against the target or a target with Study Offense against the attacker.
+  const target = actorRounds?.find((ar) => ar.actorId === attack.modifiers.targetId);
+  const originalRoll = criticals.find(
+    (critical) => critical.originalRoll !== null && critical.originalRoll !== undefined
+  );
+  const rerollKind =
+    sharedRoll !== undefined && !originalRoll && action.status !== 'completed'
+      ? criticalRerollKind(source, target)
+      : undefined;
+
+  const onUpdateCriticalRoll = (roll: number, reroll = false) => {
     if (criticals.length === 0) return;
-    const option = styleOptions.includes(styleOption) ? styleOption : undefined;
-    updateCriticalRoll(action.id, attack.attackName, criticals[0].key, roll, auth, option)
+    const option = !reroll && styleOptions.includes(styleOption) ? styleOption : undefined;
+    updateCriticalRoll(action.id, attack.attackName, criticals[0].key, roll, auth, option, reroll)
       .then((currentAction) => {
         const newFormData = { attacks: currentAction.attacks || [], parries: currentAction.parries || [] };
         updateAction(currentAction);
         setFormData(newFormData);
+        setRerolling(false);
+        // The reroll used up the effect of the actor that had it
+        if (reroll) refreshActorRounds();
       })
       .catch((err) => notify.error(err));
   };
@@ -98,17 +115,57 @@ const ResolveAttackFormCriticals: FC<{
             label={t('critical-roll')}
             value={sharedRoll}
             onChange={(roll) => onUpdateCriticalRoll(roll.total)}
-            // Each roll resolves every critical again; it can change until the attack is applied.
-            disabled={action.status === 'completed'}
+            // Each roll resolves every critical again; it can change until the attack is applied. Once rolled again
+            // with a critical-reroll effect, the second roll counts (workspace spec 076).
+            disabled={action.status === 'completed' || !!originalRoll}
           />
         </Grid>
         <Grid size={6}>
-          {criticals.length > 1 && (
-            <Typography variant="caption" color="text.secondary">
-              {t('critical-roll-shared', { count: criticals.length })}
-            </Typography>
-          )}
+          <Stack spacing={0.5}>
+            {criticals.length > 1 && (
+              <Typography variant="caption" color="text.secondary">
+                {t('critical-roll-shared', { count: criticals.length })}
+              </Typography>
+            )}
+            {originalRoll && (
+              <Typography variant="body2" color="text.secondary">
+                {t('critical-original-roll')}{' '}
+                <Typography component="span" variant="body2" sx={{ textDecoration: 'line-through' }}>
+                  {originalRoll.originalRoll}
+                </Typography>
+                {originalRoll.rerolledBy && ` · ${t(`critical-rerolled-by-${originalRoll.rerolledBy}`)}`}
+              </Typography>
+            )}
+            {rerollKind && !rerolling && (
+              <Button
+                size="small"
+                variant="outlined"
+                startIcon={<ReplayIcon />}
+                onClick={() => setRerolling(true)}
+                sx={{ alignSelf: 'flex-start' }}
+              >
+                {t('critical-reroll-button', {
+                  talent: t(rerollKind === 'offense' ? 'sense-weakness' : 'study-offense'),
+                })}
+              </Button>
+            )}
+          </Stack>
         </Grid>
+        {rerollKind && rerolling && (
+          <Grid size={12}>
+            <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
+              <RollField
+                spec={D100}
+                label={t('critical-reroll-roll')}
+                value={null}
+                onChange={(roll) => onUpdateCriticalRoll(roll.total, true)}
+              />
+              <Button size="small" onClick={() => setRerolling(false)}>
+                {t('cancel')}
+              </Button>
+            </Stack>
+          </Grid>
+        )}
         {criticals.map((critical, index) => (
           <Fragment key={index}>
             <Grid size={12}>
