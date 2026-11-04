@@ -155,7 +155,9 @@ const ActionSummaryView: FC<{ action: Action; onResolve: () => void; onDeleted: 
         <>
           <Divider />
           <SectionLabel>{t('results')}</SectionLabel>
-          {action.attacks?.some((a) => a.calculated) && <AttackResults attacks={action.attacks ?? []} />}
+          {action.attacks?.some((a) => a.calculated) && (
+            <AttackResults attacks={action.attacks ?? []} sourceActorId={action.actorId} />
+          )}
           <MovementResult action={action} />
           <ManeuverResult action={action} />
         </>

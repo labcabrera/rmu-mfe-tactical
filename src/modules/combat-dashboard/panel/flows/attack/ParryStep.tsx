@@ -25,7 +25,9 @@ const ParryStep: FC<{
   setFormData: Dispatch<SetStateAction<AttackDeclaration>>;
   /** Who cannot parry or protect, and why (spec 051). */
   exclusions?: ParryExclusion[];
-}> = ({ formData, setFormData, exclusions = [] }) => {
+  /** Actor of the attacks, to show their size (spec 075). */
+  sourceActorId?: string;
+}> = ({ formData, setFormData, exclusions = [], sourceActorId }) => {
   const { t } = useTranslation();
   const { actorRounds } = useContext(CombatContext)!;
   const parries = formData.parries ?? [];
@@ -110,7 +112,7 @@ const ParryStep: FC<{
   return (
     <Stack spacing={2}>
       {formData.attacks.map((attack) => (
-        <ResolveAttackInfo key={attack.attackName} attack={attack} />
+        <ResolveAttackInfo key={attack.attackName} attack={attack} sourceActorId={sourceActorId} />
       ))}
       {parries.length === 0 && (
         <Alert severity="info" variant="outlined">

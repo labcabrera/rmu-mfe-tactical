@@ -2,7 +2,7 @@ import React, { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import ScienceIcon from '@mui/icons-material/Science';
 import { Chip, Stack } from '@mui/material';
-import { DataTable, ItemConditionChip, SectionLabel } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { AttackSizeChip, DataTable, ItemConditionChip, SectionLabel } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { ActorRound, ActorRoundAttack } from '../api/actor-rounds.dto';
 
 const ActorRoundAttacks: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
@@ -11,11 +11,6 @@ const ActorRoundAttacks: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
   const coatingOf = (attack: ActorRoundAttack) =>
     attack.itemId ? actorRound.items?.find((item) => item.itemId === attack.itemId)?.coating : undefined;
   const attacks = actorRound.attacks ?? [];
-
-  const getAttackTableLabel = (attack: ActorRoundAttack): string => {
-    if (attack.attackSize === 0) return t(attack.attackTable);
-    return `${t(attack.attackTable)} (${attack.attackSize > 0 ? '+' : ''}${attack.attackSize})`;
-  };
 
   const formatRanges = (ranges: ActorRoundAttack['ranges']): string => {
     if (!ranges || ranges.length === 0) return '-';
@@ -63,7 +58,17 @@ const ActorRoundAttacks: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
                 .filter(Boolean)
                 .join(' · '),
           },
-          { key: 'table', header: t('attack-table'), render: ({ attack }) => getAttackTableLabel(attack) },
+          {
+            key: 'table',
+            header: t('attack-table'),
+            // The size of the attack, when not Medium, with its effect on damage and critical (spec 075)
+            render: ({ attack }) => (
+              <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
+                <span>{t(attack.attackTable)}</span>
+                <AttackSizeChip steps={attack.attackSize ?? 0} />
+              </Stack>
+            ),
+          },
           { key: 'base-ob', header: t('base-ob'), align: 'right', render: ({ attack }) => attack.baseBo },
           { key: 'current-ob', header: t('current-ob'), align: 'right', render: ({ attack }) => attack.currentBo },
           { key: 'fumble', header: t('fumble'), align: 'right', render: ({ attack }) => attack.fumble },

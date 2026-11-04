@@ -649,7 +649,20 @@ export type ActionAttackResults = {
   attackTableEntry: AttackTableEntry | null;
   criticals?: Critical[];
   fumble?: ActionAttackFumbleResult;
+  /** Damage of the table scaled by the Hit Multiplier of the attack size (workspace spec 075). */
+  damageAdjustment?: AttackDamageAdjustment;
+  /** How the sizes, the charge, the style and the target moved the critical severity (spec 075). */
+  severityAdjustment?: AttackSeverityAdjustment;
 };
+
+/** `attackTableEntry.damage` is `baseDamage` times `multiplier`, rounded. */
+export type AttackDamageAdjustment = { baseDamage: number; multiplier: number };
+
+/** Steps that moved the critical: `attack-size`, `charge`, `fighting-style`, `target-size`, `light-boned`... */
+export type AttackSeverityStep = { key: string; value: number };
+
+/** Severity of the table and the final one; `final` is null when the critical is removed. */
+export type AttackSeverityAdjustment = { original: string; final: string | null; steps: AttackSeverityStep[] };
 
 export type Critical = {
   key: string;
