@@ -25,7 +25,7 @@ const SimpleActionFlow: FC<{
   const { t } = useTranslation();
   const auth = useAuth();
   const notify = useTacticalNotify();
-  const { updateAction, refreshActorRounds } = useContext(CombatContext)!;
+  const { actorRounds, updateAction, refreshActorRounds } = useContext(CombatContext)!;
   const [note, setNote] = useState(action.description ?? '');
   const [busy, setBusy] = useState(false);
   const [defenseType, setDefenseType] = useState<FullDefenseType>('dodge');
@@ -34,13 +34,26 @@ const SimpleActionFlow: FC<{
   // Completed, or ended without being resolved (interrupted, expired, carried to the next round).
   const done = isActionClosed(action);
   const name = t(combatActionInfo(action.actionType).labelKey);
+  // Workspace spec 076: the weapon drawn, or the foe and weapon aimed with
+  const itemName = (itemId: string | null | undefined) =>
+    itemId ? (actorRound.items?.find((item) => item.itemId === itemId)?.name ?? itemId) : undefined;
+  const weaponDetail =
+    action.actionType === 'aim' && action.aim
+      ? t('aim-detail', {
+          weapon: itemName(action.aim.itemId),
+          target: actorRounds?.find((ar) => ar.actorId === action.aim!.targetActorId)?.actorName ?? '',
+        })
+      : action.actionType === 'draw_and_load' && action.drawAndLoad?.itemId
+        ? itemName(action.drawAndLoad.itemId)
+        : undefined;
 
   const complete = () => {
     setBusy(true);
     completeAction(action.id, note.trim() || undefined, auth, isDodge ? defenseType : undefined)
       .then((updated) => {
         updateAction(updated);
-        if (action.actionType === 'stand_up' || isDodge) refreshActorRounds();
+        // Aiming adds or raises the aiming effect of the actor (workspace spec 076)
+        if (action.actionType === 'stand_up' || isDodge || action.actionType === 'aim') refreshActorRounds();
         notify.success(t('action-completed', { action: name }));
       })
       .catch((err) => notify.error(err))
@@ -51,7 +64,9 @@ const SimpleActionFlow: FC<{
     {
       id: 'declared',
       label: name,
-      summary: [t('phase-n', { phase: action.phaseStart }), action.freeAction && t('free')].filter(Boolean).join(' · '),
+      summary: [t('phase-n', { phase: action.phaseStart }), weaponDetail, action.freeAction && t('free')]
+        .filter(Boolean)
+        .join(' · '),
     },
     {
       id: 'complete',
