@@ -13,6 +13,7 @@ import {
 import { CombatContext } from '../../CombatContext';
 import { ApplyOutcomeButton, FinishGameButton } from '../tactical-games/outcome/GameLifecycleButtons';
 import { useTacticalNotify } from '../services/notify-service';
+import AmbientLightSelect from '../shared/selects/AmbientLightSelect';
 
 const CombatDashboardActions: FC = () => {
   const auth = useAuth();
@@ -47,6 +48,8 @@ const CombatDashboardActions: FC = () => {
 
   return (
     <RmuBreadcrumbs items={breadcrumbs}>
+      {/* Workspace spec 076: the ambient light, the default of the maneuvers, changes during the combat */}
+      <AmbientLightSelect game={game} onChange={setGame} />
       <FinishGameButton game={game} onFinished={setGame} />
       <ApplyOutcomeButton game={game} onApplied={setGame} />
       <RefreshButton onClick={onRefresh} />
