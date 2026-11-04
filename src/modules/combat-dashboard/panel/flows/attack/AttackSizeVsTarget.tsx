@@ -26,12 +26,13 @@ export const declaredAttackSize = (
 
 /**
  * The size of an attack against its target (workspace spec 075): the chip of the attack size and the critical levels
- * it is expected to move (before the charge and the style). Nothing when both are Medium-like (no shift).
+ * it is expected to move (before the charge and the style; with the code I of the target). Nothing when both are Medium-like (no shift).
  */
 const AttackSizeVsTarget: FC<{ attackSize: number; target?: ActorRound | null }> = ({ attackSize, target }) => {
   const { t } = useTranslation();
   const targetSteps = targetCriticalSteps(target);
-  const shift = expectedCriticalShift(attackSize, targetSteps);
+  // Code I of the target takes one more level off
+  const shift = expectedCriticalShift(attackSize, targetSteps) - (target?.reduceCriticalSeverity ? 1 : 0);
   if (attackSizeEffect(attackSize).steps === 0 && shift === 0) return null;
   return (
     <Stack direction="row" spacing={1} sx={{ alignItems: 'center', flexWrap: 'wrap' }}>

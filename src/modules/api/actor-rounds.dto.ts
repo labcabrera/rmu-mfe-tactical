@@ -78,6 +78,8 @@ export type ActorRound = {
   size?: number;
   /** Size of an NPC for the criticals, in steps from Medium, when it differs from its size (spec 075). */
   criticalSize?: number | null;
+  /** Code I of an NPC (Creature Law T-3.1e): one critical level less, none below A (spec 075). */
+  reduceCriticalSeverity?: boolean;
 };
 
 export type ActorRoundStyleAbility = { abilityId: string; times: number };
