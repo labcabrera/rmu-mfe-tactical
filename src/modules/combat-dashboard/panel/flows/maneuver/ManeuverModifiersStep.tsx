@@ -24,11 +24,23 @@ import {
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { ManeuverModifiersListing, ManeuverSkillModifier } from '../../../../api/action.dto';
 import { ActorRound } from '../../../../api/actor-rounds.dto';
+import { actorOpenEnded, combatTalentPurposes } from '../../../../services/combat-talents-service';
 import { FrenzyPurpose, frenzyManeuverModifiers, frenzyPurposes } from '../../../../services/frenzy-service';
 import ModifierTile from '../../../action-dialogs/attack-modifiers/pickers/ModifierTile';
 import OptionTiles from '../../../action-dialogs/attack-modifiers/pickers/OptionTiles';
 import { useSkillDifficultyGuide } from '../useSkillDifficultyGuide';
-import { isConflicting, ManeuverForm, optionLabelKey, predictedTotal, selectionValue } from './maneuver-form';
+import CombatTalentPurposeFields from './CombatTalentPurposeFields';
+import ManeuverSensesFields from './ManeuverSensesFields';
+import {
+  effectiveDifficulty,
+  isCombatTalentPurpose,
+  isConflicting,
+  ManeuverForm,
+  optionLabelKey,
+  predictedTotal,
+  selectionValue,
+  usesLight,
+} from './maneuver-form';
 
 const MANEUVER_TYPES: ManeuverType[] = ['absolute', 'percent'];
 
@@ -67,6 +79,11 @@ const ManeuverModifiersStep: FC<{
   const purposes = actorRound ? frenzyPurposes(actorRound, listing.skill.skillId) : [];
   const purposeValue = (purpose: FrenzyPurpose) =>
     actorRound ? frenzyManeuverModifiers(actorRound, purpose).reduce((sum, modifier) => sum + modifier.value, 0) : 0;
+  // Workspace spec 076: the maneuvers of the combat talents of the actor that roll this skill
+  const talentPurposes = combatTalentPurposes(actorRound, listing.skill.skillId);
+  // Battle Cry and Precision are resolved as Medium (the position gives Precision its difficulty)
+  const fixedDifficulty = form.purpose === 'battle-cry' || form.purpose === 'precision';
+  const lightOption = listing.light?.options.find((option) => option.key === form.light);
   const progress = listing.progress ?? 0;
   const guide = useSkillDifficultyGuide(listing.skill.skillId);
 
@@ -161,11 +178,13 @@ const ManeuverModifiersStep: FC<{
         <OptionTiles
           label={t('frenzy-purpose')}
           options={purposes.map((purpose) => ({ key: purpose, value: purposeValue(purpose) || null }))}
-          value={form.purpose ?? ''}
+          value={form.purpose && !isCombatTalentPurpose(form.purpose) ? form.purpose : ''}
           onChange={(key) => onChange({ purpose: key === form.purpose ? null : (key as FrenzyPurpose) })}
           minTileWidth={150}
         />
       )}
+
+      <CombatTalentPurposeFields purposes={talentPurposes} form={form} onChange={onChange} targets={targets} />
 
       <Box>
         <Caption>{t('base-modifiers')}</Caption>
@@ -193,21 +212,48 @@ const ManeuverModifiersStep: FC<{
         </ChipRow>
       </Box>
 
-      <DifficultyPicker
-        value={form.difficulty}
-        options={listing.difficulty.options}
-        guide={guide}
-        onChange={(difficulty) => onChange({ difficulty })}
-      />
-
-      {listing.light && (
-        <OptionTiles
-          label={`${t('lighting')} · ${t(`light-usage-${listing.light.usage}`)}`}
-          options={listing.light.options}
-          value={form.light ?? ''}
-          onChange={(key) => onChange({ light: key === form.light ? null : key })}
-          minTileWidth={110}
+      {fixedDifficulty ? (
+        <Typography variant="body2" color="text.secondary">
+          {t('combat-talent-difficulty-fixed', { difficulty: t(`difficulty-${effectiveDifficulty(form)}`) })}
+        </Typography>
+      ) : (
+        <DifficultyPicker
+          value={form.difficulty}
+          options={listing.difficulty.options}
+          guide={guide}
+          onChange={(difficulty) => onChange({ difficulty })}
         />
+      )}
+
+      {listing.senses && (
+        <ManeuverSensesFields senses={listing.senses} listing={listing} form={form} onChange={onChange} />
+      )}
+
+      {listing.light && usesLight(listing, form) && (
+        <Box>
+          <OptionTiles
+            label={`${t('lighting')} · ${t(`light-usage-${listing.light.usage}`)}`}
+            options={listing.light.options}
+            value={form.light ?? ''}
+            onChange={(key) => onChange({ light: key === form.light ? null : key })}
+            minTileWidth={110}
+          />
+          {(listing.defaultLight || lightOption?.sensitivity) && (
+            <Typography variant="caption" color="text.secondary" component="div" sx={{ mt: 0.5 }}>
+              {[
+                listing.defaultLight && t('ambient-light-default', { light: t(listing.defaultLight) }),
+                lightOption?.sensitivity && `${t('light-sensitivity')} ${formatBonus(lightOption.sensitivity)}`,
+              ]
+                .filter(Boolean)
+                .join(' · ')}
+            </Typography>
+          )}
+        </Box>
+      )}
+      {listing.light && !usesLight(listing, form) && (
+        <Typography variant="body2" color="text.secondary">
+          {t('light-not-used-sense', { sense: t(`sense-${form.sense}`) })}
+        </Typography>
       )}
 
       {listing.skillModifiers.length > 0 && (
@@ -245,6 +291,7 @@ const ManeuverModifiersStep: FC<{
                 value={form.passiveRoll}
                 onChange={(passiveRoll) => onChange({ passiveRoll: passiveRoll.total })}
                 onClear={() => onChange({ passiveRoll: null })}
+                openEnded={actorOpenEnded(target)}
               />
             )}
             {target && target.actorType !== 'character' && (

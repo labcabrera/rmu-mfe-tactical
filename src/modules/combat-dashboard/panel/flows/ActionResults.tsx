@@ -145,7 +145,11 @@ export const ManeuverResult: FC<{ action: Action }> = ({ action }) => {
       )}
       <ResultValues values={[{ label: t('fatigue'), value: action.fatigue || 0 }]} />
       {maneuver?.roll?.modifiers && (
-        <RollBreakdown context="maneuver" modifiers={maneuver.roll.modifiers} skipped={maneuver.roll.skipped} />
+        <RollBreakdown
+          context="maneuver"
+          modifiers={maneuver.roll.modifiers}
+          skipped={maneuver.roll.skipped}
+        />
       )}
     </Stack>
   );

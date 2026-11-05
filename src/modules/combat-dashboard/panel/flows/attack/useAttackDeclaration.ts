@@ -9,6 +9,7 @@ import {
   isActorRoundProne,
   isActorRoundStunned,
 } from '../../../../services/actor-round-service';
+import { reactionWeapons } from '../../../../services/combat-talents-service';
 
 export type AttackKind = 'melee' | 'ranged';
 
@@ -37,6 +38,10 @@ const newAttack = (attack: ActorRoundAttack, kind: AttackKind, pace: string): Ac
     },
   }) as ActionAttack;
 
+/** The actor a reaction attacks: the one of the action that triggered it (workspace spec 076). */
+const actorReactionTarget = (action: Action, roundActions: Action[]): string | undefined =>
+  roundActions.find((each) => each.id === action.reaction?.triggerActionId)?.actorId;
+
 /**
  * Attack declaration of an action (targets, OB, protectors, range and modifiers) until it is prepared; then it
  * follows the action returned by the API (rolls, parries, results). The attacks come from the actor's weapons, or
@@ -52,11 +57,21 @@ export const useAttackDeclaration = (
   const initial = (): AttackDeclaration => {
     if (action.attacks?.length) return { attacks: action.attacks, parries: action.parries ?? [] };
     const pace = findMaxActorRoundPace(actorRound.actorId, roundActions ?? []);
+    // Workspace spec 076: a reaction attacks with a weapon of its talent's specialization, the actor it reacts to
+    // already chosen for the first one.
+    const reaction = action.reaction;
+    const weapons =
+      sourceAttacks ??
+      (reaction
+        ? reactionWeapons(actorRound, reaction.traitId)
+        : actorRound.attacks.filter((a) => a.type === kind && !a.broken));
+    const target = reaction ? actorReactionTarget(action, roundActions ?? []) : undefined;
     return {
       // A weapon broken in the game cannot attack (spec 019): the API rejects it.
-      attacks: (sourceAttacks ?? actorRound.attacks.filter((a) => a.type === kind && !a.broken)).map((a) =>
-        newAttack(a, kind, pace)
-      ),
+      attacks: weapons.map((a, index) => {
+        const attack = newAttack(a, kind, pace);
+        return index === 0 && target ? { ...attack, modifiers: { ...attack.modifiers, targetId: target } } : attack;
+      }),
       parries: action.parries ?? [],
     };
   };

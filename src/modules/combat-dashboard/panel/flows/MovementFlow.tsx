@@ -19,6 +19,7 @@ import { ActorRound } from '../../../api/actor-rounds.dto';
 import { useActionConfirm, useNotifyWarnings } from '../../../services/action-warnings';
 import { actorRoundHasEffect } from '../../../services/actor-round-service';
 import { isActionClosed } from '../../../services/ap-service';
+import { actorOpenEnded } from '../../../services/combat-talents-service';
 import { useTacticalNotify } from '../../../services/notify-service';
 import { useSkillService } from '../../../services/skill-service';
 import OptionTiles from '../../action-dialogs/attack-modifiers/pickers/OptionTiles';
@@ -69,12 +70,13 @@ const MovementFlow: FC<{
   const { t } = useTranslation();
   const auth = useAuth();
   const notify = useTacticalNotify();
-  const { strategicGame, updateAction, refreshActorRounds } = useContext(CombatContext)!;
+  const { game, strategicGame, updateAction, refreshActorRounds } = useContext(CombatContext)!;
   const { getSkillBonus } = useSkillService();
   const confirm = useActionConfirm();
   const notifyWarnings = useNotifyWarnings();
   const [form, setForm] = useState<ActionMovement>(() =>
-    initialForm(action, actorRound, rememberedLight(action.gameId))
+    // Workspace spec 076: the ambient light of the game first, else the last one chosen
+    initialForm(action, actorRound, game?.environment?.light ?? rememberedLight(action.gameId))
   );
   const [step, setStep] = useState(0);
   const [busy, setBusy] = useState(false);
@@ -274,6 +276,7 @@ const MovementFlow: FC<{
       label={t('maneuver-roll')}
       value={form.roll?.roll ?? null}
       onChange={(value) => setForm((prev) => ({ ...prev, roll: { ...prev.roll, roll: value.total } }))}
+      openEnded={actorOpenEnded(actorRound)}
     />
   );
 

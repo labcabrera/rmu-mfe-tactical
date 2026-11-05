@@ -6,6 +6,7 @@ import { CombatContext } from '../../../CombatContext';
 import { ActorRound, ActorRoundAlert } from '../../api/actor-rounds.dto';
 import { isGameFinished } from '../../services/game-service';
 import ActorAlertDialog from '../actor-alert-dialogs/ActorAlertDialog';
+import { reactionAttackLabel } from '../actor-alert-dialogs/CombatTalentAlertDialog';
 
 const ActorRoundAlerts: FC<{
   actorRound: ActorRound;
@@ -18,8 +19,11 @@ const ActorRoundAlerts: FC<{
   // Alerts open forms that change the actor: a finished game is read-only (spec 013).
   if (!actorRound || isGameFinished(combat?.game)) return null;
 
-  // A resolved breakage alert keeps its result (spec 019): only the pending ones are shown.
-  const pending = (actorRound.alerts || []).filter((alert) => alert.status !== 'resolved');
+  // A resolved breakage alert keeps its result (spec 019): only the pending ones are shown. A reaction not taken
+  // expires when its phase ends (workspace spec 076).
+  const pending = (actorRound.alerts || []).filter(
+    (alert) => alert.status !== 'resolved' && alert.status !== 'expired'
+  );
 
   const handleAlertClick = (alertId: string) => {
     setSelectedAlertId(alertId);
@@ -55,13 +59,20 @@ const ActorRoundAlerts: FC<{
                 // Neutral, not red: the marker alone says it has to be resolved, as for the pending actions. A wound
                 // that reopened and a limb that may be lost are red (workspace spec 068).
                 variant="outlined"
-                color={alert.type === 'wound-reopened' || alert.type === 'limb-loss' ? 'error' : 'inherit'}
+                // A reaction (workspace spec 076) is an attack to take now: it stands out.
+                color={
+                  alert.type === 'wound-reopened' || alert.type === 'limb-loss'
+                    ? 'error'
+                    : alert.type === 'reaction-available'
+                      ? 'warning'
+                      : 'inherit'
+                }
                 size="small"
                 onClick={() => handleAlertClick(alert.id)}
                 startIcon={<ActionStateMarker state="pending" />}
                 sx={{ mr: 0.5, mb: 0.5 }}
               >
-                {t(`alert-${alert.type}`)}
+                {alert.type === 'reaction-available' ? reactionAttackLabel(alert, t) : t(`alert-${alert.type}`)}
               </Button>
             ))}
           </Stack>

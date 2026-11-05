@@ -18,6 +18,7 @@ import {
 } from '@mui/material';
 import {
   CombatActionType,
+  CombatTalentPurpose,
   combatColors,
   SearchField,
   SectionLabel,
@@ -26,7 +27,7 @@ import {
 import { CombatContext } from '../../../CombatContext';
 import { canHeal } from '../../actor-round/medical/medical';
 import { createAction } from '../../api/action';
-import { Action, ActionType, ForceReason } from '../../api/action.dto';
+import { Action, ActionApProfile, ActionType, ForceReason } from '../../api/action.dto';
 import { dropActorRoundItems } from '../../api/actor-rounds';
 import { ActorRound } from '../../api/actor-rounds.dto';
 import { useActionConfirm, useNotifyWarnings } from '../../services/action-warnings';
@@ -35,10 +36,20 @@ import {
   apCapacity,
   apProfileLabel,
   apRemaining,
+  COMBAT_TALENT_PURPOSE_AP,
   DECLARE_AP_PROFILES,
+  freeInstantsPerRound,
   isActionOpen,
   useOpenRounds,
 } from '../../services/ap-service';
+import {
+  aimWeapons,
+  availableCombatTalentPurposes,
+  COMBAT_TALENT_PURPOSE_SKILLS,
+  rememberPurpose,
+  SHARPSHOOTER,
+  traitTier,
+} from '../../services/combat-talents-service';
 import { useTacticalNotify } from '../../services/notify-service';
 import { actionTypeInfo } from '../actor-rounds/action-type-info';
 import { actionLabel } from '../actor-rounds/action-view';
@@ -46,6 +57,7 @@ import ManeuverDeclareDialog from './ManeuverDeclareDialog';
 import MedicalDeclareDialog from './MedicalDeclareDialog';
 import SpellDeclareDialog, { actorCharacter, isCaster } from './SpellDeclareDialog';
 import UseItemDeclareDialog from './UseItemDeclareDialog';
+import WeaponActionDeclareDialog, { WeaponActionDeclaration } from './WeaponActionDeclareDialog';
 
 type PaletteEntry = {
   key: string;
@@ -60,6 +72,10 @@ type PaletteEntry = {
   profile?: string;
   /** What declaring it does that the user should know: it will not reach its minimum AP, or interrupts an action. */
   warnings?: string[];
+  /** AP range of the entry when its type does not give it (a combat talent maneuver). */
+  ap?: ActionApProfile;
+  /** Maneuver of a combat talent (workspace spec 076): declared with its skill, its purpose chosen in the flow. */
+  purpose?: CombatTalentPurpose;
 };
 
 type PaletteGroup = { key: string; label: string; entries: PaletteEntry[] };
@@ -69,6 +85,9 @@ const SKILL_MANEUVERS: Partial<Record<CombatActionType, string>> = { perception:
 
 /** A healing item of 2 AP (workspace spec 068): a type of the API the shared lib does not list yet. */
 const USE_ITEM = 'use_item' as CombatActionType;
+
+/** Actions on a weapon (workspace spec 076): the weapon drawn, or the foe and weapon aimed with. */
+const WEAPON_ENTRIES: CombatActionType[] = ['draw_and_load', 'aim'];
 
 /** The fear state of the actor (§14.3, workspace spec 068), the worst one. */
 export const actorFearState = (actorRound: ActorRound): string | undefined =>
@@ -108,7 +127,9 @@ const usePaletteGroups = (actorRound: ActorRound, phase: number): PaletteGroup[]
   // free action of the round); a retreating one cannot charge and a balking one is warned.
   const fear = actorFearState(actorRound);
   const fleeing = fear === 'fear-routed' || fear === 'fear-broken';
-  const firstFree = !own.some((a) => a.freeAction && !a.attacks?.length);
+  // Quick Action (workspace spec 076): the first two instantaneous actions take no AP
+  const firstFree =
+    own.filter((a) => a.freeAction && !a.attacks?.length).length < freeInstantsPerRound(actorRound, 'other');
   const fearReason = (type: CombatActionType, free: boolean): string | undefined => {
     if (!fleeing || type === 'movement' || type === 'dodge' || (free && firstFree)) return undefined;
     return `palette-fear-only-flee-${fear}`;
@@ -117,7 +138,8 @@ const usePaletteGroups = (actorRound: ActorRound, phase: number): PaletteGroup[]
   const remaining = apRemaining(actorRound, phase) + (interrupted.length > 0 ? 1 : 0);
 
   const entry = (type: CombatActionType, extra: Partial<PaletteEntry> = {}): PaletteEntry => {
-    const profile = extra.freeAction || extra.forced ? { min: 0, max: 0 } : DECLARE_AP_PROFILES[type as ActionType];
+    const profile =
+      extra.freeAction || extra.forced ? { min: 0, max: 0 } : (extra.ap ?? DECLARE_AP_PROFILES[type as ActionType]);
     const warnings: string[] = [];
     if (profile && profile.min > remaining)
       warnings.push(
@@ -153,6 +175,7 @@ const usePaletteGroups = (actorRound: ActorRound, phase: number): PaletteGroup[]
   const afraid = isActorRoundFearBlocked(actorRound) ? 'err-action-fear' : undefined;
   // Spells come from the spellbook of a strategic character (spec 030): NPCs cast none yet.
   const caster = isCaster(actorCharacter(actorRound, characters));
+  const sharpshooter = traitTier(actorRound, SHARPSHOOTER) > 0;
   const noSpells = actorRound.actorType === 'npc' ? 'npc-no-spells' : 'no-spellbook';
   // Attacks are never free (spec 011, §6): an immediate attack granted by an effect is a forced action.
   return [
@@ -190,6 +213,10 @@ const usePaletteGroups = (actorRound: ActorRound, phase: number): PaletteGroup[]
         // A full dodge or block takes the 4 AP of the round (§9.6): it can only start in phase 1.
         entry('dodge', { unavailable: phase > 1 ? 'err-full-defense-action-points' : undefined }),
         entry('draw_and_load'),
+        // Workspace spec 076, decision B6: aiming only with Sharpshooter, for a ranged weapon of its specialization
+        ...(sharpshooter
+          ? [entry('aim', { unavailable: aimWeapons(actorRound).length === 0 ? 'no-aim-weapons' : afraid })]
+          : []),
       ],
     },
     {
@@ -201,6 +228,15 @@ const usePaletteGroups = (actorRound: ActorRound, phase: number): PaletteGroup[]
         // Workspace spec 068: a medical action on a patient (4 AP a round) and a healing item (2 AP)
         entry('medical', { unavailable: canHeal(actorRound) ? undefined : 'err-healer-not-able' }),
         entry(USE_ITEM, { unavailable: actorRound.characterId ? undefined : 'use-item-npc' }),
+        // Workspace spec 076, §2.6: the maneuvers of the combat talents of the actor
+        ...availableCombatTalentPurposes(actorRound).map((purpose) =>
+          entry('maneuver', {
+            key: `purpose-${purpose}`,
+            label: t(purpose),
+            purpose,
+            ap: COMBAT_TALENT_PURPOSE_AP[purpose],
+          })
+        ),
       ],
     },
     {
@@ -246,6 +282,8 @@ const useCreateAction = (actorRound: ActorRound | null, phase: number, onCreated
           (a) => a.actorId === action.actorId && a.id !== action.id && !a.freeAction
         );
         setRoundActions([...(roundActions ?? []), action]);
+        // A combat talent maneuver: its flow starts with the purpose chosen (workspace spec 076)
+        if (entry.purpose) rememberPurpose(action.id, entry.purpose);
         if (interrupts || (action.warnings ?? []).length > 0) refreshActorRounds();
         notify.success(t('action-declared', { action: entry.label }));
         notifyWarnings(action.warnings);
@@ -278,20 +316,23 @@ const ActionPalette: FC<{
   const [maneuver, setManeuver] = useState<ManeuverChoice | null>(null);
   const [spellEntry, setSpellEntry] = useState<PaletteEntry | null>(null);
   const [healEntry, setHealEntry] = useState<PaletteEntry | null>(null);
+  const [weaponEntry, setWeaponEntry] = useState<PaletteEntry | null>(null);
   const { create, busy, confirmDialog } = useCreateAction(actorRound, phase, (action) => {
     setManeuver(null);
     setSpellEntry(null);
     setHealEntry(null);
+    setWeaponEntry(null);
     onCreated(action);
   });
   const close = () => {
     setManeuver(null);
     setSpellEntry(null);
     setHealEntry(null);
+    setWeaponEntry(null);
     onClose();
   };
-  // The palette hides while the maneuver, spell, medical or item dialog is open.
-  const open = Boolean(actorRound) && !maneuver && !spellEntry && !healEntry;
+  // The palette hides while the maneuver, spell, medical, item or weapon dialog is open.
+  const open = Boolean(actorRound) && !maneuver && !spellEntry && !healEntry && !weaponEntry;
   const content = actorRound && (
     <PaletteContent
       actorRound={actorRound}
@@ -302,6 +343,7 @@ const ActionPalette: FC<{
       onManeuver={setManeuver}
       onSpell={setSpellEntry}
       onHeal={setHealEntry}
+      onWeapon={setWeaponEntry}
       onClosePalette={close}
     />
   );
@@ -340,6 +382,14 @@ const ActionPalette: FC<{
         busy={busy}
         onClose={close}
         onDeclare={(useItem) => healEntry && create(healEntry, { useItem })}
+      />
+      <WeaponActionDeclareDialog
+        open={Boolean(actorRound && weaponEntry)}
+        kind={weaponEntry?.type === 'aim' ? 'aim' : 'draw_and_load'}
+        actorRound={actorRound}
+        busy={busy}
+        onClose={close}
+        onDeclare={(declaration: WeaponActionDeclaration) => weaponEntry && create(weaponEntry, declaration)}
       />
       {confirmDialog}
     </>
@@ -383,12 +433,13 @@ const PaletteContent: FC<{
   phase: number;
   busy: boolean;
   onClose: () => void;
-  onCreate: (entry: PaletteEntry) => void;
+  onCreate: (entry: PaletteEntry, extra?: Record<string, unknown>) => void;
   onManeuver: (choice: ManeuverChoice) => void;
   onSpell: (entry: PaletteEntry) => void;
   onHeal: (entry: PaletteEntry) => void;
+  onWeapon: (entry: PaletteEntry) => void;
   onClosePalette: () => void;
-}> = ({ actorRound, phase, busy, onClose, onCreate, onManeuver, onSpell, onHeal, onClosePalette }) => {
+}> = ({ actorRound, phase, busy, onClose, onCreate, onManeuver, onSpell, onHeal, onWeapon, onClosePalette }) => {
   const { t } = useTranslation();
   const groups = usePaletteGroups(actorRound, phase);
   const fear = actorFearState(actorRound);
@@ -409,7 +460,14 @@ const PaletteContent: FC<{
     if (entry.unavailable) return;
     // Perception and medical are maneuvers with their skill already chosen.
     const maneuverEntry = groups.flatMap((g) => g.entries).find((e) => e.type === 'maneuver')!;
-    if (entry.type === 'maneuver') onManeuver({ entry, skillId: null });
+    if (entry.purpose) {
+      // A combat talent maneuver rolls its talent's skill: declared at once (workspace spec 076)
+      const { skillId, specialization } = COMBAT_TALENT_PURPOSE_SKILLS[entry.purpose];
+      onCreate(entry, {
+        maneuver: { skillId, maneuverType: 'absolute', ...(specialization ? { specialization } : {}) },
+      });
+    } else if (entry.type === 'maneuver') onManeuver({ entry, skillId: null });
+    else if (WEAPON_ENTRIES.includes(entry.type)) onWeapon(entry);
     else if (SPELL_ENTRIES.includes(entry.type)) onSpell(entry);
     else if (entry.type === 'medical' || entry.type === USE_ITEM) onHeal(entry);
     else if (SKILL_MANEUVERS[entry.type]) onManeuver({ entry: maneuverEntry, skillId: SKILL_MANEUVERS[entry.type]! });

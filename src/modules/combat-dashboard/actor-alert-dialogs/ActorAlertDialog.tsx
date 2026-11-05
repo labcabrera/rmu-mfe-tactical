@@ -11,6 +11,7 @@ import { useTacticalNotify } from '../../services/notify-service';
 import GroupCheckDialog from '../psychology/GroupCheckDialog';
 import ActorAlertForm from './ActorAlertForm';
 import BreakageCheckDialog from './BreakageCheckDialog';
+import CombatTalentAlertDialog, { COMBAT_TALENT_ALERTS } from './CombatTalentAlertDialog';
 import EnduranceForm, { emptyEnduranceForm, EnduranceFormValue, enduranceModifiers } from './EnduranceForm';
 import FrenzyDyingRrDialog from './FrenzyDyingRrDialog';
 
@@ -133,6 +134,9 @@ const ActorAlertDialog: FC<{
 
   if (currentAlert?.type === 'breakage') {
     return <BreakageCheckDialog actorRound={actorRound} alert={currentAlert} open={open} onClose={onClose} />;
+  }
+  if (currentAlert && COMBAT_TALENT_ALERTS.includes(currentAlert.type)) {
+    return <CombatTalentAlertDialog actorRound={actorRound} alert={currentAlert} open={open} onClose={onClose} />;
   }
   if (currentAlert?.type === 'frenzy-dying') {
     return <FrenzyDyingRrDialog actorRound={actorRound} open={open} onClose={onClose} />;

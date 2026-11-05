@@ -194,7 +194,7 @@ const TacticalGameViewPage: FC = () => {
             <Typography variant="caption" color="text.secondary">
               {game.round < 1 ? t('not-started') : `${t('round')} ${game.round}`}
             </Typography>
-            <TacticalGameViewEnvironment tacticalGame={game} />
+            <TacticalGameViewEnvironment tacticalGame={game} onChange={setTacticalGame} />
           </Stack>
           <Divider />
         </Stack>

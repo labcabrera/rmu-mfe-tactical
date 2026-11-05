@@ -33,6 +33,9 @@ type CombatPanelValue = {
 
 const CombatPanelContext = createContext<CombatPanelValue | null>(null);
 
+/** The combat panel, when the component is inside it (the actor sheet and the board); null elsewhere. */
+export const useOptionalCombatPanel = (): CombatPanelValue | null => useContext(CombatPanelContext);
+
 export const useCombatPanel = (): CombatPanelValue => {
   const value = useContext(CombatPanelContext);
   if (!value) throw new Error('useCombatPanel must be used inside CombatPanelProvider');

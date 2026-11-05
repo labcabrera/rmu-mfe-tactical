@@ -15,6 +15,7 @@ import { CombatContext } from '../../../CombatContext';
 import { ActorRound } from '../../api/actor-rounds.dto';
 import { applyFearEffect, rollActorResistance } from '../../api/psychology';
 import { ResistanceRollResult } from '../../api/psychology.dto';
+import { actorOpenEnded } from '../../services/combat-talents-service';
 import { useTacticalNotify } from '../../services/notify-service';
 import FrightLevelInput from './FrightLevelInput';
 
@@ -158,7 +159,13 @@ const ResistanceRollDialog: FC<{
         <Stack spacing={2}>
           <FrightLevelInput value={attackLevel} onChange={setAttackLevel} disabled={busy} />
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-            <RollField spec={OPEN_D100} value={roll} onChange={(value) => setRoll(value.total)} disabled={busy} />
+            <RollField
+              spec={OPEN_D100}
+              value={roll}
+              onChange={(value) => setRoll(value.total)}
+              disabled={busy}
+              openEnded={actorOpenEnded(actorRound)}
+            />
             <NumberPadField
               steps={[-10, -5, 5, 10]}
               label={t('fear-rr-bonus')}

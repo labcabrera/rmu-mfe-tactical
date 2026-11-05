@@ -11,6 +11,7 @@ import {
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
 import { ActorRound } from '../../api/actor-rounds.dto';
+import { actorOpenEnded } from '../../services/combat-talents-service';
 
 /** Table 5-5 deprivation modifiers: translation key and value per unit (day, hour...). */
 const DEPRIVATION: { key: string; perUnit: number }[] = [
@@ -120,6 +121,7 @@ const EnduranceForm: FC<{
               label={t('endurance-roll')}
               value={value.roll}
               onChange={(roll) => onChange({ ...value, roll: roll.total })}
+              openEnded={actorOpenEnded(actorRound)}
             />
           </Box>
           <RollBreakdown

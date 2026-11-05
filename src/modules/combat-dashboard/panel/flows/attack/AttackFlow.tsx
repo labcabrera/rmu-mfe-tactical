@@ -2,7 +2,7 @@ import React, { FC, useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import { Alert, Stack, Tab, Tabs } from '@mui/material';
-import { FlowStep } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { FlowStep, formatBonus } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../../CombatContext';
 import { applyAttack, declareParry, prepareAttack } from '../../../../api/action';
 import { Action, ParryDeclaration } from '../../../../api/action.dto';
@@ -131,6 +131,16 @@ const AttackFlow: FC<{
               <Tab key={a.attackName} label={labelOf(a.attackName)} />
             ))}
           </Tabs>
+        )}
+        {action.reaction && unprepared && (
+          <Alert severity="info" variant="outlined">
+            {action.reaction.obOverride === null || action.reaction.obOverride === undefined
+              ? t('reaction-attack-help', { trait: t(action.reaction.traitId) })
+              : t('reaction-attack-help-ob', {
+                  trait: t(action.reaction.traitId),
+                  ob: formatBonus(action.reaction.obOverride),
+                })}
+          </Alert>
         )}
         {chargeFear && unprepared && (
           <Alert severity={chargeFear === 'fear-retreat' ? 'warning' : 'info'} variant="outlined">

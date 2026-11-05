@@ -17,6 +17,7 @@ import {
 import { CombatContext } from '../../../CombatContext';
 import { resolveActorPoisoning } from '../../api/actor-rounds';
 import { ActorRound } from '../../api/actor-rounds.dto';
+import { actorOpenEnded } from '../../services/combat-talents-service';
 import { useTacticalNotify } from '../../services/notify-service';
 
 /**
@@ -92,6 +93,7 @@ const PoisonRrDialog: FC<{ actorRound: ActorRound; exposure?: PoisonExposure; on
               value={roll}
               onChange={(value) => setRoll(value.total)}
               onClear={() => setRoll(null)}
+              openEnded={actorOpenEnded(actorRound)}
             />
             {sheetBonus !== undefined ? (
               <Typography variant="body2">{t('poison-rr-bonus-value', { value: formatBonus(sheetBonus) })}</Typography>

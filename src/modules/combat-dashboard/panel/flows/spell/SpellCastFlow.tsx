@@ -26,6 +26,7 @@ import {
 } from '../../../../api/action.dto';
 import { ActorRound, ActorRoundAttack } from '../../../../api/actor-rounds.dto';
 import { isActionClosed } from '../../../../services/ap-service';
+import { actorOpenEnded } from '../../../../services/combat-talents-service';
 import { useTacticalNotify } from '../../../../services/notify-service';
 import ActionFlow from '../../ActionFlow';
 import { actorCharacter } from '../../SpellDeclareDialog';
@@ -101,6 +102,8 @@ const SpellCastFlow: FC<{
   const [options, setOptions] = useState<SpellOptions>(() => ({ ...DEFAULT_SPELL_OPTIONS, ...(spell.options ?? {}) }));
   const [preview, setPreview] = useState<SpellPreview | null>(null);
   const [roll, setRoll] = useState<number | null>(null);
+  // The dice of the roll (workspace spec 076): the API checks them with the caster's roll profile
+  const [dice, setDice] = useState<{ unmodified: number; rolls: number[] } | null>(null);
   const [failureRoll, setFailureRoll] = useState<number | null>(null);
   const [failureRealm, setFailureRealm] = useState<SpellRealm>(spell.spell.listRealms[0] ?? 'essence');
   const [powerPoints, setPowerPoints] = useState<number | null>(null);
@@ -144,7 +147,7 @@ const SpellCastFlow: FC<{
       .catch((err) => notify.error(err));
   };
 
-  const castRoll = () => roll !== null && run(() => rollSpell(action.id, options, roll, auth));
+  const castRoll = () => roll !== null && run(() => rollSpell(action.id, options, roll, auth, dice ?? undefined));
   const castFailure = () =>
     failureRoll !== null &&
     run(() =>
@@ -290,8 +293,15 @@ const SpellCastFlow: FC<{
             spec={OPEN_D100}
             label={t('spell-roll')}
             value={roll}
-            onChange={(value) => setRoll(value.total)}
-            onClear={() => setRoll(null)}
+            onChange={(value) => {
+              setRoll(value.total);
+              setDice({ unmodified: value.unmodified, rolls: value.rolls });
+            }}
+            onClear={() => {
+              setRoll(null);
+              setDice(null);
+            }}
+            openEnded={actorOpenEnded(actorRound)}
           />
           {preview ? (
             <RollBreakdown

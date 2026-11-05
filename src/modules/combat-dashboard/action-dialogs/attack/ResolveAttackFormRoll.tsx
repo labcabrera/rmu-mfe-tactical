@@ -14,6 +14,7 @@ import { CombatContext } from '../../../../CombatContext';
 import { updateAttackRoll } from '../../../api/action';
 import { Action, ActionAttack, AttackDeclaration } from '../../../api/action.dto';
 import { criticalCode } from '../../../services/action-service';
+import { actorOpenEnded } from '../../../services/combat-talents-service';
 import { useTacticalNotify } from '../../../services/notify-service';
 import { AttackNextStep, AttackResultSummary } from './AttackResolutionGuide';
 import ResolveAttackFormCriticals from './ResolveAttackFormCriticals';
@@ -34,6 +35,8 @@ const ResolveAttackFormRoll: FC<{
   const notify = useTacticalNotify();
   const damageText = useDamageText();
   const isCompleted = action.status === 'completed';
+  // Workspace spec 076: the API checks the dice against the attacker's roll profile (luck talents)
+  const openEnded = actorOpenEnded(actorRounds?.find((actorRound) => actorRound.actorId === action.actorId));
 
   if (!formData || !formData.attacks || formData.attacks.length <= index) return null;
 
@@ -94,6 +97,7 @@ const ResolveAttackFormRoll: FC<{
           value={attack.roll?.roll ?? null}
           disabled={isCompleted}
           onChange={onRollChange}
+          openEnded={openEnded}
         />
       </Grid>
       <Grid size={5}>
