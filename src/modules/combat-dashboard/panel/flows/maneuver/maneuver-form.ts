@@ -2,10 +2,12 @@ import {
   COMBAT_TALENT_PURPOSES,
   DEFAULT_SENSE,
   DEFAULT_SENSE_USAGE,
+  ODOR_SKILLS,
   type CombatTalentPurpose,
   type ComplementaryHelper,
   type FeatOfStrengthChoices,
   type SimilarityChoice,
+  type SituationalTraitOption,
   type ManeuverSenseModifier,
   type ManeuverType,
   type PrecisionPosition,
@@ -71,6 +73,9 @@ export type ManeuverForm = {
   complementary: ComplementaryHelper[];
   /** Workspace spec 079, B2: the load of a feat of strength (purpose `feat-of-strength`). */
   featOfStrength: Partial<FeatOfStrengthChoices>;
+  /** Workspace spec 079, D3: situational talents the game master ticks, and the actor smelled (its odour). */
+  situationalTraits: string[];
+  senseTargetActorId: string | null;
 };
 
 /** Workspace spec 079, B3-B4: adrenal moves and Fortitude are absolute maneuvers on the adrenal table. */
@@ -276,6 +281,23 @@ export const predictedModifiers = (
       params: { ...modifier.params, sense: form.sense },
     })
   );
+  // Workspace spec 079, D3: the situational talents ticked and the automatic ones (the odour of the target: the API)
+  activeSituationalTraits(listing, form).forEach((option) =>
+    modifiers.push({
+      key: `situational-${option.traitId}`,
+      value: option.value,
+      group: 'talent',
+      source: 'situational-talents',
+      rule: option.rule,
+      params: {
+        trait: option.traitId,
+        condition: option.condition,
+        tier: option.tier,
+        ...(option.specialization ? { specialization: option.specialization } : {}),
+        ...(option.replaces !== undefined ? { replaces: option.replaces } : {}),
+      },
+    })
+  );
   listing.skillModifiers.forEach((modifier) =>
     modifiers.push({
       key: modifier.key,
@@ -406,6 +428,8 @@ export const initialForm = (
     similarity: modifiers?.similarity ?? null,
     complementary: modifiers?.complementary ?? [],
     featOfStrength: modifiers?.featOfStrength ?? {},
+    situationalTraits: modifiers?.situationalTraits ?? [],
+    senseTargetActorId: modifiers?.senseTargetActorId ?? null,
   };
 };
 
@@ -441,6 +465,27 @@ const sensesRequest = (listing: ManeuverModifiersListing, form: ManeuverForm): P
       ? { missingSenseModifier: form.missingSenseModifier }
       : {}),
     ...(heatsense && form.heatsenseModifier !== null ? { heatsenseModifier: form.heatsenseModifier } : {}),
+  };
+};
+
+/** The situational talents of the listing that apply: the automatic ones and the ticked ones (workspace spec 079). */
+export const activeSituationalTraits = (listing: ManeuverModifiersListing, form: ManeuverForm): SituationalTraitOption[] =>
+  (listing.situationalTraits ?? []).filter(
+    (option) => option.mode === 'automatic' || form.situationalTraits.includes(option.traitId)
+  );
+
+/** The odour of an actor counts for Perception and Tracking made by smell (workspace spec 079, D3). */
+export const smellsTarget = (listing: ManeuverModifiersListing, form: ManeuverForm): boolean =>
+  !!listing.senses && form.sense === 'smell' && ODOR_SKILLS.includes(listing.skill.skillId);
+
+/** Fields of the request for the situational talents and the actor smelled (workspace spec 079, D3). */
+const talentsRequest = (listing: ManeuverModifiersListing, form: ManeuverForm): Partial<ResolveManeuverDto> => {
+  const ticked = form.situationalTraits.filter((traitId) =>
+    (listing.situationalTraits ?? []).some((option) => option.traitId === traitId && option.mode === 'ticked')
+  );
+  return {
+    ...(ticked.length > 0 ? { situationalTraits: ticked } : {}),
+    ...(smellsTarget(listing, form) && form.senseTargetActorId ? { senseTargetActorId: form.senseTargetActorId } : {}),
   };
 };
 
@@ -497,6 +542,7 @@ export const toResolveRequest = (listing: ManeuverModifiersListing, form: Maneuv
     ...combatTalentRequest(form),
     ...sensesRequest(listing, form),
     ...aidsRequest(form),
+    ...talentsRequest(listing, form),
     roll: {
       roll: form.roll as number,
       ...(form.unmodified !== null ? { unmodified: form.unmodified } : {}),

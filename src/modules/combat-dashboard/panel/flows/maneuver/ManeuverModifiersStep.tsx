@@ -33,6 +33,7 @@ import { useSkillDifficultyGuide } from '../useSkillDifficultyGuide';
 import BlockBPurposeFields from './BlockBPurposeFields';
 import CombatTalentPurposeFields from './CombatTalentPurposeFields';
 import ManeuverSensesFields from './ManeuverSensesFields';
+import ManeuverSituationalTalentsFields from './ManeuverSituationalTalentsFields';
 import SkillAidsFields from './SkillAidsFields';
 import {
   effectiveDifficulty,
@@ -237,6 +238,7 @@ const ManeuverModifiersStep: FC<{
       {listing.senses && (
         <ManeuverSensesFields senses={listing.senses} listing={listing} form={form} onChange={onChange} />
       )}
+      <ManeuverSituationalTalentsFields listing={listing} form={form} onChange={onChange} targets={targets} />
       {listing.fog && (
         <ChipRow>
           {/* Workspace spec 079, C5: the fog of the game counts in the breakdown */}

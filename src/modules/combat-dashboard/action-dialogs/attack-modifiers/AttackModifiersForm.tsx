@@ -53,13 +53,15 @@ const AttackModifiersForm: FC<{
   situationExtra?: ReactNode;
   /** Extra controls of the special section: the disarm, the subdual and the combatants in the way (spec 079). */
   specialExtra?: ReactNode;
-}> = ({ formData, setFormData, index, kind, target, situationExtra, specialExtra }) => {
+  /** Talents of the attacker: some fields only show with them (Extra Joints, workspace spec 079). */
+  attackerTraits?: string[];
+}> = ({ formData, setFormData, index, kind, target, situationExtra, specialExtra, attackerTraits }) => {
   const { t } = useTranslation();
   const modifiers = formData.attacks?.[index]?.modifiers;
   if (!modifiers) return null;
 
   const auto = fromTargetEffects(target);
-  const fields = fieldsFor(kind);
+  const fields = fieldsFor(kind, attackerTraits);
 
   const change = (field: ModifierField, value: unknown) => {
     setFormData((prev) => {

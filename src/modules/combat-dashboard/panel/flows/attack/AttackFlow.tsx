@@ -183,6 +183,7 @@ const AttackFlow: FC<{
           index={formData.attacks.findIndex((a) => a.attackName === attacksShown[shownTab].attackName)}
           kind={kind}
           target={actorRounds?.find((ar) => ar.actorId === attacksShown[shownTab].modifiers.targetId)}
+          attackerTraits={actorRound.traits?.map((trait) => trait.traitId)}
           specialExtra={
             unprepared && !action.strayShot ? (
               <SpecialManeuverFields

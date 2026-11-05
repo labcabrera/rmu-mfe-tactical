@@ -24,6 +24,7 @@ import {
   ActionAttackDisarm,
   ActionStrayShot,
   AttackModifiersBlockAFields,
+  AttackTalentModifiers,
   SubdualAdjustment,
   ActionDrawAndLoad,
   ActionReaction,
@@ -37,6 +38,8 @@ import {
   ManeuverModifierOption,
   ManeuverRollTalent,
   ManeuverSenseChoices,
+  ResolveManeuverTalentFields,
+  SituationalTraitOption,
   ManeuverSenses,
   ManeuverType,
   RuleParams,
@@ -283,6 +286,9 @@ export type ActionManeuverModifiers = {
   similarity?: SimilarityChoice | null;
   complementary?: ComplementaryHelper[] | null;
   featOfStrength?: FeatOfStrengthChoices | null;
+  /** Workspace spec 079, D3: the situational talents ticked and the actor perceived or tracked by smell. */
+  situationalTraits?: string[] | null;
+  senseTargetActorId?: string | null;
 } & CombatTalentManeuverFields;
 
 /** Effect of an absolute maneuver result (core's table). */
@@ -377,6 +383,8 @@ export type ManeuverModifiersListing = {
   featOfStrength?: FeatOfStrengthListing;
   /** Workspace spec 079, C5: the fog of the game for Perception and Tracking (§15.7). */
   fog?: ManeuverFogListing;
+  /** Workspace spec 079, D3: the situational talents of the actor for this skill (ticked or automatic). */
+  situationalTraits?: SituationalTraitOption[];
 };
 
 /** Query of `GET /actions/{id}/maneuver/modifiers` (workspace spec 079): the purpose, the aids and the load. */
@@ -413,6 +421,7 @@ export type ResolveManeuverDto = {
   featOfStrength?: FeatOfStrengthChoices;
 } & CombatTalentManeuverFields &
   ManeuverSenseChoices &
+  ResolveManeuverTalentFields &
   SpasmRoundsField;
 
 /** Maneuver part of `POST /actions`. */
@@ -878,7 +887,8 @@ export type ActionAttackModifiers = {
   chargeSpeed?: ChargeSpeed;
   /** Fighting style ability that changes the critical (spec 032). */
   styleCriticalOption?: string | null;
-} & AttackModifiersBlockAFields;
+} & AttackModifiersBlockAFields &
+  AttackTalentModifiers;
 
 export type AttackCalculationsDto = {
   rollModifiers: KeyValueModifier[];

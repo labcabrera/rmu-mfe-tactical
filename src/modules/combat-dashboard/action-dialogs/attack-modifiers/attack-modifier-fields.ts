@@ -1,3 +1,4 @@
+import { EXTRA_JOINTS_ATTACK_BONUS } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { ActionAttackModifiers } from '../../../api/action.dto';
 
 export type AttackKind = 'melee' | 'ranged';
@@ -18,6 +19,8 @@ type Base = {
   section: ModifierSection;
   /** Attack kinds it applies to (both when omitted). */
   appliesTo?: AttackKind[];
+  /** Talent the attacker needs for the field to show (workspace spec 079). */
+  requiresTrait?: string;
 };
 
 /**
@@ -123,6 +126,16 @@ export const ATTACK_MODIFIER_FIELDS: ModifierField[] = [
     bonus: () => -20,
   },
   { kind: 'flag', name: 'ambush', label: 'ambush', group: 'offense', section: 'special', bonus: () => null },
+  // Workspace spec 079, D3: Extra Joints, when the flexible limb helps the attack
+  {
+    kind: 'flag',
+    name: 'extraJoints',
+    label: 'extra-joints-attack',
+    group: 'offense',
+    section: 'roll',
+    requiresTrait: 'extra-joints',
+    bonus: () => EXTRA_JOINTS_ATTACK_BONUS,
+  },
   { kind: 'number', name: 'customBonus', label: 'custom-bonus', group: 'offense', section: 'roll' },
   // Target
   { kind: 'flag', name: 'stunnedFoe', label: 'target-stunned', group: 'defense', section: 'roll', bonus: () => 20 },
@@ -223,8 +236,12 @@ export const ATTACK_MODIFIER_FIELDS: ModifierField[] = [
 
 export const MODIFIER_SECTIONS: ModifierSection[] = ['roll', 'defender', 'special'];
 
-export const fieldsFor = (kind: AttackKind) =>
-  ATTACK_MODIFIER_FIELDS.filter((field) => !field.appliesTo || field.appliesTo.includes(kind));
+export const fieldsFor = (kind: AttackKind, attackerTraits: string[] = []) =>
+  ATTACK_MODIFIER_FIELDS.filter(
+    (field) =>
+      (!field.appliesTo || field.appliesTo.includes(kind)) &&
+      (!field.requiresTrait || attackerTraits.includes(field.requiresTrait))
+  );
 
 /** Whether a field has a value other than its default (shown in the summary). */
 export const isDeclared = (field: ModifierField, modifiers: ActionAttackModifiers): boolean => {

@@ -5,6 +5,7 @@ import AirIcon from '@mui/icons-material/Air';
 import ScubaDivingIcon from '@mui/icons-material/ScubaDiving';
 import { Alert, Box, Button, Chip, Divider, FormControlLabel, Stack, Switch, TextField } from '@mui/material';
 import {
+  BREATH_HOLDING,
   breathLimitRounds,
   breathRoundsLeft,
   ChipRow,
@@ -21,9 +22,24 @@ import { isRoundEditable } from '../services/game-service';
 import { useTacticalNotify } from '../services/notify-service';
 import { canManageTactical } from '../shared/permissions';
 
-type BreathForm = { prepared: boolean; underwater: boolean; constitutionBonus: number | null; note: string };
+type BreathForm = {
+  prepared: boolean;
+  underwater: boolean;
+  constitutionBonus: number | null;
+  note: string;
+  /** Workspace spec 079, D5: Breath Holding lasts longer while inactive, and longer still meditating. */
+  inactive: boolean;
+  meditation: boolean;
+};
 
-const emptyForm = (): BreathForm => ({ prepared: true, underwater: false, constitutionBonus: null, note: '' });
+const emptyForm = (): BreathForm => ({
+  prepared: true,
+  underwater: false,
+  constitutionBonus: null,
+  note: '',
+  inactive: false,
+  meditation: false,
+});
 
 /**
  * The actor starts holding its breath (workspace spec 079, C4, §15.2): prepared or caught unawares, underwater or not,
@@ -41,6 +57,7 @@ const StartBreathDialog: FC<{ actorRound: ActorRound; open: boolean; onClose: ()
   const [form, setForm] = useState<BreathForm>(emptyForm);
   const [busy, setBusy] = useState(false);
   const npc = actorRound.actorType === 'npc';
+  const breathHolding = !!actorRound.traits?.some((trait) => trait.traitId === BREATH_HOLDING);
 
   useEffect(() => {
     if (open) setForm(emptyForm());
@@ -54,6 +71,8 @@ const StartBreathDialog: FC<{ actorRound: ActorRound; open: boolean; onClose: ()
       underwater: form.underwater,
       ...(form.constitutionBonus !== null ? { constitutionBonus: form.constitutionBonus } : {}),
       ...(form.note.trim() ? { note: form.note.trim() } : {}),
+      ...(breathHolding && form.inactive ? { inactive: true } : {}),
+      ...(breathHolding && form.meditation ? { meditation: true } : {}),
     };
     setBusy(true);
     startActorRoundBreath(actorRound.id, dto, auth)
@@ -98,6 +117,31 @@ const StartBreathDialog: FC<{ actorRound: ActorRound; open: boolean; onClose: ()
             label={t('breath-underwater')}
           />
         </Stack>
+        {breathHolding && (
+          <Stack direction="row" spacing={2} sx={{ flexWrap: 'wrap', rowGap: 1 }}>
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={form.inactive || form.meditation}
+                  disabled={form.meditation}
+                  onChange={(e) => change({ inactive: e.target.checked })}
+                />
+              }
+              label={t('breath-inactive')}
+            />
+            <FormControlLabel
+              control={
+                <Switch checked={form.meditation} onChange={(e) => change({ meditation: e.target.checked })} />
+              }
+              label={t('breath-meditation')}
+            />
+          </Stack>
+        )}
+        {breathHolding && (
+          <Alert severity="info" variant="outlined">
+            {t('breath-holding-help')}
+          </Alert>
+        )}
         <Box sx={{ width: 220 }}>
           <NumberPadField
             label={t('breath-constitution-bonus')}
@@ -179,6 +223,14 @@ const ActorRoundEnvironment: FC<{ actorRound: ActorRound }> = ({ actorRound }) =
                 label={t('breath-held-rounds', { held: breath.heldRounds, limit: breath.limitRounds })}
               />
               {!breath.prepared && <Chip size="small" variant="outlined" label={t('breath-unprepared')} />}
+              {breath.breathHolding && (
+                <Chip
+                  size="small"
+                  variant="outlined"
+                  color="success"
+                  label={t('breath-holding-limit', { rounds: breath.breathHolding.rounds })}
+                />
+              )}
               {breath.underwater && <Chip size="small" variant="outlined" label={t('breath-underwater')} />}
               {suffocating && <Chip size="small" color="error" label={t('suffocating')} />}
             </ChipRow>
