@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Box, Chip, Stack, Typography } from '@mui/material';
 import {
   ActorRoundHazard,
+  ActorRoundHazardBlockAFields,
   ChipRow,
   formatBonus,
   formatMultiplier,
@@ -26,8 +27,10 @@ export const hazardTitle = (hazard: ActorRoundHazard, t: (key: string, options?:
  * roll and total, the damage with the Hit Multiplier of its size, the severity of the critical with the steps that moved
  * it (sizes, Light-boned, code I, fall control) and each critical, rolled or left as an alert.
  */
-const HazardResult: FC<{ hazard: ActorRoundHazard }> = ({ hazard }) => {
+const HazardResult: FC<{ hazard: ActorRoundHazard & ActorRoundHazardBlockAFields }> = ({ hazard }) => {
   const { t, i18n } = useTranslation();
+  // Workspace spec 079, decision A4: the hazard of a knock-back gives no critical worse than the one that provoked it
+  const cap = hazard.severityCap ?? null;
   const steps = hazard.severitySteps.filter((step) => step.value !== 0);
   const severityMoved = hazard.originalSeverity !== hazard.severity || steps.length > 0;
   const damage =
@@ -109,6 +112,17 @@ const HazardResult: FC<{ hazard: ActorRoundHazard }> = ({ hazard }) => {
             color={hazard.fallControlSteps < 0 ? 'success' : 'error'}
             label={t('fall-control-steps', { steps: signedSteps(hazard.fallControlSteps) })}
           />
+        )}
+        {cap && (
+          <RuleHint title={t('alert-knocked-back')} description={t('hazard-severity-cap-help')} reference="§9.8">
+            <Chip
+              size="small"
+              variant="outlined"
+              color="warning"
+              label={t('hazard-severity-cap', { severity: cap })}
+              sx={{ cursor: 'inherit' }}
+            />
+          </RuleHint>
         )}
       </ChipRow>
       {hazard.criticals.map((critical, index) => (

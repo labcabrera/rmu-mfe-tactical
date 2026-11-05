@@ -105,7 +105,12 @@ const AttackFlow: FC<{
     );
   const parry = () => {
     const shieldManeuvers = shieldManeuverItems(formData.attacks, shieldInputs);
-    const parries = (formData.parries ?? []).map((p) => ({ parryId: p.id, parry: p.parry }));
+    const parries = (formData.parries ?? []).map((p) => ({
+      parryId: p.id,
+      parry: p.parry,
+      // Spec 079, A2: only for the parries that need the maneuver and give any OB
+      ...(p.parryManeuver?.required && !p.carriedOver && p.maneuverResult ? { maneuverResult: p.maneuverResult } : {}),
+    }));
     const body: ParryDeclaration = {
       ...(parries.length > 0 || shieldManeuvers.length === 0 ? { parries } : {}),
       ...(shieldManeuvers.length > 0 ? { shieldManeuvers } : {}),

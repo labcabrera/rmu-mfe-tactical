@@ -161,6 +161,14 @@ const ActorRoundResume: FC<{
             </Tooltip>
             {/* Workspace spec 077: concentrating, each AP of another action counts half */}
             <ConcentrationChip actorRound={actorRound} />
+            {/* Workspace spec 079, A3: critical code @, a stun is a flat -25 for 1 round */}
+            {actorRound.stunImmune && (
+              <Tooltip title={t('stun-immune-help')}>
+                <Typography variant="caption" color="text.secondary" sx={{ alignSelf: 'flex-start' }}>
+                  {t('stun-immune')}
+                </Typography>
+              </Tooltip>
+            )}
           </Stack>
         </Stack>
       </ButtonBase>

@@ -1,7 +1,7 @@
 import React, { FC, useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
-import { Alert } from '@mui/material';
+import { Alert, Stack } from '@mui/material';
 import Button from '@mui/material/Button';
 import { FALL_SUGGESTED_ALERT, RmuDialog } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
@@ -18,6 +18,8 @@ import CriticalAlertDialog from './CriticalAlertDialog';
 import EnduranceForm, { emptyEnduranceForm, EnduranceFormValue, enduranceModifiers } from './EnduranceForm';
 import FrenzyDyingRrDialog from './FrenzyDyingRrDialog';
 import MentalFocusAlertDialog, { MENTAL_FOCUS_ALERT } from './MentalFocusAlertDialog';
+import DeathThresholdAlertDialog, { DEATH_THRESHOLD_ALERT } from './DeathThresholdAlertDialog';
+import KnockedBackAlertDialog, { KNOCKED_BACK_ALERT } from './KnockedBackAlertDialog';
 
 /** Alerts of workspace spec 068 the game master reads and dismisses: the API keeps them until the round ends. */
 export const INFO_ALERTS = ['wound-reopened', 'limb-loss'];
@@ -28,7 +30,8 @@ export const INFO_ALERTS = ['wound-reopened', 'limb-loss'];
  * spec 068: a suggested fear check opens the group checks with the faction and fright level, a Revulsion alert the
  * fear RR with its level, a tourniquet alert offers to loosen it, and a reopened wound or a lost limb are only read.
  * Workspace spec 077: a Mental Focus alert takes the outcome of the maneuver, a critical alert its roll (the API applies
- * it) and a suggested fall opens the fall of the actor.
+ * it) and a suggested fall opens the fall of the actor. Workspace spec 079: a death-threshold alert is confirmed or
+ * dismissed, a knocked-back alert offers its hazard, and an endurance alert of the total penalties says why.
  * The others are edited and saved locally.
  */
 const ActorAlertDialog: FC<{
@@ -59,6 +62,8 @@ const ActorAlertDialog: FC<{
 
   const isEndurance = currentAlert?.type === 'endurance';
   const modifierOf = (key: string) => currentAlert?.modifiers?.find((m) => m.key === key);
+  // Workspace spec 079, decision A3: an endurance roll asked by the total penalties, not by the accumulated fatigue
+  const penaltyReason = isEndurance ? modifierOf('reason')?.modifier : undefined;
   // The API resolves only some alerts: the others are marked as done in the board until the next round
   const dismiss = () => {
     if (currentAlert) onSave?.({ ...currentAlert, status: 'resolved' });
@@ -164,6 +169,12 @@ const ActorAlertDialog: FC<{
   if (currentAlert?.type === MENTAL_FOCUS_ALERT) {
     return <MentalFocusAlertDialog actorRound={actorRound} alert={currentAlert} open={open} onClose={onClose} />;
   }
+  if (currentAlert?.type === DEATH_THRESHOLD_ALERT) {
+    return <DeathThresholdAlertDialog actorRound={actorRound} alert={currentAlert} open={open} onClose={onClose} />;
+  }
+  if (currentAlert?.type === KNOCKED_BACK_ALERT) {
+    return <KnockedBackAlertDialog actorRound={actorRound} alert={currentAlert} open={open} onClose={onClose} />;
+  }
   if (currentAlert?.type === 'frenzy-dying') {
     return <FrenzyDyingRrDialog actorRound={actorRound} open={open} onClose={onClose} />;
   }
@@ -228,7 +239,14 @@ const ActorAlertDialog: FC<{
       {!currentAlert ? (
         <div>{t('alert-not-found')}</div>
       ) : isEndurance ? (
-        <EnduranceForm actorRound={actorRound} value={endurance} onChange={setEndurance} />
+        <Stack spacing={2}>
+          {penaltyReason && (
+            <Alert severity={penaltyReason === 'penalty-dying' ? 'error' : 'warning'} variant="outlined">
+              {t(`alert-endurance-${penaltyReason}`, { total: modifierOf('total')?.value ?? 0 })}
+            </Alert>
+          )}
+          <EnduranceForm actorRound={actorRound} value={endurance} onChange={setEndurance} />
+        </Stack>
       ) : (
         <ActorAlertForm actorRound={actorRound} alertId={alertId} onChange={handleChange} />
       )}

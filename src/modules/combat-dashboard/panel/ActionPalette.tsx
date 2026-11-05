@@ -59,6 +59,7 @@ import { actionTypeInfo } from '../actor-rounds/action-type-info';
 import { actionLabel } from '../actor-rounds/action-view';
 import ManeuverDeclareDialog from './ManeuverDeclareDialog';
 import MedicalDeclareDialog from './MedicalDeclareDialog';
+import OtherActionDeclareDialog from './OtherActionDeclareDialog';
 import SpellDeclareDialog, { actorCharacter, isCaster } from './SpellDeclareDialog';
 import UseItemDeclareDialog from './UseItemDeclareDialog';
 import WeaponActionDeclareDialog, { WeaponActionDeclaration } from './WeaponActionDeclareDialog';
@@ -438,8 +439,15 @@ const ActionPalette: FC<{
         onClose={close}
         onDeclare={(useItem) => healEntry && create(healEntry, { useItem })}
       />
+      <OtherActionDeclareDialog
+        open={Boolean(actorRound && weaponEntry?.type === 'other')}
+        actorRound={actorRound}
+        busy={busy}
+        onClose={close}
+        onDeclare={(fields) => weaponEntry && create(weaponEntry, { ...fields })}
+      />
       <WeaponActionDeclareDialog
-        open={Boolean(actorRound && weaponEntry)}
+        open={Boolean(actorRound && weaponEntry && weaponEntry.type !== 'other')}
         kind={weaponEntry?.type === 'aim' ? 'aim' : 'draw_and_load'}
         actorRound={actorRound}
         busy={busy}
@@ -529,6 +537,8 @@ const PaletteContent: FC<{
       });
     } else if (entry.type === 'maneuver') onManeuver({ entry, skillId: null });
     else if (WEAPON_ENTRIES.includes(entry.type)) onWeapon(entry);
+    // Workspace spec 079, A5: a declared `other` picks its subtype of Table 8-1 first
+    else if (entry.type === 'other' && !entry.freeAction) onWeapon(entry);
     else if (SPELL_ENTRIES.includes(entry.type)) onSpell(entry);
     else if (entry.type === 'medical' || entry.type === USE_ITEM) onHeal(entry);
     else if (SKILL_MANEUVERS[entry.type]) onManeuver({ entry: maneuverEntry, skillId: SKILL_MANEUVERS[entry.type]! });

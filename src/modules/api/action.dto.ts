@@ -1,4 +1,7 @@
 import {
+  AbsoluteResultKey,
+  ActionOther,
+  ActionParryBlockAFields,
   ActionAim,
   ActionSpellAdjusted,
   BmrMultiplier,
@@ -152,6 +155,8 @@ export type AttackDeclaration = {
 export type ParryDeclarationItem = {
   parryId: string;
   parry: number;
+  /** Result of the Combat Training maneuver against a further foe (workspace spec 079, A2). */
+  maneuverResult?: AbsoluteResultKey;
 };
 
 /** Body of `PATCH /actions/{id}/attack/parry`: the parries and the Shield maneuvers (workspace spec 077); both optional. */
@@ -421,6 +426,8 @@ export type Action = {
   drawAndLoad?: ActionDrawAndLoad | null;
   /** Foe and weapon of an `aim` action (workspace spec 076). */
   aim?: ActionAim | null;
+  /** Subtype of an `other` action with a fixed cost of Table 8-1 (workspace spec 079, A5). */
+  otherAction?: ActionOther | null;
 };
 
 // --- Healing in combat and fear (workspace spec 068) ---
@@ -862,6 +869,11 @@ export type ActionParry = {
   carriedOver?: boolean;
   /** Where `parryAvailable` comes from: the OB left on the parrying attack and the penalties (spec 051). */
   breakdown?: ParryBreakdown;
+  /** Workspace spec 079, A2: the parry toward the flank or rear, and the maneuver against further foes. */
+  positional?: ActionParryBlockAFields['positional'];
+  parryManeuver?: ActionParryBlockAFields['parryManeuver'];
+  /** Result typed in the parry step (not sent back by the API). */
+  maneuverResult?: AbsoluteResultKey;
 };
 
 /** The OB left on the melee attack an actor parries with, its penalties and, protecting, the protect penalty. */

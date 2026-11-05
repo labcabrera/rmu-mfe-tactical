@@ -98,6 +98,8 @@ export type ActorRound = {
   criticalSize?: number | null;
   /** Code I of an NPC (Creature Law T-3.1e): one critical level less, none below A (spec 075). */
   reduceCriticalSeverity?: boolean;
+  /** Code @ of an NPC (§9.8 Stun): a stun is a flat -25 for 1 round that does not stack (workspace spec 079). */
+  stunImmune?: boolean;
   /** What the actor concentrates on (workspace spec 077): with any, each AP of another action counts half. */
   concentration?: ConcentrationFocus[];
   /** Enc % of the armor the character wears (workspace spec 077): the default of a cast's armor encumbrance. */

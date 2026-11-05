@@ -3,7 +3,7 @@ import {
   apiTacticalUrl,
   callApi,
   GiveAntidoteDto,
-  MentalFocusOutcome,
+  AlertOutcome,
   Page,
   PoisonData,
   PoisonExposure,
@@ -88,13 +88,14 @@ export async function declareActorRoundFightingStyle(
  */
 /**
  * Marks as resolved an alert handled by hand, such as the critical of a fumble (spec 034). A Mental Focus alert
- * (workspace spec 077) carries the outcome of the maneuver: `failed` breaks every concentration of the actor.
+ * (workspace spec 077) carries the outcome of the maneuver: `failed` breaks every concentration of the actor. A
+ * death-threshold alert (workspace spec 079) is `confirmed` (the actor dies) or dismissed without an outcome.
  */
 export async function resolveAlert(
   actorRoundId: string,
   alertId: string,
   auth: AuthContextProps,
-  outcome?: MentalFocusOutcome
+  outcome?: AlertOutcome
 ): Promise<ActorRound> {
   const url = `${apiTacticalUrl}/actor-rounds/${actorRoundId}/alerts/${alertId}/resolve`;
   return await callApi(auth, url, {
