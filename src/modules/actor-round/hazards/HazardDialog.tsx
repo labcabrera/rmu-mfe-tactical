@@ -56,7 +56,11 @@ const emptyForm = (actorRound: ActorRound, distanceFeet: number | null = null): 
 });
 
 /** The request of the form: only what its kind takes, and the critical rolls given in order. */
-const toDto = (kind: HazardKind, form: HazardForm, knockedBackAlertId?: string): ResolveHazardDto & ResolveHazardBlockAFields => {
+const toDto = (
+  kind: HazardKind,
+  form: HazardForm,
+  knockedBackAlertId?: string
+): ResolveHazardDto & ResolveHazardBlockAFields => {
   const criticalRolls = form.criticalRolls.filter((roll): roll is number => roll !== null);
   return {
     kind,

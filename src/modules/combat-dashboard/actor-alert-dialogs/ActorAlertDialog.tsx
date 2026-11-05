@@ -13,6 +13,7 @@ import { useTacticalNotify } from '../../services/notify-service';
 import GroupCheckDialog from '../psychology/GroupCheckDialog';
 import ActorAlertForm from './ActorAlertForm';
 import BreakageCheckDialog from './BreakageCheckDialog';
+import BreathCheckAlertDialog, { BREATH_CHECK_ALERT } from './BreathCheckAlertDialog';
 import CombatTalentAlertDialog, { COMBAT_TALENT_ALERTS } from './CombatTalentAlertDialog';
 import CriticalAlertDialog from './CriticalAlertDialog';
 import DeathThresholdAlertDialog, { DEATH_THRESHOLD_ALERT } from './DeathThresholdAlertDialog';
@@ -174,6 +175,10 @@ const ActorAlertDialog: FC<{
   }
   if (currentAlert?.type === MENTAL_FOCUS_ALERT) {
     return <MentalFocusAlertDialog actorRound={actorRound} alert={currentAlert} open={open} onClose={onClose} />;
+  }
+  // Workspace spec 079, C4: the outcome of the Endurance maneuver of a held breath
+  if (currentAlert?.type === BREATH_CHECK_ALERT) {
+    return <BreathCheckAlertDialog actorRound={actorRound} alert={currentAlert} open={open} onClose={onClose} />;
   }
   if (currentAlert?.type === LIMB_LOSS_ALERT) {
     return <LimbLossAlertDialog actorRound={actorRound} alert={currentAlert} open={open} onClose={onClose} />;

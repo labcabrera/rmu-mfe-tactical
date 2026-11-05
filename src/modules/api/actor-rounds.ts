@@ -11,6 +11,8 @@ import {
   ResolveCriticalAlertDto,
   ResolveHazardDto,
   ResolvePoisoningDto,
+  ResolveTemperatureHazardDto,
+  StartBreathDto,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import {
   ActorAntidoteResult,
@@ -348,7 +350,7 @@ export async function deleteActorRoundTemporaryModifier(
  */
 export async function resolveHazard(
   actorRoundId: string,
-  data: ResolveHazardDto,
+  data: ResolveHazardDto | ResolveTemperatureHazardDto,
   auth: AuthContextProps
 ): Promise<ActorRound> {
   const url = `${apiTacticalUrl}/actor-rounds/${actorRoundId}/hazards`;
@@ -356,6 +358,40 @@ export async function resolveHazard(
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
+  });
+}
+
+/** Workspace spec 079, C4: the actor starts holding its breath in this round (game master only). */
+export async function startActorRoundBreath(
+  actorRoundId: string,
+  data: StartBreathDto,
+  auth: AuthContextProps
+): Promise<ActorRound> {
+  const url = `${apiTacticalUrl}/actor-rounds/${actorRoundId}/breath`;
+  return await callApi(auth, url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+}
+
+/** Workspace spec 079, C4: the actor breathes again; its suffocation and pending breath checks end. */
+export async function stopActorRoundBreath(actorRoundId: string, auth: AuthContextProps): Promise<ActorRound> {
+  const url = `${apiTacticalUrl}/actor-rounds/${actorRoundId}/breath`;
+  return await callApi(auth, url, { method: 'DELETE' });
+}
+
+/** Workspace spec 079, C3: protected from the extreme temperature of the environment (no critical in the upkeep). */
+export async function setActorRoundEnvironmentProtection(
+  actorRoundId: string,
+  value: boolean,
+  auth: AuthContextProps
+): Promise<ActorRound> {
+  const url = `${apiTacticalUrl}/actor-rounds/${actorRoundId}/environment-protection`;
+  return await callApi(auth, url, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ protected: value }),
   });
 }
 

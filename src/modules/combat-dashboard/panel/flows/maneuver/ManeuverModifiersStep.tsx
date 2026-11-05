@@ -21,6 +21,7 @@ import {
   NumberPadField,
   OPEN_D100,
   RollField,
+  RuleHint,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { ManeuverModifiersListing, ManeuverSkillModifier } from '../../../../api/action.dto';
 import { ActorRound } from '../../../../api/actor-rounds.dto';
@@ -235,6 +236,33 @@ const ManeuverModifiersStep: FC<{
 
       {listing.senses && (
         <ManeuverSensesFields senses={listing.senses} listing={listing} form={form} onChange={onChange} />
+      )}
+      {listing.fog && (
+        <ChipRow>
+          {/* Workspace spec 079, C5: the fog of the game counts in the breakdown */}
+          <RuleHint
+            title={t('fog')}
+            description={t('maneuver-fog-help', {
+              fog: t(`fog-${listing.fog.level}`),
+              feet: listing.fog.visibilityFeet,
+              vision: formatBonus(listing.fog.vision),
+              hearing: formatBonus(listing.fog.hearingBeyondRange),
+            })}
+            reference="§15.7"
+          >
+            <Chip
+              size="small"
+              variant="outlined"
+              color="warning"
+              label={t('maneuver-fog', {
+                fog: t(`fog-${listing.fog.level}`),
+                feet: listing.fog.visibilityFeet,
+                value: formatBonus(listing.fog.vision),
+              })}
+              sx={{ cursor: 'inherit' }}
+            />
+          </RuleHint>
+        </ChipRow>
       )}
 
       {listing.light && usesLight(listing, form) && (

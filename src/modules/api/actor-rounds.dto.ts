@@ -2,8 +2,10 @@ import type {
   ActorAmputationFields,
   ActorReviveFields,
   ActorRoundLimbAndLife,
+  ActorRoundEnvironmentFields,
+  ActorRoundHazard079Fields,
   ActorRollProfile,
-  ActorRoundHazard,
+  ActorRoundHazard as LibActorRoundHazard,
   CriticalAlertRoll,
   ConcentrationFocus,
   ReactionAlertData,
@@ -107,7 +109,11 @@ export type ActorRound = {
   concentration?: ConcentrationFocus[];
   /** Enc % of the armor the character wears (workspace spec 077): the default of a cast's armor encumbrance. */
   armorEncumbrance?: number;
-} & ActorRoundLimbAndLife;
+} & ActorRoundLimbAndLife &
+  ActorRoundEnvironmentFields;
+
+/** A hazard of the round, with the temperature of an extreme one (workspace spec 079, C3). */
+export type ActorRoundHazard = LibActorRoundHazard & ActorRoundHazard079Fields;
 
 export type ActorRoundStyleAbility = { abilityId: string; times: number };
 

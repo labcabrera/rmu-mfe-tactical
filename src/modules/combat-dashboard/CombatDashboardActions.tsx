@@ -11,9 +11,10 @@ import {
   RmuBreadcrumbs,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../CombatContext';
-import { ApplyOutcomeButton, FinishGameButton } from '../tactical-games/outcome/GameLifecycleButtons';
 import { useTacticalNotify } from '../services/notify-service';
+import EnvironmentButton from '../shared/environment/EnvironmentButton';
 import AmbientLightSelect from '../shared/selects/AmbientLightSelect';
+import { ApplyOutcomeButton, FinishGameButton } from '../tactical-games/outcome/GameLifecycleButtons';
 
 const CombatDashboardActions: FC = () => {
   const auth = useAuth();
@@ -50,6 +51,8 @@ const CombatDashboardActions: FC = () => {
     <RmuBreadcrumbs items={breadcrumbs}>
       {/* Workspace spec 076: the ambient light, the default of the maneuvers, changes during the combat */}
       <AmbientLightSelect game={game} onChange={setGame} />
+      {/* Workspace spec 079, C3 and C5: fog, extreme temperature and the light source calculator */}
+      <EnvironmentButton game={game} onChange={setGame} />
       <FinishGameButton game={game} onFinished={setGame} />
       <ApplyOutcomeButton game={game} onApplied={setGame} />
       <RefreshButton onClick={onRefresh} />

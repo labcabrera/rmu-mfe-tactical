@@ -1,4 +1,5 @@
 import {
+  ManeuverFogListing,
   AbsoluteResultKey,
   AdrenalManeuverOutcome,
   BlockBManeuverPurpose,
@@ -374,6 +375,8 @@ export type ManeuverModifiersListing = {
   aids?: ManeuverBaseModifier[];
   /** Workspace spec 079, B2: the weight and St of the sheet, and the difficulty of the load asked for. */
   featOfStrength?: FeatOfStrengthListing;
+  /** Workspace spec 079, C5: the fog of the game for Perception and Tracking (§15.7). */
+  fog?: ManeuverFogListing;
 };
 
 /** Query of `GET /actions/{id}/maneuver/modifiers` (workspace spec 079): the purpose, the aids and the load. */
