@@ -1,9 +1,9 @@
 import React, { FC, useContext, useEffect, useState } from 'react';
-import { TFunction } from 'i18next';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import Button from '@mui/material/Button';
 import { RmuDialog } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { TFunction } from 'i18next';
 import { CombatContext } from '../../../CombatContext';
 import { resolveBreakageCheck } from '../../api/actor-rounds';
 import { ActorRound, ActorRoundAlert, BreakageCheckResult } from '../../api/actor-rounds.dto';
@@ -11,10 +11,7 @@ import { useTacticalNotify } from '../../services/notify-service';
 import BreakageForm, { BreakageFormValue, emptyBreakageForm, toBreakageDto } from './BreakageForm';
 
 /** The message of a check result: the row of Table 6-1, and whether the damage is temporary or a repair. */
-export const breakageResultMessage = (
-  t: TFunction,
-  result: BreakageCheckResult
-): string => {
+export const breakageResultMessage = (t: TFunction, result: BreakageCheckResult): string => {
   const parts = [`${t('breakage-total')} ${result.total}: ${t(`breakage-result-${result.result}`)}`];
   if (result.modifier?.temporary) parts.push(t('breakage-temporary'));
   if (result.modifier && result.modifier.value > 0)

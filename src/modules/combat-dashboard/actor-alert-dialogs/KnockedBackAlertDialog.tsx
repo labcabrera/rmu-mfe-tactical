@@ -81,7 +81,13 @@ const KnockedBackAlertDialog: FC<{
         <Button key="fall" color="error" variant="outlined" disabled={busy} onClick={() => setHazard('fall')}>
           {t('knocked-back-fall')}
         </Button>,
-        <Button key="object" color="error" variant="outlined" disabled={busy} onClick={() => setHazard('falling-object')}>
+        <Button
+          key="object"
+          color="error"
+          variant="outlined"
+          disabled={busy}
+          onClick={() => setHazard('falling-object')}
+        >
           {t('knocked-back-collision')}
         </Button>,
         <Button key="dismiss" variant="contained" disabled={busy} onClick={dismiss}>
@@ -94,7 +100,12 @@ const KnockedBackAlertDialog: FC<{
         <ChipRow>
           <Chip size="small" label={t('hazard-feet', { feet })} />
           {severityCap && (
-            <Chip size="small" variant="outlined" color="warning" label={t('hazard-severity-cap', { severity: severityCap })} />
+            <Chip
+              size="small"
+              variant="outlined"
+              color="warning"
+              label={t('hazard-severity-cap', { severity: severityCap })}
+            />
           )}
         </ChipRow>
         <RuleHint title={t('alert-knocked-back')} description={t('alert-knocked-back-help')} reference="§9.8">

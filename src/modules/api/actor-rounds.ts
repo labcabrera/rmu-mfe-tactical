@@ -16,6 +16,10 @@ import {
   ActorAntidoteResult,
   ActorRound,
   ActorRoundEffect,
+  AmputateActorLimbRequest,
+  AmputationResultDto,
+  ReviveActorRequest,
+  ReviveResultDto,
   BreakageCheckDto,
   DefenseLevel,
   MedicalResultDto,
@@ -95,14 +99,46 @@ export async function resolveAlert(
   actorRoundId: string,
   alertId: string,
   auth: AuthContextProps,
-  outcome?: AlertOutcome
+  outcome?: AlertOutcome,
+  side?: 'left' | 'right'
 ): Promise<ActorRound> {
   const url = `${apiTacticalUrl}/actor-rounds/${actorRoundId}/alerts/${alertId}/resolve`;
   return await callApi(auth, url, {
     method: 'POST',
     ...(outcome
-      ? { headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ outcome } as ResolveAlertDto) }
+      ? {
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ outcome, ...(side ? { side } : {}) } as ResolveAlertDto),
+        }
       : {}),
+  });
+}
+
+/** Workspace spec 079, C1: an emergency amputation (-30); the limb is lost whatever the result. */
+export async function amputateActorRoundLimb(
+  actorRoundId: string,
+  dto: AmputateActorLimbRequest,
+  auth: AuthContextProps
+): Promise<AmputationResultDto> {
+  const url = `${apiTacticalUrl}/actor-rounds/${actorRoundId}/amputations`;
+  return await callApi(auth, url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(dto),
+  });
+}
+
+/** Workspace spec 079, C6: revives a dead body (respiratory -50, cardiac -100, defibrillation -20 to -70). */
+export async function reviveActorRound(
+  actorRoundId: string,
+  dto: ReviveActorRequest,
+  auth: AuthContextProps
+): Promise<ReviveResultDto> {
+  const url = `${apiTacticalUrl}/actor-rounds/${actorRoundId}/revive`;
+  return await callApi(auth, url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(dto),
   });
 }
 

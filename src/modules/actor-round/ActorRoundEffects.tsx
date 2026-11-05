@@ -4,6 +4,7 @@ import { useAuth } from 'react-oidc-context';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import HealingIcon from '@mui/icons-material/Healing';
+import MonitorHeartIcon from '@mui/icons-material/MonitorHeart';
 import { Stack, Typography, Chip, Box, TextField, IconButton, Button, MenuItem, Tooltip } from '@mui/material';
 import {
   ChipRow,
@@ -115,6 +116,30 @@ const ActorRoundEffects: FC<{
                   </Tooltip>
                 ) : (
                   chip
+                )}
+                {/* Workspace spec 079, C6: the soul departs 60 rounds after the death; until then a revival */}
+                {s.status === 'dead' && typeof actorRound.soulRoundsLeft === 'number' && (
+                  <Chip
+                    size="small"
+                    color={actorRound.soulRoundsLeft > 0 ? 'warning' : 'default'}
+                    variant="outlined"
+                    label={
+                      actorRound.soulRoundsLeft > 0
+                        ? t('soul-rounds-left', { count: actorRound.soulRoundsLeft })
+                        : t('soul-departed')
+                    }
+                  />
+                )}
+                {s.status === 'dead' && currentRound && (actorRound.soulRoundsLeft ?? 0) > 0 && (
+                  <Tooltip title={t('gm-adjustment-help')}>
+                    <Button
+                      size="small"
+                      startIcon={<MonitorHeartIcon />}
+                      onClick={() => setStabilizing({ kind: 'revive' })}
+                    >
+                      {t('revive')}
+                    </Button>
+                  </Tooltip>
                 )}
                 {s.status === 'dying' && s.causeTreated && (
                   <Chip size="small" color="success" variant="outlined" label={t('dying-cause-treated')} />

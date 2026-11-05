@@ -1,4 +1,7 @@
 import type {
+  ActorAmputationFields,
+  ActorReviveFields,
+  ActorRoundLimbAndLife,
   ActorRollProfile,
   ActorRoundHazard,
   CriticalAlertRoll,
@@ -104,7 +107,7 @@ export type ActorRound = {
   concentration?: ConcentrationFocus[];
   /** Enc % of the armor the character wears (workspace spec 077): the default of a cast's armor encumbrance. */
   armorEncumbrance?: number;
-};
+} & ActorRoundLimbAndLife;
 
 export type ActorRoundStyleAbility = { abilityId: string; times: number };
 
@@ -471,6 +474,26 @@ export type MedicalResultDto = {
   /** Stabilize: its cause was treated and the success removed the dying effect (workspace spec 068). */
   removed?: boolean;
 };
+
+/** Workspace spec 079, C1: `POST v1/actor-rounds/:id/amputations`, an emergency amputation at -30. */
+export type AmputateActorLimbRequest = MedicalRollDto & {
+  location: 'arm' | 'leg';
+  side: 'left' | 'right';
+  injuryId?: string;
+  /** Absolute failure: sum of the 2d10 rounds of system shock; rolled by the API when missing. */
+  systemShockRoll?: number;
+};
+
+/** Workspace spec 079, C6: `POST v1/actor-rounds/:id/revive`. The difficulty comes from the method. */
+export type ReviveActorRequest = Omit<MedicalRollDto, 'difficulty'> & {
+  method: 'respiratory' | 'cardiac' | 'defibrillation';
+  defibrillationDifficulty?: number;
+  dangerousSource?: boolean;
+  shockHitsRoll?: number;
+};
+
+export type AmputationResultDto = MedicalResultDto & ActorAmputationFields;
+export type ReviveResultDto = MedicalResultDto & ActorReviveFields;
 
 /** `POST v1/actor-rounds/:id/fear-effects` (workspace spec 068, decision 15). */
 export type FearEffectResult = {

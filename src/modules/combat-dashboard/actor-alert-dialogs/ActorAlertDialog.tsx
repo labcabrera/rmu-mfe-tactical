@@ -19,11 +19,15 @@ import DeathThresholdAlertDialog, { DEATH_THRESHOLD_ALERT } from './DeathThresho
 import EnduranceForm, { emptyEnduranceForm, EnduranceFormValue, enduranceModifiers } from './EnduranceForm';
 import FrenzyDyingRrDialog from './FrenzyDyingRrDialog';
 import KnockedBackAlertDialog, { KNOCKED_BACK_ALERT } from './KnockedBackAlertDialog';
+import LimbLossAlertDialog, { LIMB_LOSS_ALERT } from './LimbLossAlertDialog';
 import MentalFocusAlertDialog, { MENTAL_FOCUS_ALERT } from './MentalFocusAlertDialog';
 import StrayShotAlertDialog, { STRAY_SHOT_ALERT } from './StrayShotAlertDialog';
 
-/** Alerts of workspace spec 068 the game master reads and dismisses: the API keeps them until the round ends. */
-export const INFO_ALERTS = ['wound-reopened', 'limb-loss'];
+/**
+ * Alerts of workspace spec 068 the game master reads and dismisses: the API keeps them until the round ends. A
+ * limb-loss alert is confirmed or dismissed in its own dialog (workspace spec 079, C1).
+ */
+export const INFO_ALERTS = ['wound-reopened'];
 
 /**
  * Dialog of an actor's alert. An endurance alert is resolved with its roll (`PATCH /actor-rounds/{id}/endurance-check`,
@@ -170,6 +174,9 @@ const ActorAlertDialog: FC<{
   }
   if (currentAlert?.type === MENTAL_FOCUS_ALERT) {
     return <MentalFocusAlertDialog actorRound={actorRound} alert={currentAlert} open={open} onClose={onClose} />;
+  }
+  if (currentAlert?.type === LIMB_LOSS_ALERT) {
+    return <LimbLossAlertDialog actorRound={actorRound} alert={currentAlert} open={open} onClose={onClose} />;
   }
   if (currentAlert?.type === DEATH_THRESHOLD_ALERT) {
     return <DeathThresholdAlertDialog actorRound={actorRound} alert={currentAlert} open={open} onClose={onClose} />;

@@ -33,6 +33,8 @@ const CriticalAlertDialog: FC<{
   const origin = modifier('origin') ?? null;
   const knownType = modifier('criticalType');
   const severity = modifier('criticalSeverity') ?? '';
+  // Workspace spec 079, C1: the critical of a failed amputation takes the result one row lower
+  const resultShift = alert.modifiers?.find((each) => each.key === 'resultShift')?.value ?? 0;
   const [roll, setRoll] = useState<number | null>(null);
   const [criticalType, setCriticalType] = useState(knownType ?? '');
   const [busy, setBusy] = useState(false);
@@ -151,6 +153,11 @@ const CriticalAlertDialog: FC<{
                 onClear={() => setRoll(null)}
               />
             </Box>
+            {resultShift < 0 && (
+              <Alert severity="warning" variant="outlined">
+                {t('critical-alert-result-shift', { count: -resultShift })}
+              </Alert>
+            )}
             <Typography variant="caption" color="text.secondary">
               {t('critical-alert-help')}
             </Typography>
