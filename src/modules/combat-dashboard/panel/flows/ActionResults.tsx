@@ -95,6 +95,16 @@ export const ManeuverResult: FC<{ action: Action }> = ({ action }) => {
         {result.unusualEvent && <Chip label={t('unusual-event')} color="warning" variant="outlined" />}
         {result.critical && <Chip label={`${t('critical')} ${result.critical}`} color="error" variant="outlined" />}
         {targetName && <Chip label={t('maneuver-against', { name: targetName })} variant="outlined" />}
+        {/* Workspace spec 077: the steps a fall-control maneuver moves the critical of a fall */}
+        {result.fallControlSteps !== undefined && result.fallControlSteps !== null && (
+          <Chip
+            variant="outlined"
+            color={result.fallControlSteps < 0 ? 'success' : result.fallControlSteps > 0 ? 'error' : 'default'}
+            label={t('fall-control-steps', {
+              steps: result.fallControlSteps > 0 ? `+${result.fallControlSteps}` : `${result.fallControlSteps}`,
+            })}
+          />
+        )}
         {maneuver?.roll?.totalRoll !== undefined && (
           <Typography variant="body2" color="text.secondary">
             {t('total-value', { value: maneuver.roll.totalRoll })}

@@ -32,7 +32,7 @@ export const OutcomeHpBreakdown: FC<{ character: TacticalGameCharacterOutcome }>
   );
 };
 
-/** Hit points at the start and at the end of the game, the difference and where they went. */
+/** Hit points at the start and at the end of the game, the difference and where they went, and the fatigue it got. */
 export const OutcomeHp: FC<{ character: TacticalGameCharacterOutcome }> = ({ character }) => (
   <Typography variant="body2" component="span" sx={{ fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }}>
     {`${character.hp.start} → ${character.hp.end}`}
@@ -47,8 +47,26 @@ export const OutcomeHp: FC<{ character: TacticalGameCharacterOutcome }> = ({ cha
       </Typography>
     )}
     <OutcomeHpBreakdown character={character} />
+    <OutcomeFatigue character={character} />
   </Typography>
 );
+
+/** Workspace spec 077, decision D10: the fatigue penalty the character takes back to its sheet, when it changed. */
+const OutcomeFatigue: FC<{ character: TacticalGameCharacterOutcome }> = ({ character }) => {
+  const { t } = useTranslation();
+  const fatigue = character.fatigue;
+  if (!fatigue || fatigue.delta === 0) return null;
+  return (
+    <Typography
+      component="span"
+      variant="caption"
+      color={fatigue.delta > 0 ? 'warning.main' : 'success.main'}
+      sx={{ display: 'block' }}
+    >
+      {t('outcome-fatigue', { start: -fatigue.start, end: -fatigue.end })}
+    </Typography>
+  );
+};
 
 /** The injuries taken in the game, one type chip each, and how many were healed. */
 export const OutcomeInjuries: FC<{ character: TacticalGameCharacterOutcome }> = ({ character }) => {

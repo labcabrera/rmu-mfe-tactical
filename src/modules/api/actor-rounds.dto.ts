@@ -1,5 +1,7 @@
 import type {
   ActorRollProfile,
+  ActorRoundHazard,
+  CriticalAlertRoll,
   ConcentrationFocus,
   ReactionAlertData,
   ActorRoundAlertStatus,
@@ -61,6 +63,12 @@ export type ActorRound = {
   items?: ActorRoundItem[];
   /** Result of the breakage check, only in the answer of the check. */
   lastBreakageCheck?: BreakageCheckResult;
+  /** The critical rolled from an alert, only in the answer of the roll (workspace spec 077). */
+  lastCriticalRoll?: CriticalAlertRoll;
+  /** Height of the actor in feet (workspace spec 077): from the sheet, null for NPCs until the game master gives it. */
+  height?: number | null;
+  /** Falls and falling objects of this round (workspace spec 077). */
+  hazards?: ActorRoundHazard[];
   /** `character` or `npc`. */
   actorType?: string;
   /** NPC of rmu-api-npcs an NPC actor comes from (spec 055): it has no character sheet, items, styles or spells. */
@@ -137,6 +145,8 @@ export type ActorRoundSnapshot = {
   hp: number;
   injuryIds: string[];
   conditionIds: string[];
+  /** Fatigue penalty points it brought (workspace spec 077), 0-50. */
+  fatigue?: number;
 };
 
 export type ActorRoundMovement = {
@@ -296,9 +306,16 @@ export type BreakageCheckDto = {
 };
 
 export type ActorRoundFatigue = {
+  /** Endurance bonus: Body Development plus the racial bonus (workspace spec 077). */
   endurance: number;
+  /** Fatigue penalty points (0-50): the penalty is its negative. */
   fatigue: number;
+  /** An endurance roll is due at 100. */
   accumulator: number;
+  /** Rounds in a row without exertion: every 12 (24 at altitude) recover one point (workspace spec 077). */
+  restRounds?: number;
+  /** The actor exerted itself this round, so the round is no rest (workspace spec 077). */
+  exerted?: boolean;
 };
 
 export type ActorRoundDefense = {

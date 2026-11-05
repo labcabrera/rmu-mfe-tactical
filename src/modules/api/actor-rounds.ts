@@ -8,6 +8,8 @@ import {
   PoisonData,
   PoisonExposure,
   ResolveAlertDto,
+  ResolveCriticalAlertDto,
+  ResolveHazardDto,
   ResolvePoisoningDto,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import {
@@ -301,4 +303,40 @@ export async function deleteActorRoundTemporaryModifier(
 ): Promise<ActorRound> {
   const url = `${apiTacticalUrl}/actor-rounds/${actorRoundId}/temporary-modifiers/${modifierId}`;
   return await callApi(auth, url, { method: 'DELETE' });
+}
+
+/**
+ * A fall or a falling object on the actor (workspace spec 077, decision D2; game master only): an attack on the Crush or
+ * Rock table with its damage and criticals. The criticals without a roll stay as `critical` alerts.
+ */
+export async function resolveHazard(
+  actorRoundId: string,
+  data: ResolveHazardDto,
+  auth: AuthContextProps
+): Promise<ActorRound> {
+  const url = `${apiTacticalUrl}/actor-rounds/${actorRoundId}/hazards`;
+  return await callApi(auth, url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+}
+
+/**
+ * Rolls the critical of a pending `critical` alert (workspace spec 077, decision D3): a fumble (with its critical type),
+ * a movement, a percent maneuver, heat or a hazard. The API applies it and closes the alert; the answer carries
+ * `lastCriticalRoll`.
+ */
+export async function rollCriticalAlert(
+  actorRoundId: string,
+  alertId: string,
+  data: ResolveCriticalAlertDto,
+  auth: AuthContextProps
+): Promise<ActorRound> {
+  const url = `${apiTacticalUrl}/actor-rounds/${actorRoundId}/alerts/${alertId}/critical-roll`;
+  return await callApi(auth, url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
 }

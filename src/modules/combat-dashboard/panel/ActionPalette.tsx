@@ -20,6 +20,8 @@ import {
   CombatActionType,
   CombatTalentPurpose,
   combatColors,
+  FALL_CONTROL_PURPOSE,
+  FALL_CONTROL_SKILL,
   GRAPPLE_ESCAPE_PURPOSE,
   SearchField,
   SectionLabel,
@@ -47,6 +49,7 @@ import {
   aimWeapons,
   availableCombatTalentPurposes,
   COMBAT_TALENT_PURPOSE_SKILLS,
+  quickCasterLists,
   rememberPurpose,
   SHARPSHOOTER,
   traitTier,
@@ -80,6 +83,8 @@ type PaletteEntry = {
   purpose?: CombatTalentPurpose;
   /** "Break free" from the grapples of the actor (workspace spec 077): a percent maneuver of Wrestling or Contortions. */
   grappleEscape?: boolean;
+  /** "Fall control" (workspace spec 077): an instantaneous Acrobatics maneuver, 0 AP, cited by a fall. */
+  fallControl?: boolean;
   /** Lines shown under the entry: the grapples of "Break free", with their grappler and percent. */
   details?: string[];
 };
@@ -198,6 +203,13 @@ const usePaletteGroups = (actorRound: ActorRound, phase: number): PaletteGroup[]
       .filter(Boolean)
       .join(' · ')
   );
+  // Workspace spec 077, decision C4: Quick-Caster shortens the casts of its lists (the API gives the action its range)
+  const quickCasterLines = quickCasterLists(actorRound).map(({ listCode, tier }) =>
+    t('quick-caster-palette', {
+      list: t(listCode, { defaultValue: listCode }),
+      profile: apProfileLabel(tier >= 2 ? { min: 2, max: 2 } : { min: 2, max: 3 }, t),
+    })
+  );
   // Attacks are never free (spec 011, §6): an immediate attack granted by an effect is a forced action.
   return [
     {
@@ -261,6 +273,14 @@ const usePaletteGroups = (actorRound: ActorRound, phase: number): PaletteGroup[]
               }),
             ]
           : []),
+        // Workspace spec 077, decision D4: Acrobatics to control a fall, instantaneous
+        entry('maneuver', {
+          key: FALL_CONTROL_PURPOSE,
+          label: t('fall-control'),
+          freeAction: true,
+          fallControl: true,
+          details: [t('fall-control-palette-help')],
+        }),
         ...availableCombatTalentPurposes(actorRound).map((purpose) =>
           entry('maneuver', {
             key: `purpose-${purpose}`,
@@ -275,7 +295,7 @@ const usePaletteGroups = (actorRound: ActorRound, phase: number): PaletteGroup[]
       key: 'magic',
       label: t('magic'),
       entries: [
-        entry('cast_spell', { unavailable: caster ? undefined : noSpells }),
+        entry('cast_spell', { unavailable: caster ? undefined : noSpells, details: quickCasterLines }),
         entry('cast_instant', { freeAction: true, unavailable: caster ? undefined : noSpells }),
       ],
     },
@@ -318,6 +338,7 @@ const useCreateAction = (actorRound: ActorRound | null, phase: number, onCreated
         // its own flow (workspace spec 077)
         if (entry.purpose) rememberPurpose(action.id, entry.purpose);
         if (entry.grappleEscape) rememberPurpose(action.id, GRAPPLE_ESCAPE_PURPOSE);
+        if (entry.fallControl) rememberPurpose(action.id, FALL_CONTROL_PURPOSE);
         if (interrupts || (action.warnings ?? []).length > 0) refreshActorRounds();
         notify.success(t('action-declared', { action: entry.label }));
         notifyWarnings(action.warnings);
@@ -497,6 +518,9 @@ const PaletteContent: FC<{
     if (entry.grappleEscape) {
       // The skill can change in the flow: Wrestling first
       onCreate(entry, { maneuver: { skillId: GRAPPLE_ESCAPE_SKILLS[0] } });
+    } else if (entry.fallControl) {
+      // Instantaneous (0 AP) absolute Acrobatics: the API only takes it declared so or forced (workspace spec 077)
+      onCreate(entry, { maneuver: { skillId: FALL_CONTROL_SKILL, maneuverType: 'absolute' } });
     } else if (entry.purpose) {
       // A combat talent maneuver rolls its talent's skill: declared at once (workspace spec 076)
       const { skillId, specialization } = COMBAT_TALENT_PURPOSE_SKILLS[entry.purpose];

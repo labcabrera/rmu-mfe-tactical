@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import { Alert, Button, Stack } from '@mui/material';
 import {
+  FALL_CONTROL_PURPOSE,
   FlowStep,
   formatBonus,
   LoadingState,
@@ -15,7 +16,12 @@ import { fetchActionManeuverModifiers, resolveManeuver } from '../../../api/acti
 import { Action, ManeuverModifiersListing } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
 import { isActionClosed } from '../../../services/ap-service';
-import { actorOpenEnded, combatTalentPurposes, rememberedPurpose } from '../../../services/combat-talents-service';
+import {
+  actorOpenEnded,
+  combatTalentPurposes,
+  isFallControlAction,
+  rememberedPurpose,
+} from '../../../services/combat-talents-service';
 import { apiErrorCode, useTacticalNotify } from '../../../services/notify-service';
 import { useSkillService } from '../../../services/skill-service';
 import ActionFlow from '../ActionFlow';
@@ -62,8 +68,12 @@ const ManeuverFlow: FC<{
   const skillId = action.maneuver?.modifiers.skillId ?? '';
   // Workspace spec 076: a combat talent maneuver declared from the palette starts with its purpose chosen
   const remembered = rememberedPurpose(action.id);
-  const declaredPurpose =
-    remembered && combatTalentPurposes(actorRound, skillId).includes(remembered) ? remembered : null;
+  // Workspace spec 077: "Fall control" from the palette resolves with its purpose (Acrobatics, absolute, instantaneous)
+  const declaredPurpose = isFallControlAction(action)
+    ? FALL_CONTROL_PURPOSE
+    : remembered && combatTalentPurposes(actorRound, skillId).includes(remembered)
+      ? remembered
+      : null;
 
   const loadListing = () => {
     setListingError(null);

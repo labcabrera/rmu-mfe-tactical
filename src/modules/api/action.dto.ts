@@ -3,6 +3,7 @@ import {
   ActionSpellAdjusted,
   BmrMultiplier,
   DeclareShieldManeuverItem,
+  FALL_CONTROL_PURPOSE,
   GRAPPLE_ESCAPE_PURPOSE,
   GrappleEscapeResult,
   GrappleEscapeRow,
@@ -36,7 +37,8 @@ export { FORCE_REASONS } from '@labcabrera-rmu/rmu-react-shared-lib';
  * What a maneuver is for: the Adrenal Focus frenzy (spec 040) or the maneuver of a combat talent (workspace spec 076:
  * Battle Cry, Sense Weakness, Study Offense, Precision).
  */
-export type ManeuverPurpose = FrenzyPurpose | CombatTalentPurpose | typeof GRAPPLE_ESCAPE_PURPOSE;
+export type ManeuverPurpose =
+  FrenzyPurpose | CombatTalentPurpose | typeof GRAPPLE_ESCAPE_PURPOSE | typeof FALL_CONTROL_PURPOSE;
 
 // Same values as rmu-api-tactical (action-status.vo.ts). `pending_roll` is the current status while the attack,
 // critical or fumble rolls are pending: each attack's `status` says which roll it waits for.
@@ -286,6 +288,8 @@ export type ActionManeuverResult = {
   rollTalent?: ManeuverRollTalent;
   /** `grapple-escape` (workspace spec 077): the roll against each grapple and what is left of it. */
   grappleEscape?: GrappleEscapeResult[];
+  /** fall-control (workspace spec 077): severity steps of a fall, +1 absolute failure, -1 success, -2 absolute success. */
+  fallControlSteps?: number;
 };
 
 export type ActionManeuver = {

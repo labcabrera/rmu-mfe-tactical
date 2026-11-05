@@ -1,9 +1,11 @@
 import React, { FC, useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
+import { Alert } from '@mui/material';
 import Button from '@mui/material/Button';
-import { RmuDialog } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { FALL_SUGGESTED_ALERT, RmuDialog } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
+import HazardDialog from '../../actor-round/hazards/HazardDialog';
 import ResistanceRollDialog from '../../actor-round/psychology/ResistanceRollDialog';
 import { loosenActorRoundTourniquet, resolveAlert, resolveEnduranceCheck } from '../../api/actor-rounds';
 import { ActorRound, ActorRoundAlert } from '../../api/actor-rounds.dto';
@@ -12,6 +14,7 @@ import GroupCheckDialog from '../psychology/GroupCheckDialog';
 import ActorAlertForm from './ActorAlertForm';
 import BreakageCheckDialog from './BreakageCheckDialog';
 import CombatTalentAlertDialog, { COMBAT_TALENT_ALERTS } from './CombatTalentAlertDialog';
+import CriticalAlertDialog from './CriticalAlertDialog';
 import EnduranceForm, { emptyEnduranceForm, EnduranceFormValue, enduranceModifiers } from './EnduranceForm';
 import FrenzyDyingRrDialog from './FrenzyDyingRrDialog';
 import MentalFocusAlertDialog, { MENTAL_FOCUS_ALERT } from './MentalFocusAlertDialog';
@@ -24,7 +27,8 @@ export const INFO_ALERTS = ['wound-reopened', 'limb-loss'];
  * which applies the fatigue and hits and clears the alert) and a breakage alert with its check (spec 019). Workspace
  * spec 068: a suggested fear check opens the group checks with the faction and fright level, a Revulsion alert the
  * fear RR with its level, a tourniquet alert offers to loosen it, and a reopened wound or a lost limb are only read.
- * Workspace spec 077: a Mental Focus alert takes the outcome of the maneuver.
+ * Workspace spec 077: a Mental Focus alert takes the outcome of the maneuver, a critical alert its roll (the API applies
+ * it) and a suggested fall opens the fall of the actor.
  * The others are edited and saved locally.
  */
 const ActorAlertDialog: FC<{
@@ -104,25 +108,16 @@ const ActorAlertDialog: FC<{
       .finally(() => setBusy(false));
   };
 
-  // Spec 034: the critical of a fumble is rolled by hand; applying the alert resolves it.
-  const resolveCritical = () => {
-    setBusy(true);
+  // A suggested fall that happened or not (workspace spec 077, decision D5): the alert is closed by hand
+  const closeSuggestedFall = () => {
     resolveAlert(actorRound.id, alertId, auth)
-      .then((updated) => {
-        updateActorRound(updated);
-        onClose();
-      })
-      .catch((err) => notify.error(err))
-      .finally(() => setBusy(false));
+      .then(updateActorRound)
+      .catch((err) => notify.error(err));
   };
 
   const handleSave = () => {
     if (isEndurance) {
       resolveEndurance();
-      return;
-    }
-    if (currentAlert?.type === 'critical') {
-      resolveCritical();
       return;
     }
     if (currentAlert && INFO_ALERTS.includes(currentAlert.type)) {
@@ -134,6 +129,32 @@ const ActorAlertDialog: FC<{
     onClose();
   };
 
+  if (currentAlert?.type === 'critical') {
+    return <CriticalAlertDialog actorRound={actorRound} alert={currentAlert} open={open} onClose={onClose} />;
+  }
+  if (currentAlert?.type === FALL_SUGGESTED_ALERT) {
+    return (
+      <HazardDialog
+        actorRound={actorRound}
+        kind="fall"
+        open={open}
+        onClose={onClose}
+        onResolved={closeSuggestedFall}
+        onDismiss={() => {
+          closeSuggestedFall();
+          onClose();
+        }}
+        intro={
+          <Alert severity="warning" variant="outlined">
+            {t('alert-fall-suggested-text', {
+              skill: t(modifierOf('skillId')?.modifier ?? ''),
+              origin: t(`fall-suggested-origin-${modifierOf('origin')?.modifier ?? 'maneuver'}`),
+            })}
+          </Alert>
+        }
+      />
+    );
+  }
   if (currentAlert?.type === 'breakage') {
     return <BreakageCheckDialog actorRound={actorRound} alert={currentAlert} open={open} onClose={onClose} />;
   }
