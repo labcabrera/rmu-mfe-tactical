@@ -22,6 +22,7 @@ import { AttackNextStep, AttackResultSummary } from './AttackResolutionGuide';
 import ResolveAttackFormCriticals from './ResolveAttackFormCriticals';
 import ResolveAttackFormFumble from './ResolveAttackFormFumble';
 import ResolveAttackInfo from './ResolveAttackInfo';
+import SpecialManeuverResult from './SpecialManeuverResult';
 import { CriticalRemovedAlert, SeverityShiftChip, severityChanged, useDamageText } from './attack-size-results';
 
 /**
@@ -198,12 +199,17 @@ const ResolveAttackFormRoll: FC<{
             ) : (
               attack.results.attackTableEntry.criticalType && <Chip label={getCriticalText()} color="error" />
             )}
-            {attack.calculated.rollTotal > 175 && (
+            {attack.calculated.rollTotal > 175 && !attack.disarm && (
               <Chip label={getAbsoluteHitText(attack.calculated.rollTotal)} color="error" />
             )}
           </ChipRow>
         )}
       </Grid>
+      {(attack.disarm || attack.results?.subdualAdjustment) && (
+        <Grid size={12}>
+          <SpecialManeuverResult attack={attack} />
+        </Grid>
+      )}
       {attack.results?.severityAdjustment?.final === null && (
         <Grid size={12}>
           <CriticalRemovedAlert adjustment={attack.results.severityAdjustment} />

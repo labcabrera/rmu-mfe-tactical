@@ -13,6 +13,10 @@ import {
   GrappleFeat,
   ShieldManeuver,
   ActionAttackReaction,
+  ActionAttackDisarm,
+  ActionStrayShot,
+  AttackModifiersBlockAFields,
+  SubdualAdjustment,
   ActionDrawAndLoad,
   ActionReaction,
   CombatTalentManeuverFields,
@@ -428,6 +432,8 @@ export type Action = {
   aim?: ActionAim | null;
   /** Subtype of an `other` action with a fixed cost of Table 8-1 (workspace spec 079, A5). */
   otherAction?: ActionOther | null;
+  /** Stray shot an attack forced as `stray-shot` comes from: OB 0, no cover (workspace spec 079, A6). */
+  strayShot?: ActionStrayShot | null;
 };
 
 // --- Healing in combat and fear (workspace spec 068) ---
@@ -716,6 +722,8 @@ export type ActionAttack = {
   reaction?: ActionAttackReaction;
   /** Shield maneuver the defender rolls, from the second attack its shield covers (workspace spec 077). */
   shieldManeuver?: ShieldManeuver;
+  /** Band of Table 9-7a of a disarm attack (workspace spec 079, A7). */
+  disarm?: ActionAttackDisarm | null;
 };
 
 /** Where a protector stands (Table 9-7c): between attacker and defender, behind the defender, or anywhere else. */
@@ -742,6 +750,8 @@ export type ActionAttackResults = {
   damageAdjustment?: AttackDamageAdjustment;
   /** How the sizes, the charge, the style and the target moved the critical severity (spec 075). */
   severityAdjustment?: AttackSeverityAdjustment;
+  /** Hits and critical of the table before a subdual attack (workspace spec 079, A7). */
+  subdualAdjustment?: SubdualAdjustment;
 };
 
 /** `attackTableEntry.damage` is `baseDamage` times `multiplier`, rounded. */
@@ -830,7 +840,7 @@ export type ActionAttackModifiers = {
   chargeSpeed?: ChargeSpeed;
   /** Fighting style ability that changes the critical (spec 032). */
   styleCriticalOption?: string | null;
-};
+} & AttackModifiersBlockAFields;
 
 export type AttackCalculationsDto = {
   rollModifiers: KeyValueModifier[];

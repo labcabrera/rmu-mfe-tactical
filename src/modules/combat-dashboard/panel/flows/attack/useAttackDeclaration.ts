@@ -61,16 +61,25 @@ export const useAttackDeclaration = (
     // Workspace spec 076: a reaction attacks with a weapon of its talent's specialization, the actor it reacts to
     // already chosen for the first one.
     const reaction = action.reaction;
+    // Workspace spec 079, A6: a stray shot attacks with the weapon that missed, at OB 0, the combatant the API chose.
+    const strayShot = action.strayShot;
     const weapons =
       sourceAttacks ??
-      (reaction
-        ? reactionWeapons(actorRound, reaction.traitId)
-        : actorRound.attacks.filter((a) => a.type === kind && !a.broken));
-    const target = reaction ? actorReactionTarget(action, roundActions ?? []) : undefined;
+      (strayShot
+        ? actorRound.attacks.filter((a) => a.attackName === strayShot.attackName)
+        : reaction
+          ? reactionWeapons(actorRound, reaction.traitId)
+          : actorRound.attacks.filter((a) => a.type === kind && !a.broken));
+    const target = strayShot
+      ? strayShot.targetActorId
+      : reaction
+        ? actorReactionTarget(action, roundActions ?? [])
+        : undefined;
+    const fixedOb = strayShot ? 0 : reaction?.obOverride;
     return {
       // A weapon broken in the game cannot attack (spec 019): the API rejects it.
       attacks: weapons.map((a, index) => {
-        const attack = newAttack(a, kind, pace, reaction?.obOverride);
+        const attack = newAttack(a, kind, pace, fixedOb);
         return index === 0 && target ? { ...attack, modifiers: { ...attack.modifiers, targetId: target } } : attack;
       }),
       parries: action.parries ?? [],

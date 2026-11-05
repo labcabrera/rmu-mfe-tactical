@@ -7,6 +7,7 @@ import { CombatContext } from '../../../../CombatContext';
 import { Action, ActionAttack, ActionManeuverEffect } from '../../../api/action.dto';
 import { AttackResultSummary } from '../../action-dialogs/attack/AttackResolutionGuide';
 import ResolveAttackInfo from '../../action-dialogs/attack/ResolveAttackInfo';
+import SpecialManeuverResult from '../../action-dialogs/attack/SpecialManeuverResult';
 import ResultValues from './ResultValues';
 import { isFailureResult, isPercentResult, isSuccessResult } from './maneuver/maneuver-form';
 
@@ -175,6 +176,7 @@ export const AttackResults: FC<{ attacks: ActionAttack[]; sourceActorId?: string
       {attacks.map((attack) => (
         <Stack key={attack.attackName} spacing={1}>
           <AttackResultSummary attack={attack} targetName={targetName(attack.modifiers.targetId)} />
+          <SpecialManeuverResult attack={attack} />
           <ResolveAttackInfo attack={attack} sourceActorId={sourceActorId} />
         </Stack>
       ))}

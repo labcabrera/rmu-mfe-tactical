@@ -21,6 +21,7 @@ import CoverPicker from './pickers/CoverPicker';
 import ModifierTile from './pickers/ModifierTile';
 import OptionTiles from './pickers/OptionTiles';
 import PositionPicker from './pickers/PositionPicker';
+import { specialManeuverPreview } from './special-maneuvers';
 
 const GROUPS: ModifierFieldGroup[] = ['offense', 'defense', 'situation'];
 
@@ -50,7 +51,9 @@ const AttackModifiersForm: FC<{
   target: ActorRound | undefined;
   /** Extra controls of the situation group, e.g. the range of a ranged attack. */
   situationExtra?: ReactNode;
-}> = ({ formData, setFormData, index, kind, target, situationExtra }) => {
+  /** Extra controls of the special section: the disarm, the subdual and the combatants in the way (spec 079). */
+  specialExtra?: ReactNode;
+}> = ({ formData, setFormData, index, kind, target, situationExtra, specialExtra }) => {
   const { t } = useTranslation();
   const modifiers = formData.attacks?.[index]?.modifiers;
   if (!modifiers) return null;
@@ -89,7 +92,11 @@ const AttackModifiersForm: FC<{
       .filter((field) => field.section === section && field.name !== 'calledShotPenalty')
       .filter((field) => isDeclared(field, modifiers));
   const rollDeclared = declaredIn('roll');
-  const rollSum = rollDeclared.reduce((sum, field) => sum + (declaredValue(field, modifiers, kind) ?? 0), 0);
+  // Workspace spec 079, A6-A7: the fixed values of the special maneuvers (the table penalty and the skill come from the API)
+  const specialRows = specialManeuverPreview(modifiers, kind);
+  const rollSum =
+    rollDeclared.reduce((sum, field) => sum + (declaredValue(field, modifiers, kind) ?? 0), 0) +
+    specialRows.reduce((sum, row) => sum + (row.value ?? 0), 0);
   const otherDeclared = [...declaredIn('defender'), ...declaredIn('special')];
   const choiceValue = (field: ChoiceField) =>
     (modifiers[field.name] as string | null | undefined) || field.defaultValue;
@@ -209,6 +216,7 @@ const AttackModifiersForm: FC<{
                   ) : (
                     renderFields(list)
                   )}
+                  {section === 'special' && specialExtra && <Box sx={{ mt: 2 }}>{specialExtra}</Box>}
                 </Panel>
               </Box>
             );
@@ -221,6 +229,9 @@ const AttackModifiersForm: FC<{
             <PreviewRow label={t('used-ob')} value={modifiers.bo ?? 0} plain />
             {rollDeclared.map((field) => (
               <PreviewRow key={field.name} label={declaredLabel(field)} value={declaredValue(field, modifiers, kind)} />
+            ))}
+            {specialRows.map((row) => (
+              <PreviewRow key={row.key} label={t(`modifier-label-${row.key}`)} value={row.value} />
             ))}
             <Divider sx={{ my: 0.5 }} />
             <PreviewRow label={t('estimated-total')} value={(modifiers.bo ?? 0) + rollSum} plain strong />

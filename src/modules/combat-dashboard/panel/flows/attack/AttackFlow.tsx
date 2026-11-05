@@ -11,7 +11,9 @@ import { useNotifyWarnings } from '../../../../services/action-warnings';
 import { actorRoundHasEffect } from '../../../../services/actor-round-service';
 import { useTacticalNotify } from '../../../../services/notify-service';
 import AttackModifiersForm from '../../../action-dialogs/attack-modifiers/AttackModifiersForm';
+import SpecialManeuverFields from '../../../action-dialogs/attack-modifiers/SpecialManeuverFields';
 import StyleCriticalOptionPicker from '../../../action-dialogs/attack-modifiers/StyleCriticalOptionPicker';
+import { specialManeuversReady } from '../../../action-dialogs/attack-modifiers/special-maneuvers';
 import ResolveAttackFormRoll from '../../../action-dialogs/attack/ResolveAttackFormRoll';
 import ActionFlow from '../../ActionFlow';
 import { AttackResults } from '../ActionResults';
@@ -141,6 +143,14 @@ const AttackFlow: FC<{
         : undefined
     : undefined;
 
+  // Workspace spec 079, A6: the second attack of a stray shot, at OB 0 against the combatant the API chose
+  const strayShotNotice =
+    action.strayShot && unprepared ? (
+      <Alert severity="info" variant="outlined">
+        {t('stray-shot-attack-help', { target: targetName(action.strayShot.targetActorId) })}
+      </Alert>
+    ) : null;
+
   const modifiers =
     attacksShown.length > 0 ? (
       <Stack spacing={1.5}>
@@ -161,6 +171,7 @@ const AttackFlow: FC<{
                 })}
           </Alert>
         )}
+        {strayShotNotice}
         {chargeFear && unprepared && (
           <Alert severity={chargeFear === 'fear-retreat' ? 'warning' : 'info'} variant="outlined">
             {t(`fear-charge-${chargeFear}`)}
@@ -172,6 +183,18 @@ const AttackFlow: FC<{
           index={formData.attacks.findIndex((a) => a.attackName === attacksShown[shownTab].attackName)}
           kind={kind}
           target={actorRounds?.find((ar) => ar.actorId === attacksShown[shownTab].modifiers.targetId)}
+          specialExtra={
+            unprepared && !action.strayShot ? (
+              <SpecialManeuverFields
+                formData={formData}
+                setFormData={setFormData}
+                index={formData.attacks.findIndex((a) => a.attackName === attacksShown[shownTab].attackName)}
+                kind={kind}
+                spell={action.actionType === 'cast_spell'}
+                sourceActorId={action.actorId}
+              />
+            ) : undefined
+          }
         />
         {unprepared && (
           <StyleCriticalOptionPicker
@@ -207,29 +230,32 @@ const AttackFlow: FC<{
       label: kind === 'melee' ? t('targets') : t('targets-and-range'),
       summary: targeted.map((a) => `${labelOf(a.attackName)} → ${targetName(a.modifiers.targetId)}`).join(' · '),
       content: (
-        <AttackTargetsStep
-          kind={kind}
-          actorRound={actorRound}
-          sourceAttacks={weapons}
-          attacks={formData.attacks}
-          onTarget={declaration.selectTarget}
-          onBo={declaration.setBo}
-          onRange={declaration.setRange}
-          onProtector={declaration.toggleProtector}
-          onProtectorPosition={declaration.setProtectorPosition}
-          fixedOb={action.reaction?.obOverride}
-          footer={
-            boltOb !== undefined && targeted.length > 1 ? (
-              <BoltSplitFields
-                bo={boltOb}
-                attacks={targeted}
-                value={obSplit}
-                onChange={setObSplit}
-                targetName={targetName}
-              />
-            ) : undefined
-          }
-        />
+        <Stack spacing={1.5}>
+          {strayShotNotice}
+          <AttackTargetsStep
+            kind={kind}
+            actorRound={actorRound}
+            sourceAttacks={weapons}
+            attacks={formData.attacks}
+            onTarget={declaration.selectTarget}
+            onBo={declaration.setBo}
+            onRange={declaration.setRange}
+            onProtector={declaration.toggleProtector}
+            onProtectorPosition={declaration.setProtectorPosition}
+            fixedOb={action.strayShot ? 0 : action.reaction?.obOverride}
+            footer={
+              boltOb !== undefined && targeted.length > 1 ? (
+                <BoltSplitFields
+                  bo={boltOb}
+                  attacks={targeted}
+                  value={obSplit}
+                  onChange={setObSplit}
+                  targetName={targetName}
+                />
+              ) : undefined
+            }
+          />
+        </Stack>
       ),
     },
     { id: 'modifiers', label: t('modifiers'), content: modifiers },
@@ -262,7 +288,12 @@ const AttackFlow: FC<{
   else if (step === 1)
     primary = {
       label: t('prepare'),
-      disabled: busy || targeted.length === 0 || (splitting && !boltSplitValid(boltOb!, splitParts, targeted.length)),
+      disabled:
+        busy ||
+        targeted.length === 0 ||
+        // Workspace spec 079, A7: a disarm needs the defender's roll
+        !targeted.every((a) => specialManeuversReady(a.modifiers)) ||
+        (splitting && !boltSplitValid(boltOb!, splitParts, targeted.length)),
       onClick: prepare,
       resolves: true,
     };

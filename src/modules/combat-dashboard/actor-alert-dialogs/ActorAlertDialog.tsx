@@ -15,11 +15,12 @@ import ActorAlertForm from './ActorAlertForm';
 import BreakageCheckDialog from './BreakageCheckDialog';
 import CombatTalentAlertDialog, { COMBAT_TALENT_ALERTS } from './CombatTalentAlertDialog';
 import CriticalAlertDialog from './CriticalAlertDialog';
+import DeathThresholdAlertDialog, { DEATH_THRESHOLD_ALERT } from './DeathThresholdAlertDialog';
 import EnduranceForm, { emptyEnduranceForm, EnduranceFormValue, enduranceModifiers } from './EnduranceForm';
 import FrenzyDyingRrDialog from './FrenzyDyingRrDialog';
-import MentalFocusAlertDialog, { MENTAL_FOCUS_ALERT } from './MentalFocusAlertDialog';
-import DeathThresholdAlertDialog, { DEATH_THRESHOLD_ALERT } from './DeathThresholdAlertDialog';
 import KnockedBackAlertDialog, { KNOCKED_BACK_ALERT } from './KnockedBackAlertDialog';
+import MentalFocusAlertDialog, { MENTAL_FOCUS_ALERT } from './MentalFocusAlertDialog';
+import StrayShotAlertDialog, { STRAY_SHOT_ALERT } from './StrayShotAlertDialog';
 
 /** Alerts of workspace spec 068 the game master reads and dismisses: the API keeps them until the round ends. */
 export const INFO_ALERTS = ['wound-reopened', 'limb-loss'];
@@ -31,7 +32,8 @@ export const INFO_ALERTS = ['wound-reopened', 'limb-loss'];
  * fear RR with its level, a tourniquet alert offers to loosen it, and a reopened wound or a lost limb are only read.
  * Workspace spec 077: a Mental Focus alert takes the outcome of the maneuver, a critical alert its roll (the API applies
  * it) and a suggested fall opens the fall of the actor. Workspace spec 079: a death-threshold alert is confirmed or
- * dismissed, a knocked-back alert offers its hazard, and an endurance alert of the total penalties says why.
+ * dismissed, a knocked-back alert offers its hazard, an endurance alert of the total penalties says why, and a
+ * stray-shot alert offers the second attack against a combatant in the way.
  * The others are edited and saved locally.
  */
 const ActorAlertDialog: FC<{
@@ -174,6 +176,9 @@ const ActorAlertDialog: FC<{
   }
   if (currentAlert?.type === KNOCKED_BACK_ALERT) {
     return <KnockedBackAlertDialog actorRound={actorRound} alert={currentAlert} open={open} onClose={onClose} />;
+  }
+  if (currentAlert?.type === STRAY_SHOT_ALERT) {
+    return <StrayShotAlertDialog actorRound={actorRound} alert={currentAlert} open={open} onClose={onClose} />;
   }
   if (currentAlert?.type === 'frenzy-dying') {
     return <FrenzyDyingRrDialog actorRound={actorRound} open={open} onClose={onClose} />;
