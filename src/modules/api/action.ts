@@ -141,7 +141,9 @@ export async function declareParry(actionId: string, data: ParryDeclaration, aut
 
 /**
  * The attack roll: the total of the high open-ended d100, its first die, which decides the fumble, and every die, any of
- * which can call for a breakage check with a 33 or 77 (spec 056).
+ * which can call for a breakage check with a 33 or 77 (spec 056). Workspace spec 077: against a target with armor by
+ * location and without a called shot, `criticalRoll` (1-100, unmodified) goes with it: its location decides the AT, and
+ * the criticals of the attack are rolled with it.
  */
 export async function updateAttackRoll(
   actionId: string,
@@ -149,13 +151,14 @@ export async function updateAttackRoll(
   roll: number,
   unmodified: number,
   rolls: number[],
-  auth: AuthContextProps
+  auth: AuthContextProps,
+  criticalRoll?: number
 ): Promise<Action> {
   const url = `${apiTacticalUrl}/actions/${actionId}/attack/roll`;
   return await callApi(auth, url, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ attackName, roll, unmodified, rolls }),
+    body: JSON.stringify({ attackName, roll, unmodified, rolls, ...(criticalRoll ? { criticalRoll } : {}) }),
   });
 }
 

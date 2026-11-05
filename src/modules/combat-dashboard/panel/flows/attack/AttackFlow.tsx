@@ -16,6 +16,7 @@ import ResolveAttackFormRoll from '../../../action-dialogs/attack/ResolveAttackF
 import ActionFlow from '../../ActionFlow';
 import { AttackResults } from '../ActionResults';
 import AttackTargetsStep from './AttackTargetsStep';
+import BoltSplitFields, { boltSplitValid } from './BoltSplitFields';
 import ParryStep from './ParryStep';
 import { ShieldManeuverInput, shieldManeuverAttacks, shieldManeuverItems } from './ShieldManeuverSection';
 import { attackLabel } from './attack-label';
@@ -57,7 +58,9 @@ const AttackFlow: FC<{
   sourceAttacks?: ActorRoundAttack[];
   leadingSteps?: FlowStep[];
   onApplied?: () => void;
-}> = ({ kind, action, actorRound, onDeleted, onNextPending, sourceAttacks, leadingSteps = [], onApplied }) => {
+  /** OB of a bolt that strikes several targets (workspace spec 077, Scope Skills): it is split among them. */
+  boltOb?: number;
+}> = ({ kind, action, actorRound, onDeleted, onNextPending, sourceAttacks, leadingSteps = [], onApplied, boltOb }) => {
   const { t } = useTranslation();
   const auth = useAuth();
   const notify = useTacticalNotify();
@@ -70,8 +73,9 @@ const AttackFlow: FC<{
   const [localStep, setLocalStep] = useState(0);
   const [tab, setTab] = useState(0);
   const [busy, setBusy] = useState(false);
-  // Workspace spec 077: the Shield maneuvers typed in the parry step
+  // Workspace spec 077: the Shield maneuvers typed in the parry step, and the OB split of a bolt
   const [shieldInputs, setShieldInputs] = useState<Record<string, ShieldManeuverInput>>({});
+  const [obSplit, setObSplit] = useState<number[] | null>(null);
   // Melee attacks always go through the parry step; a ranged one only for the Shield maneuvers of its defenders.
   const shieldStep = shieldManeuverAttacks(formData.attacks).length > 0;
   const withParry = kind === 'melee' || shieldStep;
@@ -92,7 +96,13 @@ const AttackFlow: FC<{
       .finally(() => setBusy(false));
   };
 
-  const prepare = () => call(prepareAttack(action.id, { ...formData, attacks: targeted }, auth), t('attack-prepared'));
+  const splitting = boltOb !== undefined && targeted.length > 1 && obSplit !== null;
+  const splitParts = targeted.map((_, index) => obSplit?.[index] ?? 0);
+  const prepare = () =>
+    call(
+      prepareAttack(action.id, { ...formData, attacks: targeted, ...(splitting ? { obSplit: splitParts } : {}) }, auth),
+      t('attack-prepared')
+    );
   const parry = () => {
     const shieldManeuvers = shieldManeuverItems(formData.attacks, shieldInputs);
     const parries = (formData.parries ?? []).map((p) => ({ parryId: p.id, parry: p.parry }));
@@ -202,6 +212,17 @@ const AttackFlow: FC<{
           onRange={declaration.setRange}
           onProtector={declaration.toggleProtector}
           onProtectorPosition={declaration.setProtectorPosition}
+          footer={
+            boltOb !== undefined && targeted.length > 1 ? (
+              <BoltSplitFields
+                bo={boltOb}
+                attacks={targeted}
+                value={obSplit}
+                onChange={setObSplit}
+                targetName={targetName}
+              />
+            ) : undefined
+          }
         />
       ),
     },
@@ -235,7 +256,7 @@ const AttackFlow: FC<{
   else if (step === 1)
     primary = {
       label: t('prepare'),
-      disabled: busy || targeted.length === 0,
+      disabled: busy || targeted.length === 0 || (splitting && !boltSplitValid(boltOb!, splitParts, targeted.length)),
       onClick: prepare,
       resolves: true,
     };

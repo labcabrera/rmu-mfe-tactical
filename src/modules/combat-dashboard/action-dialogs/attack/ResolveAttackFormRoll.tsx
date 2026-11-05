@@ -1,10 +1,11 @@
-import React, { Dispatch, FC, SetStateAction, useContext } from 'react';
+import React, { Dispatch, FC, SetStateAction, useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import { Chip, Grid, Stack, Tooltip, Typography } from '@mui/material';
 import {
   CategorySeparator,
   ChipRow,
+  D100,
   effectIcon,
   HIGH_OPEN_D100,
   RollField,
@@ -13,6 +14,7 @@ import {
 import { CombatContext } from '../../../../CombatContext';
 import { updateAttackRoll } from '../../../api/action';
 import { Action, ActionAttack, AttackDeclaration } from '../../../api/action.dto';
+import { ActorRound } from '../../../api/actor-rounds.dto';
 import { criticalCode } from '../../../services/action-service';
 import { actorOpenEnded } from '../../../services/combat-talents-service';
 import { useTacticalNotify } from '../../../services/notify-service';
@@ -21,6 +23,23 @@ import ResolveAttackFormCriticals from './ResolveAttackFormCriticals';
 import ResolveAttackFormFumble from './ResolveAttackFormFumble';
 import ResolveAttackInfo from './ResolveAttackInfo';
 import { CriticalRemovedAlert, SeverityShiftChip, severityChanged, useDamageText } from './attack-size-results';
+
+/**
+ * The target wears armor by location (workspace spec 077, B2): its AT depends on where the attack hits, so without a
+ * called shot the attack roll goes with the critical roll that decides the location.
+ */
+export const needsLocationRoll = (attack: ActionAttack, target: ActorRound | undefined): boolean =>
+  !!target && target.defense?.at === null && (!attack.modifiers.calledShot || attack.modifiers.calledShot === 'none');
+
+/** AT of a target with armor by location at a location of Table 9-5 (head, chest, abdomen, arms, legs). */
+export const locationArmorType = (target: ActorRound | undefined, location: string | null | undefined) => {
+  if (!target || !location) return undefined;
+  const defense = target.defense;
+  if (location === 'head') return defense.headAt;
+  if (location === 'arms') return defense.armsAt;
+  if (location === 'legs') return defense.legsAt;
+  return defense.bodyAt;
+};
 
 const ResolveAttackFormRoll: FC<{
   formData: AttackDeclaration;
@@ -37,17 +56,31 @@ const ResolveAttackFormRoll: FC<{
   const isCompleted = action.status === 'completed';
   // Workspace spec 076: the API checks the dice against the attacker's roll profile (luck talents)
   const openEnded = actorOpenEnded(actorRounds?.find((actorRound) => actorRound.actorId === action.actorId));
+  const target = actorRounds?.find((actorRound) => actorRound.actorId === attack.modifiers?.targetId);
+  const [criticalRoll, setCriticalRoll] = useState<number | null>(attack.calculated?.locationRoll ?? null);
 
   if (!formData || !formData.attacks || formData.attacks.length <= index) return null;
 
   if (!attack.calculated) return <p>{t('attack-not-calculated')}</p>;
 
-  // Without a called shot there is no location roll: the AT is the torso's (§9.5 Mixed armour).
+  // Workspace spec 077, B2: against armor by location without a called shot, the critical roll (1-100) is rolled with
+  // the attack: its location decides the AT, and it stays fixed for the criticals. Otherwise the AT is the target's.
   // The attack is a high open-ended d100, and its first die decides the fumble (spec 056).
+  const locationRollNeeded = needsLocationRoll(attack, target);
+  const locationFixed = attack.calculated.locationRoll !== undefined && attack.calculated.locationRoll !== null;
+  const locationAt = locationArmorType(target, attack.calculated.location);
   const onRollChange = (roll: RollValue) => {
     // Nothing changed since the last stored roll.
     if (roll.total === attack.roll?.roll && roll.unmodified === attack.roll?.unmodified) return;
-    updateAttackRoll(action.id, attack.attackName, roll.total, roll.unmodified, roll.rolls, auth)
+    updateAttackRoll(
+      action.id,
+      attack.attackName,
+      roll.total,
+      roll.unmodified,
+      roll.rolls,
+      auth,
+      locationRollNeeded ? (criticalRoll ?? undefined) : undefined
+    )
       .then((updatedAction) => {
         const newFormData = { attacks: updatedAction.attacks, parries: updatedAction.parries } as AttackDeclaration;
         updateAction(updatedAction);
@@ -83,19 +116,45 @@ const ResolveAttackFormRoll: FC<{
       <Grid size={12}>
         {attack.calculated.location && (
           <Grid size={8}>
-            <Chip size="medium" color="error" label={t(attack.calculated.location)} />
+            <Chip
+              size="medium"
+              color="error"
+              label={
+                locationAt !== undefined && target?.defense?.at === null
+                  ? t('attack-location-at', { location: t(attack.calculated.location), at: locationAt })
+                  : t(attack.calculated.location)
+              }
+            />
           </Grid>
         )}
       </Grid>
       <Grid size={12}>
         <CategorySeparator text={t('attack-roll')} />
       </Grid>
+      {locationRollNeeded && (
+        <Grid size={12}>
+          <Stack spacing={0.5}>
+            <RollField
+              spec={D100}
+              label={t('attack-location-roll')}
+              value={criticalRoll}
+              onChange={(roll) => setCriticalRoll(roll.total)}
+              onClear={() => setCriticalRoll(null)}
+              // Once stored it decides the location and the criticals: it cannot change.
+              disabled={isCompleted || locationFixed}
+            />
+            <Typography variant="caption" color="text.secondary">
+              {t('attack-location-roll-help')}
+            </Typography>
+          </Stack>
+        </Grid>
+      )}
       <Grid size={7}>
         <RollField
           spec={HIGH_OPEN_D100}
           label={t('attack-roll')}
           value={attack.roll?.roll ?? null}
-          disabled={isCompleted}
+          disabled={isCompleted || (locationRollNeeded && criticalRoll === null && !attack.roll?.roll)}
           onChange={onRollChange}
           openEnded={openEnded}
         />
