@@ -88,7 +88,7 @@ const SpellDeclareDialog: FC<{
   return (
     <RmuDialog
       open={open}
-      onClose={onClose}
+      onDismiss={onClose}
       maxWidth="md"
       title={t(instant ? 'instant-spell' : 'spell')}
       subtitle={`${actorRound?.actorName ?? ''} · ${t('power-points')}: ${Math.max(0, available)}`}

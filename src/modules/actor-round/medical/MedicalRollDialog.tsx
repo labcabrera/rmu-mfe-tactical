@@ -162,7 +162,7 @@ const MedicalRollDialog: FC<{
   return (
     <RmuDialog
       open={!!target}
-      onClose={onClose}
+      onDismiss={onClose}
       title={title}
       subtitle={subtitle}
       maxWidth="sm"

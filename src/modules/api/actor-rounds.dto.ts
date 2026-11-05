@@ -1,5 +1,8 @@
 import type {
   ActorRollProfile,
+  ActorRoundHazard,
+  CriticalAlertRoll,
+  ConcentrationFocus,
   ReactionAlertData,
   ActorRoundAlertStatus,
   CombatTalentEffectFields,
@@ -60,6 +63,12 @@ export type ActorRound = {
   items?: ActorRoundItem[];
   /** Result of the breakage check, only in the answer of the check. */
   lastBreakageCheck?: BreakageCheckResult;
+  /** The critical rolled from an alert, only in the answer of the roll (workspace spec 077). */
+  lastCriticalRoll?: CriticalAlertRoll;
+  /** Height of the actor in feet (workspace spec 077): from the sheet, null for NPCs until the game master gives it. */
+  height?: number | null;
+  /** Falls and falling objects of this round (workspace spec 077). */
+  hazards?: ActorRoundHazard[];
   /** `character` or `npc`. */
   actorType?: string;
   /** NPC of rmu-api-npcs an NPC actor comes from (spec 055): it has no character sheet, items, styles or spells. */
@@ -89,6 +98,10 @@ export type ActorRound = {
   criticalSize?: number | null;
   /** Code I of an NPC (Creature Law T-3.1e): one critical level less, none below A (spec 075). */
   reduceCriticalSeverity?: boolean;
+  /** What the actor concentrates on (workspace spec 077): with any, each AP of another action counts half. */
+  concentration?: ConcentrationFocus[];
+  /** Enc % of the armor the character wears (workspace spec 077): the default of a cast's armor encumbrance. */
+  armorEncumbrance?: number;
 };
 
 export type ActorRoundStyleAbility = { abilityId: string; times: number };
@@ -132,6 +145,8 @@ export type ActorRoundSnapshot = {
   hp: number;
   injuryIds: string[];
   conditionIds: string[];
+  /** Fatigue penalty points it brought (workspace spec 077), 0-50. */
+  fatigue?: number;
 };
 
 export type ActorRoundMovement = {
@@ -184,6 +199,8 @@ export type ActorRoundApLedgerEntry = {
   actionId?: string;
   ap: number;
   kind: ApLedgerKind;
+  /** Spent while concentrating on something else (workspace spec 077): the action gets half of these AP. */
+  concentrated?: boolean;
 };
 
 /** Effects that change the action points of the round (spec 011), with the values `POST /effects` accepts. */
@@ -289,14 +306,22 @@ export type BreakageCheckDto = {
 };
 
 export type ActorRoundFatigue = {
+  /** Endurance bonus: Body Development plus the racial bonus (workspace spec 077). */
   endurance: number;
+  /** Fatigue penalty points (0-50): the penalty is its negative. */
   fatigue: number;
+  /** An endurance roll is due at 100. */
   accumulator: number;
+  /** Rounds in a row without exertion: every 12 (24 at altitude) recover one point (workspace spec 077). */
+  restRounds?: number;
+  /** The actor exerted itself this round, so the round is no rest (workspace spec 077). */
+  exerted?: boolean;
 };
 
 export type ActorRoundDefense = {
   bd: number;
-  at: number | undefined;
+  /** AT of the whole body; null for armor by location (workspace spec 077): the location of the critical decides it. */
+  at: number | null | undefined;
   headAt: number | undefined;
   bodyAt: number | undefined;
   armsAt: number | undefined;

@@ -7,7 +7,9 @@ import { Alert, Box, Button, Divider, Stack } from '@mui/material';
 import { EmptyState, SectionLabel } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
 import ActorRoundBars from '../../actor-round/ActorRoundBars';
+import ActorRoundConcentration from '../../actor-round/ActorRoundConcentration';
 import ActorRoundDefenseMode from '../../actor-round/ActorRoundDefenseMode';
+import ActorRoundHazards from '../../actor-round/hazards/ActorRoundHazards';
 import { Action } from '../../api/action.dto';
 import { ActorRound } from '../../api/actor-rounds.dto';
 import { frenzyLevel, isFrenzyDying } from '../../services/frenzy-service';
@@ -77,6 +79,9 @@ const ActorPanelView: FC<{
       <Divider />
       <ActorRoundDefenseMode actorRound={actorRound} />
       <Divider />
+      <ActorRoundConcentration actorRound={actorRound} />
+      <Divider />
+      <ActorRoundHazards actorRound={actorRound} />
       <Box>
         <SectionLabel>{t('effects-states')}</SectionLabel>
         <ActorRoundEffects actorRound={actorRound} />

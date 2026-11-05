@@ -59,11 +59,18 @@ const ActorRoundDefenseMode: FC<{ actorRound: ActorRound }> = ({ actorRound }) =
               value={level}
               // Full is set by a dodge action; a level already taken by the other defence does not add up.
               disabled={disabled || level === 'full' || (level !== 'none' && level === other)}
+              // Workspace spec 077, decision A2.1: a partial dodge or block needs concentration
+              title={level === 'partial' ? t('concentration-required') : undefined}
             >
               {t(`${kind}-level-${level}`)}
             </ToggleButton>
           ))}
         </ToggleButtonGroup>
+        {mode[kind] === 'partial' && (
+          <Typography variant="caption" color="info.main">
+            {`${t('concentration-required')}: ${t('concentration-help')}`}
+          </Typography>
+        )}
       </Stack>
     );
   };

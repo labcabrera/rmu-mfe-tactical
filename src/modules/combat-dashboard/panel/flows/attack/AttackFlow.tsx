@@ -16,7 +16,9 @@ import ResolveAttackFormRoll from '../../../action-dialogs/attack/ResolveAttackF
 import ActionFlow from '../../ActionFlow';
 import { AttackResults } from '../ActionResults';
 import AttackTargetsStep from './AttackTargetsStep';
+import BoltSplitFields, { boltSplitValid } from './BoltSplitFields';
 import ParryStep from './ParryStep';
+import { ShieldManeuverInput, shieldManeuverAttacks, shieldManeuverItems } from './ShieldManeuverSection';
 import { attackLabel } from './attack-label';
 import { AttackKind, useAttackDeclaration } from './useAttackDeclaration';
 
@@ -24,8 +26,7 @@ import { AttackKind, useAttackDeclaration } from './useAttackDeclaration';
  * Step of the flow for an action status: before prepare the step is local (targets or modifiers). A spell cast has
  * its own statuses: its attack is local until the attacks are prepared.
  */
-const stepOf = (action: Action, kind: AttackKind, localStep: number) => {
-  const parry = kind === 'melee';
+const stepOf = (action: Action, parry: boolean, localStep: number) => {
   if (action.actionType === 'cast_spell' && !action.attacks?.length) return localStep;
   switch (action.status) {
     case 'declared':
@@ -57,7 +58,9 @@ const AttackFlow: FC<{
   sourceAttacks?: ActorRoundAttack[];
   leadingSteps?: FlowStep[];
   onApplied?: () => void;
-}> = ({ kind, action, actorRound, onDeleted, onNextPending, sourceAttacks, leadingSteps = [], onApplied }) => {
+  /** OB of a bolt that strikes several targets (workspace spec 077, Scope Skills): it is split among them. */
+  boltOb?: number;
+}> = ({ kind, action, actorRound, onDeleted, onNextPending, sourceAttacks, leadingSteps = [], onApplied, boltOb }) => {
   const { t } = useTranslation();
   const auth = useAuth();
   const notify = useTacticalNotify();
@@ -70,8 +73,13 @@ const AttackFlow: FC<{
   const [localStep, setLocalStep] = useState(0);
   const [tab, setTab] = useState(0);
   const [busy, setBusy] = useState(false);
-  const step = stepOf(action, kind, localStep);
-  const withParry = kind === 'melee';
+  // Workspace spec 077: the Shield maneuvers typed in the parry step, and the OB split of a bolt
+  const [shieldInputs, setShieldInputs] = useState<Record<string, ShieldManeuverInput>>({});
+  const [obSplit, setObSplit] = useState<number[] | null>(null);
+  // Melee attacks always go through the parry step; a ranged one only for the Shield maneuvers of its defenders.
+  const shieldStep = shieldManeuverAttacks(formData.attacks).length > 0;
+  const withParry = kind === 'melee' || shieldStep;
+  const step = stepOf(action, withParry, localStep);
   const targetName = (targetId: string) => actorRounds?.find((ar) => ar.actorId === targetId)?.actorName ?? '';
 
   const call = (request: Promise<Action>, message: string, after?: () => void) => {
@@ -88,16 +96,22 @@ const AttackFlow: FC<{
       .finally(() => setBusy(false));
   };
 
-  const prepare = () => call(prepareAttack(action.id, { ...formData, attacks: targeted }, auth), t('attack-prepared'));
-  const parry = () =>
+  const splitting = boltOb !== undefined && targeted.length > 1 && obSplit !== null;
+  const splitParts = targeted.map((_, index) => obSplit?.[index] ?? 0);
+  const prepare = () =>
     call(
-      declareParry(
-        action.id,
-        { parries: (formData.parries ?? []).map((p) => ({ parryId: p.id, parry: p.parry })) } as ParryDeclaration,
-        auth
-      ),
-      t('parry-declared')
+      prepareAttack(action.id, { ...formData, attacks: targeted, ...(splitting ? { obSplit: splitParts } : {}) }, auth),
+      t('attack-prepared')
     );
+  const parry = () => {
+    const shieldManeuvers = shieldManeuverItems(formData.attacks, shieldInputs);
+    const parries = (formData.parries ?? []).map((p) => ({ parryId: p.id, parry: p.parry }));
+    const body: ParryDeclaration = {
+      ...(parries.length > 0 || shieldManeuvers.length === 0 ? { parries } : {}),
+      ...(shieldManeuvers.length > 0 ? { shieldManeuvers } : {}),
+    };
+    call(declareParry(action.id, body, auth), t('parry-declared'), () => setShieldInputs({}));
+  };
   const apply = () =>
     call(applyAttack(action.id, auth), t('attack-applied'), () => {
       refreshActorRounds();
@@ -198,6 +212,18 @@ const AttackFlow: FC<{
           onRange={declaration.setRange}
           onProtector={declaration.toggleProtector}
           onProtectorPosition={declaration.setProtectorPosition}
+          fixedOb={action.reaction?.obOverride}
+          footer={
+            boltOb !== undefined && targeted.length > 1 ? (
+              <BoltSplitFields
+                bo={boltOb}
+                attacks={targeted}
+                value={obSplit}
+                onChange={setObSplit}
+                targetName={targetName}
+              />
+            ) : undefined
+          }
         />
       ),
     },
@@ -206,13 +232,16 @@ const AttackFlow: FC<{
       ? [
           {
             id: 'parry',
-            label: t('parry'),
+            label: kind === 'melee' ? t('parry') : t('shield-maneuver'),
             content: (
               <ParryStep
                 formData={formData}
                 setFormData={setFormData}
                 exclusions={action.parryExclusions}
                 sourceActorId={action.actorId}
+                shieldInputs={shieldInputs}
+                onShieldInput={(attackName, input) => setShieldInputs((prev) => ({ ...prev, [attackName]: input }))}
+                withParries={kind === 'melee'}
               />
             ),
           },
@@ -226,8 +255,14 @@ const AttackFlow: FC<{
   let primary;
   if (step === 0) primary = { label: t('next'), disabled: !targetsReady, onClick: () => setLocalStep(1) };
   else if (step === 1)
-    primary = { label: t('prepare'), disabled: busy || targeted.length === 0, onClick: prepare, resolves: true };
-  else if (withParry && step === 2) primary = { label: t('parry'), disabled: busy, onClick: parry };
+    primary = {
+      label: t('prepare'),
+      disabled: busy || targeted.length === 0 || (splitting && !boltSplitValid(boltOb!, splitParts, targeted.length)),
+      onClick: prepare,
+      resolves: true,
+    };
+  else if (withParry && step === 2)
+    primary = { label: kind === 'melee' ? t('parry') : t('shield-maneuver'), disabled: busy, onClick: parry };
   else if (step === rollsStep)
     primary = { label: t('apply'), disabled: busy || action.status !== 'pending_apply', onClick: apply };
 

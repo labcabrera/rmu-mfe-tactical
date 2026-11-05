@@ -63,7 +63,7 @@ const BreakageCheckDialog: FC<{
   return (
     <RmuDialog
       open={open}
-      onClose={onClose}
+      onDismiss={onClose}
       maxWidth="md"
       title={t('breakage-check')}
       subtitle={actorRound.actorName}

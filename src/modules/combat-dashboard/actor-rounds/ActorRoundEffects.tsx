@@ -1,7 +1,8 @@
-import React, { FC } from 'react';
+import React, { FC, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Chip, Stack } from '@mui/material';
 import { EffectList, ChipRow } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { CombatContext } from '../../../CombatContext';
 import { ActorRound } from '../../api/actor-rounds.dto';
 import ActorRoundAlerts from './ActorRoundAlerts';
 
@@ -12,6 +13,7 @@ import ActorRoundAlerts from './ActorRoundAlerts';
  */
 const ActorRoundEffects: FC<{ actorRound: ActorRound; compact?: boolean }> = ({ actorRound, compact = false }) => {
   const { t } = useTranslation();
+  const actorRounds = useContext(CombatContext)?.actorRounds;
   if (!actorRound) return null;
   const mode = actorRound.defenseMode;
   const defenses = (['dodge', 'block'] as const).filter((kind) => mode && mode[kind] !== 'none');
@@ -20,6 +22,8 @@ const ActorRoundEffects: FC<{ actorRound: ActorRound; compact?: boolean }> = ({ 
       <EffectList
         variant={compact ? 'compact' : 'full'}
         effects={actorRound.effects}
+        // Workspace spec 077: a grapple names its grappler
+        actorName={(actorId) => actorRounds?.find((each) => each.actorId === actorId)?.actorName}
         penalties={(actorRound.penalty?.modifiers || []).map((modifier) => ({
           source: modifier.source,
           value: modifier.value,

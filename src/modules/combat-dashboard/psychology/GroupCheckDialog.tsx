@@ -342,7 +342,7 @@ const GroupCheckDialog: FC<{
   return (
     <RmuDialog
       open={open}
-      onClose={onClose}
+      onDismiss={onClose}
       title={t('group-checks')}
       subtitle={t(`group-check-${form.kind}`)}
       maxWidth="md"

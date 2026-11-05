@@ -1,7 +1,7 @@
 import React, { FC, useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
-import { Alert, Box, MenuItem, Stack, TextField } from '@mui/material';
+import { Alert, Box, MenuItem, Stack, TextField, Typography } from '@mui/material';
 import {
   fetchCharacters,
   FlowStep,
@@ -26,7 +26,7 @@ import {
 } from '../../../../api/action.dto';
 import { ActorRound, ActorRoundAttack } from '../../../../api/actor-rounds.dto';
 import { isActionClosed } from '../../../../services/ap-service';
-import { actorOpenEnded } from '../../../../services/combat-talents-service';
+import { actorOpenEnded, POWER_RECYCLING, traitTier } from '../../../../services/combat-talents-service';
 import { useTacticalNotify } from '../../../../services/notify-service';
 import ActionFlow from '../../ActionFlow';
 import { actorCharacter } from '../../SpellDeclareDialog';
@@ -38,6 +38,7 @@ import {
   SpellOutcome,
   SpellResistanceHelp,
   SpellResistanceResults,
+  SpellSpecs,
   targetOutcome,
 } from './SpellResult';
 import SpellTargetsSection from './SpellTargetsSection';
@@ -57,15 +58,32 @@ const failurePowerPoints = (kind: SpellFailurePp, spellPp: number, current: numb
   return Math.max(0, Math.min(byKind[kind], current));
 };
 
+/** Targets a bolt strikes: 1, or 1 + the tier of the caster's Scope Skills for the list (workspace spec 077). */
+export const boltMaxTargets = (spell: ActionSpell): number =>
+  spell.attack?.kind === 'bolt' ? Math.max(1, spell.attack.maxTargets ?? 1) : 1;
+
+/**
+ * Power points Power Recycling would save of a failed cast (workspace spec 077, decision C3): half, rounded for the
+ * caster (I), or all (II), of a failure or no-effect. The API applies it when the cast is applied.
+ */
+export const recycledPowerPoints = (actorRound: ActorRound, spell: ActionSpell, base: number): number => {
+  const tier = traitTier(actorRound, POWER_RECYCLING);
+  if (!tier || (spell.result !== 'failure' && spell.result !== 'no-effect')) return 0;
+  const charged = tier >= 2 ? 0 : Math.floor(Math.max(0, base) / 2);
+  return Math.max(0, base) - charged;
+};
+
 /**
  * The attack of a bolt or ball spell read as ranged weapons (spec 030, phase 4): a bolt strikes one target, a ball
- * makes one attack per target in its area (`fire-ball-1`, `fire-ball-2`…), up to the other actors of the round.
+ * makes one attack per target in its area (`fire-ball-1`, `fire-ball-2`…), up to the other actors of the round. A bolt
+ * with Scope Skills strikes up to 1 + tier targets (workspace spec 077), named like the attacks of a ball.
  */
 const spellSourceAttacks = (spell: ActionSpell, others: number): ActorRoundAttack[] => {
   const attack = spell.attack!;
-  const count = attack.kind === 'ball' ? Math.max(1, others) : 1;
+  const bolts = Math.min(boltMaxTargets(spell), Math.max(1, others));
+  const count = attack.kind === 'ball' ? Math.max(1, others) : bolts;
   return Array.from({ length: count }, (_, i) => ({
-    attackName: attack.kind === 'ball' ? `${attack.attackName}-${i + 1}` : attack.attackName,
+    attackName: attack.kind === 'ball' || count > 1 ? `${attack.attackName}-${i + 1}` : attack.attackName,
     baseBo: attack.bo,
     currentBo: attack.bo,
     type: 'ranged',
@@ -99,7 +117,12 @@ const SpellCastFlow: FC<{
   const character = actorCharacter(actorRound, characters);
   const currentPower = character?.power?.current ?? 0;
   const done = isActionClosed(action);
-  const [options, setOptions] = useState<SpellOptions>(() => ({ ...DEFAULT_SPELL_OPTIONS, ...(spell.options ?? {}) }));
+  // Workspace spec 077, decision B1.2: the Enc % of the armor the caster wears is the default armor encumbrance
+  const [options, setOptions] = useState<SpellOptions>(() => ({
+    ...DEFAULT_SPELL_OPTIONS,
+    armorEncumbrance: actorRound.armorEncumbrance ?? 0,
+    ...(spell.options ?? {}),
+  }));
   const [preview, setPreview] = useState<SpellPreview | null>(null);
   const [roll, setRoll] = useState<number | null>(null);
   // The dice of the roll (workspace spec 076): the API checks them with the caster's roll profile
@@ -167,9 +190,12 @@ const SpellCastFlow: FC<{
       }
     );
 
-  const suggestedPower = spell.failure
+  const basePower = spell.failure
     ? failurePowerPoints(spell.failure.suggestedPp, spell.spell.powerPoints, currentPower)
     : spell.spell.powerPoints;
+  // Workspace spec 077: Power Recycling takes half or none of a failed cast
+  const recycled = recycledPowerPoints(actorRound, spell, basePower);
+  const suggestedPower = basePower - recycled;
   const allowsRr = spellAllowsRr(spell);
   const rolledTargets = (spell.targets ?? []).length > 0;
   const candidates = (actorRounds ?? []).filter((each) => each.round === actorRound.round);
@@ -251,6 +277,11 @@ const SpellCastFlow: FC<{
             allowNegatives={false}
             min={0}
           />
+          {recycled > 0 && (
+            <Typography variant="caption" color="text.secondary">
+              {t('spell-power-recycling-proposal', { base: basePower, recycled, count: suggestedPower })}
+            </Typography>
+          )}
         </Box>
       )}
     </Stack>
@@ -262,11 +293,14 @@ const SpellCastFlow: FC<{
     {
       id: 'spell',
       label: t('spell'),
+      content: <SpellSpecs spell={spell} />,
+      reviewInteractive: true,
       summary: [
         `${spell.spell.level}. ${spell.spell.name}`,
         spell.spell.listName ?? spell.spell.listCode,
         t('spell-power-points', { count: spell.spell.powerPoints }),
         action.freeAction ? t('instantaneous') : null,
+        spell.spell.adjusted ? t('spell-adjusted-by-talents') : null,
       ]
         .filter(Boolean)
         .join(' · '),
@@ -354,6 +388,7 @@ const SpellCastFlow: FC<{
         onDeleted={onDeleted}
         onNextPending={onNextPending}
         sourceAttacks={spellSourceAttacks(spell, candidates.length - 1)}
+        boltOb={boltMaxTargets(spell) > 1 ? spell.attack!.bo : undefined}
         leadingSteps={steps.slice(0, 4)}
         onApplied={refreshCaster}
       />

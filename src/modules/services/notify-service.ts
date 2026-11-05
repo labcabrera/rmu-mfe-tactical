@@ -53,7 +53,8 @@ export const useTacticalNotify = (): Notify => {
       error: (error: unknown) => {
         if (error instanceof ConfirmCancelledError) return;
         const code = apiErrorCode(error);
-        if (code && i18n.exists(code)) notify.error(t(code));
+        // The details of the error fill the text (the `maxTargets` of a bolt, spec 077)
+        if (code && i18n.exists(code)) notify.error(t(code, apiErrorDetails(error) ?? {}));
         else notify.error(error);
       },
     }),

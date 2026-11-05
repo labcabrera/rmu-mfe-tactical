@@ -93,7 +93,7 @@ const CombatTalentAlertDialog: FC<{
   return (
     <RmuDialog
       open={open}
-      onClose={onClose}
+      onDismiss={onClose}
       maxWidth="sm"
       title={t(`alert-${alert.type}`)}
       subtitle={actorRound.actorName}

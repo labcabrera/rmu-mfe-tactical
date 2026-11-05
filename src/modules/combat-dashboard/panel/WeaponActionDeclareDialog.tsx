@@ -56,7 +56,7 @@ const WeaponActionDeclareDialog: FC<{
   return (
     <RmuDialog
       open={open}
-      onClose={onClose}
+      onDismiss={onClose}
       title={t(aim ? 'aim' : 'draw-and-load')}
       subtitle={actorRound.actorName}
       maxWidth="sm"

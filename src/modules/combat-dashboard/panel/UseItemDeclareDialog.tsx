@@ -53,7 +53,7 @@ const UseItemDeclareDialog: FC<{
   return (
     <RmuDialog
       open={open}
-      onClose={onClose}
+      onDismiss={onClose}
       title={t('use-item')}
       subtitle={actorRound.actorName}
       maxWidth="sm"

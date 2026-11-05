@@ -30,6 +30,11 @@ export const MovementResult: FC<{ action: Action }> = ({ action }) => {
             tone: calculated.percent < 100 ? 'negative' : undefined,
           },
           { label: t('fatigue'), value: action.fatigue || 0 },
+          // Workspace spec 077: what changed the BMR (half movement, concentration)
+          ...(calculated.bmrMultipliers ?? []).map((multiplier) => ({
+            label: t(`bmr-multiplier-${multiplier.key}`),
+            value: `${t('bmr')} ×${multiplier.value}`,
+          })),
           ...(calculated.critical
             ? [{ label: t('received-critical'), value: `${calculated.critical}K`, tone: 'negative' as const }]
             : []),
@@ -90,6 +95,16 @@ export const ManeuverResult: FC<{ action: Action }> = ({ action }) => {
         {result.unusualEvent && <Chip label={t('unusual-event')} color="warning" variant="outlined" />}
         {result.critical && <Chip label={`${t('critical')} ${result.critical}`} color="error" variant="outlined" />}
         {targetName && <Chip label={t('maneuver-against', { name: targetName })} variant="outlined" />}
+        {/* Workspace spec 077: the steps a fall-control maneuver moves the critical of a fall */}
+        {result.fallControlSteps !== undefined && result.fallControlSteps !== null && (
+          <Chip
+            variant="outlined"
+            color={result.fallControlSteps < 0 ? 'success' : result.fallControlSteps > 0 ? 'error' : 'default'}
+            label={t('fall-control-steps', {
+              steps: result.fallControlSteps > 0 ? `+${result.fallControlSteps}` : `${result.fallControlSteps}`,
+            })}
+          />
+        )}
         {maneuver?.roll?.totalRoll !== undefined && (
           <Typography variant="body2" color="text.secondary">
             {t('total-value', { value: maneuver.roll.totalRoll })}
@@ -145,11 +160,7 @@ export const ManeuverResult: FC<{ action: Action }> = ({ action }) => {
       )}
       <ResultValues values={[{ label: t('fatigue'), value: action.fatigue || 0 }]} />
       {maneuver?.roll?.modifiers && (
-        <RollBreakdown
-          context="maneuver"
-          modifiers={maneuver.roll.modifiers}
-          skipped={maneuver.roll.skipped}
-        />
+        <RollBreakdown context="maneuver" modifiers={maneuver.roll.modifiers} skipped={maneuver.roll.skipped} />
       )}
     </Stack>
   );

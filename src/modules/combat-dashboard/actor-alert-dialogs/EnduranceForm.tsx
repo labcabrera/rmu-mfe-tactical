@@ -33,8 +33,10 @@ export type EnduranceFormValue = {
 export const emptyEnduranceForm = (): EnduranceFormValue => ({ roll: null, deprivation: {}, customBonus: null });
 
 /**
- * Modifiers of an endurance roll (§5.5): the actor's endurance bonus, its accumulated fatigue, its maneuver penalty,
- * the game's temperature and altitude, the deprivation modifiers and a custom bonus. The API adds them to the roll.
+ * Modifiers of an endurance roll (§5.5): the actor's endurance bonus, its accumulated fatigue, the game's temperature
+ * and altitude, the deprivation modifiers and a custom bonus. The API adds them to the roll, and adds by itself the
+ * load penalty of the character sheet as `encumbrance` (workspace spec 077, decision B1.6): the form no longer sends the
+ * maneuver penalty of the actor, which included it.
  */
 export const enduranceModifiers = (
   actorRound: ActorRound,
@@ -46,7 +48,6 @@ export const enduranceModifiers = (
     [
       { key: 'endurance', value: actorRound.fatigue?.endurance ?? 0, group: 'skill', rule: '§5.5' },
       { key: 'penalty-fatigue', value: -(actorRound.fatigue?.fatigue ?? 0), group: 'penalty', rule: '§5.5' },
-      { key: 'maneuver-penalty', value: actorRound.movement?.penalty ?? 0, group: 'penalty', rule: '§5.4' },
       {
         key: 'temperature-modifier',
         value: game?.environment?.temperatureFatigueModifier ?? 0,
@@ -64,7 +65,7 @@ export const enduranceModifiers = (
         value: (value.deprivation[d.key] ?? 0) * d.perUnit,
         group: 'situation',
         rule: 'Table 5-5',
-        params: { units: value.deprivation[d.key] ?? 0, perUnit: d.perUnit },
+        params: { units: value.deprivation[d.key] ?? 0, perUnit: d.perUnit, modifier: d.perUnit },
       })),
       { key: 'custom-bonus', value: value.customBonus ?? 0, group: 'situation' },
     ] as RollModifier[]
@@ -130,6 +131,11 @@ const EnduranceForm: FC<{
             roll={value.roll}
             totalLabel={value.roll === null ? t('predicted-total') : t('total')}
           />
+          {actorRound.characterId && (
+            <Typography variant="caption" color="text.secondary">
+              {t('endurance-encumbrance-auto')}
+            </Typography>
+          )}
         </Stack>
       </Grid>
     </Grid>

@@ -1,7 +1,13 @@
 import React, { ComponentProps, FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, Box, Chip, Stack, Typography } from '@mui/material';
-import { formatBonus, RollBreakdown, RuleHint, SpellEffectList } from '@labcabrera-rmu/rmu-react-shared-lib';
+import {
+  formatBonus,
+  RollBreakdown,
+  RuleHint,
+  SpellEffectList,
+  spellSpecsRows,
+} from '@labcabrera-rmu/rmu-react-shared-lib';
 import { TFunction } from 'i18next';
 import { ActionSpell, ActionSpellTarget } from '../../../../api/action.dto';
 
@@ -69,8 +75,16 @@ export const SpellCastingResult: FC<{ spell: ActionSpell }> = ({ spell }) => {
       {spell.failure && (
         <Box>
           <Typography variant="subtitle2">
-            {`${t('spell-failure')} (${t(spell.failure.realm)}): ${spell.failure.roll} ${formatBonus(spell.failure.modifier)} = ${spell.failure.total}`}
+            {`${t('spell-failure')} (${t(spell.failure.realm)}): ${spell.failure.roll} ${formatBonus(spell.failure.modifier)}${
+              spell.failure.talentModifier ? ` ${formatBonus(spell.failure.talentModifier)}` : ''
+            } = ${spell.failure.total}`}
           </Typography>
+          {/* Workspace spec 077, decision C2: Inglorious Failure and Graceful Recovery move the failure roll */}
+          {!!spell.failure.talentModifier && (
+            <Typography variant="caption" color="text.secondary" component="div">
+              {t('spell-failure-talent-modifier', { value: formatBonus(spell.failure.talentModifier) })}
+            </Typography>
+          )}
           <Typography variant="body2" sx={{ my: 0.5 }}>
             {spell.failure.text}
           </Typography>
@@ -166,6 +180,66 @@ export const SpellOutcome: FC<{ spell: ActionSpell }> = ({ spell }) => {
       )}
       {spell.powerPointsSpent !== null && spell.powerPointsSpent !== undefined && (
         <Typography variant="body2">{t('spell-power-points-spent', { count: spell.powerPointsSpent })}</Typography>
+      )}
+      {!!spell.powerPointsRecycled && (
+        <Typography variant="body2" color="text.secondary">
+          {t('spell-power-points-recycled', { count: spell.powerPointsRecycled })}
+        </Typography>
+      )}
+    </Stack>
+  );
+};
+
+/**
+ * Range, area and duration of the spell (spec 028), each with the value the caster's magical talents give it next to
+ * the book one (workspace spec 077, decision C5: Spatial, Temporal and Scope Skills, Extended Reach, Lack of...).
+ */
+export const SpellSpecs: FC<{ spell: ActionSpell }> = ({ spell }) => {
+  const { t } = useTranslation();
+  const info = spell.spell;
+  const rows = spellSpecsRows(info, info.adjusted, t);
+  const sources = info.adjusted?.sources ?? [];
+  if (rows.length === 0) return null;
+  return (
+    <Stack spacing={1}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: 'auto 1fr', columnGap: 2, rowGap: 0.5 }}>
+        {rows.map((row) => (
+          <React.Fragment key={row.kind}>
+            <Typography variant="body2" color="text.secondary">
+              {t(`spell-${row.kind}`)}
+            </Typography>
+            <Typography variant="body2">
+              {row.adjusted ? (
+                <>
+                  <Box component="span" sx={{ textDecoration: 'line-through', color: 'text.secondary', mr: 1 }}>
+                    {row.original}
+                  </Box>
+                  <Box component="span" sx={{ fontWeight: 600 }}>
+                    {row.adjusted}
+                  </Box>
+                </>
+              ) : (
+                row.original
+              )}
+            </Typography>
+          </React.Fragment>
+        ))}
+      </Box>
+      {sources.length > 0 && (
+        <Stack direction="row" spacing={0.5} sx={{ flexWrap: 'wrap', rowGap: 0.5 }}>
+          {sources.map((source) => (
+            <Chip
+              key={`${source.traitId}-${source.applies}`}
+              size="small"
+              variant="outlined"
+              label={t('spell-adjustment-source', {
+                talent: t(source.traitId),
+                tier: source.tier,
+                what: t(`spell-${source.applies}`),
+              })}
+            />
+          ))}
+        </Stack>
       )}
     </Stack>
   );

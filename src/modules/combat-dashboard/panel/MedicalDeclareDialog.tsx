@@ -203,7 +203,7 @@ const MedicalDeclareDialog: FC<{
   return (
     <RmuDialog
       open={open}
-      onClose={onClose}
+      onDismiss={onClose}
       title={t('medical-action')}
       subtitle={t('medical-healer', { healer: actorRound.actorName })}
       maxWidth="sm"

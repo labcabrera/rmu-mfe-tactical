@@ -75,6 +75,10 @@ const ResolveAttackFormCriticals: FC<{
   };
 
   const getStatusLabel = (effect: CriticalEffect) => criticalEffectLabel(effect, t);
+  // Workspace spec 077, B2: against armor by location, the critical roll sent with the attack fixed the location and
+  // the criticals are rolled with it (another roll is err-critical-roll-location-fixed; a reroll keeps the location).
+  const locationRoll = attack.calculated?.locationRoll;
+  const fixedByLocation = locationRoll !== undefined && locationRoll !== null;
 
   return (
     <>
@@ -110,15 +114,30 @@ const ResolveAttackFormCriticals: FC<{
           </Grid>
         )}
         <Grid size={6}>
-          <RollField
-            spec={D100}
-            label={t('critical-roll')}
-            value={sharedRoll}
-            onChange={(roll) => onUpdateCriticalRoll(roll.total)}
-            // Each roll resolves every critical again; it can change until the attack is applied. Once rolled again
-            // with a critical-reroll effect, the second roll counts (workspace spec 076).
-            disabled={action.status === 'completed' || !!originalRoll}
-          />
+          {fixedByLocation && sharedRoll === undefined ? (
+            <Stack spacing={0.5} sx={{ alignItems: 'flex-start' }}>
+              <Typography variant="body2">{t('critical-roll-from-location', { roll: locationRoll })}</Typography>
+              <Button
+                size="small"
+                variant="contained"
+                disabled={action.status === 'completed'}
+                onClick={() => onUpdateCriticalRoll(locationRoll!)}
+              >
+                {t('critical-roll-apply', { roll: locationRoll })}
+              </Button>
+            </Stack>
+          ) : (
+            <RollField
+              spec={D100}
+              label={t('critical-roll')}
+              value={sharedRoll}
+              onChange={(roll) => onUpdateCriticalRoll(roll.total)}
+              // Each roll resolves every critical again; it can change until the attack is applied. Once rolled again
+              // with a critical-reroll effect, the second roll counts (workspace spec 076). A roll that fixed the
+              // location of the attack (spec 077) cannot change.
+              disabled={action.status === 'completed' || !!originalRoll || fixedByLocation}
+            />
+          )}
         </Grid>
         <Grid size={6}>
           <Stack spacing={0.5}>

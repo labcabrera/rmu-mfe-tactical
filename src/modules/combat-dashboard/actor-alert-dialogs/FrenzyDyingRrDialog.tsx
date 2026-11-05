@@ -68,7 +68,7 @@ const FrenzyDyingRrDialog: FC<{ actorRound: ActorRound; open: boolean; onClose: 
   return (
     <RmuDialog
       open={open}
-      onClose={onClose}
+      onDismiss={onClose}
       title={t('frenzy-dying-rr')}
       subtitle={actorRound.actorName}
       maxWidth="sm"

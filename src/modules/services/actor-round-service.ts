@@ -70,3 +70,22 @@ export function findMaxActorRoundPace(actorId: string, actions: Action[]) {
   valid.sort((a, b) => PACE_ORDER.indexOf(b) - PACE_ORDER.indexOf(a));
   return valid[0];
 }
+
+/** Grapples on the actor (workspace spec 077): `grappled` effects, each with its grappler and percent. */
+export function actorRoundGrapples(actorRound: ActorRound): ActorRound['effects'] {
+  return (actorRound.effects ?? []).filter((effect) => effect.status === 'grappled');
+}
+
+/**
+ * The actor is grappled, or holds another actor of the round in a grapple (workspace spec 077, decision A3.5): to move
+ * away it needs a contested Feat of Strength (`grappleFeat` of the movement).
+ */
+export function isActorRoundGrappling(actorRound: ActorRound, actorRounds: ActorRound[]): boolean {
+  if (actorRoundGrapples(actorRound).length > 0) return true;
+  return actorRounds.some(
+    (other) =>
+      other.id !== actorRound.id &&
+      other.round === actorRound.round &&
+      actorRoundGrapples(other).some((effect) => effect.targetActorId === actorRound.actorId)
+  );
+}

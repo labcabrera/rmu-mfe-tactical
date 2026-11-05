@@ -252,7 +252,7 @@ export const predictedModifiers = (
       source: 'catalog',
     })
   );
-  if (actorRound && form.purpose && !isCombatTalentPurpose(form.purpose)) {
+  if (actorRound && form.purpose && form.purpose.startsWith('frenzy')) {
     frenzyManeuverModifiers(actorRound, form.purpose as FrenzyPurpose).forEach((modifier) =>
       modifiers.push({ ...modifier, group: 'situation', source: 'frenzy' })
     );
