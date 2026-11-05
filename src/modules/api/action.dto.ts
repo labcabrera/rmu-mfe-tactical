@@ -1,5 +1,12 @@
 import {
   AbsoluteResultKey,
+  AdrenalManeuverOutcome,
+  BlockBManeuverPurpose,
+  ComplementaryHelper,
+  FeatOfStrengthChoices,
+  FeatOfStrengthListing,
+  FeatOfStrengthResult,
+  SimilarityChoice,
   ActionOther,
   ActionParryBlockAFields,
   ActionAim,
@@ -45,7 +52,12 @@ export { FORCE_REASONS } from '@labcabrera-rmu/rmu-react-shared-lib';
  * Battle Cry, Sense Weakness, Study Offense, Precision).
  */
 export type ManeuverPurpose =
-  FrenzyPurpose | CombatTalentPurpose | typeof GRAPPLE_ESCAPE_PURPOSE | typeof FALL_CONTROL_PURPOSE;
+  | FrenzyPurpose
+  | CombatTalentPurpose
+  | typeof GRAPPLE_ESCAPE_PURPOSE
+  | typeof FALL_CONTROL_PURPOSE
+  // Workspace spec 079, block B: feat of strength, adrenal moves and Fortitude
+  | BlockBManeuverPurpose;
 
 // Same values as rmu-api-tactical (action-status.vo.ts). `pending_roll` is the current status while the attack,
 // critical or fumble rolls are pending: each attack's `status` says which roll it waits for.
@@ -266,6 +278,10 @@ export type ActionManeuverModifiers = {
   passiveSkillId?: string | null;
   /** Adrenal Focus maneuver to enter or leave the frenzy (spec 040), or a combat talent (workspace spec 076). */
   purpose?: ManeuverPurpose | null;
+  /** Workspace spec 079, B1-B2: the similar skill, the helpers and the load of a feat of strength. */
+  similarity?: SimilarityChoice | null;
+  complementary?: ComplementaryHelper[] | null;
+  featOfStrength?: FeatOfStrengthChoices | null;
 } & CombatTalentManeuverFields;
 
 /** Effect of an absolute maneuver result (core's table). */
@@ -299,6 +315,9 @@ export type ActionManeuverResult = {
   grappleEscape?: GrappleEscapeResult[];
   /** fall-control (workspace spec 077): severity steps of a fall, +1 absolute failure, -1 success, -2 absolute success. */
   fallControlSteps?: number;
+  /** Workspace spec 079: how the difficulty of a feat of strength was found, and what an adrenal move gave. */
+  featOfStrength?: FeatOfStrengthResult;
+  adrenal?: AdrenalManeuverOutcome;
 };
 
 export type ActionManeuver = {
@@ -351,6 +370,18 @@ export type ManeuverModifiersListing = {
   progress?: number;
   /** Rules of the base modifiers that do not apply, and why (spec 052). */
   skipped?: SkippedRule[];
+  /** Workspace spec 079, B1: lines of the similar skill and the complementary helpers asked for in the query. */
+  aids?: ManeuverBaseModifier[];
+  /** Workspace spec 079, B2: the weight and St of the sheet, and the difficulty of the load asked for. */
+  featOfStrength?: FeatOfStrengthListing;
+};
+
+/** Query of `GET /actions/{id}/maneuver/modifiers` (workspace spec 079): the purpose, the aids and the load. */
+export type ManeuverListingQuery = {
+  purpose?: ManeuverPurpose | null;
+  similarity?: SimilarityChoice | null;
+  complementary?: ComplementaryHelper[];
+  featOfStrength?: Partial<FeatOfStrengthChoices> | null;
 };
 
 /** `PATCH /actions/{id}/maneuver/resolve` (spec 010 §4.1). */
@@ -373,6 +404,10 @@ export type ResolveManeuverDto = {
    * sends one roll per grapple in `grappleEscape` instead (workspace spec 077). */
   roll?: { roll: number; unmodified?: number; dice?: number[] };
   grappleEscape?: GrappleEscapeRow[];
+  /** Workspace spec 079, B1-B2. */
+  similarity?: SimilarityChoice;
+  complementary?: ComplementaryHelper[];
+  featOfStrength?: FeatOfStrengthChoices;
 } & CombatTalentManeuverFields &
   ManeuverSenseChoices &
   SpasmRoundsField;

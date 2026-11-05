@@ -29,8 +29,10 @@ import { FrenzyPurpose, frenzyManeuverModifiers, frenzyPurposes } from '../../..
 import ModifierTile from '../../../action-dialogs/attack-modifiers/pickers/ModifierTile';
 import OptionTiles from '../../../action-dialogs/attack-modifiers/pickers/OptionTiles';
 import { useSkillDifficultyGuide } from '../useSkillDifficultyGuide';
+import BlockBPurposeFields from './BlockBPurposeFields';
 import CombatTalentPurposeFields from './CombatTalentPurposeFields';
 import ManeuverSensesFields from './ManeuverSensesFields';
+import SkillAidsFields from './SkillAidsFields';
 import {
   effectiveDifficulty,
   isCombatTalentPurpose,
@@ -82,7 +84,9 @@ const ManeuverModifiersStep: FC<{
   // Workspace spec 076: the maneuvers of the combat talents of the actor that roll this skill
   const talentPurposes = combatTalentPurposes(actorRound, listing.skill.skillId);
   // Battle Cry and Precision are resolved as Medium (the position gives Precision its difficulty)
-  const fixedDifficulty = form.purpose === 'battle-cry' || form.purpose === 'precision';
+  // Workspace spec 079, B2: a feat of strength takes the difficulty of its load
+  const featDifficulty = form.purpose === 'feat-of-strength' && !!listing.featOfStrength?.result;
+  const fixedDifficulty = form.purpose === 'battle-cry' || form.purpose === 'precision' || featDifficulty;
   const lightOption = listing.light?.options.find((option) => option.key === form.light);
   const progress = listing.progress ?? 0;
   const guide = useSkillDifficultyGuide(listing.skill.skillId);
@@ -186,6 +190,8 @@ const ManeuverModifiersStep: FC<{
 
       <CombatTalentPurposeFields purposes={talentPurposes} form={form} onChange={onChange} targets={targets} />
 
+      <BlockBPurposeFields listing={listing} form={form} onChange={onChange} />
+
       <Box>
         <Caption>{t('base-modifiers')}</Caption>
         <ChipRow>
@@ -214,7 +220,9 @@ const ManeuverModifiersStep: FC<{
 
       {fixedDifficulty ? (
         <Typography variant="body2" color="text.secondary">
-          {t('combat-talent-difficulty-fixed', { difficulty: t(`difficulty-${effectiveDifficulty(form)}`) })}
+          {t(featDifficulty ? 'feat-of-strength-difficulty-fixed' : 'combat-talent-difficulty-fixed', {
+            difficulty: t(`difficulty-${effectiveDifficulty(form, listing)}`),
+          })}
         </Typography>
       ) : (
         <DifficultyPicker
@@ -314,6 +322,14 @@ const ManeuverModifiersStep: FC<{
           )}
         </Box>
       )}
+
+      <SkillAidsFields
+        listing={listing}
+        form={form}
+        onChange={onChange}
+        actors={actorRound ? [actorRound, ...targets] : targets}
+        actorRound={actorRound}
+      />
 
       <Stack direction="row" sx={{ flexWrap: 'wrap', gap: 2, alignItems: 'center' }}>
         {conflicting && !target && (

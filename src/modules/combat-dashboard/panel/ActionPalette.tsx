@@ -21,6 +21,7 @@ import {
   CombatTalentPurpose,
   combatColors,
   FALL_CONTROL_PURPOSE,
+  FORTITUDE_SKILL_ID,
   FALL_CONTROL_SKILL,
   GRAPPLE_ESCAPE_PURPOSE,
   SearchField,
@@ -86,6 +87,8 @@ type PaletteEntry = {
   grappleEscape?: boolean;
   /** "Fall control" (workspace spec 077): an instantaneous Acrobatics maneuver, 0 AP, cited by a fall. */
   fallControl?: boolean;
+  /** Fortitude (workspace spec 079, B4): an instantaneous absolute maneuver, 0 AP, that halves the penalties. */
+  fortitude?: boolean;
   /** Lines shown under the entry: the grapples of "Break free", with their grappler and percent. */
   details?: string[];
 };
@@ -281,6 +284,14 @@ const usePaletteGroups = (actorRound: ActorRound, phase: number): PaletteGroup[]
           freeAction: true,
           fallControl: true,
           details: [t('fall-control-palette-help')],
+        }),
+        // Workspace spec 079, B4: Fortitude, instantaneous
+        entry('maneuver', {
+          key: 'fortitude',
+          label: t('fortitude'),
+          freeAction: true,
+          fortitude: true,
+          details: [t('fortitude-palette-help')],
         }),
         ...availableCombatTalentPurposes(actorRound).map((purpose) =>
           entry('maneuver', {
@@ -529,6 +540,9 @@ const PaletteContent: FC<{
     } else if (entry.fallControl) {
       // Instantaneous (0 AP) absolute Acrobatics: the API only takes it declared so or forced (workspace spec 077)
       onCreate(entry, { maneuver: { skillId: FALL_CONTROL_SKILL, maneuverType: 'absolute' } });
+    } else if (entry.fortitude) {
+      // Instantaneous (0 AP) absolute Fortitude: the API only takes it declared so or forced (workspace spec 079)
+      onCreate(entry, { maneuver: { skillId: FORTITUDE_SKILL_ID, maneuverType: 'absolute' } });
     } else if (entry.purpose) {
       // A combat talent maneuver rolls its talent's skill: declared at once (workspace spec 076)
       const { skillId, specialization } = COMBAT_TALENT_PURPOSE_SKILLS[entry.purpose];

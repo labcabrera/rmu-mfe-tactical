@@ -239,6 +239,8 @@ export const DECLARABLE_DEFENSE_LEVELS: DefenseLevel[] = ['none', 'passive', 'pa
 export type ActorRoundDefenseMode = {
   dodge: DefenseLevel;
   block: DefenseLevel;
+  /** Workspace spec 079, B3: the full dodge comes from Adrenal Defense (kept as concentration below level 4). */
+  adrenal?: boolean;
 };
 
 export type ActorRoundPhaseLog = {

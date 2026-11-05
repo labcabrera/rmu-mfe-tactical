@@ -7,6 +7,7 @@ import HealingIcon from '@mui/icons-material/Healing';
 import { Stack, Typography, Chip, Box, TextField, IconButton, Button, MenuItem, Tooltip } from '@mui/material';
 import {
   ChipRow,
+  formatBonus,
   EmptyState,
   InjurySourceLine,
   normalizeEffectStatus,
@@ -19,6 +20,15 @@ import { ActorRound, ActorRoundEffect, AP_EFFECTS } from '../api/actor-rounds.dt
 import { isGameFinished } from '../services/game-service';
 import { useTacticalNotify } from '../services/notify-service';
 import MedicalRollDialog, { MedicalTarget } from './medical/MedicalRollDialog';
+
+/** Text of the value of the effects of workspace spec 079: the Defense level, the bonus, the sizes, the percent. */
+const BLOCK_B_EFFECT_VALUES: Record<string, string> = {
+  'adrenal-defense': 'adrenal-defense-level',
+  'adrenal-focus': 'effect-value-bonus',
+  'adrenal-strength': 'adrenal-strength-sizes',
+  'adrenal-block': 'effect-value-bonus',
+  fortitude: 'fortitude-percent',
+};
 
 const ActorRoundEffects: FC<{
   actorRound: ActorRound;
@@ -65,7 +75,12 @@ const ActorRoundEffects: FC<{
     if (state.status === 'surprised') parts.push(t('surprised-lost-ap', { count: state.value ?? 2 }));
     else if (apDefinition && state.value !== undefined && state.value !== null)
       parts.push(t(`ap-effect-value-${state.status}`, { count: state.value }));
+    // Workspace spec 079, B3-B4: adrenal moves and Fortitude say what they give
+    else if (BLOCK_B_EFFECT_VALUES[state.status] && state.value !== undefined && state.value !== null)
+      parts.push(t(BLOCK_B_EFFECT_VALUES[state.status], { count: state.value, value: formatBonus(state.value) }));
     else if (state.value) parts.push(`${state.value}`);
+    if (state.status === 'adrenal-block' && typeof state.data?.skillId === 'string')
+      parts.push(t(state.data.skillId, { defaultValue: state.data.skillId }));
     if (state.rounds && state.status !== 'surprised' && state.status !== 'flatfooted')
       parts.push(t('rounds-short', { count: state.rounds }));
     // Spec 034: a delayed effect of a critical text says the round it starts in.

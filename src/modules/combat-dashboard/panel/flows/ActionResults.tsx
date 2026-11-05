@@ -1,7 +1,7 @@
 import React, { FC, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Chip, LinearProgress, Stack, Typography } from '@mui/material';
-import { formatBonus, RollBreakdown, ChipRow } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { AdrenalManeuverOutcome, ChipRow, formatBonus, RollBreakdown } from '@labcabrera-rmu/rmu-react-shared-lib';
 import type { TFunction } from 'i18next';
 import { CombatContext } from '../../../../CombatContext';
 import { Action, ActionAttack, ActionManeuverEffect } from '../../../api/action.dto';
@@ -62,6 +62,35 @@ const effectLabel = (effect: ActionManeuverEffect, t: TFunction) =>
     .filter(Boolean)
     .join(' ');
 
+/** The benefit of an adrenal move or Fortitude, its rounds and from when, and a block or the fatigue it added. */
+const AdrenalOutcomeChips: FC<{ outcome: AdrenalManeuverOutcome }> = ({ outcome }) => {
+  const { t } = useTranslation();
+  return (
+    <>
+      {outcome.rounds > 0 && (
+        <Chip
+          variant="outlined"
+          color="success"
+          label={[
+            t(outcome.kind === 'fortitude' ? 'fortitude' : `adrenal-${outcome.kind}`),
+            t('rounds-short', { count: outcome.rounds }),
+            outcome.fromRound ? t('effect-from-round', { round: outcome.fromRound }) : null,
+          ]
+            .filter(Boolean)
+            .join(' ')}
+        />
+      )}
+      {outcome.doubled && <Chip variant="outlined" color="success" label={t('adrenal-doubled')} />}
+      {outcome.partial && <Chip variant="outlined" color="warning" label={t('adrenal-partial')} />}
+      {outcome.block && <Chip variant="outlined" color="error" label={t('adrenal-block')} />}
+      {outcome.blockLifted && <Chip variant="outlined" color="success" label={t('adrenal-block-lifted')} />}
+      {!!outcome.fatigue && (
+        <Chip variant="outlined" color="error" label={t('fortitude-fatigue', { value: outcome.fatigue })} />
+      )}
+    </>
+  );
+};
+
 /**
  * Result of a maneuver: an absolute one as a chip (green for any success, red for a failure) with its message,
  * unusual event and effects; a percent one as its percent and the task progress over the rounds; Trading as the
@@ -103,6 +132,17 @@ export const ManeuverResult: FC<{ action: Action }> = ({ action }) => {
             color={result.fallControlSteps < 0 ? 'success' : result.fallControlSteps > 0 ? 'error' : 'default'}
             label={t('fall-control-steps', {
               steps: result.fallControlSteps > 0 ? `+${result.fallControlSteps}` : `${result.fallControlSteps}`,
+            })}
+          />
+        )}
+        {/* Workspace spec 079, B3-B4: what an adrenal move or Fortitude gave */}
+        {result.adrenal && <AdrenalOutcomeChips outcome={result.adrenal} />}
+        {result.featOfStrength && (
+          <Chip
+            variant="outlined"
+            label={t('feat-of-strength-result', {
+              adjusted: result.featOfStrength.adjustedPercent,
+              difficulty: t(`difficulty-${result.featOfStrength.difficulty}`),
             })}
           />
         )}
