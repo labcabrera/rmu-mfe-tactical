@@ -65,7 +65,7 @@ export const enduranceModifiers = (
         value: (value.deprivation[d.key] ?? 0) * d.perUnit,
         group: 'situation',
         rule: 'Table 5-5',
-        params: { units: value.deprivation[d.key] ?? 0, perUnit: d.perUnit },
+        params: { units: value.deprivation[d.key] ?? 0, perUnit: d.perUnit, modifier: d.perUnit },
       })),
       { key: 'custom-bonus', value: value.customBonus ?? 0, group: 'situation' },
     ] as RollModifier[]
