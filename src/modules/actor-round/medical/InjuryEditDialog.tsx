@@ -72,7 +72,7 @@ const InjuryEditDialog: FC<{
   return (
     <RmuDialog
       open={!!injury}
-      onClose={onClose}
+      onDismiss={onClose}
       title={t('edit-injury')}
       subtitle={actorRound.actorName}
       maxWidth="sm"

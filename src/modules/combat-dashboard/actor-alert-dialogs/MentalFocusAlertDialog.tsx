@@ -48,7 +48,7 @@ const MentalFocusAlertDialog: FC<{
   return (
     <RmuDialog
       open={open}
-      onClose={onClose}
+      onDismiss={onClose}
       maxWidth="sm"
       title={t('alert-mental-focus')}
       subtitle={actorRound.actorName}

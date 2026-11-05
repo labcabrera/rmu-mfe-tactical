@@ -91,7 +91,7 @@ const FinishGameDialog: FC<{
   return (
     <RmuDialog
       open={open}
-      onClose={onClose}
+      onDismiss={onClose}
       title={t('finish-tactical-game')}
       subtitle={game.name}
       maxWidth="md"

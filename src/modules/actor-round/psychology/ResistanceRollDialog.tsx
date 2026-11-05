@@ -110,7 +110,7 @@ const ResistanceRollDialog: FC<{
   return (
     <RmuDialog
       open={open}
-      onClose={onClose}
+      onDismiss={onClose}
       title={t('fear-rr')}
       subtitle={actorRound.actorName}
       maxWidth="sm"

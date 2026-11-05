@@ -156,7 +156,7 @@ const ManeuverDeclareDialog: FC<{
   return (
     <RmuDialog
       open={open}
-      onClose={onClose}
+      onDismiss={onClose}
       maxWidth="md"
       title={t('maneuver')}
       subtitle={actorRound?.actorName}

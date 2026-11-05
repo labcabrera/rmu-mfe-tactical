@@ -78,7 +78,7 @@ const CriticalAlertDialog: FC<{
   return (
     <RmuDialog
       open={open}
-      onClose={onClose}
+      onDismiss={onClose}
       maxWidth="sm"
       title={t('alert-critical')}
       subtitle={actorRound.actorName}

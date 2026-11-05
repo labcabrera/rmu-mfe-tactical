@@ -200,7 +200,7 @@ const ActorAlertDialog: FC<{
   return (
     <RmuDialog
       open={open}
-      onClose={onClose}
+      onDismiss={onClose}
       maxWidth={isEndurance ? 'md' : 'xl'}
       title={isEndurance ? t('endurance-check') : currentAlert ? t(`alert-${currentAlert.type}`) : t('alert')}
       subtitle={isEndurance ? actorRound.actorName : undefined}

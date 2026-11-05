@@ -50,7 +50,7 @@ const ForceResolutionDialog: FC<{ action: Action; open: boolean; onClose: () => 
       title={t('force-resolution')}
       maxWidth="xs"
       fullScreen={false}
-      onClose={onClose}
+      onDismiss={onClose}
       buttons={
         <>
           <Button onClick={onClose}>{t('cancel')}</Button>

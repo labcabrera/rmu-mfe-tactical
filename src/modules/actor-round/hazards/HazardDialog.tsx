@@ -308,7 +308,7 @@ const HazardDialog: FC<{
   return (
     <RmuDialog
       open={open}
-      onClose={onClose}
+      onDismiss={onClose}
       maxWidth="md"
       title={t(`hazard-kind-${kind}`)}
       subtitle={actorRound.actorName}
