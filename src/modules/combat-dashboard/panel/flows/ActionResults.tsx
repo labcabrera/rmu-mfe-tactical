@@ -30,6 +30,11 @@ export const MovementResult: FC<{ action: Action }> = ({ action }) => {
             tone: calculated.percent < 100 ? 'negative' : undefined,
           },
           { label: t('fatigue'), value: action.fatigue || 0 },
+          // Workspace spec 077: what changed the BMR (half movement, concentration)
+          ...(calculated.bmrMultipliers ?? []).map((multiplier) => ({
+            label: t(`bmr-multiplier-${multiplier.key}`),
+            value: `${t('bmr')} ×${multiplier.value}`,
+          })),
           ...(calculated.critical
             ? [{ label: t('received-critical'), value: `${calculated.critical}K`, tone: 'negative' as const }]
             : []),
@@ -145,11 +150,7 @@ export const ManeuverResult: FC<{ action: Action }> = ({ action }) => {
       )}
       <ResultValues values={[{ label: t('fatigue'), value: action.fatigue || 0 }]} />
       {maneuver?.roll?.modifiers && (
-        <RollBreakdown
-          context="maneuver"
-          modifiers={maneuver.roll.modifiers}
-          skipped={maneuver.roll.skipped}
-        />
+        <RollBreakdown context="maneuver" modifiers={maneuver.roll.modifiers} skipped={maneuver.roll.skipped} />
       )}
     </Stack>
   );

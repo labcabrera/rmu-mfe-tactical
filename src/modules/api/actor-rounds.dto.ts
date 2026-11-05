@@ -1,5 +1,6 @@
 import type {
   ActorRollProfile,
+  ConcentrationFocus,
   ReactionAlertData,
   ActorRoundAlertStatus,
   CombatTalentEffectFields,
@@ -89,6 +90,10 @@ export type ActorRound = {
   criticalSize?: number | null;
   /** Code I of an NPC (Creature Law T-3.1e): one critical level less, none below A (spec 075). */
   reduceCriticalSeverity?: boolean;
+  /** What the actor concentrates on (workspace spec 077): with any, each AP of another action counts half. */
+  concentration?: ConcentrationFocus[];
+  /** Enc % of the armor the character wears (workspace spec 077): the default of a cast's armor encumbrance. */
+  armorEncumbrance?: number;
 };
 
 export type ActorRoundStyleAbility = { abilityId: string; times: number };
@@ -184,6 +189,8 @@ export type ActorRoundApLedgerEntry = {
   actionId?: string;
   ap: number;
   kind: ApLedgerKind;
+  /** Spent while concentrating on something else (workspace spec 077): the action gets half of these AP. */
+  concentrated?: boolean;
 };
 
 /** Effects that change the action points of the round (spec 011), with the values `POST /effects` accepts. */
@@ -296,7 +303,8 @@ export type ActorRoundFatigue = {
 
 export type ActorRoundDefense = {
   bd: number;
-  at: number | undefined;
+  /** AT of the whole body; null for armor by location (workspace spec 077): the location of the critical decides it. */
+  at: number | null | undefined;
   headAt: number | undefined;
   bodyAt: number | undefined;
   armsAt: number | undefined;

@@ -1,12 +1,14 @@
 import React, { FC } from 'react';
 import { Action, SIMPLE_ACTION_TYPES } from '../../api/action.dto';
 import { ActorRound } from '../../api/actor-rounds.dto';
+import { isGrappleEscapeAction } from '../../services/combat-talents-service';
 import ManeuverFlow from './flows/ManeuverFlow';
 import MedicalFlow from './flows/MedicalFlow';
 import MovementFlow from './flows/MovementFlow';
 import SimpleActionFlow from './flows/SimpleActionFlow';
 import UseItemFlow from './flows/UseItemFlow';
 import AttackFlow from './flows/attack/AttackFlow';
+import GrappleEscapeFlow from './flows/maneuver/GrappleEscapeFlow';
 import SpellCastFlow from './flows/spell/SpellCastFlow';
 
 type ActionViewProps = {
@@ -19,6 +21,8 @@ type ActionViewProps = {
 /** Guided resolution of an action, with the flow of its type (shown in the resolution dialog). */
 const ActionResolutionFlow: FC<ActionViewProps> = (props) => {
   if (props.action.actionType === 'movement') return <MovementFlow {...props} />;
+  // Workspace spec 077: "Break free" rolls once against each grapple of the actor
+  if (isGrappleEscapeAction(props.action)) return <GrappleEscapeFlow {...props} />;
   if (props.action.actionType === 'maneuver') return <ManeuverFlow {...props} />;
   if (props.action.actionType === 'medical') return <MedicalFlow {...props} />;
   if (props.action.actionType === 'use_item') return <UseItemFlow {...props} />;

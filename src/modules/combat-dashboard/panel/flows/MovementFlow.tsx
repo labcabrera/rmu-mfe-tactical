@@ -1,9 +1,22 @@
 import React, { FC, useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
-import { Box, ButtonBase, Chip, FormControlLabel, Stack, Switch, Typography } from '@mui/material';
+import {
+  Alert,
+  Box,
+  ButtonBase,
+  Chip,
+  FormControlLabel,
+  Stack,
+  Switch,
+  ToggleButton,
+  ToggleButtonGroup,
+  Typography,
+} from '@mui/material';
 import {
   DifficultyPicker,
+  GRAPPLE_FEATS,
+  GrappleFeat,
   FlowStep,
   formatBonus,
   NumberPadField,
@@ -17,7 +30,7 @@ import { resolveMovement } from '../../../api/action';
 import { Action, ActionMovement, MOVEMENT_LIGHT_OPTIONS, MOVEMENT_TABLE } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
 import { useActionConfirm, useNotifyWarnings } from '../../../services/action-warnings';
-import { actorRoundHasEffect } from '../../../services/actor-round-service';
+import { actorRoundHasEffect, isActorRoundGrappling } from '../../../services/actor-round-service';
 import { isActionClosed } from '../../../services/ap-service';
 import { actorOpenEnded } from '../../../services/combat-talents-service';
 import { useTacticalNotify } from '../../../services/notify-service';
@@ -70,7 +83,7 @@ const MovementFlow: FC<{
   const { t } = useTranslation();
   const auth = useAuth();
   const notify = useTacticalNotify();
-  const { game, strategicGame, updateAction, refreshActorRounds } = useContext(CombatContext)!;
+  const { game, strategicGame, actorRounds, updateAction, refreshActorRounds } = useContext(CombatContext)!;
   const { getSkillBonus } = useSkillService();
   const confirm = useActionConfirm();
   const notifyWarnings = useNotifyWarnings();
@@ -103,7 +116,12 @@ const MovementFlow: FC<{
       : undefined;
   const skillBonus = (skillId: string) => getSkillBonus(skillId, actorRound);
   const guide = useSkillDifficultyGuide(modifiers.requiredManeuver ? modifiers.skillId : null);
-  const distance = (multiplier: number) => actorRound.movement.bmr * multiplier * actionPoints;
+  // Workspace spec 077: concentrating, the actor moves at half its BMR (the API applies it); grappled, or holding
+  // someone, it needs a contested Feat of Strength to move away.
+  const concentrating = (actorRound.concentration ?? []).length > 0;
+  const bmr = actorRound.movement.bmr * (concentrating ? 0.5 : 1);
+  const distance = (multiplier: number) => bmr * multiplier * actionPoints;
+  const grappleFeatNeeded = isActorRoundGrappling(actorRound, actorRounds ?? []);
 
   const resolve = () => {
     setBusy(true);
@@ -164,6 +182,35 @@ const MovementFlow: FC<{
           })}
         </Box>
       </Box>
+      {concentrating && (
+        <Chip
+          size="small"
+          variant="outlined"
+          color="info"
+          sx={{ alignSelf: 'flex-start' }}
+          label={`${t('bmr-multiplier-concentration')}: ${t('bmr')} ×½`}
+        />
+      )}
+      {grappleFeatNeeded && (
+        <Alert severity="warning" variant="outlined">
+          <Stack spacing={1}>
+            <span>{t('grapple-feat-help')}</span>
+            <ToggleButtonGroup
+              size="small"
+              exclusive
+              value={modifiers.grappleFeat ?? null}
+              onChange={(_, value: GrappleFeat | null) => setModifiers({ grappleFeat: value })}
+              aria-label={t('grapple-feat')}
+            >
+              {GRAPPLE_FEATS.map((feat) => (
+                <ToggleButton key={feat} value={feat} color={feat === 'passed' ? 'success' : 'error'}>
+                  {t(`grapple-feat-${feat}`)}
+                </ToggleButton>
+              ))}
+            </ToggleButtonGroup>
+          </Stack>
+        </Alert>
+      )}
       <FormControlLabel
         control={
           <Switch
@@ -309,7 +356,9 @@ const MovementFlow: FC<{
   const current = done ? resultIndex : Math.min(step, resultIndex - 1);
   const onLastInput = current === resultIndex - 1;
   const canContinue =
-    (steps[current].id === 'setup' && (!modifiers.requiredManeuver || !!modifiers.difficulty)) ||
+    (steps[current].id === 'setup' &&
+      (!modifiers.requiredManeuver || !!modifiers.difficulty) &&
+      (!grappleFeatNeeded || !!modifiers.grappleFeat)) ||
     (steps[current].id === 'pace' && !!modifiers.pace) ||
     (steps[current].id === 'roll' && form.roll?.roll !== null && form.roll?.roll !== undefined);
 

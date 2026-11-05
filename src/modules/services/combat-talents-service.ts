@@ -1,10 +1,12 @@
 import {
+  GRAPPLE_ESCAPE_PURPOSE,
   COMBAT_TALENT_PURPOSE_TRAITS,
   COMBAT_TALENT_PURPOSES,
   CombatTalentPurpose,
   CriticalRerollKind,
   OpenEndedThresholds,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
+import type { Action } from '../api/action.dto';
 import type { ActorRound, ActorRoundAttack, ActorRoundTrait } from '../api/actor-rounds.dto';
 
 // Combat talents out of turn or on a roll (workspace spec 076, block B): what the board needs to offer them. The API
@@ -15,6 +17,8 @@ export const SHARPSHOOTER = 'sharpshooter';
 export const QUICKDRAW = 'quickdraw';
 export const SLOW_ON_THE_DRAW = 'slow-on-the-draw';
 export const QUICK_ACTION = 'quick-action';
+/** Magical talent of the spell flow (workspace spec 077, decision C3): half or none of the PP of a failed cast. */
+export const POWER_RECYCLING = 'power-recycling';
 
 /** Skill each combat talent maneuver rolls, as rmu-api-tactical checks it (`err-maneuver-purpose-skill`). */
 export const COMBAT_TALENT_PURPOSE_SKILLS: Record<CombatTalentPurpose, { skillId: string; specialization?: string }> = {
@@ -133,7 +137,18 @@ export const rememberedPurpose = (actionId: string): CombatTalentPurpose | null 
   }
 };
 
-export const rememberPurpose = (actionId: string, purpose: CombatTalentPurpose) => {
+/** A maneuver to break free from grapples (workspace spec 077): resolved, or declared from the palette's "Break free". */
+export const isGrappleEscapeAction = (action: Action): boolean => {
+  if (action.actionType !== 'maneuver') return false;
+  if (action.maneuver?.modifiers.purpose) return action.maneuver.modifiers.purpose === GRAPPLE_ESCAPE_PURPOSE;
+  try {
+    return sessionStorage.getItem(`${PURPOSE_STORAGE_KEY}:${action.id}`) === GRAPPLE_ESCAPE_PURPOSE;
+  } catch {
+    return false;
+  }
+};
+
+export const rememberPurpose = (actionId: string, purpose: CombatTalentPurpose | typeof GRAPPLE_ESCAPE_PURPOSE) => {
   try {
     sessionStorage.setItem(`${PURPOSE_STORAGE_KEY}:${actionId}`, purpose);
   } catch {

@@ -14,6 +14,7 @@ import BreakageCheckDialog from './BreakageCheckDialog';
 import CombatTalentAlertDialog, { COMBAT_TALENT_ALERTS } from './CombatTalentAlertDialog';
 import EnduranceForm, { emptyEnduranceForm, EnduranceFormValue, enduranceModifiers } from './EnduranceForm';
 import FrenzyDyingRrDialog from './FrenzyDyingRrDialog';
+import MentalFocusAlertDialog, { MENTAL_FOCUS_ALERT } from './MentalFocusAlertDialog';
 
 /** Alerts of workspace spec 068 the game master reads and dismisses: the API keeps them until the round ends. */
 export const INFO_ALERTS = ['wound-reopened', 'limb-loss'];
@@ -23,6 +24,7 @@ export const INFO_ALERTS = ['wound-reopened', 'limb-loss'];
  * which applies the fatigue and hits and clears the alert) and a breakage alert with its check (spec 019). Workspace
  * spec 068: a suggested fear check opens the group checks with the faction and fright level, a Revulsion alert the
  * fear RR with its level, a tourniquet alert offers to loosen it, and a reopened wound or a lost limb are only read.
+ * Workspace spec 077: a Mental Focus alert takes the outcome of the maneuver.
  * The others are edited and saved locally.
  */
 const ActorAlertDialog: FC<{
@@ -137,6 +139,9 @@ const ActorAlertDialog: FC<{
   }
   if (currentAlert && COMBAT_TALENT_ALERTS.includes(currentAlert.type)) {
     return <CombatTalentAlertDialog actorRound={actorRound} alert={currentAlert} open={open} onClose={onClose} />;
+  }
+  if (currentAlert?.type === MENTAL_FOCUS_ALERT) {
+    return <MentalFocusAlertDialog actorRound={actorRound} alert={currentAlert} open={open} onClose={onClose} />;
   }
   if (currentAlert?.type === 'frenzy-dying') {
     return <FrenzyDyingRrDialog actorRound={actorRound} open={open} onClose={onClose} />;

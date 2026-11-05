@@ -12,6 +12,7 @@ import {
   StatusBadge,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
+import { ConcentrationChip } from '../../actor-round/ActorRoundConcentration';
 import { ActorRound } from '../../api/actor-rounds.dto';
 import { actorRoundBleeding, actorRoundDownState } from '../../services/actor-round-service';
 import { apModifierLabel, apTotals } from '../../services/ap-service';
@@ -158,6 +159,8 @@ const ActorRoundResume: FC<{
                 {`${t('action-points-short')} ${ap.spent}/${ap.capacity}`}
               </Typography>
             </Tooltip>
+            {/* Workspace spec 077: concentrating, each AP of another action counts half */}
+            <ConcentrationChip actorRound={actorRound} />
           </Stack>
         </Stack>
       </ButtonBase>

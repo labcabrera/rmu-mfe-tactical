@@ -1,5 +1,13 @@
 import {
   ActionAim,
+  ActionSpellAdjusted,
+  BmrMultiplier,
+  DeclareShieldManeuverItem,
+  GRAPPLE_ESCAPE_PURPOSE,
+  GrappleEscapeResult,
+  GrappleEscapeRow,
+  GrappleFeat,
+  ShieldManeuver,
   ActionAttackReaction,
   ActionDrawAndLoad,
   ActionReaction,
@@ -28,7 +36,7 @@ export { FORCE_REASONS } from '@labcabrera-rmu/rmu-react-shared-lib';
  * What a maneuver is for: the Adrenal Focus frenzy (spec 040) or the maneuver of a combat talent (workspace spec 076:
  * Battle Cry, Sense Weakness, Study Offense, Precision).
  */
-export type ManeuverPurpose = FrenzyPurpose | CombatTalentPurpose;
+export type ManeuverPurpose = FrenzyPurpose | CombatTalentPurpose | typeof GRAPPLE_ESCAPE_PURPOSE;
 
 // Same values as rmu-api-tactical (action-status.vo.ts). `pending_roll` is the current status while the attack,
 // critical or fumble rolls are pending: each attack's `status` says which roll it waits for.
@@ -82,11 +90,7 @@ export type ActionResolution = {
 
 /** Per-attack status (rmu-api-tactical attack-status.vo.ts): the roll the attack is waiting for. */
 export type AttackStatus =
-  | 'pending_attack_roll'
-  | 'pending_critical_roll'
-  | 'pending_fumble_roll'
-  | 'pending_apply'
-  | 'completed';
+  'pending_attack_roll' | 'pending_critical_roll' | 'pending_fumble_roll' | 'pending_apply' | 'completed';
 
 export type AttackType = 'melee' | 'ranged' | 'thrown';
 export type ChargeSpeed = 'none' | 'jog' | 'sprint';
@@ -139,6 +143,8 @@ export const DIFFICULTY_TABLE: KeyValue[] = [
 export type AttackDeclaration = {
   attacks: ActionAttack[];
   parries: ActionParry[] | undefined;
+  /** A bolt with several targets (workspace spec 077, Scope Skills): the OB of each attack; equal parts when missing. */
+  obSplit?: number[];
 };
 
 export type ParryDeclarationItem = {
@@ -146,8 +152,10 @@ export type ParryDeclarationItem = {
   parry: number;
 };
 
+/** Body of `PATCH /actions/{id}/attack/parry`: the parries and the Shield maneuvers (workspace spec 077); both optional. */
 export type ParryDeclaration = {
-  parries: ParryDeclarationItem[];
+  parries?: ParryDeclarationItem[];
+  shieldManeuvers?: DeclareShieldManeuverItem[];
 };
 
 export type ActionMovementModifiers = {
@@ -157,6 +165,8 @@ export type ActionMovementModifiers = {
   difficulty: string | null;
   customBonus: number | null;
   light?: string | null;
+  /** Feat of Strength of a grappled actor or its grappler to move away (workspace spec 077): required while grappled. */
+  grappleFeat?: GrappleFeat | null;
 };
 
 /** Table 5-1: light helps movement maneuvers (the helpful column); the API applies the same values. */
@@ -178,6 +188,8 @@ export type ActionMovementCalculated = {
   distanceAdjusted: number;
   description: string;
   critical: string | null;
+  /** What changed the BMR (workspace spec 077): half movement, concentration. The `bmr` has them applied. */
+  bmrMultipliers?: BmrMultiplier[];
 };
 
 /** Who a modifier favours, or which stage of the resolution adds it. */
@@ -192,7 +204,9 @@ export type ModifierGroup =
   | 'target'
   | 'penalty'
   /** Sense talents and Light Sensitivity of a maneuver (workspace spec 076), in their own breakdown group. */
-  | 'senses';
+  | 'senses'
+  /** Magical talents of a spell roll and Iron Will in a resistance roll (workspace spec 077). */
+  | 'talent';
 
 export type KeyValueModifier = {
   key: string;
@@ -270,6 +284,8 @@ export type ActionManeuverResult = {
   moraleModifierDays?: number;
   /** Talent that changed the result of the table (workspace spec 076). */
   rollTalent?: ManeuverRollTalent;
+  /** `grapple-escape` (workspace spec 077): the roll against each grapple and what is left of it. */
+  grappleEscape?: GrappleEscapeResult[];
 };
 
 export type ActionManeuver = {
@@ -340,8 +356,10 @@ export type ResolveManeuverDto = {
   passiveBonus?: number;
   /** Spec 040: enter or leave the frenzy on a success; spec 076: the maneuver of a combat talent. */
   purpose?: ManeuverPurpose;
-  /** Every die of the open-ended roll (spec 076): the API checks them with the actor's roll profile. */
-  roll: { roll: number; unmodified?: number; dice?: number[] };
+  /** Every die of the open-ended roll (spec 076): the API checks them with the actor's roll profile. A grapple escape
+   * sends one roll per grapple in `grappleEscape` instead (workspace spec 077). */
+  roll?: { roll: number; unmodified?: number; dice?: number[] };
+  grappleEscape?: GrappleEscapeRow[];
 } & CombatTalentManeuverFields &
   ManeuverSenseChoices &
   SpasmRoundsField;
@@ -598,8 +616,12 @@ export type ActionSpell = {
     listName: string | null;
     listRealms: SpellRealm[];
     resistance: { kind: string; modifier: number | null; scaling: string | null } | null;
+    range?: Record<string, unknown> | null;
+    area?: Record<string, unknown> | null;
     duration: Record<string, unknown> | null;
     effects: Record<string, unknown>[];
+    /** Range, area and duration with the caster's magical talents (workspace spec 077); missing when none changes them. */
+    adjusted?: ActionSpellAdjusted | null;
   };
   caster: {
     realms: SpellRealm[];
@@ -619,9 +641,13 @@ export type ActionSpell = {
     total: number;
     text: string;
     suggestedPp: SpellFailurePp;
+    /** +5 per tier of Inglorious Failure, -5 of Graceful Recovery (workspace spec 077); the total is never below 1. */
+    talentModifier?: number;
   };
   targets?: ActionSpellTarget[];
   powerPointsSpent?: number | null;
+  /** Power points Power Recycling saved from a failed cast (workspace spec 077); null without the talent. */
+  powerPointsRecycled?: number | null;
   /** Attack of a bolt or ball spell, resolved with the attack flow (spec 030, phase 4). */
   attack?: ActionSpellAttack | null;
 };
@@ -638,6 +664,8 @@ export type ActionSpellAttack = {
   skillId: string | null;
   ranges: { from: number; to: number; bonus: number }[];
   radius: number | null;
+  /** Targets a bolt strikes: 1 + the tier of Scope Skills for the list (workspace spec 077); 1 when missing. */
+  maxTargets?: number;
 };
 
 export type SpellPreview = {
@@ -675,6 +703,8 @@ export type ActionAttack = {
   protectorPositions?: Record<string, ProtectPosition>;
   /** Reaction talent the attack comes from (workspace spec 076). */
   reaction?: ActionAttackReaction;
+  /** Shield maneuver the defender rolls, from the second attack its shield covers (workspace spec 077). */
+  shieldManeuver?: ShieldManeuver;
 };
 
 /** Where a protector stands (Table 9-7c): between attacker and defender, behind the defender, or anywhere else. */
@@ -798,8 +828,13 @@ export type AttackCalculationsDto = {
   skipped?: SkippedRule[];
   /** Fumble range used for the roll (weapon fumble plus traits such as Foiler). */
   fumble?: number;
-  /** Location hit by a called shot; without one no location is rolled (the AT is the torso's). */
+  /**
+   * Location hit: the called one or, against a target with armor by location (workspace spec 077), the one of the
+   * critical roll sent with the attack roll (`locationRoll`). Otherwise none until a critical hits one.
+   */
   location: string | null;
+  /** The unmodified critical roll that fixed the location: the criticals of the attack are rolled with it. */
+  locationRoll?: number;
   /** Modifiers applied to the critical rolls (size difference, absolute hit...). */
   criticalModifiers?: KeyValueModifier[];
   /** Sum of `criticalModifiers`. */

@@ -20,6 +20,7 @@ import {
   CombatActionType,
   CombatTalentPurpose,
   combatColors,
+  GRAPPLE_ESCAPE_PURPOSE,
   SearchField,
   SectionLabel,
   usePhone,
@@ -31,7 +32,7 @@ import { Action, ActionApProfile, ActionType, ForceReason } from '../../api/acti
 import { dropActorRoundItems } from '../../api/actor-rounds';
 import { ActorRound } from '../../api/actor-rounds.dto';
 import { useActionConfirm, useNotifyWarnings } from '../../services/action-warnings';
-import { actorRoundHasEffect, isActorRoundFearBlocked } from '../../services/actor-round-service';
+import { actorRoundGrapples, actorRoundHasEffect, isActorRoundFearBlocked } from '../../services/actor-round-service';
 import {
   apCapacity,
   apProfileLabel,
@@ -58,6 +59,7 @@ import MedicalDeclareDialog from './MedicalDeclareDialog';
 import SpellDeclareDialog, { actorCharacter, isCaster } from './SpellDeclareDialog';
 import UseItemDeclareDialog from './UseItemDeclareDialog';
 import WeaponActionDeclareDialog, { WeaponActionDeclaration } from './WeaponActionDeclareDialog';
+import { GRAPPLE_ESCAPE_AP, GRAPPLE_ESCAPE_SKILLS, isObjectGrapple } from './flows/maneuver/GrappleEscapeFlow';
 
 type PaletteEntry = {
   key: string;
@@ -76,6 +78,10 @@ type PaletteEntry = {
   ap?: ActionApProfile;
   /** Maneuver of a combat talent (workspace spec 076): declared with its skill, its purpose chosen in the flow. */
   purpose?: CombatTalentPurpose;
+  /** "Break free" from the grapples of the actor (workspace spec 077): a percent maneuver of Wrestling or Contortions. */
+  grappleEscape?: boolean;
+  /** Lines shown under the entry: the grapples of "Break free", with their grappler and percent. */
+  details?: string[];
 };
 
 type PaletteGroup = { key: string; label: string; entries: PaletteEntry[] };
@@ -177,6 +183,21 @@ const usePaletteGroups = (actorRound: ActorRound, phase: number): PaletteGroup[]
   const caster = isCaster(actorCharacter(actorRound, characters));
   const sharpshooter = traitTier(actorRound, SHARPSHOOTER) > 0;
   const noSpells = actorRound.actorType === 'npc' ? 'npc-no-spells' : 'no-spellbook';
+  // Workspace spec 077: one line per grapple of the actor, its grappler (or an object) and its percent
+  const grapples = actorRoundGrapples(actorRound);
+  const grappleLines = grapples.map((grapple) =>
+    [
+      isObjectGrapple(grapple)
+        ? t('effect-grappled-object')
+        : t('effect-grappled-by', {
+            name: actorRounds?.find((each) => each.actorId === grapple.targetActorId)?.actorName ?? '',
+          }),
+      `${grapple.value ?? 0} %`,
+      grapple.data?.tightened ? t('effect-grappled-tightened') : null,
+    ]
+      .filter(Boolean)
+      .join(' · ')
+  );
   // Attacks are never free (spec 011, §6): an immediate attack granted by an effect is a forced action.
   return [
     {
@@ -229,6 +250,17 @@ const usePaletteGroups = (actorRound: ActorRound, phase: number): PaletteGroup[]
         entry('medical', { unavailable: canHeal(actorRound) ? undefined : 'err-healer-not-able' }),
         entry(USE_ITEM, { unavailable: actorRound.characterId ? undefined : 'use-item-npc' }),
         // Workspace spec 076, §2.6: the maneuvers of the combat talents of the actor
+        ...(grapples.length > 0
+          ? [
+              entry('maneuver', {
+                key: GRAPPLE_ESCAPE_PURPOSE,
+                label: t('grapple-escape'),
+                grappleEscape: true,
+                ap: GRAPPLE_ESCAPE_AP,
+                details: grappleLines,
+              }),
+            ]
+          : []),
         ...availableCombatTalentPurposes(actorRound).map((purpose) =>
           entry('maneuver', {
             key: `purpose-${purpose}`,
@@ -282,8 +314,10 @@ const useCreateAction = (actorRound: ActorRound | null, phase: number, onCreated
           (a) => a.actorId === action.actorId && a.id !== action.id && !a.freeAction
         );
         setRoundActions([...(roundActions ?? []), action]);
-        // A combat talent maneuver: its flow starts with the purpose chosen (workspace spec 076)
+        // A combat talent maneuver: its flow starts with the purpose chosen (workspace spec 076); "Break free" opens
+        // its own flow (workspace spec 077)
         if (entry.purpose) rememberPurpose(action.id, entry.purpose);
+        if (entry.grappleEscape) rememberPurpose(action.id, GRAPPLE_ESCAPE_PURPOSE);
         if (interrupts || (action.warnings ?? []).length > 0) refreshActorRounds();
         notify.success(t('action-declared', { action: entry.label }));
         notifyWarnings(action.warnings);
@@ -460,7 +494,10 @@ const PaletteContent: FC<{
     if (entry.unavailable) return;
     // Perception and medical are maneuvers with their skill already chosen.
     const maneuverEntry = groups.flatMap((g) => g.entries).find((e) => e.type === 'maneuver')!;
-    if (entry.purpose) {
+    if (entry.grappleEscape) {
+      // The skill can change in the flow: Wrestling first
+      onCreate(entry, { maneuver: { skillId: GRAPPLE_ESCAPE_SKILLS[0] } });
+    } else if (entry.purpose) {
       // A combat talent maneuver rolls its talent's skill: declared at once (workspace spec 076)
       const { skillId, specialization } = COMBAT_TALENT_PURPOSE_SKILLS[entry.purpose];
       onCreate(entry, {
@@ -526,10 +563,19 @@ const PaletteContent: FC<{
                   secondary={
                     entry.unavailable ? (
                       t(entry.unavailable)
-                    ) : entry.warnings && entry.warnings.length > 0 ? (
-                      <Box component="span" sx={{ color: 'warning.main', display: 'block' }}>
-                        {entry.warnings.join(' · ')}
-                      </Box>
+                    ) : (entry.warnings && entry.warnings.length > 0) || (entry.details ?? []).length > 0 ? (
+                      <>
+                        {(entry.details ?? []).map((line) => (
+                          <Box key={line} component="span" sx={{ display: 'block' }}>
+                            {line}
+                          </Box>
+                        ))}
+                        {entry.warnings && entry.warnings.length > 0 && (
+                          <Box component="span" sx={{ color: 'warning.main', display: 'block' }}>
+                            {entry.warnings.join(' · ')}
+                          </Box>
+                        )}
+                      </>
                     ) : undefined
                   }
                 />

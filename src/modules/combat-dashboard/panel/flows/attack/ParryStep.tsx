@@ -12,13 +12,15 @@ import {
 import { CombatContext } from '../../../../../CombatContext';
 import { ActionParry, AttackDeclaration, ParryExclusion } from '../../../../api/action.dto';
 import ResolveAttackInfo from '../../../action-dialogs/attack/ResolveAttackInfo';
+import ShieldManeuverSection, { ShieldManeuverInput } from './ShieldManeuverSection';
 import { attackLabel } from './attack-label';
 
 /**
  * Parry step of a melee attack: the attack rolls so far, then one field per defender (or protector) with the
  * parry it spends, capped by what that actor has left across its parries. A defender has one parry per attacker and
  * round (§9.6): one carried over from an earlier action is shown fixed. A protector shows where it stands and the
- * OB that costs it.
+ * OB that costs it. Workspace spec 077: the Shield maneuvers the defenders roll from the second attack their shield
+ * covers come first; a ranged attack only goes through this step for them (`withParries` false).
  */
 const ParryStep: FC<{
   formData: AttackDeclaration;
@@ -27,7 +29,20 @@ const ParryStep: FC<{
   exclusions?: ParryExclusion[];
   /** Actor of the attacks, to show their size (spec 075). */
   sourceActorId?: string;
-}> = ({ formData, setFormData, exclusions = [], sourceActorId }) => {
+  /** Shield maneuvers typed so far, by attack (workspace spec 077). */
+  shieldInputs?: Record<string, ShieldManeuverInput>;
+  onShieldInput?: (attackName: string, input: ShieldManeuverInput) => void;
+  /** Melee: the defenders may parry. A ranged attack only rolls its Shield maneuvers here. */
+  withParries?: boolean;
+}> = ({
+  formData,
+  setFormData,
+  exclusions = [],
+  sourceActorId,
+  shieldInputs = {},
+  onShieldInput = () => undefined,
+  withParries = true,
+}) => {
   const { t } = useTranslation();
   const { actorRounds } = useContext(CombatContext)!;
   const parries = formData.parries ?? [];
@@ -114,7 +129,8 @@ const ParryStep: FC<{
       {formData.attacks.map((attack) => (
         <ResolveAttackInfo key={attack.attackName} attack={attack} sourceActorId={sourceActorId} />
       ))}
-      {parries.length === 0 && (
+      <ShieldManeuverSection attacks={formData.attacks} inputs={shieldInputs} onInput={onShieldInput} />
+      {withParries && parries.length === 0 && (
         <Alert severity="info" variant="outlined">
           {exclusions.length > 0 ? t('parry-nobody-because') : t('parry-nobody')}
         </Alert>

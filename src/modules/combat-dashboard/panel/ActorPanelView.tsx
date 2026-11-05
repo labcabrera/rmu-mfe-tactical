@@ -7,6 +7,7 @@ import { Alert, Box, Button, Divider, Stack } from '@mui/material';
 import { EmptyState, SectionLabel } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
 import ActorRoundBars from '../../actor-round/ActorRoundBars';
+import ActorRoundConcentration from '../../actor-round/ActorRoundConcentration';
 import ActorRoundDefenseMode from '../../actor-round/ActorRoundDefenseMode';
 import { Action } from '../../api/action.dto';
 import { ActorRound } from '../../api/actor-rounds.dto';
@@ -76,6 +77,8 @@ const ActorPanelView: FC<{
       <ActorRoundBars actorRound={actorRound} />
       <Divider />
       <ActorRoundDefenseMode actorRound={actorRound} />
+      <Divider />
+      <ActorRoundConcentration actorRound={actorRound} />
       <Divider />
       <Box>
         <SectionLabel>{t('effects-states')}</SectionLabel>

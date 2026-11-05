@@ -3,9 +3,11 @@ import {
   apiTacticalUrl,
   callApi,
   GiveAntidoteDto,
+  MentalFocusOutcome,
   Page,
   PoisonData,
   PoisonExposure,
+  ResolveAlertDto,
   ResolvePoisoningDto,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import {
@@ -82,10 +84,23 @@ export async function declareActorRoundFightingStyle(
  * Endurance roll of an actor (§5.5): the API adds the modifiers to the roll, reads the endurance table and applies
  * the fatigue and hits of the result. With `alertId`, it also resolves the endurance alert.
  */
-/** Marks as resolved an alert handled by hand, such as the critical of a fumble (spec 034). */
-export async function resolveAlert(actorRoundId: string, alertId: string, auth: AuthContextProps): Promise<ActorRound> {
+/**
+ * Marks as resolved an alert handled by hand, such as the critical of a fumble (spec 034). A Mental Focus alert
+ * (workspace spec 077) carries the outcome of the maneuver: `failed` breaks every concentration of the actor.
+ */
+export async function resolveAlert(
+  actorRoundId: string,
+  alertId: string,
+  auth: AuthContextProps,
+  outcome?: MentalFocusOutcome
+): Promise<ActorRound> {
   const url = `${apiTacticalUrl}/actor-rounds/${actorRoundId}/alerts/${alertId}/resolve`;
-  return await callApi(auth, url, { method: 'POST' });
+  return await callApi(auth, url, {
+    method: 'POST',
+    ...(outcome
+      ? { headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ outcome } as ResolveAlertDto) }
+      : {}),
+  });
 }
 
 export async function resolveEnduranceCheck(
