@@ -212,6 +212,7 @@ const AttackFlow: FC<{
           onRange={declaration.setRange}
           onProtector={declaration.toggleProtector}
           onProtectorPosition={declaration.setProtectorPosition}
+          fixedOb={action.reaction?.obOverride}
           footer={
             boltOb !== undefined && targeted.length > 1 ? (
               <BoltSplitFields

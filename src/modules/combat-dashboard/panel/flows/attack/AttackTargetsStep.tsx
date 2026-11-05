@@ -27,6 +27,8 @@ const AttackTargetsStep: FC<{
   onRange: (attackName: string, range: number | null) => void;
   onProtector: (attackName: string, actorId: string) => void;
   onProtectorPosition: (attackName: string, actorId: string, position: ProtectPosition) => void;
+  /** The fixed OB of a reaction (Riposte, workspace spec 076): shown instead of the weapon's, and not editable. */
+  fixedOb?: number | null;
   /** Shown below the attacks: the OB split of a bolt with several targets (workspace spec 077). */
   footer?: ReactNode;
 }> = ({
@@ -39,6 +41,7 @@ const AttackTargetsStep: FC<{
   onRange,
   onProtector,
   onProtectorPosition,
+  fixedOb,
   footer,
 }) => {
   const { t } = useTranslation();
@@ -78,7 +81,7 @@ const AttackTargetsStep: FC<{
                 <Box>
                   <Typography variant="caption" color="text.secondary">
                     {[
-                      weapon && `${attackLabel(weapon.attackTable, t)} ${formatBonus(weapon.currentBo)}`,
+                      weapon && `${attackLabel(weapon.attackTable, t)} ${formatBonus(fixedOb ?? weapon.currentBo)}`,
                       penalty !== 0 && t('penalties-on-roll', { value: penalty }),
                     ]
                       .filter(Boolean)
@@ -98,21 +101,25 @@ const AttackTargetsStep: FC<{
                 />
                 {targetId && (
                   <>
-                    <Box sx={{ maxWidth: 200 }}>
-                      <NumberPadField
-                        steps={[-10, -5, 5, 10]}
-                        label={t('used-ob')}
-                        value={attack.modifiers.bo}
-                        onChange={(bo) => onBo(attack.attackName, bo ?? 0)}
-                        min={0}
-                        max={weapon?.currentBo ?? 0}
-                        integer
-                        allowNegatives={false}
-                      />
-                      <Typography variant="caption" color="text.secondary">
-                        {t('parry-max', { max: weapon?.currentBo ?? 0 })}
-                      </Typography>
-                    </Box>
+                    {fixedOb !== null && fixedOb !== undefined ? (
+                      <Typography variant="body2">{t('reaction-ob-override', { ob: formatBonus(fixedOb) })}</Typography>
+                    ) : (
+                      <Box sx={{ maxWidth: 200 }}>
+                        <NumberPadField
+                          steps={[-10, -5, 5, 10]}
+                          label={t('used-ob')}
+                          value={attack.modifiers.bo}
+                          onChange={(bo) => onBo(attack.attackName, bo ?? 0)}
+                          min={0}
+                          max={weapon?.currentBo ?? 0}
+                          integer
+                          allowNegatives={false}
+                        />
+                        <Typography variant="caption" color="text.secondary">
+                          {t('parry-max', { max: weapon?.currentBo ?? 0 })}
+                        </Typography>
+                      </Box>
+                    )}
                     {kind === 'ranged' && weapon && (
                       <Box>
                         <Typography variant="caption" color="text.secondary" component="div" sx={{ mb: 0.5 }}>

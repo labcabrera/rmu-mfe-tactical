@@ -21,12 +21,13 @@ const NEUTRAL = {
   calledShot: 'none',
 };
 
-const newAttack = (attack: ActorRoundAttack, kind: AttackKind, pace: string): ActionAttack =>
+const newAttack = (attack: ActorRoundAttack, kind: AttackKind, pace: string, fixedOb?: number | null): ActionAttack =>
   ({
     attackName: attack.attackName,
     modifiers: {
       targetId: '',
-      bo: attack.currentBo,
+      // Workspace spec 076: a reaction with a fixed OB (Riposte) attacks with it, not with the weapon's OB.
+      bo: fixedOb ?? attack.currentBo,
       disabledDB: false,
       disabledShield: false,
       disabledParry: false,
@@ -69,7 +70,7 @@ export const useAttackDeclaration = (
     return {
       // A weapon broken in the game cannot attack (spec 019): the API rejects it.
       attacks: weapons.map((a, index) => {
-        const attack = newAttack(a, kind, pace);
+        const attack = newAttack(a, kind, pace, reaction?.obOverride);
         return index === 0 && target ? { ...attack, modifiers: { ...attack.modifiers, targetId: target } } : attack;
       }),
       parries: action.parries ?? [],
