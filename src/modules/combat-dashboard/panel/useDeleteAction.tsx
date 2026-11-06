@@ -18,7 +18,7 @@ export const useDeleteAction = (
   const { t } = useTranslation();
   const auth = useAuth();
   const notify = useTacticalNotify();
-  const { roundActions, setRoundActions } = useContext(CombatContext)!;
+  const { roundActions, setRoundActions, refreshRound } = useContext(CombatContext)!;
   const [confirming, setConfirming] = useState(false);
 
   const onConfirm = () => {
@@ -26,6 +26,8 @@ export const useDeleteAction = (
     deleteAction(action.id, auth)
       .then(() => {
         setRoundActions((roundActions ?? []).filter((a) => a.id !== action.id));
+        // Workspace spec 083: what the action reserved goes back to the actors and to the other open actions.
+        refreshRound();
         notify.success(t('action-deleted'));
         onDeleted();
       })

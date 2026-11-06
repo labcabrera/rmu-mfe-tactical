@@ -16,6 +16,7 @@ import { updateAttackRoll } from '../../../api/action';
 import { Action, ActionAttack, AttackDeclaration } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
 import { criticalCode } from '../../../services/action-service';
+import { useNotifyWarnings } from '../../../services/action-warnings';
 import { actorOpenEnded } from '../../../services/combat-talents-service';
 import { useTacticalNotify } from '../../../services/notify-service';
 import { AttackNextStep, AttackResultSummary } from './AttackResolutionGuide';
@@ -51,8 +52,9 @@ const ResolveAttackFormRoll: FC<{
 }> = ({ formData, setFormData, action, attack, index }) => {
   const auth = useAuth();
   const { t } = useTranslation();
-  const { updateAction, actorRounds } = useContext(CombatContext)!;
+  const { updateAction, actorRounds, refreshRound } = useContext(CombatContext)!;
   const notify = useTacticalNotify();
+  const notifyWarnings = useNotifyWarnings();
   const damageText = useDamageText();
   const isCompleted = action.status === 'completed';
   // Workspace spec 076: the API checks the dice against the attacker's roll profile (luck talents)
@@ -86,6 +88,9 @@ const ResolveAttackFormRoll: FC<{
         const newFormData = { attacks: updatedAction.attacks, parries: updatedAction.parries } as AttackDeclaration;
         updateAction(updatedAction);
         setFormData(newFormData);
+        // Workspace spec 083: from its first roll the OB of the action counts.
+        refreshRound();
+        notifyWarnings(updatedAction.warnings);
       })
       .catch((err: Error) => notify.error(err));
   };

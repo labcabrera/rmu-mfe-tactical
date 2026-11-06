@@ -70,7 +70,8 @@ const AttackFlow: FC<{
   const auth = useAuth();
   const notify = useTacticalNotify();
   const notifyWarnings = useNotifyWarnings();
-  const { game, actorRounds, roundActions, updateAction, refreshActorRounds } = useContext(CombatContext)!;
+  const { game, actorRounds, roundActions, updateAction, refreshActorRounds, refreshRound } =
+    useContext(CombatContext)!;
   const declaration = useAttackDeclaration(action, actorRound, kind, sourceAttacks);
   const labelOf = (attackName: string) => attackLabel(attackName, t);
   const weapons = sourceAttacks ?? actorRound.attacks;
@@ -94,6 +95,8 @@ const AttackFlow: FC<{
     request
       .then((updated) => {
         updateAction(updated);
+        // Workspace spec 083: the OB committed changes the actors and the other open actions of the round.
+        refreshRound();
         notify.success(message);
         // Workspace spec 068: a balking attacker that charges, an attack with a useless arm
         notifyWarnings(updated.warnings);
@@ -145,7 +148,7 @@ const AttackFlow: FC<{
   const changeable =
     spendsRoundOb &&
     ['prepared', 'parry', 'pending_roll'].includes(action.status) &&
-    (actorRound.parries ?? []).length > 0 &&
+    ((actorRound.parries ?? []).length > 0 || (actorRound.boReservations ?? []).length > 0) &&
     (action.attacks ?? []).some(
       (attack) =>
         !attack.roll?.roll &&

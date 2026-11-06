@@ -12,6 +12,7 @@ import {
 import { CombatContext } from '../../CombatContext';
 import { addActorRoundFatigueAccumulator, addActorRoundHp } from '../api/actor-rounds';
 import { ActorRound } from '../api/actor-rounds.dto';
+import LowerInitiativeButton from '../combat-dashboard/actor-rounds/initiative/LowerInitiativeButton';
 import { isGameFinished } from '../services/game-service';
 import { useTacticalNotify } from '../services/notify-service';
 
@@ -128,7 +129,12 @@ const ActorRoundBars: FC<{
           </Tooltip>
         </ChipRow>
       </Stack>
-      <Typography variant="subtitle2">{t('initiative-value', { value: actorRound.initiative?.total ?? 0 })}</Typography>
+      <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center' }}>
+        <Typography variant="subtitle2">
+          {t('initiative-value', { value: actorRound.initiative?.total ?? 0 })}
+        </Typography>
+        <LowerInitiativeButton actorRound={actorRound} />
+      </Stack>
     </Stack>
   );
 };

@@ -8,7 +8,14 @@ import { FlowStep, FlowSteps } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
 import { holdAction, spendActionPoint } from '../../api/action';
 import { Action } from '../../api/action.dto';
-import { apFreeInPhase, isActionClosed, isResolutionBlocked, useOpenRounds } from '../../services/ap-service';
+import {
+  actorCannotAct,
+  apFreeInPhase,
+  isActionActionable,
+  isActionClosed,
+  isResolutionBlocked,
+  useOpenRounds,
+} from '../../services/ap-service';
 import { useTacticalNotify } from '../../services/notify-service';
 import { phaseNumber } from '../actor-rounds/round-grid';
 import ForceResolutionDialog from './ForceResolutionDialog';
@@ -54,7 +61,7 @@ const ActionFlow: FC<{
   const { t } = useTranslation();
   const auth = useAuth();
   const notify = useTacticalNotify();
-  const { game, actorRounds, updateAction, refreshActorRounds } = useContext(CombatContext)!;
+  const { game, actorRounds, roundActions, updateAction, refreshActorRounds } = useContext(CombatContext)!;
   const { requestDelete, dialog } = useDeleteAction(action, onDeleted);
   const [reviewing, setReviewing] = useState<string | null>(null);
   const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null);
@@ -74,6 +81,24 @@ const ActionFlow: FC<{
   const canSpend = currentRound && declared && !action.freeAction && freeAp > 0;
   const canHold = currentRound && declared && atMax;
   const canForce = !done && !forced;
+
+  // Workspace spec 083, decision 2 (§8.3): a warning, not a rule. The game master may have a reason to go out of order,
+  // and the ones who tie act at the same time.
+  const waitsForResolution = (each: Action) => isActionActionable(each) || each.status === 'parry';
+  const initiativeOf = (actorId: string) => actorRounds?.find((ar) => ar.actorId === actorId)?.initiative?.total ?? 0;
+  const faster =
+    currentRound && !done && !action.reaction && waitsForResolution(action)
+      ? (roundActions ?? [])
+          .filter(
+            (each) =>
+              each.actorId !== action.actorId &&
+              waitsForResolution(each) &&
+              initiativeOf(each.actorId) > initiativeOf(action.actorId)
+          )
+          .map((each) => actorRounds?.find((ar) => ar.actorId === each.actorId))
+          .filter((ar): ar is NonNullable<typeof ar> => !!ar && !actorCannotAct(ar))
+          .sort((a, b) => (b.initiative?.total ?? 0) - (a.initiative?.total ?? 0))[0]
+      : undefined;
 
   let main: FlowButton | undefined =
     done && onNextPending ? { label: t('next-pending-action'), onClick: onNextPending } : done ? undefined : primary;
@@ -105,6 +130,11 @@ const ActionFlow: FC<{
             {ended && (
               <Alert severity="info" variant="outlined">
                 {t(`action-status-${action.status}-help`)}
+              </Alert>
+            )}
+            {faster && (
+              <Alert severity="warning" variant="outlined">
+                {t('initiative-order-warning', { actor: faster.actorName, initiative: faster.initiative?.total ?? 0 })}
               </Alert>
             )}
             {!done && main?.resolves && blockedReason && (

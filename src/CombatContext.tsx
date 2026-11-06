@@ -50,6 +50,8 @@ type CombatContextType = {
   updateAction: (updatedAction: Action) => void;
   updateActorRound: (updatedActorRound: ActorRound) => void;
   refreshActorRounds: () => void;
+  /** The actor rounds and the actions of the displayed round: an action can change the others (workspace spec 083). */
+  refreshRound: () => void;
 };
 
 // Debug panel with the raw combat state, enabled with localStorage.setItem('rmu-debug', 'true').
@@ -168,6 +170,13 @@ export const CombatProvider: FC<{
     }
   };
 
+  const refreshRound = () => {
+    if (game && displayRound !== null) {
+      bindActorRounds(game.id, displayRound);
+      bindActions(game.id, displayRound);
+    }
+  };
+
   const updateAction = (updatedAction: Action) => {
     setRoundActions((prevActions) =>
       prevActions ? prevActions.map((action) => (action.id === updatedAction.id ? updatedAction : action)) : prevActions
@@ -246,6 +255,7 @@ export const CombatProvider: FC<{
           updateAction,
           updateActorRound,
           refreshActorRounds,
+          refreshRound,
         }}
       >
         {children}

@@ -80,8 +80,10 @@ export type ActorRound = {
   npcId?: string;
   /** What the character brought into the game (only in the actor round built from it). */
   snapshot?: ActorRoundSnapshot;
-  /** OB given to each parry of the round. */
+  /** OB given to each parry of the round, also those of attacks not applied yet (spec 083). */
   parries?: number[];
+  /** OB committed by actions not applied yet (spec 083). */
+  boReservations?: { actionId: string; kind: 'parry' | 'attack' }[];
   /** Hit points per round lost by the injuries that still bleed. */
   bleeding?: number;
   /** RR bonuses copied from the character (`fear`, `essence`...); absent in older actor rounds and for NPCs. */
@@ -190,6 +192,8 @@ export type ActorRoundInitiative = {
   reflexes?: number;
   /** Fighting style bonus (Lightning Reflexes, spec 032), already included in the total. */
   style?: number;
+  /** What the actor lowered it by, negative (spec 083), already included in the total. */
+  lowered?: number;
   total: number;
 };
 
