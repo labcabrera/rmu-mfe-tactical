@@ -17,7 +17,6 @@ import {
   NotFound,
   StrategicGame,
   TacticalGame,
-  TechnicalInfo,
   updateTacticalGame,
   useCampaignNpcs,
   useEntity,
@@ -165,11 +164,6 @@ export default function TacticalGameFormPage({ mode }: { mode: 'create' | 'edit'
           {mode === 'create' && (
             <TacticalGameFormNpcs factions={factions} npcs={npcs} setup={npcSetup} onChange={setNpcSetup} />
           )}
-          <TechnicalInfo>
-            <pre>
-              {JSON.stringify(mode === 'create' ? { formData, npcSetup, strategicGame } : { formData }, null, 2)}
-            </pre>
-          </TechnicalInfo>
         </>
       ) : existing.notFound ? (
         <NotFound />
