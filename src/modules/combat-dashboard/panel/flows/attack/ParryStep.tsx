@@ -1,12 +1,10 @@
 import React, { Dispatch, FC, SetStateAction, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import BlockIcon from '@mui/icons-material/Block';
-import { Alert, Box, MenuItem, Stack, TextField, Typography } from '@mui/material';
+import { Alert, Box, Stack, Typography } from '@mui/material';
 import {
-  ABSOLUTE_MANEUVER_RESULTS,
-  AbsoluteResultKey,
   combatActionInfo,
-  PARRY_MANEUVER_PASSED_RESULTS,
+  formatBonus,
   parryPositionalReduction,
   NumberPadField,
   RuleHint,
@@ -16,6 +14,7 @@ import {
 import { CombatContext } from '../../../../../CombatContext';
 import { ActionParry, AttackDeclaration, ParryExclusion } from '../../../../api/action.dto';
 import ResolveAttackInfo from '../../../action-dialogs/attack/ResolveAttackInfo';
+import ManeuverRollFields, { emptyManeuverInput, ManeuverRollInput, maneuverPenaltyOf } from './ManeuverRollFields';
 import ShieldManeuverSection, { ShieldManeuverInput } from './ShieldManeuverSection';
 import { attackLabel } from './attack-label';
 
@@ -137,12 +136,10 @@ const ParryStep: FC<{
       : undefined;
   };
   const maneuverRequired = (parry: ActionParry) => !!parry.parryManeuver?.required && !parry.carriedOver;
-  const maneuverFailed = (parry: ActionParry) =>
-    !!parry.maneuverResult && !PARRY_MANEUVER_PASSED_RESULTS.includes(parry.maneuverResult);
-  const setManeuverResult = (index: number, value: AbsoluteResultKey | undefined) =>
+  const setManeuverInput = (index: number, value: ManeuverRollInput) =>
     setFormData((prev) => ({
       ...prev,
-      parries: (prev.parries ?? []).map((p, i) => (i === index ? { ...p, maneuverResult: value } : p)),
+      parries: (prev.parries ?? []).map((p, i) => (i === index ? { ...p, maneuverInput: value } : p)),
     }));
 
   const setParry = (index: number, value: number) =>
@@ -212,29 +209,23 @@ const ParryStep: FC<{
                   reference="§9.6"
                 >
                   <Typography variant="caption" color="text.secondary" component="div">
-                    {t('parry-maneuver-required', { foes: parry.parryManeuver!.foes })}
+                    {t('parry-maneuver-required', {
+                      foes: parry.parryManeuver!.foes,
+                      skill: formatBonus(parry.maneuverSkill ?? 0),
+                    })}
                   </Typography>
                 </RuleHint>
-                <TextField
-                  select
-                  size="small"
-                  label={t('parry-maneuver-result')}
-                  value={parry.maneuverResult ?? ''}
-                  onChange={(e) =>
-                    setManeuverResult(index, (e.target.value || undefined) as AbsoluteResultKey | undefined)
-                  }
-                  error={(parry.parry || 0) > 0 && !parry.maneuverResult}
-                  sx={{ maxWidth: 240 }}
-                >
-                  {ABSOLUTE_MANEUVER_RESULTS.map((result) => (
-                    <MenuItem key={result} value={result}>
-                      {t(result)}
-                    </MenuItem>
-                  ))}
-                </TextField>
-                {maneuverFailed(parry) && (
+                <ManeuverRollFields
+                  label={t('parry-maneuver')}
+                  input={parry.maneuverInput ?? emptyManeuverInput()}
+                  onChange={(value) => setManeuverInput(index, value)}
+                  skill={parry.maneuverSkill ?? 0}
+                  penalty={maneuverPenaltyOf(actorRounds?.find((a) => a.actorId === parry.actorId))}
+                  actor={actorRounds?.find((a) => a.actorId === parry.actorId)}
+                />
+                {parry.parryManeuver?.passed === false && (
                   <Typography variant="caption" color="warning.main">
-                    {t('parry-maneuver-failed')}
+                    {t('parry-maneuver-failed', { result: t(parry.parryManeuver.result ?? '') })}
                   </Typography>
                 )}
               </Stack>

@@ -5,7 +5,7 @@ import { Alert, Stack, Tab, Tabs } from '@mui/material';
 import { FlowStep, formatBonus } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../../CombatContext';
 import { applyAttack, declareParry, prepareAttack } from '../../../../api/action';
-import { Action, ParryDeclaration } from '../../../../api/action.dto';
+import { Action, ActionParry, ParryDeclaration } from '../../../../api/action.dto';
 import { ActorRound, ActorRoundAttack } from '../../../../api/actor-rounds.dto';
 import { useNotifyWarnings } from '../../../../services/action-warnings';
 import { actorRoundHasEffect } from '../../../../services/actor-round-service';
@@ -21,6 +21,7 @@ import ActionFlow from '../../ActionFlow';
 import { AttackResults } from '../ActionResults';
 import AttackTargetsStep from './AttackTargetsStep';
 import BoltSplitFields, { boltSplitValid } from './BoltSplitFields';
+import { isManeuverInputReady, parryManeuverFields } from './ManeuverRollFields';
 import ParryStep from './ParryStep';
 import { ShieldManeuverInput, shieldManeuverAttacks, shieldManeuverItems } from './ShieldManeuverSection';
 import { attackLabel } from './attack-label';
@@ -114,13 +115,17 @@ const AttackFlow: FC<{
       t('attack-prepared'),
       endChange
     );
+  const needsParryManeuver = (p: ActionParry) => !!p.parryManeuver?.required && !p.carriedOver && p.parry > 0;
+  const parryManeuverMissing = (formData.parries ?? []).some(
+    (p) => needsParryManeuver(p) && !isManeuverInputReady(p.maneuverInput)
+  );
   const parry = () => {
     const shieldManeuvers = shieldManeuverItems(formData.attacks, shieldInputs);
     const parries = (formData.parries ?? []).map((p) => ({
       parryId: p.id,
       parry: p.parry,
-      // Spec 079, A2: only for the parries that need the maneuver and give any OB
-      ...(p.parryManeuver?.required && !p.carriedOver && p.maneuverResult ? { maneuverResult: p.maneuverResult } : {}),
+      // Spec 079, A2, and spec 084: only for the parries that need the maneuver and give any OB
+      ...(needsParryManeuver(p) ? parryManeuverFields(p.maneuverInput) : {}),
     }));
     const body: ParryDeclaration = {
       ...(parries.length > 0 || shieldManeuvers.length === 0 ? { parries } : {}),
@@ -352,7 +357,11 @@ const AttackFlow: FC<{
       resolves: true,
     };
   else if (withParry && step === 2)
-    primary = { label: kind === 'melee' ? t('parry') : t('shield-maneuver'), disabled: busy, onClick: parry };
+    primary = {
+      label: kind === 'melee' ? t('parry') : t('shield-maneuver'),
+      disabled: busy || parryManeuverMissing,
+      onClick: parry,
+    };
   else if (step === rollsStep)
     primary = { label: t('apply'), disabled: busy || action.status !== 'pending_apply', onClick: apply };
 

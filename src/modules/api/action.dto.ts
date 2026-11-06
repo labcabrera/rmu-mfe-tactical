@@ -177,6 +177,9 @@ export type ParryDeclarationItem = {
   parry: number;
   /** Result of the Combat Training maneuver against a further foe (workspace spec 079, A2). */
   maneuverResult?: AbsoluteResultKey;
+  /** Its roll (workspace spec 084); the API reads the result on the table. */
+  maneuverRoll?: number;
+  maneuverDifficulty?: string;
 };
 
 /** Body of `PATCH /actions/{id}/attack/parry`: the parries and the Shield maneuvers (workspace spec 077); both optional. */
@@ -933,8 +936,10 @@ export type ActionParry = {
   /** Workspace spec 079, A2: the parry toward the flank or rear, and the maneuver against further foes. */
   positional?: ActionParryBlockAFields['positional'];
   parryManeuver?: ActionParryBlockAFields['parryManeuver'];
-  /** Result typed in the parry step (not sent back by the API). */
-  maneuverResult?: AbsoluteResultKey;
+  /** Combat Training of the weapon the actor parries with (workspace spec 084). */
+  maneuverSkill?: number;
+  /** Maneuver typed in the parry step (not sent back by the API). */
+  maneuverInput?: { roll: number | null; difficulty: string; passed: boolean | null };
 };
 
 /** The OB left on the melee attack an actor parries with, its penalties and, protecting, the protect penalty. */
