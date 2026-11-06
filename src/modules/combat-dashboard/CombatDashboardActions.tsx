@@ -50,8 +50,8 @@ const CombatDashboardActions: FC = () => {
   return (
     <RmuBreadcrumbs items={breadcrumbs}>
       {/* Workspace spec 076: the ambient light, the default of the maneuvers, changes during the combat */}
-      <AmbientLightSelect game={game} onChange={setGame} />
-      {/* Workspace spec 079, C3 and C5: fog, extreme temperature and the light source calculator */}
+      <AmbientLightSelect game={game} onChange={setGame} size="small" />
+      {/* Workspace spec 079, C3 and C5: fog, light source and extreme temperature */}
       <EnvironmentButton game={game} onChange={setGame} />
       <FinishGameButton game={game} onFinished={setGame} />
       <ApplyOutcomeButton game={game} onApplied={setGame} />

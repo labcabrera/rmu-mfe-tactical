@@ -1,16 +1,17 @@
 import React, { FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import CloudIcon from '@mui/icons-material/Cloud';
-import { Button, Divider, Stack } from '@mui/material';
+import { Button, Stack } from '@mui/material';
 import { RmuDialog, TacticalGame } from '@labcabrera-rmu/rmu-react-shared-lib';
 import AmbientLightSelect from '../selects/AmbientLightSelect';
 import FogSelect from '../selects/FogSelect';
 import ExtremeTemperatureControl from './ExtremeTemperatureControl';
-import { LightSourceCalculator } from './LightSourceCalculator';
+import LightSourceControl from './LightSourceControl';
 
 /**
- * The environment of the combat in a dialog (workspace specs 076 and 079): the ambient light with the light source
- * calculator, the fog and the extreme temperature, which the game master changes during the game.
+ * The environment of the combat in a dialog (workspace specs 076 and 079): the ambient light, the fog, the light
+ * source and the extreme temperature, which the game master changes during the game. The selects come first and the
+ * conditions with their own dialog (a chip and a button) after them.
  */
 const EnvironmentButton: FC<{ game: TacticalGame; onChange: (game: TacticalGame) => void }> = ({ game, onChange }) => {
   const { t } = useTranslation();
@@ -39,9 +40,8 @@ const EnvironmentButton: FC<{ game: TacticalGame; onChange: (game: TacticalGame)
       >
         <Stack spacing={2}>
           <AmbientLightSelect game={game} onChange={onChange} fullWidth />
-          <LightSourceCalculator ambient={game.environment?.light ?? null} />
-          <Divider />
           <FogSelect game={game} onChange={onChange} fullWidth />
+          <LightSourceControl game={game} onChange={onChange} />
           <ExtremeTemperatureControl game={game} onChange={onChange} />
         </Stack>
       </RmuDialog>

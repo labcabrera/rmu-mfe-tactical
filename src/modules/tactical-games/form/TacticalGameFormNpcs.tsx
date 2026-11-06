@@ -73,7 +73,9 @@ const TacticalGameFormNpcs: FC<{
   npcs: Npc[] | undefined;
   setup: GameNpcSetup;
   onChange: (setup: GameNpcSetup) => void;
-}> = ({ factions, npcs, setup, onChange }) => {
+  /** No campaign chosen yet: the factions cannot be picked. */
+  disabled?: boolean;
+}> = ({ factions, npcs, setup, onChange, disabled = false }) => {
   const { t } = useTranslation();
   const [editing, setEditing] = useState<number | 'new' | null>(null);
   const environmentName = setup.environmentName.trim() || environmentFactionName(undefined, t);
@@ -122,6 +124,8 @@ const TacticalGameFormNpcs: FC<{
           value={setup.factions}
           onChange={(ids) => onChange({ ...setup, factions: ids })}
           emptyText={t('strategic-game-without-factions')}
+          disabled={disabled}
+          helperText={disabled ? t('tactical-game-factions-choose-campaign') : undefined}
         />
         <Box>
           <FormControlLabel
@@ -129,6 +133,7 @@ const TacticalGameFormNpcs: FC<{
               <Checkbox
                 name="include-faction-npcs"
                 checked={setup.includeFactionNpcs}
+                disabled={disabled}
                 onChange={(event) => onChange({ ...setup, includeFactionNpcs: event.target.checked })}
               />
             }

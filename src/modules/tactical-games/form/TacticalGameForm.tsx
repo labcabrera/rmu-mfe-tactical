@@ -49,6 +49,7 @@ const TacticalGameForm: FC<{
       {!strategicGame && (
         <Grid size={12}>
           <StrategicGamePicker
+            variant="select"
             games={strategicGames}
             value={formData.strategicGameId}
             onChange={(id) => setFormData({ ...formData, strategicGameId: id || '' })}

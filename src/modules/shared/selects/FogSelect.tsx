@@ -17,7 +17,9 @@ const FogSelect: FC<{
   game: TacticalGame;
   onChange: (game: TacticalGame) => void;
   fullWidth?: boolean;
-}> = ({ game, onChange, fullWidth = false }) => {
+  /** Size of the field; the theme's by default (the combat header passes `small`). */
+  size?: 'small' | 'medium';
+}> = ({ game, onChange, fullWidth = false, size }) => {
   const { t } = useTranslation();
   const auth = useAuth();
   const notify = useTacticalNotify();
@@ -39,7 +41,7 @@ const FogSelect: FC<{
   return (
     <TextField
       select
-      size="small"
+      size={size}
       label={t('fog')}
       value={value}
       onChange={(event) => change((event.target.value || null) as FogLevel | null)}
