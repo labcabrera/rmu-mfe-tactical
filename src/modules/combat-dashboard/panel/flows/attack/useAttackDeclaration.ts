@@ -4,12 +4,13 @@ import { Action, ActionAttack, AttackDeclaration, ProtectPosition } from '../../
 import { ActorRound, ActorRoundAttack } from '../../../../api/actor-rounds.dto';
 import {
   actorRoundHasEffect,
-  findMaxActorRoundPace,
   isActorRoundDisabled,
   isActorRoundProne,
   isActorRoundStunned,
 } from '../../../../services/actor-round-service';
 import { reactionWeapons } from '../../../../services/combat-talents-service';
+import { phaseNumber } from '../../../actor-rounds/round-grid';
+import { overlappingFreeMovementPace } from './free-movement-pace';
 
 export type AttackKind = 'melee' | 'ranged';
 
@@ -54,10 +55,11 @@ export const useAttackDeclaration = (
   kind: AttackKind,
   sourceAttacks?: ActorRoundAttack[]
 ) => {
-  const { actorRounds, roundActions } = useContext(CombatContext)!;
+  const { game, actorRounds, roundActions } = useContext(CombatContext)!;
   const initial = (): AttackDeclaration => {
     if (action.attacks?.length) return { attacks: action.attacks, parries: action.parries ?? [] };
-    const pace = findMaxActorRoundPace(actorRound.actorId, roundActions ?? []);
+    // Workspace spec 080, decision 3: only a free movement made during the attack sets the pace, not one paid with AP
+    const pace = overlappingFreeMovementPace(roundActions ?? [], action, game ? phaseNumber(game.phase) : 0) ?? 'creep';
     // Workspace spec 076: a reaction attacks with a weapon of its talent's specialization, the actor it reacts to
     // already chosen for the first one.
     const reaction = action.reaction;

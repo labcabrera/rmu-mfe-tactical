@@ -70,7 +70,7 @@ const ActionSummaryView: FC<{ action: Action; onResolve: () => void; onDeleted: 
           <Field label={t('action-points')}>
             {[
               ap,
-              action.apProfile && `(${apProfileLabel(action.apProfile, t)})`,
+              action.apProfile?.max ? `(${apProfileLabel(action.apProfile, t)})` : null,
               !done && action.readiness === 'ready' && action.readinessPenalty
                 ? formatBonus(action.readinessPenalty)
                 : null,

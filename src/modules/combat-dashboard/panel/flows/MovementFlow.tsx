@@ -36,6 +36,7 @@ import { actorOpenEnded } from '../../../services/combat-talents-service';
 import { useTacticalNotify } from '../../../services/notify-service';
 import { useSkillService } from '../../../services/skill-service';
 import OptionTiles from '../../action-dialogs/attack-modifiers/pickers/OptionTiles';
+import { phaseNumber } from '../../actor-rounds/round-grid';
 import ActionFlow from '../ActionFlow';
 import { MovementResult } from './ActionResults';
 import { rememberedLight, rememberLight } from './maneuver/maneuver-form';
@@ -99,8 +100,14 @@ const MovementFlow: FC<{
   const setModifiers = (change: Partial<ActionMovement['modifiers']>) =>
     setForm((prev) => ({ ...prev, modifiers: { ...prev.modifiers, ...change } }));
 
-  // The distance of each pace is per AP: the API counts the AP of the movement in its ledger.
-  const actionPoints = Math.max(1, action.actionPoints ?? 1);
+  // Workspace spec 080 (Core Law §8.2): a free movement takes no AP, covers the phases it spans and goes up to run.
+  const freeMovement = !!action.freeAction;
+  const currentPhase = game ? phaseNumber(game.phase) : 0;
+  // The distance of each pace is per AP (the API counts the AP of the movement in its ledger), or per phase spanned.
+  const actionPoints = freeMovement
+    ? Math.max(1, (currentPhase || action.phaseStart) - action.phaseStart + 1)
+    : Math.max(1, action.actionPoints ?? 1);
+  const freeMaxIndex = freeMovement ? paceIndex('run') : MOVEMENT_TABLE.length;
   const scale = strategicGame?.options?.boardScaleMultiplier || 1;
   // Workspace spec 068: a splinted or cast leg caps the pace; routed and broken actors flee at running pace or faster
   const injuryLimit = injuryPaceLimit(actorRound);
@@ -257,6 +264,7 @@ const MovementFlow: FC<{
     <Stack spacing={0.75} role="radiogroup" aria-label={t('pace')}>
       {MOVEMENT_TABLE.map((row, index) => {
         const overMax = index > maxPaceIndex;
+        const overFree = index > freeMaxIndex;
         const tooSlow = fleeing && index < paceIndex('run');
         const fearWarning = !!fearCap && index > fearCap.index;
         const selected = modifiers.pace === row.id;
@@ -266,10 +274,10 @@ const MovementFlow: FC<{
             key={row.id}
             role="radio"
             aria-checked={selected}
-            disabled={overMax || tooSlow}
+            disabled={overMax || overFree || tooSlow}
             onClick={() => setModifiers({ pace: row.id })}
             sx={[
-              selectableSx(selected, overMax || tooSlow),
+              selectableSx(selected, overMax || overFree || tooSlow),
               {
                 display: 'grid',
                 gridTemplateColumns: '1fr auto',
@@ -288,17 +296,21 @@ const MovementFlow: FC<{
                 </Typography>
               </Typography>
               <Typography variant="caption" color="text.secondary">
-                {overMax && injuryLimit && index > paceIndex(injuryLimit)
-                  ? t('injury-pace-limit', { pace: t(injuryLimit) })
-                  : overMax
-                    ? t('over-max-pace')
-                    : tooSlow
-                      ? t('fear-flees-at-run')
-                      : fearWarning
-                        ? t(`fear-pace-warning-${fearCap!.state}`)
-                        : row.penalty !== '-'
-                          ? row.penalty
-                          : NBSP}
+                {overFree && !overMax
+                  ? t('free-movement-max-run')
+                  : overMax && injuryLimit && index > paceIndex(injuryLimit)
+                    ? t('injury-pace-limit', { pace: t(injuryLimit) })
+                    : overMax
+                      ? t('over-max-pace')
+                      : tooSlow
+                        ? t('fear-flees-at-run')
+                        : fearWarning
+                          ? t(`fear-pace-warning-${fearCap!.state}`)
+                          : row.penalty !== '-'
+                            ? freeMovement
+                              ? row.penalty.split(' | ')[0]
+                              : row.penalty
+                            : NBSP}
               </Typography>
             </Box>
             <Box sx={{ textAlign: 'right' }}>

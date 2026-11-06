@@ -62,7 +62,8 @@ export const actionState = (action: Action): CombatActionState => {
 /** "2/4 AP": AP spent on the action over its maximum; the spent ones alone without a profile. */
 export const actionApText = (action: Action, t: TFunction): string | undefined => {
   if (action.actionPoints === null || action.actionPoints === undefined) return undefined;
-  return action.apProfile
+  // Workspace spec 080: an action with no AP at all, like a free movement, reads "0 AP" rather than "0/0 AP"
+  return action.apProfile?.max
     ? t('ap-of-max', { ap: action.actionPoints, max: action.apProfile.max })
     : t('ap-n', { count: action.actionPoints });
 };

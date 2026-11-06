@@ -15,6 +15,7 @@ import SpecialManeuverFields from '../../../action-dialogs/attack-modifiers/Spec
 import StyleCriticalOptionPicker from '../../../action-dialogs/attack-modifiers/StyleCriticalOptionPicker';
 import { specialManeuversReady } from '../../../action-dialogs/attack-modifiers/special-maneuvers';
 import ResolveAttackFormRoll from '../../../action-dialogs/attack/ResolveAttackFormRoll';
+import { phaseNumber } from '../../../actor-rounds/round-grid';
 import ActionFlow from '../../ActionFlow';
 import { AttackResults } from '../ActionResults';
 import AttackTargetsStep from './AttackTargetsStep';
@@ -22,6 +23,7 @@ import BoltSplitFields, { boltSplitValid } from './BoltSplitFields';
 import ParryStep from './ParryStep';
 import { ShieldManeuverInput, shieldManeuverAttacks, shieldManeuverItems } from './ShieldManeuverSection';
 import { attackLabel } from './attack-label';
+import { overlappingFreeMovementPace } from './free-movement-pace';
 import { AttackKind, useAttackDeclaration } from './useAttackDeclaration';
 
 /**
@@ -67,7 +69,7 @@ const AttackFlow: FC<{
   const auth = useAuth();
   const notify = useTacticalNotify();
   const notifyWarnings = useNotifyWarnings();
-  const { actorRounds, updateAction, refreshActorRounds } = useContext(CombatContext)!;
+  const { game, actorRounds, roundActions, updateAction, refreshActorRounds } = useContext(CombatContext)!;
   const declaration = useAttackDeclaration(action, actorRound, kind, sourceAttacks);
   const labelOf = (attackName: string) => attackLabel(attackName, t);
   const weapons = sourceAttacks ?? actorRound.attacks;
@@ -83,6 +85,8 @@ const AttackFlow: FC<{
   const withParry = kind === 'melee' || shieldStep;
   const step = stepOf(action, withParry, localStep);
   const targetName = (targetId: string) => actorRounds?.find((ar) => ar.actorId === targetId)?.actorName ?? '';
+  // Workspace spec 080: the API applies the pace of a free movement made during the attack on its own
+  const freePace = overlappingFreeMovementPace(roundActions ?? [], action, game ? phaseNumber(game.phase) : 0);
 
   const call = (request: Promise<Action>, message: string, after?: () => void) => {
     setBusy(true);
@@ -175,6 +179,11 @@ const AttackFlow: FC<{
         {chargeFear && unprepared && (
           <Alert severity={chargeFear === 'fear-retreat' ? 'warning' : 'info'} variant="outlined">
             {t(`fear-charge-${chargeFear}`)}
+          </Alert>
+        )}
+        {freePace && unprepared && (
+          <Alert severity="info" variant="outlined">
+            {t('free-movement-attack-pace', { pace: t(freePace) })}
           </Alert>
         )}
         <AttackModifiersForm
