@@ -162,7 +162,13 @@ export default function TacticalGameFormPage({ mode }: { mode: 'create' | 'edit'
         <>
           <TacticalGameForm formData={formData} setFormData={setFormData} strategicGame={strategicGame} />
           {mode === 'create' && (
-            <TacticalGameFormNpcs factions={factions} npcs={npcs} setup={npcSetup} onChange={setNpcSetup} />
+            <TacticalGameFormNpcs
+              factions={factions}
+              npcs={npcs}
+              setup={npcSetup}
+              onChange={setNpcSetup}
+              disabled={!formData.strategicGameId}
+            />
           )}
         </>
       ) : existing.notFound ? (
