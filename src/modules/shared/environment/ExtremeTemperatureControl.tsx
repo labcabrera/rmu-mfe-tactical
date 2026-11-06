@@ -20,6 +20,7 @@ import { formSeverity } from '../../actor-round/hazards/TemperatureHazardDialog'
 import { criticalCode } from '../../services/action-service';
 import { useTacticalNotify } from '../../services/notify-service';
 import { canManageTactical } from '../permissions';
+import EnvironmentDialogField from './EnvironmentDialogField';
 import { updateGameEnvironment } from './update-environment';
 
 type Mode = 'temperature' | 'severity';
@@ -49,7 +50,7 @@ export const extremeTemperatureLabel = (
 
 /**
  * Extreme temperature of a tactical game (workspace spec 079, C3, §15.3): while it is set, every upkeep raises the
- * critical of cold, heat or steam of each actor the game master did not mark protected. The chip shows it; the game
+ * critical of cold, heat or steam of each actor the game master did not mark protected. A field like the environment selects shows it; the game
  * master sets it from a temperature (Table 15-3) or a severity, or clears it.
  */
 const ExtremeTemperatureControl: FC<{ game: TacticalGame; onChange: (game: TacticalGame) => void }> = ({
@@ -91,22 +92,15 @@ const ExtremeTemperatureControl: FC<{ game: TacticalGame; onChange: (game: Tacti
       : { kind: form.kind, temperature: null, severity: form.severity };
 
   return (
-    <Stack direction="row" spacing={1} sx={{ alignItems: 'center', flexWrap: 'wrap', rowGap: 1 }}>
-      <RuleHint title={t('extreme-temperature')} description={t('extreme-temperature-help')} reference="§15.3">
-        <Chip
-          size="small"
-          icon={<ThermostatIcon />}
-          color={extreme ? 'error' : 'default'}
-          variant={extreme ? 'filled' : 'outlined'}
-          label={extreme ? extremeTemperatureLabel(extreme, t) : t('extreme-temperature-none')}
-          sx={{ cursor: 'inherit' }}
-        />
-      </RuleHint>
-      {!readOnly && (
-        <Button size="small" onClick={() => setOpen(true)}>
-          {t('edit')}
-        </Button>
-      )}
+    <>
+      <EnvironmentDialogField
+        label={t('extreme-temperature')}
+        icon={<ThermostatIcon />}
+        active={!!extreme}
+        color="error"
+        value={extreme ? extremeTemperatureLabel(extreme, t) : t('extreme-temperature-none')}
+        onOpen={readOnly ? undefined : () => setOpen(true)}
+      />
       <RmuDialog
         open={open}
         onDismiss={() => setOpen(false)}
@@ -136,10 +130,9 @@ const ExtremeTemperatureControl: FC<{ game: TacticalGame; onChange: (game: Tacti
           >
             <Box sx={{ color: 'text.secondary', typography: 'body2' }}>{t('extreme-temperature-help')}</Box>
           </RuleHint>
-          <Stack direction="row" spacing={2} sx={{ flexWrap: 'wrap', rowGap: 2, alignItems: 'flex-start' }}>
+          <Stack direction="row" spacing={2} useFlexGap sx={{ flexWrap: 'wrap', alignItems: 'flex-start' }}>
             <TextField
               select
-              size="small"
               label={t('temperature-kind')}
               value={form.kind}
               onChange={(e) => change({ kind: e.target.value as TemperatureKind })}
@@ -153,7 +146,6 @@ const ExtremeTemperatureControl: FC<{ game: TacticalGame; onChange: (game: Tacti
             </TextField>
             <TextField
               select
-              size="small"
               label={t('temperature-severity-mode')}
               value={form.mode}
               onChange={(e) => change({ mode: e.target.value as Mode })}
@@ -177,7 +169,6 @@ const ExtremeTemperatureControl: FC<{ game: TacticalGame; onChange: (game: Tacti
             ) : (
               <TextField
                 select
-                size="small"
                 label={t('critical-severity')}
                 value={form.severity}
                 onChange={(e) => change({ severity: e.target.value })}
@@ -192,7 +183,6 @@ const ExtremeTemperatureControl: FC<{ game: TacticalGame; onChange: (game: Tacti
             )}
           </Stack>
           <Chip
-            size="small"
             variant="outlined"
             color={severity ? 'error' : 'default'}
             label={t('extreme-temperature-each-round', {
@@ -202,7 +192,7 @@ const ExtremeTemperatureControl: FC<{ game: TacticalGame; onChange: (game: Tacti
           />
         </Stack>
       </RmuDialog>
-    </Stack>
+    </>
   );
 };
 
