@@ -1,6 +1,6 @@
 import React, { FC, ReactNode, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Box, MenuItem, Stack, TextField, Typography } from '@mui/material';
+import { alpha, Box, MenuItem, Stack, TextField, Typography } from '@mui/material';
 import { CharacterPicker, formatBonus, NumberPadField, Panel } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../../CombatContext';
 import { ActionAttack, PROTECT_POSITIONS, ProtectPosition } from '../../../../api/action.dto';
@@ -76,7 +76,17 @@ const AttackTargetsStep: FC<{
               ar.actorId !== actorRound.actorId && ar.actorId !== targetId && ar.factionId !== actorRound.factionId
           );
           return (
-            <Panel key={attack.attackName} variant="outlined" title={attackLabel(attack.attackName, t)}>
+            <Panel
+              key={attack.attackName}
+              variant="outlined"
+              title={attackLabel(attack.attackName, t)}
+              // An attack is chosen by giving it a target: the same highlight as a selected tile, which is not clickable
+              sx={
+                targetId
+                  ? (theme) => ({ borderColor: 'primary.main', bgcolor: alpha(theme.palette.primary.main, 0.12) })
+                  : undefined
+              }
+            >
               <Stack spacing={1.5}>
                 <Box>
                   <Typography variant="caption" color="text.secondary">
