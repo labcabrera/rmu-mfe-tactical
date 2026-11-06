@@ -225,6 +225,8 @@ const usePaletteGroups = (actorRound: ActorRound, phase: number): PaletteGroup[]
           key: 'free-movement',
           label: t('free-movement'),
           freeAction: true,
+          // Workspace spec 080 (Core Law §8.2): no AP and not the instantaneous action; up to run, with a pace penalty
+          details: [t('free-movement-palette-help')],
           unavailable: moving ? 'already-moving' : undefined,
         }),
       ],
