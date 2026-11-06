@@ -2,7 +2,12 @@ import {
   COMBAT_TALENT_PURPOSES,
   DEFAULT_SENSE,
   DEFAULT_SENSE_USAGE,
+  ODOR_SKILLS,
   type CombatTalentPurpose,
+  type ComplementaryHelper,
+  type FeatOfStrengthChoices,
+  type SimilarityChoice,
+  type SituationalTraitOption,
   type ManeuverSenseModifier,
   type ManeuverType,
   type PrecisionPosition,
@@ -17,6 +22,7 @@ import type {
   ActionManeuver,
   ActionManeuverResult,
   ManeuverModifiersListing,
+  ManeuverListingQuery,
   ManeuverPurpose,
   ManeuverSelection,
   ManeuverSkillModifier,
@@ -62,7 +68,18 @@ export type ManeuverForm = {
   /** Missing Sense where the sense only helps (-50 to -20) and Heatsense (0 to 20); the listing's value when null. */
   missingSenseModifier: number | null;
   heatsenseModifier: number | null;
+  /** Workspace spec 079, B1: the skill the maneuver needs when the actor rolls a similar one, and the helpers. */
+  similarity: SimilarityChoice | null;
+  complementary: ComplementaryHelper[];
+  /** Workspace spec 079, B2: the load of a feat of strength (purpose `feat-of-strength`). */
+  featOfStrength: Partial<FeatOfStrengthChoices>;
+  /** Workspace spec 079, D3: situational talents the game master ticks, and the actor smelled (its odour). */
+  situationalTraits: string[];
+  senseTargetActorId: string | null;
 };
+
+/** Workspace spec 079, B3-B4: adrenal moves and Fortitude are absolute maneuvers on the adrenal table. */
+export const ADRENAL_PURPOSES: string[] = ['adrenal', 'fortitude'];
 
 /** Combat talent maneuvers whose difficulty is fixed by the API: Medium (Battle Cry; Precision has its position). */
 const FIXED_DIFFICULTY_PURPOSES: string[] = ['battle-cry', 'precision'];
@@ -72,8 +89,26 @@ export const isCombatTalentPurpose = (purpose: ManeuverPurpose | null | undefine
   !!purpose && (COMBAT_TALENT_PURPOSES as readonly string[]).includes(purpose);
 
 /** The difficulty the maneuver is resolved with: Medium for Battle Cry and Precision, else the one chosen. */
-export const effectiveDifficulty = (form: ManeuverForm): string =>
-  form.purpose && FIXED_DIFFICULTY_PURPOSES.includes(form.purpose) ? MEDIUM : form.difficulty;
+export const effectiveDifficulty = (form: ManeuverForm, listing?: ManeuverModifiersListing | null): string => {
+  if (form.purpose && FIXED_DIFFICULTY_PURPOSES.includes(form.purpose)) return MEDIUM;
+  // Workspace spec 079, B2: a feat of strength takes the difficulty of its load (Table 5-2)
+  const feat = form.purpose === 'feat-of-strength' ? listing?.featOfStrength?.result : undefined;
+  return feat?.difficulty ?? form.difficulty;
+};
+
+/** Query of the modifiers listing for the choices of the form (workspace spec 079). */
+export const listingQuery = (form: ManeuverForm): ManeuverListingQuery => ({
+  purpose: form.purpose,
+  similarity: form.similarity?.targetSkillId ? form.similarity : null,
+  complementary: form.complementary.filter((helper) => !!helper.skillId),
+  featOfStrength: form.purpose === 'feat-of-strength' ? form.featOfStrength : null,
+});
+
+/** A feat of strength needs its load, and the body weight of an actor without one in its sheet. */
+export const featOfStrengthReady = (listing: ManeuverModifiersListing, form: ManeuverForm): boolean =>
+  form.purpose !== 'feat-of-strength' ||
+  (!!form.featOfStrength.loadWeight &&
+    ((listing.featOfStrength?.bodyWeight ?? null) !== null || !!form.featOfStrength.bodyWeight));
 
 /** Precision (workspace spec 076, §2.6): the difficulty of each position of the attacker. */
 export const PRECISION_POSITION_VALUES: Record<PrecisionPosition, number> = { rear: -50, flank: -70, front: -100 };
@@ -200,14 +235,16 @@ export const predictedModifiers = (
           rule: MANEUVER_RULES.skill,
           params: { ranks: skill.ranks, ...specialization },
         },
-    {
-      key: 'difficulty',
-      value: listing.difficulty.options.find((o) => o.key === effectiveDifficulty(form))?.value ?? 0,
-      group: 'situation',
-      source: 'difficulty',
-      rule: MANEUVER_RULES.difficulty,
-      params: { difficulty: effectiveDifficulty(form) },
-    },
+    difficultyModifier(listing, form),
+    // Workspace spec 079, B1: the similar skill and the helpers, after the difficulty as in the API
+    ...(listing.aids ?? []).map(({ key, value, group, source, rule, params }) => ({
+      key,
+      value,
+      group,
+      source,
+      rule,
+      params,
+    })),
     ...listing.base.map(({ key, value, group, source, rule, params }) => ({ key, value, group, source, rule, params })),
   ];
   const light = effectiveLight(listing, form);
@@ -244,6 +281,23 @@ export const predictedModifiers = (
       params: { ...modifier.params, sense: form.sense },
     })
   );
+  // Workspace spec 079, D3: the situational talents ticked and the automatic ones (the odour of the target: the API)
+  activeSituationalTraits(listing, form).forEach((option) =>
+    modifiers.push({
+      key: `situational-${option.traitId}`,
+      value: option.value,
+      group: 'talent',
+      source: 'situational-talents',
+      rule: option.rule,
+      params: {
+        trait: option.traitId,
+        condition: option.condition,
+        tier: option.tier,
+        ...(option.specialization ? { specialization: option.specialization } : {}),
+        ...(option.replaces !== undefined ? { replaces: option.replaces } : {}),
+      },
+    })
+  );
   listing.skillModifiers.forEach((modifier) =>
     modifiers.push({
       key: modifier.key,
@@ -273,6 +327,35 @@ export const predictedModifiers = (
   return modifiers.filter((modifier, index) => index < 2 || modifier.value !== 0);
 };
 
+/** The difficulty line: the one chosen, or the one of the load of a feat of strength (workspace spec 079). */
+const difficultyModifier = (listing: ManeuverModifiersListing, form: ManeuverForm): RollModifier => {
+  const difficulty = effectiveDifficulty(form, listing);
+  const value = listing.difficulty.options.find((o) => o.key === difficulty)?.value ?? 0;
+  const feat = form.purpose === 'feat-of-strength' ? listing.featOfStrength?.result : undefined;
+  if (feat)
+    return {
+      key: 'difficulty',
+      value,
+      group: 'situation',
+      source: 'feat-of-strength',
+      rule: MANEUVER_RULES.featOfStrength,
+      params: {
+        difficulty,
+        percent: feat.percent,
+        adjustedPercent: feat.adjustedPercent,
+        strengthBonus: feat.strengthBonus,
+      },
+    };
+  return {
+    key: 'difficulty',
+    value,
+    group: 'situation',
+    source: 'difficulty',
+    rule: MANEUVER_RULES.difficulty,
+    params: { difficulty },
+  };
+};
+
 /** Rule references of the maneuver modifiers, as the API gives them (spec 052). */
 export const MANEUVER_RULES = {
   skill: 'Table 3-0b',
@@ -281,6 +364,7 @@ export const MANEUVER_RULES = {
   light: 'Table 15-7',
   lightSensitivity: '§4.5',
   conflict: '§8.2',
+  featOfStrength: '§5.2, Table 5-2',
 } as const;
 
 /** The rules the prediction does not apply: the listing's, and a light the skill does not use (spec 052). */
@@ -341,6 +425,11 @@ export const initialForm = (
     senseSelections: [],
     missingSenseModifier: null,
     heatsenseModifier: null,
+    similarity: modifiers?.similarity ?? null,
+    complementary: modifiers?.complementary ?? [],
+    featOfStrength: modifiers?.featOfStrength ?? {},
+    situationalTraits: modifiers?.situationalTraits ?? [],
+    senseTargetActorId: modifiers?.senseTargetActorId ?? null,
   };
 };
 
@@ -379,6 +468,47 @@ const sensesRequest = (listing: ManeuverModifiersListing, form: ManeuverForm): P
   };
 };
 
+/** The situational talents of the listing that apply: the automatic ones and the ticked ones (workspace spec 079). */
+export const activeSituationalTraits = (listing: ManeuverModifiersListing, form: ManeuverForm): SituationalTraitOption[] =>
+  (listing.situationalTraits ?? []).filter(
+    (option) => option.mode === 'automatic' || form.situationalTraits.includes(option.traitId)
+  );
+
+/** The odour of an actor counts for Perception and Tracking made by smell (workspace spec 079, D3). */
+export const smellsTarget = (listing: ManeuverModifiersListing, form: ManeuverForm): boolean =>
+  !!listing.senses && form.sense === 'smell' && ODOR_SKILLS.includes(listing.skill.skillId);
+
+/** Fields of the request for the situational talents and the actor smelled (workspace spec 079, D3). */
+const talentsRequest = (listing: ManeuverModifiersListing, form: ManeuverForm): Partial<ResolveManeuverDto> => {
+  const ticked = form.situationalTraits.filter((traitId) =>
+    (listing.situationalTraits ?? []).some((option) => option.traitId === traitId && option.mode === 'ticked')
+  );
+  return {
+    ...(ticked.length > 0 ? { situationalTraits: ticked } : {}),
+    ...(smellsTarget(listing, form) && form.senseTargetActorId ? { senseTargetActorId: form.senseTargetActorId } : {}),
+  };
+};
+
+/** Fields of the request for the aids and the load of a feat of strength (workspace spec 079). */
+const aidsRequest = (form: ManeuverForm): Partial<ResolveManeuverDto> => {
+  const helpers = form.complementary.filter((helper) => !!helper.skillId);
+  const feat = form.featOfStrength;
+  return {
+    ...(form.similarity?.targetSkillId ? { similarity: form.similarity } : {}),
+    ...(helpers.length > 0 ? { complementary: helpers } : {}),
+    ...(form.purpose === 'feat-of-strength' && feat.loadWeight
+      ? {
+          featOfStrength: {
+            loadWeight: feat.loadWeight,
+            ...(feat.mechanicalFactor ? { mechanicalFactor: feat.mechanicalFactor } : {}),
+            ...(feat.bodyWeight ? { bodyWeight: feat.bodyWeight } : {}),
+            ...(feat.strengthBonus ? { strengthBonus: feat.strengthBonus } : {}),
+          },
+        }
+      : {}),
+  };
+};
+
 /** The passive side of a conflicting maneuver: a target actor with its roll, or the total typed by hand. */
 const passiveSide = (form: ManeuverForm): Partial<ResolveManeuverDto> => {
   if (form.targetActorId) {
@@ -402,8 +532,8 @@ export const toResolveRequest = (listing: ManeuverModifiersListing, form: Maneuv
     Object.entries(form.selections).filter(([key, value]) => known.has(key) && value !== false && value !== null)
   );
   return {
-    maneuverType: form.maneuverType,
-    difficulty: effectiveDifficulty(form),
+    maneuverType: form.purpose && ADRENAL_PURPOSES.includes(form.purpose) ? 'absolute' : form.maneuverType,
+    difficulty: effectiveDifficulty(form, listing),
     ...(usesLight(listing, form) && form.light ? { light: form.light } : {}),
     ...(Object.keys(selections).length > 0 ? { selections } : {}),
     ...(form.customBonus ? { customBonus: form.customBonus } : {}),
@@ -411,6 +541,8 @@ export const toResolveRequest = (listing: ManeuverModifiersListing, form: Maneuv
     ...(form.purpose ? { purpose: form.purpose } : {}),
     ...combatTalentRequest(form),
     ...sensesRequest(listing, form),
+    ...aidsRequest(form),
+    ...talentsRequest(listing, form),
     roll: {
       roll: form.roll as number,
       ...(form.unmodified !== null ? { unmodified: form.unmodified } : {}),

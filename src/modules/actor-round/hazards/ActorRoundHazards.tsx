@@ -2,6 +2,7 @@ import React, { FC, useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import LandslideIcon from '@mui/icons-material/Landslide';
+import ThermostatIcon from '@mui/icons-material/Thermostat';
 import { Box, Button, Divider, Stack, Typography } from '@mui/material';
 import { HazardKind, RuleHint, SectionLabel } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
@@ -10,11 +11,12 @@ import { isRoundEditable } from '../../services/game-service';
 import { canManageTactical } from '../../shared/permissions';
 import HazardDialog from './HazardDialog';
 import HazardResult, { hazardTitle } from './HazardResult';
+import TemperatureHazardDialog from './TemperatureHazardDialog';
 
 /**
  * Falls and falling objects of an actor in the side panel (workspace spec 077, decision D2): the game master resolves
- * one with "Fall" or "Falling object", and the ones of this round are listed with their result. Nothing for the other
- * players when the actor took none.
+ * one with "Fall" or "Falling object", and the ones of this round are listed with their result. Workspace spec 079, C3:
+ * also an extreme temperature (cold, heat or steam). Nothing for the other players when the actor took none.
  */
 const ActorRoundHazards: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
   const { t } = useTranslation();
@@ -44,6 +46,14 @@ const ActorRoundHazards: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
             >
               {t('hazard-kind-falling-object')}
             </Button>
+            <Button
+              size="small"
+              variant="outlined"
+              startIcon={<ThermostatIcon />}
+              onClick={() => setKind('extreme-temperature')}
+            >
+              {t('hazard-kind-extreme-temperature')}
+            </Button>
           </Stack>
         )}
         {hazards.map((hazard) => (
@@ -54,7 +64,12 @@ const ActorRoundHazards: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
             <HazardResult hazard={hazard} />
           </Box>
         ))}
-        {kind && <HazardDialog actorRound={actorRound} kind={kind} open onClose={() => setKind(null)} />}
+        {kind === 'extreme-temperature' && (
+          <TemperatureHazardDialog actorRound={actorRound} open onClose={() => setKind(null)} />
+        )}
+        {kind && kind !== 'extreme-temperature' && (
+          <HazardDialog actorRound={actorRound} kind={kind} open onClose={() => setKind(null)} />
+        )}
       </Stack>
       <Divider />
     </>

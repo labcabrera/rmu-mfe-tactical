@@ -1,15 +1,18 @@
 import React, { FC, useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
+import ContentCutIcon from '@mui/icons-material/ContentCut';
 import DeleteIcon from '@mui/icons-material/Delete';
 import HealingIcon from '@mui/icons-material/Healing';
 import LinkOffIcon from '@mui/icons-material/LinkOff';
 import ScienceIcon from '@mui/icons-material/Science';
 import SpaIcon from '@mui/icons-material/Spa';
-import { Button, IconButton, Stack, Tooltip, Typography } from '@mui/material';
+import { Button, Chip, IconButton, Stack, Tooltip, Typography } from '@mui/material';
 import {
+  ChipRow,
   ConfirmDialog,
   Injury,
+  isLimbLost,
   InjuryList,
   SectionLabel,
   TemporaryModifier,
@@ -53,6 +56,12 @@ const ActorRoundInjuries: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
   const modifiers = actorRound.temporaryModifiers ?? [];
   const injuries = actorRound.injuries ?? [];
   const bleeding = actorRoundBleeding(actorRound);
+  // Workspace spec 079, C1: limbs lost for good, and the injuries of a limb that can still be amputated
+  const lostLimbs = actorRound.lostLimbs ?? [];
+  const amputable = (injury: Injury) =>
+    injury.status !== 'healed' &&
+    (injury.location === 'arm' || injury.location === 'leg') &&
+    !(injury.side && isLimbLost(lostLimbs, injury.location, injury.side));
 
   const remove = () => {
     if (!deleting) return;
@@ -97,11 +106,37 @@ const ActorRoundInjuries: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
                 {t('herb-use')}
               </Button>
             )}
+            {editable && (
+              <Tooltip title={t('gm-adjustment-help')}>
+                <Button size="small" startIcon={<ContentCutIcon />} onClick={() => setTarget({ kind: 'amputate' })}>
+                  {t('amputate')}
+                </Button>
+              </Tooltip>
+            )}
           </>
         }
       >
         {t('injuries')}
       </SectionLabel>
+      {lostLimbs.length > 0 && (
+        <ChipRow>
+          {lostLimbs.map((limb) => (
+            <Chip
+              key={`${limb.location}-${limb.side}`}
+              size="small"
+              color="error"
+              variant="outlined"
+              label={[
+                t('lost-limb-label', { location: t(limb.location), side: t(`side-${limb.side}`) }),
+                limb.cause ? t(`lost-limb-cause-${limb.cause}`) : undefined,
+              ]
+                .filter(Boolean)
+                .join(' · ')}
+              title={t(`lost-limb-${limb.location}-help`)}
+            />
+          ))}
+        </ChipRow>
+      )}
       <InjuryList
         injuries={injuries}
         dense={false}
@@ -136,6 +171,18 @@ const ActorRoundInjuries: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
                         onClick={() => setTarget({ kind: 'treat', injury })}
                       >
                         {t('treat-gm')}
+                      </Button>
+                    </Tooltip>
+                  )}
+                  {amputable(injury) && (
+                    <Tooltip title={t('gm-adjustment-help')}>
+                      <Button
+                        size="small"
+                        color="error"
+                        startIcon={<ContentCutIcon />}
+                        onClick={() => setTarget({ kind: 'amputate', injury })}
+                      >
+                        {t('amputate')}
                       </Button>
                     </Tooltip>
                   )}

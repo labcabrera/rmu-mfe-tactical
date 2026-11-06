@@ -9,6 +9,7 @@ import { CombatContext } from '../../../CombatContext';
 import ActorRoundBars from '../../actor-round/ActorRoundBars';
 import ActorRoundConcentration from '../../actor-round/ActorRoundConcentration';
 import ActorRoundDefenseMode from '../../actor-round/ActorRoundDefenseMode';
+import ActorRoundEnvironment from '../../actor-round/ActorRoundEnvironment';
 import ActorRoundHazards from '../../actor-round/hazards/ActorRoundHazards';
 import { Action } from '../../api/action.dto';
 import { ActorRound } from '../../api/actor-rounds.dto';
@@ -82,6 +83,8 @@ const ActorPanelView: FC<{
       <ActorRoundConcentration actorRound={actorRound} />
       <Divider />
       <ActorRoundHazards actorRound={actorRound} />
+      {/* Workspace spec 079, C3-C4: held breath and protection from an extreme temperature */}
+      <ActorRoundEnvironment actorRound={actorRound} />
       <Box>
         <SectionLabel>{t('effects-states')}</SectionLabel>
         <ActorRoundEffects actorRound={actorRound} />

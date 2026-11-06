@@ -61,9 +61,11 @@ const ActorRoundAlerts: FC<{
                 variant="outlined"
                 // A reaction (workspace spec 076) is an attack to take now: it stands out.
                 color={
-                  alert.type === 'wound-reopened' || alert.type === 'limb-loss'
+                  // Workspace spec 079: a possible death by the total penalties is red too.
+                  alert.type === 'wound-reopened' || alert.type === 'limb-loss' || alert.type === 'death-threshold'
                     ? 'error'
-                    : alert.type === 'reaction-available'
+                    : // Workspace spec 079: so is the second attack of a stray shot.
+                      alert.type === 'reaction-available' || alert.type === 'stray-shot'
                       ? 'warning'
                       : 'inherit'
                 }

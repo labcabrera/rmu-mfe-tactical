@@ -3,7 +3,7 @@ import {
   apiTacticalUrl,
   callApi,
   GiveAntidoteDto,
-  MentalFocusOutcome,
+  AlertOutcome,
   Page,
   PoisonData,
   PoisonExposure,
@@ -11,11 +11,17 @@ import {
   ResolveCriticalAlertDto,
   ResolveHazardDto,
   ResolvePoisoningDto,
+  ResolveTemperatureHazardDto,
+  StartBreathDto,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import {
   ActorAntidoteResult,
   ActorRound,
   ActorRoundEffect,
+  AmputateActorLimbRequest,
+  AmputationResultDto,
+  ReviveActorRequest,
+  ReviveResultDto,
   BreakageCheckDto,
   DefenseLevel,
   MedicalResultDto,
@@ -88,20 +94,53 @@ export async function declareActorRoundFightingStyle(
  */
 /**
  * Marks as resolved an alert handled by hand, such as the critical of a fumble (spec 034). A Mental Focus alert
- * (workspace spec 077) carries the outcome of the maneuver: `failed` breaks every concentration of the actor.
+ * (workspace spec 077) carries the outcome of the maneuver: `failed` breaks every concentration of the actor. A
+ * death-threshold alert (workspace spec 079) is `confirmed` (the actor dies) or dismissed without an outcome.
  */
 export async function resolveAlert(
   actorRoundId: string,
   alertId: string,
   auth: AuthContextProps,
-  outcome?: MentalFocusOutcome
+  outcome?: AlertOutcome,
+  side?: 'left' | 'right'
 ): Promise<ActorRound> {
   const url = `${apiTacticalUrl}/actor-rounds/${actorRoundId}/alerts/${alertId}/resolve`;
   return await callApi(auth, url, {
     method: 'POST',
     ...(outcome
-      ? { headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ outcome } as ResolveAlertDto) }
+      ? {
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ outcome, ...(side ? { side } : {}) } as ResolveAlertDto),
+        }
       : {}),
+  });
+}
+
+/** Workspace spec 079, C1: an emergency amputation (-30); the limb is lost whatever the result. */
+export async function amputateActorRoundLimb(
+  actorRoundId: string,
+  dto: AmputateActorLimbRequest,
+  auth: AuthContextProps
+): Promise<AmputationResultDto> {
+  const url = `${apiTacticalUrl}/actor-rounds/${actorRoundId}/amputations`;
+  return await callApi(auth, url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(dto),
+  });
+}
+
+/** Workspace spec 079, C6: revives a dead body (respiratory -50, cardiac -100, defibrillation -20 to -70). */
+export async function reviveActorRound(
+  actorRoundId: string,
+  dto: ReviveActorRequest,
+  auth: AuthContextProps
+): Promise<ReviveResultDto> {
+  const url = `${apiTacticalUrl}/actor-rounds/${actorRoundId}/revive`;
+  return await callApi(auth, url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(dto),
   });
 }
 
@@ -311,7 +350,7 @@ export async function deleteActorRoundTemporaryModifier(
  */
 export async function resolveHazard(
   actorRoundId: string,
-  data: ResolveHazardDto,
+  data: ResolveHazardDto | ResolveTemperatureHazardDto,
   auth: AuthContextProps
 ): Promise<ActorRound> {
   const url = `${apiTacticalUrl}/actor-rounds/${actorRoundId}/hazards`;
@@ -319,6 +358,40 @@ export async function resolveHazard(
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
+  });
+}
+
+/** Workspace spec 079, C4: the actor starts holding its breath in this round (game master only). */
+export async function startActorRoundBreath(
+  actorRoundId: string,
+  data: StartBreathDto,
+  auth: AuthContextProps
+): Promise<ActorRound> {
+  const url = `${apiTacticalUrl}/actor-rounds/${actorRoundId}/breath`;
+  return await callApi(auth, url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+}
+
+/** Workspace spec 079, C4: the actor breathes again; its suffocation and pending breath checks end. */
+export async function stopActorRoundBreath(actorRoundId: string, auth: AuthContextProps): Promise<ActorRound> {
+  const url = `${apiTacticalUrl}/actor-rounds/${actorRoundId}/breath`;
+  return await callApi(auth, url, { method: 'DELETE' });
+}
+
+/** Workspace spec 079, C3: protected from the extreme temperature of the environment (no critical in the upkeep). */
+export async function setActorRoundEnvironmentProtection(
+  actorRoundId: string,
+  value: boolean,
+  auth: AuthContextProps
+): Promise<ActorRound> {
+  const url = `${apiTacticalUrl}/actor-rounds/${actorRoundId}/environment-protection`;
+  return await callApi(auth, url, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ protected: value }),
   });
 }
 

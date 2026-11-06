@@ -1,6 +1,11 @@
 import type {
+  ActorAmputationFields,
+  ActorReviveFields,
+  ActorRoundLimbAndLife,
+  ActorRoundEnvironmentFields,
+  ActorRoundHazard079Fields,
   ActorRollProfile,
-  ActorRoundHazard,
+  ActorRoundHazard as LibActorRoundHazard,
   CriticalAlertRoll,
   ConcentrationFocus,
   ReactionAlertData,
@@ -98,11 +103,17 @@ export type ActorRound = {
   criticalSize?: number | null;
   /** Code I of an NPC (Creature Law T-3.1e): one critical level less, none below A (spec 075). */
   reduceCriticalSeverity?: boolean;
+  /** Code @ of an NPC (§9.8 Stun): a stun is a flat -25 for 1 round that does not stack (workspace spec 079). */
+  stunImmune?: boolean;
   /** What the actor concentrates on (workspace spec 077): with any, each AP of another action counts half. */
   concentration?: ConcentrationFocus[];
   /** Enc % of the armor the character wears (workspace spec 077): the default of a cast's armor encumbrance. */
   armorEncumbrance?: number;
-};
+} & ActorRoundLimbAndLife &
+  ActorRoundEnvironmentFields;
+
+/** A hazard of the round, with the temperature of an extreme one (workspace spec 079, C3). */
+export type ActorRoundHazard = LibActorRoundHazard & ActorRoundHazard079Fields;
 
 export type ActorRoundStyleAbility = { abilityId: string; times: number };
 
@@ -237,6 +248,8 @@ export const DECLARABLE_DEFENSE_LEVELS: DefenseLevel[] = ['none', 'passive', 'pa
 export type ActorRoundDefenseMode = {
   dodge: DefenseLevel;
   block: DefenseLevel;
+  /** Workspace spec 079, B3: the full dodge comes from Adrenal Defense (kept as concentration below level 4). */
+  adrenal?: boolean;
 };
 
 export type ActorRoundPhaseLog = {
@@ -467,6 +480,26 @@ export type MedicalResultDto = {
   /** Stabilize: its cause was treated and the success removed the dying effect (workspace spec 068). */
   removed?: boolean;
 };
+
+/** Workspace spec 079, C1: `POST v1/actor-rounds/:id/amputations`, an emergency amputation at -30. */
+export type AmputateActorLimbRequest = MedicalRollDto & {
+  location: 'arm' | 'leg';
+  side: 'left' | 'right';
+  injuryId?: string;
+  /** Absolute failure: sum of the 2d10 rounds of system shock; rolled by the API when missing. */
+  systemShockRoll?: number;
+};
+
+/** Workspace spec 079, C6: `POST v1/actor-rounds/:id/revive`. The difficulty comes from the method. */
+export type ReviveActorRequest = Omit<MedicalRollDto, 'difficulty'> & {
+  method: 'respiratory' | 'cardiac' | 'defibrillation';
+  defibrillationDifficulty?: number;
+  dangerousSource?: boolean;
+  shockHitsRoll?: number;
+};
+
+export type AmputationResultDto = MedicalResultDto & ActorAmputationFields;
+export type ReviveResultDto = MedicalResultDto & ActorReviveFields;
 
 /** `POST v1/actor-rounds/:id/fear-effects` (workspace spec 068, decision 15). */
 export type FearEffectResult = {

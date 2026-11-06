@@ -1,9 +1,13 @@
 import React, { Dispatch, FC, SetStateAction, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import BlockIcon from '@mui/icons-material/Block';
-import { Alert, Box, Stack, Typography } from '@mui/material';
+import { Alert, Box, MenuItem, Stack, TextField, Typography } from '@mui/material';
 import {
+  ABSOLUTE_MANEUVER_RESULTS,
+  AbsoluteResultKey,
   combatActionInfo,
+  PARRY_MANEUVER_PASSED_RESULTS,
+  parryPositionalReduction,
   NumberPadField,
   RuleHint,
   RuleParams,
@@ -69,6 +73,12 @@ const ParryStep: FC<{
       parry.protectPosition && t(`protect-position-${parry.protectPosition}`),
       !!parry.penalty && t('protect-penalty', { value: parry.penalty }),
       parry.carriedOver && t('parry-carried-over'),
+      parry.positional &&
+        t('parry-positional-info', {
+          position: t(`positional-${parry.positional.position}`),
+          penalty: parry.positional.penalty,
+          skill: parry.positional.reverseStrike,
+        }),
     ]
       .filter(Boolean)
       .join(' · ');
@@ -118,6 +128,20 @@ const ParryStep: FC<{
     return t(`parry-exclusion-${exclusion.reason}`, { ...params, type: t(exclusion.parryType) });
   };
 
+  // Spec 079, A2: what the flank or rear takes off the parry, and the maneuver against a further foe
+  const positionalText = (parry: ActionParry) => {
+    const reduction = parryPositionalReduction(parry.parry || 0, parry.positional);
+    return reduction > 0 ? t('parry-positional-reduction', { reduction, left: (parry.parry || 0) - reduction }) : undefined;
+  };
+  const maneuverRequired = (parry: ActionParry) => !!parry.parryManeuver?.required && !parry.carriedOver;
+  const maneuverFailed = (parry: ActionParry) =>
+    !!parry.maneuverResult && !PARRY_MANEUVER_PASSED_RESULTS.includes(parry.maneuverResult);
+  const setManeuverResult = (index: number, value: AbsoluteResultKey | undefined) =>
+    setFormData((prev) => ({
+      ...prev,
+      parries: (prev.parries ?? []).map((p, i) => (i === index ? { ...p, maneuverResult: value } : p)),
+    }));
+
   const setParry = (index: number, value: number) =>
     setFormData((prev) => ({
       ...prev,
@@ -160,6 +184,55 @@ const ParryStep: FC<{
               <Typography variant="caption" color="warning.main" component="div" sx={{ mt: 0.5 }}>
                 {consequence(parry)}
               </Typography>
+            )}
+            {positionalText(parry) && (
+              <RuleHint
+                title={t('parry-positional')}
+                description={t('combat-rule-parry-positional', {
+                  position: t(`positional-${parry.positional!.position}`),
+                  penalty: parry.positional!.penalty,
+                  skill: parry.positional!.reverseStrike,
+                  parry: parry.parry,
+                })}
+                reference="§9.6"
+              >
+                <Typography variant="caption" color="warning.main" component="div" sx={{ mt: 0.5 }}>
+                  {positionalText(parry)}
+                </Typography>
+              </RuleHint>
+            )}
+            {maneuverRequired(parry) && (
+              <Stack spacing={0.5} sx={{ mt: 1 }}>
+                <RuleHint
+                  title={t('parry-maneuver')}
+                  description={t('parry-maneuver-help', { foes: parry.parryManeuver!.foes })}
+                  reference="§9.6"
+                >
+                  <Typography variant="caption" color="text.secondary" component="div">
+                    {t('parry-maneuver-required', { foes: parry.parryManeuver!.foes })}
+                  </Typography>
+                </RuleHint>
+                <TextField
+                  select
+                  size="small"
+                  label={t('parry-maneuver-result')}
+                  value={parry.maneuverResult ?? ''}
+                  onChange={(e) => setManeuverResult(index, (e.target.value || undefined) as AbsoluteResultKey | undefined)}
+                  error={(parry.parry || 0) > 0 && !parry.maneuverResult}
+                  sx={{ maxWidth: 240 }}
+                >
+                  {ABSOLUTE_MANEUVER_RESULTS.map((result) => (
+                    <MenuItem key={result} value={result}>
+                      {t(result)}
+                    </MenuItem>
+                  ))}
+                </TextField>
+                {maneuverFailed(parry) && (
+                  <Typography variant="caption" color="warning.main">
+                    {t('parry-maneuver-failed')}
+                  </Typography>
+                )}
+              </Stack>
             )}
           </Box>
           <Box sx={{ width: 120 }}>

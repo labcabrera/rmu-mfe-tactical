@@ -11,6 +11,7 @@ import {
   HazardKind,
   HIGH_OPEN_D100,
   NumberPadField,
+  ResolveHazardBlockAFields,
   ResolveHazardDto,
   RmuDialog,
   RollField,
@@ -40,8 +41,8 @@ type HazardForm = {
   shield: boolean;
 };
 
-const emptyForm = (actorRound: ActorRound): HazardForm => ({
-  distanceFeet: null,
+const emptyForm = (actorRound: ActorRound, distanceFeet: number | null = null): HazardForm => ({
+  distanceFeet,
   roll: null,
   criticalRolls: [],
   db: null,
@@ -55,10 +56,15 @@ const emptyForm = (actorRound: ActorRound): HazardForm => ({
 });
 
 /** The request of the form: only what its kind takes, and the critical rolls given in order. */
-const toDto = (kind: HazardKind, form: HazardForm): ResolveHazardDto => {
+const toDto = (
+  kind: HazardKind,
+  form: HazardForm,
+  knockedBackAlertId?: string
+): ResolveHazardDto & ResolveHazardBlockAFields => {
   const criticalRolls = form.criticalRolls.filter((roll): roll is number => roll !== null);
   return {
     kind,
+    ...(knockedBackAlertId ? { knockedBackAlertId } : {}),
     distanceFeet: form.distanceFeet ?? 0,
     roll: form.roll ?? 0,
     ...(criticalRolls.length > 0 ? { criticalRolls } : {}),
@@ -95,19 +101,25 @@ const HazardDialog: FC<{
   intro?: ReactNode;
   /** A "Dismiss" button: the suggested fall does not happen. */
   onDismiss?: () => void;
-}> = ({ actorRound, kind, open, onClose, onResolved, intro, onDismiss }) => {
+  /**
+   * Workspace spec 079, decision A4: the `knocked-back` alert the hazard resolves (its severity caps the critical), and
+   * the feet the actor was knocked back, as the starting distance.
+   */
+  knockedBackAlertId?: string;
+  initialDistance?: number | null;
+}> = ({ actorRound, kind, open, onClose, onResolved, intro, onDismiss, knockedBackAlertId, initialDistance }) => {
   const { t } = useTranslation();
   const auth = useAuth();
   const notify = useTacticalNotify();
   const { roundActions, updateActorRound } = useContext(CombatContext)!;
-  const [form, setForm] = useState<HazardForm>(() => emptyForm(actorRound));
+  const [form, setForm] = useState<HazardForm>(() => emptyForm(actorRound, initialDistance));
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<ActorRoundHazard | undefined>();
   const fall = kind === 'fall';
 
   useEffect(() => {
     if (open) {
-      setForm(emptyForm(actorRound));
+      setForm(emptyForm(actorRound, initialDistance));
       setResult(undefined);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -132,7 +144,7 @@ const HazardDialog: FC<{
   const resolve = () => {
     const before = new Set((actorRound.hazards ?? []).map((hazard) => hazard.id));
     setBusy(true);
-    resolveHazard(actorRound.id, toDto(kind, form), auth)
+    resolveHazard(actorRound.id, toDto(kind, form, knockedBackAlertId), auth)
       .then((updated) => {
         updateActorRound(updated);
         const hazard = (updated.hazards ?? []).find((each) => !before.has(each.id));

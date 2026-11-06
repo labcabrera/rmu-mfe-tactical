@@ -1,10 +1,17 @@
 import { AuthContextProps } from 'react-oidc-context';
-import { apiTacticalUrl, callApi, Page } from '@labcabrera-rmu/rmu-react-shared-lib';
+import {
+  apiTacticalUrl,
+  callApi,
+  complementaryQueryValue,
+  featOfStrengthQuery,
+  Page,
+} from '@labcabrera-rmu/rmu-react-shared-lib';
 import {
   Action,
   AttackDeclaration,
   ForceReason,
   FullDefenseType,
+  ManeuverListingQuery,
   ManeuverModifiersListing,
   ParryDeclaration,
   ResolveManeuverDto,
@@ -94,11 +101,24 @@ export async function fetchActionManeuverModifiers(
   actionId: string,
   auth: AuthContextProps,
   skillId?: string,
-  specialization?: string
+  specialization?: string,
+  choices: ManeuverListingQuery = {}
 ): Promise<ManeuverModifiersListing> {
   const params = new URLSearchParams();
   if (skillId) params.set('skillId', skillId);
   if (specialization) params.set('specialization', specialization);
+  // Workspace spec 079, block B: the purpose, the similar skill, the helpers and the load of a feat of strength
+  if (choices.purpose) params.set('purpose', choices.purpose);
+  if (choices.similarity) {
+    params.set('similarTo', choices.similarity.targetSkillId);
+    if (choices.similarity.targetSpecialization)
+      params.set('similarSpecialization', choices.similarity.targetSpecialization);
+    params.set('similarity', String(choices.similarity.similarity));
+    if (choices.similarity.relation) params.set('relation', choices.similarity.relation);
+  }
+  (choices.complementary ?? []).forEach((helper) => params.append('complementary', complementaryQueryValue(helper)));
+  if (choices.featOfStrength)
+    Object.entries(featOfStrengthQuery(choices.featOfStrength)).forEach(([key, value]) => params.set(key, value));
   const query = params.toString();
   const url = `${apiTacticalUrl}/actions/${actionId}/maneuver/modifiers${query ? `?${query}` : ''}`;
   return await callApi(auth, url, { method: 'GET' });

@@ -21,6 +21,7 @@ import {
   CombatTalentPurpose,
   combatColors,
   FALL_CONTROL_PURPOSE,
+  FORTITUDE_SKILL_ID,
   FALL_CONTROL_SKILL,
   GRAPPLE_ESCAPE_PURPOSE,
   SearchField,
@@ -59,6 +60,7 @@ import { actionTypeInfo } from '../actor-rounds/action-type-info';
 import { actionLabel } from '../actor-rounds/action-view';
 import ManeuverDeclareDialog from './ManeuverDeclareDialog';
 import MedicalDeclareDialog from './MedicalDeclareDialog';
+import OtherActionDeclareDialog from './OtherActionDeclareDialog';
 import SpellDeclareDialog, { actorCharacter, isCaster } from './SpellDeclareDialog';
 import UseItemDeclareDialog from './UseItemDeclareDialog';
 import WeaponActionDeclareDialog, { WeaponActionDeclaration } from './WeaponActionDeclareDialog';
@@ -85,6 +87,8 @@ type PaletteEntry = {
   grappleEscape?: boolean;
   /** "Fall control" (workspace spec 077): an instantaneous Acrobatics maneuver, 0 AP, cited by a fall. */
   fallControl?: boolean;
+  /** Fortitude (workspace spec 079, B4): an instantaneous absolute maneuver, 0 AP, that halves the penalties. */
+  fortitude?: boolean;
   /** Lines shown under the entry: the grapples of "Break free", with their grappler and percent. */
   details?: string[];
 };
@@ -281,6 +285,14 @@ const usePaletteGroups = (actorRound: ActorRound, phase: number): PaletteGroup[]
           fallControl: true,
           details: [t('fall-control-palette-help')],
         }),
+        // Workspace spec 079, B4: Fortitude, instantaneous
+        entry('maneuver', {
+          key: 'fortitude',
+          label: t('fortitude'),
+          freeAction: true,
+          fortitude: true,
+          details: [t('fortitude-palette-help')],
+        }),
         ...availableCombatTalentPurposes(actorRound).map((purpose) =>
           entry('maneuver', {
             key: `purpose-${purpose}`,
@@ -438,8 +450,15 @@ const ActionPalette: FC<{
         onClose={close}
         onDeclare={(useItem) => healEntry && create(healEntry, { useItem })}
       />
+      <OtherActionDeclareDialog
+        open={Boolean(actorRound && weaponEntry?.type === 'other')}
+        actorRound={actorRound}
+        busy={busy}
+        onClose={close}
+        onDeclare={(fields) => weaponEntry && create(weaponEntry, { ...fields })}
+      />
       <WeaponActionDeclareDialog
-        open={Boolean(actorRound && weaponEntry)}
+        open={Boolean(actorRound && weaponEntry && weaponEntry.type !== 'other')}
         kind={weaponEntry?.type === 'aim' ? 'aim' : 'draw_and_load'}
         actorRound={actorRound}
         busy={busy}
@@ -521,6 +540,9 @@ const PaletteContent: FC<{
     } else if (entry.fallControl) {
       // Instantaneous (0 AP) absolute Acrobatics: the API only takes it declared so or forced (workspace spec 077)
       onCreate(entry, { maneuver: { skillId: FALL_CONTROL_SKILL, maneuverType: 'absolute' } });
+    } else if (entry.fortitude) {
+      // Instantaneous (0 AP) absolute Fortitude: the API only takes it declared so or forced (workspace spec 079)
+      onCreate(entry, { maneuver: { skillId: FORTITUDE_SKILL_ID, maneuverType: 'absolute' } });
     } else if (entry.purpose) {
       // A combat talent maneuver rolls its talent's skill: declared at once (workspace spec 076)
       const { skillId, specialization } = COMBAT_TALENT_PURPOSE_SKILLS[entry.purpose];
@@ -529,6 +551,8 @@ const PaletteContent: FC<{
       });
     } else if (entry.type === 'maneuver') onManeuver({ entry, skillId: null });
     else if (WEAPON_ENTRIES.includes(entry.type)) onWeapon(entry);
+    // Workspace spec 079, A5: a declared `other` picks its subtype of Table 8-1 first
+    else if (entry.type === 'other' && !entry.freeAction) onWeapon(entry);
     else if (SPELL_ENTRIES.includes(entry.type)) onSpell(entry);
     else if (entry.type === 'medical' || entry.type === USE_ITEM) onHeal(entry);
     else if (SKILL_MANEUVERS[entry.type]) onManeuver({ entry: maneuverEntry, skillId: SKILL_MANEUVERS[entry.type]! });

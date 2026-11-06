@@ -100,6 +100,8 @@ export const actionLabel = (action: Action, t: TFunction, actorRounds: ActorRoun
   if (action.maneuver) name = t(action.maneuver.modifiers?.skillId || 'maneuver');
   else if (action.spell) name = action.spell.spell.name;
   else if (action.medical) name = t(`procedure-${action.medical.procedure}`);
+  // Workspace spec 079, A5: the subtype of Table 8-1 of an `other` action
+  else if (action.otherAction) name = t(`other-action-${action.otherAction.kind}`);
   else name = t(actionTypeInfo(action.actionType).labelKey);
   const targets = (action.attacks ?? [])
     .map((attack) => actorRounds?.find((ar) => ar.actorId === attack.modifiers?.targetId)?.actorName)

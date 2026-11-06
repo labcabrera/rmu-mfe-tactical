@@ -1,4 +1,15 @@
 import {
+  ManeuverFogListing,
+  AbsoluteResultKey,
+  AdrenalManeuverOutcome,
+  BlockBManeuverPurpose,
+  ComplementaryHelper,
+  FeatOfStrengthChoices,
+  FeatOfStrengthListing,
+  FeatOfStrengthResult,
+  SimilarityChoice,
+  ActionOther,
+  ActionParryBlockAFields,
   ActionAim,
   ActionSpellAdjusted,
   BmrMultiplier,
@@ -10,6 +21,11 @@ import {
   GrappleFeat,
   ShieldManeuver,
   ActionAttackReaction,
+  ActionAttackDisarm,
+  ActionStrayShot,
+  AttackModifiersBlockAFields,
+  AttackTalentModifiers,
+  SubdualAdjustment,
   ActionDrawAndLoad,
   ActionReaction,
   CombatTalentManeuverFields,
@@ -22,6 +38,8 @@ import {
   ManeuverModifierOption,
   ManeuverRollTalent,
   ManeuverSenseChoices,
+  ResolveManeuverTalentFields,
+  SituationalTraitOption,
   ManeuverSenses,
   ManeuverType,
   RuleParams,
@@ -38,7 +56,12 @@ export { FORCE_REASONS } from '@labcabrera-rmu/rmu-react-shared-lib';
  * Battle Cry, Sense Weakness, Study Offense, Precision).
  */
 export type ManeuverPurpose =
-  FrenzyPurpose | CombatTalentPurpose | typeof GRAPPLE_ESCAPE_PURPOSE | typeof FALL_CONTROL_PURPOSE;
+  | FrenzyPurpose
+  | CombatTalentPurpose
+  | typeof GRAPPLE_ESCAPE_PURPOSE
+  | typeof FALL_CONTROL_PURPOSE
+  // Workspace spec 079, block B: feat of strength, adrenal moves and Fortitude
+  | BlockBManeuverPurpose;
 
 // Same values as rmu-api-tactical (action-status.vo.ts). `pending_roll` is the current status while the attack,
 // critical or fumble rolls are pending: each attack's `status` says which roll it waits for.
@@ -152,6 +175,8 @@ export type AttackDeclaration = {
 export type ParryDeclarationItem = {
   parryId: string;
   parry: number;
+  /** Result of the Combat Training maneuver against a further foe (workspace spec 079, A2). */
+  maneuverResult?: AbsoluteResultKey;
 };
 
 /** Body of `PATCH /actions/{id}/attack/parry`: the parries and the Shield maneuvers (workspace spec 077); both optional. */
@@ -257,6 +282,13 @@ export type ActionManeuverModifiers = {
   passiveSkillId?: string | null;
   /** Adrenal Focus maneuver to enter or leave the frenzy (spec 040), or a combat talent (workspace spec 076). */
   purpose?: ManeuverPurpose | null;
+  /** Workspace spec 079, B1-B2: the similar skill, the helpers and the load of a feat of strength. */
+  similarity?: SimilarityChoice | null;
+  complementary?: ComplementaryHelper[] | null;
+  featOfStrength?: FeatOfStrengthChoices | null;
+  /** Workspace spec 079, D3: the situational talents ticked and the actor perceived or tracked by smell. */
+  situationalTraits?: string[] | null;
+  senseTargetActorId?: string | null;
 } & CombatTalentManeuverFields;
 
 /** Effect of an absolute maneuver result (core's table). */
@@ -290,6 +322,9 @@ export type ActionManeuverResult = {
   grappleEscape?: GrappleEscapeResult[];
   /** fall-control (workspace spec 077): severity steps of a fall, +1 absolute failure, -1 success, -2 absolute success. */
   fallControlSteps?: number;
+  /** Workspace spec 079: how the difficulty of a feat of strength was found, and what an adrenal move gave. */
+  featOfStrength?: FeatOfStrengthResult;
+  adrenal?: AdrenalManeuverOutcome;
 };
 
 export type ActionManeuver = {
@@ -342,6 +377,22 @@ export type ManeuverModifiersListing = {
   progress?: number;
   /** Rules of the base modifiers that do not apply, and why (spec 052). */
   skipped?: SkippedRule[];
+  /** Workspace spec 079, B1: lines of the similar skill and the complementary helpers asked for in the query. */
+  aids?: ManeuverBaseModifier[];
+  /** Workspace spec 079, B2: the weight and St of the sheet, and the difficulty of the load asked for. */
+  featOfStrength?: FeatOfStrengthListing;
+  /** Workspace spec 079, C5: the fog of the game for Perception and Tracking (§15.7). */
+  fog?: ManeuverFogListing;
+  /** Workspace spec 079, D3: the situational talents of the actor for this skill (ticked or automatic). */
+  situationalTraits?: SituationalTraitOption[];
+};
+
+/** Query of `GET /actions/{id}/maneuver/modifiers` (workspace spec 079): the purpose, the aids and the load. */
+export type ManeuverListingQuery = {
+  purpose?: ManeuverPurpose | null;
+  similarity?: SimilarityChoice | null;
+  complementary?: ComplementaryHelper[];
+  featOfStrength?: Partial<FeatOfStrengthChoices> | null;
 };
 
 /** `PATCH /actions/{id}/maneuver/resolve` (spec 010 §4.1). */
@@ -364,8 +415,13 @@ export type ResolveManeuverDto = {
    * sends one roll per grapple in `grappleEscape` instead (workspace spec 077). */
   roll?: { roll: number; unmodified?: number; dice?: number[] };
   grappleEscape?: GrappleEscapeRow[];
+  /** Workspace spec 079, B1-B2. */
+  similarity?: SimilarityChoice;
+  complementary?: ComplementaryHelper[];
+  featOfStrength?: FeatOfStrengthChoices;
 } & CombatTalentManeuverFields &
   ManeuverSenseChoices &
+  ResolveManeuverTalentFields &
   SpasmRoundsField;
 
 /** Maneuver part of `POST /actions`. */
@@ -421,6 +477,10 @@ export type Action = {
   drawAndLoad?: ActionDrawAndLoad | null;
   /** Foe and weapon of an `aim` action (workspace spec 076). */
   aim?: ActionAim | null;
+  /** Subtype of an `other` action with a fixed cost of Table 8-1 (workspace spec 079, A5). */
+  otherAction?: ActionOther | null;
+  /** Stray shot an attack forced as `stray-shot` comes from: OB 0, no cover (workspace spec 079, A6). */
+  strayShot?: ActionStrayShot | null;
 };
 
 // --- Healing in combat and fear (workspace spec 068) ---
@@ -709,6 +769,8 @@ export type ActionAttack = {
   reaction?: ActionAttackReaction;
   /** Shield maneuver the defender rolls, from the second attack its shield covers (workspace spec 077). */
   shieldManeuver?: ShieldManeuver;
+  /** Band of Table 9-7a of a disarm attack (workspace spec 079, A7). */
+  disarm?: ActionAttackDisarm | null;
 };
 
 /** Where a protector stands (Table 9-7c): between attacker and defender, behind the defender, or anywhere else. */
@@ -735,6 +797,8 @@ export type ActionAttackResults = {
   damageAdjustment?: AttackDamageAdjustment;
   /** How the sizes, the charge, the style and the target moved the critical severity (spec 075). */
   severityAdjustment?: AttackSeverityAdjustment;
+  /** Hits and critical of the table before a subdual attack (workspace spec 079, A7). */
+  subdualAdjustment?: SubdualAdjustment;
 };
 
 /** `attackTableEntry.damage` is `baseDamage` times `multiplier`, rounded. */
@@ -823,7 +887,8 @@ export type ActionAttackModifiers = {
   chargeSpeed?: ChargeSpeed;
   /** Fighting style ability that changes the critical (spec 032). */
   styleCriticalOption?: string | null;
-};
+} & AttackModifiersBlockAFields &
+  AttackTalentModifiers;
 
 export type AttackCalculationsDto = {
   rollModifiers: KeyValueModifier[];
@@ -862,6 +927,11 @@ export type ActionParry = {
   carriedOver?: boolean;
   /** Where `parryAvailable` comes from: the OB left on the parrying attack and the penalties (spec 051). */
   breakdown?: ParryBreakdown;
+  /** Workspace spec 079, A2: the parry toward the flank or rear, and the maneuver against further foes. */
+  positional?: ActionParryBlockAFields['positional'];
+  parryManeuver?: ActionParryBlockAFields['parryManeuver'];
+  /** Result typed in the parry step (not sent back by the API). */
+  maneuverResult?: AbsoluteResultKey;
 };
 
 /** The OB left on the melee attack an actor parries with, its penalties and, protecting, the protect penalty. */

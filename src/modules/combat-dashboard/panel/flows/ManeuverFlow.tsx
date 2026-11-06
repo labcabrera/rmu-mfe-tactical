@@ -1,4 +1,4 @@
-import React, { FC, useContext, useEffect, useState } from 'react';
+import React, { FC, useContext, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import { Alert, Button, Stack } from '@mui/material';
@@ -26,10 +26,13 @@ import { apiErrorCode, useTacticalNotify } from '../../../services/notify-servic
 import { useSkillService } from '../../../services/skill-service';
 import ActionFlow from '../ActionFlow';
 import { ManeuverResult } from './ActionResults';
+import { blockBPurposes } from './maneuver/BlockBPurposeFields';
 import ManeuverModifiersStep from './maneuver/ManeuverModifiersStep';
 import {
   combatTalentReady,
+  featOfStrengthReady,
   initialForm,
+  listingQuery,
   ManeuverForm,
   passiveSideReady,
   predictedModifiers,
@@ -69,15 +72,22 @@ const ManeuverFlow: FC<{
   // Workspace spec 076: a combat talent maneuver declared from the palette starts with its purpose chosen
   const remembered = rememberedPurpose(action.id);
   // Workspace spec 077: "Fall control" from the palette resolves with its purpose (Acrobatics, absolute, instantaneous)
+  // Workspace spec 079: a Fortitude maneuver is always one (it is declared instantaneous from the palette)
   const declaredPurpose = isFallControlAction(action)
     ? FALL_CONTROL_PURPOSE
     : remembered && combatTalentPurposes(actorRound, skillId).includes(remembered)
       ? remembered
-      : null;
+      : blockBPurposes(skillId)[0] === 'fortitude'
+        ? 'fortitude'
+        : null;
 
+  const lastQuery = useRef<string | null>(null);
   const loadListing = () => {
     setListingError(null);
-    fetchActionManeuverModifiers(action.id, auth)
+    // The stored choices and the declared purpose (workspace spec 079) already shape the listing
+    const choices = listingQuery(initialForm(action.maneuver, null, null, declaredPurpose));
+    lastQuery.current = JSON.stringify(choices);
+    fetchActionManeuverModifiers(action.id, auth, undefined, undefined, choices)
       .then((data) => {
         setListing(data);
         // Defaults from the listing, keeping what was already chosen.
@@ -96,6 +106,21 @@ const ManeuverFlow: FC<{
     if (!done) loadListing();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [action.id, done]);
+
+  // Workspace spec 079, block B: the purpose, the aids and the load change the listing (its `aids` and the difficulty
+  // of a feat of strength). Read it again a moment after they change, keeping the form.
+  const query = JSON.stringify(listingQuery(form));
+  useEffect(() => {
+    if (done || !listing || lastQuery.current === query) return undefined;
+    const timer = setTimeout(() => {
+      lastQuery.current = query;
+      fetchActionManeuverModifiers(action.id, auth, undefined, undefined, listingQuery(form))
+        .then(setListing)
+        .catch((err) => notify.error(err));
+    }, 400);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [query, done, listing === null]);
 
   const change = (patch: Partial<ManeuverForm>) => {
     if ('light' in patch) rememberLight(gameId ?? action.gameId, patch.light ?? null);
@@ -207,7 +232,8 @@ const ManeuverFlow: FC<{
           : current === 1
             ? {
                 label: t('next'),
-                disabled: !listing || !form.difficulty || !combatTalentReady(form),
+                disabled:
+                  !listing || !form.difficulty || !combatTalentReady(form) || !featOfStrengthReady(listing, form),
                 onClick: () => setStep(2),
               }
             : {
@@ -217,6 +243,7 @@ const ManeuverFlow: FC<{
                   form.roll === null ||
                   !passiveSideReady(listing, form) ||
                   !combatTalentReady(form) ||
+                  !featOfStrengthReady(listing, form) ||
                   busy,
                 onClick: resolve,
                 resolves: true,

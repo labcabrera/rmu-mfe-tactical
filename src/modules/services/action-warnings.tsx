@@ -37,6 +37,7 @@ export const warningText = (warning: ActionWarning, t: TFunction, actorRounds: A
     procedure: params.procedure ? t(`procedure-${params.procedure}`) : '',
     injury: injuryLabel(params.injuryId, actorRounds, t),
     location: params.location ? t(String(params.location)) : '',
+    side: params.side ? t(`side-${String(params.side)}`) : '',
     pace: params.pace ? t(String(params.pace)) : '',
     state: params.state ? t(String(params.state)) : '',
     defaultValue: String(warning.code),

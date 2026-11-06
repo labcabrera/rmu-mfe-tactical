@@ -2,6 +2,9 @@ import React, { FC, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Box, Grid, Stack, Typography } from '@mui/material';
 import {
+  ELEMENTAL_ENVIRONMENT_KEY,
+  elementalModifier,
+  elementOf,
   NumberPadField,
   OPEN_D100,
   RollBreakdown,
@@ -59,6 +62,16 @@ export const enduranceModifiers = (
         value: game?.environment?.altitudeFatigueModifier ?? 0,
         group: 'situation',
         rule: '§5.5',
+      },
+      // Workspace spec 079, D4: Elemental Resistance/Susceptibility against the extreme temperature (the API adds it too)
+      {
+        key: ELEMENTAL_ENVIRONMENT_KEY,
+        value: elementalModifier(actorRound.traits, elementOf(game?.environment?.extremeTemperature?.kind)),
+        group: 'talent',
+        rule: 'Core Law ch. 4',
+        params: game?.environment?.extremeTemperature?.kind
+          ? { element: game.environment.extremeTemperature.kind }
+          : undefined,
       },
       ...DEPRIVATION.map((d) => ({
         key: d.key,
