@@ -6,6 +6,7 @@ import GroupsIcon from '@mui/icons-material/Groups';
 import HeartBrokenIcon from '@mui/icons-material/HeartBroken';
 import LockIcon from '@mui/icons-material/Lock';
 import PersonIcon from '@mui/icons-material/Person';
+import PetsIcon from '@mui/icons-material/Pets';
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 import ShieldIcon from '@mui/icons-material/Shield';
 import {
@@ -32,11 +33,13 @@ import {
   LoadingState,
   Npc,
   NpcEntry,
+  npcImage,
   selectableSx,
   TacticalGame,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { canManageTactical } from '../../shared/permissions';
 import TacticalGameRosterNpcs from './TacticalGameRosterNpcs';
+import { FactionNpcSpecimen, factionNpcSpecimens, specimenEntry } from './roster-npcs';
 
 /** Width of a faction cell. */
 const ROSTER_CELL = { xs: 12, sm: 6, md: 4, xl: 3 };
@@ -56,7 +59,12 @@ type RosterProps = {
   isCharacterSelected: (characterId: string) => boolean;
   onToggleFaction: (faction: Faction) => void;
   onToggleCharacter: (character: Character) => void;
-  onSelectGroup: (faction: Faction, characters: Character[], selected: boolean) => void;
+  onSelectGroup: (
+    faction: Faction,
+    characters: Character[],
+    specimens: FactionNpcSpecimen[],
+    selected: boolean
+  ) => void;
   /** NPCs of the campaign's realm and the generic realms (spec 055). */
   npcs: Npc[] | undefined;
   onAddNpcs: (factionId: string, entries: NpcEntry[]) => void;
@@ -75,6 +83,7 @@ function notAbleReason(character: Character): string | undefined {
 /**
  * Selection of the factions and characters of a tactical game (spec 027). What can change depends on the status:
  * everything while `created`, only additions while `in_progress` (the API refuses removals) and nothing once `finished`.
+ * The NPCs of a faction are chosen here too, specimen by specimen, but only while `created`: the API refuses more.
  */
 export default function TacticalGameRoster({
   game,
@@ -108,6 +117,13 @@ export default function TacticalGameRoster({
   const selectableCharacters = selectedFactions.flatMap(eligibleOf);
   const selectedCount = selectableCharacters.filter((character) => isCharacterSelected(character.id)).length;
   const lockedHint = canRemove ? undefined : t('roster-locked-in-progress');
+  const specimensOf = (faction: Faction) => factionNpcSpecimens(faction, game);
+  const selectableSpecimens = selectedFactions.flatMap(specimensOf);
+  const selectedSpecimens = selectableSpecimens.filter((specimen) => specimen.actorId).length;
+  const imageOfNpc = (npcId: string) => {
+    const npc = npcs?.find((each) => each.id === npcId);
+    return npc ? npcImage(npc) : entityImage('npc', undefined);
+  };
 
   return (
     <Stack spacing={3}>
@@ -125,6 +141,13 @@ export default function TacticalGameRoster({
           value={`${selectedCount} / ${selectableCharacters.length}`}
           label={t('selected-characters')}
         />
+        {selectableSpecimens.length > 0 && (
+          <SelectionMetric
+            icon={<PetsIcon />}
+            value={`${selectedSpecimens} / ${selectableSpecimens.length}`}
+            label={t('selected-npcs')}
+          />
+        )}
       </Stack>
 
       <Box>
@@ -138,14 +161,16 @@ export default function TacticalGameRoster({
             // A faction with NPCs (spec 055) can join without characters.
             const empty = factionCharacters.length < 1 && !faction.npcs?.length;
             const locked = selected && !canRemove;
-            const selectedInFaction = factionCharacters.filter((c) => isCharacterSelected(c.id)).length;
+            const specimens = specimensOf(faction);
+            const selectedInFaction =
+              factionCharacters.filter((c) => isCharacterSelected(c.id)).length +
+              specimens.filter((specimen) => specimen.actorId).length;
+            const total = factionCharacters.length + specimens.length;
             return (
               <Grid key={faction.id} size={ROSTER_CELL}>
                 <FactionRow
                   faction={faction}
-                  count={
-                    selected ? `${selectedInFaction} / ${factionCharacters.length}` : `${factionCharacters.length}`
-                  }
+                  count={selected ? `${selectedInFaction} / ${total}` : `${total}`}
                   selected={selected}
                   disabled={finished || locked || busy || (empty && !selected)}
                   dimmed={empty && !selected}
@@ -193,6 +218,11 @@ export default function TacticalGameRoster({
               const eligible = eligibleOf(faction);
               const selectedIds = eligible.filter((c) => isCharacterSelected(c.id));
               const shown = onlySelected ? selectedIds : factionCharacters;
+              const specimens = specimensOf(faction);
+              const chosenSpecimens = specimens.filter((specimen) => specimen.actorId);
+              const shownSpecimens = onlySelected ? chosenSpecimens : specimens;
+              const npcsEditable = game.status === 'created' && !finished;
+              const missingSpecimens = npcsEditable ? specimens.filter((specimen) => !specimen.actorId) : [];
               return (
                 <Box key={faction.id}>
                   <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center', mb: 1.5 }}>
@@ -201,18 +231,19 @@ export default function TacticalGameRoster({
                       {faction.name}
                     </Typography>
                     <Typography variant="body2" color="text.secondary" sx={{ flexGrow: 1 }}>
-                      {`${selectedIds.length} / ${eligible.length}`}
+                      {`${selectedIds.length + chosenSpecimens.length} / ${eligible.length + specimens.length}`}
                     </Typography>
                     {pending === `group:${faction.id}` && <LoadingState variant="inline" />}
                     {!finished && (
                       <>
                         <Button
                           size="small"
-                          disabled={busy || selectedIds.length === eligible.length}
+                          disabled={busy || (selectedIds.length === eligible.length && missingSpecimens.length === 0)}
                           onClick={() =>
                             onSelectGroup(
                               faction,
                               eligible.filter((c) => !isCharacterSelected(c.id)),
+                              missingSpecimens,
                               true
                             )
                           }
@@ -222,8 +253,8 @@ export default function TacticalGameRoster({
                         {canRemove && (
                           <Button
                             size="small"
-                            disabled={busy || selectedIds.length === 0}
-                            onClick={() => onSelectGroup(faction, selectedIds, false)}
+                            disabled={busy || selectedIds.length + chosenSpecimens.length === 0}
+                            onClick={() => onSelectGroup(faction, selectedIds, chosenSpecimens, false)}
                           >
                             {t('select-none')}
                           </Button>
@@ -231,16 +262,17 @@ export default function TacticalGameRoster({
                       </>
                     )}
                   </Stack>
-                  {shown.length < 1 ? (
+                  {shown.length + shownSpecimens.length < 1 && (
                     <EmptyState
                       dense
                       title={
-                        factionCharacters.length < 1
+                        factionCharacters.length + specimens.length < 1
                           ? t('no-characters-available-for-faction')
                           : t('no-selected-characters')
                       }
                     />
-                  ) : (
+                  )}
+                  {shown.length > 0 && (
                     <CharacterPicker
                       mode="multiple"
                       variant="cards"
@@ -267,6 +299,35 @@ export default function TacticalGameRoster({
                       pendingIds={pending ? [pending] : []}
                       disabled={finished || busy}
                     />
+                  )}
+                  {shownSpecimens.length > 0 && (
+                    <Box sx={{ mt: shown.length > 0 ? 1.5 : 0 }}>
+                      <CharacterPicker
+                        mode="multiple"
+                        variant="cards"
+                        options={shownSpecimens.map((specimen) => {
+                          const npc = npcs?.find((each) => each.id === specimen.npcId);
+                          return {
+                            id: specimen.id,
+                            name: specimen.name,
+                            imageUrl: imageOfNpc(specimen.npcId),
+                            secondary: npc ? `${t('npc')} · ${t('level')} ${npc.level}` : t('npc'),
+                            disabledHint: npcsEditable || finished ? undefined : t('roster-npcs-locked-in-progress'),
+                          };
+                        })}
+                        value={chosenSpecimens.map((specimen) => specimen.id)}
+                        onChange={(ids) => {
+                          const toggled = shownSpecimens.find(
+                            (specimen) => ids.includes(specimen.id) !== !!specimen.actorId
+                          );
+                          if (!toggled) return;
+                          if (toggled.actorId) onRemoveActor(toggled.actorId);
+                          else onAddNpcs(faction.id, [specimenEntry(toggled)]);
+                        }}
+                        pendingIds={shownSpecimens.filter((each) => each.actorId === pending).map((each) => each.id)}
+                        disabled={finished || busy}
+                      />
+                    </Box>
                   )}
                 </Box>
               );

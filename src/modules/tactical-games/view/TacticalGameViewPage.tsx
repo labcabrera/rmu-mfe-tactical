@@ -28,15 +28,16 @@ import {
   useCampaignNpcs,
   useEntity,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { canManageTactical } from '../../shared/permissions';
 import { addGameCharacters, deleteGameActors } from '../../api/tactical-game-roster';
 import { defaultTacticalGameImage } from '../../services/image-service';
 import { useTacticalNotify } from '../../services/notify-service';
 import PlayButton from '../../shared/buttons/PlayButton';
+import { canManageTactical } from '../../shared/permissions';
 import { FinishGameButton } from '../outcome/GameLifecycleButtons';
 import GameOutcomePanel from '../outcome/GameOutcomePanel';
 import TacticalGameRoster, { RosterPending } from './TacticalGameRoster';
 import TacticalGameViewEnvironment from './TacticalGameViewEnvironment';
+import { FactionNpcSpecimen, specimenEntry } from './roster-npcs';
 
 const TacticalGameViewPage: FC = () => {
   const auth = useAuth();
@@ -106,12 +107,22 @@ const TacticalGameViewPage: FC = () => {
         : addGameCharacters(game.id, [character.id], auth)
     );
 
-  const selectGroup = (faction: Faction, group: Character[], selected: boolean) => {
-    if (group.length < 1) return;
+  const selectGroup = (faction: Faction, group: Character[], specimens: FactionNpcSpecimen[], selected: boolean) => {
+    if (group.length + specimens.length < 1) return;
     const ids = group.map((character) => character.id);
-    save(`group:${faction.id}`, (game) =>
-      selected ? addGameCharacters(game.id, ids, auth) : deleteGameActors(game.id, ids, auth)
-    );
+    save(`group:${faction.id}`, async (game) => {
+      if (!selected) {
+        const actorIds = specimens.flatMap((specimen) => (specimen.actorId ? [specimen.actorId] : []));
+        return deleteGameActors(game.id, [...ids, ...actorIds], auth);
+      }
+      if (specimens.length < 1) return addGameCharacters(game.id, ids, auth);
+      if (ids.length > 0) setTacticalGame(await addGameCharacters(game.id, ids, auth));
+      return addTacticalGameNpcs(
+        game.id,
+        specimens.map(specimenEntry).map(({ npcId, count, name }) => ({ npcId, factionId: faction.id, count, name })),
+        auth
+      );
+    });
   };
 
   const addNpcs = (factionId: string, entries: NpcEntry[]) =>

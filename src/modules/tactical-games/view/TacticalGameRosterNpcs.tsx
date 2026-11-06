@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
-import GroupAddIcon from '@mui/icons-material/GroupAdd';
 import { Box, Button, Chip, IconButton, Stack, TextField, Tooltip, Typography } from '@mui/material';
 import {
   avatarSize,
@@ -24,13 +23,15 @@ import {
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { canManageTactical } from '../../shared/permissions';
 import type { RosterPending } from './TacticalGameRoster';
+import { factionNpcSpecimens } from './roster-npcs';
 
 type NpcGroup = { id: string; name: string; image: string; faction?: Faction };
 
 /**
- * The NPC actors of a tactical game by faction, the environment included (spec 055). While the game is `created`,
- * specimens can be added to a faction or to the environment (also the NPCs of the strategic faction at once),
- * removed one by one, and the environment renamed. The API refuses those changes once the game started.
+ * The NPC actors of a tactical game by faction that are not chosen in the roster (the NPCs of the strategic faction
+ * are, like its characters), the environment included (spec 055). While the game is `created`, specimens can be added
+ * to a faction or to the environment, removed one by one, and the environment renamed. The API refuses those changes
+ * once the game started.
  */
 export default function TacticalGameRosterNpcs({
   game,
@@ -55,7 +56,8 @@ export default function TacticalGameRosterNpcs({
   const [renaming, setRenaming] = useState<string | null>(null);
   const editable = game.status === 'created' && canManageTactical(game);
   const busy = pending !== null;
-  const npcActors = game.actors.filter((actor) => actor.type === 'npc');
+  const chosenInRoster = factions.flatMap((faction) => factionNpcSpecimens(faction, game)).map((each) => each.actorId);
+  const npcActors = game.actors.filter((actor) => actor.type === 'npc' && !chosenInRoster.includes(actor.id));
   const environmentName = environmentFactionName(game.environmentFaction?.name, t);
 
   const groups: NpcGroup[] = [
@@ -83,7 +85,6 @@ export default function TacticalGameRosterNpcs({
       <Stack spacing={2.5}>
         {shownGroups.map((group) => {
           const actors = npcActors.filter((actor) => actor.faction.id === group.id);
-          const factionNpcs = group.faction?.npcs ?? [];
           const isEnvironment = group.id === ENVIRONMENT_FACTION_ID;
           return (
             <Box key={group.id}>
@@ -108,16 +109,6 @@ export default function TacticalGameRosterNpcs({
                   {actors.length}
                 </Typography>
                 {pending === `npcs:${group.id}` && <LoadingState variant="inline" />}
-                {editable && factionNpcs.length > 0 && (
-                  <Button
-                    size="small"
-                    startIcon={<GroupAddIcon />}
-                    disabled={busy}
-                    onClick={() => onAddNpcs(group.id, factionNpcs)}
-                  >
-                    {t('add-faction-npcs')}
-                  </Button>
-                )}
                 {editable && (
                   <Button size="small" startIcon={<AddIcon />} disabled={busy} onClick={() => setAdding(group.id)}>
                     {t('add-npc')}
