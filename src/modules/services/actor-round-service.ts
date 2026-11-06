@@ -1,7 +1,4 @@
-import { Action } from '../api/action.dto';
 import { ActorRound } from '../api/actor-rounds.dto';
-
-const PACE_ORDER = ['creep', 'walk', 'jog', 'run', 'sprint', 'dash'];
 
 /** `unconscious` since spec 013; actor rounds stored before it may still have the legacy `unconcious`. */
 const UNCONSCIOUS = ['unconscious', 'unconcious'];
@@ -58,17 +55,6 @@ export function isActorRoundProne(actorRound: ActorRound): boolean {
 
 export function isActorRoundStunned(actorRound: ActorRound): boolean {
   return actorRoundHasEffect(actorRound, ['stunned']);
-}
-
-export function findMaxActorRoundPace(actorId: string, actions: Action[]) {
-  const paces = actions
-    .filter((a) => a.actorId === actorId && a.actionType === 'movement')
-    .map((a) => a.movement?.modifiers?.pace || 'creep');
-  if (paces.length === 0) return 'creep';
-  const valid = Array.from(new Set(paces)).filter((p) => PACE_ORDER.includes(p));
-  if (valid.length === 0) return paces[0];
-  valid.sort((a, b) => PACE_ORDER.indexOf(b) - PACE_ORDER.indexOf(a));
-  return valid[0];
 }
 
 /** Grapples on the actor (workspace spec 077): `grappled` effects, each with its grappler and percent. */
