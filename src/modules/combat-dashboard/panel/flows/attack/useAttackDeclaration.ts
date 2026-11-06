@@ -88,11 +88,35 @@ export const useAttackDeclaration = (
     };
   };
   const [formData, setFormData] = useState<AttackDeclaration>(initial);
+  const [changing, setChanging] = useState(false);
 
-  // Once the API holds the attacks (prepared, parried, rolled), the form follows it.
+  // Once the API holds the attacks (prepared, parried, rolled), the form follows it, unless they are being changed.
   useEffect(() => {
-    if (action.attacks?.length) setFormData({ attacks: action.attacks, parries: action.parries ?? [] });
-  }, [action]);
+    if (action.attacks?.length && !changing) setFormData({ attacks: action.attacks, parries: action.parries ?? [] });
+  }, [action, changing]);
+
+  /**
+   * Workspace spec 082, decision 8: back to the targets of an attack a parry left with less OB. The weapons with no OB
+   * lose their target, the others keep what they had up to the OB left, and the weapons not used can join in.
+   */
+  const startChange = () => {
+    const prepared = action.attacks ?? [];
+    const attacks = actorRound.attacks
+      .filter((weapon) => weapon.type === kind && !weapon.broken)
+      .map((weapon) => {
+        const attack = prepared.find((each) => each.attackName === weapon.attackName);
+        const pace = attack?.modifiers.pace ?? 'creep';
+        if (!attack || weapon.currentBo <= 0) return newAttack(weapon, kind, pace);
+        return {
+          attackName: attack.attackName,
+          protectors: attack.protectors,
+          protectorPositions: attack.protectorPositions,
+          modifiers: { ...attack.modifiers, bo: Math.min(attack.modifiers.bo ?? 0, weapon.currentBo) },
+        } as ActionAttack;
+      });
+    setFormData({ attacks, parries: [] });
+    setChanging(true);
+  };
 
   const updateAttack = (attackName: string, change: (attack: ActionAttack) => ActionAttack) =>
     setFormData((prev) => ({
@@ -154,5 +178,17 @@ export const useAttackDeclaration = (
 
   const targeted = formData.attacks.filter((a) => !!a.modifiers?.targetId);
 
-  return { formData, setFormData, targeted, selectTarget, setBo, setRange, toggleProtector, setProtectorPosition };
+  return {
+    formData,
+    setFormData,
+    targeted,
+    selectTarget,
+    setBo,
+    setRange,
+    toggleProtector,
+    setProtectorPosition,
+    changing,
+    startChange,
+    endChange: () => setChanging(false),
+  };
 };

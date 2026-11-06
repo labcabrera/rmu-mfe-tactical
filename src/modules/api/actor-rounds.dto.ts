@@ -80,6 +80,8 @@ export type ActorRound = {
   npcId?: string;
   /** What the character brought into the game (only in the actor round built from it). */
   snapshot?: ActorRoundSnapshot;
+  /** OB given to each parry of the round. */
+  parries?: number[];
   /** Hit points per round lost by the injuries that still bleed. */
   bleeding?: number;
   /** RR bonuses copied from the character (`fear`, `essence`...); absent in older actor rounds and for NPCs. */
