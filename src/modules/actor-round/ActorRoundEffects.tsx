@@ -8,6 +8,7 @@ import MonitorHeartIcon from '@mui/icons-material/MonitorHeart';
 import { Stack, Typography, Chip, Box, TextField, IconButton, Button, MenuItem, Tooltip } from '@mui/material';
 import {
   ChipRow,
+  effectColor,
   formatBonus,
   EmptyState,
   InjurySourceLine,
@@ -18,6 +19,7 @@ import {
 import { CombatContext } from '../../CombatContext';
 import { addActorRoundEffect, deleteActorRoundEffect } from '../api/actor-rounds';
 import { ActorRound, ActorRoundEffect, AP_EFFECTS } from '../api/actor-rounds.dto';
+import { actorRoundBleedingEffect } from '../services/actor-round-service';
 import { isGameFinished } from '../services/game-service';
 import { useTacticalNotify } from '../services/notify-service';
 import MedicalRollDialog, { MedicalTarget } from './medical/MedicalRollDialog';
@@ -53,6 +55,7 @@ const ActorRoundEffects: FC<{
   const readOnly = isGameFinished(game);
   const [stabilizing, setStabilizing] = useState<MedicalTarget | null>(null);
   const surprise = actorRound.effects?.find((e) => e.status === 'surprised' || e.status === 'flatfooted');
+  const bleeding = actorRoundBleedingEffect(actorRound);
 
   const addEffect = (status: string, value?: number) => {
     const effect: ActorRoundEffect = { id: '', status, value, rounds: undefined };
@@ -94,10 +97,16 @@ const ActorRoundEffects: FC<{
     <Stack spacing={1}>
       <SectionLabel>{t('effects-states')}</SectionLabel>
 
-      {(actorRound.effects || []).length === 0 ? (
+      {(actorRound.effects || []).length === 0 && !bleeding ? (
         <EmptyState dense title={t('no-states')} />
       ) : (
         <ChipRow>
+          {/* It comes from the injuries: it is treated there and has no delete button. */}
+          {bleeding && (
+            <Tooltip title={t('effect-bleeding-help')}>
+              <Chip label={getLabelForState(bleeding)} color={effectColor('bleeding')} sx={{ m: 0.5 }} />
+            </Tooltip>
+          )}
           {(actorRound.effects || []).map((s: ActorRoundEffect, i: number) => {
             const chip = (
               <Chip

@@ -4,6 +4,7 @@ import { Chip, Stack } from '@mui/material';
 import { EffectList, ChipRow } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
 import { ActorRound } from '../../api/actor-rounds.dto';
+import { actorRoundBleedingEffect } from '../../services/actor-round-service';
 import ActorRoundAlerts from './ActorRoundAlerts';
 
 /**
@@ -17,11 +18,12 @@ const ActorRoundEffects: FC<{ actorRound: ActorRound; compact?: boolean }> = ({ 
   if (!actorRound) return null;
   const mode = actorRound.defenseMode;
   const defenses = (['dodge', 'block'] as const).filter((kind) => mode && mode[kind] !== 'none');
+  const bleeding = actorRoundBleedingEffect(actorRound);
   return (
     <Stack spacing={1} sx={{ p: compact ? 0 : 1.25 }}>
       <EffectList
         variant={compact ? 'compact' : 'full'}
-        effects={actorRound.effects}
+        effects={bleeding ? [...actorRound.effects, bleeding] : actorRound.effects}
         // Workspace spec 077: a grapple names its grappler
         actorName={(actorId) => actorRounds?.find((each) => each.actorId === actorId)?.actorName}
         penalties={(actorRound.penalty?.modifiers || []).map((modifier) => ({

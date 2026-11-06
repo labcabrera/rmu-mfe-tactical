@@ -1,6 +1,5 @@
 import React, { FC, ReactNode, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import WaterDropIcon from '@mui/icons-material/WaterDrop';
 import { Box, ButtonBase, Stack, Tooltip, Typography } from '@mui/material';
 import {
   Character,
@@ -14,7 +13,7 @@ import {
 import { CombatContext } from '../../../CombatContext';
 import { ConcentrationChip } from '../../actor-round/ActorRoundConcentration';
 import { ActorRound } from '../../api/actor-rounds.dto';
-import { actorRoundBleeding, actorRoundDownState } from '../../services/actor-round-service';
+import { actorRoundDownState } from '../../services/actor-round-service';
 import { apModifierLabel, apTotals } from '../../services/ap-service';
 import { useFactionColor } from '../../services/faction-colors';
 import { useActorRoundImage } from '../../shared/avatars/use-actor-round-image';
@@ -40,7 +39,6 @@ const ActorRoundResume: FC<{
   const color = factionColor(actorRound.factionId);
   const down = actorRoundDownState(actorRound);
   const image = useActorRoundImage(actorRound);
-  const bleeding = down === 'dead' ? 0 : actorRoundBleeding(actorRound);
   const ap = apTotals(actorRound);
   const apModifiers = actorRound.apModifiers ?? [];
   // Breakdown of the capacity: 4 base AP and the modifiers of the effects (Haste +2, Staggered −1...).
@@ -86,16 +84,6 @@ const ActorRoundResume: FC<{
               >
                 {actorRound.actorName}
               </Typography>
-              {/* Active bleeding (spec 013): hit points lost every round until it is treated. */}
-              {bleeding > 0 && (
-                <Tooltip title={t('injury-bleeding-per-round', { value: bleeding })}>
-                  <WaterDropIcon
-                    fontSize="small"
-                    color="error"
-                    aria-label={t('injury-bleeding-per-round', { value: bleeding })}
-                  />
-                </Tooltip>
-              )}
               {down && (
                 // Icon only: the name needs the width, and the effects (beside or below) spell the state out.
                 <StatusBadge
