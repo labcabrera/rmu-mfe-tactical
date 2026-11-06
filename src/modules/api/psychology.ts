@@ -10,6 +10,7 @@ import {
   HealingTables,
   LeaderRollDto,
   MoraleCheckDto,
+  PsychologyTables,
   ResistanceRollDto,
   ResistanceRollResult,
 } from './psychology.dto';
@@ -63,6 +64,11 @@ export async function groupCheck(
 }
 
 /** Healing tables of core, for the treatment difficulty preview (the API computes the real one). */
+/** Fear, morale and rally tables of rmu-api-core: numbers and keys, never text. It needs the rmu-core-law role. */
+export async function fetchPsychologyTables(auth: AuthContextProps): Promise<PsychologyTables> {
+  return await callApi(auth, `${apiCoreUrl}/psychology-tables`, { method: 'GET' });
+}
+
 export async function fetchHealingTables(auth: AuthContextProps): Promise<HealingTables> {
   return await callApi(auth, `${apiCoreUrl}/healing-tables`, { method: 'GET' });
 }

@@ -2,6 +2,7 @@ import React, { FC, useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import {
   Accordion,
   AccordionDetails,
@@ -10,8 +11,11 @@ import {
   Box,
   Button,
   Checkbox,
+  Collapse,
   FormControlLabel,
   Stack,
+  Tab,
+  Tabs,
   TextField,
   ToggleButton,
   ToggleButtonGroup,
@@ -35,6 +39,7 @@ import { GroupCheckKind, GroupCheckResult } from '../../api/psychology.dto';
 import { useActorRoundOption } from '../../services/actor-round-option';
 import { useFrightLevels } from '../../services/core-tables';
 import { useTacticalNotify } from '../../services/notify-service';
+import GroupCheckInfo from './GroupCheckInfo';
 import GroupCheckResultView from './GroupCheckResultView';
 import {
   GroupCheckForm,
@@ -71,6 +76,7 @@ const GroupCheckDialog: FC<{
   const [form, setForm] = useState<GroupCheckForm>(() => initialGroupCheckForm());
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<GroupCheckResult | null>(null);
+  const [showInfo, setShowInfo] = useState(false);
   const rounds = actorRounds ?? [];
   const toOption = useActorRoundOption();
   const frightLevels = useFrightLevels();
@@ -87,6 +93,7 @@ const GroupCheckDialog: FC<{
     if (!open) return;
     setForm(startForm());
     setResult(null);
+    setShowInfo(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
@@ -136,22 +143,39 @@ const GroupCheckDialog: FC<{
 
   const content = (
     <Stack spacing={2}>
-      <ToggleButtonGroup
-        color="primary"
-        size="small"
-        exclusive
-        value={form.kind}
-        onChange={(_, kind: GroupCheckKind | null) => kind && change({ kind })}
+      <Stack
+        direction={{ xs: 'column', sm: 'row' }}
+        spacing={{ xs: 0, sm: 1 }}
+        sx={{ alignItems: { xs: 'flex-start', sm: 'center' }, borderBottom: 1, borderColor: 'divider' }}
       >
-        {KINDS.map((kind) => (
-          <ToggleButton key={kind} value={kind} sx={{ minWidth: 110 }}>
-            {t(`group-check-${kind}`)}
-          </ToggleButton>
-        ))}
-      </ToggleButtonGroup>
+        <Tabs
+          value={form.kind}
+          onChange={(_, kind: GroupCheckKind) => change({ kind })}
+          variant="scrollable"
+          scrollButtons="auto"
+          aria-label={t('group-checks')}
+          sx={{ flexGrow: 1, minWidth: 0, maxWidth: '100%' }}
+        >
+          {KINDS.map((kind) => (
+            <Tab key={kind} value={kind} label={t(`group-check-${kind}`)} disabled={busy} />
+          ))}
+        </Tabs>
+        <Button
+          size="small"
+          startIcon={<InfoOutlinedIcon />}
+          aria-expanded={showInfo}
+          onClick={() => setShowInfo((value) => !value)}
+          sx={{ flexShrink: 0 }}
+        >
+          {t('group-check-info')}
+        </Button>
+      </Stack>
       <Typography variant="caption" color="text.secondary">
         {t(`group-check-${form.kind}-help`)}
       </Typography>
+      <Collapse in={showInfo} unmountOnExit>
+        <GroupCheckInfo kind={form.kind} />
+      </Collapse>
 
       <Stack spacing={1.5}>
         <Typography variant="subtitle2">{t('group')}</Typography>
@@ -344,7 +368,7 @@ const GroupCheckDialog: FC<{
       open={open}
       onDismiss={onClose}
       title={t('group-checks')}
-      subtitle={t(`group-check-${form.kind}`)}
+      subtitle={result ? t(`group-check-${form.kind}`) : undefined}
       maxWidth="md"
       buttons={
         result ? (

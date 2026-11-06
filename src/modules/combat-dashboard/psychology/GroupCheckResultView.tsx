@@ -73,10 +73,12 @@ const GroupCheckResultView: FC<{ result: GroupCheckResult; factionName: (id: str
           lines={[
             result.outcome && t(`morale-outcome-${result.outcome}`),
             result.moraleModifier
-              ? t('morale-modifier-warning', {
-                  value: formatBonus(result.moraleModifier),
-                  count: result.moraleModifierDays ?? 0,
-                })
+              ? result.moraleModifierDays
+                ? t('morale-modifier-warning', {
+                    value: formatBonus(result.moraleModifier),
+                    count: result.moraleModifierDays,
+                  })
+                : t('morale-modifier-warning-until-lifted', { value: formatBonus(result.moraleModifier) })
               : null,
             result.fearSeverityChange !== undefined &&
               (result.fearSeverityChange < 0

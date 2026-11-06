@@ -164,6 +164,24 @@ export type FrightLevels = {
   fallenThresholds: FallenThreshold[];
 };
 
+/** Band of a table: bounds included, null is open. */
+export type TableRange = { min: number | null; max: number | null };
+
+/** The part of `GET /v1/psychology-tables` of rmu-api-core that explains the group checks (§14.3). */
+export type PsychologyTables = {
+  fearResults: (TableRange & { result: string; rallyModifier: number })[];
+  morale: (TableRange & {
+    result: string;
+    outcome: string;
+    moraleModifier: number;
+    moraleModifierDays: number | null;
+  })[];
+  moraleUnusualEvent: { roll: number };
+  rally: (TableRange & { result: string; fearSeverityChange: number })[];
+  rallyUnusualEvent: { roll: number; leaderFearRrBonus: number; leaderHits: number; durationDays: number };
+  rallyGroupModifier: { followersPerStep: number; modifier: number };
+};
+
 /** A row of the treatment difficulty table of rmu-api-core (`GET /v1/healing-tables`). */
 export type TreatmentDifficultyRow = { procedure: string; injuryType: string; severity: string; difficulty: string };
 
