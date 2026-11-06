@@ -2,7 +2,7 @@ import React, { FC, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import ThermostatIcon from '@mui/icons-material/Thermostat';
-import { Box, Button, Chip, MenuItem, Stack, TextField } from '@mui/material';
+import { Box, Button, Chip, Grid, MenuItem, Stack, TextField } from '@mui/material';
 import {
   EXTREME_COLD_MAX,
   EXTREME_HEAT_MIN,
@@ -130,58 +130,64 @@ const ExtremeTemperatureControl: FC<{ game: TacticalGame; onChange: (game: Tacti
           >
             <Box sx={{ color: 'text.secondary', typography: 'body2' }}>{t('extreme-temperature-help')}</Box>
           </RuleHint>
-          <Stack direction="row" spacing={2} useFlexGap sx={{ flexWrap: 'wrap', alignItems: 'flex-start' }}>
-            <TextField
-              select
-              label={t('temperature-kind')}
-              value={form.kind}
-              onChange={(e) => change({ kind: e.target.value as TemperatureKind })}
-              sx={{ minWidth: 160 }}
-            >
-              {TEMPERATURE_KINDS.map((kind) => (
-                <MenuItem key={kind} value={kind}>
-                  {t(`temperature-kind-${kind}`)}
-                </MenuItem>
-              ))}
-            </TextField>
-            <TextField
-              select
-              label={t('temperature-severity-mode')}
-              value={form.mode}
-              onChange={(e) => change({ mode: e.target.value as Mode })}
-              sx={{ minWidth: 200 }}
-            >
-              <MenuItem value="temperature">{t('temperature-severity-mode-temperature')}</MenuItem>
-              <MenuItem value="severity">{t('temperature-severity-mode-severity')}</MenuItem>
-            </TextField>
-            {form.mode === 'temperature' ? (
-              <Box sx={{ width: 200 }}>
-                <NumberPadField
-                  label={t('temperature-celsius')}
-                  value={form.temperature}
-                  onChange={(temperature) => change({ temperature })}
-                  steps={[-50, -10, 10, 50]}
-                  suffix="°C"
-                  error={form.temperature !== null && !severity}
-                  helperText={form.temperature !== null && !severity ? t('temperature-not-extreme') : undefined}
-                />
-              </Box>
-            ) : (
+          <Grid container spacing={2}>
+            <Grid size={{ xs: 12, sm: 4 }}>
               <TextField
                 select
-                label={t('critical-severity')}
-                value={form.severity}
-                onChange={(e) => change({ severity: e.target.value })}
-                sx={{ minWidth: 120 }}
+                fullWidth
+                label={t('temperature-kind')}
+                value={form.kind}
+                onChange={(e) => change({ kind: e.target.value as TemperatureKind })}
               >
-                {TEMPERATURE_SEVERITIES.map((each) => (
-                  <MenuItem key={each} value={each}>
-                    {each}
+                {TEMPERATURE_KINDS.map((kind) => (
+                  <MenuItem key={kind} value={kind}>
+                    {t(`temperature-kind-${kind}`)}
                   </MenuItem>
                 ))}
               </TextField>
-            )}
-          </Stack>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 4 }}>
+              <TextField
+                select
+                fullWidth
+                label={t('temperature-severity-mode')}
+                value={form.mode}
+                onChange={(e) => change({ mode: e.target.value as Mode })}
+              >
+                <MenuItem value="temperature">{t('temperature-severity-mode-temperature')}</MenuItem>
+                <MenuItem value="severity">{t('temperature-severity-mode-severity')}</MenuItem>
+              </TextField>
+            </Grid>
+            <Grid size={{ xs: 12, sm: 4 }}>
+              {form.mode === 'temperature' ? (
+                <>
+                  <NumberPadField
+                    label={t('temperature-celsius')}
+                    value={form.temperature}
+                    onChange={(temperature) => change({ temperature })}
+                    steps={[-50, -10, 10, 50]}
+                    suffix="°C"
+                    error={form.temperature !== null && !severity}
+                    helperText={form.temperature !== null && !severity ? t('temperature-not-extreme') : undefined}
+                  />
+                </>
+              ) : (
+                <TextField
+                  select
+                  fullWidth
+                  label={t('critical-severity')}
+                  value={form.severity}
+                  onChange={(e) => change({ severity: e.target.value })}
+                >
+                  {TEMPERATURE_SEVERITIES.map((each) => (
+                    <MenuItem key={each} value={each}>
+                      {each}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              )}
+            </Grid>
+          </Grid>
           <Chip
             variant="outlined"
             color={severity ? 'error' : 'default'}

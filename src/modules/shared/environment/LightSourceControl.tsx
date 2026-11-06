@@ -2,7 +2,7 @@ import React, { FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import FlashlightOnIcon from '@mui/icons-material/FlashlightOn';
-import { Box, Button, Chip, MenuItem, Stack, TextField } from '@mui/material';
+import { Box, Button, Chip, Grid, MenuItem, Stack, TextField } from '@mui/material';
 import {
   LIGHT_SOURCES,
   LightSource,
@@ -36,21 +36,23 @@ export const LightSourceCalculator: FC<{
       <RuleHint title={t('light-source-calculator')} description={t('light-source-calculator-help')} reference="§15.7">
         <Box sx={{ color: 'text.secondary', typography: 'body2' }}>{t('light-source-calculator-help')}</Box>
       </RuleHint>
-      <Stack direction="row" spacing={2} useFlexGap sx={{ flexWrap: 'wrap', alignItems: 'flex-start' }}>
-        <TextField
-          select
-          label={t('light-source')}
-          value={value.source}
-          onChange={(e) => onChange({ ...value, source: e.target.value as LightSource })}
-          sx={{ minWidth: 180 }}
-        >
-          {LIGHT_SOURCES.map((each) => (
-            <MenuItem key={each} value={each}>
-              {t(`light-source-${each}`)}
-            </MenuItem>
-          ))}
-        </TextField>
-        <Box sx={{ width: 200 }}>
+      <Grid container spacing={2}>
+        <Grid size={{ xs: 12, sm: 6 }}>
+          <TextField
+            select
+            fullWidth
+            label={t('light-source')}
+            value={value.source}
+            onChange={(e) => onChange({ ...value, source: e.target.value as LightSource })}
+          >
+            {LIGHT_SOURCES.map((each) => (
+              <MenuItem key={each} value={each}>
+                {t(`light-source-${each}`)}
+              </MenuItem>
+            ))}
+          </TextField>
+        </Grid>
+        <Grid size={{ xs: 12, sm: 6 }}>
           <NumberPadField
             label={t('light-source-distance')}
             value={value.distance}
@@ -59,8 +61,8 @@ export const LightSourceCalculator: FC<{
             allowNegatives={false}
             steps={[-10, -5, 5, 10]}
           />
-        </Box>
-      </Stack>
+        </Grid>
+      </Grid>
       <Chip
         variant="outlined"
         color={light ? 'info' : 'default'}
