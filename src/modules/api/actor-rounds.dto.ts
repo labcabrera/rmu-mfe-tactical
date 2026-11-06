@@ -390,7 +390,7 @@ export type ActorRoundAttack = {
 };
 
 /** Weapon kind for the multiple attacks bonuses (Table 9-7b). */
-export type WeaponCategory = 'standard' | 'light' | 'dagger' | 'natural';
+export type WeaponCategory = 'standard' | 'light' | 'dagger' | 'natural' | 'unarmed';
 
 export type ActorRoundAttackRange = {
   from: number;

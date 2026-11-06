@@ -95,11 +95,12 @@ const ParryStep: FC<{
   const consequence = (parry: ActionParry) => {
     const b = parry.breakdown;
     if (!b || parry.carriedOver || !(parry.parry > 0)) return undefined;
-    return t('parry-consequence', {
-      parry: parry.parry,
-      attack: attackLabel(b.attackName, t),
-      left: b.bo - cost(parry),
-    });
+    // Workspace spec 082: a parry lowers every attack of the actor
+    const attacks = (actorRounds?.find((a) => a.actorId === parry.actorId)?.attacks ?? [])
+      .filter((attack) => !attack.broken)
+      .map((attack) => `${attackLabel(attack.attackName, t)} ${Math.max(0, attack.currentBo - cost(parry))}`)
+      .join(', ');
+    return t('parry-consequence', { parry: parry.parry, attacks });
   };
   const ruleParams = (parry: ActionParry): RuleParams | undefined => {
     const b = parry.breakdown;
@@ -131,7 +132,9 @@ const ParryStep: FC<{
   // Spec 079, A2: what the flank or rear takes off the parry, and the maneuver against a further foe
   const positionalText = (parry: ActionParry) => {
     const reduction = parryPositionalReduction(parry.parry || 0, parry.positional);
-    return reduction > 0 ? t('parry-positional-reduction', { reduction, left: (parry.parry || 0) - reduction }) : undefined;
+    return reduction > 0
+      ? t('parry-positional-reduction', { reduction, left: (parry.parry || 0) - reduction })
+      : undefined;
   };
   const maneuverRequired = (parry: ActionParry) => !!parry.parryManeuver?.required && !parry.carriedOver;
   const maneuverFailed = (parry: ActionParry) =>
@@ -217,7 +220,9 @@ const ParryStep: FC<{
                   size="small"
                   label={t('parry-maneuver-result')}
                   value={parry.maneuverResult ?? ''}
-                  onChange={(e) => setManeuverResult(index, (e.target.value || undefined) as AbsoluteResultKey | undefined)}
+                  onChange={(e) =>
+                    setManeuverResult(index, (e.target.value || undefined) as AbsoluteResultKey | undefined)
+                  }
                   error={(parry.parry || 0) > 0 && !parry.maneuverResult}
                   sx={{ maxWidth: 240 }}
                 >

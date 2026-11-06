@@ -75,3 +75,16 @@ export function isActorRoundGrappling(actorRound: ActorRound, actorRounds: Actor
       actorRoundGrapples(other).some((effect) => effect.targetActorId === actorRound.actorId)
   );
 }
+
+/** The attacks the actor can still use (workspace spec 082): not broken and, disarmed, only the ones of its body. */
+export function usableAttacks(actorRound: ActorRound): ActorRound['attacks'] {
+  const disarmed = actorRoundHasEffect(actorRound, ['disarmed', 'arm_useless']);
+  return (actorRound.attacks ?? []).filter(
+    (attack) =>
+      !attack.broken &&
+      (!disarmed ||
+        attack.weaponCategory === 'natural' ||
+        attack.weaponCategory === 'unarmed' ||
+        !!attack.skillId?.startsWith('unarmed'))
+  );
+}

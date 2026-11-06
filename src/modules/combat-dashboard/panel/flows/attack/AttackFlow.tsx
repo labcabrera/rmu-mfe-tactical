@@ -136,7 +136,12 @@ const AttackFlow: FC<{
 
   // Targets and modifiers can be chosen at any time; "Prepare" fixes the AP of the attack, so it waits for the
   // minimum AP of its profile (readiness from the API), unless the attack is forced.
-  const targetsReady = targeted.length > 0 && (kind === 'melee' || targeted.every((a) => !!a.modifiers.range));
+  // Workspace spec 082: an attack at 0 is not made, the API rejects it
+  const spendsRoundOb = action.actionType !== 'cast_spell' && !action.strayShot && !action.reaction;
+  const targetsReady =
+    targeted.length > 0 &&
+    (kind === 'melee' || targeted.every((a) => !!a.modifiers.range)) &&
+    (!spendsRoundOb || targeted.every((a) => (a.modifiers.bo ?? 0) > 0));
   const attacksShown = unprepared ? targeted : formData.attacks;
   const shownTab = Math.min(tab, Math.max(0, attacksShown.length - 1));
   // Workspace spec 068, decision 14: a retreating attacker cannot charge, a balking one is warned
@@ -255,6 +260,7 @@ const AttackFlow: FC<{
             onProtector={declaration.toggleProtector}
             onProtectorPosition={declaration.setProtectorPosition}
             fixedOb={action.strayShot ? 0 : action.reaction?.obOverride}
+            spendsRoundOb={spendsRoundOb}
             footer={
               boltOb !== undefined && targeted.length > 1 ? (
                 <BoltSplitFields
