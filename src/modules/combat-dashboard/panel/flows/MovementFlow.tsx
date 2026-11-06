@@ -307,7 +307,9 @@ const MovementFlow: FC<{
                         : fearWarning
                           ? t(`fear-pace-warning-${fearCap!.state}`)
                           : row.penalty !== '-'
-                            ? row.penalty
+                            ? freeMovement
+                              ? row.penalty.split(' | ')[0]
+                              : row.penalty
                             : NBSP}
               </Typography>
             </Box>
