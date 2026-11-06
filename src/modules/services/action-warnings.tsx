@@ -6,6 +6,7 @@ import type { TFunction } from 'i18next';
 import { CombatContext } from '../../CombatContext';
 import { ACTION_CONFIRM_REQUIRED, ActionWarning } from '../api/action.dto';
 import type { ActorRound } from '../api/actor-rounds.dto';
+import { attackLabel } from '../combat-dashboard/panel/flows/attack/attack-label';
 import { apiErrorCode, apiErrorDetails, ConfirmCancelledError } from './notify-service';
 
 // Warnings of the declaration and resolution of actions (workspace spec 068): the ones that need a confirmation come
@@ -40,6 +41,7 @@ export const warningText = (warning: ActionWarning, t: TFunction, actorRounds: A
     side: params.side ? t(`side-${String(params.side)}`) : '',
     pace: params.pace ? t(String(params.pace)) : '',
     state: params.state ? t(String(params.state)) : '',
+    attack: params.attackName ? attackLabel(String(params.attackName), t) : '',
     defaultValue: String(warning.code),
   });
 };

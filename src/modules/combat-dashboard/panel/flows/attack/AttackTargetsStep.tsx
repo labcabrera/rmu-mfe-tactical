@@ -1,11 +1,12 @@
 import React, { FC, ReactNode, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { alpha, Box, MenuItem, Stack, TextField, Typography } from '@mui/material';
-import { CharacterPicker, formatBonus, NumberPadField, Panel } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { CharacterPicker, formatBonus, NumberPadField, obMargin, Panel } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../../CombatContext';
 import { ActionAttack, PROTECT_POSITIONS, ProtectPosition } from '../../../../api/action.dto';
 import { ActorRound, ActorRoundAttack } from '../../../../api/actor-rounds.dto';
 import { useActorRoundOption } from '../../../../services/actor-round-option';
+import { usableAttacks } from '../../../../services/actor-round-service';
 import SelectAttackRange from '../../../../shared/selects/SelectAttackRange';
 import AttackSizeVsTarget from './AttackSizeVsTarget';
 import TargetPicker from './TargetPicker';
@@ -29,6 +30,8 @@ const AttackTargetsStep: FC<{
   onProtectorPosition: (attackName: string, actorId: string, position: ProtectPosition) => void;
   /** The fixed OB of a reaction (Riposte, workspace spec 076): shown instead of the weapon's, and not editable. */
   fixedOb?: number | null;
+  /** The attack spends the OB of the round (workspace spec 082): not a spell, a reaction or a stray shot. */
+  spendsRoundOb?: boolean;
   /** Shown below the attacks: the OB split of a bolt with several targets (workspace spec 077). */
   footer?: ReactNode;
 }> = ({
@@ -42,6 +45,7 @@ const AttackTargetsStep: FC<{
   onProtector,
   onProtectorPosition,
   fixedOb,
+  spendsRoundOb = false,
   footer,
 }) => {
   const { t } = useTranslation();
@@ -49,6 +53,16 @@ const AttackTargetsStep: FC<{
   const toOption = useActorRoundOption();
   // Penalties apply to the roll (the API adds them), not to the OB to spend.
   const penalty = (actorRound.penalty?.modifiers ?? []).reduce((sum, m) => sum + m.value, 0);
+
+  // Workspace spec 082: what the action will leave to every attack of the actor, and so to parry
+  const margin = spendsRoundOb
+    ? obMargin(
+        usableAttacks(actorRound),
+        attacks
+          .filter((attack) => !!attack.modifiers.targetId)
+          .map((attack) => ({ attackName: attack.attackName, bo: attack.modifiers.bo ?? 0 }))
+      )
+    : null;
 
   if (attacks.length === 0) {
     return (
@@ -104,11 +118,17 @@ const AttackTargetsStep: FC<{
                     />
                   )}
                 </Box>
-                <TargetPicker
-                  sourceActorRound={actorRound}
-                  value={targetId}
-                  onChange={(id) => onTarget(attack.attackName, id)}
-                />
+                {spendsRoundOb && weapon && weapon.currentBo <= 0 ? (
+                  <Typography variant="body2" color="text.secondary">
+                    {t('attack-no-ob-left')}
+                  </Typography>
+                ) : (
+                  <TargetPicker
+                    sourceActorRound={actorRound}
+                    value={targetId}
+                    onChange={(id) => onTarget(attack.attackName, id)}
+                  />
+                )}
                 {targetId && (
                   <>
                     {fixedOb !== null && fixedOb !== undefined ? (
@@ -197,6 +217,11 @@ const AttackTargetsStep: FC<{
           );
         })}
       </Box>
+      {margin !== null && (
+        <Typography variant="body2" color="text.secondary">
+          {t('ob-margin-left', { value: margin })}
+        </Typography>
+      )}
       {footer}
     </Stack>
   );

@@ -1,4 +1,4 @@
-import { ActorRound } from '../api/actor-rounds.dto';
+import { ActorRound, ActorRoundEffect } from '../api/actor-rounds.dto';
 
 /** `unconscious` since spec 013; actor rounds stored before it may still have the legacy `unconcious`. */
 const UNCONSCIOUS = ['unconscious', 'unconcious'];
@@ -14,6 +14,15 @@ export function actorRoundBleeding(actorRound: ActorRound): number {
   return (actorRound.injuries ?? [])
     .filter((injury) => injury.status !== 'healed')
     .reduce((sum, injury) => sum + Math.max(0, injury.bleeding ?? 0), 0);
+}
+
+/**
+ * Bleeding as an effect of the actor, for the effect lists. It is not stored as an effect: it comes from the injuries
+ * and goes away when they are treated, so it cannot be removed by hand. A dead actor no longer bleeds.
+ */
+export function actorRoundBleedingEffect(actorRound: ActorRound): ActorRoundEffect | undefined {
+  const value = actorRoundDownState(actorRound) === 'dead' ? 0 : actorRoundBleeding(actorRound);
+  return value > 0 ? { id: 'bleeding', status: 'bleeding', value, rounds: undefined } : undefined;
 }
 
 export function isActorRoundDead(actorRound: ActorRound): boolean {
@@ -73,5 +82,18 @@ export function isActorRoundGrappling(actorRound: ActorRound, actorRounds: Actor
       other.id !== actorRound.id &&
       other.round === actorRound.round &&
       actorRoundGrapples(other).some((effect) => effect.targetActorId === actorRound.actorId)
+  );
+}
+
+/** The attacks the actor can still use (workspace spec 082): not broken and, disarmed, only the ones of its body. */
+export function usableAttacks(actorRound: ActorRound): ActorRound['attacks'] {
+  const disarmed = actorRoundHasEffect(actorRound, ['disarmed', 'arm_useless']);
+  return (actorRound.attacks ?? []).filter(
+    (attack) =>
+      !attack.broken &&
+      (!disarmed ||
+        attack.weaponCategory === 'natural' ||
+        attack.weaponCategory === 'unarmed' ||
+        !!attack.skillId?.startsWith('unarmed'))
   );
 }

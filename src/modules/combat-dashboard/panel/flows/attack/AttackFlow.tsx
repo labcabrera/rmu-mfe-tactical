@@ -74,7 +74,7 @@ const AttackFlow: FC<{
   const declaration = useAttackDeclaration(action, actorRound, kind, sourceAttacks);
   const labelOf = (attackName: string) => attackLabel(attackName, t);
   const weapons = sourceAttacks ?? actorRound.attacks;
-  const { formData, setFormData, targeted } = declaration;
+  const { formData, setFormData, targeted, changing, startChange, endChange } = declaration;
   const [localStep, setLocalStep] = useState(0);
   const [tab, setTab] = useState(0);
   const [busy, setBusy] = useState(false);
@@ -84,7 +84,7 @@ const AttackFlow: FC<{
   // Melee attacks always go through the parry step; a ranged one only for the Shield maneuvers of its defenders.
   const shieldStep = shieldManeuverAttacks(formData.attacks).length > 0;
   const withParry = kind === 'melee' || shieldStep;
-  const step = stepOf(action, withParry, localStep);
+  const step = changing ? localStep : stepOf(action, withParry, localStep);
   const targetName = (targetId: string) => actorRounds?.find((ar) => ar.actorId === targetId)?.actorName ?? '';
   // Workspace spec 080: the API applies the pace of a free movement made during the attack on its own
   const freePace = overlappingFreeMovementPace(roundActions ?? [], action, game ? phaseNumber(game.phase) : 0);
@@ -108,7 +108,8 @@ const AttackFlow: FC<{
   const prepare = () =>
     call(
       prepareAttack(action.id, { ...formData, attacks: targeted, ...(splitting ? { obSplit: splitParts } : {}) }, auth),
-      t('attack-prepared')
+      t('attack-prepared'),
+      endChange
     );
   const parry = () => {
     const shieldManeuvers = shieldManeuverItems(formData.attacks, shieldInputs);
@@ -130,13 +131,31 @@ const AttackFlow: FC<{
       onApplied?.();
     });
   const unprepared =
+    changing ||
     action.status === 'declared' ||
     action.status === 'held' ||
     (action.actionType === 'cast_spell' && !action.attacks?.length);
 
   // Targets and modifiers can be chosen at any time; "Prepare" fixes the AP of the attack, so it waits for the
   // minimum AP of its profile (readiness from the API), unless the attack is forced.
-  const targetsReady = targeted.length > 0 && (kind === 'melee' || targeted.every((a) => !!a.modifiers.range));
+  // Workspace spec 082: an attack at 0 is not made, the API rejects it
+  const spendsRoundOb = action.actionType !== 'cast_spell' && !action.strayShot && !action.reaction;
+  // Workspace spec 082, decision 8: the API does not say which attacks a parry lowered. One not rolled yet, at the OB
+  // the actor has left after parrying, may be one of them, so it can go back to its targets.
+  const changeable =
+    spendsRoundOb &&
+    ['prepared', 'parry', 'pending_roll'].includes(action.status) &&
+    (actorRound.parries ?? []).length > 0 &&
+    (action.attacks ?? []).some(
+      (attack) =>
+        !attack.roll?.roll &&
+        (attack.modifiers.bo ?? 0) >=
+          (actorRound.attacks.find((each) => each.attackName === attack.attackName)?.currentBo ?? 0)
+    );
+  const targetsReady =
+    targeted.length > 0 &&
+    (kind === 'melee' || targeted.every((a) => !!a.modifiers.range)) &&
+    (!spendsRoundOb || targeted.every((a) => (a.modifiers.bo ?? 0) > 0));
   const attacksShown = unprepared ? targeted : formData.attacks;
   const shownTab = Math.min(tab, Math.max(0, attacksShown.length - 1));
   // Workspace spec 068, decision 14: a retreating attacker cannot charge, a balking one is warned
@@ -244,6 +263,11 @@ const AttackFlow: FC<{
       content: (
         <Stack spacing={1.5}>
           {strayShotNotice}
+          {changing && (
+            <Alert severity="info" variant="outlined">
+              {t('attack-change-help')}
+            </Alert>
+          )}
           <AttackTargetsStep
             kind={kind}
             actorRound={actorRound}
@@ -255,6 +279,7 @@ const AttackFlow: FC<{
             onProtector={declaration.toggleProtector}
             onProtectorPosition={declaration.setProtectorPosition}
             fixedOb={action.strayShot ? 0 : action.reaction?.obOverride}
+            spendsRoundOb={spendsRoundOb}
             footer={
               boltOb !== undefined && targeted.length > 1 ? (
                 <BoltSplitFields
@@ -295,6 +320,20 @@ const AttackFlow: FC<{
   ];
 
   const rollsStep = withParry ? 3 : 2;
+  const back = () => {
+    if (step === 1 && unprepared) return { label: t('back'), onClick: () => setLocalStep(0) };
+    if (changing) return { label: t('cancel'), onClick: endChange };
+    if (changeable) {
+      return {
+        label: t('attack-change'),
+        onClick: () => {
+          setLocalStep(0);
+          startChange();
+        },
+      };
+    }
+    return undefined;
+  };
   let primary;
   if (step === 0) primary = { label: t('next'), disabled: !targetsReady, onClick: () => setLocalStep(1) };
   else if (step === 1)
@@ -320,7 +359,7 @@ const AttackFlow: FC<{
       steps={[...leadingSteps, ...steps]}
       activeIndex={leadingSteps.length + step}
       primary={primary}
-      back={step === 1 && unprepared ? { label: t('back'), onClick: () => setLocalStep(0) } : undefined}
+      back={back()}
       onDeleted={onDeleted}
       onNextPending={onNextPending}
     />

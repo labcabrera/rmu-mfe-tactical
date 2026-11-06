@@ -30,7 +30,7 @@ export const MovementResult: FC<{ action: Action }> = ({ action }) => {
             value: `${calculated.percent}%`,
             tone: calculated.percent < 100 ? 'negative' : undefined,
           },
-          { label: t('fatigue'), value: action.fatigue || 0 },
+          { label: t('fatigue'), value: Number((action.fatigue || 0).toFixed(1)) },
           // Workspace spec 077: what changed the BMR (half movement, concentration)
           ...(calculated.bmrMultipliers ?? []).map((multiplier) => ({
             label: t(`bmr-multiplier-${multiplier.key}`),
@@ -199,7 +199,7 @@ export const ManeuverResult: FC<{ action: Action }> = ({ action }) => {
           ))}
         </ChipRow>
       )}
-      <ResultValues values={[{ label: t('fatigue'), value: action.fatigue || 0 }]} />
+      <ResultValues values={[{ label: t('fatigue'), value: Number((action.fatigue || 0).toFixed(1)) }]} />
       {maneuver?.roll?.modifiers && (
         <RollBreakdown context="maneuver" modifiers={maneuver.roll.modifiers} skipped={maneuver.roll.skipped} />
       )}
