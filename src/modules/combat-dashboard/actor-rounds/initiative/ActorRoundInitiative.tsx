@@ -1,7 +1,7 @@
 import React, { FC, useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
-import { Box, Checkbox, FormControlLabel, Stack, Typography } from '@mui/material';
+import { Box, Checkbox, Chip, FormControlLabel, Stack, Tooltip, Typography } from '@mui/material';
 import { formatBonus, RollField, TWO_D10 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../CombatContext';
 import { declareActorRoundInitiative } from '../../../api/actor-rounds';
@@ -9,6 +9,7 @@ import { ActorRound } from '../../../api/actor-rounds.dto';
 import { isActorRoundDown, isActorRoundFlatfooted } from '../../../services/actor-round-service';
 import { isRoundEditable } from '../../../services/game-service';
 import { useTacticalNotify } from '../../../services/notify-service';
+import LowerInitiativeButton from './LowerInitiativeButton';
 
 /** One modifier of the initiative: its name on the left, its value on the right. */
 const Modifier: FC<{ label: string; value: string }> = ({ label, value }) => (
@@ -33,13 +34,31 @@ const ActorRoundInitiative: FC<{ actorRound: ActorRound }> = ({ actorRound }) =>
   const { t } = useTranslation();
   const auth = useAuth();
   const notify = useTacticalNotify();
-  const { game, displayRound, updateActorRound } = useContext(CombatContext)!;
+  const { game, actorRounds, displayRound, updateActorRound } = useContext(CombatContext)!;
   const isDown = isActorRoundDown(actorRound);
   const flatfooted = isActorRoundFlatfooted(actorRound);
   const editable =
     !isDown && !flatfooted && isRoundEditable(game, displayRound) && game?.phase === 'declare_initiative';
-  const { base = 0, penalty = 0, roll, total, strikeReflex: strikeReflexBonus, style } = actorRound.initiative ?? {};
+  const {
+    base = 0,
+    penalty = 0,
+    roll,
+    total,
+    strikeReflex: strikeReflexBonus,
+    style,
+    lowered,
+  } = actorRound.initiative ?? {};
   const declared = !!roll;
+  // Workspace spec 083, decision 3: tied actors act at the same time (§8.3). The board marks it; the game master decides.
+  const tied =
+    declared &&
+    (actorRounds ?? []).some(
+      (other) =>
+        other.id !== actorRound.id &&
+        !isActorRoundDown(other) &&
+        !!other.initiative?.roll &&
+        other.initiative.total === total
+    );
   const hasStrikeReflex = (actorRound.traits ?? []).some((trait) => trait.traitId === STRIKE_REFLEX);
   const [strikeReflex, setStrikeReflex] = useState(!!strikeReflexBonus);
 
@@ -88,6 +107,12 @@ const ActorRoundInitiative: FC<{ actorRound: ActorRound }> = ({ actorRound }) =>
             {t('not-declared')}
           </Typography>
         )}
+        <LowerInitiativeButton actorRound={actorRound} />
+        {tied && (
+          <Tooltip title={t('initiative-tie-help')}>
+            <Chip size="small" color="info" variant="outlined" label={t('initiative-tie')} />
+          </Tooltip>
+        )}
       </Stack>
       {/* One per line: side by side they did not fit in the column. */}
       <Stack>
@@ -96,6 +121,7 @@ const ActorRoundInitiative: FC<{ actorRound: ActorRound }> = ({ actorRound }) =>
         {!!strikeReflexBonus && <Modifier label={t('strike-reflex')} value={formatBonus(strikeReflexBonus)} />}
         {!!style && <Modifier label={t('style-ability-lightning-reflexes')} value={formatBonus(style)} />}
         {declared && !editable && <Modifier label={t('roll')} value={String(roll)} />}
+        {!!lowered && <Modifier label={t('initiative-lowered')} value={formatBonus(lowered)} />}
       </Stack>
       {editable && (
         <RollField

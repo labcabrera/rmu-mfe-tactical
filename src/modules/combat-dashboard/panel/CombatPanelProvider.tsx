@@ -87,10 +87,13 @@ const CombatPanelProvider: FC<{ children: ReactNode }> = ({ children }) => {
     ? (actorRound: ActorRound, anchor: HTMLElement | null) => setPalette({ actorRound, anchor })
     : undefined;
 
-  // The next action waiting for input, in board order, after the open one: only those that can be resolved now
-  // (ready, optimal) or whose resolution is under way, never the ones still below their minimum AP.
+  // The next action waiting for input, in initiative order (workspace spec 083, whatever the sort of the board), after
+  // the open one: only those that can be resolved now (ready, optimal) or whose resolution is under way, never the ones
+  // still below their minimum AP.
   const nextPending = (current: Action) => {
-    const order = (actorRounds ?? []).map((ar) => ar.actorId);
+    const order = [...(actorRounds ?? [])]
+      .sort((a, b) => (b.initiative?.total ?? 0) - (a.initiative?.total ?? 0))
+      .map((ar) => ar.actorId);
     const pending = (roundActions ?? [])
       .filter((a) => a.id !== current.id && isActionActionable(a))
       .sort((a, b) => order.indexOf(a.actorId) - order.indexOf(b.actorId) || a.phaseStart - b.phaseStart);

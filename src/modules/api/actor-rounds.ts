@@ -46,6 +46,19 @@ export async function fetchActorRounds(
   return await callApi(auth, url, { method: 'GET' });
 }
 
+export async function lowerActorRoundInitiative(
+  actorRoundId: string,
+  total: number,
+  auth: AuthContextProps
+): Promise<ActorRound> {
+  const url = `${apiTacticalUrl}/actor-rounds/${actorRoundId}/initiative/lower`;
+  return await callApi(auth, url, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ total }),
+  });
+}
+
 export async function declareActorRoundInitiative(
   actorRoundId: string,
   roll: number,
