@@ -24,6 +24,7 @@ import {
 } from '../../../services/combat-talents-service';
 import { apiErrorCode, useTacticalNotify } from '../../../services/notify-service';
 import { useSkillService } from '../../../services/skill-service';
+import UnresolvedMovementNotice from '../../../shared/movement/UnresolvedMovementNotice';
 import ActionFlow from '../ActionFlow';
 import { ManeuverResult } from './ActionResults';
 import { blockBPurposes } from './maneuver/BlockBPurposeFields';
@@ -185,7 +186,12 @@ const ManeuverFlow: FC<{
       summary: [difficulty ? t(`difficulty-${difficulty}`) : null, customBonus ? formatBonus(customBonus) : null]
         .filter(Boolean)
         .join(' · '),
-      content: modifiersContent,
+      content: (
+        <Stack spacing={1.5}>
+          <UnresolvedMovementNotice action={action} />
+          {modifiersContent}
+        </Stack>
+      ),
     },
     {
       id: 'roll',

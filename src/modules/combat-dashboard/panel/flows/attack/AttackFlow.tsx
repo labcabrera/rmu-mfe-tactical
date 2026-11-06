@@ -10,6 +10,7 @@ import { ActorRound, ActorRoundAttack } from '../../../../api/actor-rounds.dto';
 import { useNotifyWarnings } from '../../../../services/action-warnings';
 import { actorRoundHasEffect } from '../../../../services/actor-round-service';
 import { useTacticalNotify } from '../../../../services/notify-service';
+import UnresolvedMovementNotice from '../../../../shared/movement/UnresolvedMovementNotice';
 import AttackModifiersForm from '../../../action-dialogs/attack-modifiers/AttackModifiersForm';
 import SpecialManeuverFields from '../../../action-dialogs/attack-modifiers/SpecialManeuverFields';
 import StyleCriticalOptionPicker from '../../../action-dialogs/attack-modifiers/StyleCriticalOptionPicker';
@@ -181,6 +182,7 @@ const AttackFlow: FC<{
             {t(`fear-charge-${chargeFear}`)}
           </Alert>
         )}
+        {unprepared && <UnresolvedMovementNotice action={action} />}
         {freePace && unprepared && (
           <Alert severity="info" variant="outlined">
             {t('free-movement-attack-pace', { pace: t(freePace) })}
