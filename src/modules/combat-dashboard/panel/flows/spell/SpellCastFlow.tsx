@@ -28,6 +28,7 @@ import { ActorRound, ActorRoundAttack } from '../../../../api/actor-rounds.dto';
 import { isActionClosed } from '../../../../services/ap-service';
 import { actorOpenEnded, POWER_RECYCLING, traitTier } from '../../../../services/combat-talents-service';
 import { useTacticalNotify } from '../../../../services/notify-service';
+import UnresolvedMovementNotice from '../../../../shared/movement/UnresolvedMovementNotice';
 import ActionFlow from '../../ActionFlow';
 import { actorCharacter } from '../../SpellDeclareDialog';
 import AttackFlow from '../attack/AttackFlow';
@@ -310,11 +311,14 @@ const SpellCastFlow: FC<{
       label: t('modifiers'),
       summary: preview ? formatBonus(preview.bonus) : undefined,
       content: (
-        <SpellOptionsStep
-          options={options}
-          needsPreparation={!!preview?.needsPreparation}
-          onChange={(patch) => setOptions((prev) => ({ ...prev, ...patch }))}
-        />
+        <Stack spacing={1.5}>
+          <UnresolvedMovementNotice action={action} />
+          <SpellOptionsStep
+            options={options}
+            needsPreparation={!!preview?.needsPreparation}
+            onChange={(patch) => setOptions((prev) => ({ ...prev, ...patch }))}
+          />
+        </Stack>
       ),
     },
     {

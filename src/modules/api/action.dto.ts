@@ -194,6 +194,8 @@ export type ActionMovementModifiers = {
   light?: string | null;
   /** Feat of Strength of a grappled actor or its grappler to move away (workspace spec 077): required while grappled. */
   grappleFeat?: GrappleFeat | null;
+  /** Moving backwards: half the BMR, up to jog (workspace spec 081). */
+  backwards?: boolean | null;
 };
 
 /** Table 5-1: light helps movement maneuvers (the helpful column); the API applies the same values. */
@@ -209,7 +211,8 @@ export const MOVEMENT_LIGHT_OPTIONS: { key: string; value: number }[] = [
 
 export type ActionMovementCalculated = {
   bmr: number;
-  paceMultiplier: number;
+  /** Null in a normal movement: 1 BMR per AP, whatever the pace of the round (workspace spec 081). */
+  paceMultiplier: number | null;
   percent: number;
   distance: number;
   distanceAdjusted: number;

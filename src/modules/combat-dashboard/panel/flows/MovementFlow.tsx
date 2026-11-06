@@ -30,9 +30,21 @@ import { resolveMovement } from '../../../api/action';
 import { Action, ActionMovement, MOVEMENT_LIGHT_OPTIONS, MOVEMENT_TABLE } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
 import { useActionConfirm, useNotifyWarnings } from '../../../services/action-warnings';
-import { actorRoundHasEffect, isActorRoundGrappling } from '../../../services/actor-round-service';
+import { actorRoundHasEffect, isActorRoundGrappling, isActorRoundProne } from '../../../services/actor-round-service';
 import { isActionClosed } from '../../../services/ap-service';
 import { actorOpenEnded } from '../../../services/combat-talents-service';
+import {
+  dashBlockedReason,
+  effectiveBmr,
+  effectiveMaxPace,
+  injuryPaceLimit,
+  normalMovementFatigue,
+  paceIndex,
+  paceOfAp,
+  PACES,
+  roundMovement,
+  SLOW_MAX_PACE,
+} from '../../../services/movement-service';
 import { useTacticalNotify } from '../../../services/notify-service';
 import { useSkillService } from '../../../services/skill-service';
 import OptionTiles from '../../action-dialogs/attack-modifiers/pickers/OptionTiles';
@@ -46,15 +58,6 @@ const MOVEMENT_SKILLS = ['running', 'swimming', 'climbing', 'flying'];
 
 /** Keeps the height of the caption of a pace without a penalty. */
 const NBSP = '\u00a0';
-
-const paceIndex = (pace: string | null | undefined) => MOVEMENT_TABLE.findIndex((row) => row.id === pace);
-
-/** The fastest pace the splinted or cast legs of the actor allow (workspace spec 068, decision 10), if any. */
-export const injuryPaceLimit = (actorRound: ActorRound): string | undefined =>
-  (actorRound.injuries ?? [])
-    .filter((injury) => injury.status !== 'healed' && injury.limits?.pace)
-    .map((injury) => injury.limits!.pace as string)
-    .sort((a, b) => paceIndex(a) - paceIndex(b))[0];
 
 const initialForm = (action: Action, actorRound: ActorRound, light: string | null): ActionMovement =>
   action.movement
@@ -84,7 +87,8 @@ const MovementFlow: FC<{
   const { t } = useTranslation();
   const auth = useAuth();
   const notify = useTacticalNotify();
-  const { game, strategicGame, actorRounds, updateAction, refreshActorRounds } = useContext(CombatContext)!;
+  const { game, strategicGame, actorRounds, roundActions, updateAction, refreshActorRounds } =
+    useContext(CombatContext)!;
   const { getSkillBonus } = useSkillService();
   const confirm = useActionConfirm();
   const notifyWarnings = useNotifyWarnings();
@@ -103,7 +107,7 @@ const MovementFlow: FC<{
   // Workspace spec 080 (Core Law §8.2): a free movement takes no AP, covers the phases it spans and goes up to run.
   const freeMovement = !!action.freeAction;
   const currentPhase = game ? phaseNumber(game.phase) : 0;
-  // The distance of each pace is per AP (the API counts the AP of the movement in its ledger), or per phase spanned.
+  // A free movement covers its pace per phase spanned; a normal one 1 BMR per AP (the API counts them in its ledger).
   const actionPoints = freeMovement
     ? Math.max(1, (currentPhase || action.phaseStart) - action.phaseStart + 1)
     : Math.max(1, action.actionPoints ?? 1);
@@ -111,9 +115,11 @@ const MovementFlow: FC<{
   const scale = strategicGame?.options?.boardScaleMultiplier || 1;
   // Workspace spec 068: a splinted or cast leg caps the pace; routed and broken actors flee at running pace or faster
   const injuryLimit = injuryPaceLimit(actorRound);
+  const twoFoci = (actorRound.concentration ?? []).length > 1;
   const maxPaceIndex = Math.min(
     MOVEMENT_TABLE.findIndex((p) => p.id === actorRound.movement.maxPace),
-    injuryLimit ? paceIndex(injuryLimit) : MOVEMENT_TABLE.length
+    injuryLimit ? paceIndex(injuryLimit) : MOVEMENT_TABLE.length,
+    twoFoci ? paceIndex('creep') : MOVEMENT_TABLE.length
   );
   const fleeing = actorRoundHasEffect(actorRound, ['fear-routed', 'fear-broken']);
   const fearCap = actorRoundHasEffect(actorRound, ['fear-retreat'])
@@ -123,18 +129,40 @@ const MovementFlow: FC<{
       : undefined;
   const skillBonus = (skillId: string) => getSkillBonus(skillId, actorRound);
   const guide = useSkillDifficultyGuide(modifiers.requiredManeuver ? modifiers.skillId : null);
-  // Workspace spec 077: concentrating, the actor moves at half its BMR (the API applies it); grappled, or holding
-  // someone, it needs a contested Feat of Strength to move away.
-  const concentrating = (actorRound.concentration ?? []).length > 0;
-  const bmr = actorRound.movement.bmr * (concentrating ? 0.5 : 1);
+  // Workspace spec 081: half movement, concentration and moving backwards or prone halve the BMR (the API applies it);
+  // grappled, or holding someone, the actor needs a contested Feat of Strength to move away (spec 077).
+  const backwards = !!modifiers.backwards;
+  const prone = isActorRoundProne(actorRound);
+  const slow = backwards || prone;
+  const { bmr, reasons: bmrReasons } = effectiveBmr(actorRound, backwards);
   const distance = (multiplier: number) => bmr * multiplier * actionPoints;
+  // What the movement of the round has left, as the API cuts it (decision 7).
+  const round = roundMovement(roundActions ?? [], action.actorId, action.round, action.id);
+  const limitIndex = Math.min(
+    paceIndex(effectiveMaxPace(actorRound, actorRounds).pace),
+    slow ? paceIndex(SLOW_MAX_PACE) : PACES.length - 1
+  );
+  const left = Math.max(0, bmr * PACES[limitIndex].perRound - round.moved);
+  const nothingLeft = bmr > 0 && left <= 0.001;
+  const dashing = !freeMovement && modifiers.pace === 'dash';
+  const dashBlocked = freeMovement ? undefined : dashBlockedReason(actorRound, round.own, currentPhase, backwards);
+  const roundPace = paceOfAp(round.normalAp + actionPoints);
+  const normalDistance = Math.min(left, distance(dashing ? 1.25 : 1));
+  const talliedFatigue = !dashing && !['climbing', 'swimming'].includes(modifiers.skillId);
+  const addedFatigue =
+    normalMovementFatigue(round.normalAp, actionPoints) * (strategicGame?.options?.fatigueMultiplier || 1);
+  const blocked = nothingLeft || (!freeMovement && twoFoci);
   const grappleFeatNeeded = isActorRoundGrappling(actorRound, actorRounds ?? []);
 
   const resolve = () => {
     setBusy(true);
     // Workspace spec 068: exertion with a wound that reopens asks for a confirmation first
     confirm
-      .run((confirmed) => resolveMovement(action.id, confirmed ? { ...form, confirm: true } : form, auth))
+      .run((confirmed) => {
+        // A normal movement sends no pace unless it dashes: the API takes it from the AP of the round.
+        const body = { ...form, modifiers: { ...modifiers, pace: modifiers.pace || undefined } };
+        return resolveMovement(action.id, confirmed ? { ...body, confirm: true } : body, auth);
+      })
       .then((result: Action) => {
         updateAction(result);
         refreshActorRounds();
@@ -189,15 +217,6 @@ const MovementFlow: FC<{
           })}
         </Box>
       </Box>
-      {concentrating && (
-        <Chip
-          size="small"
-          variant="outlined"
-          color="info"
-          sx={{ alignSelf: 'flex-start' }}
-          label={`${t('bmr-multiplier-concentration')}: ${t('bmr')} ×½`}
-        />
-      )}
       {grappleFeatNeeded && (
         <Alert severity="warning" variant="outlined">
           <Stack spacing={1}>
@@ -260,12 +279,100 @@ const MovementFlow: FC<{
     </Stack>
   );
 
-  const pace = (
+  const paceNotes = (
+    <>
+      {bmrReasons.length > 0 && (
+        <ChipRow>
+          {bmrReasons.map((reason) => (
+            <Chip
+              key={reason}
+              size="small"
+              variant="outlined"
+              color="info"
+              label={`${t(`bmr-multiplier-${reason}`)}: ${t('bmr')} ×½`}
+            />
+          ))}
+        </ChipRow>
+      )}
+      <FormControlLabel
+        control={
+          <Switch
+            checked={backwards}
+            onChange={(e) => {
+              const tooFast = e.target.checked && paceIndex(modifiers.pace) > paceIndex(SLOW_MAX_PACE);
+              setModifiers({ backwards: e.target.checked, pace: tooFast ? '' : modifiers.pace });
+            }}
+          />
+        }
+        label={t('movement-backwards')}
+      />
+      {prone && (
+        <Alert severity="info" variant="outlined">
+          {t('movement-prone-note')}
+        </Alert>
+      )}
+      {!freeMovement && twoFoci && (
+        <Alert severity="warning" variant="outlined">
+          {t('err-action-double-concentration')}
+        </Alert>
+      )}
+      {nothingLeft && (
+        <Alert severity="warning" variant="outlined">
+          {t('movement-nothing-left')}
+        </Alert>
+      )}
+    </>
+  );
+
+  const normalPace = (
+    <Stack spacing={1.5}>
+      {paceNotes}
+      <ChipRow>
+        <Chip size="small" variant="outlined" label={`${t('movement-ap')}: ${actionPoints}`} />
+        <Chip
+          size="small"
+          variant="outlined"
+          label={`${t('distance')}: ${Number(normalDistance.toFixed(1))}'${
+            scale !== 1 ? ` (${Number((normalDistance * scale).toFixed(1))})` : ''
+          }`}
+        />
+        <Chip
+          size="small"
+          variant="outlined"
+          color="primary"
+          label={`${t('movement-round-pace')}: ${t(dashing ? 'dash' : roundPace)}`}
+        />
+        {talliedFatigue && (
+          <Chip size="small" variant="outlined" label={`${t('fatigue')}: +${Number(addedFatigue.toFixed(1))}`} />
+        )}
+        <Chip size="small" variant="outlined" label={`${t('movement-left')}: ${Number(left.toFixed(1))}'`} />
+      </ChipRow>
+      <Box>
+        <FormControlLabel
+          control={
+            <Switch
+              checked={dashing}
+              disabled={!!dashBlocked && !dashing}
+              onChange={(e) => setModifiers({ pace: e.target.checked ? 'dash' : '' })}
+            />
+          }
+          label={t('movement-dash')}
+        />
+        <Typography variant="caption" color="text.secondary" component="div">
+          {dashBlocked ? t(dashBlocked) : t('movement-dash-help')}
+        </Typography>
+      </Box>
+    </Stack>
+  );
+
+  const freePace = (
     <Stack spacing={0.75} role="radiogroup" aria-label={t('pace')}>
+      {paceNotes}
       {MOVEMENT_TABLE.map((row, index) => {
         const overMax = index > maxPaceIndex;
         const overFree = index > freeMaxIndex;
         const tooSlow = fleeing && index < paceIndex('run');
+        const overSlow = slow && index > paceIndex(SLOW_MAX_PACE);
         const fearWarning = !!fearCap && index > fearCap.index;
         const selected = modifiers.pace === row.id;
         const feet = distance(row.multiplier);
@@ -274,10 +381,10 @@ const MovementFlow: FC<{
             key={row.id}
             role="radio"
             aria-checked={selected}
-            disabled={overMax || overFree || tooSlow}
+            disabled={overMax || overFree || tooSlow || overSlow}
             onClick={() => setModifiers({ pace: row.id })}
             sx={[
-              selectableSx(selected, overMax || overFree || tooSlow),
+              selectableSx(selected, overMax || overFree || tooSlow || overSlow),
               {
                 display: 'grid',
                 gridTemplateColumns: '1fr auto',
@@ -298,19 +405,21 @@ const MovementFlow: FC<{
               <Typography variant="caption" color="text.secondary">
                 {overFree && !overMax
                   ? t('free-movement-max-run')
-                  : overMax && injuryLimit && index > paceIndex(injuryLimit)
-                    ? t('injury-pace-limit', { pace: t(injuryLimit) })
-                    : overMax
-                      ? t('over-max-pace')
-                      : tooSlow
-                        ? t('fear-flees-at-run')
-                        : fearWarning
-                          ? t(`fear-pace-warning-${fearCap!.state}`)
-                          : row.penalty !== '-'
-                            ? freeMovement
-                              ? row.penalty.split(' | ')[0]
-                              : row.penalty
-                            : NBSP}
+                  : overSlow && !overMax
+                    ? t('movement-slow-max-jog')
+                    : overMax && injuryLimit && index > paceIndex(injuryLimit)
+                      ? t('injury-pace-limit', { pace: t(injuryLimit) })
+                      : overMax
+                        ? t('over-max-pace')
+                        : tooSlow
+                          ? t('fear-flees-at-run')
+                          : fearWarning
+                            ? t(`fear-pace-warning-${fearCap!.state}`)
+                            : row.penalty !== '-'
+                              ? freeMovement
+                                ? row.penalty.split(' | ')[0]
+                                : row.penalty
+                              : NBSP}
               </Typography>
             </Box>
             <Box sx={{ textAlign: 'right' }}>
@@ -356,8 +465,8 @@ const MovementFlow: FC<{
     {
       id: 'pace',
       label: t('pace'),
-      summary: modifiers.pace ? t(modifiers.pace) : undefined,
-      content: pace,
+      summary: modifiers.pace ? t(modifiers.pace) : !freeMovement ? t(roundPace) : undefined,
+      content: freeMovement ? freePace : normalPace,
     },
     ...(modifiers.requiredManeuver
       ? [{ id: 'roll', label: t('roll'), summary: form.roll?.roll ?? undefined, content: roll }]
@@ -371,7 +480,7 @@ const MovementFlow: FC<{
     (steps[current].id === 'setup' &&
       (!modifiers.requiredManeuver || !!modifiers.difficulty) &&
       (!grappleFeatNeeded || !!modifiers.grappleFeat)) ||
-    (steps[current].id === 'pace' && !!modifiers.pace) ||
+    (steps[current].id === 'pace' && !blocked && (!freeMovement || !!modifiers.pace)) ||
     (steps[current].id === 'roll' && form.roll?.roll !== null && form.roll?.roll !== undefined);
 
   return (

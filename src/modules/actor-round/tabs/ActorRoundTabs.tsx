@@ -3,6 +3,7 @@ import BackpackIcon from '@mui/icons-material/Backpack';
 import BoltIcon from '@mui/icons-material/Bolt';
 import CodeIcon from '@mui/icons-material/Code';
 import DashboardIcon from '@mui/icons-material/Dashboard';
+import DirectionsRunIcon from '@mui/icons-material/DirectionsRun';
 import HealingIcon from '@mui/icons-material/Healing';
 import PetsIcon from '@mui/icons-material/Pets';
 import SportsMartialArtsIcon from '@mui/icons-material/SportsMartialArts';
@@ -19,15 +20,17 @@ import ActorRoundFightingStyle from '../ActorRoundFightingStyle';
 import ActorRoundHpLog from '../ActorRoundHpLog';
 import ActorRoundInjuries from '../ActorRoundInjuries';
 import ActorRoundItems from '../ActorRoundItems';
+import ActorRoundMovement from '../ActorRoundMovement';
 import ActorRoundResistances from '../ActorRoundResistances';
 import ActorRoundPoisons from '../poison/ActorRoundPoisons';
 
-export type ActorRoundTab = 'summary' | 'creature' | 'combat' | 'health' | 'status' | 'items' | 'dev';
+export type ActorRoundTab = 'summary' | 'creature' | 'combat' | 'movement' | 'health' | 'status' | 'items' | 'dev';
 
 /** Tabs of the actor sheet (spec 045, decision 3): label key, icon and the existing sections they show. */
 export const ACTOR_ROUND_TABS: { id: ActorRoundTab; label: string; icon: ReactElement }[] = [
   { id: 'summary', label: 'summary', icon: <DashboardIcon /> },
   { id: 'combat', label: 'combat', icon: <SportsMartialArtsIcon /> },
+  { id: 'movement', label: 'movement', icon: <DirectionsRunIcon /> },
   { id: 'health', label: 'health', icon: <HealingIcon /> },
   { id: 'status', label: 'status', icon: <BoltIcon /> },
   { id: 'items', label: 'actor-items', icon: <BackpackIcon /> },
@@ -70,6 +73,8 @@ const ActorRoundTabContent: FC<{ actorRound: ActorRound; tab: ActorRoundTab }> =
           )}
         </Sections>
       );
+    case 'movement':
+      return <ActorRoundMovement actorRound={actorRound} />;
     case 'health':
       return (
         <Sections>
