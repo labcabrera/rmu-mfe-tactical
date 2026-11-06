@@ -12,11 +12,13 @@ import {
   useNotify,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 
+/** Data of a tactical game. Its fatigue modifiers are not asked on creation: the game gets them once it exists. */
 const TacticalGameForm: FC<{
+  mode: 'create' | 'edit';
   formData: TacticalGame;
   setFormData: (formData: TacticalGame) => void;
   strategicGame: StrategicGame | undefined;
-}> = ({ formData, setFormData, strategicGame }) => {
+}> = ({ mode, formData, setFormData, strategicGame }) => {
   const auth = useAuth();
   const { t } = useTranslation();
   const notify = useNotify();
@@ -59,32 +61,36 @@ const TacticalGameForm: FC<{
         </Grid>
       )}
 
-      <Grid size={{ xs: 6, md: 2 }}>
-        <NumberPadField
-          steps={[-10, -5, 5, 10]}
-          label={t('temperature-fatigue-modifier')}
-          value={formData.environment?.temperatureFatigueModifier || 0}
-          onChange={(value) =>
-            setFormData({
-              ...formData,
-              environment: { ...formData.environment, temperatureFatigueModifier: value || 0 },
-            })
-          }
-        />
-      </Grid>
-      <Grid size={{ xs: 6, md: 2 }}>
-        <NumberPadField
-          steps={[-10, -5, 5, 10]}
-          label={t('altitude-fatigue-modifier')}
-          value={formData.environment?.altitudeFatigueModifier || 0}
-          onChange={(value) =>
-            setFormData({
-              ...formData,
-              environment: { ...formData.environment, altitudeFatigueModifier: value || 0 },
-            })
-          }
-        />
-      </Grid>
+      {mode === 'edit' && (
+        <>
+          <Grid size={{ xs: 6, md: 2 }}>
+            <NumberPadField
+              steps={[-10, -5, 5, 10]}
+              label={t('temperature-fatigue-modifier')}
+              value={formData.environment?.temperatureFatigueModifier || 0}
+              onChange={(value) =>
+                setFormData({
+                  ...formData,
+                  environment: { ...formData.environment, temperatureFatigueModifier: value || 0 },
+                })
+              }
+            />
+          </Grid>
+          <Grid size={{ xs: 6, md: 2 }}>
+            <NumberPadField
+              steps={[-10, -5, 5, 10]}
+              label={t('altitude-fatigue-modifier')}
+              value={formData.environment?.altitudeFatigueModifier || 0}
+              onChange={(value) =>
+                setFormData({
+                  ...formData,
+                  environment: { ...formData.environment, altitudeFatigueModifier: value || 0 },
+                })
+              }
+            />
+          </Grid>
+        </>
+      )}
       <Grid size={12}>
         <TextField
           label={t('description')}

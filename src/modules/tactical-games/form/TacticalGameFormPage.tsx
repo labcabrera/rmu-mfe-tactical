@@ -7,8 +7,6 @@ import {
   createTacticalGame,
   CreateTacticalGameDto,
   EntityImage,
-  Faction,
-  fetchFactions,
   fetchStrategicGame,
   fetchTacticalGame,
   ErrorState,
@@ -18,13 +16,11 @@ import {
   StrategicGame,
   TacticalGame,
   updateTacticalGame,
-  useCampaignNpcs,
   useEntity,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { defaultImage } from '../../services/image-service';
 import { useTacticalNotify } from '../../services/notify-service';
 import TacticalGameForm from './TacticalGameForm';
-import TacticalGameFormNpcs, { EMPTY_NPC_SETUP, GameNpcSetup, npcSetupRequest } from './TacticalGameFormNpcs';
 
 const DEFAULT_IMAGE = 'images/generic/tactical.png';
 
@@ -40,13 +36,15 @@ const EMPTY_GAME_TEMPLATE = {
   imageUrl: DEFAULT_IMAGE,
 } as unknown as TacticalGame;
 
-/** Create and edit page of a tactical game. Creation takes the strategic game from `?strategicGame=<id>`. */
+/**
+ * Create and edit page of a tactical game. Creation takes the strategic game from `?strategicGame=<id>`. Factions, NPCs
+ * and environment are set once the game exists, in its view.
+ */
 export default function TacticalGameFormPage({ mode }: { mode: 'create' | 'edit' }) {
   const auth = useAuth();
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
-  // The NPC errors of the creation (`err-npc-realm`...) are shown by their translated code.
   const notify = useTacticalNotify();
   const [searchParams] = useSearchParams();
   const { gameId } = useParams<{ gameId?: string }>();
@@ -58,11 +56,6 @@ export default function TacticalGameFormPage({ mode }: { mode: 'create' | 'edit'
   const [strategicGame, setStrategicGame] = useState<StrategicGame>();
   const [formData, setFormData] = useState<TacticalGame>();
   const [initialData, setInitialData] = useState<string>();
-  const [npcSetup, setNpcSetup] = useState<GameNpcSetup>(EMPTY_NPC_SETUP);
-  // The campaign chosen in the form (or given in the URL), with its factions: the NPCs come from its realm.
-  const [campaign, setCampaign] = useState<StrategicGame>();
-  const [factions, setFactions] = useState<Faction[]>();
-  const npcs = useCampaignNpcs(mode === 'create' ? campaign?.realmId : undefined);
 
   const resetForm = (data: TacticalGame) => {
     setFormData(data);
@@ -94,28 +87,12 @@ export default function TacticalGameFormPage({ mode }: { mode: 'create' | 'edit'
       .catch(notify.error);
   }, [strategicGameId]);
 
-  const chosenGameId = mode === 'create' ? formData?.strategicGameId : undefined;
-  useEffect(() => {
-    setFactions(undefined);
-    setNpcSetup((setup) => ({ ...setup, factions: [] }));
-    if (!chosenGameId) {
-      setCampaign(undefined);
-      return;
-    }
-    if (strategicGame?.id === chosenGameId) setCampaign(strategicGame);
-    else fetchStrategicGame(chosenGameId, auth).then(setCampaign).catch(notify.error);
-    fetchFactions(`gameId==${chosenGameId}`, 0, 100, auth)
-      .then((response) => setFactions(response.content))
-      .catch(notify.error);
-  }, [chosenGameId, strategicGame]);
-
   const isValid = !!formData?.name && (mode === 'edit' || !!formData.strategicGameId);
 
   const onSave = () => {
     if (!formData) return;
     if (mode === 'create') {
-      const request = { ...(formData as unknown as CreateTacticalGameDto), ...npcSetupRequest(npcSetup) };
-      createTacticalGame(request, auth)
+      createTacticalGame(formData as unknown as CreateTacticalGameDto, auth)
         .then((game) => navigate(`/tactical/games/view/${game.id}`))
         .catch(notify.error);
       return;
@@ -145,10 +122,7 @@ export default function TacticalGameFormPage({ mode }: { mode: 'create' | 'edit'
       onSave={onSave}
       onCancel={onCancel}
       saveDisabled={!isValid}
-      dirty={
-        !!formData &&
-        (JSON.stringify(formData) !== initialData || JSON.stringify(npcSetup) !== JSON.stringify(EMPTY_NPC_SETUP))
-      }
+      dirty={!!formData && JSON.stringify(formData) !== initialData}
       leftPanel={
         formData && (
           <EntityImage
@@ -159,18 +133,7 @@ export default function TacticalGameFormPage({ mode }: { mode: 'create' | 'edit'
       }
     >
       {formData ? (
-        <>
-          <TacticalGameForm formData={formData} setFormData={setFormData} strategicGame={strategicGame} />
-          {mode === 'create' && (
-            <TacticalGameFormNpcs
-              factions={factions}
-              npcs={npcs}
-              setup={npcSetup}
-              onChange={setNpcSetup}
-              disabled={!formData.strategicGameId}
-            />
-          )}
-        </>
+        <TacticalGameForm mode={mode} formData={formData} setFormData={setFormData} strategicGame={strategicGame} />
       ) : existing.notFound ? (
         <NotFound />
       ) : existing.error ? (
