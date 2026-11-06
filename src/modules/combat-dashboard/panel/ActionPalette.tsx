@@ -616,7 +616,7 @@ const PaletteContent: FC<{
                     ) : (entry.warnings && entry.warnings.length > 0) || (entry.details ?? []).length > 0 ? (
                       <>
                         {(entry.details ?? []).map((line) => (
-                          <Box key={line} component="span" sx={{ display: 'block' }}>
+                          <Box key={line} component="span" sx={{ display: 'block', whiteSpace: 'normal' }}>
                             {line}
                           </Box>
                         ))}
