@@ -120,7 +120,6 @@ const ManeuverModifiersStep: FC<{
             // Choosing the selected option again clears it.
             onChange={(key) => select(modifier.key, key === selection ? null : key)}
             optionLabel={(option) => t(optionLabelKey(modifier.key, option.key), { defaultValue: option.key })}
-            minTileWidth={150}
           />
         );
       case 'number': {
@@ -186,7 +185,6 @@ const ManeuverModifiersStep: FC<{
           options={purposes.map((purpose) => ({ key: purpose, value: purposeValue(purpose) || null }))}
           value={form.purpose && !isCombatTalentPurpose(form.purpose) ? form.purpose : ''}
           onChange={(key) => onChange({ purpose: key === form.purpose ? null : (key as FrenzyPurpose) })}
-          minTileWidth={150}
         />
       )}
 
@@ -274,7 +272,6 @@ const ManeuverModifiersStep: FC<{
             options={listing.light.options}
             value={form.light ?? ''}
             onChange={(key) => onChange({ light: key === form.light ? null : key })}
-            minTileWidth={110}
           />
           {(listing.defaultLight || lightOption?.sensitivity) && (
             <Typography variant="caption" color="text.secondary" component="div" sx={{ mt: 0.5 }}>

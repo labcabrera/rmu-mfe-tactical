@@ -2,7 +2,6 @@ import React, { FC, KeyboardEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { alpha, Box, Stack, Typography, useTheme } from '@mui/material';
 import { NumberPadField } from '@labcabrera-rmu/rmu-react-shared-lib';
-import ModifierTile from './ModifierTile';
 
 /** ARIA role of each clickable zone. */
 const RADIO = 'radio';
@@ -21,8 +20,8 @@ const SHAPES: { zone: Zone; shape: 'circle' | 'rect'; props: Record<string, numb
 ];
 
 /**
- * Called shot as a silhouette: click (or focus and press Enter or Space) the part to aim at; "none" clears it.
- * The penalty of the called shot can be changed once a part is chosen.
+ * Called shot as a silhouette: click (or focus and press Enter or Space) the part to aim at, and the chosen part again
+ * to clear it. The penalty of the called shot can be changed once a part is chosen.
  */
 const CalledShotPicker: FC<{
   value: string;
@@ -33,12 +32,14 @@ const CalledShotPicker: FC<{
   const { t } = useTranslation();
   const theme = useTheme();
 
+  // Choosing the zone already chosen clears the called shot.
+  const choose = (zone: Zone) => onChange(value === zone ? 'none' : zone);
   const fill = (zone: Zone) =>
     value === zone ? theme.palette.primary.main : alpha(theme.palette.text.secondary, 0.22);
   const onKeyDown = (zone: Zone) => (event: KeyboardEvent<SVGElement>) => {
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
-      onChange(zone);
+      choose(zone);
     }
   };
 
@@ -63,7 +64,7 @@ const CalledShotPicker: FC<{
               stroke={value === zone ? theme.palette.primary.dark : theme.palette.divider}
               strokeWidth={1.5}
               style={{ cursor: 'pointer', transition: 'fill 150ms' }}
-              onClick={() => onChange(zone)}
+              onClick={() => choose(zone)}
               {...(first
                 ? {
                     role: RADIO,
@@ -83,8 +84,11 @@ const CalledShotPicker: FC<{
         <Typography variant="caption" color="text.secondary">
           {t('called-shot')}
         </Typography>
-        <ModifierTile role="radio" label={t('none')} selected={value === 'none'} onClick={() => onChange('none')} />
-        {value !== 'none' && (
+        {value === 'none' ? (
+          <Typography variant="body2" color="text.secondary">
+            {t('called-shot-hint')}
+          </Typography>
+        ) : (
           <>
             <Typography variant="body2" sx={{ fontWeight: 600 }}>
               {t(value)}
@@ -96,6 +100,9 @@ const CalledShotPicker: FC<{
               onChange={onPenalty}
               integer
             />
+            <Typography variant="caption" color="text.secondary">
+              {t('called-shot-clear-hint')}
+            </Typography>
           </>
         )}
       </Stack>

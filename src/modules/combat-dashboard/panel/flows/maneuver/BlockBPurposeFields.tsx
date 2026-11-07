@@ -56,7 +56,6 @@ const BlockBPurposeFields: FC<{
         value={purpose ?? ''}
         onChange={choose}
         optionLabel={(option) => t(`maneuver-purpose-${option.key}`)}
-        minTileWidth={150}
       />
       {purpose && (
         <Alert severity="info" variant="outlined">
@@ -104,7 +103,6 @@ const BlockBPurposeFields: FC<{
             value={String(choices.mechanicalFactor ?? 1)}
             onChange={(key) => setFeat({ mechanicalFactor: Number(key) })}
             optionLabel={(option) => t(`mechanical-factor-${option.key.replace('.', '_')}`)}
-            minTileWidth={120}
           />
           {result && (
             <Typography variant="body2" color="text.secondary">

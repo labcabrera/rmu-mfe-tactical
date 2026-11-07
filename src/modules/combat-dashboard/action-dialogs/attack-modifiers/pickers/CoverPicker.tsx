@@ -1,15 +1,16 @@
 import React, { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Box, Typography } from '@mui/material';
+import { Stack } from '@mui/material';
+import { OptionGroup } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { ModifierOption } from '../attack-modifier-fields';
-import ModifierTile from './ModifierTile';
 
 const MATERIALS = ['soft', 'hard'] as const;
-const AMOUNTS = ['partial', 'half', 'full'] as const;
+const AMOUNTS = ['none', 'partial', 'half', 'full'] as const;
 
 /**
- * Cover of the target as a matrix: soft or hard cover by row, partial, half or full by column, each with its
- * value; "none" above.
+ * Cover of the target as two choices (workspace spec 085, 3.1): how much of it is covered (none, partial, half,
+ * full) and what covers it (soft or hard). Each option shows the value it gives with the other choice; the API keeps
+ * one key, `none` or `<material>_<amount>`.
  */
 const CoverPicker: FC<{ options: ModifierOption[]; value: string; onChange: (key: string) => void }> = ({
   options,
@@ -17,47 +18,38 @@ const CoverPicker: FC<{ options: ModifierOption[]; value: string; onChange: (key
   onChange,
 }) => {
   const { t } = useTranslation();
+  const [materialPart, amountPart] = value === 'none' ? ['soft', 'none'] : value.split('_');
+  const material = MATERIALS.includes(materialPart as (typeof MATERIALS)[number]) ? materialPart : 'soft';
+  const amount = amountPart ?? 'none';
+  const keyOf = (m: string, a: string) => (a === 'none' ? 'none' : `${m}_${a}`);
   const valueOf = (key: string) => options.find((o) => o.key === key)?.value ?? null;
+
   return (
-    <Box role="radiogroup" aria-label={t('cover')}>
-      <Typography variant="caption" color="text.secondary" component="div" sx={{ mb: 0.5 }}>
-        {t('cover')}
-      </Typography>
-      <Box
-        sx={{ display: 'grid', gridTemplateColumns: '72px repeat(3, minmax(0, 1fr))', gap: 1, alignItems: 'center' }}
-      >
-        <Box sx={{ gridColumn: '1 / -1' }}>
-          <ModifierTile role="radio" label={t('none')} selected={value === 'none'} onClick={() => onChange('none')} />
-        </Box>
-        <Box />
-        {AMOUNTS.map((amount) => (
-          <Typography key={amount} variant="caption" color="text.secondary" align="center">
-            {t(`cover-${amount}`)}
-          </Typography>
-        ))}
-        {MATERIALS.map((material) => (
-          <React.Fragment key={material}>
-            <Typography variant="caption" color="text.secondary">
-              {t(`cover-${material}`)}
-            </Typography>
-            {AMOUNTS.map((amount) => {
-              const key = `${material}_${amount}`;
-              return (
-                <ModifierTile
-                  key={key}
-                  role="radio"
-                  label=""
-                  ariaLabel={`${t(`cover-${material}`)} ${t(`cover-${amount}`)}`}
-                  value={valueOf(key)}
-                  selected={value === key}
-                  onClick={() => onChange(key)}
-                />
-              );
-            })}
-          </React.Fragment>
-        ))}
-      </Box>
-    </Box>
+    <Stack spacing={1} role="group" aria-label={t('cover')}>
+      <OptionGroup
+        label={t('cover')}
+        options={AMOUNTS.map((a) => ({
+          key: a,
+          label: a === 'none' ? t('none') : t(`cover-${a}`),
+          value: valueOf(keyOf(material, a)),
+        }))}
+        value={amount}
+        onChange={(a) => onChange(keyOf(material, a))}
+      />
+      <OptionGroup
+        size="small"
+        label={t('cover-material')}
+        options={MATERIALS.map((m) => ({
+          key: m,
+          label: t(`cover-${m}`),
+          // With no cover the material gives nothing: no values, and it cannot be chosen.
+          value: amount === 'none' ? null : valueOf(keyOf(m, amount)),
+          disabled: amount === 'none',
+        }))}
+        value={material}
+        onChange={(m) => onChange(keyOf(m, amount))}
+      />
+    </Stack>
   );
 };
 

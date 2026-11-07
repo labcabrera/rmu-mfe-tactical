@@ -1,12 +1,14 @@
 import React, { Dispatch, FC, SetStateAction, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
-import { Chip, Grid, Tooltip, Typography } from '@mui/material';
+import { Stack, Tooltip, Typography } from '@mui/material';
 import {
-  CategorySeparator,
   ChipRow,
   D100,
+  effectColor,
   effectIcon,
+  RmuChip,
+  RollCard,
   RollField,
   RollSpec,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
@@ -53,54 +55,66 @@ const ResolveAttackFormFumble: FC<{
       .catch((err) => notify.error(err));
   };
 
+  const rolled = attack.roll?.fumbleRoll !== null && attack.roll?.fumbleRoll !== undefined;
+  // Workspace spec 085, 2.4: the fumble roll in the same card as the other rolls
   return (
-    <Grid container spacing={1} sx={{ mt: 1 }}>
-      <Grid size={12}>
-        <CategorySeparator text={t('fumble')} />
-      </Grid>
-      <Grid size={6}>
-        <RollField
-          spec={D100}
-          label={t('fumble-roll')}
-          value={attack.roll?.fumbleRoll}
-          onChange={(roll) => onUpdateFumbleRoll(roll.total)}
-          disabled={action.status === 'completed'}
-        />
-      </Grid>
-      {hits && attack.roll?.fumbleRoll && (
-        <Grid size={6}>
+    <RollCard
+      title={t('fumble-roll')}
+      status={rolled ? 'done' : 'attention'}
+      statusText={rolled ? undefined : t('attack-next-step-pending_fumble_roll')}
+      field={
+        <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', rowGap: 1 }}>
           <RollField
-            spec={hits.spec}
-            label={t('fumble-hits-dice', { dice: hits.dice })}
-            value={fumble.damage}
-            onChange={(roll) => onUpdateFumbleRoll(attack.roll!.fumbleRoll!, roll.total)}
+            spec={D100}
+            label={t('fumble-roll')}
+            value={attack.roll?.fumbleRoll}
+            onChange={(roll) => onUpdateFumbleRoll(roll.total)}
             disabled={action.status === 'completed'}
           />
-        </Grid>
-      )}
-      <Grid size={12}>
-        <ChipRow>
-          {!!fumble.damage && fumble.damage > 0 && (
-            <Tooltip title={t('dmg')}>
-              <Chip avatar={effectIcon('dmg')} label={t('damage-n', { damage: fumble.damage })} color="error" />
-            </Tooltip>
+          {hits && rolled && (
+            <RollField
+              spec={hits.spec}
+              label={t('fumble-hits-dice', { dice: hits.dice })}
+              value={fumble.damage}
+              onChange={(roll) => onUpdateFumbleRoll(attack.roll!.fumbleRoll!, roll.total)}
+              disabled={action.status === 'completed'}
+            />
           )}
-          {(fumble.effects ?? []).map((effect, effectIndex) => (
-            <Tooltip key={effectIndex} title={t(effect.status)}>
-              <Chip avatar={effectIcon(effect.status)} label={criticalEffectLabel(effect, t)} color="error" />
-            </Tooltip>
-          ))}
-        </ChipRow>
-      </Grid>
-      {fumble.text && <Grid size={12}>{fumble.text}</Grid>}
+        </Stack>
+      }
+      chips={
+        rolled && (
+          <ChipRow>
+            {!!fumble.damage && fumble.damage > 0 && (
+              <RmuChip
+                variant="outcome"
+                tone="error"
+                hint={t('dmg')}
+                avatar={effectIcon('dmg')}
+                label={t('damage-n', { damage: fumble.damage })}
+              />
+            )}
+            {(fumble.effects ?? []).map((effect, effectIndex) => (
+              <Tooltip key={effectIndex} title={t(effect.status)}>
+                <RmuChip
+                  variant="effect"
+                  tone={effectColor(effect.status)}
+                  avatar={effectIcon(effect.status)}
+                  label={criticalEffectLabel(effect, t)}
+                />
+              </Tooltip>
+            ))}
+          </ChipRow>
+        )
+      }
+    >
+      {fumble.text && <Typography variant="body2">{fumble.text}</Typography>}
       {fumble.additionalDamageText && (
-        <Grid size={12}>
-          <Typography variant="body2" color="text.secondary">
-            {t('fumble-additional-damage')}: {fumble.additionalDamageText}
-          </Typography>
-        </Grid>
+        <Typography variant="body2" color="text.secondary">
+          {t('fumble-additional-damage')}: {fumble.additionalDamageText}
+        </Typography>
       )}
-    </Grid>
+    </RollCard>
   );
 };
 

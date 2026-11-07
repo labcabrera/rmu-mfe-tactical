@@ -48,7 +48,6 @@ const CombatTalentPurposeFields: FC<{
         options={purposes.map((key) => ({ key, value: null }))}
         value={purpose ?? ''}
         onChange={choose}
-        minTileWidth={150}
       />
       {purpose && (
         <Alert severity="info" variant="outlined">
@@ -93,7 +92,6 @@ const CombatTalentPurposeFields: FC<{
             value={form.position ?? ''}
             onChange={(key) => onChange({ position: key as ManeuverForm['position'] })}
             optionLabel={(option) => t(`precision-position-${option.key}`)}
-            minTileWidth={120}
           />
           <Box sx={{ width: 200 }}>
             <NumberPadField

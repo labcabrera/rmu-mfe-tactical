@@ -1,7 +1,7 @@
 import React, { Dispatch, FC, ReactNode, SetStateAction } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Box, Chip, Divider, Grid, Stack, Typography } from '@mui/material';
-import { ChipRow, NumberPadField, Panel, SectionLabel } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { Box, Chip, Divider, Stack, Typography, useMediaQuery, useTheme } from '@mui/material';
+import { ChipRow, NumberPadField, OptionGroup, Panel } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { ActionAttackModifiers, AttackDeclaration } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
 import {
@@ -12,15 +12,12 @@ import {
   ModifierField,
   ModifierFieldGroup,
   ModifierSection,
-  MODIFIER_SECTIONS,
   fieldsFor,
   isDeclared,
 } from './attack-modifier-fields';
 import CalledShotPicker from './pickers/CalledShotPicker';
 import CoverPicker from './pickers/CoverPicker';
-import ModifierTile from './pickers/ModifierTile';
 import OptionTiles from './pickers/OptionTiles';
-import PositionPicker from './pickers/PositionPicker';
 import { specialManeuverPreview } from './special-maneuvers';
 
 const GROUPS: ModifierFieldGroup[] = ['offense', 'defense', 'situation'];
@@ -57,6 +54,10 @@ const AttackModifiersForm: FC<{
   attackerTraits?: string[];
 }> = ({ formData, setFormData, index, kind, target, situationExtra, specialExtra, attackerTraits }) => {
   const { t } = useTranslation();
+  const theme = useTheme();
+  const wide = useMediaQuery(theme.breakpoints.up('xl'));
+  const medium = useMediaQuery(theme.breakpoints.up('lg'));
+  const columnCount = wide ? 3 : medium ? 2 : 1;
   const modifiers = formData.attacks?.[index]?.modifiers;
   if (!modifiers) return null;
 
@@ -105,14 +106,25 @@ const AttackModifiersForm: FC<{
   const declaredLabel = (field: ModifierField) =>
     field.kind === 'choice' ? `${t(field.label)}: ${t(String(modifiers[field.name]))}` : t(field.label);
 
-  const renderFlag = (field: FlagField) => (
-    <ModifierTile
-      key={field.name}
-      label={t(field.label)}
-      value={field.bonus(kind)}
-      selected={modifiers[field.name] === true}
-      auto={modifiers[field.name] === true && auto[field.name] ? t('from-target-effect') : undefined}
-      onClick={() => change(field, modifiers[field.name] !== true)}
+  /** The flags of a list as toggle chips with their values (workspace spec 085, 3.1). */
+  const renderFlags = (flags: FlagField[]) => (
+    <OptionGroup
+      multiple
+      options={flags.map((field) => {
+        const fromEffect = modifiers[field.name] === true && !!auto[field.name];
+        return {
+          key: field.name,
+          label: t(field.label),
+          value: field.bonus(kind),
+          auto: fromEffect,
+          hint: fromEffect ? t('from-target-effect') : undefined,
+        };
+      })}
+      value={flags.filter((field) => modifiers[field.name] === true).map((field) => field.name)}
+      onChange={(keys) => {
+        const toggled = flags.find((field) => keys.includes(field.name) !== (modifiers[field.name] === true));
+        if (toggled) change(toggled, !(modifiers[toggled.name] === true));
+      }}
     />
   );
 
@@ -129,14 +141,6 @@ const AttackModifiersForm: FC<{
     if (field.kind === 'choice' && field.name === 'cover')
       return (
         <CoverPicker options={field.options(kind)} value={choiceValue(field)} onChange={(key) => change(field, key)} />
-      );
-    if (field.kind === 'choice' && field.name === 'positionalTarget')
-      return (
-        <PositionPicker
-          options={field.options(kind)}
-          value={choiceValue(field)}
-          onChange={(key) => change(field, key)}
-        />
       );
     if (field.kind === 'choice')
       return (
@@ -162,71 +166,119 @@ const AttackModifiersForm: FC<{
     return null;
   };
 
-  /** Flags as a grid of same-size tiles, then the other controls one per row. */
+  /** The choices one per row, then the flags together as chips. */
   const renderFields = (list: ModifierField[]) => {
     const flags = list.filter((field): field is FlagField => field.kind === 'flag');
     const others = list.filter((field) => field.kind !== 'flag' && field.name !== 'calledShotPenalty');
     return (
       <Stack spacing={2}>
-        {flags.length > 0 && (
-          <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(170px, 1fr))', gap: 1 }}>
-            {flags.map(renderFlag)}
-          </Box>
-        )}
         {others.map((field) => (
           <Box key={field.name}>{renderField(field)}</Box>
         ))}
+        {flags.length > 0 && renderFlags(flags)}
       </Stack>
     );
   };
 
+  const estimatedTotal = (modifiers.bo ?? 0) + rollSum;
+
+  // The blocks of the form: the three groups of the roll, then the target's defense and the special options.
+  type Block = { key: string; title: string; help?: string; content: ReactNode };
+  const blocks: Block[] = [];
+  const rollFields = fields.filter((field) => field.section === 'roll');
+  GROUPS.forEach((group) => {
+    const groupFields = rollFields.filter((field) => field.group === group);
+    const extra = group === 'situation' ? situationExtra : undefined;
+    if (groupFields.length === 0 && !extra) return;
+    blocks.push({
+      key: group,
+      title: t(`modifier-group-${group}`),
+      content: (
+        <>
+          {renderFields(groupFields)}
+          {extra && <Box sx={{ mt: 2 }}>{extra}</Box>}
+        </>
+      ),
+    });
+  });
+  (['defender', 'special'] as ModifierSection[]).forEach((section) => {
+    const list = fields.filter((field) => field.section === section);
+    const extra = section === 'special' ? specialExtra : undefined;
+    if (list.length === 0 && !extra) return;
+    blocks.push({
+      key: section,
+      title: t(`modifier-section-${section}`),
+      help: t(`modifier-section-${section}-help`),
+      content: (
+        <>
+          {renderFields(list)}
+          {extra && <Box sx={{ mt: 2 }}>{extra}</Box>}
+        </>
+      ),
+    });
+  });
+
+  // Fixed columns by width (not a masonry, so that a block does not jump to another column when it grows): the
+  // attacker and the target together, the situation alone, the defense and the special options together.
+  const columnKeys: string[][] =
+    columnCount === 3
+      ? [['offense', 'defense'], ['situation'], ['defender', 'special']]
+      : columnCount === 2
+        ? [
+            ['offense', 'defense', 'defender'],
+            ['situation', 'special'],
+          ]
+        : [['offense', 'defense', 'situation', 'defender', 'special']];
+  const columns = columnKeys
+    .map((keys) =>
+      keys.map((key) => blocks.find((block) => block.key === key)).filter((block): block is Block => !!block)
+    )
+    .filter((column) => column.length > 0);
+
   return (
-    <Grid container spacing={2}>
-      <Grid size={{ xs: 12, md: 8, xl: 9 }}>
-        {/* On wide screens the roll section spans the whole width and the others go side by side, so the
-            modifiers fit in view with little scrolling. */}
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: 'repeat(2, minmax(0, 1fr))' }, gap: 2 }}>
-          {MODIFIER_SECTIONS.map((section) => {
-            const list = fields.filter((field) => field.section === section);
-            if (list.length === 0) return null;
-            return (
-              <Box
-                key={section}
-                component="section"
-                aria-label={t(`modifier-section-${section}`)}
-                sx={{ gridColumn: section === 'roll' ? '1 / -1' : undefined }}
-              >
-                <Panel title={t(`modifier-section-${section}`)}>
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                    {t(`modifier-section-${section}-help`)}
-                  </Typography>
-                  {section === 'roll' ? (
-                    // Its groups side by side when they fit.
-                    <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 3 }}>
-                      {GROUPS.map((group) => {
-                        const groupFields = list.filter((field) => field.group === group);
-                        if (groupFields.length === 0 && !(group === 'situation' && situationExtra)) return null;
-                        return (
-                          <Box key={group}>
-                            <SectionLabel>{t(`modifier-group-${group}`)}</SectionLabel>
-                            {renderFields(groupFields)}
-                            {group === 'situation' && situationExtra && <Box sx={{ mt: 2 }}>{situationExtra}</Box>}
-                          </Box>
-                        );
-                      })}
-                    </Box>
-                  ) : (
-                    renderFields(list)
-                  )}
-                  {section === 'special' && specialExtra && <Box sx={{ mt: 2 }}>{specialExtra}</Box>}
-                </Panel>
-              </Box>
-            );
-          })}
+    <Stack direction={{ xs: 'column', md: 'row' }} useFlexGap sx={{ gap: 2, alignItems: { md: 'flex-start' } }}>
+      <Box sx={{ flex: 1, minWidth: 0, width: '100%' }}>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
+          {t('modifier-section-roll-help')}
+        </Typography>
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: `repeat(${columns.length}, minmax(0, 1fr))`,
+            gap: 2,
+            alignItems: 'start',
+          }}
+        >
+          {columns.map((column, index) => (
+            <Stack key={index} spacing={2}>
+              {column.map((block) => (
+                <Box key={block.key} component="section" aria-label={block.title}>
+                  <Panel title={block.title} sx={{ height: 'auto' }}>
+                    {block.help && (
+                      <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
+                        {block.help}
+                      </Typography>
+                    )}
+                    {block.content}
+                  </Panel>
+                </Box>
+              ))}
+            </Stack>
+          ))}
         </Box>
-      </Grid>
-      <Grid size={{ xs: 12, md: 4, xl: 3 }}>
-        <Panel title={t('roll-preview')} sx={{ height: 'auto', position: { md: 'sticky' }, top: { md: 0 } }}>
+      </Box>
+      {/* Workspace spec 085, 3.2: the estimate stays in view while the modifiers scroll */}
+      {/* On narrow tablets it goes first, above the modifiers */}
+      <Box
+        sx={{
+          width: { xs: '100%', md: 280 },
+          flexShrink: 0,
+          order: { xs: -1, md: 0 },
+          position: { md: 'sticky' },
+          top: { md: 8 },
+        }}
+      >
+        <Panel title={t('roll-preview')} sx={{ height: 'auto' }}>
           <Stack spacing={0.5}>
             <PreviewRow label={t('used-ob')} value={modifiers.bo ?? 0} plain />
             {rollDeclared.map((field) => (
@@ -236,7 +288,7 @@ const AttackModifiersForm: FC<{
               <PreviewRow key={row.key} label={t(`modifier-label-${row.key}`)} value={row.value} />
             ))}
             <Divider sx={{ my: 0.5 }} />
-            <PreviewRow label={t('estimated-total')} value={(modifiers.bo ?? 0) + rollSum} plain strong />
+            <PreviewRow label={t('estimated-total')} value={estimatedTotal} plain strong />
           </Stack>
           {otherDeclared.length > 0 && (
             <Box sx={{ mt: 2 }}>
@@ -254,8 +306,8 @@ const AttackModifiersForm: FC<{
             {t('roll-preview-note')}
           </Typography>
         </Panel>
-      </Grid>
-    </Grid>
+      </Box>
+    </Stack>
   );
 };
 
