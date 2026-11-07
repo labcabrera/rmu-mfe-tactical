@@ -38,7 +38,8 @@ import {
   effectiveBmr,
   effectiveMaxPace,
   injuryPaceLimit,
-  normalMovementFatigue,
+  NORMAL_PACES,
+  paceFatigue,
   paceIndex,
   paceOfAp,
   PACES,
@@ -146,11 +147,24 @@ const MovementFlow: FC<{
   const nothingLeft = bmr > 0 && left <= 0.001;
   const dashing = !freeMovement && modifiers.pace === 'dash';
   const dashBlocked = freeMovement ? undefined : dashBlockedReason(actorRound, round.own, currentPhase, backwards);
-  const roundPace = paceOfAp(round.normalAp + actionPoints);
-  const normalDistance = Math.min(left, distance(dashing ? 1.25 : 1));
+  // A normal movement may choose a pace slower than its AP, which caps what the round covers, or a faster one, which
+  // only adds fatigue; by default it takes the pace of the AP of the round (workspace spec 081, decision 5).
+  const apPace = paceOfAp(round.normalAp + actionPoints);
+  const normalMaxIndex = Math.min(maxPaceIndex, slow ? paceIndex(SLOW_MAX_PACE) : paceIndex('sprint'));
+  const paceCap = (pace: string) => Math.max(0, bmr * PACES[paceIndex(pace)].perRound - round.moved);
+  const paceReached = (pace: string) => bmr > 0 && paceCap(pace) <= 0.001;
+  const normalPaceDisabled = (pace: string) =>
+    paceIndex(pace) > normalMaxIndex || (fleeing && paceIndex(pace) < paceIndex('run')) || paceReached(pace);
+  const enabledPaces = NORMAL_PACES.map((row) => row.id as string).filter((pace) => !normalPaceDisabled(pace));
+  const defaultPace = normalPaceDisabled(apPace)
+    ? (enabledPaces.find((pace) => paceIndex(pace) > paceIndex(apPace)) ?? enabledPaces[enabledPaces.length - 1])
+    : apPace;
+  const chosenPace: string | undefined = dashing ? 'dash' : modifiers.pace || defaultPace;
+  const normalPaceDistance = (pace: string) => Math.min(left, distance(1), paceCap(pace));
+  const normalDistance = dashing ? Math.min(left, distance(1.25)) : chosenPace ? normalPaceDistance(chosenPace) : 0;
   const talliedFatigue = !dashing && !['climbing', 'swimming'].includes(modifiers.skillId);
   const addedFatigue =
-    normalMovementFatigue(round.normalAp, actionPoints) * (strategicGame?.options?.fatigueMultiplier || 1);
+    (chosenPace ? paceFatigue(round.normalPace, chosenPace) : 0) * (strategicGame?.options?.fatigueMultiplier || 1);
   const blocked = nothingLeft || (!freeMovement && twoFoci);
   const grappleFeatNeeded = isActorRoundGrappling(actorRound, actorRounds ?? []);
 
@@ -159,8 +173,9 @@ const MovementFlow: FC<{
     // Workspace spec 068: exertion with a wound that reopens asks for a confirmation first
     confirm
       .run((confirmed) => {
-        // A normal movement sends no pace unless it dashes: the API takes it from the AP of the round.
-        const body = { ...form, modifiers: { ...modifiers, pace: modifiers.pace || undefined } };
+        // A normal movement sends the pace it chose, the one of its AP unless the user picked another.
+        const pace = freeMovement ? modifiers.pace : chosenPace;
+        const body = { ...form, modifiers: { ...modifiers, pace: pace || undefined } };
         return resolveMovement(action.id, confirmed ? { ...body, confirm: true } : body, auth);
       })
       .then((result: Action) => {
@@ -335,17 +350,91 @@ const MovementFlow: FC<{
             scale !== 1 ? ` (${Number((normalDistance * scale).toFixed(1))})` : ''
           }`}
         />
-        <Chip
-          size="small"
-          variant="outlined"
-          color="primary"
-          label={`${t('movement-round-pace')}: ${t(dashing ? 'dash' : roundPace)}`}
-        />
+        {chosenPace && (
+          <Chip
+            size="small"
+            variant="outlined"
+            color="primary"
+            label={`${t('movement-round-pace')}: ${t(chosenPace)}`}
+          />
+        )}
         {talliedFatigue && (
           <Chip size="small" variant="outlined" label={`${t('fatigue')}: +${Number(addedFatigue.toFixed(1))}`} />
         )}
         <Chip size="small" variant="outlined" label={`${t('movement-left')}: ${Number(left.toFixed(1))}'`} />
       </ChipRow>
+      {!dashing && (
+        <Stack spacing={0.75} role="radiogroup" aria-label={t('pace')}>
+          <Typography variant="caption" color="text.secondary">
+            {t('movement-pace-help')}
+          </Typography>
+          {NORMAL_PACES.map((row) => {
+            const index = paceIndex(row.id);
+            const disabled = normalPaceDisabled(row.id);
+            const selected = chosenPace === row.id;
+            const feet = normalPaceDistance(row.id);
+            const caption = paceReached(row.id)
+              ? t('movement-pace-reached')
+              : slow && index > paceIndex(SLOW_MAX_PACE) && index <= maxPaceIndex
+                ? t('movement-slow-max-jog')
+                : index > maxPaceIndex && injuryLimit && index > paceIndex(injuryLimit)
+                  ? t('injury-pace-limit', { pace: t(injuryLimit) })
+                  : index > maxPaceIndex
+                    ? t('over-max-pace')
+                    : fleeing && index < paceIndex('run')
+                      ? t('fear-flees-at-run')
+                      : fearCap && index > fearCap.index
+                        ? t(`fear-pace-warning-${fearCap.state}`)
+                        : index > paceIndex(apPace)
+                          ? t('movement-pace-over-ap')
+                          : row.id === apPace
+                            ? t('movement-pace-of-ap')
+                            : NBSP;
+            return (
+              <ButtonBase
+                key={row.id}
+                role="radio"
+                aria-checked={selected}
+                disabled={disabled}
+                onClick={() => setModifiers({ pace: row.id })}
+                sx={[
+                  selectableSx(selected, disabled),
+                  {
+                    display: 'grid',
+                    gridTemplateColumns: '1fr auto',
+                    alignItems: 'center',
+                    textAlign: 'left',
+                    px: 1.5,
+                    py: 1,
+                  },
+                ]}
+              >
+                <Box>
+                  <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                    {t(row.id)}{' '}
+                    <Typography component="span" variant="caption" color="text.secondary">
+                      {`×${row.perRound}`}
+                    </Typography>
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    {caption}
+                  </Typography>
+                </Box>
+                <Box sx={{ textAlign: 'right' }}>
+                  <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                    {Number(feet.toFixed(1))}&apos;
+                  </Typography>
+                  {scale !== 1 && (
+                    <Typography variant="caption" color="text.secondary">
+                      {Number((feet * scale).toFixed(1))}
+                    </Typography>
+                  )}
+                </Box>
+              </ButtonBase>
+            );
+          })}
+        </Stack>
+      )}
       <Box>
         <FormControlLabel
           control={
@@ -464,7 +553,7 @@ const MovementFlow: FC<{
     {
       id: 'pace',
       label: t('pace'),
-      summary: modifiers.pace ? t(modifiers.pace) : !freeMovement ? t(roundPace) : undefined,
+      summary: freeMovement ? (modifiers.pace ? t(modifiers.pace) : undefined) : chosenPace ? t(chosenPace) : undefined,
       content: freeMovement ? freePace : normalPace,
     },
     ...(modifiers.requiredManeuver
@@ -479,7 +568,9 @@ const MovementFlow: FC<{
     (steps[current].id === 'setup' &&
       (!modifiers.requiredManeuver || !!modifiers.difficulty) &&
       (!grappleFeatNeeded || !!modifiers.grappleFeat)) ||
-    (steps[current].id === 'pace' && !blocked && (!freeMovement || !!modifiers.pace)) ||
+    (steps[current].id === 'pace' &&
+      !blocked &&
+      (freeMovement ? !!modifiers.pace : dashing || (!!chosenPace && !normalPaceDisabled(chosenPace)))) ||
     (steps[current].id === 'roll' && form.roll?.roll !== null && form.roll?.roll !== undefined);
 
   return (
