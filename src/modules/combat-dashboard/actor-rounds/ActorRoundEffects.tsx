@@ -1,21 +1,34 @@
 import React, { FC, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useAuth } from 'react-oidc-context';
 import { Chip, Stack } from '@mui/material';
 import { EffectList, ChipRow } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
+import { deleteActorRoundEffect } from '../../api/actor-rounds';
 import { ActorRound } from '../../api/actor-rounds.dto';
 import { actorRoundBleedingEffect } from '../../services/actor-round-service';
+import { useTacticalNotify } from '../../services/notify-service';
 import ActorRoundAlerts from './ActorRoundAlerts';
 
 /**
  * Effects, penalties and pending alerts of an actor, and its declared dodge and block. The API keeps one stun per
  * severity, so each one is its own chip with its penalty and rounds. `compact` shows them as badges (abbreviation
- * and value, full text on hover or tap) for the narrow actor cell.
+ * and value, full text on hover or tap) for the narrow actor cell. In the current round of a game in progress the
+ * full chips can delete an effect by hand; bleeding comes from the injuries and is treated there.
  */
 const ActorRoundEffects: FC<{ actorRound: ActorRound; compact?: boolean }> = ({ actorRound, compact = false }) => {
   const { t } = useTranslation();
-  const actorRounds = useContext(CombatContext)?.actorRounds;
+  const auth = useAuth();
+  const notify = useTacticalNotify();
+  const context = useContext(CombatContext);
+  const actorRounds = context?.actorRounds;
   if (!actorRound) return null;
+  const game = context?.game;
+  const editable = !!game && game.status === 'in_progress' && context?.displayRound === game.round;
+  const removeEffect = (effectId: string) =>
+    deleteActorRoundEffect(actorRound.id, effectId, auth)
+      .then((updated) => context?.updateActorRound(updated))
+      .catch((err) => notify.error(err));
   const mode = actorRound.defenseMode;
   const defenses = (['dodge', 'block'] as const).filter((kind) => mode && mode[kind] !== 'none');
   const bleeding = actorRoundBleedingEffect(actorRound);
@@ -30,6 +43,7 @@ const ActorRoundEffects: FC<{ actorRound: ActorRound; compact?: boolean }> = ({ 
           source: modifier.source,
           value: modifier.value,
         }))}
+        onDelete={editable ? (effect) => effect.id && removeEffect(effect.id) : undefined}
       />
       {defenses.length > 0 && (
         <ChipRow>
