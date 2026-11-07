@@ -24,6 +24,7 @@ import {
   OPEN_D100,
   RollField,
   ChipRow,
+  SectionLabel,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../CombatContext';
 import { resolveMovement } from '../../../api/action';
@@ -76,7 +77,7 @@ const initialForm = (action: Action, actorRound: ActorRound, light: string | nul
       };
 
 /**
- * Movement in the side panel: setup (skill, whether it needs a maneuver, difficulty), pace, the maneuver
+ * Movement in the side panel: one step with the setup (skill, whether it needs a maneuver, difficulty) and the pace, the maneuver
  * roll when it needs one, and the result. Everything before "Resolve" is local; the API resolves it in one call.
  */
 const MovementFlow: FC<{
@@ -538,6 +539,8 @@ const MovementFlow: FC<{
 
   const result = <MovementResult action={action} />;
 
+  const shownPace = freeMovement ? modifiers.pace || undefined : chosenPace;
+  // Setup and pace in one step: the skill, whether it needs a maneuver, and how fast the actor goes.
   const steps: FlowStep[] = [
     {
       id: 'setup',
@@ -545,16 +548,17 @@ const MovementFlow: FC<{
       summary: [
         t(modifiers.skillId),
         modifiers.requiredManeuver && modifiers.difficulty ? t(`difficulty-${modifiers.difficulty}`) : null,
+        shownPace ? t(shownPace) : null,
       ]
         .filter(Boolean)
         .join(' · '),
-      content: setup,
-    },
-    {
-      id: 'pace',
-      label: t('pace'),
-      summary: freeMovement ? (modifiers.pace ? t(modifiers.pace) : undefined) : chosenPace ? t(chosenPace) : undefined,
-      content: freeMovement ? freePace : normalPace,
+      content: (
+        <Stack spacing={2}>
+          {setup}
+          <SectionLabel>{t('pace')}</SectionLabel>
+          {freeMovement ? freePace : normalPace}
+        </Stack>
+      ),
     },
     ...(modifiers.requiredManeuver
       ? [{ id: 'roll', label: t('roll'), summary: form.roll?.roll ?? undefined, content: roll }]
@@ -567,8 +571,7 @@ const MovementFlow: FC<{
   const canContinue =
     (steps[current].id === 'setup' &&
       (!modifiers.requiredManeuver || !!modifiers.difficulty) &&
-      (!grappleFeatNeeded || !!modifiers.grappleFeat)) ||
-    (steps[current].id === 'pace' &&
+      (!grappleFeatNeeded || !!modifiers.grappleFeat) &&
       !blocked &&
       (freeMovement ? !!modifiers.pace : dashing || (!!chosenPace && !normalPaceDisabled(chosenPace)))) ||
     (steps[current].id === 'roll' && form.roll?.roll !== null && form.roll?.roll !== undefined);
