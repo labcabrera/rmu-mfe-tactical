@@ -1,7 +1,7 @@
 import React, { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Box, Stack, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
-import { OPEN_D100, RollField } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { OPEN_D100, RollCard, RollField } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { DIFFICULTY_TABLE, ParryDeclarationItem } from '../../../../api/action.dto';
 import { ActorRound } from '../../../../api/actor-rounds.dto';
 import { actorOpenEnded } from '../../../../services/combat-talents-service';
@@ -49,32 +49,38 @@ const ManeuverRollFields: FC<{
   const set = (patch: Partial<ManeuverRollInput>) => onChange({ ...input, ...patch });
   const difficulty = DIFFICULTY_TABLE.find((each) => each.key === input.difficulty)?.value ?? 0;
   const predicted = input.roll !== null ? input.roll + skill + penalty + difficulty : null;
+  // Workspace spec 085, 2.4: the same card as the other rolls of the attack
   return (
-    <Stack spacing={1}>
-      <Stack direction="row" spacing={1.5} sx={{ alignItems: 'flex-start', flexWrap: 'wrap', rowGap: 1 }}>
-        <Box sx={{ minWidth: 200, flex: 1 }}>
-          <RollField
-            spec={OPEN_D100}
-            label={label}
-            value={input.roll}
-            onChange={(roll) => set({ roll: roll.total, passed: null })}
-            onClear={() => set({ roll: null })}
+    <RollCard
+      title={label}
+      status={isManeuverInputReady(input) ? 'done' : 'pending'}
+      statusText={
+        input.passed === null ? undefined : t(input.passed ? 'shield-maneuver-passed' : 'shield-maneuver-failed')
+      }
+      field={
+        <Stack direction="row" spacing={1.5} sx={{ alignItems: 'flex-start', flexWrap: 'wrap', rowGap: 1 }}>
+          <Box sx={{ minWidth: 200, flex: 1 }}>
+            <RollField
+              spec={OPEN_D100}
+              label={label}
+              value={input.roll}
+              onChange={(roll) => set({ roll: roll.total, passed: null })}
+              onClear={() => set({ roll: null })}
+              disabled={disabled || input.passed !== null}
+              openEnded={actorOpenEnded(actor)}
+            />
+          </Box>
+          <DifficultySelect
+            value={input.difficulty}
+            onChange={(value) => set({ difficulty: value })}
             disabled={disabled || input.passed !== null}
-            openEnded={actorOpenEnded(actor)}
           />
-        </Box>
-        <DifficultySelect
-          value={input.difficulty}
-          onChange={(value) => set({ difficulty: value })}
-          disabled={disabled || input.passed !== null}
-        />
-      </Stack>
-      {predicted !== null && input.passed === null && (
-        <Typography variant="caption" color="text.secondary">
-          {t('predicted-total')}: {predicted}
-        </Typography>
-      )}
-      <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
+        </Stack>
+      }
+      total={predicted !== null && input.passed === null ? predicted : undefined}
+      totalLabel={t('predicted-total')}
+    >
+      <Stack direction="row" spacing={1} sx={{ alignItems: 'center', flexWrap: 'wrap', rowGap: 0.5 }}>
         <Typography variant="caption" color="text.secondary">
           {t('shield-maneuver-manual')}
         </Typography>
@@ -96,7 +102,7 @@ const ManeuverRollFields: FC<{
           </ToggleButton>
         </ToggleButtonGroup>
       </Stack>
-    </Stack>
+    </RollCard>
   );
 };
 

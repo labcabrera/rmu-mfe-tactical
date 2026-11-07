@@ -10,6 +10,7 @@ import { ActorRound } from '../../api/actor-rounds.dto';
 import { isActionActionable } from '../../services/ap-service';
 import { isGameFinished } from '../../services/game-service';
 import { useShortcut } from '../../services/shortcuts';
+import { actionLabel } from '../actor-rounds/action-view';
 import { phaseNumber } from '../actor-rounds/round-grid';
 import ActionPalette from './ActionPalette';
 import ActionResolutionDialog from './ActionResolutionDialog';
@@ -101,6 +102,12 @@ const CombatPanelProvider: FC<{ children: ReactNode }> = ({ children }) => {
     return pending.find((a) => order.indexOf(a.actorId) >= from) ?? pending[0];
   };
   const nextAfterResolving = resolving ? nextPending(resolving) : undefined;
+  const nextPendingLabel = nextAfterResolving
+    ? t('next-pending-action-named', {
+        actor: actorRounds?.find((ar) => ar.actorId === nextAfterResolving.actorId)?.actorName ?? '—',
+        action: actionLabel(nextAfterResolving, t, actorRounds),
+      })
+    : undefined;
 
   // Keyboard: J/K (or the arrows once an actor is selected) move between actors, Enter resolves the
   // selected actor's action waiting for input (or opens its first action), A opens its action palette, F its sheet.
@@ -216,6 +223,7 @@ const CombatPanelProvider: FC<{ children: ReactNode }> = ({ children }) => {
           if (resolvingActorRound) openActor(resolvingActorRound);
         }}
         onNextPending={nextAfterResolving ? () => resolveAction(nextAfterResolving) : undefined}
+        nextPendingLabel={nextPendingLabel}
       />
     </CombatPanelContext.Provider>
   );

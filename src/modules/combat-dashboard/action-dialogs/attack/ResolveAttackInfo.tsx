@@ -1,4 +1,5 @@
 import React, { FC, useContext } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Grid } from '@mui/material';
 import { RollBreakdown } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../CombatContext';
@@ -11,6 +12,7 @@ const ResolveAttackFormModifiers: FC<{
   /** Actor of the attack, to show the size of its attack (spec 075). */
   sourceActorId?: string;
 }> = ({ attack, sourceActorId }) => {
+  const { t } = useTranslation();
   const { actorRounds } = useContext(CombatContext)!;
 
   if (!attack || !attack.calculated) return null;
@@ -33,6 +35,10 @@ const ResolveAttackFormModifiers: FC<{
             roll={attack.roll?.roll}
             total={attack.calculated.rollTotal}
             skipped={attack.calculated.skipped}
+            // The breakdown always shows while the attack is resolved; before the roll its total is a prediction.
+            totalLabel={
+              attack.roll?.roll === null || attack.roll?.roll === undefined ? t('predicted-total') : undefined
+            }
           />
         </Grid>
       )}

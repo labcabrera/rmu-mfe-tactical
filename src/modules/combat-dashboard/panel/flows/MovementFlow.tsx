@@ -263,7 +263,6 @@ const MovementFlow: FC<{
               rememberLight(action.gameId, light);
               setModifiers({ light });
             }}
-            minTileWidth={110}
           />
           <Box sx={{ maxWidth: 200 }}>
             <NumberPadField

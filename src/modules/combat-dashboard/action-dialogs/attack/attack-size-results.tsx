@@ -1,7 +1,7 @@
 import React, { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Alert, Box, Chip, Stack, Typography } from '@mui/material';
-import { formatMultiplier, RuleHint } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { Alert, Box, Stack, Typography } from '@mui/material';
+import { formatMultiplier, RmuChip, RuleHint } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { AttackDamageAdjustment, AttackSeverityAdjustment } from '../../../api/action.dto';
 import { criticalCode } from '../../../services/action-service';
 
@@ -56,7 +56,7 @@ export const SeverityShiftChip: FC<{ criticalType?: string | null; adjustment: A
           </Stack>
         }
       >
-        <Chip label={t('critical-code', { code: `${original} → ${final}` })} color="error" sx={{ cursor: 'inherit' }} />
+        <RmuChip variant="outcome" tone="error" label={t('critical-code', { code: `${original} → ${final}` })} />
       </RuleHint>
     </Box>
   );

@@ -19,6 +19,7 @@ import {
 import { useTacticalNotify } from '../../services/notify-service';
 import { phaseNumber } from '../actor-rounds/round-grid';
 import ForceResolutionDialog from './ForceResolutionDialog';
+import { NextPendingLabelContext } from './next-pending-context';
 import { useDeleteAction } from './useDeleteAction';
 
 /**
@@ -26,7 +27,14 @@ import { useDeleteAction } from './useDeleteAction';
  * or a movement, complete an action): the API rejects it while the action is below its minimum AP, so it is disabled
  * then, with the reason above it.
  */
-export type FlowButton = { label: string; onClick: () => void; disabled?: boolean; resolves?: boolean };
+export type FlowButton = {
+  label: string;
+  onClick: () => void;
+  disabled?: boolean;
+  resolves?: boolean;
+  /** What is missing while the button is disabled, shown above it (workspace spec 085, 1.4). */
+  disabledReason?: string;
+};
 
 /** Why the resolving step is disabled: the AP of the action against its minimum, and whether it can still reach it. */
 const useBlockedReason = (action: Action): string | undefined => {
@@ -68,6 +76,7 @@ const ActionFlow: FC<{
   const [forcing, setForcing] = useState(false);
   const [busy, setBusy] = useState(false);
   const blockedReason = useBlockedReason(action);
+  const nextPendingLabel = useContext(NextPendingLabelContext);
   const done = isActionClosed(action);
   const ended = done && action.status !== 'completed';
 
@@ -101,7 +110,11 @@ const ActionFlow: FC<{
       : undefined;
 
   let main: FlowButton | undefined =
-    done && onNextPending ? { label: t('next-pending-action'), onClick: onNextPending } : done ? undefined : primary;
+    done && onNextPending
+      ? { label: nextPendingLabel ?? t('next-pending-action'), onClick: onNextPending }
+      : done
+        ? undefined
+        : primary;
   if (main?.resolves && blockedReason) main = { ...main, disabled: true };
 
   const apCall = (request: Promise<Action>, message: string) => {
@@ -121,6 +134,8 @@ const ActionFlow: FC<{
   return (
     <>
       <FlowSteps
+        // Workspace spec 085, 3.6 (decision 7): every resolution flow with the steps in a bar on top
+        orientation="horizontal"
         steps={steps}
         activeIndex={activeIndex}
         reviewing={reviewing}
@@ -137,27 +152,36 @@ const ActionFlow: FC<{
                 {t('initiative-order-warning', { actor: faster.actorName, initiative: faster.initiative?.total ?? 0 })}
               </Alert>
             )}
-            {!done && main?.resolves && blockedReason && (
+            {!done && main?.resolves && blockedReason ? (
               <Alert severity={action.readiness === 'unreachable' ? 'warning' : 'info'} variant="outlined">
                 {blockedReason}
               </Alert>
+            ) : (
+              !done &&
+              main?.disabled &&
+              main.disabledReason && (
+                <Alert severity="info" variant="outlined">
+                  {main.disabledReason}
+                </Alert>
+              )
             )}
             <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
-              <Button color="error" startIcon={<DeleteIcon />} onClick={requestDelete}>
-                {t('delete')}
-              </Button>
+              {/* Workspace spec 085, 1.7: a closed action keeps its delete in the menu, away from the next button. */}
               {!done && (
-                <Tooltip title={t('action-points-actions')}>
-                  <IconButton
-                    aria-label={t('action-points-actions')}
-                    aria-haspopup="menu"
-                    disabled={busy}
-                    onClick={(e) => setMenuAnchor(e.currentTarget)}
-                  >
-                    <MoreVertIcon />
-                  </IconButton>
-                </Tooltip>
+                <Button color="error" startIcon={<DeleteIcon />} onClick={requestDelete}>
+                  {t('delete')}
+                </Button>
               )}
+              <Tooltip title={t(done ? 'more-actions' : 'action-points-actions')}>
+                <IconButton
+                  aria-label={t(done ? 'more-actions' : 'action-points-actions')}
+                  aria-haspopup="menu"
+                  disabled={busy}
+                  onClick={(e) => setMenuAnchor(e.currentTarget)}
+                >
+                  <MoreVertIcon />
+                </IconButton>
+              </Tooltip>
               <Stack direction="row" spacing={1} sx={{ flex: 1, justifyContent: 'flex-end' }}>
                 {back && !done && (
                   <Button onClick={back.onClick} disabled={back.disabled}>
@@ -174,7 +198,18 @@ const ActionFlow: FC<{
           </Stack>
         }
       />
-      <Menu anchorEl={menuAnchor} open={!!menuAnchor} onClose={() => setMenuAnchor(null)}>
+      <Menu anchorEl={menuAnchor} open={!!menuAnchor && done} onClose={() => setMenuAnchor(null)}>
+        <MenuItem
+          onClick={() => {
+            setMenuAnchor(null);
+            requestDelete();
+          }}
+          sx={{ color: 'error.main' }}
+        >
+          <ListItemText primary={t('delete-action')} secondary={t('delete-action-closed-help')} />
+        </MenuItem>
+      </Menu>
+      <Menu anchorEl={menuAnchor} open={!!menuAnchor && !done} onClose={() => setMenuAnchor(null)}>
         <MenuItem
           disabled={!canForce}
           onClick={() => {

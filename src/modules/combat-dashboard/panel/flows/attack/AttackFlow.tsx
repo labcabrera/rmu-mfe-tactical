@@ -26,6 +26,7 @@ import ParryStep from './ParryStep';
 import { ShieldManeuverInput, shieldManeuverAttacks, shieldManeuverItems } from './ShieldManeuverSection';
 import { attackLabel } from './attack-label';
 import { overlappingFreeMovementPace } from './free-movement-pace';
+import { modifiersSummary, parrySummary, rollsSummary } from './step-summaries';
 import { AttackKind, useAttackDeclaration } from './useAttackDeclaration';
 
 /**
@@ -303,12 +304,23 @@ const AttackFlow: FC<{
         </Stack>
       ),
     },
-    { id: 'modifiers', label: t('modifiers'), content: modifiers },
+    {
+      id: 'modifiers',
+      label: t('modifiers'),
+      summary: modifiersSummary(
+        attacksShown,
+        kind,
+        t,
+        actorRound.traits?.map((trait) => trait.traitId)
+      ),
+      content: modifiers,
+    },
     ...(withParry
       ? [
           {
             id: 'parry',
             label: kind === 'melee' ? t('parry') : t('shield-maneuver'),
+            summary: parrySummary(action, actorRounds, t),
             content: (
               <ParryStep
                 formData={formData}
@@ -323,7 +335,7 @@ const AttackFlow: FC<{
           },
         ]
       : []),
-    { id: 'rolls', label: t('rolls'), content: rolls },
+    { id: 'rolls', label: t('rolls'), summary: rollsSummary(action.attacks ?? [], t), content: rolls },
     { id: 'result', label: t('result'), content: result },
   ];
 
@@ -342,8 +354,36 @@ const AttackFlow: FC<{
     }
     return undefined;
   };
+  // Workspace spec 085, 1.4: what is missing while the main button is disabled. "Apply" has none: the rolls step
+  // already says, attack by attack, which roll comes next.
+  const targetsReason = () => {
+    if (targeted.length === 0) return t('reason-pick-target');
+    if (kind !== 'melee' && !targeted.every((a) => !!a.modifiers.range)) return t('reason-pick-range');
+    return t('reason-ob-zero');
+  };
+  const prepareReason = () => {
+    if (targeted.length === 0) return t('reason-pick-target');
+    if (!targeted.every((a) => specialManeuversReady(a.modifiers))) return t('reason-special-maneuver');
+    return t('reason-bolt-split');
+  };
+  // Workspace spec 085, 2.3: the button says what happens: the parry it declares, or that nobody parries
+  const parryButtonLabel = () => {
+    if (kind !== 'melee') return t('shield-maneuver');
+    const fresh = (formData.parries ?? []).filter((p) => !p.carriedOver);
+    const total = fresh.reduce((sum, p) => sum + (p.parry || 0), 0);
+    if (total > 0) return t('declare-parry-n', { parry: total });
+    return fresh.length > 0 || shieldManeuverAttacks(formData.attacks).length === 0
+      ? t('continue-without-parry')
+      : t('shield-maneuver');
+  };
   let primary;
-  if (step === 0) primary = { label: t('next'), disabled: !targetsReady, onClick: () => setLocalStep(1) };
+  if (step === 0)
+    primary = {
+      label: t('next'),
+      disabled: !targetsReady,
+      disabledReason: targetsReady ? undefined : targetsReason(),
+      onClick: () => setLocalStep(1),
+    };
   else if (step === 1)
     primary = {
       label: t('prepare'),
@@ -355,15 +395,21 @@ const AttackFlow: FC<{
         (splitting && !boltSplitValid(boltOb!, splitParts, targeted.length)),
       onClick: prepare,
       resolves: true,
+      disabledReason: busy ? undefined : prepareReason(),
     };
   else if (withParry && step === 2)
     primary = {
-      label: kind === 'melee' ? t('parry') : t('shield-maneuver'),
+      label: parryButtonLabel(),
       disabled: busy || parryManeuverMissing,
+      disabledReason: parryManeuverMissing ? t('reason-parry-maneuver') : undefined,
       onClick: parry,
     };
   else if (step === rollsStep)
-    primary = { label: t('apply'), disabled: busy || action.status !== 'pending_apply', onClick: apply };
+    primary = {
+      label: t('apply'),
+      disabled: busy || action.status !== 'pending_apply',
+      onClick: apply,
+    };
 
   return (
     <ActionFlow

@@ -1,6 +1,5 @@
 import React, { FC, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Box, Stack, Typography } from '@mui/material';
 import { CharacterPicker } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../../CombatContext';
 import { ActorRound } from '../../../../api/actor-rounds.dto';
@@ -11,32 +10,17 @@ const armor = (target: ActorRound) =>
   target.defense.at ??
   [target.defense.headAt, target.defense.bodyAt, target.defense.armsAt, target.defense.legsAt].join('/');
 
-const Stat: FC<{ label: string; value: string | number }> = ({ label, value }) => (
-  <Box sx={{ textAlign: 'center', minWidth: 40 }}>
-    <Typography variant="subtitle2" sx={{ fontWeight: 600, lineHeight: 1.1 }}>
-      {value}
-    </Typography>
-    <Typography variant="caption" color="text.secondary">
-      {label}
-    </Typography>
-  </Box>
-);
-
-/** DB, AT and hit points of a target, on the right of its card. */
-const TargetStats: FC<{ target: ActorRound }> = ({ target }) => {
-  const { t } = useTranslation();
-  return (
-    <Stack direction="row" spacing={1}>
-      <Stat label={t('bd')} value={target.defense.bd} />
-      <Stat label={t('at-short')} value={armor(target)} />
-      <Stat label={t('hp')} value={`${target.hp.current}/${target.hp.max}`} />
-    </Stack>
-  );
-};
+/** "DB 18 · AT 8 · HP 74/74": one line under the name, so that it never hides it (workspace spec 085, 2.1). */
+export const targetStatsLine = (target: ActorRound, t: (key: string) => string) =>
+  [
+    `${t('bd')} ${target.defense.bd}`,
+    `${t('at-short')} ${armor(target)}`,
+    `${t('hp-short')} ${target.hp.current}/${target.hp.max}`,
+  ].join(' · ');
 
 /**
  * Inline target choice (spec 038): the actors of the other factions (or everyone, with the switch) as cards with
- * their DB, AT and hit points. Once a target is chosen it collapses to that card with a "change" button. An attacker
+ * their DB, AT and hit points under the name. Once a target is chosen it collapses to that card with a "change" button. An attacker
  * in frenzy sees everyone (spec 040, decision 15): it attacks the nearest creature, friend or foe.
  */
 const TargetPicker: FC<{
@@ -51,16 +35,12 @@ const TargetPicker: FC<{
   return (
     <CharacterPicker
       label={t('target')}
-      options={rounds.map((actorRound) => toOption(actorRound))}
+      options={rounds.map((actorRound) => toOption(actorRound, { secondary: targetStatsLine(actorRound, t) }))}
       relation={frenzyLevel(sourceActorRound) > 0 ? 'all' : 'enemies'}
       factionId={sourceActorRound.factionId}
       exclude={[sourceActorRound.actorId]}
       allowShowAll
       variant="cards"
-      renderDetails={(option) => {
-        const target = rounds.find((actorRound) => actorRound.actorId === option.id);
-        return target && <TargetStats target={target} />;
-      }}
       value={value || null}
       onChange={(id) => id && onChange(id)}
     />

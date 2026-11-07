@@ -1,9 +1,17 @@
-import React, { Dispatch, FC, Fragment, SetStateAction, useContext, useState } from 'react';
+import React, { Dispatch, FC, SetStateAction, useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import ReplayIcon from '@mui/icons-material/Replay';
-import { Alert, Button, Chip, Grid, Stack, Tooltip, Typography } from '@mui/material';
-import { CategorySeparator, ChipRow, D100, effectIcon, RollField } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { Alert, Button, Stack, Tooltip, Typography } from '@mui/material';
+import {
+  ChipRow,
+  D100,
+  effectColor,
+  effectIcon,
+  RmuChip,
+  RollCard,
+  RollField,
+} from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../CombatContext';
 import { updateCriticalRoll } from '../../../api/action';
 import { Action, ActionAttack, AttackDeclaration, CriticalEffect } from '../../../api/action.dto';
@@ -11,7 +19,6 @@ import { criticalCode } from '../../../services/action-service';
 import { criticalRerollKind } from '../../../services/combat-talents-service';
 import { useTacticalNotify } from '../../../services/notify-service';
 import OptionTiles from '../attack-modifiers/pickers/OptionTiles';
-import { SeverityShiftChip, severityChanged } from './attack-size-results';
 import { criticalEffectLabel } from './critical-effect-label';
 import { CRITICAL_STYLE_OPTIONS, severityFeet, styleOptionsFor } from './style-critical-options';
 
@@ -80,164 +87,144 @@ const ResolveAttackFormCriticals: FC<{
   const locationRoll = attack.calculated?.locationRoll;
   const fixedByLocation = locationRoll !== undefined && locationRoll !== null;
 
+  const rollField =
+    fixedByLocation && sharedRoll === undefined ? (
+      <Stack spacing={0.5} sx={{ alignItems: 'flex-start' }}>
+        <Typography variant="body2">{t('critical-roll-from-location', { roll: locationRoll })}</Typography>
+        <Button
+          size="small"
+          variant="contained"
+          disabled={action.status === 'completed'}
+          onClick={() => onUpdateCriticalRoll(locationRoll!)}
+        >
+          {t('critical-roll-apply', { roll: locationRoll })}
+        </Button>
+      </Stack>
+    ) : (
+      <RollField
+        spec={D100}
+        label={t('critical-roll')}
+        value={sharedRoll}
+        onChange={(roll) => onUpdateCriticalRoll(roll.total)}
+        // Each roll resolves every critical again; it can change until the attack is applied. Once rolled again
+        // with a critical-reroll effect, the second roll counts (workspace spec 076). A roll that fixed the
+        // location of the attack (spec 077) cannot change.
+        disabled={action.status === 'completed' || !!originalRoll || fixedByLocation}
+      />
+    );
+
+  // Workspace spec 085, 2.4: one card for the shared roll, with each critical it resolves below
   return (
-    <>
-      <Grid container spacing={1} sx={{ mt: 1 }}>
-        <Grid size={12}>
-          <CategorySeparator text={t('critical-roll')} />
-        </Grid>
-        {severityChanged(attack.results?.severityAdjustment) && attack.results.severityAdjustment.final && (
-          // The table's critical moved by the sizes, the charge and the style (spec 075)
-          <Grid size={12}>
-            <SeverityShiftChip
-              criticalType={attack.results.attackTableEntry?.criticalType ?? criticals[0]?.criticalType}
-              adjustment={attack.results.severityAdjustment}
-            />
-          </Grid>
-        )}
-        {declaredOption && sharedRoll === undefined && (
-          <Grid size={12}>
-            <Typography variant="body2" color="text.secondary">
-              {t('style-critical-option-declared', { ability: t(`style-ability-${declaredOption}`) })}
-            </Typography>
-          </Grid>
-        )}
-        {styleOptions.length > 0 && (
-          <Grid size={12}>
-            <OptionTiles
-              label={t('style-critical-option')}
-              options={[NO_OPTION, ...styleOptions].map((key) => ({ key, value: null }))}
-              value={styleOption}
-              optionLabel={(option) => (option.key === NO_OPTION ? t('none') : t(`style-ability-${option.key}`))}
-              onChange={setStyleOption}
-            />
-          </Grid>
-        )}
-        <Grid size={6}>
-          {fixedByLocation && sharedRoll === undefined ? (
-            <Stack spacing={0.5} sx={{ alignItems: 'flex-start' }}>
-              <Typography variant="body2">{t('critical-roll-from-location', { roll: locationRoll })}</Typography>
-              <Button
-                size="small"
-                variant="contained"
-                disabled={action.status === 'completed'}
-                onClick={() => onUpdateCriticalRoll(locationRoll!)}
-              >
-                {t('critical-roll-apply', { roll: locationRoll })}
-              </Button>
-            </Stack>
-          ) : (
-            <RollField
-              spec={D100}
-              label={t('critical-roll')}
-              value={sharedRoll}
-              onChange={(roll) => onUpdateCriticalRoll(roll.total)}
-              // Each roll resolves every critical again; it can change until the attack is applied. Once rolled again
-              // with a critical-reroll effect, the second roll counts (workspace spec 076). A roll that fixed the
-              // location of the attack (spec 077) cannot change.
-              disabled={action.status === 'completed' || !!originalRoll || fixedByLocation}
-            />
-          )}
-        </Grid>
-        <Grid size={6}>
-          <Stack spacing={0.5}>
-            {criticals.length > 1 && (
-              <Typography variant="caption" color="text.secondary">
-                {t('critical-roll-shared', { count: criticals.length })}
-              </Typography>
-            )}
-            {originalRoll && (
+    <RollCard
+      title={t('critical-roll')}
+      status={sharedRoll === undefined ? 'pending' : 'done'}
+      statusText={
+        sharedRoll === undefined
+          ? criticals.length > 1
+            ? t('critical-roll-shared', { count: criticals.length })
+            : t('attack-next-step-pending_critical_roll')
+          : undefined
+      }
+      field={rollField}
+    >
+      {declaredOption && sharedRoll === undefined && (
+        <Typography variant="body2" color="text.secondary">
+          {t('style-critical-option-declared', { ability: t(`style-ability-${declaredOption}`) })}
+        </Typography>
+      )}
+      {styleOptions.length > 0 && (
+        <OptionTiles
+          label={t('style-critical-option')}
+          options={[NO_OPTION, ...styleOptions].map((key) => ({ key, value: null }))}
+          value={styleOption}
+          optionLabel={(option) => (option.key === NO_OPTION ? t('none') : t(`style-ability-${option.key}`))}
+          onChange={setStyleOption}
+        />
+      )}
+      {originalRoll && (
+        <Typography variant="body2" color="text.secondary">
+          {t('critical-original-roll')}{' '}
+          <Typography component="span" variant="body2" sx={{ textDecoration: 'line-through' }}>
+            {originalRoll.originalRoll}
+          </Typography>
+          {originalRoll.rerolledBy && ` · ${t(`critical-rerolled-by-${originalRoll.rerolledBy}`)}`}
+        </Typography>
+      )}
+      {rerollKind && !rerolling && (
+        <Button
+          size="small"
+          variant="outlined"
+          startIcon={<ReplayIcon />}
+          onClick={() => setRerolling(true)}
+          sx={{ alignSelf: 'flex-start' }}
+        >
+          {t('critical-reroll-button', {
+            talent: t(rerollKind === 'offense' ? 'sense-weakness' : 'study-offense'),
+          })}
+        </Button>
+      )}
+      {rerollKind && rerolling && (
+        <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
+          <RollField
+            spec={D100}
+            label={t('critical-reroll-roll')}
+            value={null}
+            onChange={(roll) => onUpdateCriticalRoll(roll.total, true)}
+          />
+          <Button size="small" onClick={() => setRerolling(false)}>
+            {t('cancel')}
+          </Button>
+        </Stack>
+      )}
+      {sharedRoll !== undefined &&
+        criticals.map((critical, index) => (
+          <Stack key={index} spacing={0.75} sx={{ pt: 1, borderTop: 1, borderColor: 'divider' }}>
+            <Stack direction="row" spacing={1.5} sx={{ alignItems: 'baseline' }}>
+              {/* Workspace spec 085, 1.8: one critical is already named by the chip of the attack roll */}
+              {criticals.length > 1 && (
+                <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
+                  {t('critical-code', { code: criticalCode(critical.criticalType, critical.criticalSeverity) })}
+                </Typography>
+              )}
               <Typography variant="body2" color="text.secondary">
-                {t('critical-original-roll')}{' '}
-                <Typography component="span" variant="body2" sx={{ textDecoration: 'line-through' }}>
-                  {originalRoll.originalRoll}
-                </Typography>
-                {originalRoll.rerolledBy && ` · ${t(`critical-rerolled-by-${originalRoll.rerolledBy}`)}`}
+                {t('critical-adjusted-roll', { roll: critical.adjustedRoll ?? '-' })}
               </Typography>
-            )}
-            {rerollKind && !rerolling && (
-              <Button
-                size="small"
-                variant="outlined"
-                startIcon={<ReplayIcon />}
-                onClick={() => setRerolling(true)}
-                sx={{ alignSelf: 'flex-start' }}
-              >
-                {t('critical-reroll-button', {
-                  talent: t(rerollKind === 'offense' ? 'sense-weakness' : 'study-offense'),
-                })}
-              </Button>
-            )}
-          </Stack>
-        </Grid>
-        {rerollKind && rerolling && (
-          <Grid size={12}>
-            <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
-              <RollField
-                spec={D100}
-                label={t('critical-reroll-roll')}
-                value={null}
-                onChange={(roll) => onUpdateCriticalRoll(roll.total, true)}
-              />
-              <Button size="small" onClick={() => setRerolling(false)}>
-                {t('cancel')}
-              </Button>
             </Stack>
-          </Grid>
-        )}
-        {criticals.map((critical, index) => (
-          <Fragment key={index}>
-            <Grid size={12}>
-              <CategorySeparator
-                text={t('critical-code', { code: criticalCode(critical.criticalType, critical.criticalSeverity) })}
-              />
-            </Grid>
             {critical.styleOption && (
-              <Grid size={12}>
-                <Alert severity="info" variant="outlined">
-                  {t(`style-critical-effect-${critical.styleOption.abilityId}`, {
-                    type: critical.styleOption.originalType,
-                    severity: critical.styleOption.originalSeverity,
-                    feet: severityFeet(critical.styleOption.originalSeverity),
-                    roll: attack.calculated?.rollTotal ?? '-',
-                  })}
-                </Alert>
-              </Grid>
+              <Alert severity="info" variant="outlined">
+                {t(`style-critical-effect-${critical.styleOption.abilityId}`, {
+                  type: critical.styleOption.originalType,
+                  severity: critical.styleOption.originalSeverity,
+                  feet: severityFeet(critical.styleOption.originalSeverity),
+                  roll: attack.calculated?.rollTotal ?? '-',
+                })}
+              </Alert>
             )}
-            <Grid size={12}>
-              <Stack>
-                <Typography variant="h6">{critical.adjustedRoll}</Typography>
-                <Typography variant="body2" color="secondary">
-                  {t('total')}
-                </Typography>
-              </Stack>
-            </Grid>
-            <Grid size={12}>
-              <ChipRow>
-                {!!critical.result?.damage && critical.result.damage > 0 && (
-                  <Tooltip title={t('dmg')}>
-                    <Chip
-                      avatar={effectIcon('dmg')}
-                      label={t('damage-n', { damage: critical.result.damage })}
-                      color="error"
-                    />
-                  </Tooltip>
-                )}
-                {critical.result &&
-                  critical.result.effects &&
-                  critical.result.effects.length > 0 &&
-                  critical.result.effects.map((effect, effectIndex) => (
-                    <Tooltip key={effectIndex} title={t(effect.status)}>
-                      <Chip avatar={effectIcon(effect.status)} label={getStatusLabel(effect)} color="error" />
-                    </Tooltip>
-                  ))}
-              </ChipRow>
-            </Grid>
-            <Grid size={12}>{critical.result?.text || ''}</Grid>
-          </Fragment>
+            <ChipRow>
+              {!!critical.result?.damage && critical.result.damage > 0 && (
+                <RmuChip
+                  variant="outcome"
+                  tone="error"
+                  hint={t('dmg')}
+                  avatar={effectIcon('dmg')}
+                  label={t('damage-n', { damage: critical.result.damage })}
+                />
+              )}
+              {(critical.result?.effects ?? []).map((effect, effectIndex) => (
+                <Tooltip key={effectIndex} title={t(effect.status)}>
+                  <RmuChip
+                    variant="effect"
+                    tone={effectColor(effect.status)}
+                    avatar={effectIcon(effect.status)}
+                    label={getStatusLabel(effect)}
+                  />
+                </Tooltip>
+              ))}
+            </ChipRow>
+            {critical.result?.text && <Typography variant="body2">{critical.result.text}</Typography>}
+          </Stack>
         ))}
-      </Grid>
-    </>
+    </RollCard>
   );
 };
 

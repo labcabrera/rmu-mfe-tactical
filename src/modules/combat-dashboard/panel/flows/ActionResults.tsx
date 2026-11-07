@@ -9,6 +9,7 @@ import { AttackResultSummary } from '../../action-dialogs/attack/AttackResolutio
 import ResolveAttackInfo from '../../action-dialogs/attack/ResolveAttackInfo';
 import SpecialManeuverResult from '../../action-dialogs/attack/SpecialManeuverResult';
 import ResultValues from './ResultValues';
+import BreakdownColumns from './attack/BreakdownColumns';
 import { isFailureResult, isPercentResult, isSuccessResult } from './maneuver/maneuver-form';
 
 // Results of a resolved (or partly resolved) action, shown in the resolution dialog and in the side panel.
@@ -214,11 +215,15 @@ export const AttackResults: FC<{ attacks: ActionAttack[]; sourceActorId?: string
   return (
     <Stack spacing={1.5}>
       {attacks.map((attack) => (
-        <Stack key={attack.attackName} spacing={1}>
-          <AttackResultSummary attack={attack} targetName={targetName(attack.modifiers.targetId)} />
-          <SpecialManeuverResult attack={attack} />
-          <ResolveAttackInfo attack={attack} sourceActorId={sourceActorId} />
-        </Stack>
+        <BreakdownColumns
+          key={attack.attackName}
+          breakdown={<ResolveAttackInfo attack={attack} sourceActorId={sourceActorId} />}
+        >
+          <Stack spacing={1}>
+            <AttackResultSummary attack={attack} targetName={targetName(attack.modifiers.targetId)} />
+            <SpecialManeuverResult attack={attack} />
+          </Stack>
+        </BreakdownColumns>
       ))}
     </Stack>
   );

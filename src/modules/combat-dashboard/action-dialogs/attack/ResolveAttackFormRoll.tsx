@@ -1,13 +1,15 @@
 import React, { Dispatch, FC, SetStateAction, useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
-import { Chip, Grid, Stack, Tooltip, Typography } from '@mui/material';
+import { Grid, Stack, Typography } from '@mui/material';
 import {
-  CategorySeparator,
   ChipRow,
   D100,
   effectIcon,
   HIGH_OPEN_D100,
+  RmuChip,
+  RollCard,
+  RollCardStatus,
   RollField,
   RollValue,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
@@ -19,7 +21,8 @@ import { criticalCode } from '../../../services/action-service';
 import { useNotifyWarnings } from '../../../services/action-warnings';
 import { actorOpenEnded } from '../../../services/combat-talents-service';
 import { useTacticalNotify } from '../../../services/notify-service';
-import { AttackNextStep, AttackResultSummary } from './AttackResolutionGuide';
+import BreakdownColumns from '../../panel/flows/attack/BreakdownColumns';
+import { AttackResultSummary } from './AttackResolutionGuide';
 import ResolveAttackFormCriticals from './ResolveAttackFormCriticals';
 import ResolveAttackFormFumble from './ResolveAttackFormFumble';
 import ResolveAttackInfo from './ResolveAttackInfo';
@@ -107,149 +110,157 @@ const ResolveAttackFormRoll: FC<{
     return t('critical-code', { code: criticalCode(entry.criticalType, entry.criticalSeverity) });
   };
 
+  // Workspace spec 085, 1.10: the fumble range matters only when the roll falls in it or close to it
+  const firstDie = attack.roll?.unmodified ?? attack.roll?.roll;
+  const fumbleNear =
+    attack.calculated.fumble !== undefined &&
+    firstDie !== null &&
+    firstDie !== undefined &&
+    firstDie <= attack.calculated.fumble + 10;
+
+  const rolled = attack.roll?.roll !== null && attack.roll?.roll !== undefined;
+  const rollStatus: RollCardStatus = !rolled
+    ? 'pending'
+    : attack.status === 'pending_critical_roll' || attack.status === 'pending_fumble_roll'
+      ? 'attention'
+      : 'done';
+
   const getAbsoluteHitText = (totalRoll: number) => {
     return t('absolute-hit-bonus', { bonus: Math.ceil((totalRoll - 175) / 5) });
   };
 
   return (
-    <Grid container spacing={1}>
-      <Grid size={12}>
-        <ResolveAttackInfo attack={formData.attacks[index]} sourceActorId={action.actorId} />
-      </Grid>
-      <Grid size={12}>
-        <AttackNextStep attack={attack} />
-      </Grid>
-      <Grid size={12}>
-        {attack.calculated.location && (
-          <Grid size={8}>
-            <Chip
-              size="medium"
-              color="error"
-              label={
-                locationAt !== undefined && target?.defense?.at === null
-                  ? t('attack-location-at', { location: t(attack.calculated.location), at: locationAt })
-                  : t(attack.calculated.location)
-              }
+    <BreakdownColumns breakdown={<ResolveAttackInfo attack={formData.attacks[index]} sourceActorId={action.actorId} />}>
+      <Grid container spacing={1}>
+        {locationRollNeeded && (
+          <Grid size={12}>
+            <Stack spacing={0.5}>
+              <RollField
+                spec={D100}
+                label={t('attack-location-roll')}
+                value={criticalRoll}
+                onChange={(roll) => setCriticalRoll(roll.total)}
+                onClear={() => setCriticalRoll(null)}
+                // Once stored it decides the location and the criticals: it cannot change.
+                disabled={isCompleted || locationFixed}
+              />
+              <Typography variant="caption" color="text.secondary">
+                {t('attack-location-roll-help')}
+              </Typography>
+            </Stack>
+          </Grid>
+        )}
+        <Grid size={12}>
+          {/* Workspace spec 085, 2.4: the roll, its status, its total and what it gives in one card */}
+          <RollCard
+            title={t('attack-roll')}
+            status={rollStatus}
+            statusText={
+              rollStatus === 'done' ? undefined : t(`attack-next-step-${attack.status ?? 'pending_attack_roll'}`)
+            }
+            field={
+              <RollField
+                spec={HIGH_OPEN_D100}
+                label={t('attack-roll')}
+                value={attack.roll?.roll ?? null}
+                disabled={isCompleted || (locationRollNeeded && criticalRoll === null && !attack.roll?.roll)}
+                onChange={onRollChange}
+                openEnded={openEnded}
+              />
+            }
+            total={attack.calculated.rollTotal}
+            totalLabel={rolled ? t('total') : t('predicted-total')}
+            caption={fumbleNear ? t('fumble-range-n', { fumble: attack.calculated.fumble }) : undefined}
+            chips={
+              (attack.calculated.location || (attack.results && attack.results.attackTableEntry)) && (
+                <ChipRow>
+                  {attack.calculated.location && (
+                    <RmuChip
+                      variant="outcome"
+                      label={
+                        locationAt !== undefined && target?.defense?.at === null
+                          ? t('attack-location-at', { location: t(attack.calculated.location), at: locationAt })
+                          : t(attack.calculated.location)
+                      }
+                    />
+                  )}
+                  {attack.results?.attackTableEntry &&
+                    (attack.results.attackTableEntry.damage > 0 ? (
+                      <RmuChip
+                        variant="outcome"
+                        tone="error"
+                        hint={t('dmg')}
+                        avatar={effectIcon('dmg')}
+                        label={t('damage-n', {
+                          damage: damageText(attack.results.attackTableEntry.damage, attack.results.damageAdjustment),
+                        })}
+                      />
+                    ) : (
+                      <RmuChip variant="outcome" label={t('no-damage')} />
+                    ))}
+                  {attack.results?.attackTableEntry &&
+                    (severityChanged(attack.results.severityAdjustment) ? (
+                      <SeverityShiftChip
+                        criticalType={
+                          attack.results.attackTableEntry.criticalType ?? attack.results.criticals?.[0]?.criticalType
+                        }
+                        adjustment={attack.results.severityAdjustment}
+                      />
+                    ) : (
+                      attack.results.attackTableEntry.criticalType && (
+                        <RmuChip variant="outcome" tone="error" label={getCriticalText()} />
+                      )
+                    ))}
+                  {attack.results?.attackTableEntry && attack.calculated.rollTotal > 175 && !attack.disarm && (
+                    <RmuChip variant="outcome" tone="error" label={getAbsoluteHitText(attack.calculated.rollTotal)} />
+                  )}
+                </ChipRow>
+              )
+            }
+          />
+        </Grid>
+        {(attack.disarm || attack.results?.subdualAdjustment) && (
+          <Grid size={12}>
+            <SpecialManeuverResult attack={attack} />
+          </Grid>
+        )}
+        {attack.results?.severityAdjustment?.final === null && (
+          <Grid size={12}>
+            <CriticalRemovedAlert adjustment={attack.results.severityAdjustment} />
+          </Grid>
+        )}
+
+        {isCriticalAttack() && (
+          <Grid size={12}>
+            <ResolveAttackFormCriticals
+              attack={attack}
+              formData={formData}
+              setFormData={setFormData}
+              action={action}
+              index={index}
             />
           </Grid>
         )}
-      </Grid>
-      <Grid size={12}>
-        <CategorySeparator text={t('attack-roll')} />
-      </Grid>
-      {locationRollNeeded && (
-        <Grid size={12}>
-          <Stack spacing={0.5}>
-            <RollField
-              spec={D100}
-              label={t('attack-location-roll')}
-              value={criticalRoll}
-              onChange={(roll) => setCriticalRoll(roll.total)}
-              onClear={() => setCriticalRoll(null)}
-              // Once stored it decides the location and the criticals: it cannot change.
-              disabled={isCompleted || locationFixed}
+        {isFumbleAttack() && (
+          <Grid size={12}>
+            <ResolveAttackFormFumble
+              attack={attack}
+              formData={formData}
+              setFormData={setFormData}
+              action={action}
+              index={index}
             />
-            <Typography variant="caption" color="text.secondary">
-              {t('attack-location-roll-help')}
-            </Typography>
-          </Stack>
-        </Grid>
-      )}
-      <Grid size={7}>
-        <RollField
-          spec={HIGH_OPEN_D100}
-          label={t('attack-roll')}
-          value={attack.roll?.roll ?? null}
-          disabled={isCompleted || (locationRollNeeded && criticalRoll === null && !attack.roll?.roll)}
-          onChange={onRollChange}
-          openEnded={openEnded}
-        />
-      </Grid>
-      <Grid size={5}>
-        <Stack>
-          <Typography variant="h6">{attack.calculated.rollTotal}</Typography>
-          <Typography variant="body2" color="secondary">
-            {t('total')}
-          </Typography>
-          {attack.calculated.fumble !== undefined && (
-            <Typography variant="caption" color="text.secondary">
-              {t('fumble-range-n', { fumble: attack.calculated.fumble })}
-            </Typography>
-          )}
-        </Stack>
-      </Grid>
-      <Grid size={12}>
-        {attack.results && attack.results.attackTableEntry && (
-          <ChipRow>
-            {attack.results.attackTableEntry.damage > 0 ? (
-              <Tooltip title={t('dmg')}>
-                <Chip
-                  avatar={effectIcon('dmg')}
-                  label={t('damage-n', {
-                    damage: damageText(attack.results.attackTableEntry.damage, attack.results.damageAdjustment),
-                  })}
-                  color="error"
-                />
-              </Tooltip>
-            ) : (
-              <Typography>{t('no-damage')}</Typography>
-            )}
-            {severityChanged(attack.results.severityAdjustment) ? (
-              <SeverityShiftChip
-                criticalType={
-                  attack.results.attackTableEntry.criticalType ?? attack.results.criticals?.[0]?.criticalType
-                }
-                adjustment={attack.results.severityAdjustment}
-              />
-            ) : (
-              attack.results.attackTableEntry.criticalType && <Chip label={getCriticalText()} color="error" />
-            )}
-            {attack.calculated.rollTotal > 175 && !attack.disarm && (
-              <Chip label={getAbsoluteHitText(attack.calculated.rollTotal)} color="error" />
-            )}
-          </ChipRow>
+          </Grid>
         )}
-      </Grid>
-      {(attack.disarm || attack.results?.subdualAdjustment) && (
         <Grid size={12}>
-          <SpecialManeuverResult attack={attack} />
-        </Grid>
-      )}
-      {attack.results?.severityAdjustment?.final === null && (
-        <Grid size={12}>
-          <CriticalRemovedAlert adjustment={attack.results.severityAdjustment} />
-        </Grid>
-      )}
-
-      {isCriticalAttack() && (
-        <Grid size={12}>
-          <ResolveAttackFormCriticals
+          <AttackResultSummary
+            withTexts={false}
             attack={attack}
-            formData={formData}
-            setFormData={setFormData}
-            action={action}
-            index={index}
+            targetName={actorRounds?.find((actorRound) => actorRound.actorId === attack.modifiers?.targetId)?.actorName}
           />
         </Grid>
-      )}
-      {isFumbleAttack() && (
-        <Grid size={12}>
-          <ResolveAttackFormFumble
-            attack={attack}
-            formData={formData}
-            setFormData={setFormData}
-            action={action}
-            index={index}
-          />
-        </Grid>
-      )}
-      <Grid size={12}>
-        <AttackResultSummary
-          attack={attack}
-          targetName={actorRounds?.find((actorRound) => actorRound.actorId === attack.modifiers?.targetId)?.actorName}
-        />
       </Grid>
-    </Grid>
+    </BreakdownColumns>
   );
 };
 

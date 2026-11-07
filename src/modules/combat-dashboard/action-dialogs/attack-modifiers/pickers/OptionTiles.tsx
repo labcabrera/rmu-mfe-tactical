@@ -1,38 +1,33 @@
 import React, { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Box, Typography } from '@mui/material';
+import { OptionGroup } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { ModifierOption } from '../attack-modifier-fields';
-import ModifierTile from './ModifierTile';
 
-/** A choice as a group of same-size tiles with their values, instead of a select. */
+/**
+ * A choice of the combat flows as the shared exclusive OptionGroup (workspace spec 085, 3.1), with the value of each
+ * option. Choosing the selected option again reports it too, so that the callers that allow it can clear the choice.
+ */
 const OptionTiles: FC<{
   label: string;
   options: ModifierOption[];
   value: string;
   onChange: (key: string) => void;
-  minTileWidth?: number;
   /** Label of an option; defaults to the translation of its key. */
   optionLabel?: (option: ModifierOption) => string;
-}> = ({ label, options, value, onChange, minTileWidth = 120, optionLabel }) => {
+}> = ({ label, options, value, onChange, optionLabel }) => {
   const { t } = useTranslation();
   return (
-    <Box role="radiogroup" aria-label={label}>
-      <Typography variant="caption" color="text.secondary" component="div" sx={{ mb: 0.5 }}>
-        {label}
-      </Typography>
-      <Box sx={{ display: 'grid', gridTemplateColumns: `repeat(auto-fill, minmax(${minTileWidth}px, 1fr))`, gap: 1 }}>
-        {options.map((option) => (
-          <ModifierTile
-            key={option.key}
-            role="radio"
-            label={optionLabel ? optionLabel(option) : t(option.key)}
-            value={option.value}
-            selected={option.key === value}
-            onClick={() => onChange(option.key)}
-          />
-        ))}
-      </Box>
-    </Box>
+    <OptionGroup
+      label={label}
+      options={options.map((option) => ({
+        key: option.key,
+        label: optionLabel ? optionLabel(option) : t(option.key),
+        value: option.value,
+      }))}
+      value={value}
+      onChange={onChange}
+      reselect
+    />
   );
 };
 
