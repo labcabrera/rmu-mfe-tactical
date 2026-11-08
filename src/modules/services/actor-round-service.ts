@@ -97,3 +97,27 @@ export function usableAttacks(actorRound: ActorRound): ActorRound['attacks'] {
         !!attack.skillId?.startsWith('unarmed'))
   );
 }
+
+/** One attack of the actor: the OB it still has this round, of what it has. */
+export type AttackObUse = { attackName: string; left: number; max: number };
+
+/**
+ * OB of the actor spent in the round (specs 082 and 083): the API takes off `currentBo` what was used and what parries
+ * and rolled attacks committed, over one margin shared by the attacks, so the best attack tells it. Undefined for an
+ * actor without an attack with OB. The penalties of the actor are not part of it.
+ */
+export function actorRoundObUse(
+  actorRound: ActorRound
+): { max: number; left: number; attacks: AttackObUse[] } | undefined {
+  const attacks = (actorRound.attacks ?? [])
+    .filter((attack) => !attack.broken)
+    .map((attack) => {
+      const max = attack.baseBo + (attack.breakagePenalty ?? 0);
+      return { attackName: attack.attackName, max, left: Math.max(0, Math.min(attack.currentBo, max)) };
+    })
+    .filter((attack) => attack.max > 0);
+  if (attacks.length === 0) return undefined;
+  const max = Math.max(...attacks.map((attack) => attack.max));
+  const left = Math.max(...attacks.map((attack) => attack.left));
+  return { max, left, attacks };
+}

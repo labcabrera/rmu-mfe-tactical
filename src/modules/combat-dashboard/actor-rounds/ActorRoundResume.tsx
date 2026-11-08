@@ -13,15 +13,16 @@ import {
 import { CombatContext } from '../../../CombatContext';
 import { ConcentrationChip } from '../../actor-round/ActorRoundConcentration';
 import { ActorRound } from '../../api/actor-rounds.dto';
-import { actorRoundDownState } from '../../services/actor-round-service';
+import { actorRoundDownState, actorRoundObUse } from '../../services/actor-round-service';
 import { apModifierLabel, apTotals } from '../../services/ap-service';
 import { useFactionColor } from '../../services/faction-colors';
 import { useActorRoundImage } from '../../shared/avatars/use-actor-round-image';
+import { attackLabel } from '../panel/flows/attack/attack-label';
 
 /**
  * Actor cell of the board: a large miniature beside the name, a compact "down" badge (dead with the name struck
  * through, or unconscious; both greying the miniature and in the color the effects use), profession and level,
- * faction (with its color dot), and hit point and fatigue bars. `extra` adds content below (the effects, when the
+ * faction (with its color dot), and hit point, OB used and fatigue bars. `extra` adds content below (the effects, when the
  * board has no effects column).
  */
 const ActorRoundResume: FC<{
@@ -41,6 +42,7 @@ const ActorRoundResume: FC<{
   const image = useActorRoundImage(actorRound);
   const ap = apTotals(actorRound);
   const apModifiers = actorRound.apModifiers ?? [];
+  const obUse = actorRoundObUse(actorRound);
   // Breakdown of the capacity: 4 base AP and the modifiers of the effects (Haste +2, Staggered −1...).
   const apBreakdown = (
     <Stack>
@@ -129,6 +131,25 @@ const ActorRoundResume: FC<{
                 kind="pp"
                 dense
               />
+            )}
+            {obUse && (
+              <Tooltip
+                title={
+                  <Stack>
+                    <span>{t('round-ob-used-left', { left: obUse.left, max: obUse.max })}</span>
+                    {obUse.attacks.map((attack) => (
+                      <span key={attack.attackName}>
+                        {`${attackLabel(attack.attackName, t)}: ${attack.left} / ${attack.max}`}
+                      </span>
+                    ))}
+                  </Stack>
+                }
+              >
+                <Box>
+                  {/* The colour of the theme for experience: a new resource colour would need a new shell too */}
+                  <ResourceBar label={t('round-ob-available')} current={obUse.left} max={obUse.max} kind="xp" dense />
+                </Box>
+              </Tooltip>
             )}
             <ResourceBar
               label={t('fatigue')}
