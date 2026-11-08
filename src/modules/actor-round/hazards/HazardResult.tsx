@@ -8,6 +8,7 @@ import {
   formatMultiplier,
   RuleHint,
   signedSteps,
+  useTableText,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { ActorRoundHazard } from '../../api/actor-rounds.dto';
 import { criticalCode } from '../../services/action-service';
@@ -33,6 +34,8 @@ export const hazardTitle = (hazard: ActorRoundHazard, t: (key: string, options?:
 /** The criticals of a hazard, each rolled or left as an alert, and its note. */
 const HazardCriticals: FC<{ hazard: ActorRoundHazard }> = ({ hazard }) => {
   const { t } = useTranslation();
+  // Workspace spec 086: the English text of a table entry, translated when there is one
+  const tableText = useTableText();
   return (
     <>
       {hazard.criticals.map((critical, index) => (
@@ -57,7 +60,7 @@ const HazardCriticals: FC<{ hazard: ActorRoundHazard }> = ({ hazard }) => {
           </ChipRow>
           {critical.text && (
             <Typography variant="caption" color="text.secondary" component="div">
-              {critical.text}
+              {tableText(critical.text)}
             </Typography>
           )}
         </Box>

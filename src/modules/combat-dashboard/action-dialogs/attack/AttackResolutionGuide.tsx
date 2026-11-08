@@ -1,7 +1,7 @@
 import React, { FC, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Box, LinearProgress, Stack, Typography } from '@mui/material';
-import { EffectList, Panel } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { EffectList, Panel, useTableText } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../CombatContext';
 import { ActionAttack } from '../../../api/action.dto';
 
@@ -17,6 +17,8 @@ export const AttackResultSummary: FC<{
   withTexts?: boolean;
 }> = ({ attack, targetName, withTexts = true }) => {
   const { t } = useTranslation();
+  // Workspace spec 086: the English text of a table entry, translated when there is one
+  const tableText = useTableText();
   const { actorRounds } = useContext(CombatContext)!;
   const results = attack.results;
   if (!results || (attack.status !== 'pending_apply' && attack.status !== 'completed')) return null;
@@ -30,8 +32,8 @@ export const AttackResultSummary: FC<{
   // Beside the fumble card (rolls step) the summary would only repeat its chips.
   if (fumble && !withTexts) return null;
   const texts = fumble
-    ? [fumble.text].filter((text): text is string => !!text)
-    : criticals.map((critical) => critical.result?.text).filter((text): text is string => !!text);
+    ? [tableText(fumble.text)].filter((text): text is string => !!text)
+    : criticals.map((critical) => tableText(critical.result?.text)).filter((text): text is string => !!text);
 
   // Computed here: once applied the damage is already in the target's hit points
   const target = actorRounds?.find((ar) => ar.actorId === attack.modifiers.targetId);
