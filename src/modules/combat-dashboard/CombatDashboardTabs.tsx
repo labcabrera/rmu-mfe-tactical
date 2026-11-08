@@ -2,7 +2,7 @@ import React, { FC, useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import KeyboardIcon from '@mui/icons-material/Keyboard';
 import { Box, IconButton, Paper, Stack, Tab, Tabs, Tooltip, useMediaQuery, useTheme } from '@mui/material';
-import { Panel } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { Panel, useSpellName } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../CombatContext';
 import { useShortcut } from '../services/shortcuts';
 import GameOutcomePanel from '../tactical-games/outcome/GameOutcomePanel';
@@ -28,6 +28,8 @@ const CombatDashboardTabs: FC = () => {
   const [view, setView] = useState<View>('board');
   const [help, setHelp] = useState(false);
   const { game, setGame } = useContext(CombatContext)!;
+  // Workspace spec 088: loads the translated spell names for the labels of the board, built outside React
+  useSpellName();
   useShortcut(['l', 'L'], () => setView((current) => (current === 'board' ? 'log' : 'board')));
   useShortcut(['?'], () => setHelp(true));
 

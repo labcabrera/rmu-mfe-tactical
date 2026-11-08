@@ -12,6 +12,7 @@ import {
   RmuDialog,
   SectionLabel,
   selectableSx,
+  useSpellName,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
 import { Action } from '../../api/action.dto';
@@ -59,6 +60,7 @@ const SpellDeclareDialog: FC<{
   onDeclare: (declaration: SpellDeclaration) => void;
 }> = ({ open, actorRound, instant, busy, onClose, onDeclare }) => {
   const { t } = useTranslation();
+  const spellName = useSpellName();
   const auth = useAuth();
   const notify = useTacticalNotify();
   const { characters, roundActions } = useContext(CombatContext)!;
@@ -117,11 +119,11 @@ const SpellDeclareDialog: FC<{
                 </ChipRow>
               }
             >
-              {list.name ?? list.code}
+              {list.name ? spellName(list.name) : list.code}
             </SectionLabel>
             <Box
               role="radiogroup"
-              aria-label={list.name ?? list.code}
+              aria-label={list.name ? spellName(list.name) : list.code}
               sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 1 }}
             >
               {list.spells
@@ -150,7 +152,7 @@ const SpellDeclareDialog: FC<{
                         sx={{ alignItems: 'baseline', justifyContent: 'space-between' }}
                       >
                         <Typography variant="body2" sx={{ fontWeight: selected ? 600 : 500 }}>
-                          {`${spell.level}. ${spell.name}`}
+                          {`${spell.level}. ${spellName(spell.name)}`}
                         </Typography>
                         <Typography variant="caption" color="text.secondary" noWrap>
                           {t('spell-power-points', { count: known.powerPoints })}
