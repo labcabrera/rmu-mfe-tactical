@@ -19,7 +19,6 @@ import {
   effectiveBmr,
   effectiveMaxPace,
   paceIndex,
-  paceOfAp,
   PACES,
   roundMovement,
 } from '../services/movement-service';
@@ -39,7 +38,7 @@ const ActorRoundMovement: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
   const { bmr, reasons } = effectiveBmr(actorRound);
   const max = effectiveMaxPace(actorRound, actorRounds);
   const round = roundMovement(roundActions ?? [], actorRound.actorId, actorRound.round);
-  const roundPace = round.normalAp > 0 ? paceOfAp(round.normalAp) : undefined;
+  const roundPace = round.normalPace;
   const limit = bmr * PACES[paceIndex(max.pace)].perRound;
   const footwork = getSkillBonus('footwork', actorRound);
   const accumulator = actorRound.fatigue?.accumulator ?? 0;

@@ -41,6 +41,13 @@ export const paceOfAp = (actionPoints: number): string =>
 export const normalMovementFatigue = (previousAp: number, actionPoints: number): number =>
   ROUND_FATIGUE[paceOfAp(previousAp + actionPoints)] - ROUND_FATIGUE[paceOfAp(previousAp)];
 
+/** Paces a normal movement can choose instead of the one of its AP: up to sprint (a dash has its own switch). */
+export const NORMAL_PACES = PACES.filter((row) => paceIndex(row.id) <= paceIndex('sprint'));
+
+/** Fatigue a normal movement at `pace` adds over the pace the round had reached, as the API counts it. */
+export const paceFatigue = (previousPace: string | undefined, pace: string): number =>
+  Math.max(0, (ROUND_FATIGUE[pace] ?? 0) - (previousPace ? (ROUND_FATIGUE[previousPace] ?? 0) : 0));
+
 const isMovement = (action: Action) => action.actionType === 'movement';
 const isResolved = (action: Action) => action.status === 'completed';
 
@@ -52,7 +59,15 @@ export const roundMovement = (actions: Action[], actorId: string, round: number,
     .filter((a) => !a.freeAction && isResolved(a))
     .reduce((sum, a) => sum + (a.actionPoints ?? 0), 0);
   const moved = movements.filter(isResolved).reduce((sum, a) => sum + (a.movement?.calculated?.distance ?? 0), 0);
-  return { own, movements, freeMovements: movements.filter((a) => a.freeAction), normalAp, moved };
+  // The fastest pace of the resolved normal movements, chosen or from their AP; a dash tallies its own fatigue.
+  const normalPace = movements
+    .filter((a) => !a.freeAction && isResolved(a) && a.movement?.modifiers?.pace !== 'dash')
+    .map((a) => a.movement?.modifiers?.pace || paceOfAp(normalAp))
+    .reduce<string | undefined>(
+      (fastest, pace) => (fastest === undefined || paceIndex(pace) > paceIndex(fastest) ? pace : fastest),
+      undefined
+    );
+  return { own, movements, freeMovements: movements.filter((a) => a.freeAction), normalAp, normalPace, moved };
 };
 
 /** BMR of the actor with what halves it (the API applies the same), and the keys of what does. */
