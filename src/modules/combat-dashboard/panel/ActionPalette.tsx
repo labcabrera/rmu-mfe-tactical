@@ -37,12 +37,12 @@ import { ActorRound } from '../../api/actor-rounds.dto';
 import { useActionConfirm, useNotifyWarnings } from '../../services/action-warnings';
 import { actorRoundGrapples, actorRoundHasEffect, isActorRoundFearBlocked } from '../../services/actor-round-service';
 import {
-  apCapacity,
   apProfileLabel,
   apRemaining,
   COMBAT_TALENT_PURPOSE_AP,
   DECLARE_AP_PROFILES,
   freeInstantsPerRound,
+  hasNoCapacityInPhase,
   isActionOpen,
   useOpenRounds,
 } from '../../services/ap-service';
@@ -128,9 +128,7 @@ const usePaletteGroups = (actorRound: ActorRound, phase: number): PaletteGroup[]
   // loses its first phases) declares nothing in it. The reasons reuse the messages of the API errors.
   const flatfooted = actorRound.effects?.some((e) => e.status === 'flatfooted');
   const surprise = actorRound.effects?.find((e) => e.status === 'surprised');
-  const noCapacity = actorRound.apCapacity
-    ? apCapacity(actorRound)[phase - 1] === 0
-    : !!surprise && phase <= (surprise.value ?? 2);
+  const noCapacity = hasNoCapacityInPhase(actorRound, phase);
   const roundReason = flatfooted
     ? 'err-action-flatfooted'
     : noCapacity

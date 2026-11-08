@@ -78,6 +78,13 @@ export const isActionActionable = (action: Action): boolean =>
     : (action.readiness === 'ready' || action.readiness === 'optimal' || action.readiness === 'in-resolution') &&
       action.status !== 'parry';
 
+/** Without AP in a phase: a surprised actor loses its first phases (actor rounds without a capacity only say so by the effect). */
+export const hasNoCapacityInPhase = (actorRound: ActorRound, phase: number): boolean => {
+  if (actorRound.apCapacity) return apCapacity(actorRound)[phase - 1] === 0;
+  const surprise = actorRound.effects?.find((effect) => effect.status === 'surprised');
+  return !!surprise && phase <= (surprise.value ?? 2);
+};
+
 /** The actor cannot act: down, or without capacity in the whole round. Its open actions are interrupted. */
 export const actorCannotAct = (actorRound: ActorRound): boolean =>
   actorRoundHasEffect(actorRound, ['dead', 'dying', 'unconscious', 'unconcious']) ||
