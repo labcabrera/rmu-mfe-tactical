@@ -74,9 +74,6 @@ const ActorRoundBars: FC<{
             onChange={(e) => e !== null && updateActorRoundHP(Math.min(e, actorRound.hp?.max ?? e))}
           />
         </Stack>
-        <Typography variant="caption" color="text.secondary">
-          {t('death-threshold', { value: -deathThreshold })}
-        </Typography>
         <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
           <Box sx={{ width: barSize }}>
             <ResourceBar

@@ -20,7 +20,7 @@ import { useActorRoundImage } from '../../shared/avatars/use-actor-round-image';
 
 /**
  * Actor cell of the board: a large miniature beside the name, a compact "down" badge (dead with the name struck
- * through and the miniature greyed, or unconscious; both in the color the effects use), profession and level,
+ * through, or unconscious; both greying the miniature and in the color the effects use), profession and level,
  * faction (with its color dot), and hit point and fatigue bars. `extra` adds content below (the effects, when the
  * board has no effects column).
  */
@@ -67,7 +67,8 @@ const ActorRoundResume: FC<{
         }}
       >
         {/* The miniature takes the height of the name, faction and bars: players find their figure by it. */}
-        <EntityAvatar name={actorRound.actorName} imageUrl={image} size={112} faded={down === 'dead'} />
+        {/* Dead or unconscious, the miniature is greyed: the actor is out of the fight. */}
+        <EntityAvatar name={actorRound.actorName} imageUrl={image} size={112} faded={!!down} />
         <Stack sx={{ flex: 1, minWidth: 0, justifyContent: 'space-between', gap: 0.5 }}>
           <Box sx={{ minWidth: 0 }}>
             <Stack direction="row" spacing={1} sx={{ alignItems: 'center', minWidth: 0 }}>
