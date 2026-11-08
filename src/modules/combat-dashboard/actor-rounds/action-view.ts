@@ -1,4 +1,4 @@
-import { type CombatActionState } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { translateSpellName, type CombatActionState } from '@labcabrera-rmu/rmu-react-shared-lib';
 import type { TFunction } from 'i18next';
 import { CLOSED_ACTION_STATUSES as CLOSED_STATUSES, type Action } from '../../api/action.dto';
 import type { ActorRound } from '../../api/actor-rounds.dto';
@@ -99,7 +99,7 @@ export const actionStateTooltip = (action: Action, t: TFunction, openRounds: boo
 export const actionLabel = (action: Action, t: TFunction, actorRounds: ActorRound[] | null): string => {
   let name: string;
   if (action.maneuver) name = t(action.maneuver.modifiers?.skillId || 'maneuver');
-  else if (action.spell) name = action.spell.spell.name;
+  else if (action.spell) name = translateSpellName(t, action.spell.spell.name);
   else if (action.medical) name = t(`procedure-${action.medical.procedure}`);
   // Workspace spec 079, A5: the subtype of Table 8-1 of an `other` action
   else if (action.otherAction) name = t(`other-action-${action.otherAction.kind}`);

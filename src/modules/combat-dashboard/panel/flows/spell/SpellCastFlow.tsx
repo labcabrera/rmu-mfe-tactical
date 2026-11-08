@@ -11,6 +11,7 @@ import {
   OPEN_D100,
   RollBreakdown,
   RollField,
+  useSpellName,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../../CombatContext';
 import { applySpell, previewSpell, resolveSpellResistance, rollSpell, rollSpellFailure } from '../../../../api/action';
@@ -111,6 +112,7 @@ const SpellCastFlow: FC<{
   onNextPending?: () => void;
 }> = ({ action, actorRound, onDeleted, onNextPending }) => {
   const { t } = useTranslation();
+  const spellName = useSpellName();
   const auth = useAuth();
   const notify = useTacticalNotify();
   const { actorRounds, characters, setCharacters, updateAction } = useContext(CombatContext)!;
@@ -297,8 +299,8 @@ const SpellCastFlow: FC<{
       content: <SpellSpecs spell={spell} />,
       reviewInteractive: true,
       summary: [
-        `${spell.spell.level}. ${spell.spell.name}`,
-        spell.spell.listName ?? spell.spell.listCode,
+        `${spell.spell.level}. ${spellName(spell.spell.name)}`,
+        spell.spell.listName ? spellName(spell.spell.listName) : spell.spell.listCode,
         t('spell-power-points', { count: spell.spell.powerPoints }),
         action.freeAction ? t('instantaneous') : null,
         spell.spell.adjusted ? t('spell-adjusted-by-talents') : null,
