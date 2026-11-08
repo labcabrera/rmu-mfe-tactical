@@ -5,29 +5,9 @@ import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
 import { IconButton, ListItemText, Menu, MenuItem, Tooltip } from '@mui/material';
 import { CombatContext } from '../../CombatContext';
 import { createAction } from '../api/action';
-import { Action } from '../api/action.dto';
-import { ActorRound } from '../api/actor-rounds.dto';
-import { actorCannotAct, hasNoCapacityInPhase } from '../services/ap-service';
+import { freeMovementCandidates } from '../services/ap-service';
 import { useTacticalNotify } from '../services/notify-service';
 import { canManageTactical } from '../shared/permissions';
-
-/**
- * Actors a free movement can be declared for in a phase: those without any action in it, as the board shows them, that
- * can still act. A free movement takes no AP, so the only limits are the ones of the declaration itself.
- */
-export const freeMovementCandidates = (actorRounds: ActorRound[], actions: Action[], phase: number): ActorRound[] =>
-  actorRounds.filter(
-    (actorRound) =>
-      !actorCannotAct(actorRound) &&
-      !actorRound.effects?.some((effect) => effect.status === 'flatfooted') &&
-      !hasNoCapacityInPhase(actorRound, phase) &&
-      !actions.some(
-        (action) =>
-          action.actorId === actorRound.actorId &&
-          action.phaseStart <= phase &&
-          (action.phaseEnd ?? phase) >= phase
-      )
-  );
 
 /** Actions of the game master on several actors at once, next to the shortcuts button. */
 const CombatBulkActionsMenu: FC = () => {

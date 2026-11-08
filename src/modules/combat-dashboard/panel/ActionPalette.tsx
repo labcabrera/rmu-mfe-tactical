@@ -14,6 +14,8 @@ import {
   MenuList,
   Popover,
   Stack,
+  ToggleButton,
+  ToggleButtonGroup,
   Typography,
 } from '@mui/material';
 import {
@@ -37,6 +39,7 @@ import { ActorRound } from '../../api/actor-rounds.dto';
 import { useActionConfirm, useNotifyWarnings } from '../../services/action-warnings';
 import { actorRoundGrapples, actorRoundHasEffect, isActorRoundFearBlocked } from '../../services/actor-round-service';
 import {
+  apFreeInPhase,
   apProfileLabel,
   apRemaining,
   COMBAT_TALENT_PURPOSE_AP,
@@ -56,6 +59,7 @@ import {
   traitTier,
 } from '../../services/combat-talents-service';
 import { useTacticalNotify } from '../../services/notify-service';
+import { canManageTactical } from '../../shared/permissions';
 import { actionTypeInfo } from '../actor-rounds/action-type-info';
 import { actionLabel } from '../actor-rounds/action-view';
 import ManeuverDeclareDialog from './ManeuverDeclareDialog';
@@ -108,8 +112,16 @@ const WEAPON_ENTRIES: CombatActionType[] = ['draw_and_load', 'aim'];
 export const actorFearState = (actorRound: ActorRound): string | undefined =>
   ['fear-broken', 'fear-routed', 'fear-retreat', 'fear-balk'].find((state) => actorRoundHasEffect(actorRound, [state]));
 
-/** Entries of the palette for an actor in a phase, with the reason of the ones that are not available. */
-const usePaletteGroups = (actorRound: ActorRound, phase: number): PaletteGroup[] => {
+/** Phases of the round a declaration can go back to (workspace spec 089): the action phases before the current one. */
+const pastPhases = (currentPhase: number): number[] =>
+  currentPhase >= 2 && currentPhase <= 4 ? Array.from({ length: currentPhase - 1 }, (_, index) => index + 1) : [];
+
+/**
+ * Entries of the palette for an actor in a phase, with the reason of the ones that are not available. A `phase` before
+ * `currentPhase` is a retroactive declaration (workspace spec 089), which interrupts nothing and needs the AP of every
+ * phase gone by.
+ */
+const usePaletteGroups = (actorRound: ActorRound, phase: number, currentPhase: number): PaletteGroup[] => {
   const { t } = useTranslation();
   const { roundActions, actorRounds, characters } = useContext(CombatContext)!;
   const openRounds = useOpenRounds();
@@ -149,6 +161,15 @@ const usePaletteGroups = (actorRound: ActorRound, phase: number): PaletteGroup[]
   };
   // AP the actor can still spend this round: the open action gives back the AP of this phase when interrupted.
   const remaining = apRemaining(actorRound, phase) + (interrupted.length > 0 ? 1 : 0);
+  const retroactive = phase < currentPhase;
+  const phasesGoneBy = Array.from({ length: currentPhase - phase + 1 }, (_, index) => phase + index);
+  const noApGoneBy = phasesGoneBy.some((each) => apFreeInPhase(actorRound, each) < 1);
+  // The AP of a drawn weapon depend on the talents of the actor: the API has the last word on that one.
+  const retroactiveReason = (type: CombatActionType, free: boolean): string | undefined => {
+    if (!retroactive || free) return undefined;
+    if (type !== 'movement' && interrupted.length > 0) return 'err-action-retroactive-open-action';
+    return noApGoneBy && type !== 'draw_and_load' ? 'err-action-retroactive-no-ap' : undefined;
+  };
 
   const entry = (type: CombatActionType, extra: Partial<PaletteEntry> = {}): PaletteEntry => {
     const profile =
@@ -178,6 +199,7 @@ const usePaletteGroups = (actorRound: ActorRound, phase: number): PaletteGroup[]
       // A forced attack takes no AP: only a flatfooted actor cannot make it.
       unavailable:
         (extra.forced ? (flatfooted ? 'err-action-flatfooted' : undefined) : roundReason) ??
+        (extra.forced ? undefined : retroactiveReason(type, !!extra.freeAction)) ??
         extra.unavailable ??
         (extra.forced ? undefined : fearReason(type, !!extra.freeAction)),
     };
@@ -213,7 +235,7 @@ const usePaletteGroups = (actorRound: ActorRound, phase: number): PaletteGroup[]
     })
   );
   // Attacks are never free (spec 011, §6): an immediate attack granted by an effect is a forced action.
-  return [
+  const groups: PaletteGroup[] = [
     {
       key: 'movement',
       label: t('movement'),
@@ -313,10 +335,17 @@ const usePaletteGroups = (actorRound: ActorRound, phase: number): PaletteGroup[]
     },
     { key: 'other', label: t('other'), entries: [entry('other')] },
   ];
+  // A forced action always starts in the current phase.
+  return retroactive ? groups.map((group) => ({ ...group, entries: group.entries.filter((e) => !e.forced) })) : groups;
 };
 
-/** Creates an action of an actor in a phase and adds it to the round. */
-const useCreateAction = (actorRound: ActorRound | null, phase: number, onCreated: (action: Action) => void) => {
+/** Creates an action of an actor in a phase, retroactive when it is a past one, and adds it to the round. */
+const useCreateAction = (
+  actorRound: ActorRound | null,
+  phase: number,
+  retroactive: boolean,
+  onCreated: (action: Action) => void
+) => {
   const { t } = useTranslation();
   const auth = useAuth();
   const notify = useTacticalNotify();
@@ -334,6 +363,7 @@ const useCreateAction = (actorRound: ActorRound | null, phase: number, onCreated
       actionType: entry.type,
       phaseStart: phase,
       freeAction: !!entry.freeAction,
+      ...(retroactive ? { retroactive: true } : {}),
       ...(entry.forced ? { forced: { reason: entry.forced } } : {}),
       ...extra,
     };
@@ -380,11 +410,17 @@ const ActionPalette: FC<{
   onCreated: (action: Action) => void;
 }> = ({ actorRound, phase, anchorEl, onClose, onCreated }) => {
   const isPhone = usePhone();
+  const { game } = useContext(CombatContext)!;
+  const [pastPhase, setPastPhase] = useState<number | null>(null);
+  // Workspace spec 089: whoever manages the game can go back to a past phase of the round. Forgotten when the phase moves on.
+  const selectablePhases = game && canManageTactical(game) ? pastPhases(phase) : [];
+  const fromPhase = pastPhase !== null && selectablePhases.includes(pastPhase) ? pastPhase : phase;
   const [maneuver, setManeuver] = useState<ManeuverChoice | null>(null);
   const [spellEntry, setSpellEntry] = useState<PaletteEntry | null>(null);
   const [healEntry, setHealEntry] = useState<PaletteEntry | null>(null);
   const [weaponEntry, setWeaponEntry] = useState<PaletteEntry | null>(null);
-  const { create, busy, confirmDialog } = useCreateAction(actorRound, phase, (action) => {
+  const { create, busy, confirmDialog } = useCreateAction(actorRound, fromPhase, fromPhase < phase, (action) => {
+    setPastPhase(null);
     setManeuver(null);
     setSpellEntry(null);
     setHealEntry(null);
@@ -392,6 +428,7 @@ const ActionPalette: FC<{
     onCreated(action);
   });
   const close = () => {
+    setPastPhase(null);
     setManeuver(null);
     setSpellEntry(null);
     setHealEntry(null);
@@ -403,7 +440,10 @@ const ActionPalette: FC<{
   const content = actorRound && (
     <PaletteContent
       actorRound={actorRound}
-      phase={phase}
+      phase={fromPhase}
+      currentPhase={phase}
+      selectablePhases={selectablePhases}
+      onPhaseChange={setPastPhase}
       busy={busy}
       onClose={close}
       onCreate={create}
@@ -504,7 +544,11 @@ const ActionPalette: FC<{
 
 const PaletteContent: FC<{
   actorRound: ActorRound;
+  /** Phase the action starts in: the current one, or a past one chosen in the selector. */
   phase: number;
+  currentPhase: number;
+  selectablePhases: number[];
+  onPhaseChange: (phase: number) => void;
   busy: boolean;
   onClose: () => void;
   onCreate: (entry: PaletteEntry, extra?: Record<string, unknown>) => void;
@@ -513,9 +557,23 @@ const PaletteContent: FC<{
   onHeal: (entry: PaletteEntry) => void;
   onWeapon: (entry: PaletteEntry) => void;
   onClosePalette: () => void;
-}> = ({ actorRound, phase, busy, onClose, onCreate, onManeuver, onSpell, onHeal, onWeapon, onClosePalette }) => {
+}> = ({
+  actorRound,
+  phase,
+  currentPhase,
+  selectablePhases,
+  onPhaseChange,
+  busy,
+  onClose,
+  onCreate,
+  onManeuver,
+  onSpell,
+  onHeal,
+  onWeapon,
+  onClosePalette,
+}) => {
   const { t } = useTranslation();
-  const groups = usePaletteGroups(actorRound, phase);
+  const groups = usePaletteGroups(actorRound, phase, currentPhase);
   const fear = actorFearState(actorRound);
   const [filter, setFilter] = useState('');
   const listRef = useRef<HTMLUListElement>(null);
@@ -573,6 +631,33 @@ const PaletteContent: FC<{
     <Box>
       <Box sx={{ p: 1.5, pb: 0.5 }}>
         <SectionLabel>{t('declare-action-for', { actor: actorRound.actorName, phase })}</SectionLabel>
+        {selectablePhases.length > 0 && (
+          <Stack spacing={0.5} sx={{ mb: 1 }}>
+            <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
+              <Typography variant="caption" color="text.secondary">
+                {t('retro-declare-from-phase')}
+              </Typography>
+              <ToggleButtonGroup
+                exclusive
+                size="small"
+                value={phase}
+                aria-label={t('retro-declare-from-phase')}
+                onChange={(_, value: number | null) => value !== null && onPhaseChange(value)}
+              >
+                {[...selectablePhases, currentPhase].map((each) => (
+                  <ToggleButton key={each} value={each} sx={{ py: 0, px: 1.25 }}>
+                    {each}
+                  </ToggleButton>
+                ))}
+              </ToggleButtonGroup>
+            </Stack>
+            {phase < currentPhase && (
+              <Typography variant="caption" color="warning.main">
+                {t('retro-declare-help', { count: currentPhase - phase + 1 })}
+              </Typography>
+            )}
+          </Stack>
+        )}
         {fear && <FearNotice actorRound={actorRound} fear={fear} onDropped={onClosePalette} />}
         {/* The keys of the search box (Enter, arrow down) bubble up to this box. */}
         <Box onKeyDown={onFilterKeyDown}>

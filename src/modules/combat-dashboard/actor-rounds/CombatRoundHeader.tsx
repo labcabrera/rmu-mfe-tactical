@@ -36,10 +36,17 @@ import { CombatContext } from '../../../CombatContext';
 import type { Action } from '../../api/action.dto';
 import type { ActorRound } from '../../api/actor-rounds.dto';
 import { isActorRoundDown, isActorRoundFlatfooted } from '../../services/actor-round-service';
-import { ActionDestiny, actionDestiny, isActionClosed, useOpenRounds } from '../../services/ap-service';
+import {
+  ActionDestiny,
+  actionDestiny,
+  freeMovementCandidates,
+  isActionClosed,
+  useOpenRounds,
+} from '../../services/ap-service';
 import { isGameFinished } from '../../services/game-service';
 import { useTacticalNotify } from '../../services/notify-service';
 import { useShortcut } from '../../services/shortcuts';
+import { canManageTactical } from '../../shared/permissions';
 import GroupCheckDialog from '../psychology/GroupCheckDialog';
 import { actionLabel } from './action-view';
 import { phaseNumber, PHASES } from './round-grid';
@@ -97,6 +104,15 @@ const pendingActions = (
 };
 
 /**
+ * Actors able to act that have no action in the phase being left (workspace spec 089): a reminder for whoever manages
+ * the game before moving on, which never blocks it.
+ */
+const actorsWithoutAction = (game: TacticalGame, actions: Action[], actorRounds: ActorRound[]): ActorRound[] =>
+  game.phase.startsWith('phase_') && canManageTactical(game)
+    ? freeMovementCandidates(actorRounds, actions, phaseNumber(game.phase))
+    : [];
+
+/**
  * Header of the round board: the round (with a read-only history mode for earlier rounds), the phase
  * stepper, the order of the actors, and one primary button that says what it does ("Start phase 2"). It
  * asks for confirmation when something is left unresolved.
@@ -128,7 +144,12 @@ const CombatRoundHeader: FC = () => {
     if (!game || !actorRounds || displayRound !== game.round || isGameFinished(game)) return false;
     const missingInitiative = actorRounds.some((ar) => rollsInitiative(ar) && !ar.initiative?.roll);
     if (game.phase === 'declare_initiative' && missingInitiative) return false;
-    if (pendingActions(game, roundActions ?? [], actorRounds, t, openRounds).length > 0) setConfirm('next');
+    const actions = roundActions ?? [];
+    if (
+      pendingActions(game, actions, actorRounds, t, openRounds).length > 0 ||
+      actorsWithoutAction(game, actions, actorRounds).length > 0
+    )
+      setConfirm('next');
     else advanceRef.current();
   });
 
@@ -141,6 +162,7 @@ const CombatRoundHeader: FC = () => {
   const active = actorRounds.filter(rollsInitiative);
   const undeclared = active.filter((ar) => !ar.initiative?.roll);
   const pending = pendingActions(game, roundActions ?? [], actorRounds, t, openRounds);
+  const withoutAction = actorsWithoutAction(game, roundActions ?? [], actorRounds);
   const blocked = game.phase === 'declare_initiative' && undeclared.length > 0;
 
   const advance = () => {
@@ -252,7 +274,7 @@ const CombatRoundHeader: FC = () => {
                   <Button
                     variant="contained"
                     disabled={blocked}
-                    onClick={() => (pending.length > 0 ? setConfirm('next') : advance())}
+                    onClick={() => (pending.length > 0 || withoutAction.length > 0 ? setConfirm('next') : advance())}
                   >
                     {nextStepLabel(game)}
                   </Button>
@@ -287,27 +309,48 @@ const CombatRoundHeader: FC = () => {
         title={nextStepLabel(game)}
         message={
           <Stack spacing={1}>
-            <Typography>{t('open-actions-n', { count: pending.length })}</Typography>
-            <Box component="ul" sx={{ m: 0, pl: 2.5 }}>
-              {pending.map((item) => (
-                <Typography component="li" variant="body2" key={item.key}>
-                  {item.line}
-                  <Typography
-                    component="span"
-                    variant="body2"
-                    sx={{ fontWeight: 600 }}
-                    color={
-                      item.destiny === 'interrupted' || item.destiny === 'expires' ? 'warning.main' : 'text.secondary'
-                    }
-                  >
-                    {` → ${t(`action-destiny-${item.destiny}`)}`}
-                  </Typography>
+            {withoutAction.length > 0 && (
+              <>
+                <Typography>{t('undeclared-actors-n', { count: withoutAction.length })}</Typography>
+                <Box component="ul" sx={{ m: 0, pl: 2.5 }}>
+                  {withoutAction.map((actorRound) => (
+                    <Typography component="li" variant="body2" key={actorRound.actorId}>
+                      {actorRound.actorName}
+                    </Typography>
+                  ))}
+                </Box>
+                <Typography variant="caption" color="text.secondary">
+                  {t('undeclared-actors-help')}
                 </Typography>
-              ))}
-            </Box>
-            <Typography variant="caption" color="text.secondary">
-              {t('action-destiny-help')}
-            </Typography>
+              </>
+            )}
+            {pending.length > 0 && (
+              <>
+                <Typography>{t('open-actions-n', { count: pending.length })}</Typography>
+                <Box component="ul" sx={{ m: 0, pl: 2.5 }}>
+                  {pending.map((item) => (
+                    <Typography component="li" variant="body2" key={item.key}>
+                      {item.line}
+                      <Typography
+                        component="span"
+                        variant="body2"
+                        sx={{ fontWeight: 600 }}
+                        color={
+                          item.destiny === 'interrupted' || item.destiny === 'expires'
+                            ? 'warning.main'
+                            : 'text.secondary'
+                        }
+                      >
+                        {` → ${t(`action-destiny-${item.destiny}`)}`}
+                      </Typography>
+                    </Typography>
+                  ))}
+                </Box>
+                <Typography variant="caption" color="text.secondary">
+                  {t('action-destiny-help')}
+                </Typography>
+              </>
+            )}
           </Stack>
         }
         confirmLabel={nextStepLabel(game)}

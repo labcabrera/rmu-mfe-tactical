@@ -91,6 +91,22 @@ export const actorCannotAct = (actorRound: ActorRound): boolean =>
   apTotals(actorRound).capacity === 0;
 
 /**
+ * Actors a free movement can be declared for in a phase: those without any action in it, as the board shows them, that
+ * can still act. A free movement takes no AP, so the only limits are the ones of the declaration itself.
+ */
+export const freeMovementCandidates = (actorRounds: ActorRound[], actions: Action[], phase: number): ActorRound[] =>
+  actorRounds.filter(
+    (actorRound) =>
+      !actorCannotAct(actorRound) &&
+      !actorRound.effects?.some((effect) => effect.status === 'flatfooted') &&
+      !hasNoCapacityInPhase(actorRound, phase) &&
+      !actions.some(
+        (action) =>
+          action.actorId === actorRound.actorId && action.phaseStart <= phase && (action.phaseEnd ?? phase) >= phase
+      )
+  );
+
+/**
  * AP range of the action types the palette declares, as rmu-api-tactical sets them (spec 011, §3), shown before the
  * action exists. A maneuver takes its skill's profile: it is only known once declared.
  */

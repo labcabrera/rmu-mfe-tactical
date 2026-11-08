@@ -92,6 +92,7 @@ export const actionStateTooltip = (action: Action, t: TFunction, openRounds: boo
     parts.push(t('resolves-at-penalty', { penalty: action.readinessPenalty }));
   if (action.readiness === 'unreachable') parts.push(t(openRounds ? 'continues-next-round' : 'expires-at-round-end'));
   if (action.continuesActionId) parts.push(t('continues-previous-round', { count: action.carriedAp ?? 0 }));
+  if (action.retroactive) parts.push(t('retro-declared'));
   return parts.join(' · ');
 };
 
