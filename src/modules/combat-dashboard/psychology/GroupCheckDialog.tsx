@@ -52,8 +52,16 @@ import {
 
 const KINDS: GroupCheckKind[] = ['fear', 'morale', 'rally'];
 
-/** What a suggested check opens the dialog with (workspace spec 068, decision 16): the faction and its fright level. */
-export type GroupCheckPrefill = { kind?: GroupCheckKind; factionIds?: string[]; frightLevel?: number | null };
+/**
+ * What a suggested check opens the dialog with (workspace spec 068, decision 16): the faction and its fright level, and
+ * the alert it answers (workspace spec 087), which the API closes with the first fear check.
+ */
+export type GroupCheckPrefill = {
+  kind?: GroupCheckKind;
+  factionIds?: string[];
+  frightLevel?: number | null;
+  alertId?: string;
+};
 
 /**
  * Fear, morale and rally checks of a group (workspace spec 022, §14.3), for the game master. The group is the
@@ -66,9 +74,7 @@ const GroupCheckDialog: FC<{
   open: boolean;
   onClose: () => void;
   prefill?: GroupCheckPrefill;
-  /** Told once a check was rolled (the suggested-check alert is then done). */
-  onChecked?: (result: GroupCheckResult) => void;
-}> = ({ open, onClose, prefill, onChecked }) => {
+}> = ({ open, onClose, prefill }) => {
   const { t } = useTranslation();
   const auth = useAuth();
   const notify = useTacticalNotify();
@@ -113,13 +119,19 @@ const GroupCheckDialog: FC<{
   const members = groupMembers(form, rounds);
   const problem = groupCheckProblem(form, rounds);
 
+  // A second check of the same dialog, or a morale or rally check, no longer answers the suggested alert
+  const alertId = prefill?.alertId;
+  const answersAlert =
+    form.kind === 'fear' &&
+    !!alertId &&
+    rounds.some((actorRound) => actorRound.alerts?.some((a) => a.id === alertId && a.status === 'pending'));
+
   const submit = () => {
     setBusy(true);
-    groupCheck(game.id, form.kind, toGroupCheckRequest(form, rounds), auth)
+    groupCheck(game.id, form.kind, { ...toGroupCheckRequest(form, rounds), ...(answersAlert ? { alertId } : {}) }, auth)
       .then((response) => {
         response.actorRounds.forEach(updateActorRound);
         setResult(response);
-        onChecked?.(response);
       })
       .catch((err) => notify.error(err))
       .finally(() => setBusy(false));

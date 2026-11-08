@@ -25,8 +25,9 @@ import { useTacticalNotify } from '../../services/notify-service';
  * roll and the physical RR bonus (from the sheet, or typed for an NPC), at attack level 0. The API kills the actor when
  * it fails and resolves the alert either way.
  */
-const FrenzyDyingRrDialog: FC<{ actorRound: ActorRound; open: boolean; onClose: () => void }> = ({
+const FrenzyDyingRrDialog: FC<{ actorRound: ActorRound; alertId: string; open: boolean; onClose: () => void }> = ({
   actorRound,
+  alertId,
   open,
   onClose,
 }) => {
@@ -54,7 +55,7 @@ const FrenzyDyingRrDialog: FC<{ actorRound: ActorRound; open: boolean; onClose: 
     setBusy(true);
     rollActorResistance(
       actorRound.id,
-      { kind: 'physical', attackLevel: 0, roll, reason: 'frenzy-dying', ...(bonus !== null ? { bonus } : {}) },
+      { kind: 'physical', attackLevel: 0, roll, reason: 'frenzy-dying', alertId, ...(bonus !== null ? { bonus } : {}) },
       auth
     )
       .then((rolled) => {
