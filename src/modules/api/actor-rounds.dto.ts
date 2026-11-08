@@ -275,6 +275,26 @@ export type ActorRoundAlert = {
   status?: ActorRoundAlertStatus;
   /** The reaction a `reaction-available` alert offers (workspace spec 076). */
   reaction?: ReactionAlertData;
+  /** Round it was raised in (workspace spec 087). */
+  raisedRound?: number;
+  /** Round it was resolved in (workspace spec 087); absent in the alerts resolved before it. */
+  resolvedRound?: number;
+  /** Phase it was resolved in: 0 before the action phases, 1-4, 5 the upkeep; null when not known. */
+  resolvedPhase?: number | null;
+  resolvedAt?: string;
+  result?: AlertResult | null;
+};
+
+/**
+ * What a resolved alert left, for the round log (workspace spec 087): `outcome` is a translatable key, `roll` and
+ * `total` those of its roll, `text` the item or the text of the critical and `values` the numbers of its kind.
+ */
+export type AlertResult = {
+  outcome?: string | null;
+  roll?: number | null;
+  total?: number | null;
+  text?: string | null;
+  values?: Record<string, number | string | boolean | null> | null;
 };
 
 /** An item of the actor in the game (spec 019): its strategic item with the modifiers it brought and the game ones. */

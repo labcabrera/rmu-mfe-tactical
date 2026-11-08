@@ -12,6 +12,7 @@ import {
   RollField,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
+import { fetchActorRound } from '../../api/actor-rounds';
 import { ActorRound } from '../../api/actor-rounds.dto';
 import { applyFearEffect, rollActorResistance } from '../../api/psychology';
 import { ResistanceRollResult } from '../../api/psychology.dto';
@@ -31,8 +32,8 @@ export const fearBonus = (actorRound: ActorRound): number | undefined => resista
  * the RR bonus (from the sheet, or typed for an NPC) and a modifier of the game master. The API resolves it with
  * core's tables and leaves no effect; on a failure the game master applies the fear effect it gives through
  * `fear-effects` (workspace spec 068, S11), which keeps the worst state of the actor. A group takes its fear check
- * from the round header instead. `initialLevel` prefills the fright level (the Revulsion alert), and `onApplied` is
- * told once the RR was rolled.
+ * from the round header instead. `initialLevel` prefills the fright level (the Revulsion alert), and with `alertId` the
+ * API closes that alert with the result of the RR (workspace spec 087).
  */
 const ResistanceRollDialog: FC<{
   actorRound: ActorRound;
@@ -41,8 +42,9 @@ const ResistanceRollDialog: FC<{
   initialLevel?: number | null;
   /** Name of what frightens, kept as the source of the fear effect. */
   sourceName?: string;
-  onRolled?: (result: ResistanceRollResult) => void;
-}> = ({ actorRound, open, onClose, initialLevel = null, sourceName, onRolled }) => {
+  /** The alert this RR answers. */
+  alertId?: string;
+}> = ({ actorRound, open, onClose, initialLevel = null, sourceName, alertId }) => {
   const { t } = useTranslation();
   const auth = useAuth();
   const notify = useTacticalNotify();
@@ -78,12 +80,13 @@ const ResistanceRollDialog: FC<{
         roll,
         ...(modifier ? { modifiers: [{ key: 'custom-bonus', value: modifier }] } : {}),
         ...(bonus !== null ? { bonus } : {}),
+        ...(alertId ? { alertId } : {}),
       },
       auth
     )
       .then((rolled) => {
         setResult(rolled);
-        onRolled?.(rolled);
+        return alertId ? fetchActorRound(actorRound.id, auth).then(updateActorRound) : undefined;
       })
       .catch((err) => notify.error(err))
       .finally(() => setBusy(false));

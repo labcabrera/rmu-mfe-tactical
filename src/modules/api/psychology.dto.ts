@@ -26,6 +26,8 @@ export type ResistanceRollDto = {
   modifiers?: KeyValueModifier[];
   /** RR bonus of an actor without one in its sheet (NPCs); it wins over the sheet. */
   bonus?: number;
+  /** The alert the RR answers (workspace spec 087): the API closes it with the result. */
+  alertId?: string;
 };
 
 export type ResistanceRollResult = {
@@ -71,6 +73,8 @@ export type FearCheckDto = GroupCheckDto & {
   frightLevelModifier?: number;
   intimidatorActorId?: string;
   intimidationRanks?: number;
+  /** The `fear-check-suggested` alert the check answers (workspace spec 087): the API closes it with the result. */
+  alertId?: string;
   /** Rolls and RR bonuses by actor id; a missing roll is rolled by the API. */
   rolls?: Record<string, number>;
   bonuses?: Record<string, number>;

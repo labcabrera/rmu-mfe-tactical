@@ -71,18 +71,16 @@ const ActorAlertDialog: FC<{
   const modifierOf = (key: string) => currentAlert?.modifiers?.find((m) => m.key === key);
   // Workspace spec 079, decision A3: an endurance roll asked by the total penalties, not by the accumulated fatigue
   const penaltyReason = isEndurance ? modifierOf('reason')?.modifier : undefined;
-  // The API resolves only some alerts: the others are marked as done in the board until the next round
+  // Workspace spec 087: an informative alert closes in the API, so it stays dismissed and reaches the round log
   const dismiss = () => {
-    if (currentAlert) onSave?.({ ...currentAlert, status: 'resolved' });
-  };
-  // A suggested check or a Revulsion RR is done once rolled: the alert goes when its dialog closes
-  const [acted, setActed] = useState(false);
-  useEffect(() => {
-    if (open) setActed(false);
-  }, [open, alertId]);
-  const closeActed = () => {
-    if (acted) dismiss();
-    onClose();
+    setBusy(true);
+    resolveAlert(actorRound.id, alertId, auth)
+      .then((updated) => {
+        updateActorRound(updated);
+        onClose();
+      })
+      .catch((err) => notify.error(err))
+      .finally(() => setBusy(false));
   };
 
   const loosen = () => {
@@ -134,7 +132,6 @@ const ActorAlertDialog: FC<{
     }
     if (currentAlert && INFO_ALERTS.includes(currentAlert.type)) {
       dismiss();
-      onClose();
       return;
     }
     if (currentAlert) onSave?.(currentAlert);
@@ -193,20 +190,20 @@ const ActorAlertDialog: FC<{
     return <StrayShotAlertDialog actorRound={actorRound} alert={currentAlert} open={open} onClose={onClose} />;
   }
   if (currentAlert?.type === 'frenzy-dying') {
-    return <FrenzyDyingRrDialog actorRound={actorRound} open={open} onClose={onClose} />;
+    return <FrenzyDyingRrDialog actorRound={actorRound} alertId={alertId} open={open} onClose={onClose} />;
   }
   if (currentAlert?.type === 'fear-check-suggested') {
     const factionId = modifierOf('factionId')?.modifier;
     return (
       <GroupCheckDialog
         open={open}
-        onClose={closeActed}
+        onClose={onClose}
         prefill={{
           kind: 'fear',
           factionIds: factionId ? [factionId] : [],
           frightLevel: modifierOf('frightLevel')?.value,
+          alertId,
         }}
-        onChecked={() => setActed(true)}
       />
     );
   }
@@ -215,10 +212,10 @@ const ActorAlertDialog: FC<{
       <ResistanceRollDialog
         actorRound={actorRound}
         open={open}
-        onClose={closeActed}
+        onClose={onClose}
         initialLevel={modifierOf('level')?.value ?? null}
         sourceName={t('revulsion')}
-        onRolled={() => setActed(true)}
+        alertId={alertId}
       />
     );
   }
