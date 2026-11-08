@@ -446,6 +446,8 @@ export type Action = {
   actionType: ActionType;
   freeAction: boolean;
   phaseStart: number;
+  /** Declared by the game master in a past phase of the round (workspace spec 089). */
+  retroactive?: boolean;
   phaseEnd: number | null;
   status: ActionStatus;
   /** AP spent on the action, from the AP ledger of its actor round. */

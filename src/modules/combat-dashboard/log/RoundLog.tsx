@@ -95,7 +95,13 @@ const AlertEntry: FC<{ entry: LoggedAlert }> = ({ entry }) => {
         </Box>
         <Stack direction="row" spacing={0.75} sx={{ alignItems: 'center', minWidth: 0 }}>
           <Box
-            sx={{ width: 8, height: 8, borderRadius: '50%', flexShrink: 0, bgcolor: factionColor(actorRound.factionId) }}
+            sx={{
+              width: 8,
+              height: 8,
+              borderRadius: '50%',
+              flexShrink: 0,
+              bgcolor: factionColor(actorRound.factionId),
+            }}
           />
           <Typography variant="body2" noWrap>
             <Box component="span" sx={{ fontWeight: 600 }}>
@@ -130,10 +136,7 @@ const LogEntry: FC<{ action: Action }> = ({ action }) => {
       ? `${action.phaseStart}–${action.phaseEnd}`
       : `${action.phaseStart}`;
   return (
-    <ButtonBase
-      onClick={() => openAction(action)}
-      sx={LOG_ROW_SX}
-    >
+    <ButtonBase onClick={() => openAction(action)} sx={LOG_ROW_SX}>
       <Typography variant="caption" color="text.secondary">
         {phases}
       </Typography>
@@ -156,6 +159,7 @@ const LogEntry: FC<{ action: Action }> = ({ action }) => {
               {actorRound?.actorName}
             </Box>
             {` · ${actionLabel(action, t, actorRounds)}`}
+            {action.retroactive && ` · ${t('retro-declared')}`}
           </Typography>
         </Stack>
         {effects.length > 0 && (
