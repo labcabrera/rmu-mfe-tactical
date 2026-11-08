@@ -6,6 +6,7 @@ import { Panel } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../CombatContext';
 import { useShortcut } from '../services/shortcuts';
 import GameOutcomePanel from '../tactical-games/outcome/GameOutcomePanel';
+import CombatBulkActionsMenu from './CombatBulkActionsMenu';
 import CombatDashboardActions from './CombatDashboardActions';
 import ShortcutsHelp from './ShortcutsHelp';
 import CombatActorRoundList from './actor-rounds/ActorRoundList';
@@ -48,6 +49,7 @@ const CombatDashboardTabs: FC = () => {
               <Tab value="log" label={t('log')} />
               <Tab value="damage" label={t('damage')} />
             </Tabs>
+            <CombatBulkActionsMenu />
             <Tooltip title={t('keyboard-shortcuts')}>
               <IconButton aria-label={t('keyboard-shortcuts')} onClick={() => setHelp(true)}>
                 <KeyboardIcon />
