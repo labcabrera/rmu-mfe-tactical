@@ -9,7 +9,7 @@ import TacticalGameListPage from './modules/tactical-games/list/TacticalGameList
 import TacticalGameViewPage from './modules/tactical-games/view/TacticalGameViewPage';
 
 const App = () => (
-  <MfeRoot sx={{ p: 2 }}>
+  <MfeRoot sx={{ p: 2 }} namespace="tactical">
     <CombatProvider>
       <Routes>
         <Route path="/" element={<HomePage />} />

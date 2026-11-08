@@ -11,6 +11,7 @@ import {
   RmuChip,
   RollCard,
   RollField,
+  useTableText,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../CombatContext';
 import { updateCriticalRoll } from '../../../api/action';
@@ -33,6 +34,8 @@ const ResolveAttackFormCriticals: FC<{
 }> = ({ formData, action, index, attack, setFormData }) => {
   const auth = useAuth();
   const { t } = useTranslation();
+  // Workspace spec 086: the English text of a table entry, translated when there is one
+  const tableText = useTableText();
   const { updateAction, actorRounds, refreshActorRounds } = useContext(CombatContext)!;
   const notify = useTacticalNotify();
   const [styleOption, setStyleOption] = useState(NO_OPTION);
@@ -221,7 +224,7 @@ const ResolveAttackFormCriticals: FC<{
                 </Tooltip>
               ))}
             </ChipRow>
-            {critical.result?.text && <Typography variant="body2">{critical.result.text}</Typography>}
+            {critical.result?.text && <Typography variant="body2">{tableText(critical.result.text)}</Typography>}
           </Stack>
         ))}
     </RollCard>

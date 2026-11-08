@@ -11,6 +11,7 @@ import {
   RollCard,
   RollField,
   RollSpec,
+  useTableText,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../../CombatContext';
 import { updateFumbleRoll } from '../../../api/action';
@@ -36,6 +37,8 @@ const ResolveAttackFormFumble: FC<{
 }> = ({ formData, setFormData, action, index, attack }) => {
   const auth = useAuth();
   const { t } = useTranslation();
+  // Workspace spec 086: the English text of a table entry, translated when there is one
+  const tableText = useTableText();
   const { updateAction } = useContext(CombatContext)!;
   const notify = useTacticalNotify();
   const fumble = attack.results?.fumble;
@@ -108,7 +111,7 @@ const ResolveAttackFormFumble: FC<{
         )
       }
     >
-      {fumble.text && <Typography variant="body2">{fumble.text}</Typography>}
+      {fumble.text && <Typography variant="body2">{tableText(fumble.text)}</Typography>}
       {fumble.additionalDamageText && (
         <Typography variant="body2" color="text.secondary">
           {t('fumble-additional-damage')}: {fumble.additionalDamageText}

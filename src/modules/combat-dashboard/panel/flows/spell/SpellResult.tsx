@@ -7,6 +7,7 @@ import {
   RuleHint,
   SpellEffectList,
   spellSpecsRows,
+  useTableText,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { TFunction } from 'i18next';
 import { ActionSpell, ActionSpellTarget } from '../../../../api/action.dto';
@@ -41,6 +42,8 @@ export const targetOutcome = (target: ActionSpellTarget, t: TFunction): string =
  */
 export const SpellCastingResult: FC<{ spell: ActionSpell }> = ({ spell }) => {
   const { t } = useTranslation();
+  // Workspace spec 086: the English text of a table entry, translated when there is one
+  const tableText = useTableText();
   if (!spell.roll || !spell.result) return null;
   const scr = spell.roll.totalRoll;
   return (
@@ -86,7 +89,7 @@ export const SpellCastingResult: FC<{ spell: ActionSpell }> = ({ spell }) => {
             </Typography>
           )}
           <Typography variant="body2" sx={{ my: 0.5 }}>
-            {spell.failure.text}
+            {tableText(spell.failure.text)}
           </Typography>
           <Chip size="small" label={t(`spell-failure-pp-${spell.failure.suggestedPp}`)} />
         </Box>

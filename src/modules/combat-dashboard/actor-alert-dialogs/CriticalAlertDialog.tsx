@@ -2,7 +2,14 @@ import React, { FC, useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import { Alert, Box, Button, Chip, Stack, TextField, Typography } from '@mui/material';
-import { ChipRow, CriticalAlertRoll, D100, RmuDialog, RollField } from '@labcabrera-rmu/rmu-react-shared-lib';
+import {
+  ChipRow,
+  CriticalAlertRoll,
+  D100,
+  RmuDialog,
+  RollField,
+  useTableText,
+} from '@labcabrera-rmu/rmu-react-shared-lib';
 import { CombatContext } from '../../../CombatContext';
 import { resolveAlert, rollCriticalAlert } from '../../api/actor-rounds';
 import { ActorRound, ActorRoundAlert } from '../../api/actor-rounds.dto';
@@ -26,6 +33,8 @@ const CriticalAlertDialog: FC<{
   onClose: () => void;
 }> = ({ actorRound, alert, open, onClose }) => {
   const { t } = useTranslation();
+  // Workspace spec 086: the English text of a table entry, translated when there is one
+  const tableText = useTableText();
   const auth = useAuth();
   const notify = useTacticalNotify();
   const { game, updateActorRound } = useContext(CombatContext)!;
@@ -127,7 +136,7 @@ const CriticalAlertDialog: FC<{
             </ChipRow>
             {rolled.text && (
               <Typography variant="body2" color="text.secondary">
-                {rolled.text}
+                {tableText(rolled.text)}
               </Typography>
             )}
           </Stack>
