@@ -37,6 +37,19 @@ export async function fetchActions(
   return await callApi(auth, url, { method: 'GET' });
 }
 
+/** Every action of the game, of all its rounds (`size` is at most 1000 per page). */
+export async function fetchActionsByGame(gameId: string, auth: AuthContextProps): Promise<Action[]> {
+  const size = 1000;
+  const rsql = `gameId==${gameId}`;
+  const first = await fetchActions(rsql, 0, size, auth);
+  const others = await Promise.all(
+    Array.from({ length: Math.max(0, first.pagination.totalPages - 1) }, (_, index) =>
+      fetchActions(rsql, index + 1, size, auth)
+    )
+  );
+  return [first, ...others].flatMap((page) => page.content);
+}
+
 export async function fetchActionsByGameAndRound(
   gameId: string,
   round: number,

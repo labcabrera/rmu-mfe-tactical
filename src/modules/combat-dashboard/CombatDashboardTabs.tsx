@@ -10,14 +10,15 @@ import CombatDashboardActions from './CombatDashboardActions';
 import ShortcutsHelp from './ShortcutsHelp';
 import CombatActorRoundList from './actor-rounds/ActorRoundList';
 import CombatRoundHeader from './actor-rounds/CombatRoundHeader';
+import CombatDamageView from './damage/CombatDamageView';
 import RoundLog, { RoundLogStrip } from './log/RoundLog';
 import CombatPanelProvider from './panel/CombatPanelProvider';
 
-type View = 'board' | 'log';
+type View = 'board' | 'log' | 'damage';
 
 /**
- * Combat screen: breadcrumbs, the round header, and two views (board and log) next to the side panel where
- * actors and actions open.
+ * Combat screen: breadcrumbs, the round header, and three views (board, log and damage of the whole combat) next to
+ * the side panel where actors and actions open.
  */
 const CombatDashboardTabs: FC = () => {
   const { t } = useTranslation();
@@ -45,6 +46,7 @@ const CombatDashboardTabs: FC = () => {
             >
               <Tab value="board" label={t('board')} />
               <Tab value="log" label={t('log')} />
+              <Tab value="damage" label={t('damage')} />
             </Tabs>
             <Tooltip title={t('keyboard-shortcuts')}>
               <IconButton aria-label={t('keyboard-shortcuts')} onClick={() => setHelp(true)}>
@@ -57,12 +59,16 @@ const CombatDashboardTabs: FC = () => {
               <CombatActorRoundList />
               {wide && <RoundLogStrip onOpenLog={() => setView('log')} />}
             </>
-          ) : (
+          ) : view === 'log' ? (
             <Panel>
               <Box role="tabpanel">
                 <RoundLog />
               </Box>
             </Panel>
+          ) : (
+            <Box role="tabpanel">
+              <CombatDamageView />
+            </Box>
           )}
         </Stack>
       </CombatPanelProvider>
