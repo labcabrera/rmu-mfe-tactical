@@ -262,35 +262,38 @@ const MovementFlow: FC<{
         }
         label={t('required-maneuver')}
       />
-      {modifiers.requiredManeuver && (
-        <>
-          <DifficultyPicker
-            value={modifiers.difficulty}
-            base={actorRound.movement.baseDifficulty}
-            guide={guide}
-            onChange={(difficulty) => setModifiers({ difficulty })}
-          />
-          <OptionTiles
-            label={`${t('lighting')} · ${t('light-usage-helpful')}`}
-            options={MOVEMENT_LIGHT_OPTIONS}
-            value={modifiers.light ?? ''}
-            onChange={(key) => {
-              const light = key === modifiers.light ? null : key;
-              rememberLight(action.gameId, light);
-              setModifiers({ light });
-            }}
-          />
-          <Box sx={{ maxWidth: 200 }}>
-            <NumberPadField
-              steps={[-10, -5, 5, 10]}
-              label={t('custom-modifier')}
-              value={modifiers.customBonus}
-              onChange={(value) => setModifiers({ customBonus: value || 0 })}
-              integer
-            />
-          </Box>
-        </>
-      )}
+    </Stack>
+  );
+
+  // The details of the roll go after the pace, so that the declaration and the distances read together.
+  const maneuverDetails = modifiers.requiredManeuver && (
+    <Stack spacing={2}>
+      <SectionLabel>{t('maneuver-roll')}</SectionLabel>
+      <DifficultyPicker
+        value={modifiers.difficulty}
+        base={actorRound.movement.baseDifficulty}
+        guide={guide}
+        onChange={(difficulty) => setModifiers({ difficulty })}
+      />
+      <OptionTiles
+        label={`${t('lighting')} · ${t('light-usage-helpful')}`}
+        options={MOVEMENT_LIGHT_OPTIONS}
+        value={modifiers.light ?? ''}
+        onChange={(key) => {
+          const light = key === modifiers.light ? null : key;
+          rememberLight(action.gameId, light);
+          setModifiers({ light });
+        }}
+      />
+      <Box sx={{ maxWidth: 200 }}>
+        <NumberPadField
+          steps={[-10, -5, 5, 10]}
+          label={t('custom-modifier')}
+          value={modifiers.customBonus}
+          onChange={(value) => setModifiers({ customBonus: value || 0 })}
+          integer
+        />
+      </Box>
     </Stack>
   );
 
@@ -556,7 +559,13 @@ const MovementFlow: FC<{
         <Stack spacing={2}>
           {setup}
           <SectionLabel>{t('pace')}</SectionLabel>
+          {modifiers.requiredManeuver && (
+            <Alert severity="info" variant="outlined">
+              {t('movement-distance-roll-note')}
+            </Alert>
+          )}
           {freeMovement ? freePace : normalPace}
+          {maneuverDetails}
         </Stack>
       ),
     },
