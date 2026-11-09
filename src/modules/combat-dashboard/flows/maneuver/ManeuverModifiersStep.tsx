@@ -1,17 +1,6 @@
 import React, { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  Box,
-  Chip,
-  LinearProgress,
-  MenuItem,
-  Stack,
-  TextField,
-  ToggleButton,
-  ToggleButtonGroup,
-  Tooltip,
-  Typography,
-} from '@mui/material';
+import { Box, Chip, LinearProgress, MenuItem, Stack, TextField, Tooltip, Typography } from '@mui/material';
 import {
   ChipRow,
   DifficultyPicker,
@@ -28,13 +17,12 @@ import { FrenzyPurpose } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
 import { actorOpenEnded, combatTalentPurposes } from '../../../services/combat-talents-service';
 import { frenzyManeuverModifiers, frenzyPurposes } from '../../../services/frenzy-service';
-import ModifierTile from '../attack/modifiers/pickers/ModifierTile';
-import OptionTiles from '../attack/modifiers/pickers/OptionTiles';
 import { useSkillDifficultyGuide } from '../useSkillDifficultyGuide';
 import BlockBPurposeFields from './BlockBPurposeFields';
 import CombatTalentPurposeFields from './CombatTalentPurposeFields';
 import ManeuverSensesFields from './ManeuverSensesFields';
 import ManeuverSituationalTalentsFields from './ManeuverSituationalTalentsFields';
+import OptionChips, { ToggleChips } from './OptionChips';
 import SkillAidsFields from './SkillAidsFields';
 import {
   effectiveDifficulty,
@@ -94,26 +82,13 @@ const ManeuverModifiersStep: FC<{
   const progress = listing.progress ?? 0;
   const guide = useSkillDifficultyGuide(listing.skill.skillId);
 
+  const flagModifiers = listing.skillModifiers.filter((modifier) => modifier.type === 'flag');
   const skillModifier = (modifier: ManeuverSkillModifier) => {
     const selection = form.selections[modifier.key];
-    const tooltip = modifier.description ?? '';
     switch (modifier.type) {
-      case 'flag':
-        return (
-          <Tooltip key={modifier.key} title={tooltip}>
-            <Box sx={{ maxWidth: 320 }}>
-              <ModifierTile
-                label={label(modifier.key)}
-                value={modifier.value}
-                selected={selection === true}
-                onClick={() => select(modifier.key, selection !== true)}
-              />
-            </Box>
-          </Tooltip>
-        );
       case 'choice':
         return (
-          <OptionTiles
+          <OptionChips
             key={modifier.key}
             label={label(modifier.key)}
             options={modifier.options ?? []}
@@ -156,20 +131,12 @@ const ManeuverModifiersStep: FC<{
   return (
     <Stack spacing={2}>
       <Box>
-        <Caption>{t('maneuver-type')}</Caption>
-        <ToggleButtonGroup
-          color="primary"
-          size="small"
-          exclusive
+        <OptionChips
+          label={t('maneuver-type')}
+          options={MANEUVER_TYPES.map((key) => ({ key, value: null }))}
           value={form.maneuverType}
-          onChange={(_, value: ManeuverType | null) => value && onChange({ maneuverType: value })}
-        >
-          {MANEUVER_TYPES.map((type) => (
-            <ToggleButton key={type} value={type} sx={{ minWidth: 100 }}>
-              {t(type)}
-            </ToggleButton>
-          ))}
-        </ToggleButtonGroup>
+          onChange={(key) => onChange({ maneuverType: key as ManeuverType })}
+        />
         {form.maneuverType === 'percent' && progress > 0 && (
           <Box sx={{ mt: 1, maxWidth: 320 }}>
             <Typography variant="caption" color="text.secondary">
@@ -181,7 +148,7 @@ const ManeuverModifiersStep: FC<{
       </Box>
 
       {purposes.length > 0 && (
-        <OptionTiles
+        <OptionChips
           label={t('frenzy-purpose')}
           options={purposes.map((purpose) => ({ key: purpose, value: purposeValue(purpose) || null }))}
           value={form.purpose && !isCombatTalentPurpose(form.purpose) ? form.purpose : ''}
@@ -268,7 +235,7 @@ const ManeuverModifiersStep: FC<{
 
       {listing.light && usesLight(listing, form) && (
         <Box>
-          <OptionTiles
+          <OptionChips
             label={`${t('lighting')} · ${t(`light-usage-${listing.light.usage}`)}`}
             options={listing.light.options}
             value={form.light ?? ''}
@@ -295,7 +262,23 @@ const ManeuverModifiersStep: FC<{
       {listing.skillModifiers.length > 0 && (
         <Box>
           <Caption>{t('skill-modifiers')}</Caption>
-          <Stack spacing={1.5}>{listing.skillModifiers.map(skillModifier)}</Stack>
+          <Stack spacing={1.5}>
+            {flagModifiers.length > 0 && (
+              <ToggleChips
+                options={flagModifiers.map((modifier) => ({
+                  key: modifier.key,
+                  label: label(modifier.key),
+                  value: modifier.value,
+                  hint: modifier.description,
+                }))}
+                selected={flagModifiers
+                  .filter((modifier) => form.selections[modifier.key] === true)
+                  .map((modifier) => modifier.key)}
+                onToggle={(key) => select(key, form.selections[key] !== true)}
+              />
+            )}
+            {listing.skillModifiers.map(skillModifier)}
+          </Stack>
         </Box>
       )}
 
@@ -305,13 +288,12 @@ const ManeuverModifiersStep: FC<{
           <Stack direction="row" sx={{ flexWrap: 'wrap', gap: 2, alignItems: 'center' }}>
             <TextField
               select
-              size="small"
               label={t('maneuver-target')}
               value={form.targetActorId ?? ''}
               onChange={(event) =>
                 onChange({ targetActorId: event.target.value || null, passiveRoll: null, passiveBonus: null })
               }
-              sx={{ minWidth: 200 }}
+              sx={{ width: 200 }}
             >
               <MenuItem value="">{t('none')}</MenuItem>
               {targets.map((target) => (
@@ -321,14 +303,17 @@ const ManeuverModifiersStep: FC<{
               ))}
             </TextField>
             {target && (
-              <RollField
-                spec={OPEN_D100}
-                label={t('passive-roll')}
-                value={form.passiveRoll}
-                onChange={(passiveRoll) => onChange({ passiveRoll: passiveRoll.total })}
-                onClear={() => onChange({ passiveRoll: null })}
-                openEnded={actorOpenEnded(target)}
-              />
+              <Box sx={{ width: 200 }}>
+                <RollField
+                  spec={OPEN_D100}
+                  label={t('passive-roll')}
+                  value={form.passiveRoll}
+                  onChange={(passiveRoll) => onChange({ passiveRoll: passiveRoll.total })}
+                  onClear={() => onChange({ passiveRoll: null })}
+                  openEnded={actorOpenEnded(target)}
+                  fullWidth
+                />
+              </Box>
             )}
             {target && target.actorType !== 'character' && (
               <Box sx={{ width: 200 }}>

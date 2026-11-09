@@ -172,6 +172,7 @@ const CombatRoundHeader: FC = () => {
     setConfirm(null);
     randomizeInitiatives(game.id, auth)
       .then(() => {
+        setRoundActorSort('initiative');
         refreshActorRounds();
         notify.success(t('initiatives-rolled'));
       })

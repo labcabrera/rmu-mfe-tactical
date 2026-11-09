@@ -1,6 +1,6 @@
-import React, { FC } from 'react';
+import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Box, Chip, Stack, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
+import { Box, Chip, Stack } from '@mui/material';
 import {
   ChipRow,
   formatBonus,
@@ -11,13 +11,8 @@ import {
   SenseUsage,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { ManeuverModifiersListing } from '../../../api/action.dto';
+import OptionChips, { ToggleChips } from './OptionChips';
 import { activeSenseModifiers, ManeuverForm } from './maneuver-form';
-
-const Caption: FC<{ children: React.ReactNode }> = ({ children }) => (
-  <Typography variant="caption" color="text.secondary" component="div" sx={{ mb: 0.5 }}>
-    {children}
-  </Typography>
-);
 
 /**
  * The sense of a Perception or Tracking maneuver (workspace spec 076, block C): the sense used and whether the
@@ -47,59 +42,31 @@ const ManeuverSensesFields: FC<{
   return (
     <Stack spacing={1.5}>
       <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-        <Box>
-          <Caption>{t('sense')}</Caption>
-          <ToggleButtonGroup
-            color="primary"
-            size="small"
-            exclusive
-            value={form.sense}
-            onChange={(_, value: Sense | null) => value && onChange({ sense: value })}
-            sx={{ flexWrap: 'wrap' }}
-          >
-            {senses.options.map((sense) => (
-              <ToggleButton key={sense} value={sense}>
-                {t(`sense-${sense}`)}
-              </ToggleButton>
-            ))}
-          </ToggleButtonGroup>
-        </Box>
-        <Box>
-          <Caption>{t('sense-usage')}</Caption>
-          <ToggleButtonGroup
-            color="primary"
-            size="small"
-            exclusive
-            value={form.senseUsage}
-            onChange={(_, value: SenseUsage | null) => value && onChange({ senseUsage: value })}
-          >
-            {senses.usages.map((usage) => (
-              <ToggleButton key={usage} value={usage}>
-                {t(`sense-usage-${usage}`)}
-              </ToggleButton>
-            ))}
-          </ToggleButtonGroup>
-        </Box>
+        <OptionChips
+          label={t('sense')}
+          options={senses.options.map((key) => ({ key, value: null }))}
+          value={form.sense ?? ''}
+          onChange={(key) => onChange({ sense: key as Sense })}
+          optionLabel={(option) => t(`sense-${option.key}`)}
+        />
+        <OptionChips
+          label={t('sense-usage')}
+          options={senses.usages.map((key) => ({ key, value: null }))}
+          value={form.senseUsage ?? ''}
+          onChange={(key) => onChange({ senseUsage: key as SenseUsage })}
+          optionLabel={(option) => t(`sense-usage-${option.key}`)}
+        />
       </Stack>
       {senses.selections.length > 0 && (
-        <Box>
-          <Caption>{t('sense-selections')}</Caption>
-          <ChipRow>
-            {senses.selections.map((selection) => {
-              const selected = form.senseSelections.includes(selection);
-              return (
-                <Chip
-                  key={selection}
-                  label={t(`sense-selection-${selection}`)}
-                  color={selected ? 'primary' : 'default'}
-                  variant={selected ? 'filled' : 'outlined'}
-                  aria-pressed={selected}
-                  onClick={() => toggleSelection(selection)}
-                />
-              );
-            })}
-          </ChipRow>
-        </Box>
+        <ToggleChips
+          label={t('sense-selections')}
+          options={senses.selections.map((selection) => ({
+            key: selection,
+            label: t(`sense-selection-${selection}`),
+          }))}
+          selected={form.senseSelections}
+          onToggle={(key) => toggleSelection(key as SenseSelection)}
+        />
       )}
       {(missingHelpful || heatsense) && (
         <Stack direction="row" sx={{ flexWrap: 'wrap', gap: 2 }}>
