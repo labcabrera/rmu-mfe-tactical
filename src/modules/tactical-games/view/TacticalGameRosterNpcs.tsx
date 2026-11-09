@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
@@ -22,7 +22,7 @@ import {
   TacticalGame,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { canManageTactical } from '../../shared/permissions';
-import type { RosterPending } from './TacticalGameRoster';
+import type { RosterPending } from './roster-npcs';
 import { factionNpcSpecimens } from './roster-npcs';
 
 type NpcGroup = { id: string; name: string; image: string; faction?: Faction };

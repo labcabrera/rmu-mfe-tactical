@@ -1,4 +1,4 @@
-import React, { FC, useContext, useEffect, useMemo, useState } from 'react';
+import { FC, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import { Chip, Stack, Tooltip, Typography } from '@mui/material';
@@ -8,13 +8,13 @@ import {
   EmptyState,
   LoadingState,
   Panel,
+  useApiNotify,
   useTableText,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { CombatContext } from '../../../CombatContext';
 import { fetchActionsByGame } from '../../api/action';
 import { Action, Critical } from '../../api/action.dto';
-import { useTacticalNotify } from '../../services/notify-service';
-import { attackLabel } from '../panel/flows/attack/attack-label';
+import { useCombatGame, useCombatRound } from '../../combat/combat-context';
+import { attackLabel } from '../../services/attack-label';
 import { ActorDamage, attackRows, AttackRow, damageByActor } from './combat-damage';
 
 const NUMERIC_SX = { fontVariantNumeric: 'tabular-nums' };
@@ -46,8 +46,9 @@ const CriticalChips: FC<{ criticals: Critical[] }> = ({ criticals }) => {
 const CombatDamageView: FC = () => {
   const { t } = useTranslation();
   const auth = useAuth();
-  const notify = useTacticalNotify();
-  const { game, actorRounds, roundActions } = useContext(CombatContext)!;
+  const notify = useApiNotify();
+  const { game } = useCombatGame();
+  const { actorRounds, roundActions } = useCombatRound();
   const [actions, setActions] = useState<Action[]>();
   const gameId = game?.id;
 

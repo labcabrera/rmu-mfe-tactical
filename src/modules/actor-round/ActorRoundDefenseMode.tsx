@@ -1,12 +1,12 @@
-import React, { FC, useContext, useState } from 'react';
+import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import { Stack, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
 import { ADRENAL_DEFENSE_FULL, ADRENAL_DEFENSE_PARTIAL, SectionLabel } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { CombatContext } from '../../CombatContext';
 import { declareActorRoundDefenseMode } from '../api/actor-rounds';
 import { ActorRound, DECLARABLE_DEFENSE_LEVELS, DefenseLevel } from '../api/actor-rounds.dto';
-import { useTacticalNotify } from '../services/notify-service';
+import { useCombatGame, useCombatRound, useCombatActions } from '../combat/combat-context';
+import { useBusyAction } from '../hooks/useBusyAction';
 
 type DefenseKind = 'dodge' | 'block';
 const DEFENSE_KINDS: DefenseKind[] = ['dodge', 'block'];
@@ -25,9 +25,10 @@ const adrenalDefenseLevel = (actorRound: ActorRound): number =>
 const ActorRoundDefenseMode: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
   const { t } = useTranslation();
   const auth = useAuth();
-  const notify = useTacticalNotify();
-  const { game, displayRound, updateActorRound } = useContext(CombatContext)!;
-  const [busy, setBusy] = useState(false);
+  const { game } = useCombatGame();
+  const { displayRound } = useCombatRound();
+  const { updateActorRound } = useCombatActions();
+  const { busy, run } = useBusyAction();
   const mode = actorRound.defenseMode ?? { dodge: 'none', block: 'none' };
   const editable = !!game && game.status === 'in_progress' && displayRound === game.round;
   const hasShield = !!actorRound.defense?.shield;
@@ -35,11 +36,7 @@ const ActorRoundDefenseMode: FC<{ actorRound: ActorRound }> = ({ actorRound }) =
 
   const declare = (kind: DefenseKind, level: DefenseLevel | null) => {
     if (!level || level === mode[kind]) return;
-    setBusy(true);
-    declareActorRoundDefenseMode(actorRound.id, { [kind]: level }, auth)
-      .then(updateActorRound)
-      .catch((err) => notify.error(err))
-      .finally(() => setBusy(false));
+    run(declareActorRoundDefenseMode(actorRound.id, { [kind]: level }, auth).then(updateActorRound));
   };
 
   const row = (kind: DefenseKind) => {

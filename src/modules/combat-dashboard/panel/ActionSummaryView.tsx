@@ -1,18 +1,19 @@
-import React, { FC, ReactNode, useContext } from 'react';
+import { FC, ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import DeleteIcon from '@mui/icons-material/Delete';
 import OpenInFullIcon from '@mui/icons-material/OpenInFull';
 import { Box, Button, Chip, Divider, Stack, Typography } from '@mui/material';
 import { ActionStateMarker, formatBonus, SectionLabel } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { CombatContext } from '../../../CombatContext';
 import { Action, SIMPLE_ACTION_TYPES } from '../../api/action.dto';
-import { apProfileLabel, isActionClosed, useOpenRounds } from '../../services/ap-service';
+import { useCombatGame, useCombatRound } from '../../combat/combat-context';
+import { useOpenRounds } from '../../hooks/useOpenRounds';
+import { apProfileLabel, isActionClosed } from '../../services/ap-service';
+import { attackLabel } from '../../services/attack-label';
 import { isGameFinished } from '../../services/game-service';
-import { actionTypeInfo } from '../actor-rounds/action-type-info';
-import { actionApText, actionResult, actionState, actionStateTooltip } from '../actor-rounds/action-view';
-import { AttackResults, ManeuverResult, MovementResult } from './flows/ActionResults';
-import { medicalProgress } from './flows/MedicalFlow';
-import { attackLabel } from './flows/attack/attack-label';
+import { actionTypeInfo } from '../board/action-type-info';
+import { actionApText, actionResult, actionState, actionStateTooltip } from '../board/action-view';
+import { AttackResults, ManeuverResult, MovementResult } from '../flows/ActionResults';
+import { medicalProgress } from '../flows/medical/MedicalFlow';
 import { useDeleteAction } from './useDeleteAction';
 
 const Field: FC<{ label: string; children: ReactNode }> = ({ label, children }) => (
@@ -38,7 +39,8 @@ const ActionSummaryView: FC<{ action: Action; onResolve: () => void; onDeleted: 
 }) => {
   const { t } = useTranslation();
   const { requestDelete, dialog } = useDeleteAction(action, onDeleted);
-  const { actorRounds, game } = useContext(CombatContext)!;
+  const { game } = useCombatGame();
+  const { actorRounds } = useCombatRound();
   // A finished game is read-only (spec 013): its resolutions can be viewed, not changed.
   const finished = isGameFinished(game);
   const openRounds = useOpenRounds();

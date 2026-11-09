@@ -1,8 +1,7 @@
-import React, { FC } from 'react';
+import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MenuItem, TextField } from '@mui/material';
-import { formatBonus } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { DIFFICULTY_TABLE } from '../../api/action.dto';
+import { formatBonus, MANEUVER_DIFFICULTIES } from '@labcabrera-rmu/rmu-react-shared-lib';
 
 /** Difficulty of a maneuver (Table 5-2) as a compact select, with its modifier. */
 const DifficultySelect: FC<{
@@ -22,7 +21,7 @@ const DifficultySelect: FC<{
       disabled={disabled}
       sx={{ minWidth }}
     >
-      {DIFFICULTY_TABLE.map((option) => (
+      {MANEUVER_DIFFICULTIES.map((option) => (
         <MenuItem key={option.key} value={option.key}>
           {`${t(`difficulty-${option.key}`)} ${formatBonus(option.value)}`}
         </MenuItem>

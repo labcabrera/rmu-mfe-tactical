@@ -1,4 +1,4 @@
-import React, { FC, useContext } from 'react';
+import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Box,
@@ -13,16 +13,10 @@ import {
   Typography,
 } from '@mui/material';
 import { ChipRow, formatBonus, SectionLabel, StatPill } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { CombatContext } from '../../CombatContext';
 import { ActorRound } from '../api/actor-rounds.dto';
-import {
-  effectiveBmr,
-  effectiveMaxPace,
-  paceIndex,
-  PACES,
-  roundMovement,
-} from '../services/movement-service';
-import { useSkillService } from '../services/skill-service';
+import { useCombatGame, useCombatRound } from '../combat/combat-context';
+import { useSkillService } from '../hooks/useSkillService';
+import { effectiveBmr, effectiveMaxPace, paceIndex, PACES, roundMovement } from '../services/movement-service';
 
 const feet = (value: number) => `${Math.round(value * 10) / 10}'`;
 
@@ -32,7 +26,8 @@ const feet = (value: number) => `${Math.round(value * 10) / 10}'`;
  */
 const ActorRoundMovement: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
   const { t } = useTranslation();
-  const { actorRounds, roundActions, strategicGame } = useContext(CombatContext)!;
+  const { strategicGame } = useCombatGame();
+  const { actorRounds, roundActions } = useCombatRound();
   const { getSkillBonus } = useSkillService();
   const scale = strategicGame?.options?.boardScaleMultiplier || 1;
   const { bmr, reasons } = effectiveBmr(actorRound);

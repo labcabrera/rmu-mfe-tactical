@@ -32,7 +32,6 @@ import {
   CombatTalentPurpose,
   CriticalRerollFields,
   ForceReason,
-  KeyValue,
   ManeuverLightOption,
   ManeuverModifier,
   ManeuverModifierOption,
@@ -46,10 +45,10 @@ import {
   SkippedRule,
   SpasmRoundsField,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
-import type { FrenzyPurpose } from '../services/frenzy-service';
+
+export type FrenzyPurpose = 'frenzy-enter' | 'frenzy-enter-greater' | 'frenzy-exit';
 
 export type { ForceReason } from '@labcabrera-rmu/rmu-react-shared-lib';
-export { FORCE_REASONS } from '@labcabrera-rmu/rmu-react-shared-lib';
 
 /**
  * What a maneuver is for: the Adrenal Focus frenzy (spec 040) or the maneuver of a combat talent (workspace spec 076:
@@ -90,7 +89,7 @@ export const CLOSED_ACTION_STATUSES: ActionStatus[] = ['completed', 'interrupted
  * reach it this round (`blocked`) or not (`unreachable`), resolvable with a penalty (`ready`) or without one
  * (`optimal`), held, with resolution steps under way, or over.
  */
-export type ActionReadiness = 'blocked' | 'unreachable' | 'ready' | 'optimal' | 'held' | 'in-resolution' | 'done';
+type ActionReadiness = 'blocked' | 'unreachable' | 'ready' | 'optimal' | 'held' | 'in-resolution' | 'done';
 
 /** AP range of an action type (spec 011, §3). */
 export type ActionApProfile = { min: number; max: number };
@@ -100,13 +99,11 @@ export type ActionApProfile = { min: number; max: number };
  * 076) is only declared as a new forced attack, from its alert.
  */
 export const OPEN_ACTION_FORCE_REASONS: ForceReason[] = ['withdrawal', 'pass-through', 'effect', 'gm'];
-/** Reasons that can declare a new action already forced (`POST /actions` with `forced`). */
-export const NEW_ACTION_FORCE_REASONS: ForceReason[] = ['effect', 'gm'];
 
 /** Where the AP of a forced action come from: the actor's next free AP, none, or the ones already spent. */
-export type ForcedApSource = 'next-phase' | 'none' | 'as-spent';
+type ForcedApSource = 'next-phase' | 'none' | 'as-spent';
 
-export type ActionResolution = {
+type ActionResolution = {
   mode: 'normal' | 'forced';
   reason?: ForceReason;
   apSource?: ForcedApSource;
@@ -114,11 +111,11 @@ export type ActionResolution = {
 };
 
 /** Per-attack status (rmu-api-tactical attack-status.vo.ts): the roll the attack is waiting for. */
-export type AttackStatus =
+type AttackStatus =
   'pending_attack_roll' | 'pending_critical_roll' | 'pending_fumble_roll' | 'pending_apply' | 'completed';
 
-export type AttackType = 'melee' | 'ranged' | 'thrown';
-export type ChargeSpeed = 'none' | 'jog' | 'sprint';
+type AttackType = 'melee' | 'ranged' | 'thrown';
+type ChargeSpeed = 'none' | 'jog' | 'sprint';
 
 export type ActionType =
   | 'movement'
@@ -139,7 +136,6 @@ export type ActionType =
 
 /** Action types completed without rolls (`PATCH /actions/{id}/complete`). */
 export const SIMPLE_ACTION_TYPES: ActionType[] = ['stand_up', 'dodge', 'draw_and_load', 'aim', 'other'];
-export type CalledShot = 'none' | 'head' | 'chest' | 'abdomen' | 'arms' | 'legs';
 
 export const MOVEMENT_TABLE = [
   { id: 'creep', multiplier: 1 / 8, penalty: '-', label: 'x1/2' },
@@ -148,21 +144,6 @@ export const MOVEMENT_TABLE = [
   { id: 'run', multiplier: 3 / 4, penalty: '-75 | 3AP', label: 'x3' },
   { id: 'sprint', multiplier: 1, penalty: '4AP', label: 'x4' },
   { id: 'dash', multiplier: 1.25, penalty: '4AP+', label: 'x5' },
-];
-
-export const DIFFICULTY_TABLE: KeyValue[] = [
-  { key: 'c', value: 70 },
-  { key: 's', value: 50 },
-  { key: 'r', value: 30 },
-  { key: 'e', value: 20 },
-  { key: 'l', value: 10 },
-  { key: 'm', value: 0 },
-  { key: 'h', value: -10 },
-  { key: 'vh', value: -20 },
-  { key: 'xh', value: -30 },
-  { key: 'sf', value: -50 },
-  { key: 'a', value: -70 },
-  { key: 'ni', value: -100 },
 ];
 
 export type AttackDeclaration = {
@@ -188,7 +169,7 @@ export type ParryDeclaration = {
   shieldManeuvers?: DeclareShieldManeuverItem[];
 };
 
-export type ActionMovementModifiers = {
+type ActionMovementModifiers = {
   pace: string;
   requiredManeuver: boolean;
   skillId: string;
@@ -212,7 +193,7 @@ export const MOVEMENT_LIGHT_OPTIONS: { key: string; value: number }[] = [
   { key: 'pitch_black', value: -50 },
 ];
 
-export type ActionMovementCalculated = {
+type ActionMovementCalculated = {
   bmr: number;
   /** Null in a normal movement: 1 BMR per AP, whatever the pace of the round (workspace spec 081). */
   paceMultiplier: number | null;
@@ -226,7 +207,7 @@ export type ActionMovementCalculated = {
 };
 
 /** Who a modifier favours, or which stage of the resolution adds it. */
-export type ModifierGroup =
+type ModifierGroup =
   | 'offense'
   | 'defense'
   | 'situation'
@@ -241,7 +222,7 @@ export type ModifierGroup =
   /** Magical talents of a spell roll and Iron Will in a resistance roll (workspace spec 077). */
   | 'talent';
 
-export type KeyValueModifier = {
+type KeyValueModifier = {
   key: string;
   value: number;
   /** Breakdown group of the combat plugin that added it. */
@@ -254,7 +235,7 @@ export type KeyValueModifier = {
   params?: RuleParams;
 };
 
-export type ActionRoll = {
+type ActionRoll = {
   modifiers?: KeyValueModifier[];
   roll: number | null;
   totalRoll?: number;
@@ -271,7 +252,7 @@ export type ActionMovement = {
 /** Choice for a catalog modifier of the skill: the option key, the flag, or the number of units. */
 export type ManeuverSelection = string | boolean | number;
 
-export type ActionManeuverModifiers = {
+type ActionManeuverModifiers = {
   skillId: string | null;
   specialization?: string | null;
   maneuverType: ManeuverType | string | null;
@@ -344,10 +325,10 @@ export type ActionManeuver = {
 };
 
 /** Where a base modifier of a maneuver comes from. */
-export type ManeuverBaseSource = 'actor-round' | 'equipment' | 'movement' | 'action';
+type ManeuverBaseSource = 'actor-round' | 'equipment' | 'movement' | 'action';
 
 /** Modifier the API applies by itself (penalties, armor, encumbrance, pace, AP). Read-only in the UI. */
-export type ManeuverBaseModifier = {
+type ManeuverBaseModifier = {
   key: string;
   value: number;
   source: ManeuverBaseSource | string;
@@ -430,14 +411,6 @@ export type ResolveManeuverDto = {
   ResolveManeuverTalentFields &
   SpasmRoundsField;
 
-/** Maneuver part of `POST /actions`. */
-export type ManeuverDeclarationDto = {
-  skillId: string;
-  maneuverType?: ManeuverType;
-  specialization?: string;
-  continuesActionId?: string;
-};
-
 export type Action = {
   id: string;
   gameId: string;
@@ -494,7 +467,7 @@ export type Action = {
 // --- Healing in combat and fear (workspace spec 068) ---
 
 /** A warning of a declaration or resolution; the ones with `requiresConfirm` need the request again with `confirm`. */
-export type ActionWarningCode =
+type ActionWarningCode =
   | 'treatment-interrupted'
   | 'exertion-reopens-wound'
   | 'limb-unusable'
@@ -529,12 +502,12 @@ export type MedicalProcedure = (typeof MEDICAL_ACTION_PROCEDURES)[number];
 /** AP a `medical` action takes in each round it lasts. */
 export const MEDICAL_AP_PER_ROUND = 4;
 
-export type MedicalActionState = 'pending' | 'in-progress' | 'completed' | 'aborted';
+type MedicalActionState = 'pending' | 'in-progress' | 'completed' | 'aborted';
 
 export type CastSupport = 'none' | 'cane' | 'crutches';
 
 /** The Herbalism roll of a herb that helps the treatment: +25 to the Medicine roll on a success. */
-export type MedicalHerbalism = {
+type MedicalHerbalism = {
   roll: number | null;
   itemId?: string | null;
   total?: number;
@@ -579,7 +552,7 @@ export type ActionMedical = {
   results: MedicalStepResult[];
 };
 
-export type ActionUseItem = {
+type ActionUseItem = {
   itemId: string;
   targetActorId: string;
   roll?: number | null;
@@ -618,7 +591,7 @@ export type ResolveMedicalDto = {
 // --- Spell casting (spec 030) ---
 
 export type SpellRealm = 'channeling' | 'essence' | 'mentalism';
-export type SpellCastResult = 'success' | 'no-effect' | 'failure';
+type SpellCastResult = 'success' | 'no-effect' | 'failure';
 export type SpellFailurePp = 'none' | 'one' | 'half-down' | 'half-up' | 'normal' | 'double' | 'triple' | 'all';
 export const SPELL_HANDS = ['none', 'one', 'two'] as const;
 export const SPELL_VOICES = ['none', 'whisper', 'normal', 'shout'] as const;
@@ -648,7 +621,7 @@ export const DEFAULT_SPELL_OPTIONS: SpellOptions = {
 };
 
 /** An entry of a spell roll, with its group, rule and inputs since spec 052. */
-export type SpellRollModifier = KeyValueModifier;
+type SpellRollModifier = KeyValueModifier;
 
 export type SpellTargetConditions = {
   willing?: boolean;
@@ -724,7 +697,7 @@ export type ActionSpell = {
   attack?: ActionSpellAttack | null;
 };
 
-export type ActionSpellAttack = {
+type ActionSpellAttack = {
   kind: 'bolt' | 'ball';
   attackName: string;
   attackTable: string;
@@ -750,15 +723,6 @@ export type SpellPreview = {
 };
 
 export type SpellTargetRoll = { actorId: string; roll?: number; conditions?: SpellTargetConditions; bonus?: number };
-
-export type ResolveMovementDto = {
-  phase: number;
-  pace: string;
-  requiredManeuver: boolean;
-  difficulty: string;
-  skillId: string;
-  roll: number | null;
-};
 
 export type ActionAttack = {
   attackName: string;
@@ -788,7 +752,7 @@ export const PROTECT_POSITIONS: ProtectPosition[] = ['protector_between', 'defen
 /** Full defence of a completed dodge action (4 AP): a full dodge or a full block. */
 export type FullDefenseType = 'dodge' | 'block';
 
-export type ActionAttackRoll = {
+type ActionAttackRoll = {
   roll: number | null;
   /** First die of the high open-ended roll: it decides the fumble (spec 056). */
   unmodified?: number | null;
@@ -797,7 +761,7 @@ export type ActionAttackRoll = {
   fumbleRoll?: number | null;
 };
 
-export type ActionAttackResults = {
+type ActionAttackResults = {
   attackTableEntry: AttackTableEntry | null;
   criticals?: Critical[];
   fumble?: ActionAttackFumbleResult;
@@ -813,7 +777,7 @@ export type ActionAttackResults = {
 export type AttackDamageAdjustment = { baseDamage: number; multiplier: number };
 
 /** Steps that moved the critical: `attack-size`, `charge`, `fighting-style`, `target-size`, `light-boned`... */
-export type AttackSeverityStep = { key: string; value: number };
+type AttackSeverityStep = { key: string; value: number };
 
 /** Severity of the table and the final one; `final` is null when the critical is removed. */
 export type AttackSeverityAdjustment = { original: string; final: string | null; steps: AttackSeverityStep[] };
@@ -829,9 +793,9 @@ export type Critical = {
   styleOption?: CriticalStyleOption;
 } & CriticalRerollFields;
 
-export type CriticalStyleOption = { abilityId: string; originalType: string; originalSeverity: string };
+type CriticalStyleOption = { abilityId: string; originalType: string; originalSeverity: string };
 
-export type CriticalResult = {
+type CriticalResult = {
   text: string;
   damage: number;
   location: string;
@@ -853,14 +817,14 @@ export type CriticalEffect = {
   dice?: string | null;
 };
 
-export type AttackTableEntry = {
+type AttackTableEntry = {
   damage: number;
   text: string;
   criticalType?: string | null;
   criticalSeverity?: string | null;
 };
 
-export type ActionAttackFumbleResult = {
+type ActionAttackFumbleResult = {
   status: string;
   text?: string | null;
   additionalDamageText?: string | null;
@@ -898,7 +862,7 @@ export type ActionAttackModifiers = {
 } & AttackModifiersBlockAFields &
   AttackTalentModifiers;
 
-export type AttackCalculationsDto = {
+type AttackCalculationsDto = {
   rollModifiers: KeyValueModifier[];
   rollTotal: number;
   /** Rules that did not apply, and why (spec 051). */
@@ -945,10 +909,10 @@ export type ActionParry = {
 };
 
 /** The OB left on the melee attack an actor parries with, its penalties and, protecting, the protect penalty. */
-export type ParryBreakdown = { attackName: string; bo: number; penalty: number; protectPenalty?: number };
+type ParryBreakdown = { attackName: string; bo: number; penalty: number; protectPenalty?: number };
 
 /** Why an actor cannot parry or protect against the attack (spec 051). */
-export type ParryExclusionReason = 'parry-forbidden' | 'parry-last-action' | 'parry-no-ob';
+type ParryExclusionReason = 'parry-forbidden' | 'parry-last-action' | 'parry-no-ob';
 
 export type ParryExclusion = {
   actorId: string;

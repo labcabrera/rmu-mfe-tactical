@@ -1,7 +1,7 @@
-import React, { FC, useContext, useEffect, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { Badge, FormControl, ToggleButtonGroup, ToggleButton } from '@mui/material';
-import { CombatContext } from '../../../CombatContext';
 import { ActorRoundAttack, ActorRoundAttackRange } from '../../api/actor-rounds.dto';
+import { useCombatGame } from '../../combat/combat-context';
 
 const SelectAttackRange: FC<{
   attack: ActorRoundAttack;
@@ -10,7 +10,7 @@ const SelectAttackRange: FC<{
   readOnly?: boolean;
 }> = ({ attack, value, onChange, readOnly = false }) => {
   const [index, setIndex] = useState<number | null>(null);
-  const { strategicGame } = useContext(CombatContext)!;
+  const { strategicGame } = useCombatGame();
 
   const handleClick = (opt: ActorRoundAttackRange, idx: number) => {
     if (readOnly) return;

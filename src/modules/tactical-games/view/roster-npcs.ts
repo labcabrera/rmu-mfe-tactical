@@ -31,3 +31,9 @@ export const factionNpcSpecimens = (faction: Faction, game: TacticalGame): Facti
 
 /** The request of a specimen: one, with its own name, so that it can join and leave the game on its own. */
 export const specimenEntry = ({ npcId, name }: FactionNpcSpecimen): NpcEntry => ({ npcId, name, count: 1 });
+
+/**
+ * Key of the element whose change is being saved: a faction id, a character or actor id, `group:<factionId>` or
+ * `npcs:<factionId>`.
+ */
+export type RosterPending = string | null;

@@ -1,4 +1,3 @@
-import type { TFunction } from 'i18next';
 import AirIcon from '@mui/icons-material/Air';
 import BatteryAlertIcon from '@mui/icons-material/BatteryAlert';
 import BloodtypeIcon from '@mui/icons-material/Bloodtype';
@@ -18,8 +17,9 @@ import SentimentVeryDissatisfiedIcon from '@mui/icons-material/SentimentVeryDiss
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 import WhatshotIcon from '@mui/icons-material/Whatshot';
 import { formatBonus, KeyValueRow } from '@labcabrera-rmu/rmu-react-shared-lib';
+import type { TFunction } from 'i18next';
+import { reactionAttackLabel } from '../../actor-round/alerts/CombatTalentAlertDialog';
 import { ActorRound, ActorRoundAlert } from '../../api/actor-rounds.dto';
-import { reactionAttackLabel } from '../actor-alert-dialogs/CombatTalentAlertDialog';
 
 /** A resolved alert with the actor round it belongs to. */
 export type LoggedAlert = { alert: ActorRoundAlert; actorRound: ActorRound };

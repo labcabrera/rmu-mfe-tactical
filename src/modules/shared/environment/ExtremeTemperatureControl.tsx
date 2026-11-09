@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import ThermostatIcon from '@mui/icons-material/Thermostat';
@@ -15,10 +15,12 @@ import {
   TEMPERATURE_KINDS,
   TEMPERATURE_SEVERITIES,
   TemperatureKind,
+  useApiNotify,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { formSeverity } from '../../actor-round/hazards/TemperatureHazardDialog';
+import type { TFunction } from 'i18next';
+import { useBusyAction } from '../../hooks/useBusyAction';
 import { criticalCode } from '../../services/action-service';
-import { useTacticalNotify } from '../../services/notify-service';
+import { formSeverity } from '../../services/temperature-severity';
 import { canManageTactical } from '../permissions';
 import EnvironmentDialogField from './EnvironmentDialogField';
 import { updateGameEnvironment } from './update-environment';
@@ -34,10 +36,7 @@ const formOf = (extreme: GameExtremeTemperature | null | undefined): Form => ({
 });
 
 /** The extreme temperature of a game in one line: "Cold · -80 °C · OB". */
-export const extremeTemperatureLabel = (
-  extreme: GameExtremeTemperature,
-  t: (key: string, options?: Record<string, unknown>) => string
-): string =>
+const extremeTemperatureLabel = (extreme: GameExtremeTemperature, t: TFunction): string =>
   [
     t(`temperature-kind-${extreme.kind}`),
     extreme.temperature !== null && extreme.temperature !== undefined ? `${extreme.temperature} °C` : null,
@@ -59,11 +58,11 @@ const ExtremeTemperatureControl: FC<{ game: TacticalGame; onChange: (game: Tacti
 }) => {
   const { t } = useTranslation();
   const auth = useAuth();
-  const notify = useTacticalNotify();
+  const notify = useApiNotify();
   const extreme = game.environment?.extremeTemperature ?? null;
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<Form>(() => formOf(extreme));
-  const [busy, setBusy] = useState(false);
+  const { busy, run } = useBusyAction();
   const readOnly = !canManageTactical(game) || game.status === 'finished';
 
   useEffect(() => {
@@ -75,15 +74,13 @@ const ExtremeTemperatureControl: FC<{ game: TacticalGame; onChange: (game: Tacti
   const severity = formSeverity(form);
 
   const save = (value: GameExtremeTemperature | null) => {
-    setBusy(true);
-    updateGameEnvironment(game, { extremeTemperature: value }, auth)
-      .then((updated) => {
+    run(
+      updateGameEnvironment(game, { extremeTemperature: value }, auth).then((updated) => {
         onChange(updated);
         notify.success(t('extreme-temperature-updated'));
         setOpen(false);
       })
-      .catch((err) => notify.error(err))
-      .finally(() => setBusy(false));
+    );
   };
 
   const toValue = (): GameExtremeTemperature =>

@@ -1,11 +1,11 @@
-import React, { FC, useEffect, useRef } from 'react';
+import { FC, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import { Box, IconButton, Stack, Tooltip } from '@mui/material';
 import { enterSx, ResourceBar, RmuDialog, SectionNav, StatPill } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { ActorRound } from '../api/actor-rounds.dto';
-import { useActorRoundImage } from '../shared/avatars/use-actor-round-image';
+import { useActorRoundImage } from '../hooks/useActorRoundImage';
 import ActorRoundTabContent, { actorRoundTabs, ActorRoundTab } from './tabs/ActorRoundTabs';
 
 /** Where J and K belong to what the user is typing or choosing, not to the actor navigation. */

@@ -22,11 +22,6 @@ import {
   SpellTargetRoll,
 } from './action.dto';
 
-export async function fetchAction(actionId: string, auth: AuthContextProps): Promise<Action> {
-  const url = `${apiTacticalUrl}/actions/${actionId}`;
-  return await callApi(auth, url, { method: 'GET' });
-}
-
 export async function fetchActions(
   rsql: string | undefined,
   page: number,

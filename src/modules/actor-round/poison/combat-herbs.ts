@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from 'react-oidc-context';
-import { fetchStrategicItems, StrategicItem } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { fetchStrategicItems, StrategicItem, useApiNotify } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { ActorRound } from '../../api/actor-rounds.dto';
-import { useTacticalNotify } from '../../services/notify-service';
 
 /** The herbs of a character that work in combat: they heal hits or remove stun (spec 062). */
 export const isCombatHerb = (item: StrategicItem): boolean => {
@@ -11,7 +10,7 @@ export const isCombatHerb = (item: StrategicItem): boolean => {
 };
 
 /** Units of an item the actor already spent in the game (workspace spec 068): strategic spends them at the outcome. */
-export const consumedUnits = (actorRound: ActorRound, itemId: string): number =>
+const consumedUnits = (actorRound: ActorRound, itemId: string): number =>
   (actorRound.itemsConsumed ?? []).filter((each) => each.itemId === itemId).reduce((sum, each) => sum + each.amount, 0);
 
 /**
@@ -20,7 +19,7 @@ export const consumedUnits = (actorRound: ActorRound, itemId: string): number =>
  */
 export const useCharacterHerbs = (actorRound: ActorRound | null | undefined, active: boolean): StrategicItem[] => {
   const auth = useAuth();
-  const notify = useTacticalNotify();
+  const notify = useApiNotify();
   const [herbs, setHerbs] = useState<StrategicItem[]>([]);
   const characterId = actorRound?.characterId;
   const consumedKey = JSON.stringify(actorRound?.itemsConsumed ?? []);

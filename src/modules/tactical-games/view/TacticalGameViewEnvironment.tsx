@@ -1,4 +1,3 @@
-import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Stack } from '@mui/material';
 import { Section, StatRow, TacticalGame } from '@labcabrera-rmu/rmu-react-shared-lib';

@@ -1,4 +1,4 @@
-import React, { FC, ReactNode, useContext, useEffect, useState } from 'react';
+import { FC, ReactNode, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import { Alert, Box, Button, FormControlLabel, MenuItem, Stack, Switch, TextField, Typography } from '@mui/material';
@@ -17,11 +17,12 @@ import {
   RollField,
   RuleHint,
   signedSteps,
+  useApiNotify,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { CombatContext } from '../../../CombatContext';
 import { resolveHazard } from '../../api/actor-rounds';
 import { ActorRound } from '../../api/actor-rounds.dto';
-import { useTacticalNotify } from '../../services/notify-service';
+import { useCombatRound, useCombatActions } from '../../combat/combat-context';
+import { useBusyAction } from '../../hooks/useBusyAction';
 import HazardResult from './HazardResult';
 
 /** Size of a falling object: chosen, or given by its weight. */
@@ -110,10 +111,11 @@ const HazardDialog: FC<{
 }> = ({ actorRound, kind, open, onClose, onResolved, intro, onDismiss, knockedBackAlertId, initialDistance }) => {
   const { t } = useTranslation();
   const auth = useAuth();
-  const notify = useTacticalNotify();
-  const { roundActions, updateActorRound } = useContext(CombatContext)!;
+  const notify = useApiNotify();
+  const { roundActions } = useCombatRound();
+  const { updateActorRound } = useCombatActions();
   const [form, setForm] = useState<HazardForm>(() => emptyForm(actorRound, initialDistance));
-  const [busy, setBusy] = useState(false);
+  const { busy, run } = useBusyAction();
   const [result, setResult] = useState<ActorRoundHazard | undefined>();
   const fall = kind === 'fall';
 
@@ -143,17 +145,15 @@ const HazardDialog: FC<{
 
   const resolve = () => {
     const before = new Set((actorRound.hazards ?? []).map((hazard) => hazard.id));
-    setBusy(true);
-    resolveHazard(actorRound.id, toDto(kind, form, knockedBackAlertId), auth)
-      .then((updated) => {
+    run(
+      resolveHazard(actorRound.id, toDto(kind, form, knockedBackAlertId), auth).then((updated) => {
         updateActorRound(updated);
         const hazard = (updated.hazards ?? []).find((each) => !before.has(each.id));
         setResult(hazard);
         notify.success(t('hazard-resolved', { damage: hazard?.damage ?? 0 }));
         onResolved?.(hazard);
       })
-      .catch((err) => notify.error(err))
-      .finally(() => setBusy(false));
+    );
   };
 
   const criticalSlots = Math.min(

@@ -1,11 +1,10 @@
+import type { FrenzyPurpose } from '../api/action.dto';
 import type { ActorRound } from '../api/actor-rounds.dto';
 
 // Frenzy of the Character Companion talents (workspace spec 040): what the board needs to enter and leave it with an
 // Adrenal Focus maneuver and to show it. The API checks and applies every rule; these only shape the forms.
 
-export type FrenzyPurpose = 'frenzy-enter' | 'frenzy-enter-greater' | 'frenzy-exit';
-
-export const ADRENAL_FOCUS_SKILL_ID = 'adrenal-focus';
+const ADRENAL_FOCUS_SKILL_ID = 'adrenal-focus';
 const GREATER_FRENZY_MODIFIER = -30;
 const IMPROVED_FRENZY_BONUS = 10;
 

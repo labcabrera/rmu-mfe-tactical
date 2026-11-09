@@ -1,8 +1,8 @@
-import React, { FC } from 'react';
+import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Box, Chip, Stack } from '@mui/material';
 import { NumberPadField, ChipRow } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { useFrightLevels } from '../../services/core-tables';
+import { useFrightLevels } from '../../hooks/useCoreTables';
 
 /**
  * Fright level of a fear RR (Table 14-3a): a number, with the levels of the table as shortcuts and its supernatural

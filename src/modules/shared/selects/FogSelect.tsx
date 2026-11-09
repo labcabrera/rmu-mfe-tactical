@@ -1,9 +1,16 @@
-import React, { FC, useState } from 'react';
+import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import { MenuItem, TextField } from '@mui/material';
-import { FOG_LEVELS, FOG_TABLE, FogLevel, formatBonus, TacticalGame } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { useTacticalNotify } from '../../services/notify-service';
+import {
+  FOG_LEVELS,
+  FOG_TABLE,
+  FogLevel,
+  formatBonus,
+  TacticalGame,
+  useApiNotify,
+} from '@labcabrera-rmu/rmu-react-shared-lib';
+import { useBusyAction } from '../../hooks/useBusyAction';
 import { updateGameEnvironment } from '../environment/update-environment';
 import { canManageTactical } from '../permissions';
 
@@ -22,20 +29,18 @@ const FogSelect: FC<{
 }> = ({ game, onChange, fullWidth = false, size }) => {
   const { t } = useTranslation();
   const auth = useAuth();
-  const notify = useTacticalNotify();
-  const [busy, setBusy] = useState(false);
+  const notify = useApiNotify();
+  const { busy, run } = useBusyAction();
   const value = game.environment?.fog ?? NONE;
   const readOnly = !canManageTactical(game) || game.status === 'finished';
 
   const change = (fog: FogLevel | null) => {
-    setBusy(true);
-    updateGameEnvironment(game, { fog }, auth)
-      .then((updated) => {
+    run(
+      updateGameEnvironment(game, { fog }, auth).then((updated) => {
         onChange(updated);
         notify.success(t('fog-updated'));
       })
-      .catch((err) => notify.error(err))
-      .finally(() => setBusy(false));
+    );
   };
 
   return (

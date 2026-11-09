@@ -1,4 +1,4 @@
-import React, { FC, useContext } from 'react';
+import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import { Box, Chip, Stack, Tooltip, Typography } from '@mui/material';
@@ -8,13 +8,13 @@ import {
   FATIGUE_REST_ROUNDS,
   NumberPadField,
   ResourceBar,
+  useApiNotify,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { CombatContext } from '../../CombatContext';
 import { addActorRoundFatigueAccumulator, addActorRoundHp } from '../api/actor-rounds';
 import { ActorRound } from '../api/actor-rounds.dto';
-import LowerInitiativeButton from '../combat-dashboard/actor-rounds/initiative/LowerInitiativeButton';
+import { useCombatGame, useCombatActions } from '../combat/combat-context';
 import { isGameFinished } from '../services/game-service';
-import { useTacticalNotify } from '../services/notify-service';
+import LowerInitiativeButton from './LowerInitiativeButton';
 
 const barSize = 160;
 
@@ -23,8 +23,9 @@ const ActorRoundBars: FC<{
 }> = ({ actorRound }) => {
   const { t } = useTranslation();
   const auth = useAuth();
-  const notify = useTacticalNotify();
-  const { game, updateActorRound } = useContext(CombatContext)!;
+  const notify = useApiNotify();
+  const { game } = useCombatGame();
+  const { updateActorRound } = useCombatActions();
   // A finished game is read-only (spec 013).
   const readOnly = isGameFinished(game);
   const deathThreshold = actorRound.hp?.deathThreshold ?? actorRound.hp?.max ?? 0;

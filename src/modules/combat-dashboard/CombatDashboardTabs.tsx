@@ -1,16 +1,16 @@
-import React, { FC, useContext, useState } from 'react';
+import { FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import KeyboardIcon from '@mui/icons-material/Keyboard';
 import { Box, IconButton, Paper, Stack, Tab, Tabs, Tooltip, useMediaQuery, useTheme } from '@mui/material';
 import { Panel, useSpellName } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { CombatContext } from '../../CombatContext';
-import { useShortcut } from '../services/shortcuts';
+import { useCombatGame, useCombatActions } from '../combat/combat-context';
+import { useShortcut } from '../hooks/useShortcut';
 import GameOutcomePanel from '../tactical-games/outcome/GameOutcomePanel';
-import CombatBulkActionsMenu from './CombatBulkActionsMenu';
-import CombatDashboardActions from './CombatDashboardActions';
-import ShortcutsHelp from './ShortcutsHelp';
-import CombatActorRoundList from './actor-rounds/ActorRoundList';
-import CombatRoundHeader from './actor-rounds/CombatRoundHeader';
+import CombatActorRoundList from './board/ActorRoundList';
+import CombatBulkActionsMenu from './board/CombatBulkActionsMenu';
+import CombatDashboardActions from './board/CombatDashboardActions';
+import CombatRoundHeader from './board/CombatRoundHeader';
+import ShortcutsHelp from './board/ShortcutsHelp';
 import CombatDamageView from './damage/CombatDamageView';
 import RoundLog, { RoundLogStrip } from './log/RoundLog';
 import CombatPanelProvider from './panel/CombatPanelProvider';
@@ -27,7 +27,8 @@ const CombatDashboardTabs: FC = () => {
   const wide = useMediaQuery(theme.breakpoints.up('lg'));
   const [view, setView] = useState<View>('board');
   const [help, setHelp] = useState(false);
-  const { game, setGame } = useContext(CombatContext)!;
+  const { game } = useCombatGame();
+  const { setGame } = useCombatActions();
   // Workspace spec 088: loads the translated spell names for the labels of the board, built outside React
   useSpellName();
   useShortcut(['l', 'L'], () => setView((current) => (current === 'board' ? 'log' : 'board')));

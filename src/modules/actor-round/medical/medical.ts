@@ -1,7 +1,7 @@
 import type { Character, HealerCandidate, Injury } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { HealingTables, requiresSurgery } from '@labcabrera-rmu/rmu-react-shared-lib';
 import type { MedicalProcedure } from '../../api/action.dto';
 import { ActorRound, TacticalProcedure } from '../../api/actor-rounds.dto';
-import type { HealingTables } from '../../api/psychology.dto';
 import { actorRoundHasEffect } from '../../services/actor-round-service';
 
 /** Difficulty ladder of the maneuvers, easiest first, with its modifiers (Table 4-1). */
@@ -103,10 +103,6 @@ export const isProcedureAvailable = (procedure: InjuryProcedure, injury: Injury)
   return true;
 };
 
-/** The injury only admits surgery or magic (workspace spec 068, decision 11), when core's tables say it. */
-export const requiresSurgery = (injury: Injury, tables: HealingTables | null): boolean =>
-  (tables?.surgeryRequired ?? []).some((row) => row.injuryType === injury.type && row.severity === injury.severity);
-
 /**
  * Why a procedure of a `medical` action does not apply to the injury, as an error key of the API; undefined when it
  * applies. Surgery is not offered in combat, and an injury that requires it only takes magic.
@@ -118,7 +114,8 @@ export const medicalProcedureProblem = (
 ): string | undefined => {
   if (injury.status === 'healed') return 'err-injury-healed';
   if (injury.treatmentInProgress) return 'err-treatment-in-progress';
-  if (procedure !== 'magic' && requiresSurgery(injury, tables)) return 'err-treatment-surgery-required';
+  if (procedure !== 'magic' && requiresSurgery(injury, tables?.surgeryRequired))
+    return 'err-treatment-surgery-required';
   if (!isProcedureAvailable(procedure, injury))
     return procedure === 'stitches' ? 'err-treatment-invalid-severity' : 'err-treatment-invalid-location';
   return undefined;

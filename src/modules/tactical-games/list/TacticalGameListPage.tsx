@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import { useNavigate } from 'react-router-dom';
@@ -9,6 +9,7 @@ import { Chip, IconButton, Stack, ToggleButton, ToggleButtonGroup, Tooltip } fro
 import {
   ClearableTextField,
   EntityCard,
+  fetchFullPage,
   fetchStrategicGames,
   fetchTacticalGames,
   FilterBar,
@@ -17,8 +18,8 @@ import {
   StrategicGame,
   StrategicGamePicker,
   TacticalGame,
+  useApiNotify,
   useListFilters,
-  useNotify,
   usePagedQuery,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { defaultTacticalGameImage } from '../../services/image-service';
@@ -35,7 +36,7 @@ export default function TacticalGameListPage() {
   const auth = useAuth();
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const notify = useNotify();
+  const notify = useApiNotify();
   const [strategicGames, setStrategicGames] = useState<StrategicGame[]>([]);
   const gameNames = useMemo(() => new Map(strategicGames.map((game) => [game.id, game.name])), [strategicGames]);
 
@@ -70,7 +71,7 @@ export default function TacticalGameListPage() {
   });
 
   useEffect(() => {
-    fetchStrategicGames('', 0, 100, auth)
+    fetchFullPage((rsql, page, size) => fetchStrategicGames(rsql, page, size, auth), '')
       .then((response) => setStrategicGames(response.content))
       .catch(notify.error);
   }, []);

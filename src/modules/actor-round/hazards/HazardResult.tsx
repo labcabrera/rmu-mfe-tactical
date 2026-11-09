@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Box, Chip, Stack, Typography } from '@mui/material';
 import {
@@ -10,11 +10,12 @@ import {
   signedSteps,
   useTableText,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
+import type { TFunction } from 'i18next';
 import { ActorRoundHazard } from '../../api/actor-rounds.dto';
 import { criticalCode } from '../../services/action-service';
 
 /** What fell, in one line: "Fall · 20 ft" or "Falling object · Big · 20 ft". */
-export const hazardTitle = (hazard: ActorRoundHazard, t: (key: string, options?: Record<string, unknown>) => string) =>
+export const hazardTitle = (hazard: ActorRoundHazard, t: TFunction) =>
   hazard.temperature
     ? [
         t(`hazard-kind-${hazard.kind}`),

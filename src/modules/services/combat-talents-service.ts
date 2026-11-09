@@ -20,7 +20,7 @@ export const SLOW_ON_THE_DRAW = 'slow-on-the-draw';
 export const QUICK_ACTION = 'quick-action';
 /** Magical talent of the spell flow (workspace spec 077, decision C3): half or none of the PP of a failed cast. */
 export const POWER_RECYCLING = 'power-recycling';
-export const QUICK_CASTER = 'quick-caster';
+const QUICK_CASTER = 'quick-caster';
 
 /** The spell lists of the actor's Quick-Caster (workspace spec 077, decision C4), with their tier. */
 export const quickCasterLists = (actorRound: ActorRound): { listCode: string; tier: number }[] =>
@@ -43,7 +43,7 @@ export const FOE_PURPOSES: CombatTalentPurpose[] = ['sense-weakness', 'study-off
  * Specialization matching of a trait (spec 008, §1), as rmu-api-tactical does it: none matches every skill,
  * `skillId@spec` that specialization only, a bare id every specialization of that skill or the weapon type after `@`.
  */
-export const traitMatchesSkill = (specialization: string | null | undefined, skillId: string | null | undefined) => {
+const traitMatchesSkill = (specialization: string | null | undefined, skillId: string | null | undefined) => {
   if (!specialization) return true;
   if (!skillId) return false;
   if (specialization.includes('@')) return specialization === skillId;

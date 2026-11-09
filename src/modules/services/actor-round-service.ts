@@ -25,10 +25,6 @@ export function actorRoundBleedingEffect(actorRound: ActorRound): ActorRoundEffe
   return value > 0 ? { id: 'bleeding', status: 'bleeding', value, rounds: undefined } : undefined;
 }
 
-export function isActorRoundDead(actorRound: ActorRound): boolean {
-  return actorRoundHasEffect(actorRound, ['dead', ...UNCONSCIOUS]);
-}
-
 /** `dead`, `unconscious` or undefined: the state that takes the actor out of the fight, dead first. */
 export function actorRoundDownState(actorRound: ActorRound): 'dead' | 'unconscious' | undefined {
   if (actorRoundHasEffect(actorRound, ['dead'])) return 'dead';
