@@ -1,4 +1,4 @@
-import React, { FC, useContext, useEffect, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import AirIcon from '@mui/icons-material/Air';
@@ -14,12 +14,13 @@ import {
   RuleHint,
   SectionLabel,
   StartBreathDto,
+  useApiNotify,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { CombatContext } from '../../CombatContext';
 import { setActorRoundEnvironmentProtection, startActorRoundBreath, stopActorRoundBreath } from '../api/actor-rounds';
 import { ActorRound } from '../api/actor-rounds.dto';
+import { useCombatGame, useCombatRound, useCombatActions } from '../combat/combat-context';
+import { useBusyAction } from '../hooks/useBusyAction';
 import { isRoundEditable } from '../services/game-service';
-import { useTacticalNotify } from '../services/notify-service';
 import { canManageTactical } from '../shared/permissions';
 
 type BreathForm = {
@@ -52,10 +53,10 @@ const StartBreathDialog: FC<{ actorRound: ActorRound; open: boolean; onClose: ()
 }) => {
   const { t } = useTranslation();
   const auth = useAuth();
-  const notify = useTacticalNotify();
-  const { updateActorRound } = useContext(CombatContext)!;
+  const notify = useApiNotify();
+  const { updateActorRound } = useCombatActions();
   const [form, setForm] = useState<BreathForm>(emptyForm);
-  const [busy, setBusy] = useState(false);
+  const { busy, run: trackBusy } = useBusyAction();
   const npc = actorRound.actorType === 'npc';
   const breathHolding = !!actorRound.traits?.some((trait) => trait.traitId === BREATH_HOLDING);
 
@@ -74,15 +75,13 @@ const StartBreathDialog: FC<{ actorRound: ActorRound; open: boolean; onClose: ()
       ...(breathHolding && form.inactive ? { inactive: true } : {}),
       ...(breathHolding && form.meditation ? { meditation: true } : {}),
     };
-    setBusy(true);
-    startActorRoundBreath(actorRound.id, dto, auth)
-      .then((updated) => {
+    trackBusy(
+      startActorRoundBreath(actorRound.id, dto, auth).then((updated) => {
         updateActorRound(updated);
         notify.success(t('breath-started', { rounds: updated.breath?.limitRounds ?? 0 }));
         onClose();
       })
-      .catch((err) => notify.error(err))
-      .finally(() => setBusy(false));
+    );
   };
 
   return (
@@ -130,9 +129,7 @@ const StartBreathDialog: FC<{ actorRound: ActorRound; open: boolean; onClose: ()
               label={t('breath-inactive')}
             />
             <FormControlLabel
-              control={
-                <Switch checked={form.meditation} onChange={(e) => change({ meditation: e.target.checked })} />
-              }
+              control={<Switch checked={form.meditation} onChange={(e) => change({ meditation: e.target.checked })} />}
               label={t('breath-meditation')}
             />
           </Stack>
@@ -183,9 +180,11 @@ const StartBreathDialog: FC<{ actorRound: ActorRound; open: boolean; onClose: ()
 const ActorRoundEnvironment: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
   const { t } = useTranslation();
   const auth = useAuth();
-  const notify = useTacticalNotify();
-  const { game, displayRound, updateActorRound } = useContext(CombatContext)!;
-  const [busy, setBusy] = useState(false);
+  const notify = useApiNotify();
+  const { game } = useCombatGame();
+  const { displayRound } = useCombatRound();
+  const { updateActorRound } = useCombatActions();
+  const { busy, run: trackBusy } = useBusyAction();
   const [starting, setStarting] = useState(false);
   const manage = !!game && canManageTactical(game) && isRoundEditable(game, displayRound);
   const breath = actorRound.breath ?? null;
@@ -194,14 +193,12 @@ const ActorRoundEnvironment: FC<{ actorRound: ActorRound }> = ({ actorRound }) =
   if (!manage && !breath && !(extreme && protectedFromEnvironment)) return null;
 
   const run = (call: Promise<ActorRound>, message: string) => {
-    setBusy(true);
-    call
-      .then((updated) => {
+    trackBusy(
+      call.then((updated) => {
         updateActorRound(updated);
         notify.success(t(message));
       })
-      .catch((err) => notify.error(err))
-      .finally(() => setBusy(false));
+    );
   };
 
   const left = breath ? breathRoundsLeft(breath) : 0;

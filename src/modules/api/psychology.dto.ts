@@ -4,14 +4,11 @@ import type { ActorRound } from './actor-rounds.dto';
 // Psychology of the tactical game (workspace spec 022, §14.3): the fear RR of an actor, the fear, morale and rally
 // checks of a group, and the tables of rmu-api-core they read. Only keys and numbers: the texts live in the locales.
 
-export type KeyValueModifier = { key: string; value: number };
+type KeyValueModifier = { key: string; value: number };
 
 /** Severity of a failed RR, and the fear state it gives. */
-export type FearSeverity = 'mild' | 'moderate' | 'severe' | 'extreme';
-export type FearState = 'balk' | 'retreat' | 'routed' | 'broken';
-
-/** Effects a failed fear RR leaves in the actor round, the worst kept. */
-export const FEAR_EFFECTS = ['fear-balk', 'fear-retreat', 'fear-routed', 'fear-broken'] as const;
+type FearSeverity = 'mild' | 'moderate' | 'severe' | 'extreme';
+type FearState = 'balk' | 'retreat' | 'routed' | 'broken';
 
 /** `POST /v1/actor-rounds/{id}/resistance-rolls`. */
 export type ResistanceRollDto = {
@@ -159,7 +156,7 @@ export type GroupCheckResult = {
 export type ApplyFearEffectDto = { severity: FearSeverity; source?: { actorId?: string; name?: string } };
 
 /** A threshold of fallen allies of a faction (Table 14-3a): above (`exclusive`) or at least `minShare`. */
-export type FallenThreshold = { minShare: number; exclusive: boolean; frightLevel: number };
+type FallenThreshold = { minShare: number; exclusive: boolean; frightLevel: number };
 
 /** `GET /v1/tactical-games/{id}/fright-levels` (workspace spec 068, S12 b): for any participant of the game. */
 export type FrightLevels = {
@@ -184,21 +181,4 @@ export type PsychologyTables = {
   rally: (TableRange & { result: string; fearSeverityChange: number })[];
   rallyUnusualEvent: { roll: number; leaderFearRrBonus: number; leaderHits: number; durationDays: number };
   rallyGroupModifier: { followersPerStep: number; modifier: number };
-};
-
-/** A row of the treatment difficulty table of rmu-api-core (`GET /v1/healing-tables`). */
-export type TreatmentDifficultyRow = { procedure: string; injuryType: string; severity: string; difficulty: string };
-
-export type TreatmentRules = { headDifficultySteps: number; cauterizePenaltyPerBleeding: number };
-
-/** Rounds a procedure takes in combat (workspace spec 068); null: not offered in a tactical game. */
-export type TreatmentDuration = { procedure: string; rounds: number | null; perBleeding: boolean };
-
-export type HealingTables = {
-  treatmentDifficulties?: TreatmentDifficultyRow[];
-  treatmentRules?: TreatmentRules;
-  /** Workspace spec 068: rounds of each procedure, the injuries that only admit surgery and the salve range. */
-  treatmentDurations?: TreatmentDuration[] | null;
-  surgeryRequired?: { injuryType: string; severity: string }[] | null;
-  salveModifier?: { min: number; max: number } | null;
 };

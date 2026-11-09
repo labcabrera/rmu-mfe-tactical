@@ -1,4 +1,4 @@
-import React, { FC, useContext, useState } from 'react';
+import { FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import ContentCutIcon from '@mui/icons-material/ContentCut';
@@ -12,24 +12,25 @@ import {
   ChipRow,
   ConfirmDialog,
   Injury,
-  isLimbLost,
   InjuryList,
+  isLimbLost,
   SectionLabel,
   TemporaryModifier,
   TemporaryModifierList,
+  useApiNotify,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { CombatContext } from '../../CombatContext';
 import {
   deleteActorRoundInjury,
   deleteActorRoundTemporaryModifier,
   loosenActorRoundTourniquet,
 } from '../api/actor-rounds';
 import { ActorRound } from '../api/actor-rounds.dto';
+import { useCombatGame, useCombatRound, useCombatActions } from '../combat/combat-context';
 import { actorRoundBleeding } from '../services/actor-round-service';
 import { isRoundEditable } from '../services/game-service';
-import { useTacticalNotify } from '../services/notify-service';
 import InjuryEditDialog from './medical/InjuryEditDialog';
-import MedicalRollDialog, { MedicalTarget } from './medical/MedicalRollDialog';
+import MedicalRollDialog from './medical/MedicalRollDialog';
+import { MedicalTarget } from './medical/medical-roll-rules';
 import ActorAntidoteDialog from './poison/ActorAntidoteDialog';
 import ActorUseHerbDialog from './poison/ActorUseHerbDialog';
 
@@ -44,8 +45,10 @@ import ActorUseHerbDialog from './poison/ActorUseHerbDialog';
 const ActorRoundInjuries: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
   const { t } = useTranslation();
   const auth = useAuth();
-  const notify = useTacticalNotify();
-  const { game, displayRound, updateActorRound } = useContext(CombatContext)!;
+  const notify = useApiNotify();
+  const { game } = useCombatGame();
+  const { displayRound } = useCombatRound();
+  const { updateActorRound } = useCombatActions();
   const editable = isRoundEditable(game, displayRound);
   const [target, setTarget] = useState<MedicalTarget | null>(null);
   const [editing, setEditing] = useState<Injury | null>(null);

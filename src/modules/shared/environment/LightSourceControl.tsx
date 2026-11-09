@@ -1,19 +1,20 @@
-import React, { FC, useState } from 'react';
+import { FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import FlashlightOnIcon from '@mui/icons-material/FlashlightOn';
 import { Box, Button, Chip, Grid, MenuItem, Stack, TextField } from '@mui/material';
 import {
   LIGHT_SOURCES,
-  LightSource,
   lightAtDistance,
+  LightSource,
   LightType,
   NumberPadField,
   RmuDialog,
   RuleHint,
   TacticalGame,
+  useApiNotify,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { useTacticalNotify } from '../../services/notify-service';
+import { useBusyAction } from '../../hooks/useBusyAction';
 import { canManageTactical } from '../permissions';
 import EnvironmentDialogField from './EnvironmentDialogField';
 import { updateGameEnvironment } from './update-environment';
@@ -25,7 +26,7 @@ type Calculation = { source: LightSource; distance: number | null };
  * tells the game master the light level to pick (a candle, a torch, a lantern or a bonfire within 10', one level darker
  * to 30', two to 100', three to 300'). The ambient light wins when it is brighter.
  */
-export const LightSourceCalculator: FC<{
+const LightSourceCalculator: FC<{
   value: Calculation;
   onChange: (value: Calculation) => void;
   light: LightType | null;
@@ -81,12 +82,12 @@ export const LightSourceCalculator: FC<{
 const LightSourceControl: FC<{ game: TacticalGame; onChange: (game: TacticalGame) => void }> = ({ game, onChange }) => {
   const { t } = useTranslation();
   const auth = useAuth();
-  const notify = useTacticalNotify();
+  const notify = useApiNotify();
   const ambient = game.environment?.light ?? null;
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<Calculation>({ source: 'torch', distance: 10 });
   const [applied, setApplied] = useState<Calculation & { light: LightType }>();
-  const [busy, setBusy] = useState(false);
+  const { busy, run } = useBusyAction();
   const readOnly = !canManageTactical(game) || game.status === 'finished';
   const light = form.distance !== null ? lightAtDistance(form.source, form.distance, ambient) : null;
   // The chip only keeps the calculation while the ambient light is still its result
@@ -94,16 +95,14 @@ const LightSourceControl: FC<{ game: TacticalGame; onChange: (game: TacticalGame
 
   const apply = () => {
     if (!light) return;
-    setBusy(true);
-    updateGameEnvironment(game, { light }, auth)
-      .then((updated) => {
+    run(
+      updateGameEnvironment(game, { light }, auth).then((updated) => {
         onChange(updated);
         setApplied({ ...form, light });
         notify.success(t('ambient-light-updated'));
         setOpen(false);
       })
-      .catch((err) => notify.error(err))
-      .finally(() => setBusy(false));
+    );
   };
 
   return (

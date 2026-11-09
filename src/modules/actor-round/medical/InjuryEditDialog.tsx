@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import { Button, MenuItem, Stack, TextField } from '@mui/material';
@@ -14,7 +14,7 @@ import {
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { updateActorRoundInjury } from '../../api/actor-rounds';
 import { ActorRound, UpdateActorInjuryDto } from '../../api/actor-rounds.dto';
-import { useTacticalNotify } from '../../services/notify-service';
+import { useBusyAction } from '../../hooks/useBusyAction';
 
 const TYPES: InjuryType[] = ['bone', 'cut-burn', 'muscle-tendon', 'organ', 'poison-disease', 'skin-tissue', 'unknown'];
 const SEVERITIES: InjurySeverity[] = ['light', 'medium', 'severe'];
@@ -31,9 +31,8 @@ const InjuryEditDialog: FC<{
 }> = ({ actorRound, injury, onClose, onSaved }) => {
   const { t } = useTranslation();
   const auth = useAuth();
-  const notify = useTacticalNotify();
   const [form, setForm] = useState<UpdateActorInjuryDto>({});
-  const [busy, setBusy] = useState(false);
+  const { busy, run } = useBusyAction();
 
   useEffect(() => {
     if (!injury) return;
@@ -59,14 +58,12 @@ const InjuryEditDialog: FC<{
     const dto = Object.fromEntries(
       Object.entries(form).filter(([, value]) => value !== undefined)
     ) as UpdateActorInjuryDto;
-    setBusy(true);
-    updateActorRoundInjury(actorRound.id, injury.id, dto, auth)
-      .then((updated) => {
+    run(
+      updateActorRoundInjury(actorRound.id, injury.id, dto, auth).then((updated) => {
         onSaved(updated);
         onClose();
       })
-      .catch((err) => notify.error(err))
-      .finally(() => setBusy(false));
+    );
   };
 
   return (

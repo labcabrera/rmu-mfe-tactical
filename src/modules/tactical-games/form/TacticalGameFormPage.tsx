@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
@@ -7,19 +7,19 @@ import {
   createTacticalGame,
   CreateTacticalGameDto,
   EntityImage,
+  ErrorState,
   fetchStrategicGame,
   fetchTacticalGame,
-  ErrorState,
   FormPage,
   LoadingState,
   NotFound,
-  StrategicGame,
   TacticalGame,
   updateTacticalGame,
+  useApiNotify,
   useEntity,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { useQuery } from '@tanstack/react-query';
 import { defaultImage } from '../../services/image-service';
-import { useTacticalNotify } from '../../services/notify-service';
 import TacticalGameForm from './TacticalGameForm';
 
 const DEFAULT_IMAGE = 'images/generic/tactical.png';
@@ -45,7 +45,7 @@ export default function TacticalGameFormPage({ mode }: { mode: 'create' | 'edit'
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
-  const notify = useTacticalNotify();
+  const notify = useApiNotify();
   const [searchParams] = useSearchParams();
   const { gameId } = useParams<{ gameId?: string }>();
   const existing = useEntity<TacticalGame>(mode === 'edit' ? gameId : undefined, (id) => fetchTacticalGame(id, auth), {
@@ -53,7 +53,13 @@ export default function TacticalGameFormPage({ mode }: { mode: 'create' | 'edit'
     onError: notify.error,
   });
   const strategicGameId = mode === 'create' ? searchParams.get('strategicGame') : existing.entity?.strategicGameId;
-  const [strategicGame, setStrategicGame] = useState<StrategicGame>();
+  const strategicGameQuery = useQuery({
+    queryKey: ['tactical-game-form', 'strategic-game', strategicGameId],
+    queryFn: () => fetchStrategicGame(strategicGameId as string, auth),
+    enabled: !!strategicGameId,
+    gcTime: 0,
+  });
+  const strategicGame = strategicGameQuery.data;
   const [formData, setFormData] = useState<TacticalGame>();
   const [initialData, setInitialData] = useState<string>();
 
@@ -71,21 +77,19 @@ export default function TacticalGameFormPage({ mode }: { mode: 'create' | 'edit'
   }, [existing.entity]);
 
   useEffect(() => {
-    if (!strategicGameId) return;
-    fetchStrategicGame(strategicGameId, auth)
-      .then((response) => {
-        setStrategicGame(response);
-        // Creation inherits the strategic game and its image: not a user change.
-        if (mode === 'create') {
-          resetForm({
-            ...EMPTY_GAME_TEMPLATE,
-            strategicGameId: response.id,
-            imageUrl: response.imageUrl || DEFAULT_IMAGE,
-          });
-        }
-      })
-      .catch(notify.error);
-  }, [strategicGameId]);
+    // Creation inherits the strategic game and its image: not a user change.
+    if (mode === 'create' && strategicGame) {
+      resetForm({
+        ...EMPTY_GAME_TEMPLATE,
+        strategicGameId: strategicGame.id,
+        imageUrl: strategicGame.imageUrl || DEFAULT_IMAGE,
+      });
+    }
+  }, [strategicGame]);
+
+  useEffect(() => {
+    if (strategicGameQuery.error) notify.error(strategicGameQuery.error);
+  }, [strategicGameQuery.error]);
 
   const isValid = !!formData?.name && (mode === 'edit' || !!formData.strategicGameId);
 
@@ -97,7 +101,7 @@ export default function TacticalGameFormPage({ mode }: { mode: 'create' | 'edit'
         .catch(notify.error);
       return;
     }
-    // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { id, strategicGameId, status, round, phase, factions, actors, owner, environmentFaction, ...dto } = formData;
     updateTacticalGame(gameId!, dto, auth)
       .then((data) => navigate(`/tactical/games/view/${gameId}`, { state: { tacticalGame: data } }))

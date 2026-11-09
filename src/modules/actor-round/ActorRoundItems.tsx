@@ -1,13 +1,13 @@
-import React, { FC, useContext, useState } from 'react';
+import { FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import BuildIcon from '@mui/icons-material/Build';
 import ScienceIcon from '@mui/icons-material/Science';
 import { Chip, IconButton, Stack, Tooltip } from '@mui/material';
 import { DataTable, ItemConditionChip, SectionLabel } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { CombatContext } from '../../CombatContext';
 import { ActorRound, ActorRoundItem } from '../api/actor-rounds.dto';
-import BreakageCheckDialog from '../combat-dashboard/actor-alert-dialogs/BreakageCheckDialog';
+import { useCombatGame, useCombatRound } from '../combat/combat-context';
 import { isRoundEditable } from '../services/game-service';
+import BreakageCheckDialog from './alerts/BreakageCheckDialog';
 
 /**
  * Items of the actor (spec 019): its equipped and carried items with their strength and breakage. In the current
@@ -16,7 +16,8 @@ import { isRoundEditable } from '../services/game-service';
  */
 const ActorRoundItems: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
   const { t } = useTranslation();
-  const { game, displayRound } = useContext(CombatContext)!;
+  const { game } = useCombatGame();
+  const { displayRound } = useCombatRound();
   const editable = isRoundEditable(game, displayRound);
   const [checking, setChecking] = useState<ActorRoundItem | null>(null);
   const items = actorRound.items ?? [];

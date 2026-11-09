@@ -1,47 +1,24 @@
-import React, { createContext, FC, ReactNode, useContext, useState } from 'react';
+import { FC, ReactNode, useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Stack, Typography } from '@mui/material';
 import { ActionTypeChip, SidePanelLayout } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { CombatContext } from '../../../CombatContext';
 import ActorRoundDialog from '../../actor-round/ActorRoundDialog';
 import { ActorRoundTab } from '../../actor-round/tabs/ActorRoundTabs';
 import { Action } from '../../api/action.dto';
 import { ActorRound } from '../../api/actor-rounds.dto';
+import { useCombatGame, useCombatRound } from '../../combat/combat-context';
+import { CombatPanelContext } from '../../combat/combat-panel-context';
+import { useShortcut } from '../../hooks/useShortcut';
 import { isActionActionable } from '../../services/ap-service';
 import { isGameFinished } from '../../services/game-service';
-import { useShortcut } from '../../services/shortcuts';
-import { actionLabel } from '../actor-rounds/action-view';
-import { phaseNumber } from '../actor-rounds/round-grid';
+import { phaseNumber } from '../../services/phase-service';
+import { actionLabel } from '../board/action-view';
+import ActionResolutionDialog from '../dialogs/ActionResolutionDialog';
 import ActionPalette from './ActionPalette';
-import ActionResolutionDialog from './ActionResolutionDialog';
 import ActionSummaryView from './ActionSummaryView';
 import ActorPanelView from './ActorPanelView';
 
 type PanelState = { kind: 'actor'; actorRoundId: string } | { kind: 'action'; actionId: string } | null;
-
-type CombatPanelValue = {
-  /** Actor round shown in the panel (its own view, or the actor of the open action). */
-  selectedActorRoundId: string | null;
-  openActor: (actorRound: ActorRound) => void;
-  /** Opens the full sheet of an actor (spec 045) and selects it in the panel. */
-  openActorDetail: (actorRound: ActorRound) => void;
-  openAction: (action: Action) => void;
-  /** Opens the resolution dialog of an action (and shows it in the panel). */
-  resolveAction: (action: Action) => void;
-  /** Set while actions can be declared (an action phase of the current round). */
-  openDeclare?: (actorRound: ActorRound, anchor: HTMLElement | null) => void;
-};
-
-const CombatPanelContext = createContext<CombatPanelValue | null>(null);
-
-/** The combat panel, when the component is inside it (the actor sheet and the board); null elsewhere. */
-export const useOptionalCombatPanel = (): CombatPanelValue | null => useContext(CombatPanelContext);
-
-export const useCombatPanel = (): CombatPanelValue => {
-  const value = useContext(CombatPanelContext);
-  if (!value) throw new Error('useCombatPanel must be used inside CombatPanelProvider');
-  return value;
-};
 
 /**
  * Side panel of the combat screen, the action palette, the resolution dialog and the actor sheet, shared by the
@@ -50,7 +27,8 @@ export const useCombatPanel = (): CombatPanelValue => {
  */
 const CombatPanelProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const { t } = useTranslation();
-  const { game, actorRounds, roundActions, displayRound } = useContext(CombatContext)!;
+  const { game } = useCombatGame();
+  const { actorRounds, roundActions, displayRound } = useCombatRound();
   const [panel, setPanel] = useState<PanelState>(null);
   const [palette, setPalette] = useState<{ actorRound: ActorRound; anchor: HTMLElement | null } | null>(null);
   const [resolvingId, setResolvingId] = useState<string | null>(null);
@@ -70,23 +48,37 @@ const CombatPanelProvider: FC<{ children: ReactNode }> = ({ children }) => {
       ? actorRounds?.find((ar) => ar.id === panel.actorRoundId)
       : actorRounds?.find((ar) => ar.actorId === panelAction?.actorId);
 
-  const openAction = (action: Action) => setPanel({ kind: 'action', actionId: action.id });
-  const openActor = (actorRound: ActorRound) => setPanel({ kind: 'actor', actorRoundId: actorRound.id });
-  const resolveAction = (action: Action) => {
-    openAction(action);
-    setResolvingId(action.id);
-  };
-  const openActorDetail = (actorRound: ActorRound) => {
-    openActor(actorRound);
-    setDetailId(actorRound.id);
-  };
+  // Stable, so the memoized rows of the board re-render only when their own data changes.
+  const openAction = useCallback((action: Action) => setPanel({ kind: 'action', actionId: action.id }), []);
+  const openActor = useCallback(
+    (actorRound: ActorRound) => setPanel({ kind: 'actor', actorRoundId: actorRound.id }),
+    []
+  );
+  const resolveAction = useCallback(
+    (action: Action) => {
+      openAction(action);
+      setResolvingId(action.id);
+    },
+    [openAction]
+  );
+  const openActorDetail = useCallback(
+    (actorRound: ActorRound) => {
+      openActor(actorRound);
+      setDetailId(actorRound.id);
+    },
+    [openActor]
+  );
   // An actor round of another round is another id: the sheet closes when the displayed round changes.
   const detailActorRound = detailId ? actorRounds?.find((ar) => ar.id === detailId) : undefined;
   const resolving = resolvingId ? roundActions?.find((a) => a.id === resolvingId) : undefined;
   const resolvingActorRound = actorRounds?.find((ar) => ar.actorId === resolving?.actorId);
-  const openDeclare = canDeclare
-    ? (actorRound: ActorRound, anchor: HTMLElement | null) => setPalette({ actorRound, anchor })
-    : undefined;
+  const openDeclare = useMemo(
+    () =>
+      canDeclare
+        ? (actorRound: ActorRound, anchor: HTMLElement | null) => setPalette({ actorRound, anchor })
+        : undefined,
+    [canDeclare]
+  );
 
   // The next action waiting for input, in initiative order (workspace spec 083, whatever the sort of the board), after
   // the open one: only those that can be resolved now (ready, optimal) or whose resolution is under way, never the ones
@@ -146,6 +138,12 @@ const CombatPanelProvider: FC<{ children: ReactNode }> = ({ children }) => {
     openDeclare(panelActorRound, null);
   });
 
+  const selectedActorRoundId = panelActorRound?.id ?? null;
+  const panelValue = useMemo(
+    () => ({ selectedActorRoundId, openActor, openActorDetail, openAction, resolveAction, openDeclare }),
+    [selectedActorRoundId, openActor, openActorDetail, openAction, resolveAction, openDeclare]
+  );
+
   let content: ReactNode = null;
   if (panelAction && panelActorRound) {
     content = (
@@ -183,16 +181,7 @@ const CombatPanelProvider: FC<{ children: ReactNode }> = ({ children }) => {
   );
 
   return (
-    <CombatPanelContext.Provider
-      value={{
-        selectedActorRoundId: panelActorRound?.id ?? null,
-        openActor,
-        openActorDetail,
-        openAction,
-        resolveAction,
-        openDeclare,
-      }}
-    >
+    <CombatPanelContext.Provider value={panelValue}>
       <SidePanelLayout open={!!content} onClose={() => setPanel(null)} title={title} panel={content}>
         {children}
       </SidePanelLayout>

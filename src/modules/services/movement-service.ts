@@ -37,10 +37,6 @@ const ROUND_FATIGUE: Record<string, number> = {
 export const paceOfAp = (actionPoints: number): string =>
   PACES[Math.min(Math.max(0, actionPoints), paceIndex('sprint'))].id;
 
-/** Fatigue a normal movement adds over the AP of movement the round already has (decision 6). */
-export const normalMovementFatigue = (previousAp: number, actionPoints: number): number =>
-  ROUND_FATIGUE[paceOfAp(previousAp + actionPoints)] - ROUND_FATIGUE[paceOfAp(previousAp)];
-
 /** Paces a normal movement can choose instead of the one of its AP: up to sprint (a dash has its own switch). */
 export const NORMAL_PACES = PACES.filter((row) => paceIndex(row.id) <= paceIndex('sprint'));
 

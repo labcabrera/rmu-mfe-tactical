@@ -1,6 +1,4 @@
-import { useContext } from 'react';
 import type { TFunction } from 'i18next';
-import { CombatContext } from '../../CombatContext';
 import { Action, ActionApProfile, ActionType, CLOSED_ACTION_STATUSES } from '../api/action.dto';
 import { ActorRound, ActorRoundApModifier } from '../api/actor-rounds.dto';
 import { actorRoundHasEffect } from './actor-round-service';
@@ -11,18 +9,12 @@ import { QUICK_ACTION, QUICKDRAW, SLOW_ON_THE_DRAW, traitTier, traitTierForSkill
 
 const PHASES = 4;
 
-/** Open rounds option of the strategic game (default true): unresolved actions go on in the next round. */
-export const useOpenRounds = (): boolean => {
-  const context = useContext(CombatContext);
-  return context?.strategicGame?.options?.openRounds ?? true;
-};
-
 /** AP of each phase (index 0 is phase 1); 1 per phase when the API sends none. */
 export const apCapacity = (actorRound: ActorRound): number[] =>
   actorRound.apCapacity && actorRound.apCapacity.length > 0 ? actorRound.apCapacity : new Array(PHASES).fill(1);
 
 /** AP the actor has used in a phase (spent, and instantaneous actions past the first one). */
-export const apUsedInPhase = (actorRound: ActorRound, phase: number): number =>
+const apUsedInPhase = (actorRound: ActorRound, phase: number): number =>
   (actorRound.apLedger ?? [])
     .filter((entry) => entry.phase === phase && entry.kind !== 'lost')
     .reduce((sum, entry) => sum + entry.ap, 0);

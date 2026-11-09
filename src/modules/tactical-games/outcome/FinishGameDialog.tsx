@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import { Alert, AlertTitle, Box, Button, MenuItem, Stack, TextField, Typography } from '@mui/material';
@@ -7,14 +7,14 @@ import {
   CharacterFate,
   DataTable,
   fetchFinishPreview,
-  FinishPreview,
   finishTacticalGame,
   LoadingState,
   RmuDialog,
   TacticalGame,
   TacticalGameCharacterOutcome,
+  useApiNotify,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { useTacticalNotify } from '../../services/notify-service';
+import { useQuery } from '@tanstack/react-query';
 import { OutcomeConditions, OutcomeHp, OutcomeInjuries, OutcomeItems } from './outcome-view';
 
 const FATES: CharacterFate[] = ['dead', 'permanent-unconscious'];
@@ -33,31 +33,32 @@ const FinishGameDialog: FC<{
 }> = ({ game, open, onClose, onFinished }) => {
   const { t } = useTranslation();
   const auth = useAuth();
-  const notify = useTacticalNotify();
-  const [preview, setPreview] = useState<FinishPreview | null>(null);
+  const notify = useApiNotify();
+  // Loaded each time the dialog opens: the game changes while it is closed. The spinner stays until it arrives.
+  const previewQuery = useQuery({
+    queryKey: ['finish-game', 'preview', game.id],
+    queryFn: () => fetchFinishPreview(game.id, auth),
+    enabled: open,
+    gcTime: 0,
+  });
+  const preview = previewQuery.isFetching ? null : (previewQuery.data ?? null);
   const [fates, setFates] = useState<Record<string, CharacterFate>>({});
   const [busy, setBusy] = useState(false);
 
-  const load = () => {
-    setPreview(null);
-    fetchFinishPreview(game.id, auth)
-      .then((data) => {
-        setPreview(data);
-        setFates((current) =>
-          Object.fromEntries(data.atRisk.map((actor) => [actor.actorId, current[actor.actorId] ?? 'dead']))
-        );
-      })
-      .catch((err) => {
-        notify.error(err);
-        onClose();
-      });
-  };
+  useEffect(() => {
+    const data = previewQuery.data;
+    if (!data) return;
+    setFates((current) =>
+      Object.fromEntries(data.atRisk.map((actor) => [actor.actorId, current[actor.actorId] ?? 'dead']))
+    );
+  }, [previewQuery.data]);
 
   useEffect(() => {
-    if (open) load();
-    // Loaded each time the dialog opens: the game changes while it is closed.
+    if (!previewQuery.error) return;
+    notify.error(previewQuery.error);
+    onClose();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, game.id]);
+  }, [previewQuery.error]);
 
   const confirm = () => {
     if (!preview) return;
@@ -73,7 +74,7 @@ const FinishGameDialog: FC<{
       .catch((err) => {
         notify.error(err);
         // Someone may be at risk now who was not when the preview was loaded.
-        load();
+        previewQuery.refetch();
       })
       .finally(() => setBusy(false));
   };

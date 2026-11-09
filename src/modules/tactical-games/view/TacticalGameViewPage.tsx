@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { FC, useEffect, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
@@ -7,6 +7,7 @@ import GridViewIcon from '@mui/icons-material/GridView';
 import { Button, Divider, Stack, Typography } from '@mui/material';
 import {
   addTacticalGameFaction,
+  addTacticalGameNpcs,
   CancelButton,
   Character,
   deleteTacticalGame,
@@ -16,28 +17,32 @@ import {
   Faction,
   fetchCharacters,
   fetchFactions,
+  fetchFullPage,
   fetchStrategicGame,
   fetchTacticalGame,
-  addTacticalGameNpcs,
   NpcEntry,
   renameEnvironmentFaction,
   startRound,
-  StrategicGame,
   TacticalGame,
   updateTacticalGame,
+  useApiNotify,
   useCampaignNpcs,
   useEntity,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { useQuery } from '@tanstack/react-query';
 import { addGameCharacters, deleteGameActors } from '../../api/tactical-game-roster';
 import { defaultTacticalGameImage } from '../../services/image-service';
-import { useTacticalNotify } from '../../services/notify-service';
 import PlayButton from '../../shared/buttons/PlayButton';
 import { canManageTactical } from '../../shared/permissions';
 import { FinishGameButton } from '../outcome/GameLifecycleButtons';
 import GameOutcomePanel from '../outcome/GameOutcomePanel';
-import TacticalGameRoster, { RosterPending } from './TacticalGameRoster';
+import TacticalGameRoster from './TacticalGameRoster';
 import TacticalGameViewEnvironment from './TacticalGameViewEnvironment';
+import { RosterPending } from './roster-npcs';
 import { FactionNpcSpecimen, specimenEntry } from './roster-npcs';
+
+const NO_FACTIONS: Faction[] = [];
+const NO_CHARACTERS: Character[] = [];
 
 const TacticalGameViewPage: FC = () => {
   const auth = useAuth();
@@ -46,15 +51,43 @@ const TacticalGameViewPage: FC = () => {
   const navigate = useNavigate();
   const { gameId } = useParams<{ gameId?: string }>();
   // The NPC errors of the roster (`err-npc-realm`, `err-game-not-created`...) are shown by their translated code.
-  const notify = useTacticalNotify();
+  const notify = useApiNotify();
   const state = useEntity<TacticalGame>(gameId, (id) => fetchTacticalGame(id, auth), {
     initial: location.state?.tacticalGame,
     onError: notify.error,
   });
   const { entity: tacticalGame, setEntity: setTacticalGame } = state;
-  const [strategicGame, setStrategicGame] = useState<StrategicGame>();
-  const [characters, setCharacters] = useState<Character[]>([]);
-  const [factions, setFactions] = useState<Faction[]>([]);
+  // Only keyed by the strategic game: a change of the tactical game (`save`) must not reload the factions or characters.
+  const strategicGameId = tacticalGame?.strategicGameId;
+  const strategicGameQuery = useQuery({
+    queryKey: ['tactical-game-view', 'strategic-game', strategicGameId],
+    queryFn: () => fetchStrategicGame(strategicGameId as string, auth),
+    enabled: !!strategicGameId,
+    gcTime: 0,
+  });
+  const strategicGame = strategicGameQuery.data;
+  const factionsQuery = useQuery<Faction[], Error>({
+    queryKey: ['tactical-game-view', 'factions', strategicGameId],
+    queryFn: () =>
+      fetchFullPage((rsql, page, size) => fetchFactions(rsql, page, size, auth), `gameId==${strategicGameId}`).then(
+        (response) => response.content
+      ),
+    enabled: !!strategicGameId,
+    gcTime: 0,
+  });
+  const factions = factionsQuery.data ?? NO_FACTIONS;
+  const factionIds = factions.map((faction) => faction.id).join(',');
+  const charactersQuery = useQuery<Character[], Error>({
+    queryKey: ['tactical-game-view', 'characters', factionIds],
+    queryFn: () =>
+      fetchFullPage(
+        (rsql, page, size) => fetchCharacters(rsql, page, size, auth),
+        `faction.id=in=(${factionIds})`
+      ).then((response) => response.content),
+    enabled: factionIds !== '',
+    gcTime: 0,
+  });
+  const characters = charactersQuery.data ?? NO_CHARACTERS;
   const [pending, setPending] = useState<RosterPending>(null);
   const npcs = useCampaignNpcs(strategicGame?.realmId);
 
@@ -140,26 +173,14 @@ const TacticalGameViewPage: FC = () => {
     save('npcs:environment', (game) => renameEnvironmentFaction(game.id, name, auth));
 
   useEffect(() => {
-    if (factions && factions.length > 0) {
-      const rsql = `faction.id=in=(${factions.map((faction) => faction.id).join(',')})`;
-      fetchCharacters(rsql, 0, 100, auth)
-        .then((response) => setCharacters(response.content))
-        .catch(notify.error);
-    }
-  }, [factions]);
-
-  // Only when the strategic game changes: reloading on every change of the game would reload the characters too.
-  const strategicGameId = tacticalGame?.strategicGameId;
+    if (strategicGameQuery.error) notify.error(strategicGameQuery.error);
+  }, [strategicGameQuery.error]);
   useEffect(() => {
-    if (strategicGameId) {
-      fetchStrategicGame(strategicGameId, auth)
-        .then((data) => setStrategicGame(data))
-        .catch(notify.error);
-      fetchFactions(`gameId==${strategicGameId}`, 0, 100, auth)
-        .then((response) => setFactions(response.content))
-        .catch(notify.error);
-    }
-  }, [strategicGameId]);
+    if (factionsQuery.error) notify.error(factionsQuery.error);
+  }, [factionsQuery.error]);
+  useEffect(() => {
+    if (charactersQuery.error) notify.error(charactersQuery.error);
+  }, [charactersQuery.error]);
 
   return (
     <DetailPage

@@ -1,4 +1,4 @@
-import React, { FC, useContext, useEffect, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import { Alert, Box, Button, Chip, MenuItem, Stack, TextField, Typography } from '@mui/material';
@@ -18,17 +18,15 @@ import {
   TEMPERATURE_KINDS,
   TEMPERATURE_SEVERITIES,
   TemperatureKind,
-  temperatureSeverity,
+  useApiNotify,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { CombatContext } from '../../../CombatContext';
 import { resolveHazard } from '../../api/actor-rounds';
 import { ActorRound, ActorRoundHazard } from '../../api/actor-rounds.dto';
+import { useCombatActions } from '../../combat/combat-context';
+import { useBusyAction } from '../../hooks/useBusyAction';
 import { criticalCode } from '../../services/action-service';
-import { useTacticalNotify } from '../../services/notify-service';
+import { formSeverity, SeverityMode } from '../../services/temperature-severity';
 import HazardResult from './HazardResult';
-
-/** The severity comes from the temperature (Table 15-3) or is given by the game master (contact with frost or fire). */
-type SeverityMode = 'temperature' | 'severity';
 
 type TemperatureForm = {
   kind: TemperatureKind;
@@ -47,16 +45,6 @@ const emptyForm = (): TemperatureForm => ({
   criticalRolls: [],
   note: '',
 });
-
-/** The severity the form gives: the one chosen, or the one of the temperature when it is on the side of the kind. */
-export const formSeverity = (
-  form: Pick<TemperatureForm, 'kind' | 'mode' | 'temperature' | 'severity'>
-): string | null => {
-  if (form.mode === 'severity') return form.severity;
-  const fromTable = temperatureSeverity(form.temperature);
-  const side = form.kind === 'cold' ? 'cold' : 'heat';
-  return fromTable && fromTable.kind === side ? fromTable.severity : null;
-};
 
 const toDto = (form: TemperatureForm): ResolveTemperatureHazardDto => {
   const criticalRolls = form.criticalRolls.filter((roll): roll is number => roll !== null);
@@ -81,10 +69,10 @@ const TemperatureHazardDialog: FC<{ actorRound: ActorRound; open: boolean; onClo
 }) => {
   const { t } = useTranslation();
   const auth = useAuth();
-  const notify = useTacticalNotify();
-  const { updateActorRound } = useContext(CombatContext)!;
+  const notify = useApiNotify();
+  const { updateActorRound } = useCombatActions();
   const [form, setForm] = useState<TemperatureForm>(emptyForm);
-  const [busy, setBusy] = useState(false);
+  const { busy, run } = useBusyAction();
   const [result, setResult] = useState<ActorRoundHazard | undefined>();
 
   useEffect(() => {
@@ -105,16 +93,14 @@ const TemperatureHazardDialog: FC<{ actorRound: ActorRound; open: boolean; onClo
 
   const resolve = () => {
     const before = new Set((actorRound.hazards ?? []).map((hazard) => hazard.id));
-    setBusy(true);
-    resolveHazard(actorRound.id, toDto(form), auth)
-      .then((updated) => {
+    run(
+      resolveHazard(actorRound.id, toDto(form), auth).then((updated) => {
         updateActorRound(updated);
         const hazard = (updated.hazards ?? []).find((each) => !before.has(each.id));
         setResult(hazard);
         notify.success(t('hazard-temperature-resolved'));
       })
-      .catch((err) => notify.error(err))
-      .finally(() => setBusy(false));
+    );
   };
 
   return (

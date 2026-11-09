@@ -1,12 +1,14 @@
-import React from 'react';
+import { lazy } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { MfeRoot, NotFound } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { CombatProvider } from './CombatContext';
-import HomePage from './HomePage';
-import CombatDashboard from './modules/combat-dashboard/CombatDashboard';
-import TacticalGameFormPage from './modules/tactical-games/form/TacticalGameFormPage';
-import TacticalGameListPage from './modules/tactical-games/list/TacticalGameListPage';
-import TacticalGameViewPage from './modules/tactical-games/view/TacticalGameViewPage';
+import { CombatProvider } from './modules/combat/CombatProvider';
+
+// Workspace spec 091, E1: every page is its own chunk; the Suspense is in MfeRoot / the shell layout.
+const HomePage = lazy(() => import('./HomePage'));
+const CombatDashboard = lazy(() => import('./modules/combat-dashboard/CombatDashboard'));
+const TacticalGameFormPage = lazy(() => import('./modules/tactical-games/form/TacticalGameFormPage'));
+const TacticalGameListPage = lazy(() => import('./modules/tactical-games/list/TacticalGameListPage'));
+const TacticalGameViewPage = lazy(() => import('./modules/tactical-games/view/TacticalGameViewPage'));
 
 const App = () => (
   <MfeRoot sx={{ p: 2 }} namespace="tactical">

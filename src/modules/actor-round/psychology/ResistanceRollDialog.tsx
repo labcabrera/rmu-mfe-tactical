@@ -1,4 +1,4 @@
-import React, { FC, useContext, useEffect, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import { Button, Stack, Typography } from '@mui/material';
@@ -8,16 +8,17 @@ import {
   OPEN_D100,
   RmuDialog,
   RollBreakdown,
-  RollResultAlert,
   RollField,
+  RollResultAlert,
+  useApiNotify,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { CombatContext } from '../../../CombatContext';
 import { fetchActorRound } from '../../api/actor-rounds';
 import { ActorRound } from '../../api/actor-rounds.dto';
 import { applyFearEffect, rollActorResistance } from '../../api/psychology';
 import { ResistanceRollResult } from '../../api/psychology.dto';
+import { useCombatActions } from '../../combat/combat-context';
+import { useBusyAction } from '../../hooks/useBusyAction';
 import { actorOpenEnded } from '../../services/combat-talents-service';
-import { useTacticalNotify } from '../../services/notify-service';
 import FrightLevelInput from './FrightLevelInput';
 
 /** RR bonus of the actor for a kind of resistance, copied from its character; undefined for NPCs. */
@@ -47,14 +48,14 @@ const ResistanceRollDialog: FC<{
 }> = ({ actorRound, open, onClose, initialLevel = null, sourceName, alertId }) => {
   const { t } = useTranslation();
   const auth = useAuth();
-  const notify = useTacticalNotify();
-  const { updateActorRound } = useContext(CombatContext)!;
+  const notify = useApiNotify();
+  const { updateActorRound } = useCombatActions();
   const sheetBonus = fearBonus(actorRound);
   const [attackLevel, setAttackLevel] = useState<number | null>(null);
   const [roll, setRoll] = useState<number | null>(null);
   const [bonus, setBonus] = useState<number | null>(null);
   const [modifier, setModifier] = useState<number | null>(null);
-  const [busy, setBusy] = useState(false);
+  const { busy, run } = useBusyAction();
   const [result, setResult] = useState<ResistanceRollResult | null>(null);
 
   useEffect(() => {
@@ -71,43 +72,39 @@ const ResistanceRollDialog: FC<{
 
   const submit = () => {
     if (attackLevel === null || roll === null) return;
-    setBusy(true);
-    rollActorResistance(
-      actorRound.id,
-      {
-        kind: 'fear',
-        attackLevel,
-        roll,
-        ...(modifier ? { modifiers: [{ key: 'custom-bonus', value: modifier }] } : {}),
-        ...(bonus !== null ? { bonus } : {}),
-        ...(alertId ? { alertId } : {}),
-      },
-      auth
-    )
-      .then((rolled) => {
+    run(
+      rollActorResistance(
+        actorRound.id,
+        {
+          kind: 'fear',
+          attackLevel,
+          roll,
+          ...(modifier ? { modifiers: [{ key: 'custom-bonus', value: modifier }] } : {}),
+          ...(bonus !== null ? { bonus } : {}),
+          ...(alertId ? { alertId } : {}),
+        },
+        auth
+      ).then((rolled) => {
         setResult(rolled);
         return alertId ? fetchActorRound(actorRound.id, auth).then(updateActorRound) : undefined;
       })
-      .catch((err) => notify.error(err))
-      .finally(() => setBusy(false));
+    );
   };
 
   const applyEffect = () => {
     if (!result?.severity) return;
-    setBusy(true);
-    applyFearEffect(
-      actorRound.id,
-      { severity: result.severity, ...(sourceName ? { source: { name: sourceName } } : {}) },
-      auth
-    )
-      .then((applied) => {
+    run(
+      applyFearEffect(
+        actorRound.id,
+        { severity: result.severity, ...(sourceName ? { source: { name: sourceName } } : {}) },
+        auth
+      ).then((applied) => {
         updateActorRound(applied.actorRound);
         if (applied.unchanged) notify.info(t('fear-effect-unchanged', { effect: t(applied.effect.status) }));
         else notify.success(t('fear-effect-applied', { effect: t(applied.effect.status) }));
         onClose();
       })
-      .catch((err) => notify.error(err))
-      .finally(() => setBusy(false));
+    );
   };
 
   return (

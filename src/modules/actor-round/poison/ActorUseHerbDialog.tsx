@@ -1,11 +1,17 @@
-import React, { FC, useContext, useEffect, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
-import { Alert, MenuItem, Stack, TextField, Typography } from '@mui/material';
-import { ALL_STUN_ROUNDS, applyActorHerb, NumberPadField, RmuDialog } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { CombatContext } from '../../../CombatContext';
+import { Alert, Typography } from '@mui/material';
+import {
+  ALL_STUN_ROUNDS,
+  applyActorHerb,
+  HerbUseFields,
+  RmuDialog,
+  useApiNotify,
+} from '@labcabrera-rmu/rmu-react-shared-lib';
 import { ActorRound } from '../../api/actor-rounds.dto';
-import { useTacticalNotify } from '../../services/notify-service';
+import { useCombatActions } from '../../combat/combat-context';
+import { useBusyAction } from '../../hooks/useBusyAction';
 import { isCombatHerb, useCharacterHerbs } from './combat-herbs';
 
 /**
@@ -21,12 +27,12 @@ const ActorUseHerbDialog: FC<{ actorRound: ActorRound; open: boolean; onClose: (
 }) => {
   const { t } = useTranslation();
   const auth = useAuth();
-  const notify = useTacticalNotify();
-  const { updateActorRound } = useContext(CombatContext)!;
+  const notify = useApiNotify();
+  const { updateActorRound } = useCombatActions();
   const herbs = useCharacterHerbs(actorRound, open).filter(isCombatHerb);
   const [itemId, setItemId] = useState('');
   const [roll, setRoll] = useState<number | null>(null);
-  const [saving, setSaving] = useState(false);
+  const { busy: saving, run } = useBusyAction();
 
   useEffect(() => {
     if (!open) return;
@@ -45,15 +51,15 @@ const ActorUseHerbDialog: FC<{ actorRound: ActorRound; open: boolean; onClose: (
 
   const save = () => {
     if (!selected) return;
-    setSaving(true);
-    applyActorHerb<ActorRound>(actorRound.id, { itemId: selected.id, ...(roll !== null ? { roll } : {}) }, auth)
-      .then((result) => {
-        updateActorRound(result.actorRound);
-        notify.success(t('herb-use-combat-done', { hits: result.healed, rounds: result.stunRoundsRemoved }));
-        onClose();
-      })
-      .catch(notify.error)
-      .finally(() => setSaving(false));
+    run(
+      applyActorHerb<ActorRound>(actorRound.id, { itemId: selected.id, ...(roll !== null ? { roll } : {}) }, auth).then(
+        (result) => {
+          updateActorRound(result.actorRound);
+          notify.success(t('herb-use-combat-done', { hits: result.healed, rounds: result.stunRoundsRemoved }));
+          onClose();
+        }
+      )
+    );
   };
 
   return (
@@ -66,45 +72,23 @@ const ActorUseHerbDialog: FC<{ actorRound: ActorRound; open: boolean; onClose: (
       onConfirm={save}
       onConfirmDisabled={saving || !selected}
     >
-      <Stack spacing={2} sx={{ pt: 1 }}>
-        {herbs.length === 0 ? (
-          <Alert severity="info">{t('herb-use-no-combat-items')}</Alert>
-        ) : (
-          <TextField
-            select
-            size="small"
-            label={t('item-category-herb')}
-            value={itemId}
-            onChange={(e) => setItemId(e.target.value)}
-          >
-            {herbs.map((each) => (
-              <MenuItem key={each.id} value={each.id}>
-                {`${t(each.name, each.name)} (${each.amount})`}
-              </MenuItem>
-            ))}
-          </TextField>
-        )}
-        {stunText && (
-          <Typography variant="body2" color="text.secondary">
-            {stunText}
-          </Typography>
-        )}
-        {effects?.heal && (
-          <>
-            <NumberPadField
-              integer
-              min={0}
-              allowNegatives={false}
-              label={t('herb-use-roll')}
-              value={roll}
-              onChange={setRoll}
-            />
-            <Typography variant="caption" color="text.secondary">
-              {t('herb-use-roll-help', { min: effects.heal.min, max: effects.heal.max })}
+      <HerbUseFields
+        numberPad
+        herbs={herbs}
+        itemId={itemId}
+        onItemChange={setItemId}
+        empty={<Alert severity="info">{t('herb-use-no-combat-items')}</Alert>}
+        info={
+          stunText && (
+            <Typography variant="body2" color="text.secondary">
+              {stunText}
             </Typography>
-          </>
-        )}
-      </Stack>
+          )
+        }
+        heal={effects?.heal}
+        roll={roll}
+        onRollChange={setRoll}
+      />
     </RmuDialog>
   );
 };

@@ -1,12 +1,12 @@
-import React, { FC, useContext, useState } from 'react';
+import { FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import LandslideIcon from '@mui/icons-material/Landslide';
 import ThermostatIcon from '@mui/icons-material/Thermostat';
 import { Box, Button, Divider, Stack, Typography } from '@mui/material';
 import { HazardKind, RuleHint, SectionLabel } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { CombatContext } from '../../../CombatContext';
 import { ActorRound } from '../../api/actor-rounds.dto';
+import { useCombatGame, useCombatRound } from '../../combat/combat-context';
 import { isRoundEditable } from '../../services/game-service';
 import { canManageTactical } from '../../shared/permissions';
 import HazardDialog from './HazardDialog';
@@ -20,7 +20,8 @@ import TemperatureHazardDialog from './TemperatureHazardDialog';
  */
 const ActorRoundHazards: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
   const { t } = useTranslation();
-  const { game, displayRound } = useContext(CombatContext)!;
+  const { game } = useCombatGame();
+  const { displayRound } = useCombatRound();
   const [kind, setKind] = useState<HazardKind | null>(null);
   const hazards = actorRound.hazards ?? [];
   const manage = !!game && canManageTactical(game) && isRoundEditable(game, displayRound);

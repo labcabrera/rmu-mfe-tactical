@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import { Chip, IconButton, Stack, Tooltip, Typography } from '@mui/material';
@@ -15,7 +15,7 @@ import {
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 
 /** Where the hit points of the game went (spec 013, §1.1): by kind and by attacker, in a tooltip. */
-export const OutcomeHpBreakdown: FC<{ character: TacticalGameCharacterOutcome }> = ({ character }) => {
+const OutcomeHpBreakdown: FC<{ character: TacticalGameCharacterOutcome }> = ({ character }) => {
   const { t } = useTranslation();
   const bySource = character.hpBySource;
   const hasTotals =

@@ -1,12 +1,12 @@
-import React, { FC, useContext, useState } from 'react';
+import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import { Checkbox, Chip, FormControlLabel, MenuItem, Stack, TextField, Tooltip, Typography } from '@mui/material';
 import { ChipRow, SectionLabel } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { CombatContext } from '../../CombatContext';
 import { declareActorRoundFightingStyle } from '../api/actor-rounds';
 import { ActiveStyleAbility, ActorRound, OPTIONAL_STYLE_ABILITIES } from '../api/actor-rounds.dto';
-import { useTacticalNotify } from '../services/notify-service';
+import { useCombatGame, useCombatRound, useCombatActions } from '../combat/combat-context';
+import { useBusyAction } from '../hooks/useBusyAction';
 
 const NONE = 'none';
 
@@ -35,9 +35,10 @@ const styleKey = (skillId: string, styleId: string) => `${skillId}@${styleId}`;
 const ActorRoundFightingStyle: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
   const { t } = useTranslation();
   const auth = useAuth();
-  const notify = useTacticalNotify();
-  const { game, displayRound, updateActorRound } = useContext(CombatContext)!;
-  const [busy, setBusy] = useState(false);
+  const { game } = useCombatGame();
+  const { displayRound } = useCombatRound();
+  const { updateActorRound } = useCombatActions();
+  const { busy, run } = useBusyAction();
   const styles = actorRound.fightingStyles ?? [];
   const active = actorRound.activeStyle ?? null;
   const editable = !!game && game.status === 'in_progress' && displayRound === game.round && !busy;
@@ -46,15 +47,13 @@ const ActorRoundFightingStyle: FC<{ actorRound: ActorRound }> = ({ actorRound })
 
   const declare = (value: string, options: string[] = []) => {
     const style = styles.find((s) => styleKey(s.skillId, s.styleId) === value);
-    setBusy(true);
-    declareActorRoundFightingStyle(
-      actorRound.id,
-      style ? { skillId: style.skillId, styleId: style.styleId, options } : {},
-      auth
-    )
-      .then(updateActorRound)
-      .catch((err) => notify.error(err))
-      .finally(() => setBusy(false));
+    run(
+      declareActorRoundFightingStyle(
+        actorRound.id,
+        style ? { skillId: style.skillId, styleId: style.styleId, options } : {},
+        auth
+      ).then(updateActorRound)
+    );
   };
 
   const toggleOption = (abilityId: string, checked: boolean) => {

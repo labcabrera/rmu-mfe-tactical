@@ -119,9 +119,9 @@ export type ActorRound = {
 /** A hazard of the round, with the temperature of an extreme one (workspace spec 079, C3). */
 export type ActorRoundHazard = LibActorRoundHazard & ActorRoundHazard079Fields;
 
-export type ActorRoundStyleAbility = { abilityId: string; times: number };
+type ActorRoundStyleAbility = { abilityId: string; times: number };
 
-export type ActorRoundFightingStyle = {
+type ActorRoundFightingStyle = {
   skillId: string;
   styleId: string;
   ranks: number;
@@ -136,7 +136,7 @@ export type ActiveStyleAbility = ActorRoundStyleAbility & {
   attackNames: string[] | null;
 };
 
-export type ActorRoundActiveStyle = {
+type ActorRoundActiveStyle = {
   skillId: string;
   styleId: string;
   /** The equipment of the style is there; otherwise the style gives nothing. */
@@ -154,9 +154,9 @@ export type ActorRoundActiveStyle = {
 /** Optional abilities declared each round (spec 032). */
 export const OPTIONAL_STYLE_ABILITIES = ['killing-strike'];
 
-export type ActorRoundResistance = { resistance: string; totalBonus: number };
+type ActorRoundResistance = { resistance: string; totalBonus: number };
 
-export type ActorRoundSnapshot = {
+type ActorRoundSnapshot = {
   hp: number;
   injuryIds: string[];
   conditionIds: string[];
@@ -164,25 +164,25 @@ export type ActorRoundSnapshot = {
   fatigue?: number;
 };
 
-export type ActorRoundMovement = {
+type ActorRoundMovement = {
   bmr: number;
   penalty: number;
   maxPace: string;
   baseDifficulty: string;
 };
 
-export type ActorRoundPenaltyModifier = {
+type ActorRoundPenaltyModifier = {
   id: string;
   /** `injury` (the sum of the injuries, spec 013), `endurance`, `stunned`, `hp`, `fatigue`... `critical` is legacy. */
   source: string;
   value: number;
 };
 
-export type ActorRoundPenalty = {
+type ActorRoundPenalty = {
   modifiers: ActorRoundPenaltyModifier[] | undefined;
 };
 
-export type ActorRoundInitiative = {
+type ActorRoundInitiative = {
   base: number;
   penalty: number;
   roll: number;
@@ -197,7 +197,7 @@ export type ActorRoundInitiative = {
   total: number;
 };
 
-export type ApModifierKind = 'bonus' | 'loss' | 'cap' | 'cost-multiplier';
+type ApModifierKind = 'bonus' | 'loss' | 'cap' | 'cost-multiplier';
 
 /** A change to the AP capacity of the round: AP gained or lost, a cap, or a cost multiplier. */
 export type ActorRoundApModifier = {
@@ -209,9 +209,9 @@ export type ActorRoundApModifier = {
   effectId?: string;
 };
 
-export type ApLedgerKind = 'spent' | 'lost' | 'instant';
+type ApLedgerKind = 'spent' | 'lost' | 'instant';
 
-export type ActorRoundApLedgerEntry = {
+type ActorRoundApLedgerEntry = {
   phase: number;
   actionId?: string;
   ap: number;
@@ -239,7 +239,7 @@ export type ActorRoundTrait = {
   specialization: string | null;
 };
 
-export type ActorRoundHp = {
+type ActorRoundHp = {
   max: number;
   current: number;
   /** Hits below zero the actor survives (Body Development bonus); `max` when missing. */
@@ -251,20 +251,20 @@ export type DefenseLevel = 'none' | 'passive' | 'partial' | 'full';
 /** Levels the game master declares directly. */
 export const DECLARABLE_DEFENSE_LEVELS: DefenseLevel[] = ['none', 'passive', 'partial'];
 
-export type ActorRoundDefenseMode = {
+type ActorRoundDefenseMode = {
   dodge: DefenseLevel;
   block: DefenseLevel;
   /** Workspace spec 079, B3: the full dodge comes from Adrenal Defense (kept as concentration below level 4). */
   adrenal?: boolean;
 };
 
-export type ActorRoundPhaseLog = {
+type ActorRoundPhaseLog = {
   phase: number;
   spentAp: number;
   totalSpentAp: number;
 };
 
-export type ActorRoundAlertModifier = { key: string; value: number | null; modifier: string | null };
+type ActorRoundAlertModifier = { key: string; value: number | null; modifier: string | null };
 
 export type ActorRoundAlert = {
   id: string;
@@ -289,7 +289,7 @@ export type ActorRoundAlert = {
  * What a resolved alert left, for the round log (workspace spec 087): `outcome` is a translatable key, `roll` and
  * `total` those of its roll, `text` the item or the text of the critical and `values` the numbers of its kind.
  */
-export type AlertResult = {
+type AlertResult = {
   outcome?: string | null;
   roll?: number | null;
   total?: number | null;
@@ -322,7 +322,7 @@ export type ResolvePoisoningResult = { actorRound: ActorRound; rr: PoisonRrResul
 /** `POST v1/actor-rounds/:id/injuries/:injuryId/antidote` (spec 042). */
 export type ActorAntidoteResult = { actorRound: ActorRound; injuryId: string; neutralized: boolean };
 
-export type BreakageResult = 'absolute-failure' | 'failure' | 'partial-success' | 'success' | 'absolute-success';
+type BreakageResult = 'absolute-failure' | 'failure' | 'partial-success' | 'success' | 'absolute-success';
 
 export type BreakageCheckResult = {
   itemId: string;
@@ -344,7 +344,7 @@ export type BreakageCheckDto = {
   modifiers?: { key: string; value: number }[];
 };
 
-export type ActorRoundFatigue = {
+type ActorRoundFatigue = {
   /** Endurance bonus: Body Development plus the racial bonus (workspace spec 077). */
   endurance: number;
   /** Fatigue penalty points (0-50): the penalty is its negative. */
@@ -357,7 +357,7 @@ export type ActorRoundFatigue = {
   exerted?: boolean;
 };
 
-export type ActorRoundDefense = {
+type ActorRoundDefense = {
   bd: number;
   /** AT of the whole body; null for armor by location (workspace spec 077): the location of the critical decides it. */
   at: number | null | undefined;
@@ -369,7 +369,7 @@ export type ActorRoundDefense = {
   protect: number;
 };
 
-export type ActorRoundDefenseShield = {
+type ActorRoundDefenseShield = {
   db: number;
 };
 
@@ -416,7 +416,7 @@ export type ActorRoundAttack = {
 };
 
 /** Weapon kind for the multiple attacks bonuses (Table 9-7b). */
-export type WeaponCategory = 'standard' | 'light' | 'dagger' | 'natural' | 'unarmed';
+type WeaponCategory = 'standard' | 'light' | 'dagger' | 'natural' | 'unarmed';
 
 export type ActorRoundAttackRange = {
   from: number;
@@ -449,7 +449,7 @@ export type TreatInjuryDto = MedicalRollDto & {
 };
 
 /** What a cauterization did besides the bleeding (Table 13-1c). */
-export type HeatResult = {
+type HeatResult = {
   critical: string;
   hitsDice: number;
   hits: number;
@@ -476,7 +476,7 @@ export type UpdateActorInjuryDto = Partial<
   >
 >;
 
-export type MedicalResult = 'absolute-failure' | 'failure' | 'partial-success' | 'success' | 'absolute-success';
+type MedicalResult = 'absolute-failure' | 'failure' | 'partial-success' | 'success' | 'absolute-success';
 
 /** Result of a treatment or a stabilization in a tactical game. */
 export type MedicalResultDto = {

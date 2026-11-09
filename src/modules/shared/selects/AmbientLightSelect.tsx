@@ -1,9 +1,15 @@
-import React, { FC, useState } from 'react';
+import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import { MenuItem, TextField } from '@mui/material';
-import { LIGHT_TYPES, LightType, TacticalGame, updateTacticalGame } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { useTacticalNotify } from '../../services/notify-service';
+import {
+  LIGHT_TYPES,
+  LightType,
+  TacticalGame,
+  updateTacticalGame,
+  useApiNotify,
+} from '@labcabrera-rmu/rmu-react-shared-lib';
+import { useBusyAction } from '../../hooks/useBusyAction';
 import { canManageTactical } from '../permissions';
 
 const NONE = '';
@@ -22,30 +28,28 @@ const AmbientLightSelect: FC<{
 }> = ({ game, onChange, fullWidth = false, size }) => {
   const { t } = useTranslation();
   const auth = useAuth();
-  const notify = useTacticalNotify();
-  const [busy, setBusy] = useState(false);
+  const notify = useApiNotify();
+  const { busy, run } = useBusyAction();
   const value = game.environment?.light ?? NONE;
   const readOnly = !canManageTactical(game) || game.status === 'finished';
 
   const change = (light: LightType | null) => {
-    setBusy(true);
-    updateTacticalGame(
-      game.id,
-      {
-        environment: {
-          temperatureFatigueModifier: game.environment?.temperatureFatigueModifier ?? 0,
-          altitudeFatigueModifier: game.environment?.altitudeFatigueModifier ?? 0,
-          light,
+    run(
+      updateTacticalGame(
+        game.id,
+        {
+          environment: {
+            temperatureFatigueModifier: game.environment?.temperatureFatigueModifier ?? 0,
+            altitudeFatigueModifier: game.environment?.altitudeFatigueModifier ?? 0,
+            light,
+          },
         },
-      },
-      auth
-    )
-      .then((updated) => {
+        auth
+      ).then((updated) => {
         onChange(updated);
         notify.success(t('ambient-light-updated'));
       })
-      .catch((err) => notify.error(err))
-      .finally(() => setBusy(false));
+    );
   };
 
   return (

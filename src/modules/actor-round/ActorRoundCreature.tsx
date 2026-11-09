@@ -1,10 +1,11 @@
-import React, { FC, useContext, useEffect, useState } from 'react';
+import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import { Typography } from '@mui/material';
-import { CreatureStatBlock, fetchNpc, LoadingState, Npc } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { CombatContext } from '../../CombatContext';
+import { CreatureStatBlock, fetchNpc, LoadingState } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { useQuery } from '@tanstack/react-query';
 import { ActorRound } from '../api/actor-rounds.dto';
+import { useCombatGame } from '../combat/combat-context';
 
 /**
  * Stat block of the NPC an actor comes from (spec 055), in place of the character sheet: the NPCs of the game are in
@@ -13,19 +14,16 @@ import { ActorRound } from '../api/actor-rounds.dto';
 const ActorRoundCreature: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
   const { t } = useTranslation();
   const auth = useAuth();
-  const known = useContext(CombatContext)?.npcs?.find((npc) => npc.id === actorRound.npcId);
-  const [fetched, setFetched] = useState<Npc | null>();
+  const known = useCombatGame().npcs?.find((npc) => npc.id === actorRound.npcId);
   const npcId = actorRound.npcId;
+  const npcQuery = useQuery({
+    queryKey: ['actor-round', 'npc', npcId],
+    queryFn: () => fetchNpc(npcId as string, auth),
+    enabled: !known && !!npcId,
+    gcTime: 0,
+  });
 
-  useEffect(() => {
-    if (known || !npcId) return;
-    fetchNpc(npcId, auth)
-      .then(setFetched)
-      .catch(() => setFetched(null));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [npcId, known]);
-
-  const npc = known ?? fetched;
+  const npc = known ?? (npcQuery.isError ? null : npcQuery.data);
   if (npc) return <CreatureStatBlock npc={npc} />;
   if (npc === null || !npcId) {
     return (

@@ -1,14 +1,18 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import React, { FC, useContext, useEffect, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import { Stack, Typography } from '@mui/material';
-import { isPoisonDataValid, PoisonData, PoisonDataFields, RmuDialog } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { CombatContext } from '../../../CombatContext';
+import {
+  isPoisonDataValid,
+  PoisonData,
+  PoisonDataFields,
+  RmuDialog,
+  useApiNotify,
+} from '@labcabrera-rmu/rmu-react-shared-lib';
 import { createActorPoisoning } from '../../api/actor-rounds';
 import { ActorRound } from '../../api/actor-rounds.dto';
-import { useTacticalNotify } from '../../services/notify-service';
-import { useCatalogCategory } from './use-poison-catalog';
+import { useCombatActions } from '../../combat/combat-context';
+import { useCatalogCategory } from './usePoisonCatalog';
 
 /** A poison reaches the actor (spec 042): the game master picks it, and it waits for its RR. */
 const PoisonExposureDialog: FC<{ actorRound: ActorRound; open: boolean; onClose: () => void }> = ({
@@ -18,8 +22,8 @@ const PoisonExposureDialog: FC<{ actorRound: ActorRound; open: boolean; onClose:
 }) => {
   const { t } = useTranslation();
   const auth = useAuth();
-  const notify = useTacticalNotify();
-  const { updateActorRound } = useContext(CombatContext)!;
+  const notify = useApiNotify();
+  const { updateActorRound } = useCombatActions();
   const catalog = useCatalogCategory('poison', open);
   const [poison, setPoison] = useState<PoisonData>();
 

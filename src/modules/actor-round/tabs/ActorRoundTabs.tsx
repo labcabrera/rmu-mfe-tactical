@@ -1,4 +1,4 @@
-import React, { FC, ReactElement, ReactNode } from 'react';
+import { FC, ReactElement, ReactNode } from 'react';
 import BackpackIcon from '@mui/icons-material/Backpack';
 import BoltIcon from '@mui/icons-material/Bolt';
 import CodeIcon from '@mui/icons-material/Code';
@@ -9,25 +9,25 @@ import PetsIcon from '@mui/icons-material/Pets';
 import SportsMartialArtsIcon from '@mui/icons-material/SportsMartialArts';
 import { Box, Divider, Stack } from '@mui/material';
 import { ActorRound } from '../../api/actor-rounds.dto';
-import BoardActorRoundEffects from '../../combat-dashboard/actor-rounds/ActorRoundEffects';
 import { isDevelopment } from '../../services/action-service';
 import ActorRoundAttacks from '../ActorRoundAttacks';
 import ActorRoundBars from '../ActorRoundBars';
 import ActorRoundCreature from '../ActorRoundCreature';
 import ActorRoundDefenseMode from '../ActorRoundDefenseMode';
-import ActorRoundEffects from '../ActorRoundEffects';
+import ActorRoundEffectsEditor from '../ActorRoundEffectsEditor';
 import ActorRoundFightingStyle from '../ActorRoundFightingStyle';
 import ActorRoundHpLog from '../ActorRoundHpLog';
 import ActorRoundInjuries from '../ActorRoundInjuries';
 import ActorRoundItems from '../ActorRoundItems';
 import ActorRoundMovement from '../ActorRoundMovement';
 import ActorRoundResistances from '../ActorRoundResistances';
+import ActorRoundEffectsSummary from '../alerts/ActorRoundEffectsSummary';
 import ActorRoundPoisons from '../poison/ActorRoundPoisons';
 
 export type ActorRoundTab = 'summary' | 'creature' | 'combat' | 'movement' | 'health' | 'status' | 'items' | 'dev';
 
 /** Tabs of the actor sheet (spec 045, decision 3): label key, icon and the existing sections they show. */
-export const ACTOR_ROUND_TABS: { id: ActorRoundTab; label: string; icon: ReactElement }[] = [
+const ACTOR_ROUND_TABS: { id: ActorRoundTab; label: string; icon: ReactElement }[] = [
   { id: 'summary', label: 'summary', icon: <DashboardIcon /> },
   { id: 'combat', label: 'combat', icon: <SportsMartialArtsIcon /> },
   { id: 'movement', label: 'movement', icon: <DirectionsRunIcon /> },
@@ -38,7 +38,7 @@ export const ACTOR_ROUND_TABS: { id: ActorRoundTab; label: string; icon: ReactEl
 ];
 
 /** Whether an actor is an NPC (spec 055): no character sheet, items, fighting styles or spells. */
-export const isNpcActorRound = (actorRound: ActorRound | undefined): boolean => actorRound?.actorType === 'npc';
+const isNpcActorRound = (actorRound: ActorRound | undefined): boolean => actorRound?.actorType === 'npc';
 
 /** Tabs of an actor: an NPC has its stat block after the summary and no items (spec 055). */
 export const actorRoundTabs = (actorRound: ActorRound | undefined) =>
@@ -89,7 +89,7 @@ const ActorRoundTabContent: FC<{ actorRound: ActorRound; tab: ActorRoundTab }> =
       // Spec 045, decision 4: the penalties section stays out until its add and remove are implemented.
       return (
         <Sections>
-          <ActorRoundEffects actorRound={actorRound} />
+          <ActorRoundEffectsEditor actorRound={actorRound} />
           <ActorRoundResistances actorRound={actorRound} />
         </Sections>
       );
@@ -105,7 +105,7 @@ const ActorRoundTabContent: FC<{ actorRound: ActorRound; tab: ActorRoundTab }> =
       return (
         <Sections>
           <ActorRoundBars actorRound={actorRound} />
-          <BoardActorRoundEffects actorRound={actorRound} />
+          <ActorRoundEffectsSummary actorRound={actorRound} />
           <ActorRoundResistances actorRound={actorRound} />
         </Sections>
       );

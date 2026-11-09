@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { FC, useContext, useEffect, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import { Stack, Typography } from '@mui/material';
@@ -13,12 +13,12 @@ import {
   RollBreakdown,
   RollField,
   RollResultAlert,
+  useApiNotify,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { CombatContext } from '../../../CombatContext';
 import { resolveActorPoisoning } from '../../api/actor-rounds';
 import { ActorRound } from '../../api/actor-rounds.dto';
+import { useCombatActions } from '../../combat/combat-context';
 import { actorOpenEnded } from '../../services/combat-talents-service';
-import { useTacticalNotify } from '../../services/notify-service';
 
 /**
  * The poison RR of an exposure (spec 042): the roll (empty, the server rolls it), the poison RR of the actor or, for
@@ -31,8 +31,8 @@ const PoisonRrDialog: FC<{ actorRound: ActorRound; exposure?: PoisonExposure; on
 }) => {
   const { t } = useTranslation();
   const auth = useAuth();
-  const notify = useTacticalNotify();
-  const { updateActorRound } = useContext(CombatContext)!;
+  const notify = useApiNotify();
+  const { updateActorRound } = useCombatActions();
   const [roll, setRoll] = useState<number | null>(null);
   const [bonus, setBonus] = useState<number | null>(null);
   const [modifier, setModifier] = useState<number | null>(null);

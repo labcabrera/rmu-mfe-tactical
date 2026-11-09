@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { FC, useEffect, useState } from 'react';
+import { FC, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import { Grid, TextField } from '@mui/material';
@@ -9,8 +9,9 @@ import {
   StrategicGame,
   StrategicGamePicker,
   TacticalGame,
-  useNotify,
+  useApiNotify,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { useQuery } from '@tanstack/react-query';
 
 /** Data of a tactical game. Its fatigue modifiers are not asked on creation: the game gets them once it exists. */
 const TacticalGameForm: FC<{
@@ -21,20 +22,18 @@ const TacticalGameForm: FC<{
 }> = ({ mode, formData, setFormData, strategicGame }) => {
   const auth = useAuth();
   const { t } = useTranslation();
-  const notify = useNotify();
-  const [strategicGames, setStrategicGames] = useState<StrategicGame[]>([]);
-
-  const bindStrategicGames = () => {
-    fetchStrategicGames('', 0, 50, auth)
-      .then((response) => setStrategicGames(response.content))
-      .catch((err) => notify.error(err));
-  };
+  const notify = useApiNotify();
+  const strategicGamesQuery = useQuery<StrategicGame[], Error>({
+    queryKey: ['tactical-game-form', 'strategic-games'],
+    queryFn: () => fetchStrategicGames('', 0, 50, auth).then((response) => response.content),
+    enabled: !strategicGame,
+    gcTime: 0,
+  });
+  const strategicGames = strategicGamesQuery.data ?? [];
 
   useEffect(() => {
-    if (!strategicGame) {
-      bindStrategicGames();
-    }
-  }, [strategicGame]);
+    if (strategicGamesQuery.error) notify.error(strategicGamesQuery.error);
+  }, [strategicGamesQuery.error]);
 
   return (
     <Grid container spacing={2}>

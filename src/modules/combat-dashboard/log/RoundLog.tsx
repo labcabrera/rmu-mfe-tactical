@@ -1,4 +1,4 @@
-import React, { FC, useContext, useState } from 'react';
+import { FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import {
@@ -24,13 +24,13 @@ import {
   SectionLabel,
   useTableText,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { CombatContext } from '../../../CombatContext';
 import { Action } from '../../api/action.dto';
-import { useOpenRounds } from '../../services/ap-service';
-import { useFactionColor } from '../../services/faction-colors';
-import { actionTypeInfo } from '../actor-rounds/action-type-info';
-import { actionLabel, actionResult, actionState, actionStateTooltip } from '../actor-rounds/action-view';
-import { useCombatPanel } from '../panel/CombatPanelProvider';
+import { useCombatRound } from '../../combat/combat-context';
+import { useCombatPanel } from '../../combat/combat-panel-context';
+import { useFactionColor } from '../../hooks/useFactionColor';
+import { useOpenRounds } from '../../hooks/useOpenRounds';
+import { actionTypeInfo } from '../board/action-type-info';
+import { actionLabel, actionResult, actionState, actionStateTooltip } from '../board/action-view';
 import AlertLogDialog from './AlertLogDialog';
 import { alertIcon, alertName, alertSummary, LoggedAlert, phaseLabel, resolvedAlerts } from './alert-log';
 
@@ -124,7 +124,7 @@ const itemKey = (item: LogItem) => (item.kind === 'action' ? item.action.id : it
 /** One line of the log: phase span, actor, action and its result. Clicking it opens the action. */
 const LogEntry: FC<{ action: Action }> = ({ action }) => {
   const { t } = useTranslation();
-  const { actorRounds } = useContext(CombatContext)!;
+  const { actorRounds } = useCombatRound();
   const { openAction } = useCombatPanel();
   const factionColor = useFactionColor();
   const openRounds = useOpenRounds();
@@ -183,7 +183,7 @@ const LogEntry: FC<{ action: Action }> = ({ action }) => {
  */
 const RoundLog: FC = () => {
   const { t } = useTranslation();
-  const { actorRounds, roundActions, displayRound } = useContext(CombatContext)!;
+  const { actorRounds, roundActions, displayRound } = useCombatRound();
   const [actorId, setActorId] = useState('');
   const [type, setType] = useState<TypeFilter>('all');
   const actions = (roundActions ?? []).filter((a) => (!actorId || a.actorId === actorId) && matchesType(a, type));
@@ -258,7 +258,7 @@ const STRIP_ENTRIES = 5;
 /** Under the board (wide screens): the last resolved actions and alerts of the round, collapsible, with a link to the log. */
 export const RoundLogStrip: FC<{ onOpenLog: () => void }> = ({ onOpenLog }) => {
   const { t } = useTranslation();
-  const { roundActions, actorRounds, displayRound } = useContext(CombatContext)!;
+  const { roundActions, actorRounds, displayRound } = useCombatRound();
   const [open, setOpen] = useState(() => {
     try {
       return localStorage.getItem(STRIP_KEY) !== 'closed';

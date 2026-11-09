@@ -1,15 +1,14 @@
-import React, { FC, useContext, useState } from 'react';
+import { FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ScienceIcon from '@mui/icons-material/Science';
 import { Button, IconButton, Stack, Tooltip, Typography } from '@mui/material';
-import { EmptyState, Panel, PoisonExposure, SectionLabel } from '@labcabrera-rmu/rmu-react-shared-lib';
-import { CombatContext } from '../../../CombatContext';
+import { EmptyState, Panel, PoisonExposure, SectionLabel, useApiNotify } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { dismissActorPoisoning } from '../../api/actor-rounds';
 import { ActorRound } from '../../api/actor-rounds.dto';
+import { useCombatGame, useCombatRound, useCombatActions } from '../../combat/combat-context';
 import { isRoundEditable } from '../../services/game-service';
-import { useTacticalNotify } from '../../services/notify-service';
 import PoisonExposureDialog from './PoisonExposureDialog';
 import PoisonRrDialog from './PoisonRrDialog';
 
@@ -20,8 +19,10 @@ import PoisonRrDialog from './PoisonRrDialog';
 const ActorRoundPoisons: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
   const { t } = useTranslation();
   const auth = useAuth();
-  const notify = useTacticalNotify();
-  const { game, displayRound, updateActorRound } = useContext(CombatContext)!;
+  const notify = useApiNotify();
+  const { game } = useCombatGame();
+  const { displayRound } = useCombatRound();
+  const { updateActorRound } = useCombatActions();
   const editable = isRoundEditable(game, displayRound);
   const [creating, setCreating] = useState(false);
   const [resolving, setResolving] = useState<PoisonExposure>();

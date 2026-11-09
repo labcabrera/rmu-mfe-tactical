@@ -1,15 +1,15 @@
-import React, { FC, useContext, useState } from 'react';
+import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import PsychologyIcon from '@mui/icons-material/Psychology';
 import { Alert, Button, Chip, Stack, Tooltip, Typography } from '@mui/material';
 import { ChipRow, ConcentrationFocus, RuleHint, SectionLabel } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { TFunction } from 'i18next';
-import { CombatContext } from '../../CombatContext';
 import { addActorRoundEffect, deleteActorRoundEffect } from '../api/actor-rounds';
 import { ActorRound, ActorRoundEffect } from '../api/actor-rounds.dto';
+import { useCombatGame, useCombatRound, useCombatActions } from '../combat/combat-context';
+import { useBusyAction } from '../hooks/useBusyAction';
 import { isRoundEditable } from '../services/game-service';
-import { useTacticalNotify } from '../services/notify-service';
 
 /** What an actor concentrates on, as a short text: the kind and its note. */
 export const focusLabel = (focus: ConcentrationFocus, t: TFunction): string =>
@@ -53,18 +53,15 @@ export const ConcentrationChip: FC<{ actorRound: ActorRound }> = ({ actorRound }
 const ActorRoundConcentration: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
   const { t } = useTranslation();
   const auth = useAuth();
-  const notify = useTacticalNotify();
-  const { game, displayRound, updateActorRound } = useContext(CombatContext)!;
-  const [busy, setBusy] = useState(false);
+  const { game } = useCombatGame();
+  const { displayRound } = useCombatRound();
+  const { updateActorRound } = useCombatActions();
+  const { busy, run: trackBusy } = useBusyAction();
   const foci = actorRound.concentration ?? [];
   const editable = isRoundEditable(game, displayRound);
 
   const run = (call: Promise<ActorRound>) => {
-    setBusy(true);
-    call
-      .then(updateActorRound)
-      .catch((err) => notify.error(err))
-      .finally(() => setBusy(false));
+    trackBusy(call.then(updateActorRound));
   };
   const concentrate = () => {
     const effect = {
