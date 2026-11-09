@@ -1,7 +1,7 @@
 import { FC, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
-import { Box, Button, ButtonBase, Chip, Stack, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
+import { Box, Button, ButtonBase, Chip, Stack, Typography } from '@mui/material';
 import {
   ChipRow,
   EmptyState,
@@ -9,7 +9,7 @@ import {
   fetchSkillCategories,
   fetchSkills,
   formatBonus,
-  ManeuverType,
+  normalizeText,
   RmuDialog,
   SearchField,
   selectableSx,
@@ -21,15 +21,23 @@ import { useQuery } from '@tanstack/react-query';
 import { fetchActions } from '../../api/action';
 import { Action } from '../../api/action.dto';
 import { ActorRound } from '../../api/actor-rounds.dto';
-import { useCombatRound } from '../../combat/combat-context';
-import { useSkillService } from '../../hooks/useSkillService';
+import { useCombatGame, useCombatRound } from '../../combat/combat-context';
+import { ActorSkill, useSkillService } from '../../hooks/useSkillService';
+import OptionChips from '../flows/maneuver/OptionChips';
+import ManeuverSpecializationPicker from './ManeuverSpecializationPicker';
+import { bestBonus, developedSpecializations, entriesOf, isCombatSkill, needsSpecialization } from './combat-skills';
+import { useSpecializationCatalog } from './useSpecializationCatalog';
 
-const MANEUVER_TYPES: ManeuverType[] = ['absolute', 'percent'];
+const ALL = 'all';
+const COMBAT = 'combat';
+const DEVELOPED = 'developed';
+/** Bonus of a character without the skill; what an NPC's stat block does not list counts 0 (spec 055). */
+const UNSKILLED_BONUS = -25;
 const NO_CATEGORIES: SkillCategory[] = [];
 const NO_SKILLS: Skill[] = [];
 const NO_ACTIONS: Action[] = [];
 
-type ManeuverDeclaration = { skillId: string; maneuverType: ManeuverType; continuesActionId?: string };
+type ManeuverDeclaration = { skillId: string; specialization?: string; continuesActionId?: string };
 
 /**
  * Percent maneuvers of an actor that can go on in a new action (spec 010 §4.4): resolved, not completed and not
@@ -51,8 +59,10 @@ const unfinishedPercentManeuvers = (actions: Action[], actorId: string): Action[
 };
 
 /**
- * Declaration of a maneuver: its type and its skill, searched by name or browsed by category, with the
- * actor's bonus in each skill. The list scrolls inside the dialog, so "Declare" always stays in view.
+ * Declaration of a maneuver (spec 093): its skill, searched by name or browsed by category, with the actor's bonus in
+ * each one, and its specialization when it needs one. By default it offers the skills of a combat the actor has
+ * developed. The list scrolls inside the dialog, so the specialization and "Declare" always stay in view. The type of
+ * the maneuver is the skill's default, and can be changed when it is resolved.
  */
 const ManeuverDeclareDialog: FC<{
   open: boolean;
@@ -66,7 +76,8 @@ const ManeuverDeclareDialog: FC<{
   const { t } = useTranslation();
   const auth = useAuth();
   const notify = useApiNotify();
-  const { getSkillBonus } = useSkillService();
+  const { getActorSkills } = useSkillService();
+  const { strategicGame } = useCombatGame();
   const { roundActions } = useCombatRound();
   // Static catalogs: once loaded they are not read again each time the dialog opens.
   const categoriesQuery = useQuery<SkillCategory[], Error>({
@@ -88,11 +99,10 @@ const ManeuverDeclareDialog: FC<{
   const skills = skillsQuery.data ?? NO_SKILLS;
   const [category, setCategory] = useState<string | null>(null);
   const [filter, setFilter] = useState('');
+  const [combatOnly, setCombatOnly] = useState(true);
   const [onlyDeveloped, setOnlyDeveloped] = useState(true);
   const [skillId, setSkillId] = useState<string | null>(null);
-  const [maneuverType, setManeuverType] = useState<ManeuverType>('absolute');
-  // The type was chosen by hand: choosing a skill no longer proposes its profile's type.
-  const [typeChosen, setTypeChosen] = useState(false);
+  const [specialization, setSpecialization] = useState<string | null>(null);
   const [continuesActionId, setContinuesActionId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -104,12 +114,11 @@ const ManeuverDeclareDialog: FC<{
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [skillsQuery.error]);
 
-  // Every time it opens, start from the given skill (or none) and an absolute maneuver.
+  // Every time it opens, start from the given skill (or none).
   useEffect(() => {
     if (!open) return;
     setSkillId(initialSkillId ?? null);
-    setManeuverType('absolute');
-    setTypeChosen(false);
+    setSpecialization(null);
     setContinuesActionId(null);
     setFilter('');
     setCategory(null);
@@ -136,12 +145,35 @@ const ManeuverDeclareDialog: FC<{
     return unfinishedPercentManeuvers([...byId.values()], actorRound.actorId);
   }, [actorActions, roundActions, actorRound]);
 
-  const chooseSkill = (id: string) => {
-    setSkillId(id);
-    const continued = unfinished.find((a) => a.id === continuesActionId);
-    if (continued && continued.maneuver?.modifiers.skillId !== id) setContinuesActionId(null);
-    const defaultType = skills.find((s) => s.id === id)?.maneuver?.defaultType;
-    if (!typeChosen && !continued && defaultType) setManeuverType(defaultType);
+  // The sheet changes when the combat reloads: what matters is the actor.
+  const actorSkills: ActorSkill[] = useMemo(
+    () => (actorRound ? getActorSkills(actorRound) : []),
+    [actorRound] // eslint-disable-line react-hooks/exhaustive-deps
+  );
+  const isNpc = !!actorRound?.npcId;
+  const selectedSkill = skills.find((each) => each.id === skillId) ?? null;
+  const selectedEntries = entriesOf(actorSkills, skillId ?? '');
+  const developedOfSelected = useMemo(() => developedSpecializations(selectedEntries), [actorSkills, skillId]); // eslint-disable-line react-hooks/exhaustive-deps
+  const catalog = useSpecializationCatalog(
+    selectedSkill?.specialization ? selectedSkill : null,
+    strategicGame?.realmId
+  );
+  useEffect(() => {
+    if (catalog.error) notify.error(catalog.error);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [catalog.error]);
+  const continued = unfinished.find((a) => a.id === continuesActionId);
+
+  /** The specialization a skill starts with: the only one the actor has developed. */
+  const initialSpecialization = (skill: Skill): string | null => {
+    const developedOnes = developedSpecializations(entriesOf(actorSkills, skill.id));
+    return skill.specialization && developedOnes.length === 1 ? developedOnes[0].specialization : null;
+  };
+
+  const chooseSkill = (skill: Skill) => {
+    setSkillId(skill.id);
+    setSpecialization(initialSpecialization(skill));
+    if (continued && continued.maneuver?.modifiers.skillId !== skill.id) setContinuesActionId(null);
   };
 
   const chooseContinuation = (action: Action) => {
@@ -151,29 +183,58 @@ const ManeuverDeclareDialog: FC<{
     }
     setContinuesActionId(action.id);
     setSkillId(action.maneuver?.modifiers.skillId ?? null);
-    setManeuverType('percent');
+    setSpecialization(null);
   };
 
-  // A continuation keeps the skill of the maneuver it continues.
-  const declaration = (id: string): ManeuverDeclaration => {
-    const continued = unfinished.find((a) => a.id === continuesActionId);
-    return continued && maneuverType === 'percent' && continued.maneuver?.modifiers.skillId === id
-      ? { skillId: id, maneuverType, continuesActionId: continued.id }
-      : { skillId: id, maneuverType };
+  // A continuation keeps the skill and the specialization of the maneuver it continues, and is a percent one.
+  const declaration = (id: string, chosen: string | null): ManeuverDeclaration =>
+    continued?.maneuver?.modifiers.skillId === id
+      ? { skillId: id, continuesActionId: continued.id }
+      : { skillId: id, ...(chosen ? { specialization: chosen } : {}) };
+
+  const continuing = !!selectedSkill && continued?.maneuver?.modifiers.skillId === selectedSkill.id;
+  const missingSpecialization =
+    !!selectedSkill &&
+    !continuing &&
+    !specialization &&
+    needsSpecialization(selectedSkill, selectedEntries) &&
+    (catalog.loading || catalog.keys.length > 0 || developedOfSelected.length > 0);
+
+  /** A double click declares at once, unless the specialization is still to be chosen. */
+  const declareAtOnce = (skill: Skill) => {
+    const chosen = initialSpecialization(skill);
+    const pending =
+      needsSpecialization(skill, entriesOf(actorSkills, skill.id)) &&
+      !chosen &&
+      continued?.maneuver?.modifiers.skillId !== skill.id;
+    if (!busy && !pending) onDeclare(declaration(skill.id, chosen));
   };
 
-  const bonus = (id: string) => (actorRound ? getSkillBonus(id, actorRound) : undefined);
-  const developed = useMemo(() => skills.filter((s) => bonus(s.id) !== undefined), [skills, actorRound]); // eslint-disable-line react-hooks/exhaustive-deps
-  // Without developed skills (an NPC, or data not loaded) the filter would leave nothing.
+  const developed = useMemo(() => skills.filter((s) => entriesOf(actorSkills, s.id).length > 0), [skills, actorSkills]);
+  // Without developed skills (data not loaded, or a stat block that lists none) the filter would leave nothing.
   const developedFilter = onlyDeveloped && developed.length > 0;
 
-  const visible = useMemo(() => {
-    const term = filter.trim().toLowerCase();
+  // Everything but the category: what it can still choose from.
+  const matching = useMemo(() => {
+    const term = normalizeText(filter.trim());
     return (developedFilter ? developed : skills)
-      .filter((s) => !category || s.categoryId === category)
-      .filter((s) => !term || t(s.id).toLowerCase().includes(term))
-      .sort((a, b) => t(a.id).localeCompare(t(b.id)));
-  }, [skills, developed, developedFilter, category, filter, t]);
+      .filter((s) => !combatOnly || isCombatSkill(s) || s.id === initialSkillId)
+      .filter((s) => !term || normalizeText(t(s.id)).includes(term));
+  }, [skills, developed, developedFilter, combatOnly, initialSkillId, filter, t]);
+  const availableCategories = useMemo(
+    () => categories.filter((cat) => matching.some((s) => s.categoryId === cat.id)),
+    [categories, matching]
+  );
+  // A category the other filters left empty no longer applies.
+  const activeCategory = availableCategories.some((cat) => cat.id === category) ? category : null;
+  const visible = useMemo(
+    () =>
+      matching
+        .filter((s) => !activeCategory || s.categoryId === activeCategory)
+        .sort((a, b) => t(a.id).localeCompare(t(b.id))),
+    [matching, activeCategory, t]
+  );
+  const showSpecialization = !!selectedSkill?.specialization && !continuing;
 
   return (
     <RmuDialog
@@ -188,8 +249,8 @@ const ManeuverDeclareDialog: FC<{
           <Button onClick={onClose}>{t('cancel')}</Button>
           <Button
             variant="contained"
-            disabled={!skillId || busy}
-            onClick={() => skillId && onDeclare(declaration(skillId))}
+            disabled={!skillId || missingSpecialization || busy}
+            onClick={() => skillId && onDeclare(declaration(skillId, specialization))}
           >
             {t('declare')}
           </Button>
@@ -197,40 +258,15 @@ const ManeuverDeclareDialog: FC<{
       }
     >
       <Stack spacing={2}>
-        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} sx={{ alignItems: { sm: 'center' } }}>
-          <Box>
-            <Typography variant="caption" color="text.secondary" component="div" sx={{ mb: 0.5 }}>
-              {t('maneuver-type')}
-            </Typography>
-            <ToggleButtonGroup
-              color="primary"
-              size="small"
-              exclusive
-              value={maneuverType}
-              onChange={(_, value: ManeuverType | null) => {
-                if (!value) return;
-                setManeuverType(value);
-                setTypeChosen(true);
-                if (value !== 'percent') setContinuesActionId(null);
-              }}
-            >
-              {MANEUVER_TYPES.map((type) => (
-                <ToggleButton key={type} value={type} sx={{ minWidth: 100 }}>
-                  {t(type)}
-                </ToggleButton>
-              ))}
-            </ToggleButtonGroup>
-          </Box>
-          <SearchField
-            autoFocus
-            size="small"
-            label={t('skill')}
-            placeholder={t('search')}
-            value={filter}
-            onChange={setFilter}
-            delay={0}
-          />
-        </Stack>
+        <SearchField
+          autoFocus
+          size="small"
+          label={t('skill')}
+          placeholder={t('search')}
+          value={filter}
+          onChange={setFilter}
+          delay={0}
+        />
 
         {unfinished.length > 0 && (
           <Box>
@@ -263,32 +299,32 @@ const ManeuverDeclareDialog: FC<{
           </Box>
         )}
 
-        <ChipRow>
+        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={3}>
+          <OptionChips
+            label={t('declare-scope')}
+            options={[COMBAT, ALL].map((key) => ({ key, value: null }))}
+            value={combatOnly ? COMBAT : ALL}
+            onChange={(key) => setCombatOnly(key === COMBAT)}
+            optionLabel={(option) => t(`declare-scope-${option.key}`)}
+          />
           {developed.length > 0 && (
-            <Chip
-              label={t('only-developed')}
-              color={onlyDeveloped ? 'primary' : 'default'}
-              variant={onlyDeveloped ? 'filled' : 'outlined'}
-              aria-pressed={onlyDeveloped}
-              onClick={() => setOnlyDeveloped(!onlyDeveloped)}
+            <OptionChips
+              label={t('declare-development')}
+              options={[DEVELOPED, ALL].map((key) => ({ key, value: null }))}
+              value={onlyDeveloped ? DEVELOPED : ALL}
+              onChange={(key) => setOnlyDeveloped(key === DEVELOPED)}
+              optionLabel={(option) => t(`declare-development-${option.key}`)}
             />
           )}
-          <Chip
-            label={t('all')}
-            variant={category === null ? 'filled' : 'outlined'}
-            aria-pressed={category === null}
-            onClick={() => setCategory(null)}
-          />
-          {categories.map((cat) => (
-            <Chip
-              key={cat.id}
-              label={t(cat.id)}
-              variant={category === cat.id ? 'filled' : 'outlined'}
-              aria-pressed={category === cat.id}
-              onClick={() => setCategory(category === cat.id ? null : cat.id)}
-            />
-          ))}
-        </ChipRow>
+        </Stack>
+
+        <OptionChips
+          label={t('category')}
+          options={[{ key: ALL, value: null }, ...availableCategories.map((cat) => ({ key: cat.id, value: null }))]}
+          value={activeCategory ?? ALL}
+          onChange={(key) => setCategory(key === ALL || key === activeCategory ? null : key)}
+          optionLabel={(option) => (option.key === ALL ? t('declare-category-all') : t(option.key))}
+        />
 
         <Box
           role="radiogroup"
@@ -297,14 +333,14 @@ const ManeuverDeclareDialog: FC<{
         >
           {visible.map((skill) => {
             const selected = skill.id === skillId;
-            const value = bonus(skill.id);
+            const value = bestBonus(entriesOf(actorSkills, skill.id));
             return (
               <ButtonBase
                 key={skill.id}
                 role="radio"
                 aria-checked={selected}
-                onClick={() => chooseSkill(skill.id)}
-                onDoubleClick={() => !busy && onDeclare(declaration(skill.id))}
+                onClick={() => chooseSkill(skill)}
+                onDoubleClick={() => declareAtOnce(skill)}
                 sx={[
                   selectableSx(selected),
                   { justifyContent: 'space-between', gap: 1, px: 1.5, py: 1, minHeight: 44, textAlign: 'left' },
@@ -324,7 +360,33 @@ const ManeuverDeclareDialog: FC<{
             );
           })}
         </Box>
-        {skills.length > 0 && visible.length === 0 && <EmptyState dense />}
+        {skills.length > 0 && visible.length === 0 && (
+          <EmptyState dense title={combatOnly ? t('declare-scope-empty') : undefined} />
+        )}
+
+        {showSpecialization && selectedSkill && (
+          <Box
+            sx={{
+              position: 'sticky',
+              bottom: 0,
+              zIndex: 1,
+              pt: 1.5,
+              borderTop: 1,
+              borderColor: 'divider',
+              bgcolor: 'background.paper',
+            }}
+          >
+            <ManeuverSpecializationPicker
+              key={selectedSkill.id}
+              skillName={t(selectedSkill.id)}
+              developed={developedOfSelected}
+              catalog={catalog}
+              undevelopedBonus={isNpc ? 0 : UNSKILLED_BONUS}
+              value={specialization}
+              onChange={setSpecialization}
+            />
+          </Box>
+        )}
       </Stack>
     </RmuDialog>
   );

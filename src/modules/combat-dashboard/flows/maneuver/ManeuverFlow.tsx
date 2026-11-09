@@ -155,8 +155,11 @@ const ManeuverFlow: FC<{
     );
   };
 
-  const bonus = listing?.skill.bonus ?? (skillId ? getSkillBonus(skillId, actorRound) : undefined);
+  const bonus =
+    listing?.skill.bonus ??
+    (skillId ? getSkillBonus(skillId, actorRound, action.maneuver?.modifiers.specialization) : undefined);
   const stored = action.maneuver?.modifiers;
+  const specialization = listing?.skill.specialization ?? stored?.specialization;
   const type = done ? stored?.maneuverType : form.maneuverType;
   const difficulty = done ? stored?.difficulty : form.difficulty;
   const customBonus = done ? stored?.customBonus : form.customBonus;
@@ -184,7 +187,7 @@ const ManeuverFlow: FC<{
       id: 'skill',
       label: t('maneuver'),
       summary: [
-        `${t(skillId, { defaultValue: skillId })} ${bonus === undefined ? '' : formatBonus(bonus)}`.trim(),
+        `${t(skillId, { defaultValue: skillId })}${specialization ? ` (${t(specialization, { defaultValue: specialization })})` : ''} ${bonus === undefined ? '' : formatBonus(bonus)}`.trim(),
         type ? t(type) : null,
         (done ? stored?.purpose : form.purpose) ? t((done ? stored?.purpose : form.purpose) as string) : null,
         action.maneuver?.continuesActionId ? t('continued-maneuver') : null,
