@@ -10,7 +10,7 @@ import {
   WEIGHT_TRAINING_SKILL_ID,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { ManeuverModifiersListing } from '../../../api/action.dto';
-import OptionTiles from '../attack/modifiers/pickers/OptionTiles';
+import OptionChips from './OptionChips';
 import { ADRENAL_PURPOSES, ManeuverForm } from './maneuver-form';
 
 /** The block B purposes a skill can be rolled for (workspace spec 079). */
@@ -50,7 +50,7 @@ const BlockBPurposeFields: FC<{
 
   return (
     <Stack spacing={1.5}>
-      <OptionTiles
+      <OptionChips
         label={t('maneuver-purpose')}
         options={purposes.map((key) => ({ key, value: null }))}
         value={purpose ?? ''}
@@ -97,7 +97,7 @@ const BlockBPurposeFields: FC<{
               </>
             )}
           </Stack>
-          <OptionTiles
+          <OptionChips
             label={t('feat-of-strength-mechanical-factor')}
             options={MECHANICAL_FACTOR_OPTIONS.map((factor) => ({ key: String(factor), value: null }))}
             value={String(choices.mechanicalFactor ?? 1)}

@@ -3,19 +3,7 @@ import { useTranslation } from 'react-i18next';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import {
-  Box,
-  Button,
-  Chip,
-  Collapse,
-  IconButton,
-  MenuItem,
-  Stack,
-  TextField,
-  ToggleButton,
-  ToggleButtonGroup,
-  Typography,
-} from '@mui/material';
+import { Box, Button, Chip, Collapse, IconButton, MenuItem, Stack, TextField, Typography } from '@mui/material';
 import {
   ChipRow,
   formatBonus,
@@ -32,6 +20,7 @@ import {
 import type { TFunction } from 'i18next';
 import { ManeuverModifiersListing } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
+import OptionChips from './OptionChips';
 import { ManeuverForm } from './maneuver-form';
 
 const skillLabel = (t: TFunction, skillId: string, specialization?: string | null) =>
@@ -114,22 +103,14 @@ const SkillAidsFields: FC<{
                 onSpecializationChange={(specialization) => setSimilarity({ targetSpecialization: specialization })}
                 onError={(message) => notify.error(message)}
               />
-              <ToggleButtonGroup
-                size="small"
-                exclusive
-                color="primary"
-                value={similarity.similarity}
-                onChange={(_, value: SimilarityValue | null) => value !== null && setSimilarity({ similarity: value })}
-              >
-                {SIMILARITY_VALUES.map((value) => (
-                  <ToggleButton key={value} value={value}>
-                    {`${t(`similarity-${-value}`)} ${formatBonus(value)}`}
-                  </ToggleButton>
-                ))}
-              </ToggleButtonGroup>
+              <OptionChips
+                options={SIMILARITY_VALUES.map((value) => ({ key: String(value), value }))}
+                value={String(similarity.similarity)}
+                onChange={(key) => setSimilarity({ similarity: Number(key) as SimilarityValue })}
+                optionLabel={(option) => t(`similarity-${-Number(option.key)}`)}
+              />
               <TextField
                 select
-                size="small"
                 label={t('similar-skill-relation-label')}
                 value={similarity.relation ?? ''}
                 onChange={(event) =>
@@ -173,11 +154,10 @@ const SkillAidsFields: FC<{
             <Stack key={index} direction="row" sx={{ flexWrap: 'wrap', gap: 1, alignItems: 'center' }}>
               <TextField
                 select
-                size="small"
                 label={t('complementary-helper')}
                 value={helper.actorId ?? ''}
                 onChange={(event) => setHelper(index, { actorId: event.target.value || undefined })}
-                sx={{ minWidth: 180 }}
+                sx={{ width: 200 }}
               >
                 {actors.map((actor) => (
                   <MenuItem key={actor.actorId} value={actor.actorId}>

@@ -10,7 +10,7 @@ import {
 import { ActorRound } from '../../../api/actor-rounds.dto';
 import { COMBAT_TALENT_PURPOSE_AP } from '../../../services/ap-service';
 import { FOE_PURPOSES } from '../../../services/combat-talents-service';
-import OptionTiles from '../attack/modifiers/pickers/OptionTiles';
+import OptionChips from './OptionChips';
 import { combatTalentModifiers, isCombatTalentPurpose, ManeuverForm, PRECISION_POSITION_VALUES } from './maneuver-form';
 
 /**
@@ -43,7 +43,7 @@ const CombatTalentPurposeFields: FC<{
   };
   return (
     <Stack spacing={1.5}>
-      <OptionTiles
+      <OptionChips
         label={t('combat-talent-purpose')}
         options={purposes.map((key) => ({ key, value: null }))}
         value={purpose ?? ''}
@@ -86,7 +86,7 @@ const CombatTalentPurposeFields: FC<{
       )}
       {purpose === 'precision' && (
         <>
-          <OptionTiles
+          <OptionChips
             label={t('precision-position')}
             options={PRECISION_POSITIONS.map((key) => ({ key, value: PRECISION_POSITION_VALUES[key] }))}
             value={form.position ?? ''}
