@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { ReactNode, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import GroupsIcon from '@mui/icons-material/Groups';
 import PersonIcon from '@mui/icons-material/Person';
@@ -48,6 +48,8 @@ type RosterProps = {
   onAddNpcs: (factionId: string, entries: NpcEntry[]) => void;
   onRemoveActor: (actorId: string) => void;
   onRenameEnvironment: (name: string) => void;
+  /** Shown right after the factions: the sides they fight on (workspace spec 100). */
+  sides?: ReactNode;
 };
 
 /**
@@ -69,6 +71,7 @@ export default function TacticalGameRoster({
   onAddNpcs,
   onRemoveActor,
   onRenameEnvironment,
+  sides,
 }: RosterProps) {
   const { t } = useTranslation();
   const [filter, setFilter] = useState<'all' | 'selected'>('all');
@@ -153,6 +156,8 @@ export default function TacticalGameRoster({
           })}
         </Grid>
       </Box>
+
+      {sides}
 
       <Box>
         <Stack direction="row" spacing={2} sx={{ alignItems: 'center', mb: 1.5 }}>

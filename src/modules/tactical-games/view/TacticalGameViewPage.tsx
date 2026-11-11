@@ -250,8 +250,10 @@ const TacticalGameViewPage: FC = () => {
             onAddNpcs={addNpcs}
             onRemoveActor={removeActor}
             onRenameEnvironment={renameEnvironment}
+            sides={
+              <TacticalGameSides game={game} factions={factions} busy={pending !== null} onChange={setTacticalGame} />
+            }
           />
-          <TacticalGameSides game={game} factions={factions} busy={pending !== null} onChange={setTacticalGame} />
         </Stack>
       )}
     </DetailPage>
