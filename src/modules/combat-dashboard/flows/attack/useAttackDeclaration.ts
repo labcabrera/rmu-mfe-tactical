@@ -11,6 +11,7 @@ import {
 import { reactionWeapons } from '../../../services/combat-talents-service';
 import { chargeFor } from '../../../services/movement-service';
 import { phaseNumber } from '../../../services/phase-service';
+import { obOnModify } from './attack-flow-rules';
 import { overlappingFreeMovementPace } from './free-movement-pace';
 
 export type AttackKind = 'melee' | 'ranged';
@@ -48,6 +49,42 @@ const newAttack = (
     },
   }) as ActionAttack;
 
+/**
+ * Workspace spec 101: the attacks of the form when a prepared attack goes back to its targets and modifiers, with what
+ * it had. One that spends the OB of the round keeps its OB while the action holds it reserved, or else what the actor
+ * has left (a parry may have lowered it, spec 082): with none it loses its target. The weapons not used can join in.
+ * Preparing again drops the parries and the rolls.
+ */
+export const attacksOnModify = (
+  action: Action,
+  actorRound: ActorRound,
+  weapons: ActorRoundAttack[],
+  kind: AttackKind,
+  charge: ChargeSpeed,
+  fixedOb: number | null | undefined
+): ActionAttack[] => {
+  const prepared = action.attacks ?? [];
+  const pace = prepared[0]?.modifiers.pace ?? 'creep';
+  const spendsRoundOb = action.actionType !== 'cast_spell' && !action.reaction && !action.strayShot;
+  const kept = prepared.map((attack) => {
+    const bo = spendsRoundOb
+      ? obOnModify(action, actorRound, attack.attackName, attack.modifiers.bo ?? 0)
+      : attack.modifiers.bo;
+    const weapon = weapons.find((each) => each.attackName === attack.attackName);
+    if (spendsRoundOb && (bo ?? 0) <= 0 && weapon) return newAttack(weapon, kind, pace, undefined, charge);
+    return {
+      attackName: attack.attackName,
+      protectors: attack.protectors,
+      protectorPositions: attack.protectorPositions,
+      modifiers: { ...attack.modifiers, bo },
+    } as ActionAttack;
+  });
+  const added = weapons
+    .filter((weapon) => !prepared.some((attack) => attack.attackName === weapon.attackName))
+    .map((weapon) => newAttack(weapon, kind, pace, fixedOb, charge));
+  return [...kept, ...added];
+};
+
 /** The actor a reaction attacks: the one of the action that triggered it (workspace spec 076). */
 const actorReactionTarget = (action: Action, roundActions: Action[]): string | undefined =>
   roundActions.find((each) => each.id === action.reaction?.triggerActionId)?.actorId;
@@ -67,6 +104,16 @@ export const useAttackDeclaration = (
   const { actorRounds, roundActions } = useCombatRound();
   // Table 8-2: the charge comes from the distance moved in the round before the attack; the GM can change it.
   const charge = game ? chargeFor(actorRound, roundActions ?? [], game.round).speed : 'none';
+  // Workspace spec 076: a reaction attacks with a weapon of its talent's specialization. Workspace spec 079, A6: a stray
+  // shot attacks with the weapon that missed. A spell attacks with its own attack (`sourceAttacks`).
+  const sourceWeapons = (): ActorRoundAttack[] =>
+    sourceAttacks ??
+    (action.strayShot
+      ? actorRound.attacks.filter((a) => a.attackName === action.strayShot!.attackName)
+      : action.reaction
+        ? reactionWeapons(actorRound, action.reaction.traitId)
+        : actorRound.attacks.filter((a) => a.type === kind && !a.broken));
+  const fixedObOf = () => (action.strayShot ? 0 : action.reaction?.obOverride);
   const initial = (): AttackDeclaration => {
     if (action.attacks?.length) return { attacks: action.attacks, parries: action.parries ?? [] };
     // Workspace spec 080, decision 3: only a free movement made during the attack sets the pace, not one paid with AP
@@ -76,19 +123,13 @@ export const useAttackDeclaration = (
     const reaction = action.reaction;
     // Workspace spec 079, A6: a stray shot attacks with the weapon that missed, at OB 0, the combatant the API chose.
     const strayShot = action.strayShot;
-    const weapons =
-      sourceAttacks ??
-      (strayShot
-        ? actorRound.attacks.filter((a) => a.attackName === strayShot.attackName)
-        : reaction
-          ? reactionWeapons(actorRound, reaction.traitId)
-          : actorRound.attacks.filter((a) => a.type === kind && !a.broken));
+    const weapons = sourceWeapons();
     const target = strayShot
       ? strayShot.targetActorId
       : reaction
         ? actorReactionTarget(action, roundActions ?? [])
         : undefined;
-    const fixedOb = strayShot ? 0 : reaction?.obOverride;
+    const fixedOb = fixedObOf();
     return {
       // A weapon broken in the game cannot attack (spec 019): the API rejects it.
       attacks: weapons.map((a, index) => {
@@ -106,25 +147,9 @@ export const useAttackDeclaration = (
     if (action.attacks?.length && !changing) setFormData({ attacks: action.attacks, parries: action.parries ?? [] });
   }, [action, changing]);
 
-  /**
-   * Workspace spec 082, decision 8: back to the targets of an attack a parry left with less OB. The weapons with no OB
-   * lose their target, the others keep what they had up to the OB left, and the weapons not used can join in.
-   */
+  /** Workspace spec 101: back to the targets and modifiers of a prepared attack not applied yet (`attacksOnModify`). */
   const startChange = () => {
-    const prepared = action.attacks ?? [];
-    const attacks = actorRound.attacks
-      .filter((weapon) => weapon.type === kind && !weapon.broken)
-      .map((weapon) => {
-        const attack = prepared.find((each) => each.attackName === weapon.attackName);
-        const pace = attack?.modifiers.pace ?? 'creep';
-        if (!attack || weapon.currentBo <= 0) return newAttack(weapon, kind, pace, undefined, charge);
-        return {
-          attackName: attack.attackName,
-          protectors: attack.protectors,
-          protectorPositions: attack.protectorPositions,
-          modifiers: { ...attack.modifiers, bo: Math.min(attack.modifiers.bo ?? 0, weapon.currentBo) },
-        } as ActionAttack;
-      });
+    const attacks = attacksOnModify(action, actorRound, sourceWeapons(), kind, charge, fixedObOf());
     setFormData({ attacks, parries: [] });
     setChanging(true);
   };

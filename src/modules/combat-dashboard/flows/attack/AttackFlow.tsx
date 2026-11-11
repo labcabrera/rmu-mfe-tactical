@@ -2,7 +2,7 @@ import { FC, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import { Alert, Stack } from '@mui/material';
-import { FlowStep, useApiNotify } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { ConfirmDialog, FlowStep, useApiNotify } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { applyAttack, declareParry, prepareAttack } from '../../../api/action';
 import { Action, ActionParry, ParryDeclaration } from '../../../api/action.dto';
 import { ActorRound, ActorRoundAttack } from '../../../api/actor-rounds.dto';
@@ -20,7 +20,7 @@ import BoltSplitFields, { boltSplitValid } from './BoltSplitFields';
 import { isManeuverInputReady, parryManeuverFields } from './ManeuverRollFields';
 import ParryStep from './ParryStep';
 import { ShieldManeuverInput, shieldManeuverAttacks, shieldManeuverItems } from './ShieldManeuverSection';
-import { attackChangeable, stepOf } from './attack-flow-rules';
+import { canModifyAttack, isModifyLossEmpty, lostOnModify, ModifyLoss, stepOf } from './attack-flow-rules';
 import { overlappingFreeMovementPace } from './free-movement-pace';
 import { specialManeuversReady } from './modifiers/special-maneuvers';
 import ResolveAttackFormRoll from './resolve/ResolveAttackFormRoll';
@@ -31,6 +31,10 @@ import { AttackKind, useAttackDeclaration } from './useAttackDeclaration';
  * Melee or ranged attack in the side panel: targets (with OB, protectors or range) → modifiers (one tab per
  * weapon) → parry (melee) → rolls (attack, criticals, fumble) → result. The step follows the action
  * status from the API; before "Prepare" the user moves between targets and modifiers.
+ *
+ * Workspace spec 101: until it is applied, "Change attack" (or "Edit from here" on a reviewed step) goes back to the
+ * modifiers or the targets with what the attack had; preparing it again drops its parries and rolls, so it asks first
+ * when there are any.
  *
  * An attack spell (spec 030, phase 4) uses the same flow: `sourceAttacks` holds the spell's attack instead of the
  * actor's weapons, `leadingSteps` the steps of the cast already done, and `onApplied` reads the caster again.
@@ -64,6 +68,10 @@ const AttackFlow: FC<{
   // Workspace spec 077: the Shield maneuvers typed in the parry step, and the OB split of a bolt
   const [shieldInputs, setShieldInputs] = useState<Record<string, ShieldManeuverInput>>({});
   const [obSplit, setObSplit] = useState<number[] | null>(null);
+  // Workspace spec 101: what going back drops, asked for before (with the step to go back to), and a new set of roll
+  // forms once the attack is prepared again, so nothing typed before stays.
+  const [confirmModify, setConfirmModify] = useState<{ loss: ModifyLoss; step: number } | null>(null);
+  const [generation, setGeneration] = useState(0);
   // Melee attacks always go through the parry step; a ranged one only for the Shield maneuvers of its defenders.
   const shieldStep = shieldManeuverAttacks(formData.attacks).length > 0;
   const withParry = kind === 'melee' || shieldStep;
@@ -92,7 +100,10 @@ const AttackFlow: FC<{
     call(
       prepareAttack(action.id, { ...formData, attacks: targeted, ...(splitting ? { obSplit: splitParts } : {}) }, auth),
       t('attack-prepared'),
-      endChange
+      () => {
+        if (changing) setGeneration((value) => value + 1);
+        endChange();
+      }
     );
   const needsParryManeuver = (p: ActionParry) => !!p.parryManeuver?.required && !p.carriedOver && p.parry > 0;
   const parryManeuverMissing = (formData.parries ?? []).some(
@@ -127,9 +138,26 @@ const AttackFlow: FC<{
   // minimum AP of its profile (readiness from the API), unless the attack is forced.
   // Workspace spec 082: an attack at 0 is not made, the API rejects it
   const spendsRoundOb = action.actionType !== 'cast_spell' && !action.strayShot && !action.reaction;
-  // Workspace spec 082, decision 8: the API does not say which attacks a parry lowered. One not rolled yet, at the OB
-  // the actor has left after parrying, may be one of them, so it can go back to its targets.
-  const changeable = attackChangeable(action, actorRound, spendsRoundOb);
+  // Workspace spec 101: any attack prepared and not applied yet can go back to its targets and modifiers.
+  const modifiable = !changing && canModifyAttack(action);
+  const enterModify = (toStep: number) => {
+    setLocalStep(toStep);
+    setTab(0);
+    startChange();
+    // A bolt with several targets keeps how its OB was split.
+    const prepared = action.attacks ?? [];
+    if (boltOb !== undefined && prepared.length > 1) setObSplit(prepared.map((attack) => attack.modifiers.bo ?? 0));
+  };
+  const modify = (toStep: number) => {
+    const loss = lostOnModify(action, actorRounds);
+    if (isModifyLossEmpty(loss)) enterModify(toStep);
+    else setConfirmModify({ loss, step: toStep });
+  };
+  const changingNotice = changing ? (
+    <Alert severity="info" variant="outlined">
+      {t('attack-modify-help')}
+    </Alert>
+  ) : null;
   const targetsReady =
     targeted.length > 0 &&
     (kind === 'melee' || targeted.every((a) => !!a.modifiers.range)) &&
@@ -157,7 +185,7 @@ const AttackFlow: FC<{
     <Stack spacing={3}>
       {formData.attacks.map((attack, index) => (
         <ResolveAttackFormRoll
-          key={attack.attackName}
+          key={`${attack.attackName}-${generation}`}
           formData={formData}
           setFormData={setFormData}
           action={action}
@@ -178,11 +206,7 @@ const AttackFlow: FC<{
       content: (
         <Stack spacing={1.5}>
           {strayShotNotice}
-          {changing && (
-            <Alert severity="info" variant="outlined">
-              {t('attack-change-help')}
-            </Alert>
-          )}
+          {changingNotice}
           <AttackTargetsStep
             kind={kind}
             actorRound={actorRound}
@@ -221,22 +245,25 @@ const AttackFlow: FC<{
       ),
       content:
         attacksShown.length > 0 ? (
-          <AttackModifiersStep
-            action={action}
-            actorRound={actorRound}
-            kind={kind}
-            formData={formData}
-            setFormData={setFormData}
-            attacksShown={attacksShown}
-            shownTab={shownTab}
-            onTab={setTab}
-            unprepared={unprepared}
-            labelOf={labelOf}
-            target={actorRounds?.find((ar) => ar.actorId === attacksShown[shownTab].modifiers.targetId)}
-            chargeFear={chargeFear}
-            freePace={freePace ?? undefined}
-            strayShotNotice={strayShotNotice}
-          />
+          <Stack spacing={1.5}>
+            {changingNotice}
+            <AttackModifiersStep
+              action={action}
+              actorRound={actorRound}
+              kind={kind}
+              formData={formData}
+              setFormData={setFormData}
+              attacksShown={attacksShown}
+              shownTab={shownTab}
+              onTab={setTab}
+              unprepared={unprepared}
+              labelOf={labelOf}
+              target={actorRounds?.find((ar) => ar.actorId === attacksShown[shownTab].modifiers.targetId)}
+              chargeFear={chargeFear}
+              freePace={freePace ?? undefined}
+              strayShotNotice={strayShotNotice}
+            />
+          </Stack>
         ) : null,
     },
     ...(withParry
@@ -267,15 +294,7 @@ const AttackFlow: FC<{
   const back = () => {
     if (step === 1 && unprepared) return { label: t('back'), onClick: () => setLocalStep(0) };
     if (changing) return { label: t('cancel'), onClick: endChange };
-    if (changeable) {
-      return {
-        label: t('attack-change'),
-        onClick: () => {
-          setLocalStep(0);
-          startChange();
-        },
-      };
-    }
+    if (modifiable) return { label: t('attack-modify'), onClick: () => modify(1) };
     return undefined;
   };
   // Workspace spec 085, 1.4: what is missing while the main button is disabled. "Apply" has none: the rolls step
@@ -335,16 +354,62 @@ const AttackFlow: FC<{
       onClick: apply,
     };
 
+  // Workspace spec 101: a reviewed targets or modifiers step of a prepared attack can be edited again from there.
+  const reviewAction = (stepId: string) => {
+    const toStep = stepId === 'targets' ? 0 : stepId === 'modifiers' ? 1 : -1;
+    if (!modifiable || toStep < 0) return undefined;
+    return { label: t('flow-edit-from-here'), onClick: () => modify(toStep) };
+  };
+
+  const loss = confirmModify?.loss;
   return (
-    <ActionFlow
-      action={action}
-      steps={[...leadingSteps, ...steps]}
-      activeIndex={leadingSteps.length + step}
-      primary={primary}
-      back={back()}
-      onDeleted={onDeleted}
-      onNextPending={onNextPending}
-    />
+    <>
+      <ActionFlow
+        action={action}
+        steps={[...leadingSteps, ...steps]}
+        activeIndex={leadingSteps.length + step}
+        primary={primary}
+        back={back()}
+        reviewAction={reviewAction}
+        onDeleted={onDeleted}
+        onNextPending={onNextPending}
+      />
+      <ConfirmDialog
+        open={!!confirmModify}
+        title={t('attack-modify-confirm-title')}
+        message={
+          loss ? (
+            <Stack spacing={1}>
+              <span>{t('attack-modify-confirm-text')}</span>
+              <ul style={{ margin: 0, paddingLeft: 20 }}>
+                {loss.parries.map((parry) => (
+                  <li key={parry.actorId}>
+                    {t('attack-modify-lost-parry', { actor: parry.actorName, parry: parry.parry })}
+                  </li>
+                ))}
+                {loss.shieldManeuvers > 0 && <li>{t('attack-modify-lost-shield', { count: loss.shieldManeuvers })}</li>}
+                {loss.rolls.map((roll) => (
+                  <li key={roll.attackName}>
+                    {t('attack-modify-lost-roll', {
+                      attack: labelOf(roll.attackName),
+                      rolls: roll.kinds.map((kind) => t(`attack-modify-roll-${kind}`)).join(', '),
+                    })}
+                  </li>
+                ))}
+              </ul>
+            </Stack>
+          ) : (
+            ''
+          )
+        }
+        confirmLabel={t('attack-modify')}
+        onConfirm={() => {
+          if (confirmModify) enterModify(confirmModify.step);
+          setConfirmModify(null);
+        }}
+        onClose={() => setConfirmModify(null)}
+      />
+    </>
   );
 };
 

@@ -4,7 +4,7 @@ import { useAuth } from 'react-oidc-context';
 import DeleteIcon from '@mui/icons-material/Delete';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { Alert, Button, IconButton, ListItemText, Menu, MenuItem, Stack, Tooltip } from '@mui/material';
-import { FlowStep, FlowSteps, useApiNotify } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { FlowReviewAction, FlowStep, FlowSteps, useApiNotify } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { holdAction, spendActionPoint } from '../../api/action';
 import { Action } from '../../api/action.dto';
 import { useCombatGame, useCombatRound, useCombatActions } from '../../combat/combat-context';
@@ -61,11 +61,13 @@ const ActionFlow: FC<{
   activeIndex: number;
   primary?: FlowButton;
   back?: FlowButton;
+  /** A button on a reviewed done step, by its id, such as going back to edit it (workspace spec 101). */
+  reviewAction?: (stepId: string) => FlowReviewAction | undefined;
   /** Called after the action is deleted (the dialog closes). */
   onDeleted: () => void;
   /** Opens the next action waiting for input, if there is one. */
   onNextPending?: () => void;
-}> = ({ action, steps, activeIndex, primary, back, onDeleted, onNextPending }) => {
+}> = ({ action, steps, activeIndex, primary, back, reviewAction, onDeleted, onNextPending }) => {
   const { t } = useTranslation();
   const auth = useAuth();
   const notify = useApiNotify();
@@ -140,6 +142,14 @@ const ActionFlow: FC<{
         activeIndex={activeIndex}
         reviewing={reviewing}
         onReview={setReviewing}
+        reviewAction={
+          reviewAction &&
+          ((stepId) => {
+            const found = reviewAction(stepId);
+            // The review closes: the flow goes on from the step it opens.
+            return found && { ...found, onClick: () => (setReviewing(null), found.onClick()) };
+          })
+        }
         footer={
           <Stack spacing={1}>
             {ended && (
