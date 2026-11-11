@@ -32,6 +32,8 @@ export type ChoiceField = Base & {
   kind: 'choice';
   options: (kind: AttackKind) => ModifierOption[];
   defaultValue: string;
+  /** Prefix of the i18n key of each option (`<prefix><key>`); the key alone when omitted. */
+  optionKeyPrefix?: string;
 };
 type NumberField = Base & { kind: 'number'; visible?: (modifiers: ActionAttackModifiers) => boolean };
 export type ModifierField = FlagField | ChoiceField | NumberField;
@@ -90,6 +92,8 @@ const ATTACK_MODIFIER_FIELDS: ModifierField[] = [
     section: 'special',
     appliesTo: ['melee'],
     defaultValue: 'none',
+    // Table 8-2: the stored values (jog, sprint) are the sizes the charge adds, +1 and +2
+    optionKeyPrefix: 'charge-speed-',
     options: () =>
       opts([
         ['none', null],

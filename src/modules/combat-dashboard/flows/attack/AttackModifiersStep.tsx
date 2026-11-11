@@ -4,6 +4,8 @@ import { Alert, Stack, Tab, Tabs } from '@mui/material';
 import { formatBonus } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { Action, AttackDeclaration } from '../../../api/action.dto';
 import { ActorRound } from '../../../api/actor-rounds.dto';
+import { useCombatGame, useCombatRound } from '../../../combat/combat-context';
+import { chargeFor } from '../../../services/movement-service';
 import UnresolvedMovementNotice from '../../../shared/movement/UnresolvedMovementNotice';
 import AttackModifiersForm from './modifiers/AttackModifiersForm';
 import SpecialManeuverFields from './modifiers/SpecialManeuverFields';
@@ -43,6 +45,13 @@ const AttackModifiersStep: FC<{
   strayShotNotice,
 }) => {
   const { t } = useTranslation();
+  const { game } = useCombatGame();
+  const { roundActions } = useCombatRound();
+  // Table 8-2: the distance behind the charge the declaration pre-selected (useAttackDeclaration)
+  const charge = game && kind === 'melee' ? chargeFor(actorRound, roundActions ?? [], game.round) : undefined;
+  const chargeHelp = charge
+    ? t('charge-moved-distance', { moved: Math.round(charge.moved), times: (charge.moved / charge.bmr).toFixed(1) })
+    : undefined;
   return (
     <Stack spacing={1.5}>
       {attacksShown.length > 1 && (
@@ -81,6 +90,7 @@ const AttackModifiersStep: FC<{
         kind={kind}
         target={target}
         attackerTraits={actorRound.traits?.map((trait) => trait.traitId)}
+        fieldHelp={chargeHelp ? { chargeSpeed: chargeHelp } : undefined}
         specialExtra={
           unprepared && !action.strayShot ? (
             <SpecialManeuverFields

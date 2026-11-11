@@ -50,7 +50,9 @@ const AttackModifiersForm: FC<{
   specialExtra?: ReactNode;
   /** Talents of the attacker: some fields only show with them (Extra Joints, workspace spec 079). */
   attackerTraits?: string[];
-}> = ({ formData, setFormData, index, kind, target, situationExtra, specialExtra, attackerTraits }) => {
+  /** A line under a field: the distance moved in the round under the charge. */
+  fieldHelp?: Partial<Record<keyof ActionAttackModifiers, string>>;
+}> = ({ formData, setFormData, index, kind, target, situationExtra, specialExtra, attackerTraits, fieldHelp }) => {
   const { t } = useTranslation();
   const theme = useTheme();
   const wide = useMediaQuery(theme.breakpoints.up('xl'));
@@ -101,8 +103,9 @@ const AttackModifiersForm: FC<{
   const otherDeclared = [...declaredIn('defender'), ...declaredIn('special')];
   const choiceValue = (field: ChoiceField) =>
     (modifiers[field.name] as string | null | undefined) || field.defaultValue;
+  const optionText = (field: ChoiceField, key: string) => t(`${field.optionKeyPrefix ?? ''}${key}`);
   const declaredLabel = (field: ModifierField) =>
-    field.kind === 'choice' ? `${t(field.label)}: ${t(String(modifiers[field.name]))}` : t(field.label);
+    field.kind === 'choice' ? `${t(field.label)}: ${optionText(field, String(modifiers[field.name]))}` : t(field.label);
 
   /** The flags of a list as toggle chips with their values (workspace spec 085, 3.1). */
   const renderFlags = (flags: FlagField[]) => (
@@ -147,6 +150,7 @@ const AttackModifiersForm: FC<{
           options={field.options(kind)}
           value={choiceValue(field)}
           onChange={(key) => change(field, key)}
+          optionLabel={field.optionKeyPrefix ? (option) => optionText(field, option.key) : undefined}
         />
       );
     if (field.kind === 'number')
@@ -171,7 +175,14 @@ const AttackModifiersForm: FC<{
     return (
       <Stack spacing={2}>
         {others.map((field) => (
-          <Box key={field.name}>{renderField(field)}</Box>
+          <Box key={field.name}>
+            {renderField(field)}
+            {fieldHelp?.[field.name] && (
+              <Typography variant="caption" color="text.secondary" component="p" sx={{ mt: 0.5 }}>
+                {fieldHelp[field.name]}
+              </Typography>
+            )}
+          </Box>
         ))}
         {flags.length > 0 && renderFlags(flags)}
       </Stack>

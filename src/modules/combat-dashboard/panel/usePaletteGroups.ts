@@ -4,7 +4,7 @@ import { canHeal } from '../../actor-round/medical/medical';
 import { ActorRound } from '../../api/actor-rounds.dto';
 import { useCombatGame, useCombatRound } from '../../combat/combat-context';
 import { useOpenRounds } from '../../hooks/useOpenRounds';
-import { actorRoundGrapples, isActorRoundFearBlocked } from '../../services/actor-round-service';
+import { actorRoundGrapples, isActorRoundFearBlocked, isActorRoundProne } from '../../services/actor-round-service';
 import { apProfileLabel, COMBAT_TALENT_PURPOSE_AP } from '../../services/ap-service';
 import {
   aimWeapons,
@@ -109,6 +109,11 @@ export const usePaletteGroups = (actorRound: ActorRound, phase: number, currentP
           // Workspace spec 080 (Core Law §8.2): no AP and not the instantaneous action; up to run, with a pace penalty
           details: [t('free-movement-palette-help')],
           unavailable: availability.moving ? 'already-moving' : undefined,
+        }),
+        // Table 8-1 and §9.8 Prone: 2 AP, 1 with Acrobatics ranks (the API sets the range); it clears the prone state
+        entry('stand_up', {
+          details: [t('stand-up-palette-help')],
+          unavailable: isActorRoundProne(actorRound) ? undefined : 'stand-up-not-prone',
         }),
       ],
     },

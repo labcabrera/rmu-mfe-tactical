@@ -115,7 +115,7 @@ type AttackStatus =
   'pending_attack_roll' | 'pending_critical_roll' | 'pending_fumble_roll' | 'pending_apply' | 'completed';
 
 type AttackType = 'melee' | 'ranged' | 'thrown';
-type ChargeSpeed = 'none' | 'jog' | 'sprint';
+export type ChargeSpeed = 'none' | 'jog' | 'sprint';
 
 export type ActionType =
   | 'movement'

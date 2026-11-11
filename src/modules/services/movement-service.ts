@@ -1,4 +1,4 @@
-import { Action } from '../api/action.dto';
+import { Action, ChargeSpeed } from '../api/action.dto';
 import { ActorRound } from '../api/actor-rounds.dto';
 import { actorRoundHasEffect, isActorRoundGrappling, isActorRoundProne } from './actor-round-service';
 
@@ -64,6 +64,18 @@ export const roundMovement = (actions: Action[], actorId: string, round: number,
       undefined
     );
   return { own, movements, freeMovements: movements.filter((a) => a.freeAction), normalAp, normalPace, moved };
+};
+
+/**
+ * The charge of a melee attack (Table 8-2, §8.4 Closing & Charging): by the distance the actor has moved in the round
+ * before the attack, more than twice its BMR for one size (jog or run, as in the example of Hildrikki), more than four
+ * times for two. `jog` and `sprint` are the values the API stores for +1 and +2.
+ */
+export const chargeFor = (actorRound: ActorRound, actions: Action[], round: number) => {
+  const { moved } = roundMovement(actions, actorRound.actorId, round);
+  const bmr = actorRound.movement.bmr;
+  const speed: ChargeSpeed = bmr <= 0 ? 'none' : moved > 4 * bmr ? 'sprint' : moved > 2 * bmr ? 'jog' : 'none';
+  return { speed, moved, bmr };
 };
 
 /** BMR of the actor with what halves it (the API applies the same), and the keys of what does. */
