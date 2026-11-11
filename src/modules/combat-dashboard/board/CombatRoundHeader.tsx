@@ -44,6 +44,7 @@ import { ActionDestiny, actionDestiny, freeMovementCandidates, isActionClosed } 
 import { isGameFinished } from '../../services/game-service';
 import { phaseNumber, PHASES } from '../../services/phase-service';
 import { canManageTactical } from '../../shared/permissions';
+import SideStrengthStrip from './SideStrengthStrip';
 import { actionLabel } from './action-view';
 
 /** Flatfooted actors do not roll initiative (§8.3 Surprise), like the ones that are down. */
@@ -271,6 +272,9 @@ const CombatRoundHeader: FC = () => {
             )}
           </Stack>
         </Stack>
+
+        {/* Workspace spec 100: the strength of every side, hidden with one side only. */}
+        <SideStrengthStrip />
 
         {finished && (
           <Alert severity="info" icon={<FlagIcon />}>

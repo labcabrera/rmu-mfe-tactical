@@ -9,7 +9,13 @@ import type {
 } from '../../../api/psychology.dto';
 
 // Client side of a group check (workspace spec 022, decisions 6, 7, 9 and 10): who takes it, and the request. The
-// group is the factions and actors the game master picks, or the faction of the leader; the API resolves it.
+// group is the factions and actors the game master picks, or the side of the leader (workspace spec 100: all the
+// factions of its side); the API resolves it.
+
+/** Factions on the side of a faction, itself included. */
+export type AllyFactions = (factionId: string) => string[];
+
+const onlyItself: AllyFactions = (factionId) => [factionId];
 
 export type GroupCheckForm = {
   kind: GroupCheckKind;
@@ -65,11 +71,17 @@ export const initialGroupCheckForm = (
 /** NPCs have no sheet: their Leadership, Intimidation and RR bonus are typed. */
 export const isNpc = (actorRound: ActorRound | undefined) => !!actorRound && actorRound.actorType !== 'character';
 
-/** Actors of the group, as the API builds it: the factions and actors chosen, or the faction of the leader. */
-export const groupMembers = (form: GroupCheckForm, actorRounds: ActorRound[]): ActorRound[] => {
+/** Actors of the group, as the API builds it: the factions and actors chosen, or the side of the leader. */
+export const groupMembers = (
+  form: GroupCheckForm,
+  actorRounds: ActorRound[],
+  allyFactions: AllyFactions = onlyItself
+): ActorRound[] => {
   const leader = actorRounds.find((actorRound) => actorRound.actorId === form.leaderId);
   const factionIds =
-    form.factionIds.length === 0 && form.actorIds.length === 0 && leader ? [leader.factionId] : form.factionIds;
+    form.factionIds.length === 0 && form.actorIds.length === 0 && leader
+      ? allyFactions(leader.factionId)
+      : form.factionIds;
   return actorRounds.filter(
     (actorRound) => factionIds.includes(actorRound.factionId) || form.actorIds.includes(actorRound.actorId)
   );
@@ -81,10 +93,14 @@ const definedEntries = (values: Record<string, number | null>, ids: string[]) =>
   ) as Record<string, number>;
 
 /** What is missing before the check can be sent, as a translation key; null when it is complete. */
-export const groupCheckProblem = (form: GroupCheckForm, actorRounds: ActorRound[]): string | null => {
+export const groupCheckProblem = (
+  form: GroupCheckForm,
+  actorRounds: ActorRound[],
+  allyFactions: AllyFactions = onlyItself
+): string | null => {
   const leader = actorRounds.find((actorRound) => actorRound.actorId === form.leaderId);
   if (form.kind !== 'fear' && !leader) return 'err-leader-required';
-  if (groupMembers(form, actorRounds).length === 0)
+  if (groupMembers(form, actorRounds, allyFactions).length === 0)
     return form.kind === 'fear' ? 'err-group-required' : 'err-group-empty';
   if (form.kind === 'fear') {
     if (form.frightSource === 'level' && form.frightLevel === null) return 'err-fright-level-required';
@@ -112,7 +128,8 @@ const leaderRequest = (form: GroupCheckForm, leader: ActorRound): LeaderRequest 
 /** Body of `POST /tactical-games/{id}/{kind}-checks`; unset values are left for the API. */
 export const toGroupCheckRequest = (
   form: GroupCheckForm,
-  actorRounds: ActorRound[]
+  actorRounds: ActorRound[],
+  allyFactions: AllyFactions = onlyItself
 ): FearCheckDto | MoraleCheckDto | LeaderRollDto => {
   const leader = actorRounds.find((actorRound) => actorRound.actorId === form.leaderId);
   const group: GroupSelection | undefined =
@@ -126,7 +143,7 @@ export const toGroupCheckRequest = (
     ...(group ? { group } : {}),
     ...(form.modifier ? { modifiers: [{ key: 'custom-bonus', value: form.modifier }] } : {}),
   };
-  const memberIds = groupMembers(form, actorRounds).map((actorRound) => actorRound.actorId);
+  const memberIds = groupMembers(form, actorRounds, allyFactions).map((actorRound) => actorRound.actorId);
   const bonuses = definedEntries(form.bonuses, memberIds);
   if (form.kind === 'fear') {
     const intimidator = actorRounds.find((actorRound) => actorRound.actorId === form.intimidatorId);

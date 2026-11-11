@@ -18,6 +18,7 @@ import CombatTalentAlertDialog, { COMBAT_TALENT_ALERTS } from './CombatTalentAle
 import CriticalAlertDialog from './CriticalAlertDialog';
 import DeathThresholdAlertDialog, { DEATH_THRESHOLD_ALERT } from './DeathThresholdAlertDialog';
 import EnduranceForm, { emptyEnduranceForm, EnduranceFormValue, enduranceModifiers } from './EnduranceForm';
+import FearEaseAlertDialog, { FEAR_EASE_ALERT } from './FearEaseAlertDialog';
 import FrenzyDyingRrDialog from './FrenzyDyingRrDialog';
 import KnockedBackAlertDialog, { KNOCKED_BACK_ALERT } from './KnockedBackAlertDialog';
 import LimbLossAlertDialog, { LIMB_LOSS_ALERT } from './LimbLossAlertDialog';
@@ -29,6 +30,13 @@ import StrayShotAlertDialog, { STRAY_SHOT_ALERT } from './StrayShotAlertDialog';
  * limb-loss alert is confirmed or dismissed in its own dialog (workspace spec 079, C1).
  */
 const INFO_ALERTS = ['wound-reopened'];
+
+/** Alerts answered by an individual fear RR (workspace spec 068 and 100): Revulsion, surrounded, the last standing. */
+const FEAR_RR_ALERTS: Record<string, string> = {
+  'revulsion-rr': 'revulsion',
+  'fear-surrounded': 'alert-fear-surrounded',
+  'fear-alone': 'alert-fear-alone',
+};
 
 /**
  * Dialog of an actor's alert. An endurance alert is resolved with its roll (`PATCH /actor-rounds/{id}/endurance-check`,
@@ -70,6 +78,12 @@ const ActorAlertDialog: FC<{
 
   const isEndurance = currentAlert?.type === 'endurance';
   const modifierOf = (key: string) => currentAlert?.modifiers?.find((m) => m.key === key);
+  // Workspace spec 100: a list travels as one modifier per value with the same key
+  const modifierTexts = (key: string) =>
+    (currentAlert?.modifiers ?? [])
+      .filter((m) => m.key === key)
+      .map((m) => m.modifier)
+      .filter((value): value is string => !!value);
   // Workspace spec 079, decision A3: an endurance roll asked by the total penalties, not by the accumulated fatigue
   const penaltyReason = isEndurance ? modifierOf('reason')?.modifier : undefined;
   // Workspace spec 087: an informative alert closes in the API, so it stays dismissed and reaches the round log
@@ -188,29 +202,45 @@ const ActorAlertDialog: FC<{
     return <FrenzyDyingRrDialog actorRound={actorRound} alertId={alertId} open={open} onClose={onClose} />;
   }
   if (currentAlert?.type === 'fear-check-suggested') {
+    // Workspace spec 100: the whole side (`factionIds`), or the faction of older alerts
     const factionId = modifierOf('factionId')?.modifier;
+    const sideFactionIds = modifierTexts('factionIds');
     return (
       <GroupCheckDialog
         open={open}
         onClose={onClose}
         prefill={{
           kind: 'fear',
-          factionIds: factionId ? [factionId] : [],
+          factionIds: sideFactionIds.length > 0 ? sideFactionIds : factionId ? [factionId] : [],
           frightLevel: modifierOf('frightLevel')?.value,
           alertId,
+          sideId: modifierOf('sideId')?.modifier ?? undefined,
+          triggers: modifierTexts('triggers'),
         }}
       />
     );
   }
-  if (currentAlert?.type === 'revulsion-rr') {
+  if (currentAlert && FEAR_RR_ALERTS[currentAlert.type]) {
     return (
       <ResistanceRollDialog
         actorRound={actorRound}
         open={open}
         onClose={onClose}
         initialLevel={modifierOf('level')?.value ?? null}
-        sourceName={t('revulsion')}
+        sourceName={t(FEAR_RR_ALERTS[currentAlert.type])}
         alertId={alertId}
+      />
+    );
+  }
+  if (currentAlert?.type === FEAR_EASE_ALERT) {
+    return (
+      <FearEaseAlertDialog
+        actorRound={actorRound}
+        sideId={modifierOf('sideId')?.modifier ?? null}
+        actorIds={modifierTexts('actorIds')}
+        alertId={alertId}
+        open={open}
+        onClose={onClose}
       />
     );
   }

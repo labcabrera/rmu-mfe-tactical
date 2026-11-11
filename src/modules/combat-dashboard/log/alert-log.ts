@@ -4,7 +4,9 @@ import BloodtypeIcon from '@mui/icons-material/Bloodtype';
 import BoltIcon from '@mui/icons-material/Bolt';
 import CallMissedOutgoingIcon from '@mui/icons-material/CallMissedOutgoing';
 import CasinoIcon from '@mui/icons-material/Casino';
+import CrisisAlertIcon from '@mui/icons-material/CrisisAlert';
 import DangerousIcon from '@mui/icons-material/Dangerous';
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import GroupsIcon from '@mui/icons-material/Groups';
 import HealingIcon from '@mui/icons-material/Healing';
 import HeartBrokenIcon from '@mui/icons-material/HeartBroken';
@@ -12,6 +14,7 @@ import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrow
 import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
 import PersonOffIcon from '@mui/icons-material/PersonOff';
+import PersonOutlineIcon from '@mui/icons-material/PersonOutlined';
 import PsychologyIcon from '@mui/icons-material/Psychology';
 import SentimentVeryDissatisfiedIcon from '@mui/icons-material/SentimentVeryDissatisfied';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
@@ -36,6 +39,10 @@ const ALERT_ICONS: Record<string, typeof BoltIcon> = {
   'limb-loss': PersonOffIcon,
   'fear-check-suggested': GroupsIcon,
   'revulsion-rr': SentimentVeryDissatisfiedIcon,
+  // Workspace spec 100
+  'fear-surrounded': CrisisAlertIcon,
+  'fear-alone': PersonOutlineIcon,
+  'fear-ease-suggested': EmojiEventsIcon,
   'reaction-available': BoltIcon,
   'terrible-luck': CasinoIcon,
   'mental-focus': PsychologyIcon,
@@ -70,13 +77,15 @@ export const phaseLabel = (phase: number | null, t: TFunction): string => {
   return t('phase-n', { phase });
 };
 
+const FEAR_RR_ALERTS = ['revulsion-rr', 'fear-surrounded', 'fear-alone'];
+
 const outcomeLabel = (alert: ActorRoundAlert, t: TFunction): string => {
   const outcome = alert.result?.outcome;
   if (!outcome) return '';
   if (alert.type === 'breakage') return t(`breakage-result-${outcome}`);
   const generic = t(`alert-outcome-${outcome}`, { defaultValue: outcome });
-  // A failed RR of Revulsion keeps the severity of the failure
-  return alert.type === 'revulsion-rr' ? t(`fear-severity-${outcome}`, { defaultValue: generic }) : generic;
+  // A failed fear RR (Revulsion, surrounded, alone) keeps the severity of the failure
+  return FEAR_RR_ALERTS.includes(alert.type) ? t(`fear-severity-${outcome}`, { defaultValue: generic }) : generic;
 };
 
 /** The item of a breakage or the text of a critical. */

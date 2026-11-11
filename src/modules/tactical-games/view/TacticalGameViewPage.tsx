@@ -37,6 +37,7 @@ import { canManageTactical } from '../../shared/permissions';
 import { FinishGameButton } from '../outcome/GameLifecycleButtons';
 import GameOutcomePanel from '../outcome/GameOutcomePanel';
 import TacticalGameRoster from './TacticalGameRoster';
+import TacticalGameSides from './TacticalGameSides';
 import TacticalGameViewEnvironment from './TacticalGameViewEnvironment';
 import { RosterPending } from './roster-npcs';
 import { FactionNpcSpecimen, specimenEntry } from './roster-npcs';
@@ -249,6 +250,9 @@ const TacticalGameViewPage: FC = () => {
             onAddNpcs={addNpcs}
             onRemoveActor={removeActor}
             onRenameEnvironment={renameEnvironment}
+            sides={
+              <TacticalGameSides game={game} factions={factions} busy={pending !== null} onChange={setTacticalGame} />
+            }
           />
         </Stack>
       )}
