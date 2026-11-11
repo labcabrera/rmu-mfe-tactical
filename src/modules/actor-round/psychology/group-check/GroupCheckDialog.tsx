@@ -23,6 +23,7 @@ import {
   OPEN_D100,
   RmuDialog,
   RollField,
+  sideStrengthState,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { groupCheck } from '../../../api/psychology';
 import { GroupCheckKind, GroupCheckResult } from '../../../api/psychology.dto';
@@ -88,7 +89,11 @@ const GroupCheckDialog: FC<{
   const { sides, allyFactionIds, sideLabel } = useSides();
   const allyFactions = (factionId: string) => allyFactionIds(factionId);
   const suggestedSide = sides.find((side) => side.id === prefill?.sideId);
-  const sideLeader = rounds.find((actorRound) => actorRound.actorId === suggestedSide?.leaderActorId);
+  // A fallen leader gives no bonus (workspace spec 100): it is not proposed, the game master picks another one.
+  const sideLeader = rounds.find(
+    (actorRound) =>
+      actorRound.actorId === suggestedSide?.leaderActorId && sideStrengthState(actorRound) === 'standing'
+  );
 
   const startForm = () =>
     initialGroupCheckForm(prefill?.kind ?? 'fear', {
