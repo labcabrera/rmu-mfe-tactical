@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { Action } from '../../../api/action.dto';
 import type { ActorRound } from '../../../api/actor-rounds.dto';
-import { attackChangeable, stepOf } from './attack-flow-rules';
+import { canModifyAttack, isModifyLossEmpty, lostOnModify, obOnModify, stepOf } from './attack-flow-rules';
 
 const action = (patch: object): Action => patch as unknown as Action;
 const actor = (patch: object): ActorRound =>
@@ -27,27 +27,79 @@ describe('stepOf', () => {
   });
 });
 
-describe('attackChangeable', () => {
-  const attack = (bo: number, roll?: number) => ({ attackName: 'sword', modifiers: { bo }, roll: { roll } });
+describe('canModifyAttack (workspace spec 101)', () => {
+  const attacks = [{ attackName: 'sword', modifiers: { bo: 40 } }];
 
-  it('allows going back while an attack not rolled is at the OB left', () => {
-    expect(attackChangeable(action({ status: 'parry', attacks: [attack(40)] }), actor({}), true)).toBe(true);
+  it('allows going back from any status before the attack is applied', () => {
+    for (const status of ['prepared', 'parry', 'pending_roll', 'pending_apply']) {
+      expect(canModifyAttack(action({ status, attacks }))).toBe(true);
+    }
   });
 
-  it('refuses when the attack does not spend the OB of the round or is in another status', () => {
-    expect(attackChangeable(action({ status: 'parry', attacks: [attack(40)] }), actor({}), false)).toBe(false);
-    expect(attackChangeable(action({ status: 'completed', attacks: [attack(40)] }), actor({}), true)).toBe(false);
+  it('refuses before the attack is prepared and once it is applied', () => {
+    expect(canModifyAttack(action({ status: 'declared', attacks: [] }))).toBe(false);
+    expect(canModifyAttack(action({ status: 'completed', attacks }))).toBe(false);
   });
 
-  it('needs a parry or a reservation of OB on the actor', () => {
-    const noParry = actor({ parries: [] });
-    expect(attackChangeable(action({ status: 'parry', attacks: [attack(40)] }), noParry, true)).toBe(false);
-    const reserved = actor({ parries: [], boReservations: [{}] });
-    expect(attackChangeable(action({ status: 'parry', attacks: [attack(40)] }), reserved, true)).toBe(true);
+  it('allows the attack of a spell only while the cast is not applied', () => {
+    const spell = (powerPointsSpent: number | null) =>
+      action({ status: 'pending_roll', actionType: 'cast_spell', attacks, spell: { powerPointsSpent } });
+    expect(canModifyAttack(spell(null))).toBe(true);
+    expect(canModifyAttack(spell(6))).toBe(false);
+  });
+});
+
+describe('lostOnModify (workspace spec 101)', () => {
+  const rounds = [{ actorId: 'eradan', actorName: 'Eradan' }] as unknown as ActorRound[];
+
+  it('is empty for a prepared attack without parries nor rolls', () => {
+    const loss = lostOnModify(
+      action({ parries: [{ actorId: 'eradan', parry: 0 }], attacks: [{ attackName: 'sword', roll: {} }] }),
+      rounds
+    );
+    expect(isModifyLossEmpty(loss)).toBe(true);
   });
 
-  it('ignores attacks already rolled or below the OB left', () => {
-    expect(attackChangeable(action({ status: 'parry', attacks: [attack(40, 77)] }), actor({}), true)).toBe(false);
-    expect(attackChangeable(action({ status: 'parry', attacks: [attack(30)] }), actor({}), true)).toBe(false);
+  it('lists the parries declared, the shield maneuvers resolved and the rolls sent', () => {
+    const loss = lostOnModify(
+      action({
+        parries: [
+          { actorId: 'eradan', parry: 30 },
+          { actorId: 'eradan', parry: 20, carriedOver: true },
+        ],
+        attacks: [
+          {
+            attackName: 'sword',
+            shieldManeuver: { required: true, passed: false },
+            roll: { roll: 87, criticalRolls: { 'S-B': 45 }, fumbleRoll: null },
+          },
+          { attackName: 'dagger', roll: { roll: null } },
+        ],
+      }),
+      rounds
+    );
+    expect(loss.parries).toEqual([{ actorId: 'eradan', actorName: 'Eradan', parry: 30 }]);
+    expect(loss.shieldManeuvers).toBe(1);
+    expect(loss.rolls).toEqual([{ attackName: 'sword', kinds: ['attack', 'critical'] }]);
+    expect(isModifyLossEmpty(loss)).toBe(false);
+  });
+});
+
+describe('obOnModify (workspace spec 101)', () => {
+  it('keeps the OB while the action holds it reserved', () => {
+    const reserved = actor({
+      attacks: [{ attackName: 'sword', currentBo: 0 }],
+      boReservations: [{ actionId: 'a1', kind: 'attack' }],
+    });
+    expect(obOnModify(action({ id: 'a1' }), reserved, 'sword', 50)).toBe(50);
+  });
+
+  it('lowers it to what the actor has left otherwise (spec 082)', () => {
+    const lowered = actor({
+      attacks: [{ attackName: 'sword', currentBo: 30 }],
+      boReservations: [{ actionId: 'other', kind: 'attack' }],
+    });
+    expect(obOnModify(action({ id: 'a1' }), lowered, 'sword', 50)).toBe(30);
+    expect(obOnModify(action({ id: 'a1' }), lowered, 'sword', 20)).toBe(20);
   });
 });
