@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Action, ActionAttack, AttackDeclaration, ProtectPosition } from '../../../api/action.dto';
+import { Action, ActionAttack, AttackDeclaration, ChargeSpeed, ProtectPosition } from '../../../api/action.dto';
 import { ActorRound, ActorRoundAttack } from '../../../api/actor-rounds.dto';
 import { useCombatGame, useCombatRound } from '../../../combat/combat-context';
 import {
@@ -9,6 +9,7 @@ import {
   isActorRoundStunned,
 } from '../../../services/actor-round-service';
 import { reactionWeapons } from '../../../services/combat-talents-service';
+import { chargeFor } from '../../../services/movement-service';
 import { phaseNumber } from '../../../services/phase-service';
 import { overlappingFreeMovementPace } from './free-movement-pace';
 
@@ -22,7 +23,13 @@ const NEUTRAL = {
   calledShot: 'none',
 };
 
-const newAttack = (attack: ActorRoundAttack, kind: AttackKind, pace: string, fixedOb?: number | null): ActionAttack =>
+const newAttack = (
+  attack: ActorRoundAttack,
+  kind: AttackKind,
+  pace: string,
+  fixedOb?: number | null,
+  chargeSpeed: ChargeSpeed = 'none'
+): ActionAttack =>
   ({
     attackName: attack.attackName,
     modifiers: {
@@ -36,6 +43,7 @@ const newAttack = (attack: ActorRoundAttack, kind: AttackKind, pace: string, fix
       customBonus: 0,
       pace,
       ...NEUTRAL,
+      ...(kind === 'melee' && { chargeSpeed }),
       ...(kind === 'ranged' && { attackerInMelee: false, proneSource: false, ambush: false }),
     },
   }) as ActionAttack;
@@ -57,6 +65,8 @@ export const useAttackDeclaration = (
 ) => {
   const { game } = useCombatGame();
   const { actorRounds, roundActions } = useCombatRound();
+  // Table 8-2: the charge comes from the distance moved in the round before the attack; the GM can change it.
+  const charge = game ? chargeFor(actorRound, roundActions ?? [], game.round).speed : 'none';
   const initial = (): AttackDeclaration => {
     if (action.attacks?.length) return { attacks: action.attacks, parries: action.parries ?? [] };
     // Workspace spec 080, decision 3: only a free movement made during the attack sets the pace, not one paid with AP
@@ -82,7 +92,7 @@ export const useAttackDeclaration = (
     return {
       // A weapon broken in the game cannot attack (spec 019): the API rejects it.
       attacks: weapons.map((a, index) => {
-        const attack = newAttack(a, kind, pace, fixedOb);
+        const attack = newAttack(a, kind, pace, fixedOb, charge);
         return index === 0 && target ? { ...attack, modifiers: { ...attack.modifiers, targetId: target } } : attack;
       }),
       parries: action.parries ?? [],
@@ -107,7 +117,7 @@ export const useAttackDeclaration = (
       .map((weapon) => {
         const attack = prepared.find((each) => each.attackName === weapon.attackName);
         const pace = attack?.modifiers.pace ?? 'creep';
-        if (!attack || weapon.currentBo <= 0) return newAttack(weapon, kind, pace);
+        if (!attack || weapon.currentBo <= 0) return newAttack(weapon, kind, pace, undefined, charge);
         return {
           attackName: attack.attackName,
           protectors: attack.protectors,
