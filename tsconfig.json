@@ -15,7 +15,10 @@
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "strictPropertyInitialization": false,
-    "ignoreDeprecations": "6.0"
+    "ignoreDeprecations": "6.0",
+    "paths": {
+      "@mui/*": ["./node_modules/@mui/*"]
+    }
   },
   "include": ["src//*", "public//*"],
   "exclude": ["node_modules", "dist", "build", "scripts"]

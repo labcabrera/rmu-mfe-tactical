@@ -1,0 +1,46 @@
+import { FC, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import PsychologyIcon from '@mui/icons-material/Psychology';
+import { Button, Chip, Stack } from '@mui/material';
+import { ChipRow, formatBonus, SectionLabel, EmptyState } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { ActorRound } from '../api/actor-rounds.dto';
+import { useCombatGame, useCombatRound } from '../combat/combat-context';
+import ResistanceRollDialog from './psychology/ResistanceRollDialog';
+
+/** RR bonuses of the actor (copied from its character) and its fear RR in the current round (spec 022). */
+const ActorRoundResistances: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
+  const { t } = useTranslation();
+  const { game } = useCombatGame();
+  const { displayRound } = useCombatRound();
+  const [open, setOpen] = useState(false);
+  const currentRound = !!game && game.status === 'in_progress' && displayRound === game.round;
+  const resistances = actorRound.resistances ?? [];
+
+  return (
+    <Stack spacing={1}>
+      <SectionLabel>{t('resistances')}</SectionLabel>
+      <ChipRow>
+        {resistances.length === 0 ? (
+          <EmptyState dense title={t('no-resistances')} />
+        ) : (
+          resistances.map((each) => (
+            <Chip
+              key={each.resistance}
+              size="small"
+              variant="outlined"
+              label={`${t(each.resistance)} ${formatBonus(each.totalBonus)}`}
+            />
+          ))
+        )}
+        {currentRound && (
+          <Button size="small" startIcon={<PsychologyIcon />} onClick={() => setOpen(true)}>
+            {t('fear-rr')}
+          </Button>
+        )}
+      </ChipRow>
+      <ResistanceRollDialog actorRound={actorRound} open={open} onClose={() => setOpen(false)} />
+    </Stack>
+  );
+};
+
+export default ActorRoundResistances;

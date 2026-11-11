@@ -1,26 +1,16 @@
-import React, { FC } from 'react';
+import { FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  Stack,
-  Typography,
-  Table,
-  TableHead,
-  TableRow,
-  TableCell,
-  TableBody,
-  Paper,
-  TableContainer,
-} from '@mui/material';
+import ScienceIcon from '@mui/icons-material/Science';
+import { Chip, Stack } from '@mui/material';
+import { AttackSizeChip, DataTable, ItemConditionChip, SectionLabel } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { ActorRound, ActorRoundAttack } from '../api/actor-rounds.dto';
 
 const ActorRoundAttacks: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
   const { t } = useTranslation();
+  // Poison on the weapon of the attack (spec 042): the next hit spends it.
+  const coatingOf = (attack: ActorRoundAttack) =>
+    attack.itemId ? actorRound.items?.find((item) => item.itemId === attack.itemId)?.coating : undefined;
   const attacks = actorRound.attacks ?? [];
-
-  const getAttackTableLabel = (attack: ActorRoundAttack): string => {
-    if (attack.attackSize === 0) return t(attack.attackTable);
-    return `${t(attack.attackTable)} (${attack.attackSize > 0 ? '+' : ''}${attack.attackSize})`;
-  };
 
   const formatRanges = (ranges: ActorRoundAttack['ranges']): string => {
     if (!ranges || ranges.length === 0) return '-';
@@ -29,39 +19,62 @@ const ActorRoundAttacks: FC<{ actorRound: ActorRound }> = ({ actorRound }) => {
 
   return (
     <Stack spacing={1}>
-      <Typography variant="subtitle2">Attacks</Typography>
-      {attacks.length > 0 ? (
-        <TableContainer component={Paper} variant="outlined">
-          <Table size="small">
-            <TableHead>
-              <TableRow>
-                <TableCell>Attack</TableCell>
-                <TableCell>Type</TableCell>
-                <TableCell>Attack Table</TableCell>
-                <TableCell align="right">Base BO</TableCell>
-                <TableCell align="right">Current BO</TableCell>
-                <TableCell align="right">Fumble</TableCell>
-                <TableCell>Ranges</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {attacks.map((a: ActorRoundAttack, i: number) => (
-                <TableRow key={`${a.attackName}-${i}`} hover>
-                  <TableCell>{t(a.attackName)}</TableCell>
-                  <TableCell>{t(a.type)}</TableCell>
-                  <TableCell>{getAttackTableLabel(a)}</TableCell>
-                  <TableCell align="right">{a.baseBo}</TableCell>
-                  <TableCell align="right">{a.currentBo}</TableCell>
-                  <TableCell align="right">{a.fumble}</TableCell>
-                  <TableCell>{formatRanges(a.ranges)}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      ) : (
-        <Typography variant="body2">No attacks</Typography>
-      )}
+      <SectionLabel>{t('attacks')}</SectionLabel>
+      <DataTable
+        rows={attacks.map((attack, index) => ({ attack, index }))}
+        getKey={({ attack, index }) => `${attack.attackName}-${index}`}
+        emptyTitle={t('no-attacks')}
+        columns={[
+          {
+            key: 'name',
+            header: t('attack-name'),
+            render: ({ attack: a }) => (
+              <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
+                <span>{t(a.attackName)}</span>
+                {coatingOf(a) && (
+                  <Chip
+                    size="small"
+                    color="secondary"
+                    variant="outlined"
+                    icon={<ScienceIcon />}
+                    label={t('item-coated', { name: t(coatingOf(a)!.name, coatingOf(a)!.name) })}
+                  />
+                )}
+                {(a.broken || (a.breakagePenalty ?? 0) < 0) && (
+                  <ItemConditionChip condition={{ breakagePenalty: a.breakagePenalty ?? 0, broken: !!a.broken }} />
+                )}
+              </Stack>
+            ),
+          },
+          {
+            key: 'type',
+            header: t('type'),
+            render: ({ attack: a }) =>
+              [
+                t(a.type),
+                a.twoHanded && t('two-handed-weapon'),
+                a.weaponCategory && a.weaponCategory !== 'standard' && t(`weapon-category-${a.weaponCategory}`),
+              ]
+                .filter(Boolean)
+                .join(' · '),
+          },
+          {
+            key: 'table',
+            header: t('attack-table'),
+            // The size of the attack, when not Medium, with its effect on damage and critical (spec 075)
+            render: ({ attack }) => (
+              <Stack direction="row" spacing={1} sx={{ alignItems: 'center' }}>
+                <span>{t(attack.attackTable)}</span>
+                <AttackSizeChip steps={attack.attackSize ?? 0} />
+              </Stack>
+            ),
+          },
+          { key: 'base-ob', header: t('base-ob'), align: 'right', render: ({ attack }) => attack.baseBo },
+          { key: 'current-ob', header: t('current-ob'), align: 'right', render: ({ attack }) => attack.currentBo },
+          { key: 'fumble', header: t('fumble'), align: 'right', render: ({ attack }) => attack.fumble },
+          { key: 'ranges', header: t('ranges'), render: ({ attack }) => formatRanges(attack.ranges) },
+        ]}
+      />
     </Stack>
   );
 };

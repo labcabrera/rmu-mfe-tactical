@@ -1,71 +1,84 @@
-import React, { FC, ReactNode, SyntheticEvent, useState } from 'react';
-import { Box, Tab, Tabs } from '@mui/material';
-import CombatDashboardActions from './CombatDashboardActions';
-import CombatDashboardAttacks from './CombatDashboardAttacks';
-import CombatActorRoundList from './actor-rounds/ActorRoundList';
+import { FC, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import KeyboardIcon from '@mui/icons-material/Keyboard';
+import { Box, IconButton, Paper, Stack, Tab, Tabs, Tooltip, useMediaQuery, useTheme } from '@mui/material';
+import { Panel, useSpellName } from '@labcabrera-rmu/rmu-react-shared-lib';
+import { useCombatGame, useCombatActions } from '../combat/combat-context';
+import { useShortcut } from '../hooks/useShortcut';
+import GameOutcomePanel from '../tactical-games/outcome/GameOutcomePanel';
+import CombatActorRoundList from './board/ActorRoundList';
+import CombatBulkActionsMenu from './board/CombatBulkActionsMenu';
+import CombatDashboardActions from './board/CombatDashboardActions';
+import CombatRoundHeader from './board/CombatRoundHeader';
+import ShortcutsHelp from './board/ShortcutsHelp';
+import CombatDamageView from './damage/CombatDamageView';
+import RoundLog, { RoundLogStrip } from './log/RoundLog';
+import CombatPanelProvider from './panel/CombatPanelProvider';
 
-type CustomTabPanelProps = {
-  children?: ReactNode;
-  value: number;
-  index: number;
-};
+type View = 'board' | 'log' | 'damage';
 
-function CustomTabPanel(props: CustomTabPanelProps) {
-  const { children, value, index, ...other } = props;
-
-  return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`simple-tabpanel-${index}`}
-      aria-labelledby={`simple-tab-${index}`}
-      {...other}
-    >
-      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
-    </div>
-  );
-}
-
-function a11yProps(index: number) {
-  return {
-    id: `simple-tab-${index}`,
-    'aria-controls': `simple-tabpanel-${index}`,
-  };
-}
-
+/**
+ * Combat screen: breadcrumbs, the round header, and three views (board, log and damage of the whole combat) next to
+ * the side panel where actors and actions open.
+ */
 const CombatDashboardTabs: FC = () => {
-  const [value, setValue] = useState<number>(0);
-
-  const handleChange = (_event: SyntheticEvent, newValue: number) => {
-    setValue(newValue);
-  };
+  const { t } = useTranslation();
+  const theme = useTheme();
+  const wide = useMediaQuery(theme.breakpoints.up('lg'));
+  const [view, setView] = useState<View>('board');
+  const [help, setHelp] = useState(false);
+  const { game } = useCombatGame();
+  const { setGame } = useCombatActions();
+  // Workspace spec 088: loads the translated spell names for the labels of the board, built outside React
+  useSpellName();
+  useShortcut(['l', 'L'], () => setView((current) => (current === 'board' ? 'log' : 'board')));
+  useShortcut(['?'], () => setHelp(true));
 
   return (
-    <>
+    <Stack spacing={1.5}>
       <CombatDashboardActions />
-      <Box sx={{ width: '100%' }}>
-        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-          <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
-            <Tab label="Dashboard" {...a11yProps(0)} />
-            <Tab label="Actions" {...a11yProps(2)} />
-            <Tab label="Attacks" {...a11yProps(3)} />
-            <Tab label="Log" {...a11yProps(4)} />
-          </Tabs>
-        </Box>
-        <CustomTabPanel value={value} index={0}>
-          <CombatActorRoundList />
-        </CustomTabPanel>
-        <CustomTabPanel value={value} index={1}>
-          TODO: actions
-        </CustomTabPanel>
-        <CustomTabPanel value={value} index={2}>
-          <CombatDashboardAttacks />
-        </CustomTabPanel>
-        <CustomTabPanel value={value} index={3}>
-          TODO: Log
-        </CustomTabPanel>
-      </Box>
-    </>
+      <CombatRoundHeader />
+      {game?.status === 'finished' && <GameOutcomePanel game={game} onApplied={setGame} collapsible />}
+      <CombatPanelProvider>
+        <Stack spacing={1.5}>
+          <Paper sx={{ px: 1.5, display: 'flex', alignItems: 'center' }}>
+            <Tabs
+              value={view}
+              onChange={(_, value: View) => setView(value)}
+              aria-label={t('combat-dashboard-tabs')}
+              sx={{ flex: 1 }}
+            >
+              <Tab value="board" label={t('board')} />
+              <Tab value="log" label={t('log')} />
+              <Tab value="damage" label={t('damage')} />
+            </Tabs>
+            <CombatBulkActionsMenu />
+            <Tooltip title={t('keyboard-shortcuts')}>
+              <IconButton aria-label={t('keyboard-shortcuts')} onClick={() => setHelp(true)}>
+                <KeyboardIcon />
+              </IconButton>
+            </Tooltip>
+          </Paper>
+          {view === 'board' ? (
+            <>
+              <CombatActorRoundList />
+              {wide && <RoundLogStrip onOpenLog={() => setView('log')} />}
+            </>
+          ) : view === 'log' ? (
+            <Panel>
+              <Box role="tabpanel">
+                <RoundLog />
+              </Box>
+            </Panel>
+          ) : (
+            <Box role="tabpanel">
+              <CombatDamageView />
+            </Box>
+          )}
+        </Stack>
+      </CombatPanelProvider>
+      <ShortcutsHelp open={help} onClose={() => setHelp(false)} />
+    </Stack>
   );
 };
 

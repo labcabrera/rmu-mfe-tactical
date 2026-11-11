@@ -1,0 +1,28 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug tactical in the shell (gateway)",
+      "detail": "Stop the container first: `make mfe-dev s=tactical` in rmu-platform",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost/tactical",
+      "webRoot": "${workspaceFolder}",
+      "preLaunchTask": "start:live",
+      "sourceMapPathOverrides": {
+        "webpack://tactical/./*": "${workspaceFolder}/*"
+      }
+    },
+    {
+      "name": "Debug tactical standalone (:8083)",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:8083",
+      "webRoot": "${workspaceFolder}",
+      "preLaunchTask": "start:live",
+      "sourceMapPathOverrides": {
+        "webpack://tactical/./*": "${workspaceFolder}/*"
+      }
+    }
+  ]
+}

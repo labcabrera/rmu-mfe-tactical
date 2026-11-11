@@ -1,9 +1,37 @@
+import type {
+  ActorAmputationFields,
+  ActorReviveFields,
+  ActorRoundLimbAndLife,
+  ActorRoundEnvironmentFields,
+  ActorRoundHazard079Fields,
+  ActorRollProfile,
+  ActorRoundHazard as LibActorRoundHazard,
+  CriticalAlertRoll,
+  ConcentrationFocus,
+  ReactionAlertData,
+  ActorRoundAlertStatus,
+  CombatTalentEffectFields,
+  HpLogEntry,
+  Injury,
+  InjurySource,
+  ItemConsumed,
+  ItemCoating,
+  ItemCondition,
+  PoisonExposure,
+  PoisonRrResult,
+  RollModifier,
+  StrategicItemModifier,
+  TemporaryModifier,
+} from '@labcabrera-rmu/rmu-react-shared-lib';
+
 export type ActorRound = {
   id: string;
   gameId: string;
   factionId: string;
   actorId: string;
   actorName: string;
+  /** Level of the character or NPC: its share of the strength of its side (workspace spec 100). */
+  level?: number;
   round: number;
   movement: ActorRoundMovement;
   initiative: ActorRoundInitiative;
@@ -13,55 +41,328 @@ export type ActorRound = {
   penalty: ActorRoundPenalty;
   attacks: ActorRoundAttack[];
   effects: ActorRoundEffect[];
+  /** Combat traits of the actor (talents and flaws) copied from its character (absent in older actor rounds). */
+  traits?: ActorRoundTrait[];
+  /**
+   * How the talents of the actor change its rolls (workspace spec 076): the open-ended thresholds of every open-ended
+   * roll of the actor (pass it to `RollField` as `openEnded`) and the luck talents. Absent before spec 076.
+   */
+  rollProfile?: ActorRollProfile;
   defense: ActorRoundDefense;
+  /** Dodge and shield block declared this round (absent in actor rounds stored before them). */
+  defenseMode?: ActorRoundDefenseMode;
+  /** Action points spent in each action phase that has ended. */
+  phaseLog?: ActorRoundPhaseLog[];
+  /** Modifiers of the AP capacity, with their origin (spec 011, §1). */
+  apModifiers?: ActorRoundApModifier[];
+  /** AP of each action phase, index 0 is phase 1. */
+  apCapacity?: number[];
+  /** AP spent, lost or used by instantaneous actions, by phase and action (spec 011, §2). */
+  apLedger?: ActorRoundApLedgerEntry[];
   alerts: ActorRoundAlert[];
+  /** Injuries of the actor (spec 013): brought from its character and taken in the game. */
+  injuries?: Injury[];
+  /** Changes of the hit points in this round, with their origin (spec 013, §1.1; absent in older actor rounds). */
+  hpLog?: HpLogEntry[];
+  /** Strategic character of a character actor. */
+  characterId?: string;
+  /** Items of the actor, with their breakage (spec 019; absent in older actor rounds). */
+  items?: ActorRoundItem[];
+  /** Result of the breakage check, only in the answer of the check. */
+  lastBreakageCheck?: BreakageCheckResult;
+  /** The critical rolled from an alert, only in the answer of the roll (workspace spec 077). */
+  lastCriticalRoll?: CriticalAlertRoll;
+  /** Height of the actor in feet (workspace spec 077): from the sheet, null for NPCs until the game master gives it. */
+  height?: number | null;
+  /** Falls and falling objects of this round (workspace spec 077). */
+  hazards?: ActorRoundHazard[];
+  /** `character` or `npc`. */
+  actorType?: string;
+  /** NPC of rmu-api-npcs an NPC actor comes from (spec 055): it has no character sheet, items, styles or spells. */
+  npcId?: string;
+  /** What the character brought into the game (only in the actor round built from it). */
+  snapshot?: ActorRoundSnapshot;
+  /** OB given to each parry of the round, also those of attacks not applied yet (spec 083). */
+  parries?: number[];
+  /** OB committed by actions not applied yet (spec 083). */
+  boReservations?: { actionId: string; kind: 'parry' | 'attack' }[];
+  /** Hit points per round lost by the injuries that still bleed. */
+  bleeding?: number;
+  /** RR bonuses copied from the character (`fear`, `essence`...); absent in older actor rounds and for NPCs. */
+  resistances?: ActorRoundResistance[];
+  /** Fighting styles of the character (spec 032); absent in older actor rounds and for NPCs. */
+  fightingStyles?: ActorRoundFightingStyle[];
+  /** Style declared for the round; kept in the next rounds until changed. */
+  activeStyle?: ActorRoundActiveStyle | null;
   imageUrl: string | undefined;
+  /** Poisons that reached the actor and wait for their RR (spec 042). */
+  poisonExposures?: PoisonExposure[];
+  /** Strategic items spent in the game, applied by the outcome (workspace spec 068). */
+  itemsConsumed?: ItemConsumed[];
+  /** Lasting morale and fear RR modifiers (workspace spec 068, decision 19). */
+  temporaryModifiers?: TemporaryModifier[];
+  /** Fright level of an NPC, from its stat block (workspace spec 068, decision 17). */
+  frightLevel?: number | null;
+  /** Size of the actor in steps from Medium (workspace spec 075); absent before it. */
+  size?: number;
+  /** Size of an NPC for the criticals, in steps from Medium, when it differs from its size (spec 075). */
+  criticalSize?: number | null;
+  /** Code I of an NPC (Creature Law T-3.1e): one critical level less, none below A (spec 075). */
+  reduceCriticalSeverity?: boolean;
+  /** Code @ of an NPC (§9.8 Stun): a stun is a flat -25 for 1 round that does not stack (workspace spec 079). */
+  stunImmune?: boolean;
+  /** What the actor concentrates on (workspace spec 077): with any, each AP of another action counts half. */
+  concentration?: ConcentrationFocus[];
+  /** Enc % of the armor the character wears (workspace spec 077): the default of a cast's armor encumbrance. */
+  armorEncumbrance?: number;
+} & ActorRoundLimbAndLife &
+  ActorRoundEnvironmentFields;
+
+/** A hazard of the round, with the temperature of an extreme one (workspace spec 079, C3). */
+export type ActorRoundHazard = LibActorRoundHazard & ActorRoundHazard079Fields;
+
+type ActorRoundStyleAbility = { abilityId: string; times: number };
+
+type ActorRoundFightingStyle = {
+  skillId: string;
+  styleId: string;
+  ranks: number;
+  freeRanks: number;
+  abilities: ActorRoundStyleAbility[];
 };
 
-export type ActorRoundMovement = {
+export type ActiveStyleAbility = ActorRoundStyleAbility & {
+  /** The equipment the ability needs is there. */
+  met: boolean;
+  /** Attacks it works with; null is any. */
+  attackNames: string[] | null;
+};
+
+type ActorRoundActiveStyle = {
+  skillId: string;
+  styleId: string;
+  /** The equipment of the style is there; otherwise the style gives nothing. */
+  met: boolean;
+  attackNames: string[] | null;
+  /** OB of the free ranks (+2 each, at most +10). */
+  freeRanksBonus: number;
+  abilities: ActiveStyleAbility[];
+  /** Requirements the game can't check (mounted, leadership...). */
+  warnings: string[];
+  /** Optional abilities used this round (killing-strike). */
+  options: string[];
+};
+
+/** Optional abilities declared each round (spec 032). */
+export const OPTIONAL_STYLE_ABILITIES = ['killing-strike'];
+
+type ActorRoundResistance = { resistance: string; totalBonus: number };
+
+type ActorRoundSnapshot = {
+  hp: number;
+  injuryIds: string[];
+  conditionIds: string[];
+  /** Fatigue penalty points it brought (workspace spec 077), 0-50. */
+  fatigue?: number;
+};
+
+type ActorRoundMovement = {
   bmr: number;
   penalty: number;
   maxPace: string;
   baseDifficulty: string;
 };
 
-export type ActorRoundPenaltyModifier = {
+type ActorRoundPenaltyModifier = {
   id: string;
+  /** `injury` (the sum of the injuries, spec 013), `endurance`, `stunned`, `hp`, `fatigue`... `critical` is legacy. */
   source: string;
   value: number;
 };
 
-export type ActorRoundPenalty = {
+type ActorRoundPenalty = {
   modifiers: ActorRoundPenaltyModifier[] | undefined;
 };
 
-export type ActorRoundInitiative = {
+type ActorRoundInitiative = {
   base: number;
   penalty: number;
   roll: number;
+  /** Strike Reflex bonus declared with the roll, already included in the total. */
+  strikeReflex?: number;
+  /** Reflexes bonus (spec 011), already included in the total. */
+  reflexes?: number;
+  /** Fighting style bonus (Lightning Reflexes, spec 032), already included in the total. */
+  style?: number;
+  /** What the actor lowered it by, negative (spec 083), already included in the total. */
+  lowered?: number;
   total: number;
 };
 
-export type ActorRoundHp = {
+type ApModifierKind = 'bonus' | 'loss' | 'cap' | 'cost-multiplier';
+
+/** A change to the AP capacity of the round: AP gained or lost, a cap, or a cost multiplier. */
+export type ActorRoundApModifier = {
+  source: string;
+  kind: ApModifierKind;
+  value: number;
+  /** Phase of a loss that falls in a given phase (staggered). */
+  phase?: number;
+  effectId?: string;
+};
+
+type ApLedgerKind = 'spent' | 'lost' | 'instant';
+
+type ActorRoundApLedgerEntry = {
+  phase: number;
+  actionId?: string;
+  ap: number;
+  kind: ApLedgerKind;
+  /** Spent while concentrating on something else (workspace spec 077): the action gets half of these AP. */
+  concentrated?: boolean;
+};
+
+/** Effects that change the action points of the round (spec 011), with the values `POST /effects` accepts. */
+export const AP_EFFECTS: { status: string; defaultValue: number; min: number; max: number }[] = [
+  { status: 'staggered', defaultValue: 1, min: 1, max: 4 },
+  { status: 'haste', defaultValue: 1, min: 1, max: 4 },
+  { status: 'speed', defaultValue: 1, min: 1, max: 4 },
+  { status: 'reflexes', defaultValue: 1, min: 1, max: 3 },
+  { status: 'adrenal-speed', defaultValue: 2, min: 1, max: 4 },
+  { status: 'hold', defaultValue: 3, min: 1, max: 4 },
+  { status: 'distraction', defaultValue: 1, min: 1, max: 3 },
+  { status: 'ap-cap', defaultValue: 2, min: 0, max: 8 },
+  { status: 'manual', defaultValue: 1, min: -8, max: 8 },
+];
+
+export type ActorRoundTrait = {
+  traitId: string;
+  tier: number;
+  specialization: string | null;
+};
+
+type ActorRoundHp = {
   max: number;
   current: number;
+  /** Hits below zero the actor survives (Body Development bonus); `max` when missing. */
+  deathThreshold?: number;
 };
+
+/** Dodge or shield block level (§9.6). `full` is only set by completing a 4 AP dodge action. */
+export type DefenseLevel = 'none' | 'passive' | 'partial' | 'full';
+/** Levels the game master declares directly. */
+export const DECLARABLE_DEFENSE_LEVELS: DefenseLevel[] = ['none', 'passive', 'partial'];
+
+type ActorRoundDefenseMode = {
+  dodge: DefenseLevel;
+  block: DefenseLevel;
+  /** Workspace spec 079, B3: the full dodge comes from Adrenal Defense (kept as concentration below level 4). */
+  adrenal?: boolean;
+};
+
+type ActorRoundPhaseLog = {
+  phase: number;
+  spentAp: number;
+  totalSpentAp: number;
+};
+
+type ActorRoundAlertModifier = { key: string; value: number | null; modifier: string | null };
 
 export type ActorRoundAlert = {
   id: string;
   type: string;
-  value: string;
+  message?: string;
+  modifiers?: ActorRoundAlertModifier[] | null;
+  /** `expired`: a `reaction-available` alert not taken before its phase ended (workspace spec 076). */
+  status?: ActorRoundAlertStatus;
+  /** The reaction a `reaction-available` alert offers (workspace spec 076). */
+  reaction?: ReactionAlertData;
+  /** Round it was raised in (workspace spec 087). */
+  raisedRound?: number;
+  /** Round it was resolved in (workspace spec 087); absent in the alerts resolved before it. */
+  resolvedRound?: number;
+  /** Phase it was resolved in: 0 before the action phases, 1-4, 5 the upkeep; null when not known. */
+  resolvedPhase?: number | null;
+  resolvedAt?: string;
+  result?: AlertResult | null;
 };
 
-export type ActorRoundFatigue = {
+/**
+ * What a resolved alert left, for the round log (workspace spec 087): `outcome` is a translatable key, `roll` and
+ * `total` those of its roll, `text` the item or the text of the critical and `values` the numbers of its kind.
+ */
+type AlertResult = {
+  outcome?: string | null;
+  roll?: number | null;
+  total?: number | null;
+  text?: string | null;
+  values?: Record<string, number | string | boolean | null> | null;
+};
+
+/** An item of the actor in the game (spec 019): its strategic item with the modifiers it brought and the game ones. */
+export type ActorRoundItem = {
+  itemId: string;
+  name: string;
+  itemTypeId?: string;
+  kind: 'weapon' | 'shield' | 'armor' | 'other';
+  slot?: string;
+  strength: number | null;
+  modifiers: StrategicItemModifier[];
+  startModifierIds: string[];
+  condition: ItemCondition;
+  /** Poison on the weapon (spec 042): the next hit spends it, a critical exposes the target. */
+  coating?: ItemCoating | null;
+  /** The coating spent in the game, by its `appliedAt` (spec 044, decision 3); `true` in rounds stored before it. */
+  coatingSpent?: { appliedAt: string } | true;
+  /** Dropped by a broken actor (workspace spec 068): out of its hands, still in its inventory. */
+  dropped?: boolean;
+};
+
+/** `POST v1/actor-rounds/:id/poisonings/:exposureId/resolve` (spec 042). */
+export type ResolvePoisoningResult = { actorRound: ActorRound; rr: PoisonRrResult; injuryId?: string };
+
+/** `POST v1/actor-rounds/:id/injuries/:injuryId/antidote` (spec 042). */
+export type ActorAntidoteResult = { actorRound: ActorRound; injuryId: string; neutralized: boolean };
+
+type BreakageResult = 'absolute-failure' | 'failure' | 'partial-success' | 'success' | 'absolute-success';
+
+export type BreakageCheckResult = {
+  itemId: string;
+  roll: number;
+  unmodified66: boolean;
+  total: number;
+  breakdown: { key: string; value: number }[];
+  result: BreakageResult;
+  modifier?: StrategicItemModifier;
+};
+
+/** `POST /actor-rounds/:id/breakage-checks`. */
+export type BreakageCheckDto = {
+  itemId: string;
+  roll: number;
+  unmodifiedRoll?: number;
+  alertId?: string;
+  strength?: number;
+  modifiers?: { key: string; value: number }[];
+};
+
+type ActorRoundFatigue = {
+  /** Endurance bonus: Body Development plus the racial bonus (workspace spec 077). */
   endurance: number;
+  /** Fatigue penalty points (0-50): the penalty is its negative. */
   fatigue: number;
+  /** An endurance roll is due at 100. */
   accumulator: number;
+  /** Rounds in a row without exertion: every 12 (24 at altitude) recover one point (workspace spec 077). */
+  restRounds?: number;
+  /** The actor exerted itself this round, so the round is no rest (workspace spec 077). */
+  exerted?: boolean;
 };
 
-export type ActorRoundDefense = {
+type ActorRoundDefense = {
   bd: number;
-  at: number | undefined;
+  /** AT of the whole body; null for armor by location (workspace spec 077): the location of the critical decides it. */
+  at: number | null | undefined;
   headAt: number | undefined;
   bodyAt: number | undefined;
   armsAt: number | undefined;
@@ -70,7 +371,7 @@ export type ActorRoundDefense = {
   protect: number;
 };
 
-export type ActorRoundDefenseShield = {
+type ActorRoundDefenseShield = {
   db: number;
 };
 
@@ -79,7 +380,19 @@ export type ActorRoundEffect = {
   status: string;
   value: number | undefined;
   rounds: number | undefined;
-};
+  /** Foe the effect refers to (the target of `pressing-advantage`). */
+  targetActorId?: string;
+  /** Round and phase the effect was applied in, and the AP the actor had spent before it (set by the API). */
+  appliedRound?: number;
+  appliedPhase?: number;
+  spentApBefore?: number;
+  /** Where the effect comes from: the critical or fumble, or the strategic condition it was copied from (spec 013). */
+  source?: InjurySource;
+  /** First round a delayed effect counts in (spec 034). */
+  fromRound?: number;
+  /** `dying`: the injury that causes it was treated, the next stabilize success removes it (workspace spec 068). */
+  causeTreated?: boolean;
+} & CombatTalentEffectFields;
 
 export type ActorRoundAttack = {
   attackName: string;
@@ -92,10 +405,135 @@ export type ActorRoundAttack = {
   fumble: number;
   canThrow: boolean;
   ranges: ActorRoundAttackRange[] | undefined;
+  twoHanded?: boolean;
+  weaponCategory?: WeaponCategory;
+  /** Item of the attack (spec 019). */
+  itemId?: string | null;
+  /** Combat skill of the attack (`melee-weapons@sword`): the specialization the talents of the actor match. */
+  skillId?: string | null;
+  /** Breakage damage of its item in the game, already in `currentBo`. */
+  breakagePenalty?: number;
+  /** Its item broke in the game: it cannot be declared. */
+  broken?: boolean;
 };
+
+/** Weapon kind for the multiple attacks bonuses (Table 9-7b). */
+type WeaponCategory = 'standard' | 'light' | 'dagger' | 'natural' | 'unarmed';
 
 export type ActorRoundAttackRange = {
   from: number;
   to: number;
   bonus: number;
+};
+
+/** Procedures that can be done on an injury during a tactical game (spec 013, §3). */
+export const TACTICAL_PROCEDURES = ['pressure', 'stitches', 'tourniquet', 'cauterize', 'dress', 'magic'] as const;
+export type TacticalProcedure = (typeof TACTICAL_PROCEDURES)[number];
+
+/** Healer and roll of a medical maneuver: an actor of the game (`healerActorId`) or an external healer. */
+export type MedicalRollDto = {
+  healerActorId?: string;
+  healer?: { name: string; bonus: number };
+  /** Open-ended roll. */
+  roll: number;
+  /** Difficulty modifier chosen by the game master; the API takes it from core's treatment table when missing. */
+  difficulty?: number;
+};
+
+export type TreatInjuryDto = MedicalRollDto & {
+  procedure: TacticalProcedure;
+  /** First die of the open-ended roll, when it is not `roll` (66: unusual event of a cauterization). */
+  unmodifiedRoll?: number;
+  /** Cauterize: sum of the d10 of extra hits; rolled by the API when missing. */
+  heatHitsRoll?: number;
+  /** Cauterize: roll (1-100) of the heat critical; an alert for the game master when missing. */
+  heatCriticalRoll?: number;
+};
+
+/** What a cauterization did besides the bleeding (Table 13-1c). */
+type HeatResult = {
+  critical: string;
+  hitsDice: number;
+  hits: number;
+  criticalRoll?: number;
+  criticalDamage?: number;
+  criticalText?: string;
+  alertId?: string;
+};
+
+/** `PATCH v1/actor-rounds/:id/injuries/:injuryId` (game master). */
+export type UpdateActorInjuryDto = Partial<
+  Pick<
+    Injury,
+    | 'type'
+    | 'severity'
+    | 'location'
+    | 'side'
+    | 'penalty'
+    | 'bleeding'
+    | 'bleedingControl'
+    | 'flags'
+    | 'description'
+    | 'status'
+  >
+>;
+
+type MedicalResult = 'absolute-failure' | 'failure' | 'partial-success' | 'success' | 'absolute-success';
+
+/** Result of a treatment or a stabilization in a tactical game. */
+export type MedicalResultDto = {
+  actorRound: ActorRound;
+  result: MedicalResult;
+  roll: number;
+  /** Medicine bonus of the healer. */
+  bonus: number;
+  /** Penalties of the healer actor (0 or negative). */
+  healerPenalty: number;
+  difficulty: number;
+  /** roll + bonus + difficulty + healer penalty. */
+  total: number;
+  /** The total entry by entry, with the rules (spec 052). */
+  breakdown?: RollModifier[];
+  message?: string;
+  recoveryModifier: number;
+  treatment?: unknown;
+  /** Severity of the heat critical the game master has to resolve (cauterize). */
+  heatCritical?: string;
+  /** Cauterize: extra hits and heat critical (workspace spec 022). */
+  heat?: HeatResult;
+  /** Cauterize: unmodified 66, the patient catches fire (game master). */
+  unusualEvent?: boolean;
+  /** Rounds the dying effect gained (stabilize). */
+  roundsGained?: number;
+  /** Stabilize: its cause was treated and the success removed the dying effect (workspace spec 068). */
+  removed?: boolean;
+};
+
+/** Workspace spec 079, C1: `POST v1/actor-rounds/:id/amputations`, an emergency amputation at -30. */
+export type AmputateActorLimbRequest = MedicalRollDto & {
+  location: 'arm' | 'leg';
+  side: 'left' | 'right';
+  injuryId?: string;
+  /** Absolute failure: sum of the 2d10 rounds of system shock; rolled by the API when missing. */
+  systemShockRoll?: number;
+};
+
+/** Workspace spec 079, C6: `POST v1/actor-rounds/:id/revive`. The difficulty comes from the method. */
+export type ReviveActorRequest = Omit<MedicalRollDto, 'difficulty'> & {
+  method: 'respiratory' | 'cardiac' | 'defibrillation';
+  defibrillationDifficulty?: number;
+  dangerousSource?: boolean;
+  shockHitsRoll?: number;
+};
+
+export type AmputationResultDto = MedicalResultDto & ActorAmputationFields;
+export type ReviveResultDto = MedicalResultDto & ActorReviveFields;
+
+/** `POST v1/actor-rounds/:id/fear-effects` (workspace spec 068, decision 15). */
+export type FearEffectResult = {
+  fearState: string;
+  effect: { id: string; status: string };
+  /** The actor already had that state or a worse one. */
+  unchanged: boolean;
+  actorRound: ActorRound;
 };

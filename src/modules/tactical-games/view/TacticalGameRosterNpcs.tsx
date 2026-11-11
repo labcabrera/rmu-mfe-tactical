@@ -1,0 +1,180 @@
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import AddIcon from '@mui/icons-material/Add';
+import EditIcon from '@mui/icons-material/Edit';
+import { Box, Button, Chip, IconButton, Stack, TextField, Tooltip, Typography } from '@mui/material';
+import {
+  avatarSize,
+  ChipRow,
+  EmptyState,
+  EntityAvatar,
+  entityImage,
+  ENVIRONMENT_FACTION_ID,
+  environmentFactionName,
+  Faction,
+  LoadingState,
+  Npc,
+  NpcEntry,
+  NpcEntryDialog,
+  npcImage,
+  resolveAssetUrl,
+  RmuDialog,
+  TacticalGame,
+} from '@labcabrera-rmu/rmu-react-shared-lib';
+import { canManageTactical } from '../../shared/permissions';
+import type { RosterPending } from './roster-npcs';
+import { factionNpcSpecimens } from './roster-npcs';
+
+type NpcGroup = { id: string; name: string; image: string; faction?: Faction };
+
+/**
+ * The NPC actors of a tactical game by faction that are not chosen in the roster (the NPCs of the strategic faction
+ * are, like its characters), the environment included (spec 055). While the game is `created`, specimens can be added
+ * to a faction or to the environment, removed one by one, and the environment renamed. The API refuses those changes
+ * once the game started.
+ */
+export default function TacticalGameRosterNpcs({
+  game,
+  factions,
+  npcs,
+  pending,
+  onAddNpcs,
+  onRemoveActor,
+  onRenameEnvironment,
+}: {
+  game: TacticalGame;
+  /** The strategic factions selected for the game. */
+  factions: Faction[];
+  npcs: Npc[] | undefined;
+  pending: RosterPending;
+  onAddNpcs: (factionId: string, entries: NpcEntry[]) => void;
+  onRemoveActor: (actorId: string) => void;
+  onRenameEnvironment: (name: string) => void;
+}) {
+  const { t } = useTranslation();
+  const [adding, setAdding] = useState<string | null>(null);
+  const [renaming, setRenaming] = useState<string | null>(null);
+  const editable = game.status === 'created' && canManageTactical(game);
+  const busy = pending !== null;
+  const chosenInRoster = factions.flatMap((faction) => factionNpcSpecimens(faction, game)).map((each) => each.actorId);
+  const npcActors = game.actors.filter((actor) => actor.type === 'npc' && !chosenInRoster.includes(actor.id));
+  const environmentName = environmentFactionName(game.environmentFaction?.name, t);
+
+  const groups: NpcGroup[] = [
+    ...factions.map((faction) => ({
+      id: faction.id,
+      name: faction.name,
+      image: entityImage('faction', faction.imageUrl),
+      faction,
+    })),
+    { id: ENVIRONMENT_FACTION_ID, name: environmentName, image: entityImage('npc', undefined) },
+  ];
+  const shownGroups = editable ? groups : groups.filter((group) => npcActors.some((a) => a.faction.id === group.id));
+  const imageOf = (npcId: string | undefined) => {
+    const npc = npcId ? npcs?.find((each) => each.id === npcId) : undefined;
+    return npc ? resolveAssetUrl(npcImage(npc)) : undefined;
+  };
+
+  if (shownGroups.length === 0) return null;
+
+  return (
+    <Box>
+      <Typography variant="h6" sx={{ mb: 1.5 }}>
+        {t('npcs')}
+      </Typography>
+      <Stack spacing={2.5}>
+        {shownGroups.map((group) => {
+          const actors = npcActors.filter((actor) => actor.faction.id === group.id);
+          const isEnvironment = group.id === ENVIRONMENT_FACTION_ID;
+          return (
+            <Box key={group.id}>
+              <Stack direction="row" spacing={1} sx={{ alignItems: 'center', mb: 1, flexWrap: 'wrap', rowGap: 0.5 }}>
+                <EntityAvatar name={group.name} imageUrl={group.image} size={32} />
+                <Typography variant="subtitle1" sx={{ fontWeight: 600, minWidth: 0 }} noWrap>
+                  {group.name}
+                </Typography>
+                {isEnvironment && editable && (
+                  <Tooltip title={t('rename-environment-faction')}>
+                    <IconButton
+                      size="small"
+                      aria-label={t('rename-environment-faction')}
+                      disabled={busy}
+                      onClick={() => setRenaming(environmentName)}
+                    >
+                      <EditIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                )}
+                <Typography variant="body2" color="text.secondary" sx={{ flexGrow: 1 }}>
+                  {actors.length}
+                </Typography>
+                {pending === `npcs:${group.id}` && <LoadingState variant="inline" />}
+                {editable && (
+                  <Button size="small" startIcon={<AddIcon />} disabled={busy} onClick={() => setAdding(group.id)}>
+                    {t('add-npc')}
+                  </Button>
+                )}
+              </Stack>
+              {actors.length === 0 ? (
+                <EmptyState dense title={isEnvironment ? t('environment-npcs-empty') : t('faction-npc-actors-empty')} />
+              ) : (
+                <ChipRow>
+                  {actors.map((actor) => (
+                    <Chip
+                      key={actor.id}
+                      label={actor.name}
+                      variant="outlined"
+                      avatar={
+                        <EntityAvatar
+                          name={actor.name}
+                          imageUrl={imageOf(actor.npcId)}
+                          kind="npc"
+                          size={avatarSize.chip}
+                        />
+                      }
+                      disabled={pending === actor.id}
+                      onDelete={editable && !busy ? () => onRemoveActor(actor.id) : undefined}
+                      sx={{ maxWidth: '100%' }}
+                    />
+                  ))}
+                </ChipRow>
+              )}
+            </Box>
+          );
+        })}
+      </Stack>
+      <NpcEntryDialog
+        open={adding !== null}
+        title={t('add-npc')}
+        npcs={npcs}
+        onSave={(entry) => {
+          if (adding) onAddNpcs(adding, [entry]);
+          setAdding(null);
+        }}
+        onClose={() => setAdding(null)}
+      />
+      <RmuDialog
+        open={renaming !== null}
+        title={t('rename-environment-faction')}
+        maxWidth="xs"
+        onCancel={() => setRenaming(null)}
+        onConfirm={() => {
+          if (renaming?.trim()) onRenameEnvironment(renaming.trim());
+          setRenaming(null);
+        }}
+        onConfirmDisabled={!renaming?.trim()}
+      >
+        <TextField
+          label={t('environment-faction-name')}
+          name="environment-faction-name"
+          value={renaming ?? ''}
+          placeholder={environmentFactionName(undefined, t)}
+          onChange={(event) => setRenaming(event.target.value)}
+          fullWidth
+          autoFocus
+          sx={{ mt: 1 }}
+        />
+      </RmuDialog>
+    </Box>
+  );
+}

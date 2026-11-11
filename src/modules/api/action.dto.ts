@@ -1,17 +1,141 @@
-import { KeyValue } from '@labcabrera-rmu/rmu-react-shared-lib';
+import {
+  ManeuverFogListing,
+  AbsoluteResultKey,
+  AdrenalManeuverOutcome,
+  BlockBManeuverPurpose,
+  ComplementaryHelper,
+  FeatOfStrengthChoices,
+  FeatOfStrengthListing,
+  FeatOfStrengthResult,
+  SimilarityChoice,
+  ActionOther,
+  ActionParryBlockAFields,
+  ActionAim,
+  ActionSpellAdjusted,
+  BmrMultiplier,
+  DeclareShieldManeuverItem,
+  FALL_CONTROL_PURPOSE,
+  GRAPPLE_ESCAPE_PURPOSE,
+  GrappleEscapeResult,
+  GrappleEscapeRow,
+  GrappleFeat,
+  ShieldManeuver,
+  ActionAttackReaction,
+  ActionAttackDisarm,
+  ActionStrayShot,
+  AttackModifiersBlockAFields,
+  AttackTalentModifiers,
+  SubdualAdjustment,
+  ActionDrawAndLoad,
+  ActionReaction,
+  CombatTalentManeuverFields,
+  CombatTalentPurpose,
+  CriticalRerollFields,
+  ForceReason,
+  ManeuverLightOption,
+  ManeuverModifier,
+  ManeuverModifierOption,
+  ManeuverRollTalent,
+  ManeuverSenseChoices,
+  ResolveManeuverTalentFields,
+  SituationalTraitOption,
+  ManeuverSenses,
+  ManeuverType,
+  RuleParams,
+  SkippedRule,
+  SpasmRoundsField,
+} from '@labcabrera-rmu/rmu-react-shared-lib';
 
+export type FrenzyPurpose = 'frenzy-enter' | 'frenzy-enter-greater' | 'frenzy-exit';
+
+export type { ForceReason } from '@labcabrera-rmu/rmu-react-shared-lib';
+
+/**
+ * What a maneuver is for: the Adrenal Focus frenzy (spec 040) or the maneuver of a combat talent (workspace spec 076:
+ * Battle Cry, Sense Weakness, Study Offense, Precision).
+ */
+export type ManeuverPurpose =
+  | FrenzyPurpose
+  | CombatTalentPurpose
+  | typeof GRAPPLE_ESCAPE_PURPOSE
+  | typeof FALL_CONTROL_PURPOSE
+  // Workspace spec 079, block B: feat of strength, adrenal moves and Fortitude
+  | BlockBManeuverPurpose;
+
+// Same values as rmu-api-tactical (action-status.vo.ts). `pending_roll` is the current status while the attack,
+// critical or fumble rolls are pending: each attack's `status` says which roll it waits for.
+// `pending_attack_roll` and `critical_or_fumble_roll` are the older statuses, still present in stored actions.
+// Spec 011: `interrupted` (another action replaced it or the actor could not act), `expired` (the round ended),
+// `carried` (it goes on in a continuation action of the next round) and `held` (held by the game master).
 export type ActionStatus =
   | 'declared'
   | 'prepared'
   | 'parry'
-  | 'parry_declaration'
+  | 'pending_roll'
   | 'pending_attack_roll'
-  | 'roll_declaration'
-  | 'critical_and_fumble_roll_declaration'
+  | 'critical_or_fumble_roll'
   | 'pending_apply'
-  | 'completed';
-export type ActionType = 'movement' | 'melee_attack' | 'ranged_attack' | 'maneuver' | 'skill' | 'free';
-export type CalledShot = 'none' | 'head' | 'chest' | 'abdomen' | 'arms' | 'legs';
+  | 'completed'
+  | 'interrupted'
+  | 'expired'
+  | 'carried'
+  | 'held';
+
+/** Statuses of an action that is over: it takes no more action points nor resolution steps. */
+export const CLOSED_ACTION_STATUSES: ActionStatus[] = ['completed', 'interrupted', 'expired', 'carried'];
+
+/**
+ * How close an action is to being resolved (spec 011, §4), computed by the API: below its minimum AP and able to
+ * reach it this round (`blocked`) or not (`unreachable`), resolvable with a penalty (`ready`) or without one
+ * (`optimal`), held, with resolution steps under way, or over.
+ */
+type ActionReadiness = 'blocked' | 'unreachable' | 'ready' | 'optimal' | 'held' | 'in-resolution' | 'done';
+
+/** AP range of an action type (spec 011, §3). */
+export type ActionApProfile = { min: number; max: number };
+
+/**
+ * Reasons an open action can be forced with (`PATCH /actions/{id}/force`, spec 011, §6): a reaction (workspace spec
+ * 076) is only declared as a new forced attack, from its alert.
+ */
+export const OPEN_ACTION_FORCE_REASONS: ForceReason[] = ['withdrawal', 'pass-through', 'effect', 'gm'];
+
+/** Where the AP of a forced action come from: the actor's next free AP, none, or the ones already spent. */
+type ForcedApSource = 'next-phase' | 'none' | 'as-spent';
+
+type ActionResolution = {
+  mode: 'normal' | 'forced';
+  reason?: ForceReason;
+  apSource?: ForcedApSource;
+  note?: string;
+};
+
+/** Per-attack status (rmu-api-tactical attack-status.vo.ts): the roll the attack is waiting for. */
+type AttackStatus =
+  'pending_attack_roll' | 'pending_critical_roll' | 'pending_fumble_roll' | 'pending_apply' | 'completed';
+
+type AttackType = 'melee' | 'ranged' | 'thrown';
+export type ChargeSpeed = 'none' | 'jog' | 'sprint';
+
+export type ActionType =
+  | 'movement'
+  | 'melee_attack'
+  | 'ranged_attack'
+  | 'maneuver'
+  | 'stand_up'
+  | 'dodge'
+  | 'draw_and_load'
+  | 'cast_spell'
+  | 'medical'
+  | 'use_item'
+  /** Sharpshooter (workspace spec 076): a full round aiming a ranged weapon at a foe. */
+  | 'aim'
+  | 'other'
+  | 'skill'
+  | 'free';
+
+/** Action types completed without rolls (`PATCH /actions/{id}/complete`). */
+export const SIMPLE_ACTION_TYPES: ActionType[] = ['stand_up', 'dodge', 'draw_and_load', 'aim', 'other'];
 
 export const MOVEMENT_TABLE = [
   { id: 'creep', multiplier: 1 / 8, penalty: '-', label: 'x1/2' },
@@ -22,62 +146,101 @@ export const MOVEMENT_TABLE = [
   { id: 'dash', multiplier: 1.25, penalty: '4AP+', label: 'x5' },
 ];
 
-export const DIFFICULTY_TABLE: KeyValue[] = [
-  { key: 'c', value: 70 },
-  { key: 's', value: 50 },
-  { key: 'r', value: 30 },
-  { key: 'e', value: 20 },
-  { key: 'l', value: 10 },
-  { key: 'm', value: 0 },
-  { key: 'h', value: -10 },
-  { key: 'vh', value: -20 },
-  { key: 'xh', value: -30 },
-  { key: 'sf', value: -50 },
-  { key: 'a', value: -70 },
-  { key: 'ni', value: -100 },
-];
-
 export type AttackDeclaration = {
   attacks: ActionAttack[];
   parries: ActionParry[] | undefined;
+  /** A bolt with several targets (workspace spec 077, Scope Skills): the OB of each attack; equal parts when missing. */
+  obSplit?: number[];
 };
 
 export type ParryDeclarationItem = {
   parryId: string;
   parry: number;
+  /** Result of the Combat Training maneuver against a further foe (workspace spec 079, A2). */
+  maneuverResult?: AbsoluteResultKey;
+  /** Its roll (workspace spec 084); the API reads the result on the table. */
+  maneuverRoll?: number;
+  maneuverDifficulty?: string;
 };
 
+/** Body of `PATCH /actions/{id}/attack/parry`: the parries and the Shield maneuvers (workspace spec 077); both optional. */
 export type ParryDeclaration = {
-  parries: ParryDeclarationItem[];
+  parries?: ParryDeclarationItem[];
+  shieldManeuvers?: DeclareShieldManeuverItem[];
 };
 
-export type ActionMovementModifiers = {
+type ActionMovementModifiers = {
   pace: string;
   requiredManeuver: boolean;
   skillId: string;
   difficulty: string | null;
   customBonus: number | null;
+  light?: string | null;
+  /** Feat of Strength of a grappled actor or its grappler to move away (workspace spec 077): required while grappled. */
+  grappleFeat?: GrappleFeat | null;
+  /** Moving backwards: half the BMR, up to jog (workspace spec 081). */
+  backwards?: boolean | null;
 };
 
-export type ActionMovementCalculated = {
+/** Table 5-1: light helps movement maneuvers (the helpful column); the API applies the same values. */
+export const MOVEMENT_LIGHT_OPTIONS: { key: string; value: number }[] = [
+  { key: 'no_shadows', value: 0 },
+  { key: 'light_shadows', value: -5 },
+  { key: 'medium_shadows', value: -10 },
+  { key: 'heavy_shadows', value: -15 },
+  { key: 'dark', value: -25 },
+  { key: 'extremely_dark', value: -35 },
+  { key: 'pitch_black', value: -50 },
+];
+
+type ActionMovementCalculated = {
   bmr: number;
-  paceMultiplier: number;
+  /** Null in a normal movement: 1 BMR per AP, whatever the pace of the round (workspace spec 081). */
+  paceMultiplier: number | null;
   percent: number;
   distance: number;
   distanceAdjusted: number;
   description: string;
   critical: string | null;
+  /** What changed the BMR (workspace spec 077): half movement, concentration. The `bmr` has them applied. */
+  bmrMultipliers?: BmrMultiplier[];
 };
 
-export type KeyValueModifier = {
+/** Who a modifier favours, or which stage of the resolution adds it. */
+type ModifierGroup =
+  | 'offense'
+  | 'defense'
+  | 'situation'
+  | 'critical'
+  | 'resolution'
+  | 'skill'
+  | 'casting'
+  | 'target'
+  | 'penalty'
+  /** Sense talents and Light Sensitivity of a maneuver (workspace spec 076), in their own breakdown group. */
+  | 'senses'
+  /** Magical talents of a spell roll and Iron Will in a resistance roll (workspace spec 077). */
+  | 'talent';
+
+type KeyValueModifier = {
   key: string;
   value: number;
+  /** Breakdown group of the combat plugin that added it. */
+  group?: ModifierGroup;
+  /** Id of the combat plugin that added it. */
+  source?: string;
+  /** Rule reference of the plugin (`§9.6`), for its explanation (spec 051). */
+  rule?: string;
+  /** Inputs of the value, for its explanation. */
+  params?: RuleParams;
 };
 
-export type ActionRoll = {
-  modifiers?: KeyValue[];
+type ActionRoll = {
+  modifiers?: KeyValueModifier[];
   roll: number | null;
   totalRoll?: number;
+  /** Rules that did not apply to the roll, and why (spec 052). */
+  skipped?: SkippedRule[];
 };
 
 export type ActionMovement = {
@@ -86,25 +249,167 @@ export type ActionMovement = {
   calculated?: ActionMovementCalculated;
 };
 
-export type ActionManeuverModifiers = {
+/** Choice for a catalog modifier of the skill: the option key, the flag, or the number of units. */
+export type ManeuverSelection = string | boolean | number;
+
+type ActionManeuverModifiers = {
   skillId: string | null;
-  maneuverType: string | null;
+  specialization?: string | null;
+  maneuverType: ManeuverType | string | null;
   difficulty: string | null;
-  lightModifier: string | null;
+  /** @deprecated Light usage sent before spec 010; the skill's maneuver profile says it now. */
+  lightModifier?: string | null;
   light: string | null;
   customBonus: number | null;
+  selections?: Record<string, ManeuverSelection>;
+  /** Conflicting maneuver: total of the passive side. */
+  passiveTotal?: number | null;
+  /** Actor the maneuver is against, and the skill its sheet gave the passive total with (spec 022). */
+  targetActorId?: string | null;
+  passiveSkillId?: string | null;
+  /** Adrenal Focus maneuver to enter or leave the frenzy (spec 040), or a combat talent (workspace spec 076). */
+  purpose?: ManeuverPurpose | null;
+  /** Workspace spec 079, B1-B2: the similar skill, the helpers and the load of a feat of strength. */
+  similarity?: SimilarityChoice | null;
+  complementary?: ComplementaryHelper[] | null;
+  featOfStrength?: FeatOfStrengthChoices | null;
+  /** Workspace spec 079, D3: the situational talents ticked and the actor perceived or tracked by smell. */
+  situationalTraits?: string[] | null;
+  senseTargetActorId?: string | null;
+} & CombatTalentManeuverFields;
+
+/** Effect of an absolute maneuver result (core's table). */
+export type ActionManeuverEffect = {
+  status: string;
+  value?: number;
+  modifier?: string;
+  rounds?: number;
+  roundDelay?: number;
 };
 
+/** Absolute results carry `result`; percent ones `percent` (and `completed` when the task reaches 100). */
 export type ActionManeuverResult = {
-  result: string;
-  message: string;
+  result?: string;
+  message?: string;
+  effects?: ActionManeuverEffect[];
+  /** The unmodified roll was a 66: the message ends with the table's unusual event. */
+  unusualEvent?: boolean;
+  percent?: number;
+  critical?: string | null;
+  completed?: boolean;
+  /** Trading: price as a percent of the asked one, 50 to 200 (spec 022). */
+  price?: number;
+  /** Leadership: outcome of the morale table (refuses, obeys...), and the modifier to later morale rolls. */
+  outcome?: string;
+  moraleModifier?: number;
+  moraleModifierDays?: number;
+  /** Talent that changed the result of the table (workspace spec 076). */
+  rollTalent?: ManeuverRollTalent;
+  /** `grapple-escape` (workspace spec 077): the roll against each grapple and what is left of it. */
+  grappleEscape?: GrappleEscapeResult[];
+  /** fall-control (workspace spec 077): severity steps of a fall, +1 absolute failure, -1 success, -2 absolute success. */
+  fallControlSteps?: number;
+  /** Workspace spec 079: how the difficulty of a feat of strength was found, and what an adrenal move gave. */
+  featOfStrength?: FeatOfStrengthResult;
+  adrenal?: AdrenalManeuverOutcome;
 };
 
 export type ActionManeuver = {
   modifiers: ActionManeuverModifiers;
   roll: ActionRoll | undefined;
   result: ActionManeuverResult | undefined;
+  /** Percent maneuvers: percent accumulated, including the earlier rounds of the task. */
+  progress?: number;
+  /** Percent maneuver this one continues (spec 010 §4.4). */
+  continuesActionId?: string;
 };
+
+/** Where a base modifier of a maneuver comes from. */
+type ManeuverBaseSource = 'actor-round' | 'equipment' | 'movement' | 'action';
+
+/** Modifier the API applies by itself (penalties, armor, encumbrance, pace, AP). Read-only in the UI. */
+type ManeuverBaseModifier = {
+  key: string;
+  value: number;
+  source: ManeuverBaseSource | string;
+  /** Breakdown group, rule reference and inputs (spec 052). */
+  group?: ModifierGroup;
+  rule?: string;
+  params?: RuleParams;
+};
+
+/** Skill modifier of core's catalog, as the listing returns it. */
+export type ManeuverSkillModifier = Omit<ManeuverModifier, 'accessType' | 'owner'>;
+
+/** `GET /actions/{id}/maneuver/modifiers`: what a maneuver roll can take (spec 010 §3). */
+export type ManeuverModifiersListing = {
+  skill: { skillId: string; specialization: string | null; bonus: number; ranks: number; unskilled: boolean };
+  maneuverType: ManeuverType;
+  resultTable: string;
+  base: ManeuverBaseModifier[];
+  difficulty: { default: string; options: ManeuverModifierOption[] };
+  /**
+   * Only for skills that use light; the values already take the usage into account, and the Nightvision of the actor
+   * (workspace spec 076). Perception and Tracking use it only with vision.
+   */
+  light?: { usage: 'helpful' | 'required' | 'hiding'; options: ManeuverLightOption[] };
+  /** Ambient light of the tactical game (workspace spec 076): the default of the light selector. */
+  defaultLight?: string | null;
+  /** Perception and Tracking (workspace spec 076): the senses and the sense talents of the actor. */
+  senses?: ManeuverSenses;
+  skillModifiers: ManeuverSkillModifier[];
+  /** An absolute maneuver may take the passive side's total. */
+  conflicting: boolean;
+  /** Percent maneuvers: progress accumulated before this roll. */
+  progress?: number;
+  /** Rules of the base modifiers that do not apply, and why (spec 052). */
+  skipped?: SkippedRule[];
+  /** Workspace spec 079, B1: lines of the similar skill and the complementary helpers asked for in the query. */
+  aids?: ManeuverBaseModifier[];
+  /** Workspace spec 079, B2: the weight and St of the sheet, and the difficulty of the load asked for. */
+  featOfStrength?: FeatOfStrengthListing;
+  /** Workspace spec 079, C5: the fog of the game for Perception and Tracking (§15.7). */
+  fog?: ManeuverFogListing;
+  /** Workspace spec 079, D3: the situational talents of the actor for this skill (ticked or automatic). */
+  situationalTraits?: SituationalTraitOption[];
+};
+
+/** Query of `GET /actions/{id}/maneuver/modifiers` (workspace spec 079): the purpose, the aids and the load. */
+export type ManeuverListingQuery = {
+  purpose?: ManeuverPurpose | null;
+  similarity?: SimilarityChoice | null;
+  complementary?: ComplementaryHelper[];
+  featOfStrength?: Partial<FeatOfStrengthChoices> | null;
+};
+
+/** `PATCH /actions/{id}/maneuver/resolve` (spec 010 §4.1). */
+export type ResolveManeuverDto = {
+  skillId?: string;
+  specialization?: string;
+  maneuverType?: ManeuverType;
+  difficulty?: string;
+  light?: string;
+  selections?: Record<string, ManeuverSelection>;
+  customBonus?: number;
+  passiveTotal?: number;
+  /** Actor the maneuver is against: its roll and skill bonus (from its sheet, typed for an NPC) give the passive total. */
+  targetActorId?: string;
+  passiveRoll?: number;
+  passiveBonus?: number;
+  /** Spec 040: enter or leave the frenzy on a success; spec 076: the maneuver of a combat talent. */
+  purpose?: ManeuverPurpose;
+  /** Every die of the open-ended roll (spec 076): the API checks them with the actor's roll profile. A grapple escape
+   * sends one roll per grapple in `grappleEscape` instead (workspace spec 077). */
+  roll?: { roll: number; unmodified?: number; dice?: number[] };
+  grappleEscape?: GrappleEscapeRow[];
+  /** Workspace spec 079, B1-B2. */
+  similarity?: SimilarityChoice;
+  complementary?: ComplementaryHelper[];
+  featOfStrength?: FeatOfStrengthChoices;
+} & CombatTalentManeuverFields &
+  ManeuverSenseChoices &
+  ResolveManeuverTalentFields &
+  SpasmRoundsField;
 
 export type Action = {
   id: string;
@@ -114,75 +419,417 @@ export type Action = {
   actionType: ActionType;
   freeAction: boolean;
   phaseStart: number;
+  /** Declared by the game master in a past phase of the round (workspace spec 089). */
+  retroactive?: boolean;
   phaseEnd: number | null;
   status: ActionStatus;
+  /** AP spent on the action, from the AP ledger of its actor round. */
   actionPoints: number | null;
+  /** AP range of the action (absent in responses of older APIs). */
+  apProfile?: ActionApProfile;
+  readiness?: ActionReadiness | null;
+  /** Penalty of resolving the action with its AP now (0 or negative). */
+  readinessPenalty?: number | null;
+  resolution?: ActionResolution;
+  /** Action of the previous round this one continues (open rounds). */
+  continuesActionId?: string;
+  /** AP the continued action had spent, counted in this one. */
+  carriedAp?: number;
   movement: ActionMovement | null;
   maneuver: ActionManeuver | null;
   attacks: ActionAttack[] | null;
   parries: ActionParry[] | null;
+  /** Actors who cannot parry or protect, and why (spec 051). */
+  parryExclusions?: ParryExclusion[];
   fatigue: number | null;
+  /** Note of the action (what an "other" action was...). */
+  description?: string | null;
+  /** Spell of a `cast_spell` action (spec 030). */
+  spell?: ActionSpell | null;
+  /** Procedure of a `medical` action (workspace spec 068). */
+  medical?: ActionMedical | null;
+  /** Healing item of a `use_item` action (workspace spec 068). */
+  useItem?: ActionUseItem | null;
+  /** Warnings of the request that did not need a confirmation (workspace spec 068). */
+  warnings?: ActionWarning[];
+  /** Reaction of an attack forced as `reaction` (workspace spec 076). */
+  reaction?: ActionReaction | null;
+  /** Weapon of a `draw_and_load` action (workspace spec 076). */
+  drawAndLoad?: ActionDrawAndLoad | null;
+  /** Foe and weapon of an `aim` action (workspace spec 076). */
+  aim?: ActionAim | null;
+  /** Subtype of an `other` action with a fixed cost of Table 8-1 (workspace spec 079, A5). */
+  otherAction?: ActionOther | null;
+  /** Stray shot an attack forced as `stray-shot` comes from: OB 0, no cover (workspace spec 079, A6). */
+  strayShot?: ActionStrayShot | null;
 };
 
-export type ResolveMovementDto = {
-  phase: number;
-  pace: string;
-  requiredManeuver: boolean;
-  difficulty: string;
-  skillId: string;
-  roll: number | null;
+// --- Healing in combat and fear (workspace spec 068) ---
+
+/** A warning of a declaration or resolution; the ones with `requiresConfirm` need the request again with `confirm`. */
+type ActionWarningCode =
+  | 'treatment-interrupted'
+  | 'exertion-reopens-wound'
+  | 'limb-unusable'
+  | 'fear-balk-pace'
+  | 'fear-balk-charge'
+  | 'fear-retreat-pace';
+
+export type ActionWarning = {
+  code: ActionWarningCode | string;
+  params?: Record<string, string | number | boolean>;
+  requiresConfirm: boolean;
 };
+
+/** 409 code of a request that raised warnings with `requiresConfirm`: `details.warnings` lists them. */
+export const ACTION_CONFIRM_REQUIRED = 'err-action-confirm-required';
+
+/** Procedures of a `medical` action (rmu-api-tactical `MEDICAL_ACTION_PROCEDURES`); surgery is not offered. */
+export const MEDICAL_ACTION_PROCEDURES = [
+  'pressure',
+  'stitches',
+  'tourniquet',
+  'cauterize',
+  'dress',
+  'splint',
+  'cast',
+  'salve',
+  'magic',
+  'stabilize',
+] as const;
+export type MedicalProcedure = (typeof MEDICAL_ACTION_PROCEDURES)[number];
+
+/** AP a `medical` action takes in each round it lasts. */
+export const MEDICAL_AP_PER_ROUND = 4;
+
+type MedicalActionState = 'pending' | 'in-progress' | 'completed' | 'aborted';
+
+export type CastSupport = 'none' | 'cane' | 'crutches';
+
+/** The Herbalism roll of a herb that helps the treatment: +25 to the Medicine roll on a success. */
+type MedicalHerbalism = {
+  roll: number | null;
+  itemId?: string | null;
+  total?: number;
+  success?: boolean;
+  bonus?: number;
+};
+
+/** A round of a medical action resolved: the first one (Medicine roll), the last one, or each stabilize roll. */
+export type MedicalStepResult = {
+  round: number;
+  step: number;
+  roll?: number;
+  total?: number;
+  result?: string;
+  breakdown?: KeyValueModifier[];
+  roundsGained?: number;
+  removed?: boolean;
+  completed?: boolean;
+  heatCritical?: string | null;
+  heatHits?: number | null;
+};
+
+export type ActionMedical = {
+  patientActorId: string;
+  injuryId: string | null;
+  effectId: string | null;
+  procedure: MedicalProcedure | string;
+  /** Rounds of 4 AP it takes (core's duration, or the game master's). */
+  rounds: number;
+  roundsOverride?: boolean;
+  roll: number | null;
+  difficulty?: string | null;
+  herbalism?: MedicalHerbalism | null;
+  castSupport?: CastSupport | null;
+  salveModifier?: number | null;
+  /** First action of the procedure: its continuations keep it. */
+  originActionId: string;
+  startedRound: number | null;
+  /** Rounds of 4 AP already resolved. */
+  resolvedSteps: number;
+  state: MedicalActionState;
+  results: MedicalStepResult[];
+};
+
+type ActionUseItem = {
+  itemId: string;
+  targetActorId: string;
+  roll?: number | null;
+  result?: { itemName: string; roll?: number; healed: number; stunRoundsRemoved: number } | null;
+};
+
+/** `medical` part of `POST /actions`. Rolls left empty are made when the action is resolved. */
+export type MedicalDeclarationDto = {
+  patientActorId: string;
+  injuryId?: string | null;
+  effectId?: string | null;
+  procedure: MedicalProcedure;
+  rounds?: number | null;
+  roll?: number | null;
+  unmodifiedRoll?: number | null;
+  difficulty?: string | null;
+  herbalism?: { roll: number | null; itemId?: string | null } | null;
+  castSupport?: CastSupport;
+  salveModifier?: number | null;
+  heatHitsRoll?: number | null;
+  heatCriticalRoll?: number | null;
+};
+
+/** `useItem` part of `POST /actions`: the target is the actor itself when missing. */
+export type UseItemDeclarationDto = { itemId: string; targetActorId?: string; roll?: number | null };
+
+/** `PATCH /actions/{id}/medical/resolve`: the rolls of the round the declaration did not send. */
+export type ResolveMedicalDto = {
+  roll?: number | null;
+  unmodifiedRoll?: number | null;
+  heatHitsRoll?: number | null;
+  heatCriticalRoll?: number | null;
+  herbalismRoll?: number | null;
+};
+
+// --- Spell casting (spec 030) ---
+
+export type SpellRealm = 'channeling' | 'essence' | 'mentalism';
+type SpellCastResult = 'success' | 'no-effect' | 'failure';
+export type SpellFailurePp = 'none' | 'one' | 'half-down' | 'half-up' | 'normal' | 'double' | 'triple' | 'all';
+export const SPELL_HANDS = ['none', 'one', 'two'] as const;
+export const SPELL_VOICES = ['none', 'whisper', 'normal', 'shout'] as const;
+export const SPELL_HELMETS = ['none', 'light', 'medium', 'heavy'] as const;
+export const SPELL_ARMORS = ['none', 'leather', 'metal'] as const;
+
+export type SpellOptions = {
+  subtle: boolean;
+  hands: (typeof SPELL_HANDS)[number];
+  voice: (typeof SPELL_VOICES)[number];
+  helmet: (typeof SPELL_HELMETS)[number];
+  armor: (typeof SPELL_ARMORS)[number];
+  armorEncumbrance: number;
+  preparationRounds: number;
+  customBonus: number;
+};
+
+export const DEFAULT_SPELL_OPTIONS: SpellOptions = {
+  subtle: false,
+  hands: 'two',
+  voice: 'normal',
+  helmet: 'none',
+  armor: 'none',
+  armorEncumbrance: 0,
+  preparationRounds: 0,
+  customBonus: 0,
+};
+
+/** An entry of a spell roll, with its group, rule and inputs since spec 052. */
+type SpellRollModifier = KeyValueModifier;
+
+export type SpellTargetConditions = {
+  willing?: boolean;
+  surprisedOrStunned?: boolean;
+  cover?: 'none' | 'partial' | 'full';
+  armor?: 'none' | 'organic' | 'metal';
+  helmet?: 'none' | 'organic' | 'metal';
+  range?: 'touch' | 'close' | 'normal' | 'far';
+};
+
+export type ActionSpellTarget = {
+  actorId: string;
+  actorName?: string | null;
+  rolled: boolean;
+  roll: number | null;
+  conditions: SpellTargetConditions;
+  breakdown: SpellRollModifier[];
+  /** Conditions of the target that do not count against the spell's realm (spec 052). */
+  skipped?: SkippedRule[];
+  total: number | null;
+  required: number;
+  resisted: boolean;
+  failure: number;
+};
+
+export type ActionSpell = {
+  spell: {
+    spellId: string;
+    name: string;
+    level: number;
+    typeCode: string | null;
+    type: 'elemental' | 'force' | 'informational' | 'utility';
+    subtype: string | null;
+    instant: boolean;
+    powerPoints: number;
+    listCode: string;
+    listName: string | null;
+    listRealms: SpellRealm[];
+    resistance: { kind: string; modifier: number | null; scaling: string | null } | null;
+    range?: Record<string, unknown> | null;
+    area?: Record<string, unknown> | null;
+    duration: Record<string, unknown> | null;
+    effects: Record<string, unknown>[];
+    /** Range, area and duration with the caster's magical talents (workspace spec 077); missing when none changes them. */
+    adjusted?: ActionSpellAdjusted | null;
+  };
+  caster: {
+    realms: SpellRealm[];
+    realmStatBonus: number;
+    level: number;
+    listSkillId: string;
+    ranks: number;
+    listTypeModifier: number;
+  };
+  options?: SpellOptions;
+  roll?: { modifiers: SpellRollModifier[]; roll: number; totalRoll: number; skipped?: SkippedRule[] };
+  result?: SpellCastResult;
+  failure?: {
+    realm: SpellRealm;
+    roll: number;
+    modifier: number;
+    total: number;
+    text: string;
+    suggestedPp: SpellFailurePp;
+    /** +5 per tier of Inglorious Failure, -5 of Graceful Recovery (workspace spec 077); the total is never below 1. */
+    talentModifier?: number;
+  };
+  targets?: ActionSpellTarget[];
+  powerPointsSpent?: number | null;
+  /** Power points Power Recycling saved from a failed cast (workspace spec 077); null without the talent. */
+  powerPointsRecycled?: number | null;
+  /** Attack of a bolt or ball spell, resolved with the attack flow (spec 030, phase 4). */
+  attack?: ActionSpellAttack | null;
+};
+
+type ActionSpellAttack = {
+  kind: 'bolt' | 'ball';
+  attackName: string;
+  attackTable: string;
+  attackSize: number;
+  criticalType: string;
+  fumbleTable: string;
+  fumble: number;
+  bo: number;
+  skillId: string | null;
+  ranges: { from: number; to: number; bonus: number }[];
+  radius: number | null;
+  /** Targets a bolt strikes: 1 + the tier of Scope Skills for the list (workspace spec 077); 1 when missing. */
+  maxTargets?: number;
+};
+
+export type SpellPreview = {
+  modifiers: SpellRollModifier[];
+  bonus: number;
+  /** Rules of Table 4-2 that do not apply to these choices (spec 052). */
+  skipped?: SkippedRule[];
+  needsPreparation: boolean;
+  actionPoints: number;
+};
+
+export type SpellTargetRoll = { actorId: string; roll?: number; conditions?: SpellTargetConditions; bonus?: number };
 
 export type ActionAttack = {
   attackName: string;
+  /** Set by the API; absent in attacks built by the UI before prepare. */
+  type?: AttackType;
   modifiers: ActionAttackModifiers;
   roll: ActionAttackRoll | null;
   calculated: AttackCalculationsDto | null;
   results: ActionAttackResults | null;
-  status: string;
+  /** Set by the API; absent in attacks built by the UI before prepare and in actions stored before the per-attack status. */
+  status?: AttackStatus;
   protectors: string[] | null;
+  /** Where each protector stands (Table 9-7c), by actor id; `other` when not given. Sent on prepare. */
+  protectorPositions?: Record<string, ProtectPosition>;
+  /** Reaction talent the attack comes from (workspace spec 076). */
+  reaction?: ActionAttackReaction;
+  /** Shield maneuver the defender rolls, from the second attack its shield covers (workspace spec 077). */
+  shieldManeuver?: ShieldManeuver;
+  /** Band of Table 9-7a of a disarm attack (workspace spec 079, A7). */
+  disarm?: ActionAttackDisarm | null;
 };
 
-export type ActionAttackRoll = {
+/** Where a protector stands (Table 9-7c): between attacker and defender, behind the defender, or anywhere else. */
+export type ProtectPosition = 'protector_between' | 'defender_between' | 'other';
+export const PROTECT_POSITIONS: ProtectPosition[] = ['protector_between', 'defender_between', 'other'];
+
+/** Full defence of a completed dodge action (4 AP): a full dodge or a full block. */
+export type FullDefenseType = 'dodge' | 'block';
+
+type ActionAttackRoll = {
   roll: number | null;
-  locationRoll: number | null;
-  criticalRolls?: Map<string, number | null>;
+  /** First die of the high open-ended roll: it decides the fumble (spec 056). */
+  unmodified?: number | null;
+  /** The criticals of an attack share one roll (§9.8): the API stores it under every critical key. */
+  criticalRolls?: Record<string, number | null>;
   fumbleRoll?: number | null;
 };
 
-export type ActionAttackResults = {
+type ActionAttackResults = {
   attackTableEntry: AttackTableEntry | null;
-  criticals: Critical[];
-  fumble: any;
-  attackTableResult: string;
+  criticals?: Critical[];
+  fumble?: ActionAttackFumbleResult;
+  /** Damage of the table scaled by the Hit Multiplier of the attack size (workspace spec 075). */
+  damageAdjustment?: AttackDamageAdjustment;
+  /** How the sizes, the charge, the style and the target moved the critical severity (spec 075). */
+  severityAdjustment?: AttackSeverityAdjustment;
+  /** Hits and critical of the table before a subdual attack (workspace spec 079, A7). */
+  subdualAdjustment?: SubdualAdjustment;
 };
+
+/** `attackTableEntry.damage` is `baseDamage` times `multiplier`, rounded. */
+export type AttackDamageAdjustment = { baseDamage: number; multiplier: number };
+
+/** Steps that moved the critical: `attack-size`, `charge`, `fighting-style`, `target-size`, `light-boned`... */
+type AttackSeverityStep = { key: string; value: number };
+
+/** Severity of the table and the final one; `final` is null when the critical is removed. */
+export type AttackSeverityAdjustment = { original: string; final: string | null; steps: AttackSeverityStep[] };
 
 export type Critical = {
   key: string;
   status: string;
   criticalType: string;
-  criticalSeverity: number;
-  adjustedRoll: number;
-  result: CriticalResult;
-};
+  criticalSeverity: string;
+  adjustedRoll?: number;
+  result?: CriticalResult;
+  /** Fighting style ability that changed the critical before the roll (spec 032). */
+  styleOption?: CriticalStyleOption;
+} & CriticalRerollFields;
 
-export type CriticalResult = {
+type CriticalStyleOption = { abilityId: string; originalType: string; originalSeverity: string };
+
+type CriticalResult = {
   text: string;
+  damage: number;
+  location: string;
+  effects: CriticalEffect[];
 };
 
-export type AttackTableEntry = {
+export type CriticalEffect = {
+  status: string;
+  value?: number | null;
+  rounds?: number | null;
+  /** Rounds before the effect starts. */
+  delay?: number | null;
+  condition?: string | null;
+  /** Limb of a `limb_useless` effect (`arm`, `leg`), spec 034. */
+  location?: string | null;
+  /** Severity of the `additional_critical` of a fumble, spec 034. */
+  severity?: string | null;
+  /** Dice of the value (`2d10`): the hits of a fumble, the distance of a knock back (spec 034). */
+  dice?: string | null;
+};
+
+type AttackTableEntry = {
   damage: number;
   text: string;
-  criticalType: string;
-  criticalSeverity: string;
+  criticalType?: string | null;
+  criticalSeverity?: string | null;
 };
 
-export type ActionAttackFumbleResult = {
+type ActionAttackFumbleResult = {
   status: string;
-  text: string | null;
-  additionalDamageText: string | null;
-  damage: number | null;
-  effects: any[] | undefined;
+  text?: string | null;
+  additionalDamageText?: string | null;
+  damage?: number | null;
+  effects?: CriticalEffect[];
 };
 
 export type ActionAttackModifiers = {
@@ -203,20 +850,38 @@ export type ActionAttackModifiers = {
   proneTarget?: boolean;
   attackerInMelee?: boolean;
   ambush?: boolean;
-  dodge?: string;
   range?: number | null;
   disabledDB: boolean | null;
   disabledShield: boolean | null;
   disabledParry: boolean | null;
   restrictedParry: boolean | null;
   customBonus: number | null;
-};
+  chargeSpeed?: ChargeSpeed;
+  /** Fighting style ability that changes the critical (spec 032). */
+  styleCriticalOption?: string | null;
+} & AttackModifiersBlockAFields &
+  AttackTalentModifiers;
 
-export type AttackCalculationsDto = {
+type AttackCalculationsDto = {
   rollModifiers: KeyValueModifier[];
   rollTotal: number;
-  requiredLocationRoll: boolean;
+  /** Rules that did not apply, and why (spec 051). */
+  skipped?: SkippedRule[];
+  /** Fumble range used for the roll (weapon fumble plus traits such as Foiler). */
+  fumble?: number;
+  /**
+   * Location hit: the called one or, against a target with armor by location (workspace spec 077), the one of the
+   * critical roll sent with the attack roll (`locationRoll`). Otherwise none until a critical hits one.
+   */
   location: string | null;
+  /** The unmodified critical roll that fixed the location: the criticals of the attack are rolled with it. */
+  locationRoll?: number;
+  /** Modifiers applied to the critical rolls (size difference, absolute hit...). */
+  criticalModifiers?: KeyValueModifier[];
+  /** Sum of `criticalModifiers`. */
+  criticalAdjustment?: number | null;
+  /** The attack roll triggered a weapon breakage check. */
+  breakageRoll?: boolean | null;
 };
 
 export type ActionParry = {
@@ -227,14 +892,32 @@ export type ActionParry = {
   targetAttackName: string | undefined;
   parryAvailable: number;
   parry: number;
+  /** Protect penalty left after the Protect skill (0 or negative), spent from the protector's OB when it protects. */
+  penalty?: number;
+  protectPosition?: ProtectPosition;
+  /** Parry declared against this attacker in an earlier action of the round: fixed, its OB is not spent again. */
+  carriedOver?: boolean;
+  /** Where `parryAvailable` comes from: the OB left on the parrying attack and the penalties (spec 051). */
+  breakdown?: ParryBreakdown;
+  /** Workspace spec 079, A2: the parry toward the flank or rear, and the maneuver against further foes. */
+  positional?: ActionParryBlockAFields['positional'];
+  parryManeuver?: ActionParryBlockAFields['parryManeuver'];
+  /** Combat Training of the weapon the actor parries with (workspace spec 084). */
+  maneuverSkill?: number;
+  /** Maneuver typed in the parry step (not sent back by the API). */
+  maneuverInput?: { roll: number | null; difficulty: string; passed: boolean | null };
 };
 
-export type DeclareParryDto = {
-  parries: DeclareParryItemDto[];
-};
+/** The OB left on the melee attack an actor parries with, its penalties and, protecting, the protect penalty. */
+type ParryBreakdown = { attackName: string; bo: number; penalty: number; protectPenalty?: number };
 
-export type DeclareParryItemDto = {
-  parryActorId: string;
-  targetId: string;
-  parry: number;
+/** Why an actor cannot parry or protect against the attack (spec 051). */
+type ParryExclusionReason = 'parry-forbidden' | 'parry-last-action' | 'parry-no-ob';
+
+export type ParryExclusion = {
+  actorId: string;
+  targetActorId: string;
+  parryType: 'parry' | 'protect';
+  reason: ParryExclusionReason;
+  params?: RuleParams;
 };
