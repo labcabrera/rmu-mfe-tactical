@@ -1,6 +1,6 @@
 {
   "name": "rmu-mfe-tactical",
-  "version": "0.9.0",
+  "version": "0.9.1-SNAPSHOT",
   "scripts": {
     "build": "rm -rf dist && webpack --mode production",
     "build:dev": "webpack --mode development",
