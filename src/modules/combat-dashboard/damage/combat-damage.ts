@@ -86,3 +86,7 @@ export const damageByActor = (rows: AttackRow[]): ActorDamage[] => {
   });
   return [...byActor.values()].sort((a, b) => b.damage - a.damage);
 };
+
+/** The part of `max` that `value` fills in a bar, from 0 to 1; nothing when there is no scale. */
+export const barShare = (value: number, max: number | null | undefined): number =>
+  max && max > 0 ? Math.min(1, Math.max(0, value) / max) : 0;

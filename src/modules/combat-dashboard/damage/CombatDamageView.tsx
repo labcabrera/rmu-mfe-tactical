@@ -15,6 +15,7 @@ import { fetchActionsByGame } from '../../api/action';
 import { Action, Critical } from '../../api/action.dto';
 import { useCombatGame, useCombatRound } from '../../combat/combat-context';
 import { attackLabel } from '../../services/attack-label';
+import DamageBar from './DamageBar';
 import { ActorDamage, attackRows, AttackRow, damageByActor } from './combat-damage';
 
 const NUMERIC_SX = { fontVariantNumeric: 'tabular-nums' };
@@ -78,6 +79,13 @@ const CombatDamageView: FC = () => {
   if (rows.length === 0) return <EmptyState dense title={t('damage-tab-empty')} />;
 
   const actorName = (actorId: string) => actorRounds?.find((ar) => ar.actorId === actorId)?.actorName ?? actorId;
+  // The bars: an actor's damage against the most any actor caused, an attack's against the hits of its target (or the
+  // biggest attack, when the target is not in the round shown).
+  const mostByActor = Math.max(0, ...totals.map((row) => row.damage));
+  const biggestAttack = Math.max(0, ...rows.map((row) => row.damage));
+  const targetHits = (targetId: string) => actorRounds?.find((ar) => ar.actorId === targetId)?.hp?.max;
+  const breakdown = (row: { tableDamage: number; criticalDamage: number }) =>
+    `${t('damage-tab-table')}: ${row.tableDamage} · ${t('damage-tab-critical')}: ${row.criticalDamage}`;
   const number = (key: string, header: string, value: (row: ActorDamage) => number): DataTableColumn<ActorDamage> => ({
     key,
     header,
@@ -92,7 +100,19 @@ const CombatDamageView: FC = () => {
     number('fumbles', t('fumbles'), (row) => row.fumbles),
     number('table', t('damage-tab-table'), (row) => row.tableDamage),
     number('critical', t('damage-tab-critical'), (row) => row.criticalDamage),
-    number('total', t('total'), (row) => row.damage),
+    {
+      key: 'total',
+      header: t('total'),
+      align: 'right',
+      render: (row) => (
+        <DamageBar
+          tableDamage={row.tableDamage}
+          criticalDamage={row.criticalDamage}
+          max={mostByActor}
+          detail={breakdown(row)}
+        />
+      ),
+    },
     { key: 'criticals', header: t('criticals'), render: (row) => <CriticalChips criticals={row.criticals} /> },
   ];
   const attackColumns: DataTableColumn<AttackRow>[] = [
@@ -113,7 +133,19 @@ const CombatDamageView: FC = () => {
             {t('fumble')}
           </Typography>
         ) : row.damage > 0 ? (
-          row.damage
+          <DamageBar
+            tableDamage={row.tableDamage}
+            criticalDamage={row.criticalDamage}
+            max={targetHits(row.targetId) ?? biggestAttack}
+            detail={
+              targetHits(row.targetId)
+                ? `${breakdown(row)} · ${t('damage-tab-target-hits', {
+                    percent: Math.round((row.damage / targetHits(row.targetId)!) * 100),
+                    max: targetHits(row.targetId),
+                  })}`
+                : breakdown(row)
+            }
+          />
         ) : (
           t('miss')
         ),
