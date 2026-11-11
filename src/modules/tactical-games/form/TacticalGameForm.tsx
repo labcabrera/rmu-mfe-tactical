@@ -2,7 +2,7 @@
 import { FC, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
-import { Grid, TextField } from '@mui/material';
+import { Grid, MenuItem, TextField } from '@mui/material';
 import {
   fetchStrategicGames,
   NumberPadField,
@@ -12,6 +12,7 @@ import {
   useApiNotify,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { useQuery } from '@tanstack/react-query';
+import { PSYCHOLOGY_RULES, PsychologyRules, TacticalGameWithSides } from '../../api/tactical-game-sides.dto';
 
 /** Data of a tactical game. Its fatigue modifiers are not asked on creation: the game gets them once it exists. */
 const TacticalGameForm: FC<{
@@ -30,6 +31,9 @@ const TacticalGameForm: FC<{
     gcTime: 0,
   });
   const strategicGames = strategicGamesQuery.data ?? [];
+  // Workspace spec 100, decision 18: the rules of fear and morale, fixed once the game starts.
+  const psychologyRules = (formData as TacticalGameWithSides).psychologyRules ?? 'book';
+  const rulesEditable = mode === 'create' || formData.status === 'created';
 
   useEffect(() => {
     if (strategicGamesQuery.error) notify.error(strategicGamesQuery.error);
@@ -90,6 +94,26 @@ const TacticalGameForm: FC<{
           </Grid>
         </>
       )}
+      <Grid size={12}>
+        <TextField
+          select
+          label={t('psychology-rules')}
+          name="psychology-rules"
+          value={psychologyRules}
+          onChange={(e) =>
+            setFormData({ ...formData, psychologyRules: e.target.value as PsychologyRules } as TacticalGameWithSides)
+          }
+          disabled={!rulesEditable}
+          helperText={t(rulesEditable ? `psychology-rules-${psychologyRules}-help` : 'psychology-rules-locked-help')}
+          fullWidth
+        >
+          {PSYCHOLOGY_RULES.map((rules) => (
+            <MenuItem key={rules} value={rules}>
+              {t(`psychology-rules-${rules}`)}
+            </MenuItem>
+          ))}
+        </TextField>
+      </Grid>
       <Grid size={12}>
         <TextField
           label={t('description')}

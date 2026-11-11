@@ -39,6 +39,7 @@ import { ActorRound } from '../../api/actor-rounds.dto';
 import { useCombatRound } from '../../combat/combat-context';
 import { useActorRoundOption } from '../../hooks/useActorRoundOption';
 import { useHealingTables } from '../../hooks/useCoreTables';
+import { useSides } from '../../hooks/useSides';
 import { actorRoundDownState } from '../../services/actor-round-service';
 import { defaultProcedure, MedicalTarget, targetKey, targetsOf } from './medical-declare-rules';
 
@@ -63,6 +64,7 @@ const MedicalDeclareDialog: FC<{
 }> = ({ open, actorRound, busy, onClose, onDeclare }) => {
   const { t } = useTranslation();
   const { actorRounds } = useCombatRound();
+  const { sameSide } = useSides();
   const toOption = useActorRoundOption();
   const tables = useHealingTables();
   const herbs = useCharacterHerbs(actorRound, open);
@@ -98,9 +100,9 @@ const MedicalDeclareDialog: FC<{
 
   useEffect(() => {
     if (!open || !actorRound) return;
-    // The first wounded actor of the healer's faction, else the healer.
+    // The first wounded actor of the healer's side (workspace spec 100), else the healer.
     const first =
-      patients.find((each) => each.factionId === actorRound.factionId && targetsOf(each).length > 0) ??
+      patients.find((each) => sameSide(each.factionId, actorRound.factionId) && targetsOf(each).length > 0) ??
       patients.find((each) => each.actorId === actorRound.actorId);
     setPatientId(first?.actorId ?? null);
     selectTarget(targetsOf(first)[0]);

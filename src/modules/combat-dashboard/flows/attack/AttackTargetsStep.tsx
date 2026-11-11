@@ -6,6 +6,7 @@ import { Action, ActionAttack, PROTECT_POSITIONS, ProtectPosition } from '../../
 import { ActorRound, ActorRoundAttack } from '../../../api/actor-rounds.dto';
 import { useCombatRound } from '../../../combat/combat-context';
 import { useActorRoundOption } from '../../../hooks/useActorRoundOption';
+import { useSides } from '../../../hooks/useSides';
 import { usableAttacks } from '../../../services/actor-round-service';
 import { isActionClosed } from '../../../services/ap-service';
 import { attackLabel } from '../../../services/attack-label';
@@ -62,6 +63,7 @@ const AttackTargetsStep: FC<{
 }) => {
   const { t } = useTranslation();
   const { actorRounds, roundActions } = useCombatRound();
+  const { sameSide } = useSides();
   const toOption = useActorRoundOption();
   // Penalties apply to the roll (the API adds them), not to the OB to spend.
   const penalty = (actorRound.penalty?.modifiers ?? []).reduce((sum, m) => sum + m.value, 0);
@@ -109,9 +111,14 @@ const AttackTargetsStep: FC<{
         {usable.map((attack) => {
           const weapon = weaponOf(attack);
           const targetId = attack.modifiers.targetId;
+          // Workspace spec 100: a protector is on the side of the one defended, never on the attacker's
+          const defended = (actorRounds ?? []).find((ar) => ar.actorId === targetId);
           const protectorCandidates = (actorRounds ?? []).filter(
             (ar) =>
-              ar.actorId !== actorRound.actorId && ar.actorId !== targetId && ar.factionId !== actorRound.factionId
+              ar.actorId !== actorRound.actorId &&
+              ar.actorId !== targetId &&
+              !sameSide(ar.factionId, actorRound.factionId) &&
+              (!defended || sameSide(ar.factionId, defended.factionId))
           );
           return (
             <Panel

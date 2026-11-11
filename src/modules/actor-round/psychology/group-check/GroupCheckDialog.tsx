@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from 'react-oidc-context';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import {
+  Alert,
   Autocomplete,
   Box,
   Button,
@@ -29,10 +30,12 @@ import { useCombatGame, useCombatRound, useCombatActions } from '../../../combat
 import { useActorRoundOption } from '../../../hooks/useActorRoundOption';
 import { useBusyAction } from '../../../hooks/useBusyAction';
 import { useFrightLevels } from '../../../hooks/useCoreTables';
+import { useSides } from '../../../hooks/useSides';
 import FrightSourceFields from './FrightSourceFields';
 import GroupCheckInfo from './GroupCheckInfo';
 import GroupCheckResultView from './GroupCheckResultView';
 import MemberRolls from './MemberRolls';
+import { fearTriggerLabel } from './fear-triggers';
 import {
   GroupCheckForm,
   groupCheckProblem,
@@ -53,11 +56,14 @@ type GroupCheckPrefill = {
   factionIds?: string[];
   frightLevel?: number | null;
   alertId?: string;
+  /** Workspace spec 100: the side the check was suggested to (its leader leads it) and what triggered it. */
+  sideId?: string;
+  triggers?: string[];
 };
 
 /**
  * Fear, morale and rally checks of a group (workspace spec 022, §14.3), for the game master. The group is the
- * factions and actors picked (several allied factions, or a few actors), or the leader's faction when none is. The
+ * factions and actors picked (several allied factions, or a few actors), or the leader's side when none is. The
  * leader adds its Leadership to the fear RRs of the followers and rolls the morale and rally checks; the fright level
  * comes from Table 14-3a, the Intimidation ranks of an actor or the stat block of an NPC (workspace spec 068). Rolls
  * left empty are rolled by the API. The result lists every actor with its RR and the fear effect it got.
@@ -79,10 +85,15 @@ const GroupCheckDialog: FC<{
   const rounds = actorRounds ?? [];
   const toOption = useActorRoundOption();
   const frightLevels = useFrightLevels();
+  const { sides, allyFactionIds, sideLabel } = useSides();
+  const allyFactions = (factionId: string) => allyFactionIds(factionId);
+  const suggestedSide = sides.find((side) => side.id === prefill?.sideId);
+  const sideLeader = rounds.find((actorRound) => actorRound.actorId === suggestedSide?.leaderActorId);
 
   const startForm = () =>
     initialGroupCheckForm(prefill?.kind ?? 'fear', {
       ...(prefill?.factionIds ? { factionIds: prefill.factionIds } : {}),
+      ...(sideLeader ? { leaderId: sideLeader.actorId } : {}),
       ...(prefill?.frightLevel !== undefined && prefill.frightLevel !== null
         ? { frightLevel: prefill.frightLevel }
         : {}),
@@ -106,8 +117,8 @@ const GroupCheckDialog: FC<{
   const npcOptions = rounds
     .filter((actorRound) => actorRound.actorType === 'npc')
     .map((actorRound) => toOption(actorRound));
-  const members = groupMembers(form, rounds);
-  const problem = groupCheckProblem(form, rounds);
+  const members = groupMembers(form, rounds, allyFactions);
+  const problem = groupCheckProblem(form, rounds, allyFactions);
 
   // A second check of the same dialog, or a morale or rally check, no longer answers the suggested alert
   const alertId = prefill?.alertId;
@@ -121,7 +132,7 @@ const GroupCheckDialog: FC<{
       groupCheck(
         game.id,
         form.kind,
-        { ...toGroupCheckRequest(form, rounds), ...(answersAlert ? { alertId } : {}) },
+        { ...toGroupCheckRequest(form, rounds, allyFactions), ...(answersAlert ? { alertId } : {}) },
         auth
       ).then((response) => {
         response.actorRounds.forEach(updateActorRound);
@@ -146,8 +157,27 @@ const GroupCheckDialog: FC<{
     </Box>
   );
 
+  const triggers = prefill?.triggers ?? [];
   const content = (
     <Stack spacing={2}>
+      {answersAlert && (suggestedSide || triggers.length > 0) && (
+        <Alert severity="warning" variant="outlined">
+          <Typography variant="body2" sx={{ fontWeight: 600 }}>
+            {suggestedSide
+              ? t('fear-check-suggested-side', { side: sideLabel(suggestedSide) })
+              : t('alert-fear-check-suggested')}
+          </Typography>
+          {triggers.length > 0 && (
+            <Box component="ul" sx={{ m: 0, pl: 2.5 }}>
+              {triggers.map((trigger) => (
+                <Typography component="li" variant="body2" key={trigger}>
+                  {fearTriggerLabel(trigger, t)}
+                </Typography>
+              ))}
+            </Box>
+          )}
+        </Alert>
+      )}
       <Stack
         direction={{ xs: 'column', sm: 'row' }}
         spacing={{ xs: 0, sm: 1 }}

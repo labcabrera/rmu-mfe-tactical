@@ -4,6 +4,7 @@ import { CharacterPicker } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { ActorRound } from '../../../api/actor-rounds.dto';
 import { useCombatRound } from '../../../combat/combat-context';
 import { useActorRoundOption } from '../../../hooks/useActorRoundOption';
+import { useSides } from '../../../hooks/useSides';
 import { frenzyLevel } from '../../../services/frenzy-service';
 
 const armor = (target: ActorRound) =>
@@ -19,7 +20,7 @@ const targetStatsLine = (target: ActorRound, t: (key: string) => string) =>
   ].join(' · ');
 
 /**
- * Inline target choice (spec 038): the actors of the other factions (or everyone, with the switch) as cards with
+ * Inline target choice (spec 038): the actors of the other sides (workspace spec 100; or everyone, with the switch) as cards with
  * their DB, AT and hit points under the name. Once a target is chosen it collapses to that card with a "change" button. An attacker
  * in frenzy sees everyone (spec 040, decision 15): it attacks the nearest creature, friend or foe.
  */
@@ -31,6 +32,7 @@ const TargetPicker: FC<{
   const { t } = useTranslation();
   const { actorRounds } = useCombatRound();
   const toOption = useActorRoundOption();
+  const { allyFactionIds } = useSides();
   const rounds = actorRounds ?? [];
   return (
     <CharacterPicker
@@ -38,6 +40,7 @@ const TargetPicker: FC<{
       options={rounds.map((actorRound) => toOption(actorRound, { secondary: targetStatsLine(actorRound, t) }))}
       relation={frenzyLevel(sourceActorRound) > 0 ? 'all' : 'enemies'}
       factionId={sourceActorRound.factionId}
+      allyFactionIds={allyFactionIds(sourceActorRound.factionId)}
       exclude={[sourceActorRound.actorId]}
       allowShowAll
       variant="cards"

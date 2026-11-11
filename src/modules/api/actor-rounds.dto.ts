@@ -30,6 +30,8 @@ export type ActorRound = {
   factionId: string;
   actorId: string;
   actorName: string;
+  /** Level of the character or NPC: its share of the strength of its side (workspace spec 100). */
+  level?: number;
   round: number;
   movement: ActorRoundMovement;
   initiative: ActorRoundInitiative;

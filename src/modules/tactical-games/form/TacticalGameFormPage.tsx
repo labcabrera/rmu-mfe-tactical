@@ -19,6 +19,7 @@ import {
   useEntity,
 } from '@labcabrera-rmu/rmu-react-shared-lib';
 import { useQuery } from '@tanstack/react-query';
+import { TacticalGameWithSides } from '../../api/tactical-game-sides.dto';
 import { defaultImage } from '../../services/image-service';
 import TacticalGameForm from './TacticalGameForm';
 
@@ -34,6 +35,8 @@ const EMPTY_GAME_TEMPLATE = {
   },
   description: '',
   imageUrl: DEFAULT_IMAGE,
+  // Workspace spec 100, decision 18: new games follow the house rules of the wiki.
+  psychologyRules: 'house',
 } as unknown as TacticalGame;
 
 /**
@@ -102,8 +105,17 @@ export default function TacticalGameFormPage({ mode }: { mode: 'create' | 'edit'
       return;
     }
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { id, strategicGameId, status, round, phase, factions, actors, owner, environmentFaction, ...dto } = formData;
-    updateTacticalGame(gameId!, dto, auth)
+    const { id, strategicGameId, status, round, phase, factions, actors, owner, environmentFaction, ...rest } =
+      formData;
+    // The sides have their own call, and the psychology rules only change before the game starts (spec 100).
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { sides, sidesDefined, psychologyRules, ...dto } = rest as Omit<TacticalGameWithSides, keyof TacticalGame> &
+      typeof rest;
+    updateTacticalGame(
+      gameId!,
+      { ...dto, ...(status === 'created' && psychologyRules ? { psychologyRules } : {}) },
+      auth
+    )
       .then((data) => navigate(`/tactical/games/view/${gameId}`, { state: { tacticalGame: data } }))
       .catch(notify.error);
   };
